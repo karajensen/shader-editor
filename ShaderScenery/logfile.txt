@@ -1,0 +1,116 @@
+INFO: 	Irrlicht Engine version 1.8.0
+INFO: 	Microsoft Windows 7 Professional Edition Service Pack 1 (Build 7601)
+INFO: 	WGL_extensions: WGL_EXT_depth_float WGL_ARB_buffer_region WGL_ARB_extensions_string WGL_ARB_make_current_read WGL_ARB_pixel_format WGL_ARB_pbuffer WGL_EXT_extensions_string WGL_EXT_swap_control WGL_ARB_multisample WGL_ARB_pixel_format_float WGL_ARB_framebuffer_sRGB WGL_ARB_create_context WGL_EXT_pixel_format_packed_float WGL_EXT_swap_control_tear 
+INFO: 	Pixel Format: 6
+INFO: 	Using renderer: OpenGL 3.3.0
+INFO: 	Intel(R) HD Graphics 4000: Intel
+INFO: 	OpenGL driver version is 1.2 or better.
+INFO: 	GLSL version: 3.3
+INFO: 	Resizing window (800 600)
+INFO: 	Reading material file: Ground.mtl
+INFO: 	Could not open material file: Ground.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ground
+INFO: 	Loaded material start: lambert4SG
+INFO: 	Loaded mesh: .//Assets//Meshes//Ground.obj
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 2 polys)
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/caustic.bmp
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/caustic.bmp
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/specular.jpg
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/specular.jpg
+INFO: 	Reading material file: Skybox.mtl
+INFO: 	Could not open material file: Skybox.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded group start: Skybox
+INFO: 	Loaded material start: lambert2SG
+INFO: 	Loaded mesh: .//Assets//Meshes//Skybox.obj
+INFO: 	Needed 1ms to create Octree SceneNode.(9 nodes, 600 polys)
+INFO: 	Reading material file: Ref_Lside.mtl
+INFO: 	Could not open material file: Ref_Lside.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded group start: Ref_Lside
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 4
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded smoothing group start: 4
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: 4
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: 4
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded mesh: .//Assets//Meshes//Ref_Lside.obj
+INFO: 	Needed 1ms to create Octree SceneNode.(1 nodes, 36 polys)
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/normal.png
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/normal.png
+INFO: 	Reading material file: Ref_middle.mtl
+INFO: 	Could not open material file: Ref_middle.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ref_middle
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded mesh: .//Assets//Meshes//Ref_middle.obj
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 64 polys)
+INFO: 	Reading material file: Ref_Rocks.mtl
+INFO: 	Could not open material file: Ref_Rocks.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: pCylinder3
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ref_Rocks
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded smoothing group start: 3
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ref_Rocks
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded smoothing group start: 1
+INFO: 	Loaded smoothing group start: 2
+INFO: 	Loaded mesh: .//Assets//Meshes//Ref_Rocks.obj
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 104 polys)
+INFO: 	Reading material file: Ref_Rside.mtl
+INFO: 	Could not open material file: Ref_Rside.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ref_Rside
+INFO: 	Loaded material start: initialShadingGroup
+INFO: 	Loaded mesh: .//Assets//Meshes//Ref_Rside.obj
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 12 polys)
+INFO: 	Reading material file: Ref_water.mtl
+INFO: 	Could not open material file: Ref_water.mtl
+INFO: 	Loaded group start: default
+INFO: 	Loaded smoothing group start: off
+INFO: 	Loaded group start: Ref_water
+INFO: 	Loaded material start: lambert3SG
+INFO: 	Loaded mesh: .//Assets//Meshes//Ref_water.obj
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 2 polys)
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/plain.png
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/plain.png
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/height.jpg
+INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/height.jpg
+INFO: 	Game exited successfully
+

@@ -1,0 +1,12 @@
+*.opensdf
+*.sdf
+*.suo
+*.db
+*.vcxproj.user
+*.exe
+*.ilk
+*.pdb
+ShaderScenery/Debug/
+ShaderScenery/Release/
+Graphics/
+ipch/
