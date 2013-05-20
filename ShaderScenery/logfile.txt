@@ -15,10 +15,10 @@ INFO: 	Loaded group start: Ground
 INFO: 	Loaded material start: lambert4SG
 INFO: 	Loaded mesh: .//Assets//Meshes//Ground.obj
 INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 2 polys)
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/caustic.bmp
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/caustic.bmp
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/specular.jpg
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/specular.jpg
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/caustic.bmp
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/caustic.bmp
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/specular.jpg
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/specular.jpg
 INFO: 	Reading material file: Skybox.mtl
 INFO: 	Could not open material file: Skybox.mtl
 INFO: 	Loaded group start: default
@@ -26,7 +26,7 @@ INFO: 	Loaded smoothing group start: 1
 INFO: 	Loaded group start: Skybox
 INFO: 	Loaded material start: lambert2SG
 INFO: 	Loaded mesh: .//Assets//Meshes//Skybox.obj
-INFO: 	Needed 1ms to create Octree SceneNode.(9 nodes, 600 polys)
+INFO: 	Needed 3ms to create Octree SceneNode.(9 nodes, 600 polys)
 INFO: 	Reading material file: Ref_Lside.mtl
 INFO: 	Could not open material file: Ref_Lside.mtl
 INFO: 	Loaded group start: default
@@ -50,9 +50,9 @@ INFO: 	Loaded smoothing group start: 3
 INFO: 	Loaded smoothing group start: 2
 INFO: 	Loaded smoothing group start: 1
 INFO: 	Loaded mesh: .//Assets//Meshes//Ref_Lside.obj
-INFO: 	Needed 1ms to create Octree SceneNode.(1 nodes, 36 polys)
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/normal.png
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/normal.png
+INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 36 polys)
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/normal.png
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/normal.png
 INFO: 	Reading material file: Ref_middle.mtl
 INFO: 	Could not open material file: Ref_middle.mtl
 INFO: 	Loaded group start: default
@@ -108,9 +108,9 @@ INFO: 	Loaded group start: Ref_water
 INFO: 	Loaded material start: lambert3SG
 INFO: 	Loaded mesh: .//Assets//Meshes//Ref_water.obj
 INFO: 	Needed 0ms to create Octree SceneNode.(1 nodes, 2 polys)
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/plain.png
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/plain.png
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/height.jpg
-INFO: 	Loaded texture: D:/Code/[C++] Shader Scenery/Shader Scenery 1.0/ShaderScenery/Assets/Textures/height.jpg
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/plain.png
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/plain.png
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/height.jpg
+INFO: 	Loaded texture: D:/Projects/ShaderScenery/ShaderScenery/Assets/Textures/height.jpg
 INFO: 	Game exited successfully
 

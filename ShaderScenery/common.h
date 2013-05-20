@@ -18,6 +18,7 @@ using namespace irr::io;
 using namespace irr::gui;
 
 static const int NO_INDEX = -1;
+const std::string ASSETS_PATH(".//Assets//");
 
 IrrlichtDevice*  Device();
 IVideoDriver*    Driver();

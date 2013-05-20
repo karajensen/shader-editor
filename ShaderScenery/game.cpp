@@ -15,10 +15,8 @@
 
 namespace
 {
-    const std::string ASSETS_PATH = ".//Assets//";
-    const std::string SHADER_FOLDER = "Shaders//";
-    const std::string MESHES_FOLDER = "Meshes//";
-    const std::string TEXTURE_FOLDER = "Textures//";
+    const std::string MESHES_PATH(ASSETS_PATH+"Meshes//");
+    const std::string TEXTURE_PATH(ASSETS_PATH+"Textures//");
 }
 
 Game* Game::sm_game = nullptr;
@@ -260,7 +258,7 @@ bool Game::CreateRenderTargets()
 {
     // Create normal shader
     m_post.push_back(Shader_Ptr(new Shader()));
-    if(!m_post[m_post.size()-1]->Initialise(ASSETS_PATH+SHADER_FOLDER, "normalshader", false, false))
+    if(!m_post[m_post.size()-1]->InitialiseShader("normalshader", false, false))
     {
         Logger::LogError("normalshader failed initilisation!");
         return false;
@@ -269,7 +267,7 @@ bool Game::CreateRenderTargets()
 
     // Create post shader
     m_post.push_back(Shader_Ptr(new Shader()));
-    if(!m_post[m_post.size()-1]->Initialise(ASSETS_PATH+SHADER_FOLDER, "postshader", false,  false))
+    if(!m_post[m_post.size()-1]->InitialiseShader("postshader", false,  false))
     {
         Logger::LogError("postshader failed initilisation!");
         return false;
@@ -335,7 +333,7 @@ bool Game::CreateMeshes()
         {
             int index = m_shaders.size();
             m_shaders.push_back(Shader_Ptr(new Shader()));
-            if(!m_shaders[index]->Initialise(ASSETS_PATH+SHADER_FOLDER, shadername, true))
+            if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
             {
                 Logger::LogError("Shader name " + shadername + " for " + name + " is an invalid combination");
                 return false;
@@ -346,21 +344,20 @@ bool Game::CreateMeshes()
         // Create the mesh
         int index = m_meshes.size();
         m_meshes.push_back(Mesh_Ptr(new Mesh()));
-        if(!m_meshes[index]->Initialise(ASSETS_PATH+MESHES_FOLDER, name, shaderIndex, specularity, backfacecull))
+        if(!m_meshes[index]->Initialise(MESHES_PATH, name, shaderIndex, specularity, backfacecull))
         {
             Logger::LogError(name + " failed initilisation!");
             return false;
         }
 
         // Create the textures
-        std::string path = ASSETS_PATH + TEXTURE_FOLDER;
         int textureSlot = Shader::TextureSlot0;
         bool suceeded = true;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,path,"Diffuse",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,path,"Normal",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,path,"Specular",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,path,"Environ",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,path,"Glow",textureSlot) : false;
+        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Diffuse",textureSlot) : false;
+        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Normal",textureSlot) : false;
+        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Specular",textureSlot) : false;
+        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Environ",textureSlot) : false;
+        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Glow",textureSlot) : false;
         if(!suceeded)
         {
             return false;

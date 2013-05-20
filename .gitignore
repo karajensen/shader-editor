@@ -8,5 +8,6 @@
 *.pdb
 ShaderScenery/Debug/
 ShaderScenery/Release/
+ShaderScenery/Assets/Shaders/Generated/
 Graphics/
 ipch/

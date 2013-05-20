@@ -2,18 +2,22 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
 
 namespace
 {
-    const std::string VERTEX_SHADER_EXT = ".vert";
-    const std::string FRAGMENT_SHADER_EXT = ".frag";
-    const std::string END_OF_FILE = "#EOF";
-    const std::string FAILURE = "#FAILURE";
-    const std::string IFDEF = "#ifdef ";
-    const std::string IFNDEF = "#ifndef ";
-    const std::string ELSE = "#else";
-    const std::string ENDIF = "#endif";
-    const std::string INCLUDE = "#file ";
+    const std::string END_OF_FILE("#EOF");
+    const std::string FAILURE("#FAILURE");
+    const std::string IFDEF("#ifdef ");
+    const std::string IFNDEF("#ifndef ");
+    const std::string ELSE("#else");
+    const std::string ENDIF("#endif");
+    const std::string INCLUDE("#file ");
+
+    const std::string VERTEX_SHADER_EXT(".vert");
+    const std::string FRAGMENT_SHADER_EXT(".frag");
+    const std::string SHADER_PATH(ASSETS_PATH+"Shaders//");
+    const std::string GENERATED_PATH(SHADER_PATH+"Generated//");
 }
 
 const std::string Shader::FLAT("FLAT");
@@ -23,12 +27,22 @@ const std::string Shader::ALPHA("ALPHA");
 const std::string Shader::PARALLAX("PARALLAX");
 
 Shader::Shader() :
-    m_materialIndex(NO_INDEX)
+    m_materialIndex(NO_INDEX),
+    m_generated(false)
 {
 }
 
 Shader::~Shader()
 {
+    std::string path = GENERATED_PATH+m_name;
+    if(boost::filesystem::exists(path+VERTEX_SHADER_EXT))
+    {
+        boost::filesystem::remove(path+VERTEX_SHADER_EXT);
+    }
+    if(boost::filesystem::exists(path+FRAGMENT_SHADER_EXT))
+    {
+        boost::filesystem::remove(path+FRAGMENT_SHADER_EXT);
+    }
 }
 
 void Shader::OnSetConstants(video::IMaterialRendererServices* services, s32 userData)
@@ -93,25 +107,38 @@ void Shader::AddShaderComponent(const std::string& component)
     m_shaderComponent.push_back(component);
 }
 
-bool Shader::Initialise(const std::string& path, const std::string& name, bool usesMultipleLights)
+bool Shader::InitialiseFromFragments(const std::string& name, bool usesMultipleLights)
 {
+    //make sure generated folder exists
+    m_generated = true;
+    if(!boost::filesystem::exists(GENERATED_PATH))
+    {
+        if(!boost::filesystem::create_directory(GENERATED_PATH))
+        {
+            Logger::LogError(GENERATED_PATH + " could not be created");
+            return false;
+        }
+    }
+
+    //take apart name to generate a list of shader components
     std::vector<std::string> shaderComponents(GetShaderComponents());
     BOOST_FOREACH(std::string component, shaderComponents)
     {
         AddShaderComponent(component,name);
     }
 
-    if(!CreateShaderFromFragments(path, name, true, usesMultipleLights) ||
-       !CreateShaderFromFragments(path, name, false, usesMultipleLights))
+    //generate a shader from the shader components
+    if(!CreateShaderFromFragments(name, true, usesMultipleLights) ||
+       !CreateShaderFromFragments(name, false, usesMultipleLights))
     {
         Logger::LogError(name + " Shader Failed to be generated");
         return false;
     }
 
-    return Initialise(path, name, boost::algorithm::icontains(name,ALPHA), usesMultipleLights);
+    return InitialiseShader(name, boost::algorithm::icontains(name,ALPHA), usesMultipleLights);
 }
 
-bool Shader::Initialise(const std::string& path, const std::string& name, bool usesAlpha, bool usesMultipleLights)
+bool Shader::InitialiseShader(const std::string& name, bool usesAlpha, bool usesMultipleLights)
 {
     m_name = boost::to_lower_copy(name);
     IGPUProgrammingServices* gpu = Driver()->getGPUProgrammingServices();
@@ -121,9 +148,11 @@ bool Shader::Initialise(const std::string& path, const std::string& name, bool u
         video::E_MATERIAL_TYPE materialType = 
             usesAlpha ? video::EMT_TRANSPARENT_ADD_COLOR : video::EMT_SOLID;
 
+        std::string path((m_generated ? GENERATED_PATH : SHADER_PATH)+name);
+
         m_materialIndex = gpu->addHighLevelShaderMaterialFromFiles(
-            (path+name+VERTEX_SHADER_EXT).c_str(), "main", video::EVST_VS_5_0,
-            (path+name+FRAGMENT_SHADER_EXT).c_str(), "main", video::EPST_PS_5_0,
+            (path+VERTEX_SHADER_EXT).c_str(), "main", video::EVST_VS_5_0,
+            (path+FRAGMENT_SHADER_EXT).c_str(), "main", video::EPST_PS_5_0,
             this, materialType, 0, video::EGSL_DEFAULT);
 
         if(m_materialIndex == NO_INDEX)
@@ -140,10 +169,10 @@ bool Shader::Initialise(const std::string& path, const std::string& name, bool u
     return true;
 }
 
-bool Shader::CreateShaderFromFragments(const std::string& path, const std::string& name, bool isVertex, bool usesMultipleLights)
+bool Shader::CreateShaderFromFragments(const std::string& name, bool isVertex, bool usesMultipleLights)
 {
     std::string ext = isVertex ? VERTEX_SHADER_EXT : FRAGMENT_SHADER_EXT;
-    std::string filepath = path + name + ext;
+    std::string filepath = GENERATED_PATH + name + ext;
     std::ofstream file(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
     
     if(!file.is_open())
@@ -161,7 +190,7 @@ bool Shader::CreateShaderFromFragments(const std::string& path, const std::strin
     }
 
     // Add shader base to files
-    bool sucess = ReadFromFile(path+"shader"+ext, path, file);
+    bool sucess = ReadFromFile(SHADER_PATH+"shader"+ext, SHADER_PATH, file);
     file.flush();
     file.close();
     return sucess;

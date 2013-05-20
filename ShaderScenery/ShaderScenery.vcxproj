@@ -38,7 +38,9 @@
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
     <None Include="Assets\Camera.xml" />
-    <None Include="Assets\Lights.xml" />
+    <None Include="Assets\Lights.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Assets\Lights_Previous.xml" />
     <None Include="Assets\Meshes.xml" />
     <None Include="Assets\Shaders\normalshader.frag" />

@@ -18,22 +18,20 @@ public:
 
     /**
     * Initialises the shader
-    * @param the path to the shader
     * @param the name of the shader
     * @param whether the shader uses transparency
     * @param whether or not the shader uses multiple lights
     * @return whether or not initialisation succeeded
     */
-    bool Initialise(const std::string& path, const std::string& name, bool usesAlpha, bool usesMultipleLights);
+    bool InitialiseShader(const std::string& name, bool usesAlpha, bool usesMultipleLights);
 
     /**
     * Initialises the shader from fragments
-    * @param the path to the shader
     * @param the name of the shader
     * @param whether or not the shader uses multiple lights
     * @return whether or not initialisation succeeded
     */
-    bool Initialise(const std::string& path, const std::string& name, bool usesMultipleLights);
+    bool InitialiseFromFragments(const std::string& name, bool usesMultipleLights);
 
     /**
     * @return the name of the shader
@@ -81,14 +79,12 @@ private:
     /**
     * Does custom pre-processing of the shader files before sending them to irrlicht
     * This allows shaders to be constructed from shader fragments
-    * @param the path to the shader
     * @param the name of the shader
     * @param whether or not this shader is the vertex shader
     * @param whether or not this shader uses multiple lights
     * @return whether or not the generation failed
     */
-    bool CreateShaderFromFragments(const std::string& path, 
-        const std::string& name, bool isVertex, bool usesMultipleLights);
+    bool CreateShaderFromFragments(const std::string& name, bool isVertex, bool usesMultipleLights);
 
     /**
     * Reads from a particular file and adds lines to the new shader file
@@ -127,4 +123,5 @@ private:
     std::vector<std::string> m_shaderComponent; ///< Components part of this shader
     int m_materialIndex; ///< The irrlicht index representing the shader
     std::string m_name;  ///< The name of the shader
+    bool m_generated;    ///< Whether the shader was generated from fragments
 };
