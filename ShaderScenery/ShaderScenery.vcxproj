@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="event_receiver.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="light_editor.cpp" />
@@ -20,10 +21,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="generated_shader.cpp" />
+    <ClCompile Include="post_shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="diagnostic.h" />
     <ClInclude Include="event_receiver.h" />
     <ClInclude Include="float3.h" />
     <ClInclude Include="game.h" />
@@ -33,6 +37,8 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="quad.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="generated_shader.h" />
+    <ClInclude Include="post_shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />

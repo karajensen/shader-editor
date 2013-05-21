@@ -44,14 +44,9 @@ public:
     void MoveSelectedLight(const vector3df& direction);
 
     /**
-    * @return the diagnostic text for the lights
+    * @return the Editor text for the lights
     */
-    const irr::core::stringw& GetDiagnosticText() const;
-
-    /**
-    * @return whether or not to render the light diagnostics
-    */
-    bool LightEditor::RenderDiagnostics() const;
+    const irr::core::stringw& GetEditorText() const;
 
     /**
     * Saves the current lighting configuration to a file 
@@ -111,9 +106,8 @@ private:
         MAX_ATTRIBUTES
     };
 
-    std::vector<Light> m_lights;         ///< Array of irrlicht poiners to lights
-    int m_diagSelectedLight;             ///< Currently selected light for diagnostics
-    Attribute m_selectedAtt;             ///< Currently select attribute
-    bool m_showDiagnostics;              ///< Whether to render light diagnostics
-    irr::core::stringw m_diagnosticText; ///< Diagnostic text for lights
+    std::vector<Light> m_lights;      ///< Array of irrlicht poiners to lights
+    int m_selectedLight;              ///< Currently selected light for diagnostics
+    Attribute m_selectedAtt;          ///< Currently select attribute
+    irr::core::stringw m_editText;    ///< Editor text for lights
 };

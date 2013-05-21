@@ -21,11 +21,3 @@ IGUIEnvironment* Gui()
 {
     return Game::Get()->m_gui;
 }
-
-void ShowDiagnosticText(const std::wstring& text)
-{
-    Game::Get()->m_diagText->setBackgroundColor(Game::Get()->m_diagBgroundCol);
-    Game::Get()->m_diagText->setDrawBackground(true);
-    Game::Get()->m_diagText->setText(text.c_str());
-    Game::Get()->m_diagRunTimer = true;
-}

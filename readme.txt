@@ -1,12 +1,11 @@
 
-- tool for turning off shader features
-- Terragen download/learn
-- Create 3D scene
-
-- parallax occlusion mapping
-- shadows
-- post effects (glow,SSAO,DOF,Fog,Mist,Color correction)
+- tool for turning on/off/editing shader features
 - keyed camera
+
+- Create 3D scene
+- parallax occlusion mapping
+- soft shadows
+- post effects (glow,SSAO,DOF,Fog,Color correction)
 
 ================================================================
 GARDEN SHADERS
@@ -20,3 +19,14 @@ LIBRARIES/ENVIRONMENT VARIABLES REQUIRED TO BUILD:
 Irrlicht Engine path:   $(IRRLICHT)
 Boost path:             $(BOOST)
 
+TAB:    Select next light to edit
+DOWN:   Select next light attribute
+UP:     Select previous light attribute
++:      Increment light attribute
+-:      Decrement light attribute
+S:      Save lights to xml
+W:      Toggle Shadows
+F:      Switch to free camera
+T:      Switch to targeted camera
+K:      Switch to and play keyed camera
+C:      Reload camera from file

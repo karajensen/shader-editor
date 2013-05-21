@@ -10,7 +10,8 @@
 
 class Camera;
 class Mesh;
-class Shader;
+class GeneratedShader;
+class PostShader;
 class Quad;
 class EventReceiver;
 class LightEditor;
@@ -55,7 +56,6 @@ private:
     friend IVideoDriver*    Driver();
     friend ISceneManager*   Scene();
     friend IGUIEnvironment* Gui();
-    friend void ShowDiagnosticText(const std::wstring& text);
 
     /**
     * Render the game world
@@ -123,53 +123,36 @@ private:
     */
     void ToggleCameraTarget(bool free);
 
-    /**
-    * Renders the game diagnostics
-    * @param the time passed since last frame
-    */
-    void RenderDiagnostics(float deltatime);
-
-    /**
-    * Renders the FPS
-    */
-    void RenderFPS();
-
     typedef boost::scoped_ptr<Camera> Camera_Ptr;
     typedef boost::scoped_ptr<LightEditor> LightEditor_Ptr;
     typedef boost::scoped_ptr<EventReceiver> EventReceiver_Ptr;
     typedef boost::scoped_ptr<Quad> Quad_Ptr;
-    typedef boost::shared_ptr<Shader> Shader_Ptr;
+    typedef boost::shared_ptr<PostShader> Post_Ptr;
+    typedef boost::shared_ptr<GeneratedShader> Shader_Ptr;
     typedef boost::shared_ptr<Mesh> Mesh_Ptr;
+
     typedef std::vector<Mesh_Ptr> Mesh_Container;
     typedef std::vector<Shader_Ptr> Shader_Container;
+    typedef std::vector<Post_Ptr> Post_Container;
 
-    int m_windowWidth;           ///< Width of the window
-    int m_windowHeight;          ///< Height of the window
     IrrlichtDevice* m_device;    ///< Irrlicht engine device
     IVideoDriver* m_driver;      ///< Irrlicht video driver
     ISceneManager* m_scene;      ///< Irrlicht scene manager
     IGUIEnvironment* m_gui;      ///< Irrlicht gui device
     EventReceiver_Ptr m_events;  ///< Irrlicht event reciever override
-    LightEditor_Ptr m_lights;    ///< Light editor for light diagnostics
     Camera_Ptr m_camera;         ///< Camera manager for keyed, free and targeted cameras
+
+    LightEditor_Ptr m_lights;    ///< Light editor for light diagnostics
     Mesh_Container m_meshes;     ///< Array of pointers to meshes
     Shader_Container m_shaders;  ///< Array of pointers to shaders
-    Shader_Container m_post;     ///< Array of pointers to post shaders
+    Post_Container m_post;       ///< Array of pointers to post shaders
+
     SColor m_drawColour;         ///< Colour to refresh the back buffer with
     ITexture* m_diffuseTarget;   ///< Texture storing diffuse lighting info for scene
     ITexture* m_normalTarget;    ///< RGB channels = normal info, A channel = depth info
     int m_renderTargetSize;      ///< Standard size for each render target
     int m_normalShader;          ///< Material index for the normal map shader
     Quad_Ptr m_quad;             ///< Post processing screen quad
-
-    bool m_diagRender;           ///< Whether to allow rendering of diagnostics
-    IGUIStaticText* m_diagLight; ///< Diagnostics text box for lights
-    IGUIStaticText* m_diagText;  ///< Diagnostics text box
-    SColor m_diagBgroundCol;     ///< Colour for diag text box background
-    SColor m_diagClearCol;       ///< Colour for a clean background
-    float m_diagTextTimer;       ///< Timer for displaying diagnostics text
-    bool m_diagRunTimer;         ///< Start the timer for diagnostic text display
-    int m_previousFPS;           ///< The frames for the previous second
                                              
     static Game* sm_game;        ///< Singleton pointer
 };

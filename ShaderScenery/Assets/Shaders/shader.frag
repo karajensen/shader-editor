@@ -1,17 +1,18 @@
-uniform sampler2D Sampler0;
+#define SPEC_ON 0
+#define BUMP_ON 1
+#define PARA_ON 2
+#define SHAD_ON 3
+uniform vec4 Components;
 
+uniform sampler2D Sampler0;
 #ifndef FLAT
 varying vec3 Normal;
 varying vec3 WorldViewPos;
-
 #ifdef BUMP
 varying vec3 Binormal;
 varying vec3 Tangent;
-varying vec3 tNormal;
-varying vec3 tCamera;
 uniform sampler2D Sampler1;
 #endif
-
 #ifdef SPECULAR
 #ifdef BUMP
 uniform sampler2D Sampler2;
@@ -36,46 +37,19 @@ void main()
     vec3 lightVector;
 	vec3 cameraVector = normalize(-WorldViewPos);
 
+	vec3 normNormal = Normal;
 #ifdef BUMP
-	vec4 sampledNormal = texture2D(Sampler1, gl_TexCoord[0].st);
-    vec3 bump = sampledNormal.a*(sampledNormal.rgb-0.5);
-    vec3 normNormal = normalize(Normal + bump.x*Tangent + bump.y*Binormal);
-#ifdef PARALLAX
-	//float numSamples = mix(0.0, 16.0, dot(normalize(tCamera), normalize(tNormal))); //0->16 possible samples
-	//float numSamples = 16.0;
-	//vec2 parallaxMaxLim = tCamera.xy / tCamera.z;
-	//vec2 parallaxOffset = normalize(-tCamera.xy) * parallaxMaxLim;
-	//float sampleNumber = 0;
-	//float stepHeight = 1.0;
-	//float stepSize = 1.0 / numSamples;
-	//vec4 currentSample;
-	//float previousSampleAlpha;
-	//vec2 offsetStep = stepSize * parallaxOffset;
-	//vec2 currentOffset = vec2(0,0);
-	//vec2 previousOffset;
-	//vec2 finalOffset;
-	//
-	//for(int sampleNumber = 0; sampleNumber < numSamples; ++sampleNumber)
-	//{
-	//	currentSample = texture2D(Sampler1, gl_TexCoord[0].st + currentOffset);
-	//	if(currentSample.r > stepHeight)
-	//	{
-   	//		float temp = (previousSampleAlpha - (stepHeight+stepSize)) / (stepSize + (currentSample.r - previousSampleAlpha));
-	//		finalOffset = previousOffset + (temp * offsetStep);
-	//		tex = texture2D(Sampler1, gl_TexCoord[0].st + finalOffset);
-	//		break;
-	//	}
-	//	stepHeight -= stepSize;
-	//	previousOffset = currentOffset;
-	//	currentOffset += offsetStep;
-	//	previousSampleAlpha = currentSample.r;
-    //}
+	if(Components[BUMP_ON] == 1.0)
+	{
+		vec4 sampledNormal = texture2D(Sampler1, gl_TexCoord[0].st);
+		vec3 bump = sampledNormal.a*(sampledNormal.rgb-0.5);
+		normNormal += bump.x*Tangent + bump.y*Binormal;
+	}
 #endif
-#else
-    vec3 normNormal = normalize(Normal);
-#endif
+	normNormal = normalize(normNormal);
 
 #ifdef SPECULAR
+	vec4 specularColor = vec4(0,0,0,0);
     float specular;
     vec3 halfVector;
 #ifdef BUMP
@@ -103,9 +77,15 @@ void main()
     #ifdef SPECULAR
         halfVector = normalize(lightVector + cameraVector);
         specular = pow(max(dot(normNormal,halfVector),0.0), gl_FrontMaterial.shininess);
-        finalColor += specular * gl_LightSource[i].specular * specularTexture * att;
+        specularColor += specular * gl_LightSource[i].specular * specularTexture * att;
     #endif
     }
+#ifdef SPECULAR
+	if(Components[SPEC_ON] == 1.0)
+	{
+		finalColor += specularColor;
+	}
+#endif
     finalColor *= tex;
 #endif
 

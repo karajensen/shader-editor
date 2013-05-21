@@ -6,6 +6,7 @@
 *.exe
 *.ilk
 *.pdb
+ShaderScenery/logfile.txt
 ShaderScenery/Debug/
 ShaderScenery/Release/
 ShaderScenery/Assets/Shaders/Generated/

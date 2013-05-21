@@ -15,9 +15,8 @@ namespace
 }
 
 LightEditor::LightEditor() :
-    m_diagSelectedLight(NO_INDEX),
-    m_selectedAtt(ATTENUATION_X),
-    m_showDiagnostics(false)
+    m_selectedLight(NO_INDEX),
+    m_selectedAtt(ATTENUATION_X)
 {
 }
 
@@ -95,120 +94,115 @@ bool LightEditor::Initialise(const std::string& assetspath)
 
 void LightEditor::UpdateLightDiagnosticText()
 {
-    if(m_diagSelectedLight != NO_INDEX)
+    if(m_selectedLight != NO_INDEX)
     {
-        const SLight& data = m_lights[m_diagSelectedLight].node->getLightData();
+        const SLight& data = m_lights[m_selectedLight].node->getLightData();
 
-        m_diagnosticText = "LIGHT: ";
-        m_diagnosticText += m_lights[m_diagSelectedLight].name.c_str();
-        m_diagnosticText += "\nSHADOWS: ";
-        m_diagnosticText += data.CastShadows;
-        m_diagnosticText += "\nTYPE: ";
+        m_editText = "LIGHT: ";
+        m_editText += m_lights[m_selectedLight].name.c_str();
+        m_editText += "\nSHADOWS: ";
+        m_editText += data.CastShadows;
+        m_editText += "\nTYPE: ";
     
         switch(data.Type)
         {
         case ELT_POINT:
-            m_diagnosticText += "Point";
+            m_editText += "Point";
             break;
         case ELT_DIRECTIONAL:
-            m_diagnosticText += "Directional";
+            m_editText += "Directional";
             break;
         }
-        m_diagnosticText += "\nATT0: ";
-        m_diagnosticText += data.Attenuation.X;
-        m_diagnosticText += "\nATT1: ";
-        m_diagnosticText += data.Attenuation.Y;
-        m_diagnosticText += "\nATT2: ";
-        m_diagnosticText += data.Attenuation.Z;
-        m_diagnosticText += "\nX: ";
-        m_diagnosticText += data.Position.X;
-        m_diagnosticText += "\nY: ";
-        m_diagnosticText += data.Position.Y;
-        m_diagnosticText += "\nZ: ";
-        m_diagnosticText += data.Position.Z;
-        m_diagnosticText += "\nR: ";
-        m_diagnosticText += data.DiffuseColor.r;
-        m_diagnosticText += "\nG: ";
-        m_diagnosticText += data.DiffuseColor.g;
-        m_diagnosticText += "\nB: ";
-        m_diagnosticText += data.DiffuseColor.b;
-        m_diagnosticText += "\nSR: ";
-        m_diagnosticText += data.SpecularColor.r;
-        m_diagnosticText += "\nSG: ";
-        m_diagnosticText += data.SpecularColor.g;
-        m_diagnosticText += "\nSB: ";
-        m_diagnosticText += data.SpecularColor.b;
+        m_editText += "\nATT0: ";
+        m_editText += data.Attenuation.X;
+        m_editText += "\nATT1: ";
+        m_editText += data.Attenuation.Y;
+        m_editText += "\nATT2: ";
+        m_editText += data.Attenuation.Z;
+        m_editText += "\nX: ";
+        m_editText += data.Position.X;
+        m_editText += "\nY: ";
+        m_editText += data.Position.Y;
+        m_editText += "\nZ: ";
+        m_editText += data.Position.Z;
+        m_editText += "\nR: ";
+        m_editText += data.DiffuseColor.r;
+        m_editText += "\nG: ";
+        m_editText += data.DiffuseColor.g;
+        m_editText += "\nB: ";
+        m_editText += data.DiffuseColor.b;
+        m_editText += "\nSR: ";
+        m_editText += data.SpecularColor.r;
+        m_editText += "\nSG: ";
+        m_editText += data.SpecularColor.g;
+        m_editText += "\nSB: ";
+        m_editText += data.SpecularColor.b;
 
-        m_diagnosticText += "\n\nSELECTED ATT:\n";
+        m_editText += "\n\nSELECTED ATT:\n";
         switch(m_selectedAtt)
         {
             case ATTENUATION_X: 
-                m_diagnosticText += " ATTENUATION_X\n "; 
-                m_diagnosticText += data.Attenuation.X;
+                m_editText += " ATTENUATION_X\n "; 
+                m_editText += data.Attenuation.X;
                 break;
             case ATTENUATION_Y:
-                m_diagnosticText += " ATTENUATION_Y\n "; 
-                m_diagnosticText += data.Attenuation.Y;
+                m_editText += " ATTENUATION_Y\n "; 
+                m_editText += data.Attenuation.Y;
                 break;
             case ATTENUATION_Z: 
-                m_diagnosticText += " ATTENUATION_Z\n "; 
-                m_diagnosticText += data.Attenuation.Z;
+                m_editText += " ATTENUATION_Z\n "; 
+                m_editText += data.Attenuation.Z;
                 break;
             case POSITION_X:   
-                m_diagnosticText += " POSITION_X\n "; 
-                m_diagnosticText += data.Position.X;
+                m_editText += " POSITION_X\n "; 
+                m_editText += data.Position.X;
                 break;
             case POSITION_Y:    
-                m_diagnosticText += " POSITION_Y\n "; 
-                m_diagnosticText += data.Position.Y;
+                m_editText += " POSITION_Y\n "; 
+                m_editText += data.Position.Y;
                 break;
             case POSITION_Z:    
-                m_diagnosticText += " POSITION_Z\n "; 
-                m_diagnosticText += data.Position.Z;
+                m_editText += " POSITION_Z\n "; 
+                m_editText += data.Position.Z;
                 break;
             case COLOR_R:       
-                m_diagnosticText += " COLOR_R\n ";  
-                m_diagnosticText += data.DiffuseColor.r;
+                m_editText += " COLOR_R\n ";  
+                m_editText += data.DiffuseColor.r;
                 break;
             case COLOR_G:       
-                m_diagnosticText += " COLOR_G\n ";     
-                m_diagnosticText += data.DiffuseColor.g;
+                m_editText += " COLOR_G\n ";     
+                m_editText += data.DiffuseColor.g;
                 break;
             case COLOR_B:       
-                m_diagnosticText += " COLOR_B\n ";   
-                m_diagnosticText += data.DiffuseColor.b;
+                m_editText += " COLOR_B\n ";   
+                m_editText += data.DiffuseColor.b;
                 break;
             case SPECCOLOR_R:   
-                m_diagnosticText += " SPECCOLOR_R\n ";   
-                m_diagnosticText += data.SpecularColor.r;
+                m_editText += " SPECCOLOR_R\n ";   
+                m_editText += data.SpecularColor.r;
                 break;
             case SPECCOLOR_G:  
-                m_diagnosticText += " SPECCOLOR_G\n ";
-                m_diagnosticText += data.SpecularColor.g;
+                m_editText += " SPECCOLOR_G\n ";
+                m_editText += data.SpecularColor.g;
                 break;
             case SPECCOLOR_B:   
-                m_diagnosticText += " SPECCOLOR_B\n ";  
-                m_diagnosticText += data.SpecularColor.b;
+                m_editText += " SPECCOLOR_B\n ";  
+                m_editText += data.SpecularColor.b;
                 break;
         }
     }
 }
 
-const irr::core::stringw& LightEditor::GetDiagnosticText() const
+const irr::core::stringw& LightEditor::GetEditorText() const
 {
-    return m_diagnosticText;
-}
-
-bool LightEditor::RenderDiagnostics() const
-{
-    return m_showDiagnostics;
+    return m_editText;
 }
 
 void LightEditor::IncrementAtt(bool incrementUp)
 {
-    if(m_diagSelectedLight != NO_INDEX)
+    if(m_selectedLight != NO_INDEX)
     {
-        SLight& data = m_lights[m_diagSelectedLight].node->getLightData();
+        SLight& data = m_lights[m_selectedLight].node->getLightData();
         switch(m_selectedAtt)
         {
             case ATTENUATION_X: 
@@ -257,17 +251,17 @@ void LightEditor::IncrementAtt(bool incrementUp)
 
 void LightEditor::ToggleShadows()
 {
-    if(m_diagSelectedLight != NO_INDEX)
+    if(m_selectedLight != NO_INDEX)
     {
-        m_lights[m_diagSelectedLight].node->getLightData().CastShadows = 
-            !m_lights[m_diagSelectedLight].node->getLightData().CastShadows;
+        m_lights[m_selectedLight].node->getLightData().CastShadows = 
+            !m_lights[m_selectedLight].node->getLightData().CastShadows;
         UpdateLightDiagnosticText();
     }
 }
 
 void LightEditor::SelectNextLightAtt(bool travelDown)
 {
-    if(m_diagSelectedLight != NO_INDEX)
+    if(m_selectedLight != NO_INDEX)
     {
         if(travelDown)
         {
@@ -288,23 +282,22 @@ void LightEditor::SelectNextLightAtt(bool travelDown)
 
 void LightEditor::SelectNextLight()
 {
-    ++m_diagSelectedLight;
-    if(m_diagSelectedLight >= static_cast<int>(m_lights.size()))
+    ++m_selectedLight;
+    if(m_selectedLight >= static_cast<int>(m_lights.size()))
     {
-        m_diagSelectedLight = NO_INDEX;
-        m_showDiagnostics = false;
+        m_selectedLight = NO_INDEX;
+        m_editText = "";
     }
     else
     {
-        m_showDiagnostics = true;
         UpdateLightDiagnosticText();
     }
 }
 
 void LightEditor::MoveSelectedLight(const vector3df& direction)
 {
-    m_lights[m_diagSelectedLight].node->setPosition(
-        m_lights[m_diagSelectedLight].node->getPosition()+direction);
+    m_lights[m_selectedLight].node->setPosition(
+        m_lights[m_selectedLight].node->getPosition()+direction);
     UpdateLightDiagnosticText();
 }
 
@@ -364,7 +357,7 @@ void LightEditor::SaveLightsToFile(const std::string& assetspath)
 
 void LightEditor::ClearLights()
 {
-    m_showDiagnostics = false;
-    m_diagSelectedLight = NO_INDEX;
+    m_editText = "";
+    m_selectedLight = NO_INDEX;
     m_lights.clear();
 }

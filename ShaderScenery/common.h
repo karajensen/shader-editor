@@ -17,6 +17,8 @@ using namespace irr::video;
 using namespace irr::io;
 using namespace irr::gui;
 
+static const int WINDOW_WIDTH = 800;
+static const int WINDOW_HEIGHT = 600;
 static const int NO_INDEX = -1;
 const std::string ASSETS_PATH(".//Assets//");
 
@@ -24,11 +26,6 @@ IrrlichtDevice*  Device();
 IVideoDriver*    Driver();
 ISceneManager*   Scene();
 IGUIEnvironment* Gui();
-
-/**
-* Sets/shows the main diagnostic text for a specific period of time
-*/
-void ShowDiagnosticText(const std::wstring& text);
 
 /**
 * Gets the value if it exists in the tree or returns defaultValue

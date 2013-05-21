@@ -2,7 +2,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/lexical_cast.hpp>
 #include "camera.h"
-#include "game.h"
+#include "diagnostic.h"
 
 Camera::Camera():
     m_cameraTarget(nullptr),
@@ -60,7 +60,7 @@ void Camera::ReloadCameraFromFile(const std::string& assetsPath)
     m_cameraTarget = Scene()->addCameraSceneNodeMaya();
 
     LoadCameraFromFile(assetsPath);
-    ShowDiagnosticText(L"Camera Reloaded");
+    Diagnostic::Get()->ShowDiagnosticText(L"Camera Reloaded");
 }
 
 void Camera::ToggleCameraTarget(bool free)

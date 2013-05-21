@@ -8,10 +8,12 @@
 #include "mesh.h"
 #include "camera.h"
 #include "quad.h"
-#include "shader.h"
+#include "generated_shader.h"
+#include "post_shader.h"
 #include "logger.h"
 #include "event_receiver.h"
 #include "light_editor.h"
+#include "diagnostic.h"
 
 namespace
 {
@@ -28,15 +30,8 @@ Game::Game() :
     m_gui(nullptr),
     m_diffuseTarget(nullptr),
     m_normalTarget(nullptr),
-    m_diagRender(true),
-    m_renderTargetSize(m_windowWidth*2),
-    m_normalShader(NO_INDEX),
-    m_diagText(nullptr),
-    m_diagLight(nullptr),
-    m_windowWidth(800),
-    m_windowHeight(600),
-    m_diagTextTimer(0.0f),
-    m_previousFPS(-1)
+    m_renderTargetSize(WINDOW_WIDTH*2),
+    m_normalShader(NO_INDEX)
 {
     m_drawColour.set(0,0,0,0);
 }
@@ -95,14 +90,9 @@ bool Game::GameLoop()
         m_quad->render();
 
         // Diagnostics
-        if(m_diagRender)
-        {
-            RenderDiagnostics(deltatime);
-            m_gui->drawAll();
-        }
+        Diagnostic::Get()->Render(deltatime, m_lights->GetEditorText());
 
         m_driver->endScene();
-
     }
     return true;
 }
@@ -122,7 +112,7 @@ void Game::ReloadMeshesFromFile()
         Logger::LogError("Reload Meshes From File Failed!");
     }
 
-    ShowDiagnosticText(L"Reload Meshes Complete!");
+    Diagnostic::Get()->ShowDiagnosticText(L"Reload Meshes Complete!");
 }
 
 bool Game::Initialise()
@@ -133,14 +123,14 @@ bool Game::Initialise()
 
     // Create the main device
     m_device = createDevice(video::EDT_OPENGL, 
-        dimension2d<u32>(m_windowWidth, m_windowHeight),
+        dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT),
         16, false, false, false, m_events.get());
 
     if (!m_device)
     {
         // Use internal software rendering
         m_device = createDevice(video::EDT_BURNINGSVIDEO, 
-            dimension2d<u32>(m_windowWidth, m_windowHeight), 
+            dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT), 
             16, false, false, false, m_events.get());
 
         if(!m_device)
@@ -174,25 +164,6 @@ bool Game::Initialise()
     m_driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
     m_driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 
-    // Create diagnostics
-    m_diagBgroundCol.set(200,255,255,255); //partially transparent
-    m_diagClearCol.set(0,0,0,0);
-
-    int border = 10;
-    m_diagLight = m_gui->addStaticText(L"", rect<s32>(border,border, 
-        m_windowWidth-border,m_windowHeight-border)); 
-    m_diagLight->setBackgroundColor(m_diagClearCol);
-    m_diagLight->setMaxSize(dimension2du(125,200));
-    m_diagLight->setDrawBackground(false);
-
-    int width = 100;
-    m_diagText = m_gui->addStaticText(L"", rect<s32>(
-        m_windowWidth/2-width,border, 
-        m_windowWidth/2+width,border+30)); 
-    m_diagText->setBackgroundColor(m_diagClearCol);
-    m_diagText->setDrawBackground(false);
-    m_diagText->setTextAlignment(EGUIA_CENTER,EGUIA_CENTER);
-
     // Check if pixel shaders are supported
     if (!m_driver->queryFeature(video::EVDF_PIXEL_SHADER_1_1) &&
         !m_driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1))
@@ -215,6 +186,8 @@ bool Game::Initialise()
         Logger::LogError("Assets failed to initialise");
         return false;
     }
+
+    Diagnostic::Initialise();
 
     return true;
 }
@@ -257,7 +230,7 @@ bool Game::CreateEvents()
 bool Game::CreateRenderTargets()
 {
     // Create normal shader
-    m_post.push_back(Shader_Ptr(new Shader()));
+    m_post.push_back(Post_Ptr(new PostShader()));
     if(!m_post[m_post.size()-1]->InitialiseShader("normalshader", false, false))
     {
         Logger::LogError("normalshader failed initilisation!");
@@ -266,7 +239,7 @@ bool Game::CreateRenderTargets()
     m_normalShader = m_post[m_post.size()-1]->GetMaterialIndex();
 
     // Create post shader
-    m_post.push_back(Shader_Ptr(new Shader()));
+    m_post.push_back(Post_Ptr(new PostShader()));
     if(!m_post[m_post.size()-1]->InitialiseShader("postshader", false,  false))
     {
         Logger::LogError("postshader failed initilisation!");
@@ -286,8 +259,8 @@ bool Game::CreateRenderTargets()
 
     // Create screen quad
     m_quad.reset(new Quad(m_scene->getRootSceneNode(), postShader, NO_INDEX));
-    m_quad->SetTexture(m_diffuseTarget, Shader::TextureSlot0);
-    m_quad->SetTexture(m_normalTarget, Shader::TextureSlot1);
+    m_quad->SetTexture(m_diffuseTarget, 0);
+    m_quad->SetTexture(m_normalTarget, 1);
 
     return true;
 }
@@ -310,7 +283,7 @@ bool Game::CreateMeshes()
 
         // Copy each component featured in the given shader name to a set order
         std::string newShaderName;
-        std::vector<std::string> shaderComponents(Shader::GetShaderComponents());
+        std::vector<std::string> shaderComponents(GeneratedShader::GetShaderComponents());
         BOOST_FOREACH(std::string component, shaderComponents)
         {
             if(boost::algorithm::icontains(shadername, component))
@@ -332,7 +305,7 @@ bool Game::CreateMeshes()
         if(shaderIndex == NO_INDEX)
         {
             int index = m_shaders.size();
-            m_shaders.push_back(Shader_Ptr(new Shader()));
+            m_shaders.push_back(Shader_Ptr(new GeneratedShader()));
             if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
             {
                 Logger::LogError("Shader name " + shadername + " for " + name + " is an invalid combination");
@@ -351,7 +324,7 @@ bool Game::CreateMeshes()
         }
 
         // Create the textures
-        int textureSlot = Shader::TextureSlot0;
+        int textureSlot = 0;
         bool suceeded = true;
         suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Diffuse",textureSlot) : false;
         suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Normal",textureSlot) : false;
@@ -376,37 +349,4 @@ bool Game::CreateRenderTarget(ITexture** rt, char* name, int size)
 
     Logger::LogError(std::string("Render Target ") + name + "failed to initialise");
     return false;
-}
-
-void Game::RenderFPS()
-{
-    int fps = m_driver->getFPS();
-    if(m_previousFPS != fps)
-    {
-        m_device->setWindowCaption((L"FPS: " + 
-            boost::lexical_cast<std::wstring>(fps)).c_str());
-        m_previousFPS = fps;
-    }
-}
-
-void Game::RenderDiagnostics(float deltatime)
-{
-    RenderFPS();
-
-    m_diagLight->setDrawBackground(m_lights->RenderDiagnostics());
-    m_diagLight->setBackgroundColor(m_lights->RenderDiagnostics() ? m_diagBgroundCol : m_diagClearCol);
-    m_diagLight->setText(m_lights->RenderDiagnostics() ? m_lights->GetDiagnosticText().c_str() : L"");
-
-    if(m_diagRunTimer)
-    {
-        m_diagTextTimer += deltatime;
-        if(m_diagTextTimer >= 1.0)
-        {
-            m_diagText->setDrawBackground(false);
-            m_diagText->setBackgroundColor(m_diagClearCol);
-            m_diagText->setText(L"");
-            m_diagTextTimer = 0.0f;
-            m_diagRunTimer = false;
-        }
-    }
 }
