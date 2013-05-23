@@ -224,6 +224,7 @@ bool Game::CreateEvents()
     m_events->SetKeyCallback(KEY_KEY_C, false, [&](){ m_camera->ReloadCameraFromFile(ASSETS_PATH); });
     m_events->SetKeyCallback(KEY_PLUS,  true,  [&](){ m_lights->IncrementAtt(true); });
     m_events->SetKeyCallback(KEY_MINUS, true,  [&](){ m_lights->IncrementAtt(false); });
+    m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ Diagnostic::Get()->ToggleShowDiagnostics(); });
     return true;
 }
 

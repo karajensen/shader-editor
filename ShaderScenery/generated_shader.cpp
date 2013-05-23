@@ -23,9 +23,10 @@ namespace
     const std::string GENERATED_FOLDER("Generated//");
 }
 
+std::array<float, GeneratedShader::MAX_EDITABLE> GeneratedShader::sm_editableComponents;
+
 GeneratedShader::GeneratedShader()
 {
-    m_editableComponents.assign(1.0f);
 }
 
 GeneratedShader::~GeneratedShader()
@@ -45,8 +46,7 @@ void GeneratedShader::OnSetConstants(video::IMaterialRendererServices* services,
 {
     Shader::OnSetConstants(services, userData);
 
-    // toggle components on/off
-    services->setPixelShaderConstant("Components", &m_editableComponents[0], 4);
+    services->setPixelShaderConstant("Components", &sm_editableComponents[0], MAX_EDITABLE);
 }
 
 void GeneratedShader::AddShaderComponent(const std::string& component,const std::string& name)
@@ -227,7 +227,24 @@ std::vector<std::string> GeneratedShader::GetShaderComponents()
     return boost::assign::list_of<std::string>(COMP_FLAT)(COMP_BUMP)(COMP_SPECULAR)(COMP_ALPHA)(COMP_PARALLAX);
 }
 
-void GeneratedShader::ToggleComponent(GeneratedShader::EditableComponents component)
+void GeneratedShader::SetComponentVisibility(unsigned int component, bool visible)
 {
-    m_editableComponents[component] = !m_editableComponents[component];
+    sm_editableComponents[component] = (visible ? 1.0f : 0.0f);
+}
+
+stringw GeneratedShader::GetComponentDescription(unsigned int component)
+{
+    switch(component)
+    {
+    case BUMP:
+        return "Bump Mapping";
+    case SPECULAR:
+        return "Specular Shading";
+    case SOFTSHADOW:
+        return "Soft Shadows";
+    case PARALLAX:
+        return "Parallax Mapping";
+    default:
+        return "None";
+    };
 }

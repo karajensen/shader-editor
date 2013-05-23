@@ -100,9 +100,9 @@ void LightEditor::UpdateLightDiagnosticText()
 
         m_editText = "LIGHT: ";
         m_editText += m_lights[m_selectedLight].name.c_str();
-        m_editText += "\nSHADOWS: ";
+        m_editText += "\n SHADOWS: ";
         m_editText += data.CastShadows;
-        m_editText += "\nTYPE: ";
+        m_editText += "\n TYPE: ";
     
         switch(data.Type)
         {
@@ -113,80 +113,80 @@ void LightEditor::UpdateLightDiagnosticText()
             m_editText += "Directional";
             break;
         }
-        m_editText += "\nATT0: ";
+        m_editText += "\n ATT0: ";
         m_editText += data.Attenuation.X;
-        m_editText += "\nATT1: ";
+        m_editText += "\n ATT1: ";
         m_editText += data.Attenuation.Y;
-        m_editText += "\nATT2: ";
+        m_editText += "\n ATT2: ";
         m_editText += data.Attenuation.Z;
-        m_editText += "\nX: ";
+        m_editText += "\n X: ";
         m_editText += data.Position.X;
-        m_editText += "\nY: ";
+        m_editText += "\n Y: ";
         m_editText += data.Position.Y;
-        m_editText += "\nZ: ";
+        m_editText += "\n Z: ";
         m_editText += data.Position.Z;
-        m_editText += "\nR: ";
+        m_editText += "\n R: ";
         m_editText += data.DiffuseColor.r;
-        m_editText += "\nG: ";
+        m_editText += "\n G: ";
         m_editText += data.DiffuseColor.g;
-        m_editText += "\nB: ";
+        m_editText += "\n B: ";
         m_editText += data.DiffuseColor.b;
-        m_editText += "\nSR: ";
+        m_editText += "\n SR: ";
         m_editText += data.SpecularColor.r;
-        m_editText += "\nSG: ";
+        m_editText += "\n SG: ";
         m_editText += data.SpecularColor.g;
-        m_editText += "\nSB: ";
+        m_editText += "\n SB: ";
         m_editText += data.SpecularColor.b;
 
-        m_editText += "\n\nSELECTED ATT:\n";
+        m_editText += "\n \n SELECTED ATT:\n ";
         switch(m_selectedAtt)
         {
             case ATTENUATION_X: 
-                m_editText += " ATTENUATION_X\n "; 
+                m_editText += " ATTENUATION_X\n  "; 
                 m_editText += data.Attenuation.X;
                 break;
             case ATTENUATION_Y:
-                m_editText += " ATTENUATION_Y\n "; 
+                m_editText += " ATTENUATION_Y\n  "; 
                 m_editText += data.Attenuation.Y;
                 break;
             case ATTENUATION_Z: 
-                m_editText += " ATTENUATION_Z\n "; 
+                m_editText += " ATTENUATION_Z\n  "; 
                 m_editText += data.Attenuation.Z;
                 break;
             case POSITION_X:   
-                m_editText += " POSITION_X\n "; 
+                m_editText += " POSITION_X\n  "; 
                 m_editText += data.Position.X;
                 break;
             case POSITION_Y:    
-                m_editText += " POSITION_Y\n "; 
+                m_editText += " POSITION_Y\n  "; 
                 m_editText += data.Position.Y;
                 break;
             case POSITION_Z:    
-                m_editText += " POSITION_Z\n "; 
+                m_editText += " POSITION_Z\n  "; 
                 m_editText += data.Position.Z;
                 break;
             case COLOR_R:       
-                m_editText += " COLOR_R\n ";  
+                m_editText += " COLOR_R\n  ";  
                 m_editText += data.DiffuseColor.r;
                 break;
             case COLOR_G:       
-                m_editText += " COLOR_G\n ";     
+                m_editText += " COLOR_G\n  ";     
                 m_editText += data.DiffuseColor.g;
                 break;
             case COLOR_B:       
-                m_editText += " COLOR_B\n ";   
+                m_editText += " COLOR_B\n  ";   
                 m_editText += data.DiffuseColor.b;
                 break;
             case SPECCOLOR_R:   
-                m_editText += " SPECCOLOR_R\n ";   
+                m_editText += " SPECCOLOR_R\n  ";   
                 m_editText += data.SpecularColor.r;
                 break;
             case SPECCOLOR_G:  
-                m_editText += " SPECCOLOR_G\n ";
+                m_editText += " SPECCOLOR_G\n  ";
                 m_editText += data.SpecularColor.g;
                 break;
             case SPECCOLOR_B:   
-                m_editText += " SPECCOLOR_B\n ";  
+                m_editText += " SPECCOLOR_B\n  ";  
                 m_editText += data.SpecularColor.b;
                 break;
         }

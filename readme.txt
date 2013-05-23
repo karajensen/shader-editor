@@ -1,5 +1,5 @@
 
-- tool for turning on/off/editing shader features
+- tool for turning on/off post shader effects (inc. normal map)
 - keyed camera
 
 - Create 3D scene
@@ -30,3 +30,4 @@ F:      Switch to free camera
 T:      Switch to targeted camera
 K:      Switch to and play keyed camera
 C:      Reload camera from file
+D:      Toggle Diagnostics

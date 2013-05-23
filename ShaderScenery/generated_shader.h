@@ -46,10 +46,16 @@ public:
     static std::vector<std::string> GetShaderComponents();
 
     /**
-    * Toggles the visibility of the shader component
-    * @param the component to toggle
+    * Sets the visiblity of the editable component
+    * @param the component
+    * @param whether the component is visible or not
     */
-    void ToggleComponent(EditableComponents component);
+    static void SetComponentVisibility(unsigned int component, bool visible);
+
+    /**
+    * @return a string description of the editable component
+    */
+    static stringw GetComponentDescription(unsigned int component);
 
 private:
 
@@ -97,6 +103,6 @@ private:
     typedef std::vector<std::string> TargetVector;
     std::string ReadFile(const std::string& assetspath, std::ifstream& file, std::ofstream& newfile, const TargetVector& target, bool skiplines);
 
-    std::vector<std::string> m_shaderComponent;            ///< Components part of this shader
-    std::array<float, MAX_EDITABLE> m_editableComponents;  ///< which components are currently toggled on/off
+    std::vector<std::string> m_shaderComponent;  ///< Components part of this shader
+    static std::array<float, MAX_EDITABLE> sm_editableComponents;  ///< which components are currently toggled on/off
 };
