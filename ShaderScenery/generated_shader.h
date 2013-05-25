@@ -18,12 +18,12 @@ public:
     /**
     * Shader Components avaliable for editing
     */
-    enum EditableComponents
+    enum ComponentVisibility
     {
-        SPECULAR,
-        BUMP,
-        PARALLAX,
-        SOFTSHADOW,
+        SPECULAR_VIS,
+        BUMP_VIS,
+        PARALLAX_VIS,
+        SOFTSHADOW_VIS,
         MAX_EDITABLE
     };
 
@@ -48,9 +48,9 @@ public:
     /**
     * Sets the visiblity of the editable component
     * @param the component
-    * @param whether the component is visible or not
+    * @param the level of visibilty of the component
     */
-    static void SetComponentVisibility(unsigned int component, bool visible);
+    static void SetComponentVisibility(unsigned int component, float value);
 
     /**
     * @return a string description of the editable component

@@ -9,7 +9,7 @@
 #include <functional>
 #include "common.h"
 
-class CheckBox;
+class SpinBox;
 
 class Diagnostic : boost::noncopyable
 {
@@ -50,37 +50,46 @@ private:
     */
     Diagnostic();
 
+    /**
+    * Initialises all shader diagnostics
+    */
+    void InitialiseShaderDiagnostics();
+
+    /**
+    * Initialises all light diagnostics
+    */
+    void InitialiseLightDiagnostics();
+
+
     static DiagPtr sm_diag;   ///< Diagnostic singleton pointer
     bool m_render;            ///< Whether to allow rendering of diagnostics
-    SColor m_bgroundCol;      ///< Colour for diag text box background
-    SColor m_clearCol;        ///< Colour for a clean background
     float m_textTimer;        ///< Timer for displaying diagnostics text
     bool m_runTimer;          ///< Start the timer for diagnostic text display
     int m_previousFPS;        ///< The frames for the previous second
     IGUIStaticText* m_text;   ///< Diagnostics text box
     IGUIStaticText* m_light;  ///< Diagnostics text box for lights
 
-    typedef boost::shared_ptr<CheckBox> CheckBoxPtr;
+    typedef boost::shared_ptr<SpinBox> SpinBoxPtr;
 
-    IGUIListBox* m_outTextureList;          ///< Listbox for possible output post textures
-    std::vector<CheckBoxPtr> m_checkBoxes;  ///< Checkboxes for toggled shader options
-    IGUIStaticText* m_componentBground;     ///< Text background for component check boxes
-
+    IGUIListBox* m_outTextureList;           ///< Listbox for possible output post textures
+    std::vector<SpinBoxPtr> m_spinBoxes;     ///< Checkboxes for toggled shader options
+    std::vector<IGUIStaticText*> m_bgrounds; ///< Backgrounds for gui sections
 };
 
-class CheckBox
+class SpinBox
 {
 public:
 
-    typedef std::function<void(bool)> CheckFn;
+    typedef std::function<void(float)> ValueFn;
 
     /**
     * Constructor.
     * @param Function to call during update
-    * @param the text box dimensions
+    * @param the spin box dimensions
+    * @param the text dimensions
     * @param the text to display
     */
-    CheckBox(CheckFn checkFn, rect<s32> textBox, const stringw& text);
+    SpinBox(ValueFn valueFn, rect<s32> spinRect, rect<s32> textRect, const stringw& text);
 
     /**
     * Updates the check box by calling the given function
@@ -89,7 +98,7 @@ public:
 
 private:
 
-    CheckFn m_onCheckFn;      ///< Function to call during update
-    IGUICheckBox* m_checkbox; ///< Internal check box
-    unsigned int m_component; ///< Component index to affect
+    ValueFn m_updateValueFn;  ///< Function to call during update
+    IGUIStaticText* m_text;   ///< Text for the spin box
+    IGUISpinBox* m_spinbox;   ///< Internal spin box
 };

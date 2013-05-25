@@ -1,8 +1,8 @@
-#define SPEC_ON 0
-#define BUMP_ON 1
-#define PARA_ON 2
-#define SHAD_ON 3
-uniform vec4 Components;
+#define SPECULAR_VIS 0
+#define BUMP_VIS 1
+#define PARALLAX_VIS 2
+#define SOFTSHADOW_VIS 3
+uniform vec4 ComponentVisibility;
 
 uniform sampler2D Sampler0;
 #ifndef FLAT
@@ -24,32 +24,27 @@ uniform sampler2D Sampler1;
 
 void main()
 {
-    vec4 finalColor;
-    vec4 tex = texture2D(Sampler0, gl_TexCoord[0].st);
+    vec4 finalColor = vec4(0);
+    vec4 diffuseTexture = texture2D(Sampler0, gl_TexCoord[0].st);
 
 #ifdef FLAT
-    finalColor = tex;
+    finalColor = diffuseTexture;
 #else
-    finalColor = vec4(0,0,0,0);
     float att;
     float diffuse;
     float lightDist;
     vec3 lightVector;
-	vec3 cameraVector = normalize(-WorldViewPos);
+    vec3 cameraVector = normalize(-WorldViewPos);
 
-	vec3 normNormal = Normal;
 #ifdef BUMP
-	if(Components[BUMP_ON] == 1.0)
-	{
-		vec4 sampledNormal = texture2D(Sampler1, gl_TexCoord[0].st);
-		vec3 bump = sampledNormal.a*(sampledNormal.rgb-0.5);
-		normNormal += bump.x*Tangent + bump.y*Binormal;
-	}
+    vec4 sampledNormal = texture2D(Sampler1, gl_TexCoord[0].st);
+    vec3 bump = (sampledNormal.rgb-0.5)*vec3(ComponentVisibility[BUMP_VIS]);
+    vec3 normNormal = normalize(Normal + bump.x*Tangent + bump.y*Binormal);
+#else
+    vec3 normNormal = normalize(Normal);
 #endif
-	normNormal = normalize(normNormal);
 
 #ifdef SPECULAR
-	vec4 specularColor = vec4(0,0,0,0);
     float specular;
     vec3 halfVector;
 #ifdef BUMP
@@ -77,21 +72,16 @@ void main()
     #ifdef SPECULAR
         halfVector = normalize(lightVector + cameraVector);
         specular = pow(max(dot(normNormal,halfVector),0.0), gl_FrontMaterial.shininess);
-        specularColor += specular * gl_LightSource[i].specular * specularTexture * att;
+        finalColor += (specular * gl_LightSource[i].specular * specularTexture * att) 
+                      * vec4(ComponentVisibility[SPECULAR_VIS]);
     #endif
     }
-#ifdef SPECULAR
-	if(Components[SPEC_ON] == 1.0)
-	{
-		finalColor += specularColor;
-	}
-#endif
-    finalColor *= tex;
+    finalColor *= diffuseTexture;
 #endif
 
     gl_FragColor = finalColor;
 #ifdef ALPHA
-    gl_FragColor.a = tex.a;
+    gl_FragColor.a = diffuseTexture.a;
 #else
     gl_FragColor.a = 1.0f;
 #endif

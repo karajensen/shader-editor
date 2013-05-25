@@ -6,12 +6,12 @@
 
 namespace
 {
-    const std::string COMP_FLAT("FLAT");          ///< Component name for flat shading
-    const std::string COMP_BUMP("BUMP");          ///< Component name for bump mapping
-    const std::string COMP_SPECULAR("SPECULAR");  ///< Component name for specular shading
-    const std::string COMP_ALPHA("ALPHA");        ///< Component name for alpha transparency
-    const std::string COMP_PARALLAX("PARALLAX");  ///< Component name for parallax occlusion mapping
-    const std::string COMP_SHADOW("SHADOW");      ///< Component name for soft shadows
+    const std::string FLAT("FLAT");          ///< Component name for flat shading
+    const std::string BUMP("BUMP");          ///< Component name for bump mapping
+    const std::string SPECULAR("SPECULAR");  ///< Component name for specular shading
+    const std::string ALPHA("ALPHA");        ///< Component name for alpha transparency
+    const std::string PARALLAX("PARALLAX");  ///< Component name for parallax occlusion mapping
+    const std::string SHADOW("SHADOW");      ///< Component name for soft shadows
 
     const std::string END_OF_FILE("#EOF");
     const std::string FAILURE("#FAILURE");
@@ -46,7 +46,7 @@ void GeneratedShader::OnSetConstants(video::IMaterialRendererServices* services,
 {
     Shader::OnSetConstants(services, userData);
 
-    services->setPixelShaderConstant("Components", &sm_editableComponents[0], MAX_EDITABLE);
+    services->setPixelShaderConstant("ComponentVisibility", &sm_editableComponents[0], MAX_EDITABLE);
 }
 
 void GeneratedShader::AddShaderComponent(const std::string& component,const std::string& name)
@@ -90,7 +90,7 @@ bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool uses
         return false;
     }
 
-    return InitialiseShader(name, boost::algorithm::icontains(name, COMP_ALPHA), usesMultipleLights, generatedPath);
+    return InitialiseShader(name, boost::algorithm::icontains(name, ALPHA), usesMultipleLights, generatedPath);
 }
 
 bool GeneratedShader::CreateShaderFromFragments(const std::string& name, bool isVertex, bool usesMultipleLights)
@@ -224,25 +224,25 @@ std::string GeneratedShader::ReadFile(const std::string& assetspath, std::ifstre
 
 std::vector<std::string> GeneratedShader::GetShaderComponents()
 {
-    return boost::assign::list_of<std::string>(COMP_FLAT)(COMP_BUMP)(COMP_SPECULAR)(COMP_ALPHA)(COMP_PARALLAX);
+    return boost::assign::list_of<std::string>(FLAT)(BUMP)(SPECULAR)(ALPHA)(PARALLAX);
 }
 
-void GeneratedShader::SetComponentVisibility(unsigned int component, bool visible)
+void GeneratedShader::SetComponentVisibility(unsigned int component, float value)
 {
-    sm_editableComponents[component] = (visible ? 1.0f : 0.0f);
+    sm_editableComponents[component] = value;
 }
 
 stringw GeneratedShader::GetComponentDescription(unsigned int component)
 {
     switch(component)
     {
-    case BUMP:
+    case BUMP_VIS:
         return "Bump Mapping";
-    case SPECULAR:
+    case SPECULAR_VIS:
         return "Specular Shading";
-    case SOFTSHADOW:
+    case SOFTSHADOW_VIS:
         return "Soft Shadows";
-    case PARALLAX:
+    case PARALLAX_VIS:
         return "Parallax Mapping";
     default:
         return "None";

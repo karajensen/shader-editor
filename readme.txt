@@ -1,11 +1,17 @@
 
-- tool for turning on/off post shader effects (inc. normal map)
+- update light diagnotics to spin boxes
+- update sample 3D scene
+- fix bump/attenuation
+- post effects (fog, dof)
+- post effects diagnostics
 - keyed camera
 
 - Create 3D scene
 - parallax occlusion mapping
 - soft shadows
-- post effects (glow,SSAO,DOF,Fog,Color correction)
+- water/environment mapping
+- post effects (glow, SSAO, Color correction)
+- color correction diagnostic
 
 ================================================================
 GARDEN SHADERS
