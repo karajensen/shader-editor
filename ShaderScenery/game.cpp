@@ -90,7 +90,7 @@ bool Game::GameLoop()
         m_quad->render();
 
         // Diagnostics
-        Diagnostic::Get()->Render(deltatime, m_lights->GetEditorText());
+        Diagnostic::Get()->Render(deltatime);
 
         m_driver->endScene();
     }
@@ -118,7 +118,6 @@ void Game::ReloadMeshesFromFile()
 bool Game::Initialise()
 {
     m_events.reset(new EventReceiver());
-    m_lights.reset(new LightEditor());
     m_camera.reset(new Camera());
 
     // Create the main device
@@ -180,7 +179,12 @@ bool Game::Initialise()
         return false;
     }
 
-    // Initialise all lights/meshes/shaders
+    if(!LightEditor::Initialise())
+    {
+        Logger::LogError("Lights failed to initialise");
+        return false;
+    }
+
     if(!InitialiseAssets())
     {
         Logger::LogError("Assets failed to initialise");
@@ -188,7 +192,6 @@ bool Game::Initialise()
     }
 
     Diagnostic::Initialise();
-
     return true;
 }
 
@@ -196,11 +199,11 @@ bool Game::InitialiseAssets()
 {
     try
     {
-        bool success = m_lights->Initialise(ASSETS_PATH);
+        bool success = true;
         success = (success ? CreateEvents() : false);
         success = (success ? CreateMeshes() : false);
         success = (success ? CreateRenderTargets() : false);
-        success = (success ? m_camera->Initialise(ASSETS_PATH) : false);
+        success = (success ? m_camera->Initialise() : false);
         return success;
     }
     catch(const boost::filesystem::filesystem_error& e)
@@ -213,25 +216,46 @@ bool Game::InitialiseAssets()
 
 bool Game::CreateEvents()
 {
-    m_events->SetKeyCallback(KEY_TAB,   false, [&](){ m_lights->SelectNextLight(); });
-    m_events->SetKeyCallback(KEY_DOWN,  false, [&](){ m_lights->SelectNextLightAtt(true); });
-    m_events->SetKeyCallback(KEY_UP,    false, [&](){ m_lights->SelectNextLightAtt(false); });
-    m_events->SetKeyCallback(KEY_KEY_S, false, [&](){ m_lights->SaveLightsToFile(ASSETS_PATH); });
-    m_events->SetKeyCallback(KEY_KEY_W, false, [&](){ m_lights->ToggleShadows(); });
-    m_events->SetKeyCallback(KEY_KEY_F, false, [&](){ m_camera->ToggleCameraTarget(true); });
-    m_events->SetKeyCallback(KEY_KEY_T, false, [&](){ m_camera->ToggleCameraTarget(false); });
-    m_events->SetKeyCallback(KEY_KEY_K, false, [&](){ m_camera->LoadKeyedCamera(ASSETS_PATH); });
-    m_events->SetKeyCallback(KEY_KEY_C, false, [&](){ m_camera->ReloadCameraFromFile(ASSETS_PATH); });
-    m_events->SetKeyCallback(KEY_PLUS,  true,  [&](){ m_lights->IncrementAtt(true); });
-    m_events->SetKeyCallback(KEY_MINUS, true,  [&](){ m_lights->IncrementAtt(false); });
+    auto selectNextLight = [&]()
+    {   
+        LightEditor::Get()->SelectNextLight(); 
+        Diagnostic::Get()->UpdateLightDiagnostics();
+    };
+
+    auto loadKeyedCamera = [&]()
+    {
+        m_camera->LoadKeyedCamera();
+        Diagnostic::Get()->UpdateCameraDiagnostics();
+    };
+
+    auto reloadCamera = [&]()
+    {
+        m_camera->ReloadCameraFromFile();
+        Diagnostic::Get()->UpdateCameraDiagnostics();
+    };
+
+    // Full signature required for std::bind
+    std::function<void(bool)> toggleCamera = [&](bool targeted)
+    {
+        m_camera->ToggleCameraTarget(targeted);
+        Diagnostic::Get()->UpdateCameraDiagnostics();
+    };
+
+    m_events->SetKeyCallback(KEY_KEY_K, false, loadKeyedCamera);
+    m_events->SetKeyCallback(KEY_KEY_C, false, reloadCamera);
+    m_events->SetKeyCallback(KEY_KEY_Q, false, selectNextLight);
+    m_events->SetKeyCallback(KEY_KEY_F, false, std::bind(toggleCamera, true));
+    m_events->SetKeyCallback(KEY_KEY_T, false, std::bind(toggleCamera, false));
+    m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ LightEditor::Get()->SaveLightsToFile(); });
     m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ Diagnostic::Get()->ToggleShowDiagnostics(); });
+
     return true;
 }
 
 bool Game::CreateRenderTargets()
 {
     // Create normal shader
-    m_post.push_back(Post_Ptr(new PostShader()));
+    m_post.push_back(Post_Ptr(new PostShader(PostShader::NORMAL_DEPTH_MAPPING)));
     if(!m_post[m_post.size()-1]->InitialiseShader("normalshader", false, false))
     {
         Logger::LogError("normalshader failed initilisation!");
@@ -240,7 +264,7 @@ bool Game::CreateRenderTargets()
     m_normalShader = m_post[m_post.size()-1]->GetMaterialIndex();
 
     // Create post shader
-    m_post.push_back(Post_Ptr(new PostShader()));
+    m_post.push_back(Post_Ptr(new PostShader(PostShader::POST_PROCESSING)));
     if(!m_post[m_post.size()-1]->InitialiseShader("postshader", false,  false))
     {
         Logger::LogError("postshader failed initilisation!");

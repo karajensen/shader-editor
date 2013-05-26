@@ -15,29 +15,36 @@ public:
     ~Camera();
 
     /**
-    * Creates the main camera
-    * @param the path to where the file exists
+    * Camera components avaliable for editing
     */
-    bool Initialise(const std::string& assetsPath);
+    enum Component
+    {
+        NEAR_VALUE,
+        FAR_VALUE
+    };
+
+    /**
+    * Creates the main camera
+    */
+    bool Initialise();
 
     /**
     * Loads the camera from file
-    * @param the path to where the file exists
     */
-    bool LoadCameraFromFile(const std::string& assetsPath);
+    bool LoadCameraFromFile();
 
     /**
     * Loads the camera position/rotational 
     * information for a keyed path from file
     * @param the path to where the file exists
     */
-    void LoadKeyedCamera(const std::string& assetsPath);
+    void LoadKeyedCamera();
 
     /**
     * Reloads camera from file
     * @param the path to where the file exists
     */
-    void ReloadCameraFromFile(const std::string& assetsPath);
+    void ReloadCameraFromFile();
 
     /**
     * Toggles the camera between free roam and targeted
@@ -45,8 +52,33 @@ public:
     */
     void ToggleCameraTarget(bool free);
 
+    /**
+    * @return a string describing the camera
+    */
+    static std::wstring GetCameraType();
+
+    /**
+    * Sets the value of the editable component
+    * @param the component
+    * @param the value to set the component
+    */
+    static void SetComponentValue(unsigned int component, float value);
+
+    /**
+    * @return a string description of the editable component
+    */
+    static stringw GetComponentDescription(unsigned int component);
+
 private:
 
+    enum CameraTypes
+    {
+        FREE,
+        TARGET,
+        KEYED
+    };
+
+    static CameraTypes sm_activeType; ///< Currently active camera type
     ICameraSceneNode* m_cameraTarget; ///< Camera that targets a specific mesh
     ICameraSceneNode* m_cameraFree;   ///< Free roaming camera
     ICameraSceneNode* m_cameraKey;    ///< Camera using xml for pos/rot

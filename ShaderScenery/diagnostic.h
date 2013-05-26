@@ -29,9 +29,8 @@ public:
     /**
     * Renders the diagnostics
     * @param deltatime
-    * @param the text for light diagnosticss
     */
-    void Render(float deltatime, const stringw& lighttext);
+    void Render(float deltatime);
 
     /**
     * Sets/shows the main diagnostic text for a specific period of time
@@ -43,6 +42,16 @@ public:
     */
     void ToggleShowDiagnostics();
 
+    /**
+    * Updates the light gui diagnostics with the currently selected light
+    */
+    void UpdateLightDiagnostics();
+
+    /**
+    * Updates the camera diagnostics with the currently selected camera
+    */
+    void UpdateCameraDiagnostics();
+
 private:
 
     /**
@@ -51,29 +60,33 @@ private:
     Diagnostic();
 
     /**
-    * Initialises all shader diagnostics
+    * Initialises the GUI objects for diagnostics
     */
-    void InitialiseShaderDiagnostics();
+    void InitialiseDiagnosticGUI();
 
     /**
-    * Initialises all light diagnostics
+    * Sets any custom ranges for the spin boxes
     */
-    void InitialiseLightDiagnostics();
-
+    void SetSpinBoxRanges();
 
     static DiagPtr sm_diag;   ///< Diagnostic singleton pointer
     bool m_render;            ///< Whether to allow rendering of diagnostics
     float m_textTimer;        ///< Timer for displaying diagnostics text
     bool m_runTimer;          ///< Start the timer for diagnostic text display
     int m_previousFPS;        ///< The frames for the previous second
-    IGUIStaticText* m_text;   ///< Diagnostics text box
-    IGUIStaticText* m_light;  ///< Diagnostics text box for lights
+
+    IGUIStaticText* m_cameraLabel;            ///< Diagnostic text for the camera type
+    IGUIStaticText* m_generalText;           ///< Generaral diagnostics text box
+    IGUIStaticText* m_lightLabel;            ///< Selected light title
+    IGUIListBox* m_outTextureList;           ///< Listbox for possible output post textures
+    std::vector<IGUIStaticText*> m_bgrounds; ///< Backgrounds for gui sections
 
     typedef boost::shared_ptr<SpinBox> SpinBoxPtr;
+    typedef std::vector<SpinBoxPtr> SpinBoxVector;
 
-    IGUIListBox* m_outTextureList;           ///< Listbox for possible output post textures
-    std::vector<SpinBoxPtr> m_spinBoxes;     ///< Checkboxes for toggled shader options
-    std::vector<IGUIStaticText*> m_bgrounds; ///< Backgrounds for gui sections
+    SpinBoxVector m_shaderSpinBoxes;  ///< Spinboxes for shader options
+    SpinBoxVector m_lightSpinBoxes;   ///< Spinboxes for light options
+    SpinBoxVector m_cameraSpinBoxes;  ///< Spinboxes for camera options
 };
 
 class SpinBox
@@ -90,6 +103,20 @@ public:
     * @param the text to display
     */
     SpinBox(ValueFn valueFn, rect<s32> spinRect, rect<s32> textRect, const stringw& text);
+
+    /**
+    * Set the range of the spinbox
+    * @param the min/maximum values the spinbox can have
+    * @param stepping size
+    * @param the number of decimal places
+    */
+    void SetRange(float min, float max, float stepSize, int precision);
+
+    /**
+    * Explicitly set the value of the spinbox
+    * @param the value to set
+    */
+    void SetValue(float value);
 
     /**
     * Updates the check box by calling the given function

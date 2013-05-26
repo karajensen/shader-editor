@@ -12,6 +12,15 @@ class PostShader : public Shader
 public:
 
     /**
+    * Avaliable post shaders
+    */
+    enum PostShaderType
+    {
+        POST_PROCESSING,
+        NORMAL_DEPTH_MAPPING
+    };
+
+    /**
     * Avaliable output textures
     */
     enum OutputTexture
@@ -36,16 +45,21 @@ public:
     };
 
     /**
+    * Constructor.
+    * @param the type of post shader
+    */
+    PostShader(PostShaderType type);
+
+    /**
     * Sets the constants for the shader
     */
     virtual void OnSetConstants(IMaterialRendererServices* services, s32 userData) override;
 
     /**
-    * Sets the visiblity of the output texture
-    * @param the texture
-    * @param whether the texture is visible or not
+    * Sets which output texture is shown
+    * @param the texture to make visible
     */
-    static void SetTextureVisibility(unsigned int texture, bool visible);
+    static void SetVisibleTexture(unsigned int texture);
 
     /**
     * @return a string description of the output texture
@@ -66,7 +80,9 @@ public:
 
 private:
 
-    static std::array<float, MAX_EDITABLE> sm_editableComponents;  ///< which components are currently toggled on/off
-    static std::array<float, MAX_TEXTURES> sm_outputTextures;  ///< which textures are currently toggled on/off
+    PostShaderType m_postShaderType; ///< Type of post shader
+
+    static std::array<float, MAX_EDITABLE> sm_editableComponents; ///< which components are currently toggled on/off
+    static std::array<float, MAX_TEXTURES> sm_outputTextures;     ///< which textures are currently toggled on/off
 
 };

@@ -124,7 +124,6 @@ private:
     void ToggleCameraTarget(bool free);
 
     typedef boost::scoped_ptr<Camera> Camera_Ptr;
-    typedef boost::scoped_ptr<LightEditor> LightEditor_Ptr;
     typedef boost::scoped_ptr<EventReceiver> EventReceiver_Ptr;
     typedef boost::scoped_ptr<Quad> Quad_Ptr;
     typedef boost::shared_ptr<PostShader> Post_Ptr;
@@ -142,7 +141,6 @@ private:
     EventReceiver_Ptr m_events;  ///< Irrlicht event reciever override
     Camera_Ptr m_camera;         ///< Camera manager for keyed, free and targeted cameras
 
-    LightEditor_Ptr m_lights;    ///< Light editor for light diagnostics
     Mesh_Container m_meshes;     ///< Array of pointers to meshes
     Shader_Container m_shaders;  ///< Array of pointers to shaders
     Post_Container m_post;       ///< Array of pointers to post shaders

@@ -4,31 +4,41 @@
 std::array<float, PostShader::MAX_TEXTURES> PostShader::sm_outputTextures;
 std::array<float, PostShader::MAX_EDITABLE> PostShader::sm_editableComponents;
 
+PostShader::PostShader(PostShaderType type) :
+    m_postShaderType(type)
+{
+}
+
 void PostShader::OnSetConstants(video::IMaterialRendererServices* services, s32 userData)
 {
     Shader::OnSetConstants(services, userData);
 
-    if(boost::icontains(m_name,"normalshader"))
+    switch(m_postShaderType)
     {
-        ISceneManager* scene = Scene();
+        case NORMAL_DEPTH_MAPPING:
+        {
+            ISceneManager* scene = Scene();
 
-        float near = scene->getActiveCamera()->getNearValue();
-        services->setPixelShaderConstant("FrustumNear", &near, 1);
+            float near = scene->getActiveCamera()->getNearValue();
+            services->setPixelShaderConstant("FrustumNear", &near, 1);
 
-        float far = scene->getActiveCamera()->getFarValue();
-        services->setPixelShaderConstant("FrustumFar", &far, 1);
-    }
-    else if(boost::icontains(m_name,"postshader"))
-    {
-        services->setPixelShaderConstant("OutputTexture", &sm_outputTextures[0], MAX_TEXTURES);
-        services->setPixelShaderConstant("ComponentVisibility", &sm_editableComponents[0], MAX_EDITABLE);
+            float far = scene->getActiveCamera()->getFarValue();
+            services->setPixelShaderConstant("FrustumFar", &far, 1);
+
+            break;
+        }
+        case POST_PROCESSING:
+        {
+            services->setPixelShaderConstant("OutputTexture", &sm_outputTextures[0], MAX_TEXTURES);
+            services->setPixelShaderConstant("ComponentVisibility", &sm_editableComponents[0], MAX_EDITABLE);
+        }
     }
 }
 
-void PostShader::SetTextureVisibility(unsigned int texture, bool visible)
+void PostShader::SetVisibleTexture(unsigned int texture)
 {
     sm_outputTextures.assign(0.0f);
-    sm_outputTextures[texture] = (visible ? 1.0f : 0.0f);
+    sm_outputTextures[texture] = 1.0f;
 }
 
 void PostShader::SetComponentVisibility(unsigned int component, float value)
@@ -41,15 +51,15 @@ stringw PostShader::GetComponentDescription(unsigned int component)
     switch(component)
     {
     case SSAO_VIS:
-        return "Ambient Occ.";
+        return "AMBIENT OCC.";
     case FOG_VIS:
-        return "Fog";
+        return "FOG";
     case DOF_VIS:
-        return "Depth of Field";
+        return "DEPTH OF FIELD";
     case GLOW_VIS:
-        return "Glow";
+        return "GLOW";
     default:
-        return "None";
+        return "NONE";
     };
 }
 
@@ -58,14 +68,14 @@ stringw PostShader::GetTextureDescription(unsigned int texture)
     switch(texture)
     {
     case POST_MAP:
-        return "Post Map";
+        return "POST MAP";
     case DIFFUSE_MAP:
-        return "Diffuse Map";
+        return "DIFFUSE MAP";
     case NORMAL_MAP:
-        return "Normal Map";
+        return "NORMAL MAP";
     case DEPTH_MAP:
-        return "Depth Map";
+        return "DEPTH MAP";
     default:
-        return "None";
+        return "NONE";
     };
 }

@@ -7,24 +7,24 @@
 
 namespace
 {
-    const float ATT_INC = 0.0001f;  ///< Increment for attenuation
-    const float POS_INC = 0.1f;     ///< Increment for position
-    const float COLOR_INC = 0.001f; ///< Increment for colors
     const std::string FILE_EXT = ".xml"; ///< Extension for the lights file
     const std::string FILE_NAME = "Lights"; ///< File name for the lights file
 }
 
+LightEditor::LightPtr LightEditor::sm_lightEditor;
+
 LightEditor::LightEditor() :
-    m_selectedLight(NO_INDEX),
-    m_selectedAtt(ATTENUATION_X)
+    m_selectedLight(0)
 {
 }
 
-bool LightEditor::Initialise(const std::string& assetspath)
+bool LightEditor::Initialise()
 {
+    sm_lightEditor.reset(new LightEditor());
+
     using namespace boost;
     std::string lightsName = FILE_NAME+FILE_EXT;
-    filesystem::path filePath(assetspath+lightsName);
+    filesystem::path filePath(ASSETS_PATH+lightsName);
     if(filesystem::exists(filePath))
     {
         try
@@ -74,8 +74,8 @@ bool LightEditor::Initialise(const std::string& assetspath)
                 ILightSceneNode* node = Scene()->addLightSceneNode();
                 node->setLightData(light);
 
-                m_lights.push_back(Light(node,
-                    GetPtreeValue(it,std::string("UNNAMED"),"Name")));
+                sm_lightEditor->m_lights.push_back(Light(node, GetPtreeValue(it, 
+                    std::string("UNNAMED"), "Name")));
             }
         }
         catch(const filesystem::filesystem_error& e)
@@ -86,229 +86,136 @@ bool LightEditor::Initialise(const std::string& assetspath)
     }
     else
     {
-        Logger::LogError("Could not find " + assetspath + lightsName);
+        Logger::LogError("Could not find " + ASSETS_PATH + lightsName);
         return false;
     }    
     return true;
 }
 
-void LightEditor::UpdateLightDiagnosticText()
+const SLight& LightEditor::GetSelectedLightData() const
 {
-    if(m_selectedLight != NO_INDEX)
-    {
-        const SLight& data = m_lights[m_selectedLight].node->getLightData();
+    return m_lights[m_selectedLight].node->getLightData();
+}
 
-        m_editText = "LIGHT: ";
-        m_editText += m_lights[m_selectedLight].name.c_str();
-        m_editText += "\n SHADOWS: ";
-        m_editText += data.CastShadows;
-        m_editText += "\n TYPE: ";
-    
-        switch(data.Type)
-        {
-        case ELT_POINT:
-            m_editText += "Point";
+stringw LightEditor::GetSelectedLightDescription() const
+{
+    stringw description(m_lights[m_selectedLight].name.c_str());
+    description.make_upper();
+
+    const auto& data = GetSelectedLightData();
+    switch(data.Type)
+    {
+    case ELT_DIRECTIONAL:
+        description += " \n[DIRECTIONAL]";
+        break;
+    case ELT_POINT:
+        description += " \n[POINT]";
+        break;
+    }
+    return description;
+}
+
+stringw LightEditor::GetAttributeDescription(unsigned int attribute) const
+{
+    switch(attribute)
+    {
+        case ATTENUATION_X: 
+            return "ATTENUATION X";
+        case ATTENUATION_Y:
+            return "ATTENUATION Y";
+        case ATTENUATION_Z:
+            return "ATTENUATION Z";
+        case POSITION_X:
+            return "POSITION X";
+        case POSITION_Y:    
+            return "POSITION Y";
+        case POSITION_Z:    
+            return "POSITION Z";
+        case COLOR_R:  
+            return "DIFFUSE R";
+        case COLOR_G:       
+            return "DIFFUSE G";
+        case COLOR_B:       
+            return "DIFFUSE B";
+        case SPECCOLOR_R:  
+            return "SPECULAR R";
+        case SPECCOLOR_G:       
+            return "SPECULAR G";
+        case SPECCOLOR_B:       
+            return "SPECULAR B";
+        case SHADOWS:
+            return "SHADOWS";
+        default:
+            return "None";
+    }
+}
+
+void LightEditor::SetAttributeValue(unsigned int attribute, float value) 
+{
+    SLight& data = m_lights[m_selectedLight].node->getLightData();
+    switch(attribute)
+    {
+        case ATTENUATION_X: 
+            data.Attenuation.X = value;
             break;
-        case ELT_DIRECTIONAL:
-            m_editText += "Directional";
+        case ATTENUATION_Y:
+            data.Attenuation.Y = value;
             break;
-        }
-        m_editText += "\n ATT0: ";
-        m_editText += data.Attenuation.X;
-        m_editText += "\n ATT1: ";
-        m_editText += data.Attenuation.Y;
-        m_editText += "\n ATT2: ";
-        m_editText += data.Attenuation.Z;
-        m_editText += "\n X: ";
-        m_editText += data.Position.X;
-        m_editText += "\n Y: ";
-        m_editText += data.Position.Y;
-        m_editText += "\n Z: ";
-        m_editText += data.Position.Z;
-        m_editText += "\n R: ";
-        m_editText += data.DiffuseColor.r;
-        m_editText += "\n G: ";
-        m_editText += data.DiffuseColor.g;
-        m_editText += "\n B: ";
-        m_editText += data.DiffuseColor.b;
-        m_editText += "\n SR: ";
-        m_editText += data.SpecularColor.r;
-        m_editText += "\n SG: ";
-        m_editText += data.SpecularColor.g;
-        m_editText += "\n SB: ";
-        m_editText += data.SpecularColor.b;
-
-        m_editText += "\n \n SELECTED ATT:\n ";
-        switch(m_selectedAtt)
-        {
-            case ATTENUATION_X: 
-                m_editText += " ATTENUATION_X\n  "; 
-                m_editText += data.Attenuation.X;
-                break;
-            case ATTENUATION_Y:
-                m_editText += " ATTENUATION_Y\n  "; 
-                m_editText += data.Attenuation.Y;
-                break;
-            case ATTENUATION_Z: 
-                m_editText += " ATTENUATION_Z\n  "; 
-                m_editText += data.Attenuation.Z;
-                break;
-            case POSITION_X:   
-                m_editText += " POSITION_X\n  "; 
-                m_editText += data.Position.X;
-                break;
-            case POSITION_Y:    
-                m_editText += " POSITION_Y\n  "; 
-                m_editText += data.Position.Y;
-                break;
-            case POSITION_Z:    
-                m_editText += " POSITION_Z\n  "; 
-                m_editText += data.Position.Z;
-                break;
-            case COLOR_R:       
-                m_editText += " COLOR_R\n  ";  
-                m_editText += data.DiffuseColor.r;
-                break;
-            case COLOR_G:       
-                m_editText += " COLOR_G\n  ";     
-                m_editText += data.DiffuseColor.g;
-                break;
-            case COLOR_B:       
-                m_editText += " COLOR_B\n  ";   
-                m_editText += data.DiffuseColor.b;
-                break;
-            case SPECCOLOR_R:   
-                m_editText += " SPECCOLOR_R\n  ";   
-                m_editText += data.SpecularColor.r;
-                break;
-            case SPECCOLOR_G:  
-                m_editText += " SPECCOLOR_G\n  ";
-                m_editText += data.SpecularColor.g;
-                break;
-            case SPECCOLOR_B:   
-                m_editText += " SPECCOLOR_B\n  ";  
-                m_editText += data.SpecularColor.b;
-                break;
-        }
-    }
-}
-
-const irr::core::stringw& LightEditor::GetEditorText() const
-{
-    return m_editText;
-}
-
-void LightEditor::IncrementAtt(bool incrementUp)
-{
-    if(m_selectedLight != NO_INDEX)
-    {
-        SLight& data = m_lights[m_selectedLight].node->getLightData();
-        switch(m_selectedAtt)
-        {
-            case ATTENUATION_X: 
-                data.Attenuation.X += (incrementUp ? ATT_INC : -ATT_INC);
-                break;
-            case ATTENUATION_Y:
-                data.Attenuation.Y += (incrementUp ? ATT_INC : -ATT_INC);
-                break;
-            case ATTENUATION_Z:
-                data.Attenuation.Z += (incrementUp ? ATT_INC : -ATT_INC);
-                break;
-            case POSITION_X:
-                data.Position.X += (incrementUp ? POS_INC : -POS_INC);
-                MoveSelectedLight(vector3df((incrementUp ? POS_INC : -POS_INC),0.0f,0.0f));
-                break;
-            case POSITION_Y:    
-                data.Position.Y += (incrementUp ? POS_INC : -POS_INC);
-                MoveSelectedLight(vector3df(0.0f,(incrementUp ? POS_INC : -POS_INC),0.0f));
-                break;
-            case POSITION_Z:    
-                data.Position.Z += (incrementUp ? POS_INC : -POS_INC);
-                MoveSelectedLight(vector3df(0.0f,0.0f,(incrementUp ? POS_INC : -POS_INC)));
-                break;
-            case COLOR_R:  
-                data.DiffuseColor.r += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-            case COLOR_G:       
-                data.DiffuseColor.g += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-            case COLOR_B:       
-                data.DiffuseColor.b += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-            case SPECCOLOR_R:  
-                data.SpecularColor.r += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-            case SPECCOLOR_G:       
-                data.SpecularColor.g += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-            case SPECCOLOR_B:       
-                data.SpecularColor.b += (incrementUp ? COLOR_INC : -COLOR_INC);
-                break;
-        }
-        UpdateLightDiagnosticText();
-    }
-}
-
-void LightEditor::ToggleShadows()
-{
-    if(m_selectedLight != NO_INDEX)
-    {
-        m_lights[m_selectedLight].node->getLightData().CastShadows = 
-            !m_lights[m_selectedLight].node->getLightData().CastShadows;
-        UpdateLightDiagnosticText();
-    }
-}
-
-void LightEditor::SelectNextLightAtt(bool travelDown)
-{
-    if(m_selectedLight != NO_INDEX)
-    {
-        if(travelDown)
-        {
-            int nextAtt = m_selectedAtt+1;
-            nextAtt = (nextAtt >= MAX_ATTRIBUTES) ? 0 : nextAtt;
-            m_selectedAtt = static_cast<Attribute>(nextAtt);
-        }
-        else
-        {
-            int nextAtt = m_selectedAtt-1;
-            nextAtt = (nextAtt < 0) ? MAX_ATTRIBUTES-1 : nextAtt;
-            m_selectedAtt = static_cast<Attribute>(nextAtt);
-
-        }
-        UpdateLightDiagnosticText();
+        case ATTENUATION_Z:
+            data.Attenuation.Z = value;
+            break;
+        case POSITION_X:
+            data.Position.X = value;
+            m_lights[m_selectedLight].node->setPosition(data.Position);
+            break;
+        case POSITION_Y:    
+            data.Position.Y = value;
+            m_lights[m_selectedLight].node->setPosition(data.Position);
+            break;
+        case POSITION_Z:    
+            data.Position.Z = value;
+            m_lights[m_selectedLight].node->setPosition(data.Position);
+            break;
+        case COLOR_R:  
+            data.DiffuseColor.r = value;
+            break;
+        case COLOR_G:       
+            data.DiffuseColor.g = value;
+            break;
+        case COLOR_B:       
+            data.DiffuseColor.b = value;
+            break;
+        case SPECCOLOR_R:  
+            data.SpecularColor.r = value;
+            break;
+        case SPECCOLOR_G:       
+            data.SpecularColor.g = value;
+            break;
+        case SPECCOLOR_B:       
+            data.SpecularColor.b = value;
+            break;
+        case SHADOWS:
+            data.CastShadows = (value != 0);
     }
 }
 
 void LightEditor::SelectNextLight()
 {
     ++m_selectedLight;
-    if(m_selectedLight >= static_cast<int>(m_lights.size()))
+    if(m_selectedLight >= m_lights.size())
     {
-        m_selectedLight = NO_INDEX;
-        m_editText = "";
-    }
-    else
-    {
-        UpdateLightDiagnosticText();
+        m_selectedLight = 0;
     }
 }
 
-void LightEditor::MoveSelectedLight(const vector3df& direction)
-{
-    m_lights[m_selectedLight].node->setPosition(
-        m_lights[m_selectedLight].node->getPosition()+direction);
-    UpdateLightDiagnosticText();
-}
-
-void LightEditor::SaveLightsToFile(const std::string& assetspath)
+void LightEditor::SaveLightsToFile()
 {
     using namespace boost;
     std::string fileName = FILE_NAME+FILE_EXT;
-    filesystem::path filePath(assetspath+fileName);
+    filesystem::path filePath(ASSETS_PATH+fileName);
     if(filesystem::exists(filePath))
     {
-        filesystem::path prevPath(assetspath+FILE_NAME+"_Previous"+FILE_EXT);
+        filesystem::path prevPath(ASSETS_PATH+FILE_NAME+"_Previous"+FILE_EXT);
         if(filesystem::exists(prevPath))
         {
             filesystem::remove(prevPath);
@@ -323,7 +230,9 @@ void LightEditor::SaveLightsToFile(const std::string& assetspath)
         const SLight& data = m_lights[i].node->getLightData();
         light.push_back(property_tree::ptree());
 
-        light[i].add("Name",m_lights[i].name);
+        std::string name(m_lights[i].name.begin(), m_lights[i].name.end());
+        light[i].add("Name",name.c_str());
+
         switch(data.Type)
         {
         case ELT_POINT:
@@ -353,11 +262,4 @@ void LightEditor::SaveLightsToFile(const std::string& assetspath)
     // Writing property tree to xml
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
     property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
-}
-
-void LightEditor::ClearLights()
-{
-    m_editText = "";
-    m_selectedLight = NO_INDEX;
-    m_lights.clear();
 }

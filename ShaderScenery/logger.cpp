@@ -30,7 +30,6 @@ void Logger::LogInfo(const std::string& info)
 {
     sm_logger->m_logfile << "INFO: \t" << info << std::endl;
 
-
 #ifdef _IRR_WINDOWS_
     OutputDebugString((info+"\n").c_str());
 #endif

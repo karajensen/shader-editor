@@ -237,14 +237,14 @@ stringw GeneratedShader::GetComponentDescription(unsigned int component)
     switch(component)
     {
     case BUMP_VIS:
-        return "Bump Mapping";
+        return "BUMP MAPPING";
     case SPECULAR_VIS:
-        return "Specular Shading";
+        return "SPECULAR SHADING";
     case SOFTSHADOW_VIS:
-        return "Soft Shadows";
+        return "SOFT SHADOWS";
     case PARALLAX_VIS:
-        return "Parallax Mapping";
+        return "PARALLAX MAPPING";
     default:
-        return "None";
+        return "NONE";
     };
 }
