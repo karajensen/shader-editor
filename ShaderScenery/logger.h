@@ -11,8 +11,7 @@ class Logger
 {
 public:
 
-    Logger();
-    Logger::~Logger();
+    ~Logger();
 
     /**
     * Initialises logging for the application
@@ -27,6 +26,8 @@ public:
     static void LogError(const std::string& error);
 
 private:
+
+    Logger();
 
     std::fstream m_logfile;
     static boost::scoped_ptr<Logger> sm_logger;
