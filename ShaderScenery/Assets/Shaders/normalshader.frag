@@ -7,5 +7,7 @@ varying float WorldViewPosZ;
 void main()
 {
     gl_FragColor.rgb = normalize(Normal);
-    gl_FragColor.a = (WorldViewPosZ-FrustumFar)*(1.0f/(FrustumNear-FrustumFar));  
+
+	float cappedZ = max(min(WorldViewPosZ, FrustumFar),0.0);
+    gl_FragColor.a = (cappedZ*((FrustumFar-FrustumNear)/FrustumFar))+FrustumNear;
 }

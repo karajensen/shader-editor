@@ -36,6 +36,8 @@ bool Camera::LoadCameraFromFile()
 
     std::string focus = tree.get_child("Focus").data();
     float zoom = boost::lexical_cast<float>(tree.get_child("Zoom").data());
+    float near = boost::lexical_cast<float>(tree.get_child("Near").data());
+    float far = boost::lexical_cast<float>(tree.get_child("Far").data());
 
     ISceneNode* node = Scene()->getSceneNodeFromName(focus.c_str());
     if(!node)
@@ -43,6 +45,13 @@ bool Camera::LoadCameraFromFile()
         Logger::LogError("Could not find mesh " + focus + " to focus camera on");
         return false;
     }
+
+    auto setCameraValues = [=](ICameraSceneNode* camera){ 
+        camera->setNearValue(near); camera->setFarValue(far); };
+
+    setCameraValues(m_cameraTarget);
+    setCameraValues(m_cameraFree);
+    setCameraValues(m_cameraKey);
    
     vector3df target(node->getBoundingBox().getCenter());
     vector3df targetPos(target);
@@ -53,8 +62,10 @@ bool Camera::LoadCameraFromFile()
     m_cameraTarget->setPosition(target+targetPos);
     m_cameraTarget->setRotation(vector3df(0,0,0));
     m_cameraTarget->updateAbsolutePosition();
+
     Scene()->setActiveCamera(m_cameraTarget);
     sm_activeType = TARGET;
+
     return true;
 }
 
@@ -96,12 +107,16 @@ std::wstring Camera::GetCameraType()
 
 void Camera::SetComponentValue(unsigned int component, float value)
 {
+    const float delta = 0.00001f;
+    auto* camera = Scene()->getActiveCamera();
     switch(component)
     {
     case NEAR_VALUE:
-        Scene()->getActiveCamera()->setNearValue(value);
+        camera->setNearValue((camera->getFarValue() == value ? value+delta : value));
+        break;
     case FAR_VALUE:
-        Scene()->getActiveCamera()->setFarValue(value);
+        camera->setFarValue((camera->getNearValue() == value ? value+delta : value));
+        break;
     }
 }
 

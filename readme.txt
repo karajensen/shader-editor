@@ -1,8 +1,8 @@
 
-- near/far not returning correct values
+- fix depth/normal maps
+- post effects (fog, dof)
 - update sample 3D scene
 - fix bump/attenuation
-- post effects (fog, dof)
 - keyed camera
 
 - parallax occlusion mapping
@@ -20,9 +20,8 @@ www.KaraJensen.com
 https://github.com/karajensen/shader-scenery.git
 =================================================================
 
-LIBRARIES/ENVIRONMENT VARIABLES REQUIRED TO BUILD:
-Irrlicht Engine path:   $(IRRLICHT)
-Boost path:             $(BOOST)
+VISUAL STUDIO VERSION REQUIRED: 2010
+ENVIRONMENT VARIABLES REQUIRED: $(BOOST) Boost Library
 
 Q:  Select next light to edit
 L:  Save lights to xml
