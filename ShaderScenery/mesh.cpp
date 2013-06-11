@@ -16,7 +16,8 @@ Mesh::~Mesh()
     m_node = nullptr;
 }
 
-bool Mesh::Initialise(const std::string& path, const std::string& name, int materialIndex, float specularity, bool backfacecull)
+bool Mesh::Initialise(const std::string& path, const std::string& name, 
+    int materialIndex, float specularity, bool backfacecull)
 {
     m_name = name;
     m_materialIndex = materialIndex;
@@ -75,7 +76,8 @@ void Mesh::ClearTextureMap()
     m_textures.clear();
 }
 
-bool Mesh::SetTexture(boost::property_tree::ptree::iterator& it, const std::string& path, const std::string& textureType, int& textureSlot)
+bool Mesh::SetTexture(boost::property_tree::ptree::iterator& it, const std::string& path, 
+    const std::string& textureType, int& textureSlot)
 {
     if(it->second.count(textureType.c_str()) > 0)
     {

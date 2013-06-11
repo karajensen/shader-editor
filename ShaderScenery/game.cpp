@@ -80,10 +80,14 @@ bool Game::GameLoop()
         m_scene->drawAll();
 
         // Normal Render Target
-        std::for_each(m_meshes.begin(), m_meshes.end(), [&](const Mesh_Ptr& mesh){ mesh->SetShader(m_normalShader); });
+        std::for_each(m_meshes.begin(), m_meshes.end(), 
+            [&](const Mesh_Ptr& mesh){ mesh->SetShader(m_normalShader); });
+
         m_driver->setRenderTarget(m_normalTarget, true, true, m_drawColour);
         m_scene->drawAll();
-        std::for_each(m_meshes.begin(), m_meshes.end(), [&](const Mesh_Ptr& mesh){ mesh->SetAssociatedShader(); });
+
+        std::for_each(m_meshes.begin(), m_meshes.end(), 
+            [&](const Mesh_Ptr& mesh){ mesh->SetAssociatedShader(); });
     
         // Main back buffer
         m_driver->setRenderTarget(0, true, true, m_drawColour);
@@ -333,7 +337,8 @@ bool Game::CreateMeshes()
             m_shaders.push_back(Shader_Ptr(new GeneratedShader()));
             if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
             {
-                Logger::LogError("Shader name " + shadername + " for " + name + " is an invalid combination");
+                Logger::LogError("Shader name " + shadername +
+                    " for " + name + " is an invalid combination");
                 return false;
             }
             shaderIndex = m_shaders[index]->GetMaterialIndex();

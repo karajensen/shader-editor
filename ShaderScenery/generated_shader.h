@@ -101,7 +101,8 @@ private:
     * @return the last line read after the target string is found
     */
     typedef std::vector<std::string> TargetVector;
-    std::string ReadFile(const std::string& assetspath, std::ifstream& file, std::ofstream& newfile, const TargetVector& target, bool skiplines);
+    std::string ReadFile(const std::string& assetspath, std::ifstream& file, 
+        std::ofstream& newfile, const TargetVector& target, bool skiplines);
 
     std::vector<std::string> m_shaderComponent;  ///< Components part of this shader
     static std::array<float, MAX_EDITABLE> sm_editableComponents;  ///< which components are currently toggled on/off

@@ -22,7 +22,8 @@ public:
     * @param optional path to find the shader
     * @return whether or not initialisation succeeded
     */
-    bool InitialiseShader(const std::string& name, bool usesAlpha, bool usesMultipleLights, const std::string& path = "");
+    bool InitialiseShader(const std::string& name, bool usesAlpha, 
+        bool usesMultipleLights, const std::string& path = "");
 
     /**
     * @return the name of the shader

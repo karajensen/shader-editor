@@ -52,7 +52,8 @@ void Shader::OnSetConstants(video::IMaterialRendererServices* services, s32 user
     services->setPixelShaderConstant("Sampler4", &TextureLayerID, 1);
 }
 
-bool Shader::InitialiseShader(const std::string& name, bool usesAlpha, bool usesMultipleLights, const std::string& path)
+bool Shader::InitialiseShader(const std::string& name, bool usesAlpha, 
+    bool usesMultipleLights, const std::string& path)
 {
     m_name = boost::to_lower_copy(name);
     IGPUProgrammingServices* gpu = Driver()->getGPUProgrammingServices();

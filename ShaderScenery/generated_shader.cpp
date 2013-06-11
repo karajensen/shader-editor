@@ -120,7 +120,8 @@ bool GeneratedShader::CreateShaderFromFragments(const std::string& name, bool is
     return sucess;
 }
 
-bool GeneratedShader::ReadFromFile(const std::string& filepath, const std::string& assetspath, std::ofstream& newfile)
+bool GeneratedShader::ReadFromFile(const std::string& filepath, 
+    const std::string& assetspath, std::ofstream& newfile)
 {
     std::ifstream file;
     file.open(filepath.c_str(), std::ios_base::in|std::ios_base::out|std::ios_base::_Nocreate);
@@ -138,7 +139,8 @@ bool GeneratedShader::ReadFromFile(const std::string& filepath, const std::strin
     return (result == FAILURE) ? false : true;
 }
 
-std::string GeneratedShader::ReadFile(const std::string& assetspath, std::ifstream& file, std::ofstream& newfile, const TargetVector& target, bool skiplines)
+std::string GeneratedShader::ReadFile(const std::string& assetspath, std::ifstream& file,
+    std::ofstream& newfile, const TargetVector& target, bool skiplines)
 {
     std::string line;
     bool skipSection = false;
@@ -176,11 +178,14 @@ std::string GeneratedShader::ReadFile(const std::string& assetspath, std::ifstre
         if(conditionalFound)
         {
             // Read the file until #else or #endif
-            line = ReadFile(assetspath,file,newfile,boost::assign::list_of(ELSE)(ENDIF),(skiplines ? true : skipSection));
+            line = ReadFile(assetspath,file,newfile,boost::assign::list_of(ELSE)(ENDIF),
+                (skiplines ? true : skipSection));
+
             if(boost::algorithm::icontains(line,ELSE))
             {
                 // Read the file until #endif
-                ReadFile(assetspath,file,newfile,boost::assign::list_of(ENDIF),(skiplines ? true : !skipSection));
+                ReadFile(assetspath,file,newfile,boost::assign::list_of(ENDIF),
+                    (skiplines ? true : !skipSection));
             }
         }
         else if (!skiplines)
