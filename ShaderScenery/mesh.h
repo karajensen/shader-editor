@@ -80,7 +80,7 @@ private:
     std::string m_name;       ///< The name of the Mesh
     int m_materialIndex;      ///< The irrlicht index representing the associated saved
     bool m_usesCubeMapping;   ///< Whether the mesh uses cube mapping
-    MATRIX m_world;           ///< World matrix for Mesh
+    Matrix m_world;           ///< World matrix for Mesh
     float m_specularity;      ///< Shinyness of the mesh
     bool m_backfacecull;      ///< Whether to use backfaceculling
     ISceneNode* m_node;       ///< Irrlicht Scene node for the mesh

@@ -4,6 +4,7 @@
 - update sample 3D scene
 - fix bump/attenuation
 - keyed camera
+- boost unit tests
 
 - parallax occlusion mapping
 - soft shadows
