@@ -1,5 +1,5 @@
 /****************************************************************
-* Kara Jensen (KaraPeaceJensen@gmail.com) 2012
+* Kara Jensen (mail@karajensen.com)
 * Common includes/headers/functions
 *****************************************************************/
 #pragma once
