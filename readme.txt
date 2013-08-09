@@ -1,16 +1,13 @@
 
+- move diagnostics to anttweak bar
 - fix depth/normal maps
-- post effects (fog, dof)
-- update sample 3D scene
 - fix bump/attenuation
-- keyed camera
 - boost unit tests
+- Create 3D scene
 
 - parallax occlusion mapping
 - soft shadows
-- post effects (glow, SSAO, Color correction)
-- color correction diagnostic
-- Create 3D scene
+- post effects (fog, dof, glow, SSAO, Color correction)
 - water/environment mapping?
 
 ================================================================
