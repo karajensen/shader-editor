@@ -18,9 +18,6 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="event_receiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,10 +42,19 @@
     <ClCompile Include="diagnostic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="generated_shader.cpp">
+    <ClCompile Include="quad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="post_shader.cpp">
+    <ClCompile Include="postshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generatedshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="normalshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,16 +89,22 @@
     <ClInclude Include="diagnostic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="generated_shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="post_shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vector3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="postshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generatedshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="normalshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

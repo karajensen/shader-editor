@@ -1,13 +1,13 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com)
-* Common includes/headers/functions
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include <irrlicht.h>
 #include <vector>
 #include <string>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/shared_ptr.hpp>
 #include "logger.h"
 
 using namespace irr;
@@ -22,25 +22,43 @@ static const int WINDOW_HEIGHT = 600;
 static const int NO_INDEX = -1;
 const std::string ASSETS_PATH(".//Assets//");
 
-IrrlichtDevice*  Device();
-IVideoDriver*    Driver();
-ISceneManager*   Scene();
-IGUIEnvironment* Gui();
+/**
+* Irrlicht engine callbacks
+*/
+struct IrrlichtEngine
+{
+    /**
+    * Constructor
+    */
+    IrrlichtEngine() :
+        device(nullptr),
+        driver(nullptr),
+        scene(nullptr),
+        gui(nullptr)
+    {
+    }
+
+    IrrlichtDevice* device; ///< Irrlicht engine device
+    IVideoDriver* driver;   ///< Irrlicht video driver
+    ISceneManager* scene;   ///< Irrlicht scene manager
+    IGUIEnvironment* gui;   ///< Irrlicht gui device
+};
+typedef boost::shared_ptr<IrrlichtEngine> EnginePtr;
 
 /**
 * Gets the value if it exists in the tree or returns defaultValue
-* @param the tree to check 
-* @param the default value to use if name is not found
-* @param the name of the node to search
+* @param itr Iteration from the tree to check 
+* @param defaultValue The default value to use if name is not found
+* @param node The name of the node to search
 * @return the chosen value from either the tree or defaultValue
 */
 template<typename T>
-T GetPtreeValue(boost::property_tree::ptree::iterator& it, T defaultValue, char* node)
+T GetPtreeValue(boost::property_tree::ptree::iterator& itr, T defaultValue, char* node)
 {
-    int count = it->second.count(node);
+    int count = itr->second.count(node);
     if(count > 0)
     {
-        return boost::lexical_cast<T>(it->second.get_child(node).data());
+        return boost::lexical_cast<T>(itr->second.get_child(node).data());
     }
     return defaultValue;
 }

@@ -1,19 +1,26 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "game.h"
+#include "mesh.h"
+#include "camera.h"
+#include "quad.h"
+#include "generatedshader.h"
+#include "postshader.h"
+#include "normalshader.h"
+#include "logger.h"
+#include "event_receiver.h"
+#include "light_editor.h"
+#include "diagnostic.h"
+#include "texture.h"
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assign.hpp>
 #include <algorithm>
-#include "game.h"
-#include "mesh.h"
-#include "camera.h"
-#include "quad.h"
-#include "generated_shader.h"
-#include "post_shader.h"
-#include "logger.h"
-#include "event_receiver.h"
-#include "light_editor.h"
-#include "diagnostic.h"
 
 namespace
 {
@@ -21,95 +28,72 @@ namespace
     const std::string TEXTURE_PATH(ASSETS_PATH+"Textures//");
 }
 
-Game* Game::sm_game = nullptr;
-
 Game::Game() :
-    m_device(nullptr),
-    m_driver(nullptr),
-    m_scene(nullptr),
-    m_gui(nullptr),
     m_diffuseTarget(nullptr),
     m_normalTarget(nullptr),
     m_renderTargetSize(WINDOW_WIDTH*2),
-    m_normalShader(NO_INDEX)
+    m_normalShaderIndex(NO_INDEX)
 {
+    m_engine.reset(new IrrlichtEngine());
     m_drawColour.set(0,0,0,0);
 }
 
 Game::~Game()
 {
-    if(m_device)
+    if(m_engine->device)
     {
-        m_device->drop();
+        m_engine->device->drop();
     }
-}
-
-Game* Game::Get()
-{
-    if(sm_game == nullptr)
-    {
-        sm_game = new Game();
-    }
-    return sm_game;
-}
-
-void Game::Release()
-{
-    if(sm_game != nullptr)
-    {
-        delete sm_game;
-    }
-    sm_game = nullptr;
 }
 
 bool Game::GameLoop()
 {
-    u32 previousTime = m_device->getTimer()->getTime();
-    while(m_device->run())
+    u32 previousTime = m_engine->device->getTimer()->getTime();
+    while(m_engine->device->run())
     {
-        const u32 currentTime = m_device->getTimer()->getTime();
+        const u32 currentTime = m_engine->device->getTimer()->getTime();
         const f32 deltatime = static_cast<f32>(currentTime - previousTime) / 1000.0f; // Time in seconds
         previousTime = currentTime;
 
         m_events->Update();
 
-        m_driver->beginScene(true, true, 0);
+        m_engine->driver->beginScene(true, true, 0);
 
         // Diffuse Render Target
-        m_driver->setRenderTarget(m_diffuseTarget, true, true, m_drawColour);
-        m_scene->drawAll();
+        m_engine->driver->setRenderTarget(m_diffuseTarget, true, true, m_drawColour);
+        m_engine->scene->drawAll();
 
         // Normal Render Target
         std::for_each(m_meshes.begin(), m_meshes.end(), 
-            [&](const Mesh_Ptr& mesh){ mesh->SetShader(m_normalShader); });
+            [&](const Mesh_Ptr& mesh){ mesh->SetShader(m_normalShaderIndex); });
 
-        m_driver->setRenderTarget(m_normalTarget, true, true, m_drawColour);
-        m_scene->drawAll();
+        m_engine->driver->setRenderTarget(m_normalTarget, true, true, m_drawColour);
+        m_engine->scene->drawAll();
 
         std::for_each(m_meshes.begin(), m_meshes.end(), 
             [&](const Mesh_Ptr& mesh){ mesh->SetAssociatedShader(); });
     
         // Main back buffer
-        m_driver->setRenderTarget(0, true, true, m_drawColour);
+        m_engine->driver->setRenderTarget(0, true, true, m_drawColour);
         m_quad->render();
 
         // Diagnostics
         Diagnostic::Get()->Render(deltatime);
 
-        m_driver->endScene();
+        m_engine->driver->endScene();
     }
     return true;
 }
 
 void Game::ReloadMeshesFromFile()
 {
-    Mesh::ClearTextureMap();
+    m_texture->ClearTextureMap();
     for(unsigned int i = 0; i < m_meshes.size(); ++i)
     {
         m_meshes[i]->ForceReleaseMesh();
     }
     m_meshes.clear();
-    m_scene->getMeshCache()->clear();
+    m_engine->scene->getMeshCache()->clear();
 
     if(!CreateMeshes())
     {
@@ -125,59 +109,59 @@ bool Game::Initialise()
     m_camera.reset(new Camera());
 
     // Create the main device
-    m_device = createDevice(video::EDT_OPENGL, 
+    m_engine->device = createDevice(video::EDT_OPENGL, 
         dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT),
         16, false, false, false, m_events.get());
 
-    if (!m_device)
+    if (!m_engine->device)
     {
         // Use internal software rendering
-        m_device = createDevice(video::EDT_BURNINGSVIDEO, 
+        m_engine->device = createDevice(video::EDT_BURNINGSVIDEO, 
             dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT), 
             16, false, false, false, m_events.get());
 
-        if(!m_device)
+        if(!m_engine->device)
         {
             Logger::LogError("Irrlicht device failed to initialise");
             return false;
         }
     }
-    m_device->setWindowCaption(L"ShaderGardenScene");
+    m_engine->device->setWindowCaption(L"ShaderGardenScene");
 
-    m_driver = m_device->getVideoDriver();
-    if(!m_driver)
+    m_engine->driver = m_engine->device->getVideoDriver();
+    if(!m_engine->driver)
     {
         Logger::LogError("Irrlicht video driver failed to initialise");
         return false;
     }
 
-    m_scene = m_device->getSceneManager();
-    if(!m_scene)
+    m_engine->scene = m_engine->device->getSceneManager();
+    if(!m_engine->scene)
     {
         Logger::LogError("Irrlicht scene manager failed to initialise");
         return false;
     }
 
-    m_gui = m_device->getGUIEnvironment();
-    if(!m_gui)
+    m_engine->gui = m_engine->device->getGUIEnvironment();
+    if(!m_engine->gui)
     {
         Logger::LogError("Irrlicht gui failed to initialise");
         return false;
     }
-    m_driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
-    m_driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
+    m_engine->driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
+    m_engine->driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 
     // Check if pixel shaders are supported
-    if (!m_driver->queryFeature(video::EVDF_PIXEL_SHADER_1_1) &&
-        !m_driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1))
+    if (!m_engine->driver->queryFeature(video::EVDF_PIXEL_SHADER_1_1) &&
+        !m_engine->driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1))
     {
         Logger::LogError("Pixel shaders not working because of missing driver/hardware support.");
         return false;
     }
 
     // Check if vertex shaders are supported
-    if (!m_driver->queryFeature(video::EVDF_VERTEX_SHADER_1_1) && 
-        !m_driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
+    if (!m_engine->driver->queryFeature(video::EVDF_VERTEX_SHADER_1_1) && 
+        !m_engine->driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
     {
         Logger::LogError("Vertex shaders not working because of missing driver/hardware support.");
         return false;
@@ -259,35 +243,36 @@ bool Game::CreateEvents()
 bool Game::CreateRenderTargets()
 {
     // Create normal shader
-    m_post.push_back(Post_Ptr(new PostShader(PostShader::NORMAL_DEPTH_MAPPING)));
-    if(!m_post[m_post.size()-1]->InitialiseShader("normalshader", false, false))
+    m_normalShader.reset(new NormalShader(m_engine));
+    if(!m_normalShader->InitialiseShader("normalshader", false, false))
     {
         Logger::LogError("normalshader failed initilisation!");
         return false;
     }
-    m_normalShader = m_post[m_post.size()-1]->GetMaterialIndex();
+    m_normalShaderIndex = m_normalShader->GetMaterialIndex();
 
     // Create post shader
-    m_post.push_back(Post_Ptr(new PostShader(PostShader::POST_PROCESSING)));
-    if(!m_post[m_post.size()-1]->InitialiseShader("postshader", false,  false))
+    m_postShader.reset(new PostShader(m_engine));
+    if(m_postShader->InitialiseShader("postshader", false,  false))
     {
         Logger::LogError("postshader failed initilisation!");
         return false;
     }
-    int postShader = m_post[m_post.size()-1]->GetMaterialIndex();
+    int postShader = m_postShader->GetMaterialIndex();
 
     // Create render targets
     if(!CreateRenderTarget(&m_diffuseTarget,"DiffuseRenderTarget",m_renderTargetSize))
     {
         return false;
     }
+
     if(!CreateRenderTarget(&m_normalTarget,"NormalRenderTarget",m_renderTargetSize))
     {
         return false;
     }
 
     // Create screen quad
-    m_quad.reset(new Quad(m_scene->getRootSceneNode(), postShader, NO_INDEX));
+    m_quad.reset(new Quad(m_engine, m_engine->scene->getRootSceneNode(), postShader, NO_INDEX));
     m_quad->SetTexture(m_diffuseTarget, 0);
     m_quad->SetTexture(m_normalTarget, 1);
 
@@ -296,6 +281,8 @@ bool Game::CreateRenderTargets()
 
 bool Game::CreateMeshes()
 {
+    m_texture.reset(new TextureManager(m_engine));
+
     boost::property_tree::ptree meshes;
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
         meshes, boost::property_tree::xml_parser::trim_whitespace);
@@ -334,7 +321,7 @@ bool Game::CreateMeshes()
         if(shaderIndex == NO_INDEX)
         {
             int index = m_shaders.size();
-            m_shaders.push_back(Shader_Ptr(new GeneratedShader()));
+            m_shaders.push_back(Shader_Ptr(new GeneratedShader(m_engine)));
             if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
             {
                 Logger::LogError("Shader name " + shadername +
@@ -346,7 +333,7 @@ bool Game::CreateMeshes()
 
         // Create the mesh
         int index = m_meshes.size();
-        m_meshes.push_back(Mesh_Ptr(new Mesh()));
+        m_meshes.push_back(Mesh_Ptr(new Mesh(m_engine)));
         if(!m_meshes[index]->Initialise(MESHES_PATH, name, shaderIndex, specularity, backfacecull))
         {
             Logger::LogError(name + " failed initilisation!");
@@ -354,26 +341,29 @@ bool Game::CreateMeshes()
         }
 
         // Create the textures
+        std::vector<std::string> textures = boost::assign::list_of<std::string>
+            ("Diffuse")("Normal")("Specular")("Environ")("Glow");
+
         int textureSlot = 0;
         bool suceeded = true;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Diffuse",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Normal",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Specular",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Environ",textureSlot) : false;
-        suceeded = suceeded ? m_meshes[index]->SetTexture(it,TEXTURE_PATH,"Glow",textureSlot) : false;
-        if(!suceeded)
+
+        std::for_each(textures.begin(), textures.end(), [&](const std::string& texture)
         {
-            return false;
-        }
+            suceeded = suceeded ? m_texture->SetTexture(it, TEXTURE_PATH,
+                texture, m_meshes[index]->GetMeshNode(), textureSlot) : false;
+        });
+
+        return suceeded;
     }
     return true;
 }
 
-bool Game::CreateRenderTarget(ITexture** rt, char* name, int size)
+bool Game::CreateRenderTarget(ITexture** rendertarget, char* name, int size)
 {
-    if(m_driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
+    if(m_engine->driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
     {
-        (*rt) = m_driver->addRenderTargetTexture(core::dimension2d<u32>(size,size), name);
+        (*rendertarget) = m_engine->driver->addRenderTargetTexture(
+            core::dimension2d<u32>(size,size), name);
         return true;
     }
 

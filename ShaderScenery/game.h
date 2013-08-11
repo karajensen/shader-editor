@@ -12,13 +12,25 @@ class Camera;
 class Mesh;
 class GeneratedShader;
 class PostShader;
+class NormalShader;
 class Quad;
 class EventReceiver;
 class LightEditor;
+class TextureManager;
 
 class Game : boost::noncopyable
 {
 public:
+
+    /**
+    * Constructor
+    */
+    Game();
+
+    /**
+    * Destructor
+    */
+    ~Game();
 
     /**
     * @return whether something went wrong during the 
@@ -31,31 +43,8 @@ public:
     * @return whether or not initialisation succeeded
     */
     bool Initialise();
-                                     
-    /**
-    * Create/get the game object
-    * @return the pointer to the game object
-    */
-    static Game* Get();
-
-    /**
-    * Destroy the game object
-    */
-    static void Release();
 
 private:
-
-    Game();
-    ~Game();
-
-    /**
-    * Allow external access to Irrlicht 
-    * engine devices and helper functions
-    */
-    friend IrrlichtDevice*  Device();
-    friend IVideoDriver*    Driver();
-    friend ISceneManager*   Scene();
-    friend IGUIEnvironment* Gui();
 
     /**
     * Render the game world
@@ -95,12 +84,12 @@ private:
 
     /**
     * Creates a render target given a irrlicht texture object
-    * @param a pointer to the ITexture pointer
-    * @param the name of the render target
-    * @param the size of the render target
+    * @param rendertarget A pointer to the ITexture pointer
+    * @param name The name of the render target
+    * @param size The size of the render target
     * @return whether creation succeeded
     */
-    bool CreateRenderTarget(ITexture** rt, char* name, int size);
+    bool CreateRenderTarget(ITexture** rendertarget, char* name, int size);
 
     /**
     * Reload meshes from file
@@ -119,38 +108,30 @@ private:
 
     /**
     * Toggles the camera between free roam and targeted
-    * @param whether free roam (or targeted if false)
+    * @param free Whether free roam (or targeted if false)
     */
     void ToggleCameraTarget(bool free);
 
-    typedef boost::scoped_ptr<Camera> Camera_Ptr;
-    typedef boost::scoped_ptr<EventReceiver> EventReceiver_Ptr;
-    typedef boost::scoped_ptr<Quad> Quad_Ptr;
     typedef boost::shared_ptr<PostShader> Post_Ptr;
     typedef boost::shared_ptr<GeneratedShader> Shader_Ptr;
     typedef boost::shared_ptr<Mesh> Mesh_Ptr;
-
     typedef std::vector<Mesh_Ptr> Mesh_Container;
     typedef std::vector<Shader_Ptr> Shader_Container;
     typedef std::vector<Post_Ptr> Post_Container;
 
-    IrrlichtDevice* m_device;    ///< Irrlicht engine device
-    IVideoDriver* m_driver;      ///< Irrlicht video driver
-    ISceneManager* m_scene;      ///< Irrlicht scene manager
-    IGUIEnvironment* m_gui;      ///< Irrlicht gui device
-    EventReceiver_Ptr m_events;  ///< Irrlicht event reciever override
-    Camera_Ptr m_camera;         ///< Camera manager for keyed, free and targeted cameras
-
+    EnginePtr m_engine;          ///< Irrlicht engine
     Mesh_Container m_meshes;     ///< Array of pointers to meshes
     Shader_Container m_shaders;  ///< Array of pointers to shaders
-    Post_Container m_post;       ///< Array of pointers to post shaders
-
     SColor m_drawColour;         ///< Colour to refresh the back buffer with
     ITexture* m_diffuseTarget;   ///< Texture storing diffuse lighting info for scene
     ITexture* m_normalTarget;    ///< RGB channels = normal info, A channel = depth info
     int m_renderTargetSize;      ///< Standard size for each render target
-    int m_normalShader;          ///< Material index for the normal map shader
-    Quad_Ptr m_quad;             ///< Post processing screen quad
-                                             
-    static Game* sm_game;        ///< Singleton pointer
+    int m_normalShaderIndex;     ///< Index for the normal shader index
+
+    boost::scoped_ptr<TextureManager> m_texture;     ///< Texture mananger
+    boost::scoped_ptr<EventReceiver> m_events;       ///< Irrlicht event reciever override
+    boost::scoped_ptr<Quad> m_quad;                  ///< Post processing screen quad
+    boost::shared_ptr<PostShader> m_postShader;      ///< Post processing shader
+    boost::shared_ptr<NormalShader> m_normalShader;  ///< Normal-depth shader
+    boost::scoped_ptr<Camera> m_camera;              ///< Camera manager for keyed, free and targeted cameras
 };

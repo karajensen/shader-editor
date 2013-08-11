@@ -1,37 +1,48 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com)
-* 
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <map>
 #include "common.h"
 #include "matrix.h"
 
+/**
+* Irrlicht mesh
+*/
 class Mesh : boost::noncopyable
 {
 public:
 
-    Mesh();
+    /**
+    * Constructor
+    * @param engine The Irrlicht engine
+    */
+    explicit Mesh(EnginePtr engine);
+
+    /**
+    * Destructor
+    */
     ~Mesh();
 
     /**
     * Initialises the Mesh
-    * @param the path to the mesh
-    * @param name the name of the Mesh
-    * @param name the name of the shader
-    * @param the shinyness of the material
-    * @param whether to use backface culling or not
+    * @param path The path to the mesh
+    * @param name Name the name of the Mesh
+    * @param materialIndex Name the name of the shader
+    * @param specularity The shinyness of the material
+    * @param backfacecull Whether to use backface culling or not
     * @return whether or not initialisation succeeded
     */
     bool Initialise(const std::string& path, const std::string& name, 
         int materialIndex, float specularity, bool backfacecull);
 
     /**
-    * Sets the shader for the Mesh, will not set as the associated shader for the mesh
-    * @param The irrlicht internal index of the shader the mesh wishes to use
+    * Sets the shader for the Mesh, will not set
+    * as the associated shader for the mesh
+    * @param materialIndex The irrlicht internal index of the shader
     */
     void SetShader(int materialIndex);
 
@@ -43,7 +54,7 @@ public:
     /**
     * @return The name of the Mesh
     */
-    const std::string& GetName() const { return m_name; }
+    const std::string& GetName() const;
 
     /**
     * Releases the mesh for reloading purposes
@@ -53,29 +64,9 @@ public:
     /**
     * @return the node for the mesh
     */
-    const ISceneNode* GetMeshNode() const { return m_node; }
-
-    /**
-    * Set a texture for a mesh
-    * @param the iterator for the property tree for the particular mesh
-    * @param the path where the textures live
-    * @param the type of texture to load (eg. Diffuse, Normal)
-    * @param the slot the texture will load into for the shader, 
-    *        will increment if loaded successfully
-    * @return whether creation succeeded
-    */
-    bool SetTexture(boost::property_tree::ptree::iterator& it,
-        const std::string& path, const std::string& textureType, int& textureSlot);
-
-    /**
-    * Clears the texture map of currently loaded textures
-    */
-    static void ClearTextureMap();
+    ISceneNode* GetMeshNode() const;
 
 private:
-
-    typedef std::map<std::string, ITexture*> Texture_Map;
-    static Texture_Map m_textures;   ///< Map of currently loded textures
 
     std::string m_name;       ///< The name of the Mesh
     int m_materialIndex;      ///< The irrlicht index representing the associated saved
@@ -84,5 +75,5 @@ private:
     float m_specularity;      ///< Shinyness of the mesh
     bool m_backfacecull;      ///< Whether to use backfaceculling
     ISceneNode* m_node;       ///< Irrlicht Scene node for the mesh
-
+    EnginePtr m_engine;       ///< Irrlicht engine
 };

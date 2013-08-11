@@ -1,8 +1,12 @@
 
-- move diagnostics to anttweak bar
+- update boost
+- make boost tests for math library
+- update diagnostics to anttweak bar
+- update logger in code notes
+- go through checklist for all files
+
 - fix depth/normal maps
 - fix bump/attenuation
-- boost unit tests
 - Create 3D scene
 
 - parallax occlusion mapping
@@ -18,7 +22,7 @@ www.KaraJensen.com
 https://github.com/karajensen/shader-scenery.git
 =================================================================
 
-VISUAL STUDIO VERSION REQUIRED: 2010
+VISUAL STUDIO VERSION REQUIRED: 2012
 ENVIRONMENT VARIABLES REQUIRED: $(BOOST) Boost Library
 
 Q:  Select next light to edit

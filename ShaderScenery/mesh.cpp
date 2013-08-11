@@ -1,19 +1,32 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "mesh.h"
 
-Mesh::Texture_Map Mesh::m_textures;
-
-Mesh::Mesh() :
+Mesh::Mesh(EnginePtr engine) :
     m_usesCubeMapping(false),
     m_node(nullptr),
     m_materialIndex(NO_INDEX),
     m_specularity(0.0f),
-    m_backfacecull(true)
+    m_backfacecull(true),
+    m_engine(engine)
 {
 }
 
 Mesh::~Mesh()
 {
     m_node = nullptr;
+}
+
+const std::string& Mesh::GetName() const 
+{ 
+    return m_name;
+}
+
+ISceneNode* Mesh::GetMeshNode() const 
+{
+    return m_node;
 }
 
 bool Mesh::Initialise(const std::string& path, const std::string& name, 
@@ -24,7 +37,7 @@ bool Mesh::Initialise(const std::string& path, const std::string& name,
     m_specularity = specularity;
     m_backfacecull = backfacecull;
 
-    IAnimatedMesh* mesh = Scene()->getMesh((path+name).c_str());
+    IAnimatedMesh* mesh = m_engine->scene->getMesh((path+name).c_str());
     if(!mesh)
     {
         Logger::LogError("Irrlicht GetMesh() failed");
@@ -32,7 +45,7 @@ bool Mesh::Initialise(const std::string& path, const std::string& name,
     }
 
     const int polysPerNode = 1024;
-    m_node = Scene()->addOctreeSceneNode(mesh->getMesh(0), 0, -1, polysPerNode);
+    m_node = m_engine->scene->addOctreeSceneNode(mesh->getMesh(0), 0, -1, polysPerNode);
     if(!m_node)
     {
         Logger::LogError("Irrlicht AddOctreeSceneNode() failed");
@@ -69,51 +82,4 @@ void Mesh::ForceReleaseMesh()
         m_node->remove();
     }
     m_node = nullptr;
-}
-
-void Mesh::ClearTextureMap()
-{
-    m_textures.clear();
-}
-
-bool Mesh::SetTexture(boost::property_tree::ptree::iterator& it, const std::string& path, 
-    const std::string& textureType, int& textureSlot)
-{
-    if(it->second.count(textureType.c_str()) > 0)
-    {
-        ITexture* texture = nullptr;
-        std::string textureName = it->second.get_child(textureType.c_str()).data();
-        Texture_Map::iterator result = m_textures.find(textureName);
-
-        if(result == m_textures.end())
-        {
-            // texture doesn't exist
-            std::string texturePath = path + textureName;
-            texture = Driver()->getTexture(texturePath.c_str());
-
-            if(texture)
-            {
-                // make sure texture is reloaded
-                Driver()->removeTexture(texture);
-                texture = Driver()->getTexture(texturePath.c_str());
-            }
-
-            if(!texture)
-            {
-                Logger::LogError(texturePath + " failed initilisation!");
-                return false;
-            }
-
-            m_textures[textureName] = texture;
-        }
-        else
-        {
-            // texture exists
-            texture = result->second;
-        }
-
-        m_node->setMaterialTexture(textureSlot, texture);
-        textureSlot++;
-    }
-    return true;
 }

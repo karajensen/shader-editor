@@ -1,4 +1,4 @@
-#include "generated_shader.h"
+#include "generatedshader.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
@@ -6,6 +6,11 @@
 
 namespace
 {
+    const std::string FRAGMENT_EXTENSION(".frag");   
+    const std::string VERTEX_EXTENSION(".vert");  
+    const std::string SHADER_PATH(ASSETS_PATH+"Shaders//");
+    const std::string GENERATED_FOLDER("Generated//");
+
     const std::string FLAT("FLAT");          ///< Component name for flat shading
     const std::string BUMP("BUMP");          ///< Component name for bump mapping
     const std::string SPECULAR("SPECULAR");  ///< Component name for specular shading
@@ -20,25 +25,25 @@ namespace
     const std::string ELSE("#else");
     const std::string ENDIF("#endif");
     const std::string INCLUDE("#file ");
-    const std::string GENERATED_FOLDER("Generated//");
 }
 
 std::array<float, GeneratedShader::MAX_EDITABLE> GeneratedShader::sm_editableComponents;
 
-GeneratedShader::GeneratedShader()
+GeneratedShader::GeneratedShader(EnginePtr engine) :
+    Shader(engine)
 {
 }
 
 GeneratedShader::~GeneratedShader()
 {
-    std::string path(sm_shaderPath+GENERATED_FOLDER+m_name);
-    if(boost::filesystem::exists(path+sm_vertexExt))
+    std::string path(SHADER_PATH+GENERATED_FOLDER+m_name);
+    if(boost::filesystem::exists(path+VERTEX_EXTENSION))
     {
-        boost::filesystem::remove(path+sm_vertexExt);
+        boost::filesystem::remove(path+VERTEX_EXTENSION);
     }
-    if(boost::filesystem::exists(path+sm_fragmentExt))
+    if(boost::filesystem::exists(path+FRAGMENT_EXTENSION))
     {
-        boost::filesystem::remove(path+sm_fragmentExt);
+        boost::filesystem::remove(path+FRAGMENT_EXTENSION);
     }
 }
 
@@ -65,7 +70,7 @@ void GeneratedShader::AddShaderComponent(const std::string& component)
 bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool usesMultipleLights)
 {
     //make sure generated folder exists
-    std::string generatedPath(sm_shaderPath+GENERATED_FOLDER);
+    std::string generatedPath(SHADER_PATH+GENERATED_FOLDER);
     if(!boost::filesystem::exists(generatedPath))
     {
         if(!boost::filesystem::create_directory(generatedPath))
@@ -95,8 +100,8 @@ bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool uses
 
 bool GeneratedShader::CreateShaderFromFragments(const std::string& name, bool isVertex, bool usesMultipleLights)
 {
-    std::string ext = isVertex ? sm_vertexExt : sm_fragmentExt;
-    std::string filepath = sm_shaderPath + GENERATED_FOLDER + name + ext;
+    std::string ext = isVertex ? VERTEX_EXTENSION : FRAGMENT_EXTENSION;
+    std::string filepath = SHADER_PATH + GENERATED_FOLDER + name + ext;
     std::ofstream file(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
     
     if(!file.is_open())
@@ -109,12 +114,12 @@ bool GeneratedShader::CreateShaderFromFragments(const std::string& name, bool is
     if(!isVertex && usesMultipleLights)
     {
         core::array<scene::ISceneNode*> lightNodes;
-        Scene()->getSceneNodesFromType(ESNT_LIGHT, lightNodes);
+        m_engine->scene->getSceneNodesFromType(ESNT_LIGHT, lightNodes);
         file << "#define MAX_LIGHTS " << lightNodes.size() << std::endl << std::endl;
     }
 
     // Add shader base to files
-    bool sucess = ReadFromFile(sm_shaderPath+"shader"+ext, sm_shaderPath, file);
+    bool sucess = ReadFromFile(SHADER_PATH+"shader"+ext, SHADER_PATH, file);
     file.flush();
     file.close();
     return sucess;

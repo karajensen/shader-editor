@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="common.cpp" />
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="event_receiver.cpp" />
     <ClCompile Include="game.cpp" />
@@ -20,9 +19,12 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="normalshader.cpp" />
+    <ClCompile Include="quad.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="generated_shader.cpp" />
-    <ClCompile Include="post_shader.cpp" />
+    <ClCompile Include="generatedshader.cpp" />
+    <ClCompile Include="postshader.cpp" />
+    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -30,6 +32,8 @@
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="event_receiver.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="normalshader.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="light_editor.h" />
@@ -37,8 +41,8 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="quad.h" />
     <ClInclude Include="shader.h" />
-    <ClInclude Include="generated_shader.h" />
-    <ClInclude Include="post_shader.h" />
+    <ClInclude Include="generatedshader.h" />
+    <ClInclude Include="postshader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
@@ -66,12 +70,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -101,12 +107,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(BOOST);irrlicht\include;vld\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST);$(SolutionDir)\$(TargetName)\irrlicht\include;$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\anttweakbar\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Irrlicht.lib;vld.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\vld\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\vld\lib\Win32;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,14 +121,14 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(BOOST);irrlicht\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST);$(SolutionDir)\$(TargetName)\irrlicht\include;$(SolutionDir)\$(TargetName)\anttweakbar\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Irrlicht.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

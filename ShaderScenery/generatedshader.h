@@ -12,8 +12,8 @@ class GeneratedShader : public Shader
 {
 public:
 
+    GeneratedShader(EnginePtr engine);
     ~GeneratedShader();
-    GeneratedShader();
 
     /**
     * Shader Components avaliable for editing
