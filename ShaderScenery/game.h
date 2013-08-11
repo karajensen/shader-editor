@@ -1,9 +1,8 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com)
-* Global Game Class
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include <boost/noncopyable.hpp>
 #include <boost/smart_ptr.hpp>
 #include "common.h"
@@ -17,7 +16,11 @@ class Quad;
 class EventReceiver;
 class LightEditor;
 class TextureManager;
+class Diagnostic;
 
+/**
+* Main application class
+*/
 class Game : boost::noncopyable
 {
 public:
@@ -48,7 +51,6 @@ private:
 
     /**
     * Render the game world
-    * @param deltaTime the timestep between frames in seconds
     */
     void Render();
 
@@ -83,15 +85,6 @@ private:
     bool CreateEvents();
 
     /**
-    * Creates a render target given a irrlicht texture object
-    * @param rendertarget A pointer to the ITexture pointer
-    * @param name The name of the render target
-    * @param size The size of the render target
-    * @return whether creation succeeded
-    */
-    bool CreateRenderTarget(ITexture** rendertarget, char* name, int size);
-
-    /**
     * Reload meshes from file
     */
     void ReloadMeshesFromFile();
@@ -105,6 +98,15 @@ private:
     * Reloads camera from file
     */
     void ReloadCameraFromFile();
+
+    /**
+    * Creates a render target given a irrlicht texture object
+    * @param rendertarget A pointer to the ITexture pointer
+    * @param name The name of the render target
+    * @param size The size of the render target
+    * @return whether creation succeeded
+    */
+    bool CreateRenderTarget(ITexture** rendertarget, char* name, int size);
 
     /**
     * Toggles the camera between free roam and targeted
@@ -128,6 +130,8 @@ private:
     int m_renderTargetSize;      ///< Standard size for each render target
     int m_normalShaderIndex;     ///< Index for the normal shader index
 
+    boost::scoped_ptr<Diagnostic> m_diagnostic;      ///< Application diagnostics
+    boost::scoped_ptr<LightEditor> m_lights;         ///< Light manager/editor
     boost::scoped_ptr<TextureManager> m_texture;     ///< Texture mananger
     boost::scoped_ptr<EventReceiver> m_events;       ///< Irrlicht event reciever override
     boost::scoped_ptr<Quad> m_quad;                  ///< Post processing screen quad

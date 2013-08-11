@@ -2,10 +2,10 @@
 // Kara Jensen - mail@karajensen.com
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#define SPECULAR_VIS 0
-#define BUMP_VIS 1
-#define PARALLAX_VIS 2
-#define SOFTSHADOW_VIS 3
+#define SPECULAR_VISIBILITY 0
+#define BUMP_VISIBILITY 1
+#define PARALLAX_VISIBILITY 2
+#define SOFTSHADOW_VISIBILITY 3
 uniform vec4 ComponentVisibility;
 
 uniform sampler2D Sampler0;
@@ -42,7 +42,7 @@ void main()
 
 #ifdef BUMP
     vec4 sampledNormal = texture2D(Sampler1, gl_TexCoord[0].st);
-    vec3 bump = (sampledNormal.rgb-0.5)*vec3(ComponentVisibility[BUMP_VIS]);
+    vec3 bump = (sampledNormal.rgb-0.5)*vec3(ComponentVisibility[BUMP_VISIBILITY]);
     vec3 normNormal = normalize(Normal + bump.x*Tangent + bump.y*Binormal);
 #else
     vec3 normNormal = normalize(Normal);
@@ -77,7 +77,7 @@ void main()
         halfVector = normalize(lightVector + cameraVector);
         specular = pow(max(dot(normNormal,halfVector),0.0), gl_FrontMaterial.shininess);
         finalColor += (specular * gl_LightSource[i].specular * specularTexture * att) 
-                      * vec4(ComponentVisibility[SPECULAR_VIS]);
+                      * vec4(ComponentVisibility[SPECULAR_VISIBILITY]);
     #endif
     }
     finalColor *= diffuseTexture;

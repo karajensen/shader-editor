@@ -1,30 +1,29 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "camera.h"
+#include "diagnostic.h"
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iomanip>
 #include <sstream>
-#include "camera.h"
-#include "diagnostic.h"
 
-Camera::CameraTypes Camera::sm_activeType;
-
-Camera::Camera():
+Camera::Camera(EnginePtr engine):
+    m_engine(engine),
     m_cameraTarget(nullptr),
     m_cameraFree(nullptr),
     m_cameraKey(nullptr)
 {
+    m_cameraTarget = m_engine->scene->addCameraSceneNodeMaya();
+    m_cameraFree = m_engine->scene->addCameraSceneNodeMaya();
+    m_cameraKey = m_engine->scene->addCameraSceneNode();
+    LoadCameraFromFile();
 }
 
 Camera::~Camera()
 {
-}
-
-bool Camera::Initialise()
-{
-    m_cameraTarget = Scene()->addCameraSceneNodeMaya();
-    m_cameraFree = Scene()->addCameraSceneNodeMaya();
-    m_cameraKey = Scene()->addCameraSceneNode();
-    return LoadCameraFromFile();
 }
 
 bool Camera::LoadCameraFromFile()
@@ -39,7 +38,7 @@ bool Camera::LoadCameraFromFile()
     float near = boost::lexical_cast<float>(tree.get_child("Near").data());
     float far = boost::lexical_cast<float>(tree.get_child("Far").data());
 
-    ISceneNode* node = Scene()->getSceneNodeFromName(focus.c_str());
+    ISceneNode* node = m_engine->scene->getSceneNodeFromName(focus.c_str());
     if(!node)
     {
         Logger::LogError("Could not find mesh " + focus + " to focus camera on");
@@ -63,8 +62,8 @@ bool Camera::LoadCameraFromFile()
     m_cameraTarget->setRotation(vector3df(0,0,0));
     m_cameraTarget->updateAbsolutePosition();
 
-    Scene()->setActiveCamera(m_cameraTarget);
-    sm_activeType = TARGET;
+    m_engine->scene->setActiveCamera(m_cameraTarget);
+    m_activeType = TARGET;
 
     return true;
 }
@@ -72,27 +71,26 @@ bool Camera::LoadCameraFromFile()
 void Camera::ReloadCameraFromFile()
 {
     m_cameraTarget = nullptr;
-    Scene()->getActiveCamera()->remove();
-    m_cameraTarget = Scene()->addCameraSceneNodeMaya();
+    m_engine->scene->getActiveCamera()->remove();
+    m_cameraTarget = m_engine->scene->addCameraSceneNodeMaya();
 
     LoadCameraFromFile();
-    Diagnostic::Get()->ShowDiagnosticText(L"Camera Reloaded");
 }
 
 void Camera::ToggleCameraTarget(bool free)
 {
-    Scene()->setActiveCamera(free ? m_cameraFree : m_cameraTarget);
-    sm_activeType = free ? FREE : TARGET;
+    m_engine->scene->setActiveCamera(free ? m_cameraFree : m_cameraTarget);
+    m_activeType = free ? FREE : TARGET;
 }
 
 void Camera::LoadKeyedCamera()
 {
-    sm_activeType = KEYED;
+    m_activeType = KEYED;
 }
 
 std::wstring Camera::GetCameraType()
 {
-    switch(sm_activeType)
+    switch(m_activeType)
     {
     case FREE:
         return L"FREE CAMERA";
@@ -108,7 +106,7 @@ std::wstring Camera::GetCameraType()
 void Camera::SetComponentValue(unsigned int component, float value)
 {
     const float delta = 0.00001f;
-    auto* camera = Scene()->getActiveCamera();
+    auto* camera = m_engine->scene->getActiveCamera();
     switch(component)
     {
     case NEAR_VALUE:

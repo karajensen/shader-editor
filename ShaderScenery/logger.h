@@ -1,12 +1,14 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com)
-* Static class for logging
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include <fstream>
 #include <boost/scoped_ptr.hpp>
 
+/**
+* Static class for logging application issues
+*/
 class Logger
 {
 public:

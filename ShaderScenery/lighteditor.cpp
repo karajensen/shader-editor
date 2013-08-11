@@ -1,4 +1,8 @@
-#include "light_editor.h"
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "lighteditor.h"
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
@@ -11,17 +15,16 @@ namespace
     const std::string FILE_NAME = "Lights"; ///< File name for the lights file
 }
 
-LightEditor::LightPtr LightEditor::sm_lightEditor;
-
-LightEditor::LightEditor() :
-    m_selectedLight(0)
+LightEditor::Light::Light(ILightSceneNode* lightNode, const std::string& lightName) : 
+    node(lightNode),
+    name(lightName.begin(), lightName.end())
 {
 }
 
-bool LightEditor::Initialise()
+LightEditor::LightEditor(EnginePtr engine) :
+    m_selectedLight(0),
+    m_engine(engine)
 {
-    sm_lightEditor.reset(new LightEditor());
-
     using namespace boost;
     std::string lightsName = FILE_NAME+FILE_EXT;
     filesystem::path filePath(ASSETS_PATH+lightsName);
@@ -51,7 +54,6 @@ bool LightEditor::Initialise()
                 else
                 {
                     Logger::LogError("Light type not set");
-                    return false;
                 }
 
                 light.DiffuseColor.a = 1.0f;
@@ -71,25 +73,22 @@ bool LightEditor::Initialise()
                 light.Attenuation.Y = GetPtreeValue(it,0.0f,"AttY");
                 light.Attenuation.Z = GetPtreeValue(it,0.0f,"AttZ");
         
-                ILightSceneNode* node = Scene()->addLightSceneNode();
+                ILightSceneNode* node = m_engine->scene->addLightSceneNode();
                 node->setLightData(light);
 
-                sm_lightEditor->m_lights.push_back(Light(node, GetPtreeValue(it, 
+                m_lights.push_back(Light(node, GetPtreeValue(it, 
                     std::string("UNNAMED"), "Name")));
             }
         }
         catch(const filesystem::filesystem_error& e)
         {
             Logger::LogError(e.what());
-            return false;
         }
     }
     else
     {
         Logger::LogError("Could not find " + ASSETS_PATH + lightsName);
-        return false;
     }    
-    return true;
 }
 
 const SLight& LightEditor::GetSelectedLightData() const

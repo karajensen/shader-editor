@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
 #include "generatedshader.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
@@ -246,13 +250,13 @@ stringw GeneratedShader::GetComponentDescription(unsigned int component)
 {
     switch(component)
     {
-    case BUMP_VIS:
+    case BUMP_VISIBILITY:
         return "BUMP MAPPING";
-    case SPECULAR_VIS:
+    case SPECULAR_VISIBILITY:
         return "SPECULAR SHADING";
-    case SOFTSHADOW_VIS:
+    case SOFTSHADOW_VISIBILITY:
         return "SOFT SHADOWS";
-    case PARALLAX_VIS:
+    case PARALLAX_VISIBILITY:
         return "PARALLAX MAPPING";
     default:
         return "NONE";

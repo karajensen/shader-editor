@@ -10,8 +10,8 @@
 #include "postshader.h"
 #include "normalshader.h"
 #include "logger.h"
-#include "event_receiver.h"
-#include "light_editor.h"
+#include "eventreceiver.h"
+#include "lighteditor.h"
 #include "diagnostic.h"
 #include "texture.h"
 #include <boost/filesystem.hpp>
@@ -78,7 +78,7 @@ bool Game::GameLoop()
         m_quad->render();
 
         // Diagnostics
-        Diagnostic::Get()->Render(deltatime);
+        m_diagnostic->Render(deltatime);
 
         m_engine->driver->endScene();
     }
@@ -100,13 +100,12 @@ void Game::ReloadMeshesFromFile()
         Logger::LogError("Reload Meshes From File Failed!");
     }
 
-    Diagnostic::Get()->ShowDiagnosticText(L"Reload Meshes Complete!");
+    m_diagnostic->ShowDiagnosticText(L"Reload Meshes Complete!");
 }
 
 bool Game::Initialise()
 {
     m_events.reset(new EventReceiver());
-    m_camera.reset(new Camera());
 
     // Create the main device
     m_engine->device = createDevice(video::EDT_OPENGL, 
@@ -167,19 +166,14 @@ bool Game::Initialise()
         return false;
     }
 
-    if(!LightEditor::Initialise())
-    {
-        Logger::LogError("Lights failed to initialise");
-        return false;
-    }
-
     if(!InitialiseAssets())
     {
         Logger::LogError("Assets failed to initialise");
         return false;
     }
 
-    Diagnostic::Initialise();
+    m_diagnostic.reset(new Diagnostic(m_engine));
+
     return true;
 }
 
@@ -187,11 +181,15 @@ bool Game::InitialiseAssets()
 {
     try
     {
+        m_lights.reset(new LightEditor(m_engine));
+
         bool success = true;
         success = (success ? CreateEvents() : false);
         success = (success ? CreateMeshes() : false);
         success = (success ? CreateRenderTargets() : false);
-        success = (success ? m_camera->Initialise() : false);
+
+        m_camera.reset(new Camera(m_engine));
+
         return success;
     }
     catch(const boost::filesystem::filesystem_error& e)
@@ -206,27 +204,28 @@ bool Game::CreateEvents()
 {
     auto selectNextLight = [&]()
     {   
-        LightEditor::Get()->SelectNextLight(); 
-        Diagnostic::Get()->UpdateLightDiagnostics();
+        m_lights->SelectNextLight();
+        m_diagnostic->UpdateLightDiagnostics();
     };
 
     auto loadKeyedCamera = [&]()
     {
         m_camera->LoadKeyedCamera();
-        Diagnostic::Get()->UpdateCameraDiagnostics();
+        m_diagnostic->UpdateCameraDiagnostics();
     };
 
     auto reloadCamera = [&]()
     {
         m_camera->ReloadCameraFromFile();
-        Diagnostic::Get()->UpdateCameraDiagnostics();
+        m_diagnostic->UpdateCameraDiagnostics();
+        m_diagnostic->ShowDiagnosticText(L"Camera Reloaded");
     };
 
     // Full signature required for std::bind
     std::function<void(bool)> toggleCamera = [&](bool targeted)
     {
         m_camera->ToggleCameraTarget(targeted);
-        Diagnostic::Get()->UpdateCameraDiagnostics();
+        m_diagnostic->UpdateCameraDiagnostics();
     };
 
     m_events->SetKeyCallback(KEY_KEY_K, false, loadKeyedCamera);
@@ -234,8 +233,8 @@ bool Game::CreateEvents()
     m_events->SetKeyCallback(KEY_KEY_Q, false, selectNextLight);
     m_events->SetKeyCallback(KEY_KEY_F, false, std::bind(toggleCamera, true));
     m_events->SetKeyCallback(KEY_KEY_T, false, std::bind(toggleCamera, false));
-    m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ LightEditor::Get()->SaveLightsToFile(); });
-    m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ Diagnostic::Get()->ToggleShowDiagnostics(); });
+    m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ m_lights->SaveLightsToFile(); });
+    m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ m_diagnostic->ToggleShowDiagnostics(); });
 
     return true;
 }

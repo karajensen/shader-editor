@@ -1,27 +1,23 @@
-/****************************************************************
-* Kara Jensen (mail@karajensen.com)
-* Static Editor for in-scene lights
-*****************************************************************/
-#pragma once
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 #include "common.h"
 #include <boost/noncopyable.hpp>
 
+/**
+* Light manager and editor
+*/
 class LightEditor : boost::noncopyable
 {
 public:
 
     /**
-    * @return the pointer to the diagnostics object
+    * Constructor
+    * @param engine The Irrlicht engine
     */
-    typedef boost::shared_ptr<LightEditor> LightPtr;
-    static const LightPtr& Get() { return sm_lightEditor; }
-
-    /**
-    * Loads in light data from a boost property tree
-    * @return whether or not all light creation succeeded
-    */
-    static bool Initialise();
+    explicit LightEditor(EnginePtr engine);
 
     /**
     * Selects the next light in the light container or 
@@ -30,8 +26,9 @@ public:
     void SelectNextLight();
 
     /**
-    * Adds or subtracts a value from the selected attribute
-    * @param whether to add or not
+    * Sets the given attribute to a value
+    * @param attribute The attribute to set
+    * @param value The value for the attribute
     */
     void SetAttributeValue(unsigned int attribute, float value);
 
@@ -77,25 +74,25 @@ public:
         MAX_ATTRIBUTES
     };
 
+private:
+
     /**
     * Structure for diagnostic light information
     */
     struct Light
     {
-        ILightSceneNode* node;
-        std::wstring name;
-        Light(ILightSceneNode* Node, const std::string& Name) : 
-            node(Node),
-            name(Name.begin(), Name.end())
-        {
-        }
+        /**
+        * Constructor
+        * @param lightNode The node for the scene light
+        * @param lightName The name for the scene light
+        */
+        Light(ILightSceneNode* lightNode, const std::string& lightName);
+
+        ILightSceneNode* node;  ///< The node for the scene light
+        std::wstring name;      ///< The name for the scene light
     };
 
-private:
-
-    LightEditor();
-
-    static LightPtr sm_lightEditor;   ///< Diagnostic singleton pointer
-    std::vector<Light> m_lights;      ///< Array of irrlicht poiners to lights
-    unsigned int m_selectedLight;     ///< Currently selected light for diagnostics
+    std::vector<Light> m_lights;    ///< Array of irrlicht poiners to lights
+    unsigned int m_selectedLight;   ///< Currently selected light for diagnostics
+    EnginePtr m_engine;             ///< Irrlicht engine
 };

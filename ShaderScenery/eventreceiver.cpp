@@ -1,4 +1,15 @@
-#include "event_receiver.h"
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "eventreceiver.h"
+
+EventReceiver::Key::Key() :
+    state(0),
+    onKeyFn(nullptr),
+    continuous(false)
+{
+}
 
 bool EventReceiver::OnEvent(const SEvent& event)
 {
@@ -26,7 +37,7 @@ bool EventReceiver::OnEvent(const SEvent& event)
     return false;
 }
 
-bool EventReceiver::IsKeyDownContinous(unsigned int& state)
+bool EventReceiver::IsKeyDownContinuous(unsigned int& state)
 {
     return (state & KEY_DOWN) == KEY_DOWN;
 }
@@ -52,17 +63,17 @@ void EventReceiver::Update()
 {
     for(KeyMap::iterator it = m_keys.begin(); it != m_keys.end(); ++it)
     {
-        if(it->second.continuous ? IsKeyDownContinous(it->second.state) : IsKeyDown(it->second.state))
+        if(it->second.continuous ? IsKeyDownContinuous(it->second.state) : IsKeyDown(it->second.state))
         {
             it->second.onKeyFn();
         }
     }
 }
 
-void EventReceiver::SetKeyCallback(unsigned int key, bool onContinous, KeyFn keyFn)
+void EventReceiver::SetKeyCallback(unsigned int key, bool onContinuous, KeyFn keyFn)
 {
     m_keys[key] = Key();
     m_keys[key].state = 0x00;
-    m_keys[key].continuous = onContinous;
+    m_keys[key].continuous = onContinuous;
     m_keys[key].onKeyFn = keyFn;
 }

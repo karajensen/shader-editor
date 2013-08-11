@@ -1,14 +1,16 @@
 
-- update boost
+- add doxygen/headers
+- check for explicit to constructor
+
+- check parameter ordering
+- create shader editor class
 - make boost tests for math library
 - update diagnostics to anttweak bar
-- update logger in code notes
-- go through checklist for all files
+
 
 - fix depth/normal maps
 - fix bump/attenuation
 - Create 3D scene
-
 - parallax occlusion mapping
 - soft shadows
 - post effects (fog, dof, glow, SSAO, Color correction)
