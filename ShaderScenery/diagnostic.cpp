@@ -152,30 +152,6 @@ void Diagnostic::InitialiseDiagnosticGUI()
 
 void Diagnostic::SetSpinBoxRanges()
 {
-   //const float cameraStep = 0.1f;
-   //const float shadowStep = 1.0f;
-   //const float attStep = 0.0001f;
-   //const float posStep = 0.5f;
-   //const float colorStep = 0.001f;
-   //const float maxColor = 10.0f;
-   //const int lightPrec = 4;
-   //const int cameraPrec = 2;
-   //
-   //m_lightSpinBoxes[LightEditor::ATTENUATION_X]->SetRange(0.0f, 1.0f, attStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::ATTENUATION_Y]->SetRange(0.0f, 1.0f, attStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::ATTENUATION_Z]->SetRange(0.0f, 1.0f, attStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::POSITION_X]->SetRange(-FLT_MAX, FLT_MAX, posStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::POSITION_Y]->SetRange(-FLT_MAX, FLT_MAX, posStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::POSITION_Z]->SetRange(-FLT_MAX, FLT_MAX, posStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::COLOR_R]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::COLOR_G]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::COLOR_B]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::SPECCOLOR_R]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::SPECCOLOR_G]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::SPECCOLOR_B]->SetRange(0.0f, maxColor, colorStep, lightPrec);
-   //m_lightSpinBoxes[LightEditor::SHADOWS]->SetRange(0.0f, 1.0f, shadowStep, lightPrec);
-   //m_cameraSpinBoxes[Camera::FAR_VALUE]->SetRange(-FLT_MAX, FLT_MAX, cameraStep, cameraPrec);
-   //m_cameraSpinBoxes[Camera::NEAR_VALUE]->SetRange(-FLT_MAX, FLT_MAX, cameraStep, cameraPrec);
 }
 
 void Diagnostic::UpdateLightDiagnostics()
@@ -227,11 +203,6 @@ void Diagnostic::Render(float deltatime)
             m_previousFPS = fps;
         }
 
-        //auto updateSpinBox = [](const SpinBoxPtr& spinbox){ spinbox->Update(); };
-        //std::for_each(m_shaderSpinBoxes.begin(), m_shaderSpinBoxes.end(), updateSpinBox);
-        //std::for_each(m_lightSpinBoxes.begin(), m_lightSpinBoxes.end(), updateSpinBox);
-        //std::for_each(m_cameraSpinBoxes.begin(), m_cameraSpinBoxes.end(), updateSpinBox);
-        //
         //m_lightLabel->setText(LightEditor::Get()->GetSelectedLightDescription().c_str());
         //
         //m_cameraLabel->setText(Camera::GetCameraType().c_str());
