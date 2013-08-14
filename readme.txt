@@ -1,9 +1,6 @@
 
-- add doxygen/headers
-- check for explicit to constructor
-
 - check parameter ordering
-- create shader editor class
+- remove static from gen shader class
 - make boost tests for math library
 - update diagnostics to anttweak bar
 
