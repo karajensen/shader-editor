@@ -71,10 +71,18 @@ public:
     /**
     * @return an  array of editable component visibilities
     */
-    const std::array<float, MAX_EDITABLE>& GetEditableComponents() const;
+    typedef std::array<float, MAX_EDITABLE> EditableComponentArray;
+    const EditableComponentArray& GetEditableComponents() const;
+
+    /**
+    * Allows diagnostics to use the editable components in a tweak bar
+    * @param component The component to access
+    * @return a the address of the editable component
+    */
+    void* GetComponentAddress(EditableComponent component);
 
 
 private:
 
-    std::array<float, MAX_EDITABLE> m_editableComponents;  ///< components that can be edited
+    EditableComponentArray m_editableComponents;  ///< components that can be edited
 };

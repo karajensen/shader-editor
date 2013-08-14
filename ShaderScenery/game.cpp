@@ -187,7 +187,8 @@ bool Game::InitialiseAssets()
         success = (success ? CreateRenderTargets() : false);
 
         m_camera.reset(new Camera(m_engine));
-        m_diagnostic.reset(new Diagnostic(m_engine));
+        m_diagnostic.reset(new Diagnostic(m_engine, m_editor,
+            m_postShader, m_lights));
 
         return success;
     }

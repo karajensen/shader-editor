@@ -20,46 +20,56 @@ void PostShader::OnSetConstants(video::IMaterialRendererServices* services, s32 
     services->setPixelShaderConstant("ComponentVisibility", &m_editableComponents[0], MAX_EDITABLE);
 }
 
-void PostShader::SetVisibleTexture(unsigned int texture)
+void PostShader::SetVisibleTexture(PostShader::OutputTexture texture)
 {
     m_outputTextures.assign(0.0f);
     m_outputTextures[texture] = 1.0f;
 }
 
-void PostShader::SetComponentVisibility(unsigned int component, float value)
+float PostShader::GetTextureVisibility(PostShader::OutputTexture texture)
+{
+    return m_outputTextures[texture];
+}
+
+void PostShader::SetComponentVisibility(PostShader::EditableComponent component, float value)
 {
     m_editableComponents[component] = value;
 }
 
-stringw PostShader::GetComponentDescription(unsigned int component)
+void* PostShader::GetComponentAddress(PostShader::EditableComponent component)
+{
+    return &m_editableComponents[component];
+}
+
+std::string PostShader::GetComponentDescription(PostShader::EditableComponent component)
 {
     switch(component)
     {
     case SSAO_VISIBILITY:
-        return "AMBIENT OCC.";
+        return "Ambient Occlusion";
     case FOG_VISIBILITY:
-        return "FOG";
+        return "Fog Effect";
     case DOF_VISIBILITY:
-        return "DEPTH OF FIELD";
+        return "Depth of field";
     case GLOW_VISIBILITY:
-        return "GLOW";
+        return "Glow Effect";
     default:
         return "NONE";
     };
 }
 
-stringw PostShader::GetTextureDescription(unsigned int texture)
+std::string PostShader::GetTextureDescription(PostShader::OutputTexture texture)
 {
     switch(texture)
     {
     case POST_MAP:
-        return "POST MAP";
+        return "Post Map";
     case DIFFUSE_MAP:
-        return "DIFFUSE MAP";
+        return "Diffuse Map";
     case NORMAL_MAP:
-        return "NORMAL MAP";
+        return "Normal Map";
     case DEPTH_MAP:
-        return "DEPTH MAP";
+        return "Depth Map";
     default:
         return "NONE";
     };

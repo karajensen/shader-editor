@@ -28,7 +28,7 @@ public:
     /**
     * Shader Components avaliable for editing
     */
-    enum ComponentVisibility
+    enum EditableComponent
     {
         FOG_VISIBILITY,
         SSAO_VISIBILITY,
@@ -51,27 +51,41 @@ public:
     virtual void OnSetConstants(IMaterialRendererServices* services, s32 userData) override;
 
     /**
-    * Sets which output texture is shown
+    * Sets which output texture is shown by the post shader
     * @param texture The texture to make visible
     */
-    void SetVisibleTexture(unsigned int texture);
+    void SetVisibleTexture(OutputTexture texture);
 
     /**
+    * @param texture The output texture to get a description for
     * @return a string description of the output texture
     */
-    stringw GetTextureDescription(unsigned int texture);
+    std::string GetTextureDescription(OutputTexture texture);
 
     /**
     * Sets the visiblity of the editable component
     * @param component The component to set the visibility
     * @param value The level of visibilty of the component
     */
-    void SetComponentVisibility(unsigned int component, float value);
+    void SetComponentVisibility(EditableComponent component, float value);
+
+    /**
+    * @param texture The output texture to get the visibility for
+    * @return the visibility of the given texture
+    */
+    float GetTextureVisibility(OutputTexture texture);
 
     /**
     * @return a string description of the editable component
     */
-    stringw GetComponentDescription(unsigned int component);
+    std::string GetComponentDescription(EditableComponent component);
+
+    /**
+    * Allows diagnostics to use the editable components in a tweak bar
+    * @param component The component to access
+    * @return a the address of the editable component
+    */
+    void* GetComponentAddress(EditableComponent component);
 
 private:
 

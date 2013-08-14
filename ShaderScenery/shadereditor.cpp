@@ -20,7 +20,12 @@ std::vector<std::string> ShaderEditor::GetComponentDescriptions()
         (GetComponentDescription(PARALLAX));
 }
 
-const std::array<float, ShaderEditor::MAX_EDITABLE>& ShaderEditor::GetEditableComponents() const
+void* ShaderEditor::GetComponentAddress(ShaderEditor::EditableComponent component)
+{
+    return &m_editableComponents[component];
+}
+
+const ShaderEditor::EditableComponentArray& ShaderEditor::GetEditableComponents() const
 {
     return m_editableComponents;
 }
@@ -56,13 +61,13 @@ std::string ShaderEditor::GetComponentDescription(EditableComponent component)
     switch(component)
     {
     case BUMP_VISIBILITY:
-        return "BUMP MAPPING";
+        return "Bump Mapping";
     case SPECULAR_VISIBILITY:
-        return "SPECULAR SHADING";
+        return "Specular Shading";
     case SOFTSHADOW_VISIBILITY:
-        return "SOFT SHADOWS";
+        return "Soft Shadows";
     case PARALLAX_VISIBILITY:
-        return "PARALLAX MAPPING";
+        return "Parallax Mapping";
     default:
         return "NONE";
     };

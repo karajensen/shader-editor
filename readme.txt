@@ -12,7 +12,7 @@
 - water/environment mapping?
 
 ================================================================
-GARDEN SHADERS
+SHADER SCENERY
 =================================================================
 mail@KaraJensen.com
 www.KaraJensen.com

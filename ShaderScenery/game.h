@@ -132,7 +132,7 @@ private:
     int m_normalShaderIndex;     ///< Index for the normal shader index
 
     boost::scoped_ptr<Diagnostic> m_diagnostic;      ///< Application diagnostics
-    boost::scoped_ptr<LightEditor> m_lights;         ///< Light manager/editor
+    boost::shared_ptr<LightEditor> m_lights;         ///< Light manager/editor
     boost::scoped_ptr<TextureManager> m_texture;     ///< Texture mananger
     boost::scoped_ptr<EventReceiver> m_events;       ///< Irrlicht event reciever override
     boost::scoped_ptr<Quad> m_quad;                  ///< Post processing screen quad
