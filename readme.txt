@@ -1,9 +1,7 @@
 
-- check parameter ordering
-- remove static from gen shader class
+- get key presses working again
 - make boost tests for math library
 - update diagnostics to anttweak bar
-
 
 - fix depth/normal maps
 - fix bump/attenuation
@@ -24,10 +22,10 @@ https://github.com/karajensen/shader-scenery.git
 VISUAL STUDIO VERSION REQUIRED: 2012
 ENVIRONMENT VARIABLES REQUIRED: $(BOOST) Boost Library
 
-Q:  Select next light to edit
 L:  Save lights to xml
 F:  Switch to free camera
 T:  Switch to targeted camera
 K:  Switch to and play keyed camera
 C:  Reload camera from file
+M:  Reload meshes from file
 D:  Toggle Diagnostics

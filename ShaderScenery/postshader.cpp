@@ -8,6 +8,8 @@
 PostShader::PostShader(EnginePtr engine) :
     Shader(engine)
 {
+    m_editableComponents.assign(1.0f);
+    SetVisibleTexture(POST_MAP);
 }
 
 void PostShader::OnSetConstants(video::IMaterialRendererServices* services, s32 userData)
@@ -33,13 +35,13 @@ stringw PostShader::GetComponentDescription(unsigned int component)
 {
     switch(component)
     {
-    case SSAO_VIS:
+    case SSAO_VISIBILITY:
         return "AMBIENT OCC.";
-    case FOG_VIS:
+    case FOG_VISIBILITY:
         return "FOG";
-    case DOF_VIS:
+    case DOF_VISIBILITY:
         return "DEPTH OF FIELD";
-    case GLOW_VIS:
+    case GLOW_VISIBILITY:
         return "GLOW";
     default:
         return "NONE";

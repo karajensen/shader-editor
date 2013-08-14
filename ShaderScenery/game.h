@@ -9,6 +9,7 @@
 
 class Camera;
 class Mesh;
+class ShaderEditor;
 class GeneratedShader;
 class PostShader;
 class NormalShader;
@@ -135,6 +136,7 @@ private:
     boost::scoped_ptr<TextureManager> m_texture;     ///< Texture mananger
     boost::scoped_ptr<EventReceiver> m_events;       ///< Irrlicht event reciever override
     boost::scoped_ptr<Quad> m_quad;                  ///< Post processing screen quad
+    boost::shared_ptr<ShaderEditor> m_editor;        ///< Shader editor for toggling components
     boost::shared_ptr<PostShader> m_postShader;      ///< Post processing shader
     boost::shared_ptr<NormalShader> m_normalShader;  ///< Normal-depth shader
     boost::scoped_ptr<Camera> m_camera;              ///< Camera manager for keyed, free and targeted cameras

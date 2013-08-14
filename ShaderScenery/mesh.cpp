@@ -5,11 +5,10 @@
 #include "mesh.h"
 
 Mesh::Mesh(EnginePtr engine) :
-    m_usesCubeMapping(false),
-    m_node(nullptr),
     m_materialIndex(NO_INDEX),
     m_specularity(0.0f),
     m_backfacecull(true),
+    m_node(nullptr),
     m_engine(engine)
 {
 }

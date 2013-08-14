@@ -1,6 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com
-////////////////////////////////////////////////////////////////////////////////////////
 
 #define POST_MAP 0
 #define DIFFUSE_MAP 1
@@ -8,10 +5,10 @@
 #define DEPTH_MAP 3
 uniform vec4 OutputTexture;
 
-#define FOG_VIS 0
-#define SSAO_VIS 1
-#define GLOW_VIS 2
-#define DOF_VIS 3
+#define FOG_VISIBILITY 0
+#define SSAO_VISIBILITY 1
+#define GLOW_VISIBILITY 2
+#define DOF_VISIBILITY 3
 uniform vec4 ComponentVisibility;
 
 uniform sampler2D Sampler0; //Diffuse Texture
@@ -28,5 +25,4 @@ void main()
         (vec4(OutputTexture[NORMAL_MAP])*NormalTexture) + 
         (vec4(OutputTexture[DEPTH_MAP])*DepthTexture) + 
         (vec4(OutputTexture[POST_MAP])*FinalColor);
-
 }

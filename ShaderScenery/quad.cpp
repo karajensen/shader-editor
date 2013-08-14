@@ -6,8 +6,8 @@
 
 Quad::Quad(EnginePtr engine, ISceneNode* parent, int postShader, s32 id) : 
     ISceneNode(parent, engine->scene, id),
-    m_engine(engine),
-    m_scaleMatrix(IdentityMatrix)
+    m_scaleMatrix(IdentityMatrix),
+    m_engine(engine)
 {
     m_boundingbox.reset(0,0,0);
 

@@ -5,7 +5,7 @@
     <Shader>Specular</Shader>
     <Diffuse>caustic.bmp</Diffuse>
     <Specular>specular.jpg</Specular>
-	</Mesh>
+  </Mesh>
   <Mesh>
     <Name>Skybox.obj</Name>
     <Specularity>5.0</Specularity>

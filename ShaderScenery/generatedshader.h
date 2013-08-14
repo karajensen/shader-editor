@@ -3,9 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <array>
 #include <fstream>
 #include "shader.h"
+
+class ShaderEditor;
 
 /**
 * Fragment linker to auto-generate shaders for each mesh
@@ -17,25 +18,14 @@ public:
     /**
     * Constructor
     * @param engine The Irrlicht engine
+    * @param editor Shader editor for handling shader components
     */
-    explicit GeneratedShader(EnginePtr engine);
+    GeneratedShader(EnginePtr engine, boost::shared_ptr<ShaderEditor> editor);
 
     /**
     * Destructor
     */
     ~GeneratedShader();
-
-    /**
-    * Shader Components avaliable for editing
-    */
-    enum ComponentVisibility
-    {
-        SPECULAR_VISIBILITY,
-        BUMP_VISIBILITY,
-        PARALLAX_VISIBILITY,
-        SOFTSHADOW_VISIBILITY,
-        MAX_EDITABLE
-    };
 
     /**
     * Initialises the shader from fragments
@@ -51,24 +41,6 @@ public:
     * @param userData User defined int specific on shader creation
     */
     virtual void OnSetConstants(IMaterialRendererServices* services, s32 userData) override;
-
-    /**
-    * @return a vector of shader component names
-    */
-    static std::vector<std::string> GetShaderComponents();
-
-    /**
-    * Sets the visiblity of the editable component
-    * @param component The component to set
-    * @param value The level of visibilty of the component
-    */
-    static void SetComponentVisibility(unsigned int component, float value);
-
-    /**
-    * @param component The component to get a description for
-    * @return a string description of the editable component
-    */
-    static stringw GetComponentDescription(unsigned int component);
 
 private:
 
@@ -117,6 +89,6 @@ private:
     std::string ReadFile(const std::string& assetspath, std::ifstream& file, 
         std::ofstream& newfile, const TargetVector& target, bool skiplines);
 
-    std::vector<std::string> m_shaderComponent;  ///< Components part of this shader
-    static std::array<float, MAX_EDITABLE> sm_editableComponents;  ///< which components are can be edited
+    boost::shared_ptr<ShaderEditor> m_editor; ///< Editor for handling component visilibity
+    std::vector<std::string> m_shaderComponent;  ///< Components apart of this shader
 };

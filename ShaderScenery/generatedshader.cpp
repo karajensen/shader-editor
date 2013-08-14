@@ -3,10 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "generatedshader.h"
+#include "shadereditor.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/assign/list_of.hpp>
 
 namespace
 {
@@ -14,13 +15,6 @@ namespace
     const std::string VERTEX_EXTENSION(".vert");  
     const std::string SHADER_PATH(ASSETS_PATH+"Shaders//");
     const std::string GENERATED_FOLDER("Generated//");
-
-    const std::string FLAT("FLAT");          ///< Component name for flat shading
-    const std::string BUMP("BUMP");          ///< Component name for bump mapping
-    const std::string SPECULAR("SPECULAR");  ///< Component name for specular shading
-    const std::string ALPHA("ALPHA");        ///< Component name for alpha transparency
-    const std::string PARALLAX("PARALLAX");  ///< Component name for parallax occlusion mapping
-    const std::string SHADOW("SHADOW");      ///< Component name for soft shadows
 
     const std::string END_OF_FILE("#EOF");
     const std::string FAILURE("#FAILURE");
@@ -31,10 +25,9 @@ namespace
     const std::string INCLUDE("#file ");
 }
 
-std::array<float, GeneratedShader::MAX_EDITABLE> GeneratedShader::sm_editableComponents;
-
-GeneratedShader::GeneratedShader(EnginePtr engine) :
-    Shader(engine)
+GeneratedShader::GeneratedShader(EnginePtr engine, boost::shared_ptr<ShaderEditor> editor) :
+    Shader(engine),
+    m_editor(editor)
 {
 }
 
@@ -55,7 +48,8 @@ void GeneratedShader::OnSetConstants(video::IMaterialRendererServices* services,
 {
     Shader::OnSetConstants(services, userData);
 
-    services->setPixelShaderConstant("ComponentVisibility", &sm_editableComponents[0], MAX_EDITABLE);
+    const auto& components = m_editor->GetEditableComponents();
+    services->setPixelShaderConstant("ComponentVisibility", &components[0], components.size());
 }
 
 void GeneratedShader::AddShaderComponent(const std::string& component,const std::string& name)
@@ -85,7 +79,7 @@ bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool uses
     }
 
     //take apart name to generate a list of shader components
-    std::vector<std::string> shaderComponents(GetShaderComponents());
+    std::vector<std::string> shaderComponents(m_editor->GetComponentDescriptions());
     BOOST_FOREACH(std::string component, shaderComponents)
     {
         AddShaderComponent(component,name);
@@ -99,7 +93,9 @@ bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool uses
         return false;
     }
 
-    return InitialiseShader(name, boost::algorithm::icontains(name, ALPHA), usesMultipleLights, generatedPath);
+    return InitialiseShader(name, boost::algorithm::icontains(name,
+        m_editor->GetComponentDescription(ShaderEditor::ALPHA)),
+        usesMultipleLights, generatedPath);
 }
 
 bool GeneratedShader::CreateShaderFromFragments(const std::string& name, bool isVertex, bool usesMultipleLights)
@@ -234,31 +230,4 @@ std::string GeneratedShader::ReadFile(const std::string& assetspath, std::ifstre
         }
     }
     return END_OF_FILE;
-}
-
-std::vector<std::string> GeneratedShader::GetShaderComponents()
-{
-    return boost::assign::list_of<std::string>(FLAT)(BUMP)(SPECULAR)(ALPHA)(PARALLAX);
-}
-
-void GeneratedShader::SetComponentVisibility(unsigned int component, float value)
-{
-    sm_editableComponents[component] = value;
-}
-
-stringw GeneratedShader::GetComponentDescription(unsigned int component)
-{
-    switch(component)
-    {
-    case BUMP_VISIBILITY:
-        return "BUMP MAPPING";
-    case SPECULAR_VISIBILITY:
-        return "SPECULAR SHADING";
-    case SOFTSHADOW_VISIBILITY:
-        return "SOFT SHADOWS";
-    case PARALLAX_VISIBILITY:
-        return "PARALLAX MAPPING";
-    default:
-        return "NONE";
-    };
 }

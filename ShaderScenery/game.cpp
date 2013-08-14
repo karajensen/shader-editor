@@ -11,6 +11,7 @@
 #include "normalshader.h"
 #include "logger.h"
 #include "eventreceiver.h"
+#include "shadereditor.h"
 #include "lighteditor.h"
 #include "diagnostic.h"
 #include "texture.h"
@@ -35,7 +36,7 @@ Game::Game() :
     m_normalShaderIndex(NO_INDEX)
 {
     m_engine.reset(new IrrlichtEngine());
-    m_drawColour.set(0,0,0,0);
+    m_drawColour.set(255,0,0,0);
 }
 
 Game::~Game()
@@ -56,7 +57,6 @@ bool Game::GameLoop()
         previousTime = currentTime;
 
         m_events->Update();
-
         m_engine->driver->beginScene(true, true, 0);
 
         // Diffuse Render Target
@@ -105,8 +105,6 @@ void Game::ReloadMeshesFromFile()
 
 bool Game::Initialise()
 {
-    m_events.reset(new EventReceiver());
-
     // Create the main device
     m_engine->device = createDevice(video::EDT_OPENGL, 
         dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT),
@@ -172,8 +170,6 @@ bool Game::Initialise()
         return false;
     }
 
-    m_diagnostic.reset(new Diagnostic(m_engine));
-
     return true;
 }
 
@@ -181,7 +177,9 @@ bool Game::InitialiseAssets()
 {
     try
     {
+        m_events.reset(new EventReceiver());
         m_lights.reset(new LightEditor(m_engine));
+        m_editor.reset(new ShaderEditor());
 
         bool success = true;
         success = (success ? CreateEvents() : false);
@@ -189,6 +187,7 @@ bool Game::InitialiseAssets()
         success = (success ? CreateRenderTargets() : false);
 
         m_camera.reset(new Camera(m_engine));
+        m_diagnostic.reset(new Diagnostic(m_engine));
 
         return success;
     }
@@ -205,19 +204,19 @@ bool Game::CreateEvents()
     auto selectNextLight = [&]()
     {   
         m_lights->SelectNextLight();
-        m_diagnostic->UpdateLightDiagnostics();
+        //m_diagnostic->UpdateLightDiagnostics();
     };
 
     auto loadKeyedCamera = [&]()
     {
         m_camera->LoadKeyedCamera();
-        m_diagnostic->UpdateCameraDiagnostics();
+        //m_diagnostic->UpdateCameraDiagnostics();
     };
 
     auto reloadCamera = [&]()
     {
         m_camera->ReloadCameraFromFile();
-        m_diagnostic->UpdateCameraDiagnostics();
+        //m_diagnostic->UpdateCameraDiagnostics();
         m_diagnostic->ShowDiagnosticText(L"Camera Reloaded");
     };
 
@@ -225,7 +224,7 @@ bool Game::CreateEvents()
     std::function<void(bool)> toggleCamera = [&](bool targeted)
     {
         m_camera->ToggleCameraTarget(targeted);
-        m_diagnostic->UpdateCameraDiagnostics();
+        //m_diagnostic->UpdateCameraDiagnostics();
     };
 
     m_events->SetKeyCallback(KEY_KEY_K, false, loadKeyedCamera);
@@ -233,6 +232,7 @@ bool Game::CreateEvents()
     m_events->SetKeyCallback(KEY_KEY_Q, false, selectNextLight);
     m_events->SetKeyCallback(KEY_KEY_F, false, std::bind(toggleCamera, true));
     m_events->SetKeyCallback(KEY_KEY_T, false, std::bind(toggleCamera, false));
+    m_events->SetKeyCallback(KEY_KEY_M, false, std::bind(&Game::ReloadMeshesFromFile, this));
     m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ m_lights->SaveLightsToFile(); });
     m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ m_diagnostic->ToggleShowDiagnostics(); });
 
@@ -252,7 +252,7 @@ bool Game::CreateRenderTargets()
 
     // Create post shader
     m_postShader.reset(new PostShader(m_engine));
-    if(m_postShader->InitialiseShader("postshader", false,  false))
+    if(!m_postShader->InitialiseShader("postshader", false,  false))
     {
         Logger::LogError("postshader failed initilisation!");
         return false;
@@ -298,7 +298,7 @@ bool Game::CreateMeshes()
 
         // Copy each component featured in the given shader name to a set order
         std::string newShaderName;
-        std::vector<std::string> shaderComponents(GeneratedShader::GetShaderComponents());
+        std::vector<std::string> shaderComponents(m_editor->GetComponentDescriptions());
         BOOST_FOREACH(std::string component, shaderComponents)
         {
             if(boost::algorithm::icontains(shadername, component))
@@ -320,7 +320,7 @@ bool Game::CreateMeshes()
         if(shaderIndex == NO_INDEX)
         {
             int index = m_shaders.size();
-            m_shaders.push_back(Shader_Ptr(new GeneratedShader(m_engine)));
+            m_shaders.push_back(Shader_Ptr(new GeneratedShader(m_engine, m_editor)));
             if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
             {
                 Logger::LogError("Shader name " + shadername +
@@ -352,7 +352,11 @@ bool Game::CreateMeshes()
                 texture, m_meshes[index]->GetMeshNode(), textureSlot) : false;
         });
 
-        return suceeded;
+        if(!suceeded)
+        {
+            Logger::LogError("Texture could not be loaded");
+            return false;
+        }
     }
     return true;
 }

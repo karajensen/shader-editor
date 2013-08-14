@@ -5,7 +5,7 @@
 #include "eventreceiver.h"
 
 EventReceiver::Key::Key() :
-    state(0),
+    state(NONE),
     onKeyFn(nullptr),
     continuous(false)
 {
@@ -73,7 +73,7 @@ void EventReceiver::Update()
 void EventReceiver::SetKeyCallback(unsigned int key, bool onContinuous, KeyFn keyFn)
 {
     m_keys[key] = Key();
-    m_keys[key].state = 0x00;
+    m_keys[key].state = NONE;
     m_keys[key].continuous = onContinuous;
     m_keys[key].onKeyFn = keyFn;
 }

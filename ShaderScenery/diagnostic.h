@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <functional>
+#include <AntTweakBar.h>
 #include "common.h"
 
 /**
@@ -20,6 +21,11 @@ public:
     * @param engine The Irrlicht engine
     */
     explicit Diagnostic(EnginePtr engine);
+
+    /**
+    * Destructor
+    */
+    Diagnostic();
 
     /**
     * Renders the diagnostics
@@ -38,43 +44,13 @@ public:
     */
     void ToggleShowDiagnostics();
 
-    /**
-    * Updates the light gui diagnostics with the currently selected light
-    */
-    void UpdateLightDiagnostics();
-
-    /**
-    * Updates the camera diagnostics with the currently selected camera
-    */
-    void UpdateCameraDiagnostics();
-
 private:
 
-    /**
-    * Initialises the GUI objects for diagnostics
-    */
-    void InitialiseDiagnosticGUI();
-
-    /**
-    * Sets any custom ranges for the spin boxes
-    */
-    void SetSpinBoxRanges();
-
-    bool m_render;       ///< Whether to allow rendering of diagnostics
-    float m_textTimer;   ///< Timer for displaying diagnostics text
-    bool m_runTimer;     ///< Start the timer for diagnostic text display
-    int m_previousFPS;   ///< The frames for the previous second
-    EnginePtr m_engine;  ///< Irrlicht engine
-
-    IGUIStaticText* m_generalText;   ///< Generaral diagnostics text box
-
-
-    //IGUIStaticText* m_cameraLabel;   ///< Diagnostic text for the camera type
-    //IGUIStaticText* m_lightLabel;    ///< Selected light title
-    //IGUIListBox* m_outTextureList;   ///< Listbox for possible output post textures
-    //StaticTextVector m_bgrounds;     ///< Backgrounds for gui sections
-
-    //SpinBoxVector m_shaderSpinBoxes;  ///< Spinboxes for shader options
-    //SpinBoxVector m_lightSpinBoxes;   ///< Spinboxes for light options
-    //SpinBoxVector m_cameraSpinBoxes;  ///< Spinboxes for camera options
+    bool m_render;           ///< Whether to allow rendering of diagnostics
+    float m_textTimer;       ///< Timer for displaying diagnostics text
+    bool m_runTimer;         ///< Start the timer for diagnostic text display
+    int m_previousFPS;       ///< The frames for the previous second
+    EnginePtr m_engine;      ///< Irrlicht engine
+    TwBar* m_tweakbar;       ///< Tweak bar for editing the application
+    IGUIStaticText* m_text;  ///< Generaral diagnostics text box
 };

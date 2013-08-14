@@ -1,0 +1,80 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - shadereditor.h
+////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+#include "common.h"
+#include <array>
+#include <boost/noncopyable.hpp>
+
+/**
+* Generated shader component edtior
+*/
+class ShaderEditor : boost::noncopyable
+{
+public:
+
+    /**
+    * All shader components
+    */
+    enum Component
+    {
+        FLAT,
+        BUMP,
+        SPECULAR,
+        ALPHA,
+        PARALLAX,
+        SHADOW
+    };
+
+    /**
+    * Shader Components avaliable for editing
+    */
+    enum EditableComponent
+    {
+        SPECULAR_VISIBILITY,
+        BUMP_VISIBILITY,
+        PARALLAX_VISIBILITY,
+        SOFTSHADOW_VISIBILITY,
+        MAX_EDITABLE
+    };
+
+    /**
+    * Constructor
+    */
+    ShaderEditor();
+
+    /**
+    * @return a vector of all shader component names
+    */
+    std::vector<std::string> GetComponentDescriptions();
+
+    /**
+    * Sets the visiblity of the editable component
+    * @param component The component to set
+    * @param value The level of visibilty of the component
+    */
+    void SetComponentVisibility(unsigned int component, float value);
+
+    /**
+    * @param component The component to get a description for
+    * @return a string description of the editable component
+    */
+    std::string GetComponentDescription(EditableComponent component);
+
+    /**
+    * @param component The component to get a description for
+    * @return a string description of the component
+    */
+    std::string GetComponentDescription(Component component);
+
+    /**
+    * @return an  array of editable component visibilities
+    */
+    const std::array<float, MAX_EDITABLE>& GetEditableComponents() const;
+
+
+private:
+
+    std::array<float, MAX_EDITABLE> m_editableComponents;  ///< components that can be edited
+};

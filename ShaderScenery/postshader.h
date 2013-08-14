@@ -30,10 +30,10 @@ public:
     */
     enum ComponentVisibility
     {
-        FOG_VIS,
-        SSAO_VIS,
-        GLOW_VIS,
-        DOF_VIS,
+        FOG_VISIBILITY,
+        SSAO_VISIBILITY,
+        GLOW_VISIBILITY,
+        DOF_VISIBILITY,
         MAX_EDITABLE
     };
 

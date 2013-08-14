@@ -9,6 +9,7 @@
 ShaderScenery/logfile.txt
 ShaderScenery/Debug/
 ShaderScenery/Release/
+ShaderScenery/UnitTests/
 ShaderScenery/Assets/Shaders/Generated/
 Graphics/
 ipch/

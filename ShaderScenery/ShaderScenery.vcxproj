@@ -24,6 +24,7 @@
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="generatedshader.cpp" />
     <ClCompile Include="postshader.cpp" />
+    <ClCompile Include="shadereditor.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="eventreceiver.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="normalshader.h" />
+    <ClInclude Include="shadereditor.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="vector3.h" />
     <ClInclude Include="game.h" />
@@ -112,7 +114,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Irrlicht.lib;vld.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\vld\lib\Win32;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST)\stage\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\vld\lib\Win32;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,7 +130,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Irrlicht.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BOOST)\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST)\stage\lib;$(SolutionDir)\$(TargetName)\irrlicht\lib\Win32-visualstudio;$(SolutionDir)\$(TargetName)\anttweakbar\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
