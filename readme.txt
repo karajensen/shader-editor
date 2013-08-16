@@ -1,5 +1,5 @@
 
-- get key presses working again
+- switch to ogre
 - make boost tests for math library
 - update diagnostics to anttweak bar
 

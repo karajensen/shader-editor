@@ -105,6 +105,10 @@ void Game::ReloadMeshesFromFile()
 
 bool Game::Initialise()
 {
+    // Initialise the event reciever
+    m_events.reset(new EventReceiver());
+    CreateEvents();
+
     // Create the main device
     m_engine->device = createDevice(video::EDT_OPENGL, 
         dimension2d<u32>(WINDOW_WIDTH, WINDOW_HEIGHT),
@@ -177,12 +181,10 @@ bool Game::InitialiseAssets()
 {
     try
     {
-        m_events.reset(new EventReceiver());
         m_lights.reset(new LightEditor(m_engine));
         m_editor.reset(new ShaderEditor());
 
         bool success = true;
-        success = (success ? CreateEvents() : false);
         success = (success ? CreateMeshes() : false);
         success = (success ? CreateRenderTargets() : false);
 
@@ -200,7 +202,7 @@ bool Game::InitialiseAssets()
     return true;
 }
 
-bool Game::CreateEvents()
+void Game::CreateEvents()
 {
     auto selectNextLight = [&]()
     {   
@@ -236,8 +238,6 @@ bool Game::CreateEvents()
     m_events->SetKeyCallback(KEY_KEY_M, false, std::bind(&Game::ReloadMeshesFromFile, this));
     m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ m_lights->SaveLightsToFile(); });
     m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ m_diagnostic->ToggleShowDiagnostics(); });
-
-    return true;
 }
 
 bool Game::CreateRenderTargets()

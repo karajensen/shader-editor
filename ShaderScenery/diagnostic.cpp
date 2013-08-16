@@ -71,9 +71,7 @@ Diagnostic::Diagnostic(EnginePtr engine,
     {
         PostShader::OutputTexture texture = 
             static_cast<PostShader::OutputTexture>(i);
-
     }
-
 }
 
 Diagnostic::~Diagnostic()

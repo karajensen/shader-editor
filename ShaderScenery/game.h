@@ -83,7 +83,7 @@ private:
     * Creates the input/events
     * @return whether creation succeeded
     */
-    bool CreateEvents();
+    void CreateEvents();
 
     /**
     * Reload meshes from file
