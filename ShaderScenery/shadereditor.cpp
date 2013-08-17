@@ -10,7 +10,7 @@ ShaderEditor::ShaderEditor()
     m_editableComponents.assign(1.0f);
 }
 
-std::vector<std::string> ShaderEditor::GetComponentDescriptions()
+std::vector<std::string> ShaderEditor::GetComponentDescriptions() const
 {
     return boost::assign::list_of<std::string>
         (GetComponentDescription(FLAT))
@@ -35,7 +35,7 @@ void ShaderEditor::SetComponentVisibility(unsigned int component, float value)
     m_editableComponents[component] = value;
 }
 
-std::string ShaderEditor::GetComponentDescription(Component component)
+std::string ShaderEditor::GetComponentDescription(Component component) const
 {
     switch(component)
     {
@@ -56,19 +56,19 @@ std::string ShaderEditor::GetComponentDescription(Component component)
     };
 }
 
-std::string ShaderEditor::GetComponentDescription(EditableComponent component)
+const char* ShaderEditor::GetComponentDescription(EditableComponent component) const
 {
     switch(component)
     {
     case BUMP_VISIBILITY:
-        return "Bump Mapping";
+        return "Bump";
     case SPECULAR_VISIBILITY:
-        return "Specular Shading";
+        return "Specular";
     case SOFTSHADOW_VISIBILITY:
-        return "Soft Shadows";
+        return "Shadows";
     case PARALLAX_VISIBILITY:
-        return "Parallax Mapping";
+        return "Parallax";
     default:
-        return "NONE";
+        return "None";
     };
 }

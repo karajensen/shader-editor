@@ -4,6 +4,7 @@
 
 #pragma once
 #include "common.h"
+#include <array>
 #include <boost/noncopyable.hpp>
 
 /**
@@ -14,23 +15,23 @@ class LightEditor : boost::noncopyable
 public:
 
     /**
+    * Data stored for the selected light
+    * @note: various types are chosen to align with tweak bar
+    */
+    struct LightData
+    {
+        std::array<float,3> position;    ///< Position in world coord
+        std::array<float,3> attenuation; ///< Falloff of light
+        std::array<float,3> diffuse;     ///< Diffuse color
+        std::array<float,3> specular;    ///< Specular color
+        bool castsShadows;               ///< Whether casts shadows                      
+    };
+
+    /**
     * Constructor
     * @param engine The Irrlicht engine
     */
     explicit LightEditor(EnginePtr engine);
-
-    /**
-    * Selects the next light in the light container or 
-    * diables the editor if at end of container
-    */
-    void SelectNextLight();
-
-    /**
-    * Sets the given attribute to a value
-    * @param attribute The attribute to set
-    * @param value The value for the attribute
-    */
-    void SetAttributeValue(unsigned int attribute, float value);
 
     /**
     * Saves the current lighting configuration to a file 
@@ -39,40 +40,24 @@ public:
     void SaveLightsToFile();
 
     /**
-    * @return the name for the selected light
+    * Updates the selected light
     */
-    stringw GetSelectedLightDescription() const;
+    void Update();
+
+    /**
+    * Selects the next light in the light container
+    */
+    void SelectNextLight();
 
     /**
     * @return the data for the selected light
     */
-    const SLight& GetSelectedLightData() const;
+    LightData& GetSelectedLightData();
 
     /**
-    * @return description for the attribute
+    * @return a description of the currently selected light
     */
-    stringw GetAttributeDescription(unsigned int attribute) const;
-
-    /**
-    * Shared light attributes
-    */
-    enum Attribute
-    {
-        ATTENUATION_X,
-        ATTENUATION_Y,
-        ATTENUATION_Z,
-        POSITION_X,
-        POSITION_Y,
-        POSITION_Z,
-        COLOR_R,
-        COLOR_G,
-        COLOR_B,
-        SPECCOLOR_R,
-        SPECCOLOR_G,
-        SPECCOLOR_B,
-        SHADOWS,
-        MAX_ATTRIBUTES
-    };
+    const char* GetLightType() const;
 
 private:
 
@@ -89,10 +74,11 @@ private:
         Light(ILightSceneNode* lightNode, const std::string& lightName);
 
         ILightSceneNode* node;  ///< The node for the scene light
-        std::wstring name;      ///< The name for the scene light
+        std::string name;       ///< The name for the scene light
     };
 
-    std::vector<Light> m_lights;    ///< Array of irrlicht poiners to lights
-    unsigned int m_selectedLight;   ///< Currently selected light for diagnostics
-    EnginePtr m_engine;             ///< Irrlicht engine
+    std::vector<Light> m_lights;  ///< Array of irrlicht poiners to lights
+    EnginePtr m_engine;           ///< Irrlicht engine
+    int m_selectedIndex;          ///< Currently selected light index for diagnostics
+    LightData m_selectedData;     ///< Currently selected light data for diagnostics
 };

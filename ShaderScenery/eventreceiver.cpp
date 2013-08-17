@@ -11,27 +11,35 @@ EventReceiver::Key::Key() :
 {
 }
 
-bool EventReceiver::OnEvent(const SEvent& event)
+void EventReceiver::SetObserver(EventObserverFn observerFn)
 {
-    if (event.EventType == irr::EET_KEY_INPUT_EVENT)
+    m_eventObservers.push_back(observerFn);
+}
+
+bool EventReceiver::OnEvent(const SEvent& inputEvent)
+{
+    std::for_each(m_eventObservers.begin(), m_eventObservers.end(), 
+        [&inputEvent](const EventObserverFn& evenObFn){ evenObFn(inputEvent); });
+
+    if(inputEvent.EventType == irr::EET_KEY_INPUT_EVENT)
     {
-        if(m_keys.find(static_cast<unsigned int>(event.KeyInput.Key)) != m_keys.end())
+        if(m_keys.find(static_cast<unsigned int>(inputEvent.KeyInput.Key)) != m_keys.end())
         {
-            if(event.KeyInput.PressedDown)
+            if(inputEvent.KeyInput.PressedDown)
             {
                 // Turn on KEY_DOWN
-                m_keys[event.KeyInput.Key].state |= KEY_DOWN;
+                m_keys[inputEvent.KeyInput.Key].state |= KEY_DOWN;
             }
             else
             {
                 // Turn off KEY_DOWN
-                m_keys[event.KeyInput.Key].state &= ~KEY_DOWN;
+                m_keys[inputEvent.KeyInput.Key].state &= ~KEY_DOWN;
             }
         }
     }
-    else if(event.EventType == irr::EET_LOG_TEXT_EVENT)
+    else if(inputEvent.EventType == irr::EET_LOG_TEXT_EVENT)
     {
-        Logger::LogInfo(event.LogEvent.Text);
+        Logger::LogInfo(inputEvent.LogEvent.Text);
         return true;
     }
     return false;

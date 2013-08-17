@@ -8,13 +8,14 @@
 #include <functional>
 #include <AntTweakBar.h>
 #include "common.h"
+#include "postshader.h"
 
 class ShaderEditor;
 class LightEditor;
-class PostShader;
+class Camera;
 
 /**
-* Class for rendering the application shader/light diagnostics
+* Class for rendering the application scene diagnostics
 */
 class Diagnostic : boost::noncopyable
 {
@@ -26,11 +27,13 @@ public:
     * @param shader The editor to manipulate shaders
     * @parma postshader The post processing shader
     * @param light The editor to manipulate lights
+    * @param camera The active camera to manipulate
     */
     Diagnostic(EnginePtr engine, 
         boost::shared_ptr<ShaderEditor> shader,
         boost::shared_ptr<PostShader> postshader,
-        boost::shared_ptr<LightEditor> light);
+        boost::shared_ptr<LightEditor> light,
+        boost::shared_ptr<Camera> camera);
 
     /**
     * Destructor
@@ -44,6 +47,12 @@ public:
     void Render(float deltatime);
 
     /**
+    * Handles input events for the tweak bar diagnostics
+    * @param event The input event
+    */
+    void HandleInputEvent(const SEvent& inputEvent);
+
+    /**
     * Sets/shows the main diagnostic text for a specific period of time
     * @param text The text to show
     */
@@ -53,6 +62,20 @@ public:
     * Toggle whether to render diagnostics
     */
     void ToggleShowDiagnostics();
+
+    /**
+    * Functor for changing the output texture
+    */
+    struct TextureFunctor
+    {
+        /**
+        * Functor callback
+        */
+        void operator()();
+
+        boost::shared_ptr<PostShader> postshader; ///< The post processing shader
+        PostShader::OutputTexture texture; ///< The texture to change to
+    };
 
 private:
 
@@ -67,4 +90,8 @@ private:
     boost::shared_ptr<PostShader> m_postshader; ///< The post processing shader
     boost::shared_ptr<ShaderEditor> m_shader;   ///< Editor to manipulate shaders
     boost::shared_ptr<LightEditor> m_light;     ///< Editor to manipulate lights
+    boost::shared_ptr<Camera> m_camera;         ///< Active scene camera
+
+    std::array<TextureFunctor, PostShader::MAX_TEXTURES>
+        m_buttonCallbacks; ///< Callbacks for changing the output texture
 };

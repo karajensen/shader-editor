@@ -131,7 +131,7 @@ private:
     int m_renderTargetSize;      ///< Standard size for each render target
     int m_normalShaderIndex;     ///< Index for the normal shader index
 
-    boost::scoped_ptr<Diagnostic> m_diagnostic;      ///< Application diagnostics
+    boost::shared_ptr<Diagnostic> m_diagnostic;      ///< Application diagnostics
     boost::shared_ptr<LightEditor> m_lights;         ///< Light manager/editor
     boost::scoped_ptr<TextureManager> m_texture;     ///< Texture mananger
     boost::scoped_ptr<EventReceiver> m_events;       ///< Irrlicht event reciever override
@@ -139,5 +139,5 @@ private:
     boost::shared_ptr<ShaderEditor> m_editor;        ///< Shader editor for toggling components
     boost::shared_ptr<PostShader> m_postShader;      ///< Post processing shader
     boost::shared_ptr<NormalShader> m_normalShader;  ///< Normal-depth shader
-    boost::scoped_ptr<Camera> m_camera;              ///< Camera manager for keyed, free and targeted cameras
+    boost::shared_ptr<Camera> m_camera;              ///< Camera manager for keyed, free and targeted cameras
 };

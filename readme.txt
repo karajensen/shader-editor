@@ -1,7 +1,5 @@
 
-- switch to ogre
 - make boost tests for math library
-- update diagnostics to anttweak bar
 
 - fix depth/normal maps
 - fix bump/attenuation
@@ -10,6 +8,7 @@
 - soft shadows
 - post effects (fog, dof, glow, SSAO, Color correction)
 - water/environment mapping?
+- switch to ogre
 
 ================================================================
 SHADER SCENERY

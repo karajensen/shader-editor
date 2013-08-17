@@ -57,6 +57,8 @@ bool Game::GameLoop()
         previousTime = currentTime;
 
         m_events->Update();
+        m_lights->Update();
+        m_camera->Update();
         m_engine->driver->beginScene(true, true, 0);
 
         // Diffuse Render Target
@@ -107,7 +109,6 @@ bool Game::Initialise()
 {
     // Initialise the event reciever
     m_events.reset(new EventReceiver());
-    CreateEvents();
 
     // Create the main device
     m_engine->device = createDevice(video::EDT_OPENGL, 
@@ -188,9 +189,15 @@ bool Game::InitialiseAssets()
         success = (success ? CreateMeshes() : false);
         success = (success ? CreateRenderTargets() : false);
 
-        m_camera.reset(new Camera(m_engine));
-        m_diagnostic.reset(new Diagnostic(m_engine, m_editor,
-            m_postShader, m_lights));
+        if(success)
+        {
+            m_camera.reset(new Camera(m_engine));
+
+            m_diagnostic.reset(new Diagnostic(m_engine, 
+                m_editor, m_postShader, m_lights, m_camera));
+
+            CreateEvents();
+        }
 
         return success;
     }
@@ -235,9 +242,18 @@ void Game::CreateEvents()
     m_events->SetKeyCallback(KEY_KEY_Q, false, selectNextLight);
     m_events->SetKeyCallback(KEY_KEY_F, false, std::bind(toggleCamera, true));
     m_events->SetKeyCallback(KEY_KEY_T, false, std::bind(toggleCamera, false));
-    m_events->SetKeyCallback(KEY_KEY_M, false, std::bind(&Game::ReloadMeshesFromFile, this));
-    m_events->SetKeyCallback(KEY_KEY_L, false, [&](){ m_lights->SaveLightsToFile(); });
-    m_events->SetKeyCallback(KEY_KEY_D, false, [&](){ m_diagnostic->ToggleShowDiagnostics(); });
+
+    m_events->SetKeyCallback(KEY_KEY_M, false, 
+        std::bind(&Game::ReloadMeshesFromFile, this));
+
+    m_events->SetKeyCallback(KEY_KEY_L, false, 
+        std::bind(&LightEditor::SaveLightsToFile, m_lights));
+
+    m_events->SetKeyCallback(KEY_KEY_D, false, 
+        std::bind(&Diagnostic::ToggleShowDiagnostics, m_diagnostic));
+
+    m_events->SetObserver(std::bind(&Diagnostic::HandleInputEvent,
+        m_diagnostic, std::placeholders::_1));
 }
 
 bool Game::CreateRenderTargets()

@@ -17,12 +17,12 @@ namespace
 
 LightEditor::Light::Light(ILightSceneNode* lightNode, const std::string& lightName) : 
     node(lightNode),
-    name(lightName.begin(), lightName.end())
+    name(lightName)
 {
 }
 
 LightEditor::LightEditor(EnginePtr engine) :
-    m_selectedLight(0),
+    m_selectedIndex(NO_INDEX),
     m_engine(engine)
 {
     using namespace boost;
@@ -89,122 +89,63 @@ LightEditor::LightEditor(EnginePtr engine) :
     {
         Logger::LogError("Could not find " + ASSETS_PATH + lightsName);
     }    
+
+    // Fill in the selected light data
+    SelectNextLight();
 }
 
-const SLight& LightEditor::GetSelectedLightData() const
+const char* LightEditor::GetLightType() const
 {
-    return m_lights[m_selectedLight].node->getLightData();
+    return m_lights[m_selectedIndex].name.c_str();
 }
 
-stringw LightEditor::GetSelectedLightDescription() const
+LightEditor::LightData& LightEditor::GetSelectedLightData()
 {
-    stringw description(m_lights[m_selectedLight].name.c_str());
-    description.make_upper();
-
-    const auto& data = GetSelectedLightData();
-    switch(data.Type)
-    {
-    case ELT_DIRECTIONAL:
-        description += " \n[DIRECTIONAL]";
-        break;
-    case ELT_POINT:
-        description += " \n[POINT]";
-        break;
-    }
-    return description;
+    return m_selectedData;
 }
 
-stringw LightEditor::GetAttributeDescription(unsigned int attribute) const
+void LightEditor::Update()
 {
-    switch(attribute)
-    {
-        case ATTENUATION_X: 
-            return "ATTENUATION X";
-        case ATTENUATION_Y:
-            return "ATTENUATION Y";
-        case ATTENUATION_Z:
-            return "ATTENUATION Z";
-        case POSITION_X:
-            return "POSITION X";
-        case POSITION_Y:    
-            return "POSITION Y";
-        case POSITION_Z:    
-            return "POSITION Z";
-        case COLOR_R:  
-            return "DIFFUSE R";
-        case COLOR_G:       
-            return "DIFFUSE G";
-        case COLOR_B:       
-            return "DIFFUSE B";
-        case SPECCOLOR_R:  
-            return "SPECULAR R";
-        case SPECCOLOR_G:       
-            return "SPECULAR G";
-        case SPECCOLOR_B:       
-            return "SPECULAR B";
-        case SHADOWS:
-            return "SHADOWS";
-        default:
-            return "None";
-    }
-}
-
-void LightEditor::SetAttributeValue(unsigned int attribute, float value) 
-{
-    SLight& data = m_lights[m_selectedLight].node->getLightData();
-    switch(attribute)
-    {
-        case ATTENUATION_X: 
-            data.Attenuation.X = value;
-            break;
-        case ATTENUATION_Y:
-            data.Attenuation.Y = value;
-            break;
-        case ATTENUATION_Z:
-            data.Attenuation.Z = value;
-            break;
-        case POSITION_X:
-            data.Position.X = value;
-            m_lights[m_selectedLight].node->setPosition(data.Position);
-            break;
-        case POSITION_Y:    
-            data.Position.Y = value;
-            m_lights[m_selectedLight].node->setPosition(data.Position);
-            break;
-        case POSITION_Z:    
-            data.Position.Z = value;
-            m_lights[m_selectedLight].node->setPosition(data.Position);
-            break;
-        case COLOR_R:  
-            data.DiffuseColor.r = value;
-            break;
-        case COLOR_G:       
-            data.DiffuseColor.g = value;
-            break;
-        case COLOR_B:       
-            data.DiffuseColor.b = value;
-            break;
-        case SPECCOLOR_R:  
-            data.SpecularColor.r = value;
-            break;
-        case SPECCOLOR_G:       
-            data.SpecularColor.g = value;
-            break;
-        case SPECCOLOR_B:       
-            data.SpecularColor.b = value;
-            break;
-        case SHADOWS:
-            data.CastShadows = (value != 0);
-    }
+    SLight& data = m_lights[m_selectedIndex].node->getLightData();
+    data.Attenuation.X = m_selectedData.attenuation[0];
+    data.Attenuation.Y = m_selectedData.attenuation[1];
+    data.Attenuation.Z = m_selectedData.attenuation[2];
+    data.Position.X = m_selectedData.position[0];
+    data.Position.Y = m_selectedData.position[1];
+    data.Position.Z = m_selectedData.position[2];
+    data.DiffuseColor.r = m_selectedData.diffuse[0];
+    data.DiffuseColor.g = m_selectedData.diffuse[1];
+    data.DiffuseColor.b = m_selectedData.diffuse[2];
+    data.SpecularColor.r = m_selectedData.specular[0];
+    data.SpecularColor.g = m_selectedData.specular[1];
+    data.SpecularColor.b = m_selectedData.specular[2];
+    data.CastShadows = m_selectedData.castsShadows;
+    m_lights[m_selectedIndex].node->setLightData(data);
+    m_lights[m_selectedIndex].node->setPosition(data.Position);
 }
 
 void LightEditor::SelectNextLight()
 {
-    ++m_selectedLight;
-    if(m_selectedLight >= m_lights.size())
+    ++m_selectedIndex;
+    if(m_selectedIndex >= static_cast<int>(m_lights.size()))
     {
-        m_selectedLight = 0;
+        m_selectedIndex = 0;
     }
+
+    const SLight& data = m_lights[m_selectedIndex].node->getLightData();
+    m_selectedData.attenuation[0] = data.Attenuation.X;
+    m_selectedData.attenuation[1] = data.Attenuation.Y;
+    m_selectedData.attenuation[2] = data.Attenuation.Z;
+    m_selectedData.position[0] = data.Position.X;
+    m_selectedData.position[1] = data.Position.Y;
+    m_selectedData.position[2] = data.Position.Z;
+    m_selectedData.diffuse[0] = data.DiffuseColor.r;
+    m_selectedData.diffuse[1] = data.DiffuseColor.g;
+    m_selectedData.diffuse[2] = data.DiffuseColor.b;
+    m_selectedData.specular[0] = data.SpecularColor.r;
+    m_selectedData.specular[1] = data.SpecularColor.g;
+    m_selectedData.specular[2] = data.SpecularColor.b;
+    m_selectedData.castsShadows = data.CastShadows;
 }
 
 void LightEditor::SaveLightsToFile()

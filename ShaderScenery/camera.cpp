@@ -14,7 +14,9 @@ Camera::Camera(EnginePtr engine):
     m_engine(engine),
     m_cameraTarget(nullptr),
     m_cameraFree(nullptr),
-    m_cameraKey(nullptr)
+    m_cameraKey(nullptr),
+    m_nearValue(0.0f),
+    m_farValue(0.0f)
 {
     m_cameraTarget = m_engine->scene->addCameraSceneNodeMaya();
     m_cameraFree = m_engine->scene->addCameraSceneNodeMaya();
@@ -62,9 +64,7 @@ bool Camera::LoadCameraFromFile()
     m_cameraTarget->setRotation(vector3df(0,0,0));
     m_cameraTarget->updateAbsolutePosition();
 
-    m_engine->scene->setActiveCamera(m_cameraTarget);
-    m_activeType = TARGET;
-
+    ChangeCameraType(TARGET);
     return true;
 }
 
@@ -79,54 +79,79 @@ void Camera::ReloadCameraFromFile()
 
 void Camera::ToggleCameraTarget(bool free)
 {
-    m_engine->scene->setActiveCamera(free ? m_cameraFree : m_cameraTarget);
-    m_activeType = free ? FREE : TARGET;
+    ChangeCameraType(free ? FREE : TARGET);
+}
+
+void Camera::ChangeCameraType(Camera::CameraType type)
+{
+    m_activeType = type;
+    switch(m_activeType)
+    {
+    case FREE:
+        m_engine->scene->setActiveCamera(m_cameraFree);
+        m_typeName = "Free Camera";
+        break;
+    case TARGET:
+        m_engine->scene->setActiveCamera(m_cameraTarget);
+        m_typeName = "Target Camera";
+        break;
+    case KEYED:
+        m_typeName = "Keyed Camera";
+        break;
+    default:
+        m_typeName = "None";
+    }
+
+    m_farValue = m_engine->scene->getActiveCamera()->getFarValue();
+    m_nearValue = m_engine->scene->getActiveCamera()->getNearValue();
 }
 
 void Camera::LoadKeyedCamera()
 {
-    m_activeType = KEYED;
+    ChangeCameraType(KEYED);
 }
 
-std::wstring Camera::GetCameraType()
+void Camera::Update()
 {
-    switch(m_activeType)
-    {
-    case FREE:
-        return L"FREE CAMERA";
-    case TARGET:
-        return L"TARGET CAMERA";
-    case KEYED:
-        return L"KEYED CAMERA";
-    default:
-        return L"NONE";
-    }
-}
-
-void Camera::SetComponentValue(unsigned int component, float value)
-{
-    const float delta = 0.00001f;
     auto* camera = m_engine->scene->getActiveCamera();
-    switch(component)
+
+    if(m_farValue == m_nearValue)
     {
-    case NEAR_VALUE:
-        camera->setNearValue((camera->getFarValue() == value ? value+delta : value));
-        break;
-    case FAR_VALUE:
-        camera->setFarValue((camera->getNearValue() == value ? value+delta : value));
-        break;
+        // ensure near and far are never equal
+        m_farValue += 0.00001f;
     }
+
+    camera->setNearValue(m_nearValue);
+    camera->setFarValue(m_farValue);
 }
 
-stringw Camera::GetComponentDescription(unsigned int component)
+const char* Camera::GetComponentDescription(Camera::EditableComponent component) const
 {
     switch(component)
     {
     case NEAR_VALUE:
-        return "NEAR VALUE";
+        return "Near Value";
     case FAR_VALUE:
-        return "FAR VALUE";
+        return "Far Value";
     default:
-        return "NONE";
+        return "None";
+    }
+}
+
+const char* Camera::GetCameraType()
+{
+    return m_typeName.c_str();
+}
+
+void* Camera::GetComponentAddress(Camera::EditableComponent component)
+{
+    switch(component)
+    {
+    case NEAR_VALUE:
+        return &m_nearValue;
+    case FAR_VALUE:
+        return &m_farValue;
+    default:
+        return nullptr;
     }
 }

@@ -78,7 +78,7 @@ public:
     /**
     * @return a string description of the editable component
     */
-    std::string GetComponentDescription(EditableComponent component);
+    const char* GetComponentDescription(EditableComponent component) const;
 
     /**
     * Allows diagnostics to use the editable components in a tweak bar

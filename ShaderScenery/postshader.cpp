@@ -41,18 +41,18 @@ void* PostShader::GetComponentAddress(PostShader::EditableComponent component)
     return &m_editableComponents[component];
 }
 
-std::string PostShader::GetComponentDescription(PostShader::EditableComponent component)
+const char* PostShader::GetComponentDescription(PostShader::EditableComponent component) const
 {
     switch(component)
     {
     case SSAO_VISIBILITY:
-        return "Ambient Occlusion";
+        return "SSAO";
     case FOG_VISIBILITY:
-        return "Fog Effect";
+        return "Fog";
     case DOF_VISIBILITY:
-        return "Depth of field";
+        return "DOF";
     case GLOW_VISIBILITY:
-        return "Glow Effect";
+        return "Glow";
     default:
         return "NONE";
     };
@@ -63,13 +63,13 @@ std::string PostShader::GetTextureDescription(PostShader::OutputTexture texture)
     switch(texture)
     {
     case POST_MAP:
-        return "Post Map";
+        return "Post Texture";
     case DIFFUSE_MAP:
-        return "Diffuse Map";
+        return "Diffuse Texture";
     case NORMAL_MAP:
-        return "Normal Map";
+        return "Normal Texture";
     case DEPTH_MAP:
-        return "Depth Map";
+        return "Depth Texture";
     default:
         return "NONE";
     };

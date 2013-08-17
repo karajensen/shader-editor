@@ -47,7 +47,7 @@ public:
     /**
     * @return a vector of all shader component names
     */
-    std::vector<std::string> GetComponentDescriptions();
+    std::vector<std::string> GetComponentDescriptions() const;
 
     /**
     * Sets the visiblity of the editable component
@@ -60,13 +60,13 @@ public:
     * @param component The component to get a description for
     * @return a string description of the editable component
     */
-    std::string GetComponentDescription(EditableComponent component);
+    const char* GetComponentDescription(EditableComponent component) const;
 
     /**
     * @param component The component to get a description for
     * @return a string description of the component
     */
-    std::string GetComponentDescription(Component component);
+    std::string GetComponentDescription(Component component) const;
 
     /**
     * @return an  array of editable component visibilities

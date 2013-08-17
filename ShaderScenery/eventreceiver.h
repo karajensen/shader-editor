@@ -15,13 +15,14 @@ class EventReceiver : public IEventReceiver
 public:
 
     typedef std::function<void(void)> KeyFn;
+    typedef std::function<void(const SEvent& inputEvent)> EventObserverFn;
 
     /**
     * Irrlicht override
-    * @param event The irrlicht event
+    * @param inputEvent The irrlicht event
     * @return true if handled, false if irrlicht needs to also handle it
     */
-    virtual bool OnEvent(const SEvent& event);
+    virtual bool OnEvent(const SEvent& inputEvent);
 
     /**
     * Set the function to call upon toggle of the input key
@@ -30,6 +31,12 @@ public:
     * @param keyFn The function to call when key is pressed
     */
     void SetKeyCallback(unsigned int key, bool onContinuous, KeyFn keyFn);
+
+    /**
+    * Sets a function to be called when an event is recieved
+    * @param observerFn The function to call on an event
+    */
+    void SetObserver(EventObserverFn observerFn);
 
     /**
     * Checks what keys are pressed and calls the relevent callbacks
@@ -78,5 +85,7 @@ private:
     bool IsKeyDown(unsigned int& state);
 
     typedef std::unordered_map<unsigned int, Key> KeyMap;
+
     KeyMap m_keys; ///< Cached keys
+    std::vector<EventObserverFn> m_eventObservers; ///< Observers notified of events
 };
