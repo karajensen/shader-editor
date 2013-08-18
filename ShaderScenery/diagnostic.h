@@ -89,6 +89,6 @@ private:
     boost::shared_ptr<LightEditor> m_light;     ///< Editor to manipulate lights
     boost::shared_ptr<Camera> m_camera;         ///< Active scene camera
 
-    std::array<TextureFunctor, PostShader::MAX_TEXTURES>
-        m_buttonCallbacks; ///< Callbacks for changing the output texture
+    typedef std::array<TextureFunctor, PostShader::MAX_TEXTURES> FunctorArray;
+    FunctorArray m_buttonCallbacks; ///< Callbacks for changing the output texture
 };
