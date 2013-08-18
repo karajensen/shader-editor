@@ -6,6 +6,7 @@
 #include "postshader.h"
 #include "shadereditor.h"
 #include "lighteditor.h"
+#include "scene.h"
 #include "camera.h"
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,15 @@ namespace
         (static_cast<LightEditor*>(clientData))->SelectNextLight();
     }
 
+    /**
+    * Anttweakbar button callback for toggling wireframe mode
+    * @param clientData The user given data
+    */
+    void TW_CALL ToggleWireframe(void *clientData)
+    {
+        (static_cast<Scene*>(clientData))->ToggleWireframe();
+    }
+
     const std::string BARNAME = "TweakBar";  ///< Name of the tweak bar
     const int BORDER = 10;                   ///< Border to edge of screen
     SColor BGROUND_COLOR(100,255,255,255);   ///< Colour for box background
@@ -38,23 +48,25 @@ namespace
 }
 
 Diagnostic::Diagnostic(EnginePtr engine, 
-    boost::shared_ptr<ShaderEditor> shader, 
-    boost::shared_ptr<PostShader> postshader,
+    boost::shared_ptr<Scene> scene,
     boost::shared_ptr<LightEditor> light,
     boost::shared_ptr<Camera> camera) :
+        m_render(true),        
         m_textTimer(0.0f),
-        m_render(true),
+        m_runTimer(false),
         m_previousFPS(-1),
         m_engine(engine),
         m_tweakbar(nullptr),
         m_text(nullptr),
-        m_postshader(postshader),
-        m_shader(shader),
+        m_scene(scene),
         m_light(light),
         m_camera(camera)
 {
     const int textwidth = 100;
     const int textheight = 30;
+
+    boost::shared_ptr<PostShader> postshader = m_scene->GetPostShader();
+    boost::shared_ptr<ShaderEditor> shader = m_scene->GetShaderEditor();
 
     m_text = m_engine->gui->addStaticText(L"", rect<s32>(WINDOW_WIDTH/2-textwidth, 
         BORDER, WINDOW_WIDTH/2+textwidth, BORDER+textheight)); 
@@ -84,14 +96,17 @@ Diagnostic::Diagnostic(EnginePtr engine,
             static_cast<PostShader::OutputTexture>(i);
 
         std::string label(" group='Output Textures' label='" 
-            + m_postshader->GetTextureDescription(texture) + "'");
+            + postshader->GetTextureDescription(texture) + "'");
 
-        m_buttonCallbacks[i].postshader = m_postshader;
+        m_buttonCallbacks[i].postshader = postshader;
         m_buttonCallbacks[i].texture = texture;
 
         TwAddButton(m_tweakbar, (boost::lexical_cast<std::string>(i)+"Texture").c_str(), 
             &SetVisibleTexture, &m_buttonCallbacks[i], label.c_str());
     }
+
+    TwAddButton(m_tweakbar, "Wireframe", &ToggleWireframe, 
+        m_scene.get(), " group='Output Textures'");
 
     // Shader specific diagnostics
     std::string shaderDesc(" group='Scene Shader' step=0.01 precision=2");
@@ -100,8 +115,8 @@ Diagnostic::Diagnostic(EnginePtr engine,
         ShaderEditor::EditableComponent component = 
             static_cast<ShaderEditor::EditableComponent>(i);
 
-        TwAddVarRW(m_tweakbar, m_shader->GetComponentDescription(component),
-            TW_TYPE_FLOAT, m_shader->GetComponentAddress(component), shaderDesc.c_str());
+        TwAddVarRW(m_tweakbar, shader->GetComponentDescription(component),
+            TW_TYPE_FLOAT, shader->GetComponentAddress(component), shaderDesc.c_str());
     }
 
     // Post shader specific diagnostics
@@ -111,8 +126,8 @@ Diagnostic::Diagnostic(EnginePtr engine,
         PostShader::EditableComponent component = 
             static_cast<PostShader::EditableComponent>(i);
 
-        TwAddVarRW(m_tweakbar, m_postshader->GetComponentDescription(component),
-            TW_TYPE_FLOAT, m_postshader->GetComponentAddress(component), postDesc.c_str());
+        TwAddVarRW(m_tweakbar, postshader->GetComponentDescription(component),
+            TW_TYPE_FLOAT, postshader->GetComponentAddress(component), postDesc.c_str());
     }
 
     // Camera specific diagnostics

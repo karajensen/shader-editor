@@ -3,40 +3,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "game.h"
-#include "mesh.h"
 #include "camera.h"
-#include "quad.h"
-#include "generatedshader.h"
-#include "postshader.h"
-#include "normalshader.h"
 #include "logger.h"
+#include "scene.h"
 #include "eventreceiver.h"
-#include "shadereditor.h"
 #include "lighteditor.h"
 #include "diagnostic.h"
-#include "texture.h"
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/assign.hpp>
-#include <algorithm>
 
-namespace
-{
-    const std::string MESHES_PATH(ASSETS_PATH+"Meshes//");
-    const std::string TEXTURE_PATH(ASSETS_PATH+"Textures//");
-}
-
-Game::Game() :
-    m_diffuseTarget(nullptr),
-    m_normalTarget(nullptr),
-    m_renderTargetSize(WINDOW_WIDTH*2),
-    m_normalShaderIndex(NO_INDEX)
+Game::Game()
 {
     m_engine.reset(new IrrlichtEngine());
-    m_drawColour.set(255,0,0,0);
 }
 
 Game::~Game()
@@ -59,50 +36,13 @@ bool Game::GameLoop()
         m_events->Update();
         m_lights->Update();
         m_camera->Update();
+
         m_engine->driver->beginScene(true, true, 0);
-
-        // Diffuse Render Target
-        m_engine->driver->setRenderTarget(m_diffuseTarget, true, true, m_drawColour);
-        m_engine->scene->drawAll();
-
-        // Normal Render Target
-        std::for_each(m_meshes.begin(), m_meshes.end(), 
-            [&](const Mesh_Ptr& mesh){ mesh->SetShader(m_normalShaderIndex); });
-
-        m_engine->driver->setRenderTarget(m_normalTarget, true, true, m_drawColour);
-        m_engine->scene->drawAll();
-
-        std::for_each(m_meshes.begin(), m_meshes.end(), 
-            [&](const Mesh_Ptr& mesh){ mesh->SetAssociatedShader(); });
-    
-        // Main back buffer
-        m_engine->driver->setRenderTarget(0, true, true, m_drawColour);
-        m_quad->render();
-
-        // Diagnostics
+        m_scene->Render();
         m_diagnostic->Render(deltatime);
-
         m_engine->driver->endScene();
     }
     return true;
-}
-
-void Game::ReloadMeshesFromFile()
-{
-    m_texture->ClearTextureMap();
-    for(unsigned int i = 0; i < m_meshes.size(); ++i)
-    {
-        m_meshes[i]->ForceReleaseMesh();
-    }
-    m_meshes.clear();
-    m_engine->scene->getMeshCache()->clear();
-
-    if(!CreateMeshes())
-    {
-        Logger::LogError("Reload Meshes From File Failed!");
-    }
-
-    m_diagnostic->ShowDiagnosticText(L"Reload Meshes Complete!");
 }
 
 bool Game::Initialise()
@@ -183,210 +123,52 @@ bool Game::InitialiseAssets()
     try
     {
         m_lights.reset(new LightEditor(m_engine));
-        m_editor.reset(new ShaderEditor());
-
-        bool success = true;
-        success = (success ? CreateMeshes() : false);
-        success = (success ? CreateRenderTargets() : false);
-
-        if(success)
+        m_scene.reset(new Scene(m_engine));
+        if(!m_scene->Initialise())
         {
-            m_camera.reset(new Camera(m_engine));
-
-            m_diagnostic.reset(new Diagnostic(m_engine, 
-                m_editor, m_postShader, m_lights, m_camera));
-
-            CreateEvents();
+            Logger::LogError("Scene failed to initialise");
+            return false;
         }
-
-        return success;
+        m_camera.reset(new Camera(m_engine));
     }
     catch(const boost::filesystem::filesystem_error& e)
     {
         Logger::LogError(e.what());
         return false;
     }
-    return true;
-}
 
-void Game::CreateEvents()
-{
-    auto selectNextLight = [&]()
-    {   
-        m_lights->SelectNextLight();
-        //m_diagnostic->UpdateLightDiagnostics();
-    };
+    m_diagnostic.reset(new Diagnostic(m_engine, 
+        m_scene, m_lights, m_camera));
 
-    auto loadKeyedCamera = [&]()
-    {
-        m_camera->LoadKeyedCamera();
-        //m_diagnostic->UpdateCameraDiagnostics();
-    };
+    m_events->SetKeyCallback(KEY_KEY_K, false, 
+        std::bind(&Camera::LoadKeyedCamera, m_camera.get()));
 
-    auto reloadCamera = [&]()
-    {
-        m_camera->ReloadCameraFromFile();
-        //m_diagnostic->UpdateCameraDiagnostics();
-        m_diagnostic->ShowDiagnosticText(L"Camera Reloaded");
-    };
+    m_events->SetKeyCallback(KEY_KEY_F, false, 
+        std::bind(&Camera::ToggleCameraTarget, m_camera.get(), true));
 
-    // Full signature required for std::bind
-    std::function<void(bool)> toggleCamera = [&](bool targeted)
-    {
-        m_camera->ToggleCameraTarget(targeted);
-        //m_diagnostic->UpdateCameraDiagnostics();
-    };
-
-    m_events->SetKeyCallback(KEY_KEY_K, false, loadKeyedCamera);
-    m_events->SetKeyCallback(KEY_KEY_C, false, reloadCamera);
-    m_events->SetKeyCallback(KEY_KEY_Q, false, selectNextLight);
-    m_events->SetKeyCallback(KEY_KEY_F, false, std::bind(toggleCamera, true));
-    m_events->SetKeyCallback(KEY_KEY_T, false, std::bind(toggleCamera, false));
-
-    m_events->SetKeyCallback(KEY_KEY_M, false, 
-        std::bind(&Game::ReloadMeshesFromFile, this));
+    m_events->SetKeyCallback(KEY_KEY_T, false, 
+        std::bind(&Camera::ToggleCameraTarget, m_camera.get(), false));
 
     m_events->SetKeyCallback(KEY_KEY_L, false, 
         std::bind(&LightEditor::SaveLightsToFile, m_lights));
+
+    m_events->SetKeyCallback(KEY_KEY_C, false, [&]()
+    {
+        m_camera->ReloadCameraFromFile();
+        m_diagnostic->ShowDiagnosticText(L"Camera Reloaded");
+    });
+
+    m_events->SetKeyCallback(KEY_KEY_M, false, [&]()
+    {
+        m_scene->ReloadMeshesFromFile();
+        m_diagnostic->ShowDiagnosticText(L"Reload Meshes Complete!");
+    });
 
     m_events->SetKeyCallback(KEY_KEY_D, false, 
         std::bind(&Diagnostic::ToggleShowDiagnostics, m_diagnostic));
 
     m_events->SetObserver(std::bind(&Diagnostic::HandleInputEvent,
         m_diagnostic, std::placeholders::_1));
-}
-
-bool Game::CreateRenderTargets()
-{
-    // Create normal shader
-    m_normalShader.reset(new NormalShader(m_engine));
-    if(!m_normalShader->InitialiseShader("normalshader", false, false))
-    {
-        Logger::LogError("normalshader failed initilisation!");
-        return false;
-    }
-    m_normalShaderIndex = m_normalShader->GetMaterialIndex();
-
-    // Create post shader
-    m_postShader.reset(new PostShader(m_engine));
-    if(!m_postShader->InitialiseShader("postshader", false,  false))
-    {
-        Logger::LogError("postshader failed initilisation!");
-        return false;
-    }
-    int postShader = m_postShader->GetMaterialIndex();
-
-    // Create render targets
-    if(!CreateRenderTarget(&m_diffuseTarget,"DiffuseRenderTarget",m_renderTargetSize))
-    {
-        return false;
-    }
-
-    if(!CreateRenderTarget(&m_normalTarget,"NormalRenderTarget",m_renderTargetSize))
-    {
-        return false;
-    }
-
-    // Create screen quad
-    m_quad.reset(new Quad(m_engine, m_engine->scene->getRootSceneNode(), postShader, NO_INDEX));
-    m_quad->SetTexture(m_diffuseTarget, 0);
-    m_quad->SetTexture(m_normalTarget, 1);
 
     return true;
-}
-
-bool Game::CreateMeshes()
-{
-    m_texture.reset(new TextureManager(m_engine));
-
-    boost::property_tree::ptree meshes;
-    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
-        meshes, boost::property_tree::xml_parser::trim_whitespace);
-    boost::property_tree::ptree& tree = meshes.get_child("Meshes");
-
-    boost::property_tree::ptree::iterator it;
-    for(it = tree.begin(); it != tree.end(); ++it)
-    {
-        // Get mesh data from xml/shader info
-        std::string name = it->second.get_child("Name").data();
-        std::string shadername = it->second.get_child("Shader").data();
-        float specularity = GetPtreeValue(it,5.0f,"Specularity");
-        bool backfacecull = GetPtreeValue(it,true,"BackfaceCulling");
-
-        // Copy each component featured in the given shader name to a set order
-        std::string newShaderName;
-        std::vector<std::string> shaderComponents(m_editor->GetComponentDescriptions());
-        BOOST_FOREACH(std::string component, shaderComponents)
-        {
-            if(boost::algorithm::icontains(shadername, component))
-            {
-                newShaderName += component;
-                boost::algorithm::ireplace_all(shadername, component, "");
-            }
-        }
-
-        // Add any non-component text to the ordered components
-        shadername += boost::algorithm::to_lower_copy(newShaderName);
-
-        // Determine if shader with those components already exists and reuse if so
-        Shader_Container::iterator itr = std::find_if(m_shaders.begin(), m_shaders.end(), 
-            [&](const Shader_Ptr& shader){ return shader->GetName() == shadername; });
-        int shaderIndex = (itr == m_shaders.end() ? NO_INDEX : (*itr)->GetMaterialIndex());
-    
-        // Shader does not exist, create from fragments
-        if(shaderIndex == NO_INDEX)
-        {
-            int index = m_shaders.size();
-            m_shaders.push_back(Shader_Ptr(new GeneratedShader(m_engine, m_editor)));
-            if(!m_shaders[index]->InitialiseFromFragments(shadername, true))
-            {
-                Logger::LogError("Shader name " + shadername +
-                    " for " + name + " is an invalid combination");
-                return false;
-            }
-            shaderIndex = m_shaders[index]->GetMaterialIndex();
-        }
-
-        // Create the mesh
-        int index = m_meshes.size();
-        m_meshes.push_back(Mesh_Ptr(new Mesh(m_engine)));
-        if(!m_meshes[index]->Initialise(MESHES_PATH, name, shaderIndex, specularity, backfacecull))
-        {
-            Logger::LogError(name + " failed initilisation!");
-            return false;
-        }
-
-        // Create the textures
-        std::vector<std::string> textures = boost::assign::list_of<std::string>
-            ("Diffuse")("Normal")("Specular")("Environ")("Glow");
-
-        int textureSlot = 0;
-        bool suceeded = true;
-
-        std::for_each(textures.begin(), textures.end(), [&](const std::string& texture)
-        {
-            suceeded = suceeded ? m_texture->SetTexture(it, TEXTURE_PATH,
-                texture, m_meshes[index]->GetMeshNode(), textureSlot) : false;
-        });
-
-        if(!suceeded)
-        {
-            Logger::LogError("Texture could not be loaded");
-            return false;
-        }
-    }
-    return true;
-}
-
-bool Game::CreateRenderTarget(ITexture** rendertarget, char* name, int size)
-{
-    if(m_engine->driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
-    {
-        (*rendertarget) = m_engine->driver->addRenderTargetTexture(
-            core::dimension2d<u32>(size,size), name);
-        return true;
-    }
-
-    Logger::LogError(std::string("Render Target ") + name + "failed to initialise");
-    return false;
 }

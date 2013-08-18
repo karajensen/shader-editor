@@ -10,7 +10,7 @@
 #include "common.h"
 #include "postshader.h"
 
-class ShaderEditor;
+class Scene;
 class LightEditor;
 class Camera;
 
@@ -24,14 +24,12 @@ public:
     /**
     * Constructor
     * @param engine The Irrlicht engine
-    * @param shader The editor to manipulate shaders
-    * @parma postshader The post processing shader
+    * @param scene The editor to manipulate shaders/meshes
     * @param light The editor to manipulate lights
     * @param camera The active camera to manipulate
     */
     Diagnostic(EnginePtr engine, 
-        boost::shared_ptr<ShaderEditor> shader,
-        boost::shared_ptr<PostShader> postshader,
+        boost::shared_ptr<Scene> scene,
         boost::shared_ptr<LightEditor> light,
         boost::shared_ptr<Camera> camera);
 
@@ -87,8 +85,7 @@ private:
     TwBar* m_tweakbar;       ///< Tweak bar for editing the application
     IGUIStaticText* m_text;  ///< Generaral diagnostics text box
 
-    boost::shared_ptr<PostShader> m_postshader; ///< The post processing shader
-    boost::shared_ptr<ShaderEditor> m_shader;   ///< Editor to manipulate shaders
+    boost::shared_ptr<Scene> m_scene;           ///< Editor to manipulate shaders/meshes
     boost::shared_ptr<LightEditor> m_light;     ///< Editor to manipulate lights
     boost::shared_ptr<Camera> m_camera;         ///< Active scene camera
 

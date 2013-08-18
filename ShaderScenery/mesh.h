@@ -66,6 +66,11 @@ public:
     */
     ISceneNode* GetMeshNode() const;
 
+    /**
+    * Sets whether rendering with wireframe or not
+    */
+    void SetWireframe(bool wireframe);
+
 private:
 
     std::string m_name;       ///< The name of the Mesh

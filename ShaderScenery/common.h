@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr.hpp>
 #include "logger.h"
 
 using namespace irr;

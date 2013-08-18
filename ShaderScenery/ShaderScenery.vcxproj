@@ -19,6 +19,7 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="normalshader.cpp" />
     <ClCompile Include="quad.cpp" />
     <ClCompile Include="shader.cpp" />
@@ -33,6 +34,7 @@
     <ClInclude Include="diagnostic.h" />
     <ClInclude Include="eventreceiver.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="normalshader.h" />
     <ClInclude Include="shadereditor.h" />
     <ClInclude Include="texture.h" />

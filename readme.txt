@@ -1,14 +1,17 @@
 
+- fix shader issue
 - make boost tests for math library
 
 - fix depth/normal maps
 - fix bump/attenuation
+- post effects (fog, dof, glow, SSAO, Color correction)
 - Create 3D scene
+
+Decide on features:
 - parallax occlusion mapping
 - soft shadows
-- post effects (fog, dof, glow, SSAO, Color correction)
 - water/environment mapping?
-- switch to ogre
+- switch to ogre?
 
 ================================================================
 SHADER SCENERY

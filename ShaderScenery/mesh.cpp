@@ -61,6 +61,7 @@ void Mesh::SetShader(int materialIndex)
 {
     m_node->setMaterialType((video::E_MATERIAL_TYPE)materialIndex);
     m_node->setMaterialFlag(EMF_LIGHTING,false);
+
     for(unsigned int i = 0; i < m_node->getMaterialCount(); ++i)
     {
         m_node->getMaterial(i).Shininess = m_specularity;
@@ -81,4 +82,9 @@ void Mesh::ForceReleaseMesh()
         m_node->remove();
     }
     m_node = nullptr;
+}
+
+void Mesh::SetWireframe(bool wireframe)
+{
+    m_node->setMaterialFlag(EMF_WIREFRAME, wireframe);
 }
