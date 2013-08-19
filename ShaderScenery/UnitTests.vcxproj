@@ -84,7 +84,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="testmain.cpp" />
+    <ClCompile Include="scenerytests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="results.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="results.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

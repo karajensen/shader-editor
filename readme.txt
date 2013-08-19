@@ -1,6 +1,5 @@
 
-- fix shader issue
-- make boost tests for math library
+- boost tests: vector/matrix/linker
 
 - fix depth/normal maps
 - fix bump/attenuation
