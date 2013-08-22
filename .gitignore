@@ -7,10 +7,8 @@
 *.ilk
 *.pdb
 ShaderScenery/logfile.txt
-ShaderScenery/results.txt
 ShaderScenery/Debug/
 ShaderScenery/Release/
-ShaderScenery/UnitTests/
 ShaderScenery/Assets/Shaders/Generated/
 Graphics/
 ipch/

@@ -112,6 +112,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(BOOST);$(SolutionDir)\$(TargetName)\irrlicht\include;$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\anttweakbar\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

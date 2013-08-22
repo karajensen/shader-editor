@@ -1,6 +1,3 @@
-
-- boost tests: vector/matrix/linker
-
 - fix depth/normal maps
 - fix bump/attenuation
 - post effects (fog, dof, glow, SSAO, Color correction)
@@ -10,7 +7,6 @@ Decide on features:
 - parallax occlusion mapping
 - soft shadows
 - water/environment mapping?
-- switch to ogre?
 
 ================================================================
 SHADER SCENERY
