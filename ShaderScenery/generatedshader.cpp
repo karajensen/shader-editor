@@ -132,7 +132,7 @@ bool GeneratedShader::CreateShaderFromFragments(
     }
 
     std::vector<std::string> emptyTarget;
-    std::string result = ReadBaseShader(baseFile, generatedFile, emptyTarget, false);
+    std::string result = ReadBaseShader(baseFile, generatedFile, emptyTarget, false, 0);
 
     baseFile.sync();
     baseFile.clear();
@@ -143,8 +143,8 @@ bool GeneratedShader::CreateShaderFromFragments(
     return result != FAILURE;
 }
 
-std::string GeneratedShader::ReadBaseShader(std::ifstream& baseFile, 
-    std::ofstream& generatedFile, const std::vector<std::string>& targets, bool skiplines)
+std::string GeneratedShader::ReadBaseShader(std::ifstream& baseFile, std::ofstream& generatedFile, 
+    const std::vector<std::string>& targets, bool skiplines, int level)
 {
     while(!baseFile.eof())
     {
@@ -161,10 +161,15 @@ std::string GeneratedShader::ReadBaseShader(std::ifstream& baseFile,
         }
 
         // Copy line to generated shader if not a conditional
-        if(!SolveConditionalLine(line, baseFile, 
+        if(!SolveConditionalLine(level, line, baseFile, 
             generatedFile, skiplines) && !skiplines)
         {
-            generatedFile << line << std::endl;
+            std::string trimmedline = boost::trim_left_copy(line);
+            const int spacesInTabs = 4;
+            const int spaceOffset = targets.empty() ? 0 : spacesInTabs * level;
+            const int spaceAmount = line.size()-trimmedline.size()-spaceOffset;
+            std::string spaces(std::max(0, spaceAmount), ' ');
+            generatedFile << spaces << trimmedline << std::endl;
         }
 
         if(boost::algorithm::icontains(line, END_OF_FILE))
@@ -180,7 +185,7 @@ std::string GeneratedShader::ReadBaseShader(std::ifstream& baseFile,
     return END_OF_FILE;
 }
 
-bool GeneratedShader::SolveConditionalLine(std::string line,
+bool GeneratedShader::SolveConditionalLine(int level, std::string line,
     std::ifstream& baseFile, std::ofstream& generatedFile, bool skiplines)
 {
     std::string conditional;
@@ -219,7 +224,8 @@ bool GeneratedShader::SolveConditionalLine(std::string line,
         if(skiplines)
         {
             ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ENDIF), skiplines);
+                boost::assign::list_of(ENDIF), 
+                skiplines, level+1);
         }
         else
         {
@@ -236,7 +242,8 @@ bool GeneratedShader::SolveConditionalLine(std::string line,
             // Solve ifdefined/ifndefined blocks
             bool skipConditionalBlock = shouldSkipBlock(conditional);
             line = ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ELSE)(ENDIF)(ELSEIF), skipConditionalBlock);
+                boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
+                skipConditionalBlock, level+1);
             solvedConditional = !skipConditionalBlock;
 
             // Solve elseif blocks
@@ -245,14 +252,16 @@ bool GeneratedShader::SolveConditionalLine(std::string line,
                 skipConditionalBlock = solvedConditional ? true : shouldSkipBlock(ELSEIF);
                 solvedConditional = !skipConditionalBlock ? true : solvedConditional;
                 line = ReadBaseShader(baseFile, generatedFile, 
-                    boost::assign::list_of(ELSE)(ENDIF)(ELSEIF), skipConditionalBlock);
+                    boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
+                    skipConditionalBlock, level+1);
             }
 
             // Solve else blocks
             if(boost::algorithm::icontains(line, ELSE))
             {
                 ReadBaseShader(baseFile, generatedFile, 
-                    boost::assign::list_of(ENDIF), solvedConditional);
+                    boost::assign::list_of(ENDIF), 
+                    solvedConditional, level+1);
             }
 
         }

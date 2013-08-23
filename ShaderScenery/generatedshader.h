@@ -69,10 +69,11 @@ private:
     * @param generatedFile The shader being created
     * @param targets The target strings to read the base file until
     * @param skiplines Whether to write to the generated file or not
+    * @param level The recursive level ReadBaseShader is on
     * @return the last line read after the target string is found
     */
     std::string ReadBaseShader(std::ifstream& baseFile, std::ofstream& generatedFile, 
-        const std::vector<std::string>& targets, bool skiplines);
+        const std::vector<std::string>& targets, bool skiplines, int level);
 
     /**
     * Determines if given line is a conditional and solves it if so
@@ -80,13 +81,13 @@ private:
     * @param baseFile The file for the base shader
     * @param generatedFile The shader being created
     * @param skiplines Whether to write to the generated file or not
+    * @param level The recursive level ReadBaseShader is on
     * @return whether the line was a conditional statement or not
     */
-    bool SolveConditionalLine(std::string line, std::ifstream& baseFile, 
-        std::ofstream& generatedFile, bool skiplines);
+    bool SolveConditionalLine(int level, std::string line, 
+        std::ifstream& baseFile, std::ofstream& generatedFile, bool skiplines);
 
-    bool GeneratedShader::IsComponentDefined(std::string component);
-        
+
     boost::shared_ptr<ShaderEditor> m_editor; ///< Editor for handling component visilibity
     std::vector<std::string> m_shaderComponent;  ///< Components apart of this shader
 };

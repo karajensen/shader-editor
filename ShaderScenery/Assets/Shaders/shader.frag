@@ -1,4 +1,3 @@
-
 uniform vec4 ComponentVisibility;
 uniform sampler2D Sampler0; //Diffuse sampler
 

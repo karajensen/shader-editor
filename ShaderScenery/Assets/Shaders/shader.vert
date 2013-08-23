@@ -1,4 +1,3 @@
-
 ifndefined: FLAT
     varying vec3 Normal;
     varying vec3 WorldViewPos;
