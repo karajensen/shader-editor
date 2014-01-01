@@ -79,8 +79,8 @@ bool GeneratedShader::InitialiseFromFragments(const std::string& name, bool uses
         return false;
     }
 
-    return InitialiseShader(name, boost::algorithm::icontains(name,
-        m_editor->GetComponentDescription(ShaderEditor::ALPHA)),
+    return InitialiseShader(name, boost::algorithm::icontains(
+        name, m_editor->GetComponentDescription(ShaderEditor::ALPHA)),
         usesMultipleLights, GENERATED_FOLDER);
 }
 

@@ -68,7 +68,7 @@ bool Game::Initialise()
             return false;
         }
     }
-    m_engine->device->setWindowCaption(L"ShaderGardenScene");
+    m_engine->device->setWindowCaption(L"ShaderScene");
 
     m_engine->driver = m_engine->device->getVideoDriver();
     if(!m_engine->driver)

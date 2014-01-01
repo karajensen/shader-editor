@@ -137,9 +137,6 @@
     <None Include="Assets\Shaders\normalshader.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Assets\Shaders\normalshader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Assets\Shaders\postshader.frag">
       <Filter>Resource Files</Filter>
     </None>
@@ -154,5 +151,8 @@
     </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
+    <None Include="Assets\Shaders\normalshader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
