@@ -1,0 +1,22 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - openglengine.cpp
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "openglengine.h"
+#include "opengl/include/glew.h"
+#include <gl/GL.h>
+#include <gl/GLU.h>
+#include "common.h"
+
+void OpenglEngine::Initialize()
+{
+
+
+}
+
+void OpenglEngine::Render()
+{
+
+
+
+}

@@ -1,0 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - common.h
+////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+#include <vector>
+#include <string>
+#include "logger.h"
+
+static const int WINDOW_WIDTH = 800;
+static const int WINDOW_HEIGHT = 600;
+static const int NO_INDEX = -1;
+const std::string ASSETS_PATH(".//Assets//");

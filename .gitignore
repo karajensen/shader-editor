@@ -6,10 +6,9 @@
 *.exe
 *.ilk
 *.pdb
-ShaderScenery/logfile.txt
-ShaderScenery/Debug/
-ShaderScenery/Release/
-ShaderScenery/Assets/Shaders/Generated/
-Graphics/
+ShaderEditor/logfile.txt
+ShaderEditor/Debug/
+ShaderEditor/Release/
+ShaderEditor/Assets/Shaders/Generated/
 ipch/
 html/

@@ -1,13 +1,18 @@
 
-- fix depth/normalmap/bump/attenuation
-- Create 3D scene
-- Post effects (fog, dof, glow, SSAO, Color correction, wireframe)
-- Occulus rift support
 
-Decide on features:
-- parallax occlusion mapping
+- Setup rendering environment for OpenGL
+- Setup rendering environment for DirectX
+- Ability to toggle APIs with mouse click
+- Qt GUI to allow selecting shader attributes/switching APIs/selecting meshes
+
+- Create 3D scene
+- fix depth/normalmap/bump/attenuation
+- convert shaders to HLSL
+
+- Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping
-- water/environment mapping
+
+- Runtime changing of shaders
 
 =================================================================
 SHADER SCENERY
@@ -18,19 +23,4 @@ https://github.com/karajensen/shader-scenery.git
 =================================================================
 
 RELEASE REQUIREMENTS: Windows 7
-BUILD REQUIREMENTS: Windows 7, Visual Studio 2012
-BUILD ENVIRONMENT VARIABLES: $(BOOST)
-
-DEVELOPER KEYS
------------------------------------------------------------------
-L:  Save lights to xml
-F:  Switch to free camera
-T:  Switch to targeted camera
-K:  Switch to and play keyed camera
-C:  Reload camera from file
-M:  Reload meshes from file
-D:  Toggle Diagnostics
-
-DEVELOPMENT UPGRADE IDEAS
------------------------------------------------------------------
-• Remove Irrlicht for switchable OpenGL/DirectX engine
+BUILD REQUIREMENTS: Windows 7, Visual Studio 2012, Boost

@@ -1,6 +1,0 @@
-<Camera>
-  <Focus>Ref_Rside.obj</Focus>
-  <Zoom>2.5</Zoom>
-  <Near>1.0</Near>
-  <Far>1000.0</Far>
-</Camera>
