@@ -1,6 +1,10 @@
 
-
 - Setup rendering environment for OpenGL
+	- setup tinyxml
+	- loading in meshes/lighting
+	- shader fragment linking
+	- setting up opengl rendering pipeline
+
 - Setup rendering environment for DirectX
 - Ability to toggle APIs with mouse click
 - Qt GUI to allow selecting shader attributes/switching APIs/selecting meshes
@@ -9,18 +13,17 @@
 - fix depth/normalmap/bump/attenuation
 - convert shaders to HLSL
 
+- Runtime editing of shaders
 - Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping
 
-- Runtime changing of shaders
-
 =================================================================
-SHADER SCENERY
+SHADER EDITOR
 =================================================================
 mail@KaraJensen.com
 www.KaraJensen.com
-https://github.com/karajensen/shader-scenery.git
+https://github.com/karajensen/shader-editor.git
 =================================================================
 
 RELEASE REQUIREMENTS: Windows 7
-BUILD REQUIREMENTS: Windows 7, Visual Studio 2012, Boost
+BUILD REQUIREMENTS: Windows 7, Visual Studio 2012

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <Windows.h>
 
 class OpenglEngine;
 class RenderEngine;
@@ -34,12 +35,14 @@ public:
 
     /**
     * Initialise the world
+    * @param hwnd The handle to the window
     * @return whether or not initialisation succeeded
     */
-    bool Initialise();
+    bool Initialise(HWND hwnd);
 
 private:
 
+    bool m_runApplication; ///< Whether the application is running or not
     std::unique_ptr<OpenglEngine> m_opengl; ///< OpenGL rendering engine
     RenderEngine* m_engine; ///< currently selected rendering engine
 

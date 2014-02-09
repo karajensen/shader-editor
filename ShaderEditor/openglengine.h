@@ -5,7 +5,6 @@
 #pragma once
 
 #include "renderengine.h"
-#include <Windows.h>
 
 /**
 * OpenGL Graphics engine
@@ -15,9 +14,21 @@ class OpenglEngine : public RenderEngine
 public:
 
     /**
-    * Sets up the graphics engine for rendering
+    * Constructor
     */
-    virtual void Initialize() override;
+    OpenglEngine();
+
+    /**
+    * Destructor
+    */
+    ~OpenglEngine();
+
+    /**
+    * Sets up the graphics engine for rendering
+    * @param hwnd the handle to the window
+    * @return whether initialization succeeded
+    */
+    virtual bool Initialize(HWND hwnd) override;
 
     /**
     * Renders the scene
@@ -26,7 +37,7 @@ public:
 
 private:
 
-    HGLRC hrc;   ///< Rendering context  
-    HDC hdc;     ///< Device context  
-    HWND hwnd;   ///< Window identifier  
-};
+    HGLRC m_hrc;        ///< Rendering context  
+    HDC m_hdc;          ///< Device context  
+    HWND m_hwnd;        ///< Window identifier  
+};                     

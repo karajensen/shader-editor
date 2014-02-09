@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <Windows.h>
+
 /**
 * Base graphics API interface
 */
@@ -13,8 +15,10 @@ public:
 
     /**
     * Sets up the graphics engine for rendering
+    * @param hwnd the handle to the window
+    * @return whether initialization succeeded
     */
-    virtual void Initialize() = 0;
+    virtual bool Initialize(HWND hwnd) = 0;
 
     /**
     * Renders the scene
