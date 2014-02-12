@@ -2,7 +2,6 @@
 <Lights>
 	<Light>
 		<Name>Point Light</Name>
-		<Type>Point</Type>
 		<X>0</X>
 		<Y>0</Y>
 		<Z>0</Z>
@@ -19,7 +18,6 @@
 	</Light>
 	<Light>
 		<Name>Dir Light</Name>
-		<Type>Directional</Type>
 		<X>0</X>
 		<Y>0</Y>
 		<Z>10</Z>

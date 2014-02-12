@@ -5,6 +5,9 @@
 #pragma once
 
 #include "renderengine.h"
+#include <memory>
+
+struct OpenglData;
 
 /**
 * OpenGL Graphics engine
@@ -31,13 +34,16 @@ public:
     virtual bool Initialize(HWND hwnd) override;
 
     /**
-    * Renders the scene
+    * Begins rendering the scene
     */
-    virtual void Render() override;
+    virtual void BeginRender() override;
+
+    /**
+    * Ends rendering the scene
+    */
+    virtual void EndRender() override;
 
 private:
 
-    HGLRC m_hrc;        ///< Rendering context  
-    HDC m_hdc;          ///< Device context  
-    HWND m_hwnd;        ///< Window identifier  
+    std::unique_ptr<OpenglData> m_data; ///<  member data of opengl
 };                     

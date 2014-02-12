@@ -7,8 +7,11 @@
 #include <memory>
 #include <Windows.h>
 
+struct CTwBar;
 class OpenglEngine;
 class RenderEngine;
+class LightManager;
+class Timer;
 
 /**
 * Main application class
@@ -42,8 +45,34 @@ public:
 
 private:
 
-    bool m_runApplication; ///< Whether the application is running or not
-    std::unique_ptr<OpenglEngine> m_opengl; ///< OpenGL rendering engine
-    RenderEngine* m_engine; ///< currently selected rendering engine
+    /**
+    * Updates and renders the application
+    */
+    void TickApplication();
 
+    /**
+    * Sets which is the currently active render engine
+    * @param opengl Whether to use opengl or directx
+    */
+    void SetRenderEngine(bool opengl);
+
+    /**
+    * Removes the tweak bar
+    */
+    void RemoveTweakBar();
+
+    /**
+    * Initialises the tweak bar
+    */
+    void InitializeTweakBar();
+
+    bool m_runApplication; ///< Whether the application is running or not
+    bool m_showTweakbar; ///< Whether the application tweak bar is visible
+
+    std::unique_ptr<Timer> m_timer; ///< For measure change in frame time
+    std::unique_ptr<OpenglEngine> m_opengl; ///< OpenGL rendering engine
+    std::unique_ptr<LightManager> m_lighting; ///< Manages and owns all scene lights
+
+    RenderEngine* m_engine; ///< currently selected rendering engine
+    CTwBar* m_tweakbar; ///< Diagnostic tweak bar
 };

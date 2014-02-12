@@ -7,35 +7,63 @@
 #include "opengl/include/wglew.h"
 #include "opengl/include/GL.h"
 #include "opengl/include/GLU.h"
+#include "opengl/glm/glm.hpp"
+#include "opengl/glm/gtc/matrix_transform.hpp"
 #include "common.h"
 
+/**
+* Internal data for the opengl rendering engine
+*/
+struct OpenglData
+{
+    /**
+    * Constructor
+    */
+    OpenglData();
+
+    /**
+    * Destructor
+    */
+    ~OpenglData();
+
+    glm::mat4 projectionMat;  ///< Matrix for 3D rendering
+    glm::mat4 orthogonalMat;  ///< Matrix for 2D rendering
+
+    HGLRC hrc;  ///< Rendering context  
+    HDC hdc;    ///< Device context  
+    HWND hwnd;  ///< Window identifier  
+};
+
+OpenglData::OpenglData() :
+    hwnd(nullptr),
+    hdc(nullptr),
+    hrc(nullptr)
+{
+}
+
+OpenglData::~OpenglData()
+{
+    wglMakeCurrent(nullptr, nullptr);
+    if(hrc)
+    {
+        wglDeleteContext(hrc);
+        hrc = nullptr;
+    }
+}
+
 OpenglEngine::OpenglEngine() :
-    m_hwnd(nullptr),
-    m_hdc(nullptr),
-    m_hrc(nullptr)
+    m_data(new OpenglData())
 {
 }
 
 OpenglEngine::~OpenglEngine()
 {
-    if(m_hdc)
-    {
-        wglMakeCurrent(m_hdc, 0);
-    }
-    if(m_hrc)
-    {
-        wglDeleteContext(m_hrc);
-    }
-    if(m_hdc && m_hwnd)
-    {
-        ReleaseDC(m_hwnd, m_hdc);
-    }
 }
 
 bool OpenglEngine::Initialize(HWND hwnd)
 {
-    m_hwnd = hwnd;
-    m_hdc = GetDC(m_hwnd);
+    m_data->hwnd = hwnd;
+    m_data->hdc = GetDC(m_data->hwnd);
 
     PIXELFORMATDESCRIPTOR pfd;  
     memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR)); 
@@ -46,22 +74,22 @@ bool OpenglEngine::Initialize(HWND hwnd)
     pfd.cDepthBits = 32;
     pfd.iLayerType = PFD_MAIN_PLANE;
 
-    int pixelFormat = ChoosePixelFormat(m_hdc, &pfd);
+    int pixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
     if(pixelFormat == 0)
     {
         Logger::LogError("OpenGL: PIXELFORMATDESCRIPTOR unsupported");
         return false;
     }
   
-    if(!SetPixelFormat(m_hdc, pixelFormat, &pfd))
+    if(!SetPixelFormat(m_data->hdc, pixelFormat, &pfd))
     {
         Logger::LogError("OpenGL: SetPixelFormat failed");
         return false;
     }
 
-    // Create a temporary OpenGL 2.1 context
-    HGLRC tempOpenGLContext = wglCreateContext(m_hdc); 
-    wglMakeCurrent(m_hdc, tempOpenGLContext);
+    // Create a temporary OpenGL context
+    HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc); 
+    wglMakeCurrent(m_data->hdc, tempOpenGLContext);
 
     // Initialize GLEW
     GLenum error = glewInit();
@@ -75,45 +103,55 @@ bool OpenglEngine::Initialize(HWND hwnd)
     {  
         //OpenGL Version: Major.Minor
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
-        WGL_CONTEXT_FLAGS_ARB, 
-        WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        0  
+        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+        WGL_CONTEXT_FLAGS_ARB, 0, 0  
     };  
 
     if(wglewIsSupported("WGL_ARB_create_context") == 1)
     { 
-        m_hrc = wglCreateContextAttribsARB(m_hdc, nullptr, attributes);
+        m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, nullptr, attributes);
         wglMakeCurrent(nullptr, nullptr);
         wglDeleteContext(tempOpenGLContext); 
-        wglMakeCurrent(m_hdc, m_hrc); 
+        wglMakeCurrent(m_data->hdc, m_data->hrc); 
     }  
     else
     {  
-        // No support for OpenGL 3.0+
-        m_hrc = tempOpenGLContext; 
-        Logger::LogInfo("OpenGL: No support for 3.0+");
+        Logger::LogError("OpenGL: No support for 3.0+");
+        return false;
     }  
-
-    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 
     int glVersion[2] = {-1, -1}; 
     glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]); 
     glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]); 
     if(glVersion[0] == -1 || glVersion[1] == -1)
     {
-        Logger::LogInfo("OpenGL: Incorrect versioning");
+        Logger::LogInfo("OpenGL: Version not supported");
         return false;
     }
-
     const float version = glVersion[0] + (glVersion[1] * 0.1f);
     Logger::LogInfo("OpenGL: Verson " + StringCast(version) + " initialized");
+
+    // Initialise the scene
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT); 
+
+    m_data->projectionMat = glm::perspective(FOV, 
+        WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
+        CAMERA_NEAR, CAMERA_FAR);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS); 
+	glEnable(GL_CULL_FACE);
+
     return true;
 }
 
-void OpenglEngine::Render()
+void OpenglEngine::BeginRender()
 {
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT); 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
-    SwapBuffers(m_hdc); 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+}
+
+void OpenglEngine::EndRender()
+{
+    SwapBuffers(m_data->hdc); 
 }

@@ -1,9 +1,9 @@
 
 - Setup rendering environment for OpenGL
-	- setup tinyxml
 	- loading in meshes/lighting
 	- shader fragment linking
 	- setting up opengl rendering pipeline
+	- render to texture
 
 - Setup rendering environment for DirectX
 - Ability to toggle APIs with mouse click

@@ -21,9 +21,14 @@ public:
     virtual bool Initialize(HWND hwnd) = 0;
 
     /**
-    * Renders the scene
+    * Begins rendering the scene
     */
-    virtual void Render() = 0;
+    virtual void BeginRender() = 0;
+
+    /**
+    * Ends rendering the scene
+    */
+    virtual void EndRender() = 0;
 
 
 };

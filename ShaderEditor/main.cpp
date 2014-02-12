@@ -6,7 +6,6 @@
 #include "vld/include/vld.h"
 #endif
 
-#include <Windows.h>
 #include "application.h"
 #include "common.h"
 
@@ -61,13 +60,9 @@ void InitializeWindow(HINSTANCE hInstance)
     wc.lpszClassName = "ShaderEditor";
     RegisterClassEx(&wc); 
 
-	const int x = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
-	const int y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-
-    DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
-
+    DWORD style = WS_EX_TOPMOST | WS_POPUP;
     hWnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, 
         "ShaderEditor", TEXT("Shader Editor"), 
-        style, x, y, WINDOW_WIDTH, WINDOW_HEIGHT,
+        style, WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT,
         nullptr, nullptr, hInstance, nullptr);
 }
