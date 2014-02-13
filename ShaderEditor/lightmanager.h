@@ -7,8 +7,6 @@
 #include <vector>
 #include "common.h"
 
-struct CTwBar;
-
 /**
 * Individual light object
 */
@@ -25,6 +23,7 @@ struct Light
     Colour specular;     ///< Specular highlights the light will cast
     Float3 attenuation;  ///< How much the light will fade in distance
     Float3 position;     ///< World coordinates of the light
+    float specularity;   ///< Brightness of the specular highlights
 };
 
 /**
@@ -36,13 +35,22 @@ public:
 
     /**
     * Constructor
-    * @param tweakbar The tweakbar for diagnostics
     */
-    LightManager(CTwBar* tweakbar);
+    LightManager();
+
+    /**
+    * Constructor
+    * @return Whether the lighting was successful or not
+    */
+    bool Initialise();
+
+    /**
+    * Selects the next light to be editable
+    */
+    void SelectNextLight();
 
 private:
 
     std::vector<Light> m_lights; ///< All lights in the scene
-
-
+    int m_selectedLight;         ///< Index of the selected light
 };                     

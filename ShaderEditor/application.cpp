@@ -7,19 +7,16 @@
 #include "timer.h"
 #include "openglengine.h"
 #include "lightmanager.h"
-#include "AntTweakBar.h"
+#include "diagnostics.h"
 
 Application::Application() :
     m_engine(nullptr),
-    m_runApplication(true),
-    m_tweakbar(nullptr),
-    m_showTweakbar(true)
+    m_runApplication(true)
 {
 }
 
 Application::~Application()
 {
-    RemoveTweakBar();
 }
 
 bool Application::Run()
@@ -53,10 +50,7 @@ void Application::TickApplication()
 {
     m_engine->BeginRender();
 
-    if(m_showTweakbar)
-    {
-        TwDraw();
-    }
+    m_diagnostics->Render();
 
     m_engine->EndRender();
 }
@@ -74,51 +68,16 @@ bool Application::Initialise(HWND hwnd)
     SetRenderEngine(initialiseWithOpenGL);
 
     m_timer.reset(new Timer());
-    m_lighting.reset(new LightManager(m_tweakbar));
+    m_lighting.reset(new LightManager());
+    m_diagnostics.reset(new Diagnostics());
+
+    m_lighting->Initialise();
 
     return true;
 }
 
 void Application::SetRenderEngine(bool opengl)
 {
-    RemoveTweakBar();
-
-    if(opengl)
-    {
-        m_engine = m_opengl.get();
-        TwInit(TW_OPENGL_CORE, nullptr);
-    }
-    else
-    {
-        //requires device pointer
-        TwInit(TW_DIRECT3D11, nullptr);
-    }
-
-    TwWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    InitializeTweakBar();
-}
-
-void Application::InitializeTweakBar()
-{
-    const std::string barname = "ShaderEditor";
-    m_tweakbar = TwNewBar(barname.c_str());
-
-    const int border = 10;
-    std::ostringstream stream;
-    stream << barname << " label='Shader Editor' " 
-        << "position='" << border << " " << border << "' "
-        << "size='200 " << WINDOW_HEIGHT-border*2 << "' "
-        << "alpha=180 text=light valueswidth=70 color='0 0 0' "
-        << "refresh=0.05 iconified=false resizable=false "
-        << "fontsize=2 fontresizable=false ";
-    TwDefine(stream.str().c_str());
-}
-
-void Application::RemoveTweakBar()
-{
-    if(m_tweakbar)
-    {
-        TwDeleteBar(m_tweakbar);
-    }
-    TwTerminate();
+    m_engine = m_opengl.get();
+    m_diagnostics->InitializeTweakBar(opengl);
 }

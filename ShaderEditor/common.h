@@ -9,6 +9,8 @@
 #include <sstream>
 #include <memory>
 #include <array>
+#include "boost/property_tree/ptree.hpp"
+#include "boost/lexical_cast.hpp"
 #include "logger.h"
 #include "float3.h"
 
@@ -27,21 +29,29 @@ const std::string ASSETS_PATH(".//Assets//");
 /**
 * Colour avaliable in the application
 */
-enum ColourComponent
+struct Colour
 {
-    RED,
-    GREEN,
-    BLUE,
-    ALPHA,
-    MAX_COMPONENTS
+    Colour() : r(0), g(0), b(0), a(0) 
+    {
+    }
+
+    float r, g, b, a;
 };
-typedef std::array<float, MAX_COMPONENTS> Colour;
 
 /**
-* Output the given value as a string
+* Gets the value if it exists in the tree or returns defaultValue
+* @param itr Iteration from the tree to check 
+* @param defaultValue The default value to use if name is not found
+* @param node The name of the node to search
+* @return the chosen value from either the tree or defaultValue
 */
-template<typename T> std::string StringCast(const T& value)
+template<typename T>
+T GetPtreeValue(boost::property_tree::ptree::iterator& itr, T defaultValue, char* node)
 {
-    return static_cast<std::stringstream&>(
-        std::stringstream() << value).str();
+    int count = itr->second.count(node);
+    if(count > 0)
+    {
+        return boost::lexical_cast<T>(itr->second.get_child(node).data());
+    }
+    return defaultValue;
 }

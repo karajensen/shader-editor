@@ -6,7 +6,7 @@
 	- render to texture
 
 - Setup rendering environment for DirectX
-- Ability to toggle APIs with mouse click
+- Ability to toggle APIs / tweakbar
 - Qt GUI to allow selecting shader attributes/switching APIs/selecting meshes
 
 - Create 3D scene

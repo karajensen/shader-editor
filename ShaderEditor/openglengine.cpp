@@ -103,7 +103,7 @@ bool OpenglEngine::Initialize(HWND hwnd)
     {  
         //OpenGL Version: Major.Minor
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
         WGL_CONTEXT_FLAGS_ARB, 0, 0  
     };  
 
@@ -129,7 +129,8 @@ bool OpenglEngine::Initialize(HWND hwnd)
         return false;
     }
     const float version = glVersion[0] + (glVersion[1] * 0.1f);
-    Logger::LogInfo("OpenGL: Verson " + StringCast(version) + " initialized");
+    Logger::LogInfo("OpenGL: Verson " + 
+        boost::lexical_cast<std::string>(version) + " initialized");
 
     // Initialise the scene
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);

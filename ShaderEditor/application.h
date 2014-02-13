@@ -7,7 +7,7 @@
 #include <memory>
 #include <Windows.h>
 
-struct CTwBar;
+class Diagnostics;
 class OpenglEngine;
 class RenderEngine;
 class LightManager;
@@ -56,23 +56,12 @@ private:
     */
     void SetRenderEngine(bool opengl);
 
-    /**
-    * Removes the tweak bar
-    */
-    void RemoveTweakBar();
-
-    /**
-    * Initialises the tweak bar
-    */
-    void InitializeTweakBar();
 
     bool m_runApplication; ///< Whether the application is running or not
-    bool m_showTweakbar; ///< Whether the application tweak bar is visible
+    RenderEngine* m_engine; ///< currently selected rendering engine
 
     std::unique_ptr<Timer> m_timer; ///< For measure change in frame time
     std::unique_ptr<OpenglEngine> m_opengl; ///< OpenGL rendering engine
     std::unique_ptr<LightManager> m_lighting; ///< Manages and owns all scene lights
-
-    RenderEngine* m_engine; ///< currently selected rendering engine
-    CTwBar* m_tweakbar; ///< Diagnostic tweak bar
+    std::unique_ptr<Diagnostics> m_diagnostics; ///< Holds tweak bar and scene diagnostics
 };
