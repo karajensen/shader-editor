@@ -56,16 +56,13 @@
     <ClCompile Include="openglengine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="assimpmesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lightmanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="diagnostics.cpp">
+    <ClCompile Include="scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fragmentlinker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,12 +82,6 @@
     <ClInclude Include="openglengine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="assimpmesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lightmanager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -100,7 +91,10 @@
     <ClInclude Include="timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="diagnostics.h">
+    <ClInclude Include="scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fragmentlinker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

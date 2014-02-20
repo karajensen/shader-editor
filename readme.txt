@@ -1,21 +1,21 @@
 
 - Setup rendering environment for OpenGL
-	- loading in meshes/lighting
-	- shader fragment linking
-	- setting up opengl rendering pipeline
+	- F1 to toggle bar
+	- tweak bar input
+	- loading in texturs
+	- opengl loading in meshes/shaders/lighting
 	- render to texture
 
 - Setup rendering environment for DirectX
-- Ability to toggle APIs / tweakbar
-- Qt GUI to allow selecting shader attributes/switching APIs/selecting meshes
 
-- Create 3D scene
 - fix depth/normalmap/bump/attenuation
 - convert shaders to HLSL
-
-- Runtime editing of shaders
+- Create 3D scene
 - Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping
+
+- Qt GUI text box/button for editing shaders toggled by tweak bar
+- Runtime editing of shaders
 
 =================================================================
 SHADER EDITOR

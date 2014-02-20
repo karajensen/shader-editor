@@ -27,9 +27,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
-    <ClCompile Include="assimpmesh.cpp" />
-    <ClCompile Include="diagnostics.cpp" />
-    <ClCompile Include="lightmanager.cpp" />
+    <ClCompile Include="fragmentlinker.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglengine.cpp" />
@@ -37,10 +36,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
-    <ClInclude Include="assimpmesh.h" />
     <ClInclude Include="common.h" />
-    <ClInclude Include="diagnostics.h" />
-    <ClInclude Include="lightmanager.h" />
+    <ClInclude Include="fragmentlinker.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="openglengine.h" />

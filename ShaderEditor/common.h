@@ -3,14 +3,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include <Windows.h>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <memory>
 #include <array>
+#include <functional>
+
 #include "boost/property_tree/ptree.hpp"
 #include "boost/lexical_cast.hpp"
+
 #include "logger.h"
 #include "float3.h"
 
@@ -18,13 +22,16 @@ static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 static const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
 static const int WINDOW_Y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-
 static const float CAMERA_NEAR = 0.1f;
 static const float CAMERA_FAR = 100.0f;
 static const float FOV = 60.0f;
 static const int NO_INDEX = -1;
 
+const std::string FRAGMENT_EXTENSION(".frag");   
+const std::string VERTEX_EXTENSION(".vert");  
 const std::string ASSETS_PATH(".//Assets//");
+const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
+const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");
 
 /**
 * Colour avaliable in the application
