@@ -17,6 +17,7 @@
 
 #include "logger.h"
 #include "float3.h"
+#include "matrix.h"
 
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;

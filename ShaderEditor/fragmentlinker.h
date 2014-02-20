@@ -16,7 +16,6 @@ class FragmentLinker : boost::noncopyable
 {
 public:
 
-
     /**
     * All shader components
     */

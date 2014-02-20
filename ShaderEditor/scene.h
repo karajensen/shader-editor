@@ -70,10 +70,11 @@ struct Mesh
 
     bool backfacecull;              ///< Whether back facing polygons are culled
     int shaderIndex;                ///< Index of which shader to use
-    std::string name;               ///< Name of the mesh
     float specularity;              ///< Brightness of the specular highlights
+    std::string name;               ///< Name of the mesh
     std::vector<Vertex> vertices;   ///< Vertex buffer
     std::vector<DWORD> indices;     ///< Index buffer
+    Matrix world;                   ///< World matrix of the mesh
 };
 
 /**
@@ -101,6 +102,11 @@ public:
     bool Initialise();
 
     /**
+    * Updates the scene
+    */
+    void Update();
+
+    /**
     * Selects the next light to be editable
     */
     void SelectNextLight();
@@ -125,6 +131,11 @@ private:
     void InitialiseTweakBar();
 
     /**
+    * Reloads the twear bar to show the desired selected parameters
+    */
+    void ReloadTweakBar();
+
+    /**
     * Fills in mesh data from the given file
     * @param path The path for the mesh file
     * @param errorBuffer A string which is filled in upon errors
@@ -136,6 +147,7 @@ private:
     std::unique_ptr<FragmentLinker> m_linker; ///< Linker for auto generating shaders
 
     std::vector<Shader> m_shaders; ///< All shaders in the scene
+    std::vector<Mesh> m_alpha;     ///< All translucent meshes in the scene
     std::vector<Mesh> m_meshes;    ///< All meshes in the scene
     std::vector<Light> m_lights;   ///< All lights in the scene
     int m_selectedLight;           ///< Index of the selected light

@@ -8,6 +8,7 @@
 #include "openglengine.h"
 #include "scene.h"
 #include <AntTweakBar.h>
+#include <windowsx.h>
 
 Application::Application() :
     m_engine(nullptr),
@@ -31,11 +32,13 @@ bool Application::Run()
     {
         if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            if(msg.message == WM_QUIT ||
-              (GetAsyncKeyState(VK_ESCAPE) & 0x8000))
+            if((GetAsyncKeyState(VK_ESCAPE) & 0x8000) ||
+               (msg.message == WM_QUIT))
             {
                 return true;
             }
+
+            HandleInputEvents(msg);
             TranslateMessage(&msg);
             DispatchMessage(&msg); 
         }
@@ -45,12 +48,38 @@ bool Application::Run()
             TickApplication();
         }
     }
-
     return true;
+}
+
+void Application::HandleInputEvents(const MSG& msg)
+{
+    switch(msg.message)
+    {
+    case WM_KEYDOWN:
+        TwKeyPressed(toascii(msg.wParam),0);
+        break;
+    case WM_LBUTTONUP:
+        TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_LEFT);
+        break;
+    case WM_RBUTTONUP:
+        TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_RIGHT);
+        break;
+    case WM_LBUTTONDOWN:
+        TwMouseButton(TW_MOUSE_PRESSED,TW_MOUSE_LEFT);
+        break;
+    case WM_RBUTTONDOWN:
+        TwMouseButton(TW_MOUSE_PRESSED,TW_MOUSE_RIGHT);
+        break;
+    case WM_MOUSEMOVE:
+        TwMouseMotion(GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+        break;
+    }
 }
 
 void Application::TickApplication()
 {
+    m_scene->Update();
+
     m_engine->BeginRender();
 
     if(m_showTweakbar)

@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include <algorithm>
 #include "boost/filesystem.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/property_tree/xml_parser.hpp"
@@ -65,6 +66,10 @@ Scene::~Scene()
 {
 }
 
+void Scene::Update()
+{
+}
+
 bool Scene::Initialise()
 {
     bool success = true;
@@ -81,13 +86,14 @@ bool Scene::InitialiseMeshes()
         meshes, boost::property_tree::xml_parser::trim_whitespace);
     boost::property_tree::ptree& tree = meshes.get_child("Meshes");
 
+    m_alpha.reserve(tree.size());
+    m_meshes.reserve(tree.size());
+
     std::string errorBuffer;
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
-        m_meshes.push_back(Mesh());
-        auto& mesh = m_meshes[m_meshes.size()-1];
-
+        Mesh mesh;
         mesh.name = it->second.get_child("Name").data();
         mesh.specularity = GetPtreeValue(it,5.0f,"Specularity");
         mesh.backfacecull = GetPtreeValue(it,true,"BackfaceCulling");
@@ -116,10 +122,10 @@ bool Scene::InitialiseMeshes()
         shadername += boost::algorithm::to_lower_copy(newShaderName);
         
         // Determine if shader with those components already exists and reuse if so
-        auto itr = std::find_if(m_shaders.begin(), m_shaders.end(), 
+        auto shaderItr = std::find_if(m_shaders.begin(), m_shaders.end(), 
             [&](const Shader& shader){ return shader.name == shadername; });
         
-        if(itr == m_shaders.end())
+        if(shaderItr == m_shaders.end())
         {
             // Shader does not exist, create from fragments
             Shader shader;
@@ -130,15 +136,18 @@ bool Scene::InitialiseMeshes()
                     " for " + mesh.name + " is an invalid combination");
                 return false;
             }
-
             shader.index = m_shaders.size();
             mesh.shaderIndex = shader.index;
             m_shaders.push_back(shader);
         }
         else
         {
-            mesh.shaderIndex = itr->index;
+            mesh.shaderIndex = shaderItr->index;
         }
+
+        // Store the mesh in the correct container
+        const std::string alpha = m_linker->GetComponentDescription(FragmentLinker::ALPHA);
+        boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
     }
 
     return true;
@@ -267,11 +276,18 @@ void Scene::SelectNextLight()
     {
         m_selectedLight = 0;
     }
+    ReloadTweakBar();
+}
+
+void Scene::ReloadTweakBar()
+{
+    TwRemoveVar(m_tweakbar, "Select Next Light");
 }
 
 void Scene::InitialiseTweakBar()
 {
     const std::string light = m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name;
     const std::string lightGroup = " group='Light: " + light + "' ";
-    TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, lightGroup.c_str());
+
+    TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, "");
 }

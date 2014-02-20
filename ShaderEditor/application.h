@@ -68,6 +68,12 @@ private:
     */
     void InitializeTweakBar(bool opengl);
 
+    /**
+    * Handles any custom input events
+    * @param msg The windows event message
+    */
+    void HandleInputEvents(const MSG& msg);
+
     bool m_runApplication; ///< Whether the application is running or not
     RenderEngine* m_engine; ///< currently selected rendering engine
 
