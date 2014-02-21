@@ -1,9 +1,7 @@
 
 - Setup rendering environment for OpenGL
-	- F1 to toggle bar
-	- tweak bar input
-	- loading in texturs
 	- opengl loading in meshes/shaders/lighting
+	- loading in textures	
 	- render to texture
 
 - Setup rendering environment for DirectX

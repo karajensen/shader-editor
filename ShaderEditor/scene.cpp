@@ -26,35 +26,6 @@ namespace
     }
 }
 
-Vertex::Vertex() : 
-    x(0.0f),
-    y(0.0f),
-    z(0.0f),
-    nx(0.0f),
-    ny(0.0f),
-    nz(0.0f),
-    u(0.0f), 
-    v(0.0f) 
-{}
-
-Light::Light() :
-    castshadow(false),
-    specularity(0.0f)
-{
-}
-
-Shader::Shader() :
-    index(NO_INDEX)
-{
-}
-
-Mesh::Mesh() :
-    specularity(0.0f),
-    shaderIndex(NO_INDEX),
-    backfacecull(true)
-{
-}
-
 Scene::Scene(CTwBar* tweakbar) :
     m_tweakbar(tweakbar),
     m_selectedLight(NO_INDEX),
@@ -89,7 +60,6 @@ bool Scene::InitialiseMeshes()
     m_alpha.reserve(tree.size());
     m_meshes.reserve(tree.size());
 
-    std::string errorBuffer;
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
@@ -98,6 +68,7 @@ bool Scene::InitialiseMeshes()
         mesh.specularity = GetPtreeValue(it,5.0f,"Specularity");
         mesh.backfacecull = GetPtreeValue(it,true,"BackfaceCulling");
 
+        std::string errorBuffer;
         const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
         if(!CreateMesh(path, errorBuffer, mesh))
         {
@@ -282,12 +253,28 @@ void Scene::SelectNextLight()
 void Scene::ReloadTweakBar()
 {
     TwRemoveVar(m_tweakbar, "Select Next Light");
+    TwRemoveVar(m_tweakbar, "Position X");
+    TwRemoveVar(m_tweakbar, "Position Y");
+    TwRemoveVar(m_tweakbar, "Position Z");
+
+    const std::string light = m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name;
+    const std::string lightGroup = " group='Light: " + light + "' ";
+    TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, lightGroup.c_str());
+ 
+    if(m_selectedLight != NO_INDEX)
+    {
+        TwAddVarRW(m_tweakbar, "Position X", TW_TYPE_FLOAT, 
+            &m_lights[m_selectedLight].position.x, lightGroup.c_str());
+
+        TwAddVarRW(m_tweakbar, "Position Y", TW_TYPE_FLOAT, 
+            &m_lights[m_selectedLight].position.y, lightGroup.c_str());
+
+        TwAddVarRW(m_tweakbar, "Position Z", TW_TYPE_FLOAT, 
+            &m_lights[m_selectedLight].position.z, lightGroup.c_str());
+    }
 }
 
 void Scene::InitialiseTweakBar()
 {
-    const std::string light = m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name;
-    const std::string lightGroup = " group='Light: " + light + "' ";
-
-    TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, "");
+    ReloadTweakBar();
 }

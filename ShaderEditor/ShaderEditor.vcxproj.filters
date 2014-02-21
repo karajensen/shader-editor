@@ -65,6 +65,9 @@
     <ClCompile Include="fragmentlinker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="elements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -95,6 +98,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fragmentlinker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="elements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

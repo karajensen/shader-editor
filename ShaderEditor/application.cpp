@@ -10,11 +10,16 @@
 #include <AntTweakBar.h>
 #include <windowsx.h>
 
+namespace
+{
+    const std::string TWEAK_BAR_NAME("ShaderEditor");
+}
+
 Application::Application() :
     m_engine(nullptr),
     m_runApplication(true),
     m_tweakbar(nullptr),
-    m_showTweakbar(true)
+    m_showTweakBar(false)
 {
 }
 
@@ -25,6 +30,7 @@ Application::~Application()
 
 bool Application::Run()
 {
+    WPARAM keyDown;
     MSG msg;
     m_timer->StartTimer();
 
@@ -37,8 +43,7 @@ bool Application::Run()
             {
                 return true;
             }
-
-            HandleInputEvents(msg);
+            HandleInputEvents(keyDown, msg);
             TranslateMessage(&msg);
             DispatchMessage(&msg); 
         }
@@ -51,12 +56,19 @@ bool Application::Run()
     return true;
 }
 
-void Application::HandleInputEvents(const MSG& msg)
+void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
 {
     switch(msg.message)
     {
     case WM_KEYDOWN:
-        TwKeyPressed(toascii(msg.wParam),0);
+        keydown = msg.wParam;
+        break;
+    case WM_KEYUP:
+        if(keydown == VK_F1)
+        {
+            ToggleTweakBar();
+        }
+        TwKeyPressed(toascii(keydown),0);
         break;
     case WM_LBUTTONUP:
         TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_LEFT);
@@ -82,10 +94,7 @@ void Application::TickApplication()
 
     m_engine->BeginRender();
 
-    if(m_showTweakbar)
-    {
-        TwDraw();
-    }
+    TwDraw();
 
     m_engine->EndRender();
 }
@@ -117,31 +126,33 @@ void Application::SetRenderEngine(bool opengl)
 void Application::InitializeTweakBar(bool opengl)
 {
     RemoveTweakBar();
+    std::string barLabel("Shader Editor: ");
 
     if(opengl)
     {
+        barLabel += "OpenGL";
         TwInit(TW_OPENGL_CORE, nullptr);
     }
     else
     {
-        //note requires device pointer
+        barLabel += "DirectX";
         TwInit(TW_DIRECT3D11, nullptr);
     }
-
     TwWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    const std::string barname = "ShaderEditor";
-    m_tweakbar = TwNewBar(barname.c_str());
+    m_tweakbar = TwNewBar(TWEAK_BAR_NAME.c_str());
+    TwDefine(" TW_HELP visible=false ");
 
     const int border = 10;
     std::ostringstream stream;
-    stream << barname << " label='Shader Editor' " 
+    stream << TWEAK_BAR_NAME << " label='" << barLabel << "' " 
         << "position='" << border << " " << border << "' "
         << "size='200 " << WINDOW_HEIGHT-border*2 << "' "
         << "alpha=180 text=light valueswidth=70 color='0 0 0' "
         << "refresh=0.05 iconified=false resizable=false "
-        << "fontsize=2 fontresizable=false ";
+        << "fontsize=2 fontresizable=false visible=false ";
     TwDefine(stream.str().c_str());
+    m_showTweakBar = false;
 }
 
 void Application::RemoveTweakBar()
@@ -151,4 +162,11 @@ void Application::RemoveTweakBar()
         TwDeleteBar(m_tweakbar);
     }
     TwTerminate();
+}
+
+void Application::ToggleTweakBar()
+{
+    m_showTweakBar = !m_showTweakBar;
+    const std::string visible(m_showTweakBar ? "true" : "false");
+    TwDefine((" " + TWEAK_BAR_NAME + " visible=" + visible + " ").c_str());
 }
