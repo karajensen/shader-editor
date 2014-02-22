@@ -10,6 +10,7 @@
 #include "opengl/glm/glm.hpp"
 #include "opengl/glm/gtc/matrix_transform.hpp"
 #include "common.h"
+#include <iomanip>
 
 /**
 * Internal data for the opengl rendering engine
@@ -27,15 +28,12 @@ struct OpenglData
     ~OpenglData();
 
     glm::mat4 projectionMat;  ///< Matrix for 3D rendering
-    glm::mat4 orthogonalMat;  ///< Matrix for 2D rendering
 
     HGLRC hrc;  ///< Rendering context  
     HDC hdc;    ///< Device context  
-    HWND hwnd;  ///< Window identifier  
 };
 
 OpenglData::OpenglData() :
-    hwnd(nullptr),
     hdc(nullptr),
     hrc(nullptr)
 {
@@ -51,8 +49,8 @@ OpenglData::~OpenglData()
     }
 }
 
-OpenglEngine::OpenglEngine() :
-    m_data(new OpenglData())
+OpenglEngine::OpenglEngine(HWND hwnd) :
+    m_hwnd(hwnd)
 {
 }
 
@@ -60,10 +58,10 @@ OpenglEngine::~OpenglEngine()
 {
 }
 
-bool OpenglEngine::Initialize(HWND hwnd)
+bool OpenglEngine::Initialize()
 {
-    m_data->hwnd = hwnd;
-    m_data->hdc = GetDC(m_data->hwnd);
+    m_data.reset(new OpenglData());
+    m_data->hdc = GetDC(m_hwnd);
 
     PIXELFORMATDESCRIPTOR pfd;  
     memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR)); 
@@ -120,17 +118,18 @@ bool OpenglEngine::Initialize(HWND hwnd)
         return false;
     }  
 
-    int glVersion[2] = {-1, -1}; 
-    glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]); 
-    glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]); 
-    if(glVersion[0] == -1 || glVersion[1] == -1)
+    int version[2] = {-1, -1}; 
+    glGetIntegerv(GL_MAJOR_VERSION, &version[0]); 
+    glGetIntegerv(GL_MINOR_VERSION, &version[1]); 
+    if(version[0] == -1 || version[1] == -1)
     {
         Logger::LogInfo("OpenGL: Version not supported");
         return false;
     }
-    const float version = glVersion[0] + (glVersion[1] * 0.1f);
-    Logger::LogInfo("OpenGL: Verson " + 
-        boost::lexical_cast<std::string>(version) + " initialized");
+    
+    std::stringstream stream;
+    stream << "OpenGL: Verson " << version[0] << "." << version[1] << " successful";
+    Logger::LogInfo(stream.str());
 
     // Initialise the scene
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -155,4 +154,23 @@ void OpenglEngine::BeginRender()
 void OpenglEngine::EndRender()
 {
     SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::CompileShader(int index)
+{
+
+
+}
+
+bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
+                                   const std::vector<Mesh>& alpha, 
+                                   const std::vector<Shader>& shaders)
+{
+
+    return true;
+}
+
+std::string OpenglEngine::GetName() const
+{
+    return "OpenGL";
 }

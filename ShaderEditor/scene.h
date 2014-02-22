@@ -19,9 +19,8 @@ public:
 
     /**
     * Constructor
-    * @param tweakbar Used for runtime diagnostics
     */
-    Scene(CTwBar* tweakbar);
+    Scene();
 
     /**
     * Destructor
@@ -44,6 +43,27 @@ public:
     */
     void SelectNextLight();
 
+    /**
+    * @return the meshes in the scene
+    */
+    const std::vector<Mesh> GetMeshes() const;
+
+    /**
+    * @return the translucent meshes in the scene
+    */
+    const std::vector<Mesh> GetAlpha() const;
+
+    /**
+    * @return the shaders in the scene
+    */
+    const std::vector<Shader> GetShaders() const;
+
+    /**
+    * Adds tweakable scene parameters to the tweak bar
+    * @param tweakbar Used for runtime diagnostics
+    */
+    void InitialiseTweakBar(CTwBar* tweakbar);
+
 private:
 
     /**
@@ -57,11 +77,6 @@ private:
     * @return Whether the initialization was successful
     */
     bool InitialiseMeshes();
-
-    /**
-    * Adds tweakable scene parameters to the tweak bar
-    */
-    void InitialiseTweakBar();
 
     /**
     * Reloads the twear bar to show the desired selected parameters

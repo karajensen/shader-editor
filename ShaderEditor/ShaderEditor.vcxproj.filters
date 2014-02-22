@@ -68,6 +68,9 @@
     <ClCompile Include="elements.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="directxengine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="elements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directxengine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

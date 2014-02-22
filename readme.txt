@@ -1,13 +1,14 @@
 
-- Setup rendering environment for OpenGL
-	- opengl loading in meshes/shaders/lighting
-	- loading in textures	
-	- render to texture
+- improving switching between APIs
 
-- Setup rendering environment for DirectX
+Opengl/Directx
+	- loading in shaders in HLSL
+	- loading in meshes/shaders/lighting to engines
+	- loading in textures
+	- render to texture/antialising
+
 
 - fix depth/normalmap/bump/attenuation
-- convert shaders to HLSL
 - Create 3D scene
 - Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping

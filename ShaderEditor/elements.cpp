@@ -32,10 +32,3 @@ Mesh::Mesh() :
     backfacecull(true)
 {
 }
-
-Scene::Scene(CTwBar* tweakbar) :
-    m_tweakbar(tweakbar),
-    m_selectedLight(NO_INDEX),
-    m_linker(new FragmentLinker())
-{
-}

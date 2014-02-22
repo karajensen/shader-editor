@@ -26,8 +26,8 @@ namespace
     }
 }
 
-Scene::Scene(CTwBar* tweakbar) :
-    m_tweakbar(tweakbar),
+Scene::Scene() :
+    m_tweakbar(nullptr),
     m_selectedLight(NO_INDEX),
     m_linker(new FragmentLinker())
 {
@@ -46,7 +46,6 @@ bool Scene::Initialise()
     bool success = true;
     success = success ? InitialiseLighting() : false;
     success = success ? InitialiseMeshes() : false;
-    InitialiseTweakBar();
     return success;
 }
 
@@ -274,7 +273,23 @@ void Scene::ReloadTweakBar()
     }
 }
 
-void Scene::InitialiseTweakBar()
+void Scene::InitialiseTweakBar(CTwBar* tweakbar)
 {
+    m_tweakbar = tweakbar;
     ReloadTweakBar();
+}
+
+const std::vector<Mesh> Scene::GetMeshes() const
+{
+    return m_meshes;
+}
+
+const std::vector<Mesh> Scene::GetAlpha() const
+{
+    return m_alpha;
+}
+
+const std::vector<Shader> Scene::GetShaders() const
+{
+    return m_shaders;
 }

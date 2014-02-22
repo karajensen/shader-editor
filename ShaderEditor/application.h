@@ -9,6 +9,7 @@
 
 struct CTwBar;
 class OpenglEngine;
+class DirectxEngine;
 class RenderEngine;
 class LightManager;
 class Timer;
@@ -44,6 +45,11 @@ public:
     */
     bool Initialise(HWND hwnd);
 
+    /**
+    * Toggles through the avaliable render engines
+    */
+    void ToggleRenderEngine();
+
 private:
 
     /**
@@ -58,15 +64,15 @@ private:
     void SetRenderEngine(bool opengl);
 
     /**
+    * Initialises the tweak bar
+    * @param opengl Whether to use opengl or directx
+    */
+    void InitialiseTweakBar(bool opengl);
+
+    /**
     * Removes the tweak bar
     */
     void RemoveTweakBar();
-
-    /**
-    * Initialises the tweak bar
-    * @param opengl Whether to use openGl for rendering or not
-    */
-    void InitializeTweakBar(bool opengl);
 
     /**
     * Toggles whether to hide/show the tweak bar
@@ -86,6 +92,7 @@ private:
     std::unique_ptr<Scene> m_scene; ///< Holds meshes, lighting and shader data
     std::unique_ptr<Timer> m_timer; ///< For measure change in frame time
     std::unique_ptr<OpenglEngine> m_opengl; ///< OpenGL rendering engine
+    std::unique_ptr<DirectxEngine> m_directx; ///< DirectX rendering engine
 
     bool m_showTweakBar; ///< Whether the tweak bar is currently visible
     CTwBar* m_tweakbar;  ///< Used for runtime diagnostics
