@@ -28,8 +28,9 @@ static const float CAMERA_FAR = 100.0f;
 static const float FOV = 60.0f;
 static const int NO_INDEX = -1;
 
-const std::string FRAGMENT_EXTENSION(".frag");   
-const std::string VERTEX_EXTENSION(".vert");  
+const std::string GLSL_FRAGMENT_EXTENSION(".frag");   
+const std::string GLSL_VERTEX_EXTENSION(".vert");
+const std::string HLSL_SHADER_EXTENSION(".hlsl");
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");

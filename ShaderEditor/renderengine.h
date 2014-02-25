@@ -26,6 +26,12 @@ public:
     virtual void BeginRender() = 0;
 
     /**
+    * Renders the 3D scene
+    * @param lights All lighting in the scene
+    */
+    virtual void Render(const std::vector<Light>& lights) = 0;
+
+    /**
     * Ends rendering the scene
     */
     virtual void EndRender() = 0;
@@ -33,8 +39,9 @@ public:
     /**
     * Generates the shader for the engine
     * @param index An unique index for the shader
+    * @return an error message if compilation failed
     */
-    virtual void CompileShader(int index) = 0;
+    virtual std::string CompileShader(int index) = 0;
 
     /**
     * Initialises the scene for openGL

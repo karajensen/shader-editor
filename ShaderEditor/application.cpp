@@ -13,6 +13,7 @@
 
 namespace
 {
+    const bool OPENGL_START = false; ///< Whether to start app with opengl
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     /**
@@ -66,6 +67,22 @@ bool Application::Run()
     return true;
 }
 
+void Application::HandleKeyPress(const WPARAM& keydown)
+{
+    if(keydown == VK_F1)
+    {
+        ToggleTweakBar();
+    }
+    else if(keydown == VK_F2)
+    {
+        ToggleRenderEngine();
+    }
+    else
+    {
+        TwKeyPressed(toascii(keydown),0);
+    }
+}
+
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
 {
     switch(msg.message)
@@ -74,15 +91,7 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
         keydown = msg.wParam;
         break;
     case WM_KEYUP:
-        if(keydown == VK_F1)
-        {
-            ToggleTweakBar();
-        }
-        else if(keydown == VK_F2)
-        {
-            ToggleRenderEngine();
-        }
-        TwKeyPressed(toascii(keydown),0);
+        HandleKeyPress(keydown);
         break;
     case WM_LBUTTONUP:
         TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_LEFT);
@@ -105,11 +114,9 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
 void Application::TickApplication()
 {
     m_scene->Update();
-
     m_engine->BeginRender();
-
+    m_engine->Render(m_scene->GetLights());
     TwDraw();
-
     m_engine->EndRender();
 }
 
@@ -117,21 +124,34 @@ bool Application::Initialise(HWND hwnd)
 {
     m_timer.reset(new Timer());
     m_scene.reset(new Scene());
+    m_directx.reset(new DirectxEngine(hwnd));
+    m_opengl.reset(new OpenglEngine(hwnd));
+
     if(!m_scene->Initialise())
     {
         Logger::LogError("Scene Failed to initialise");
         return false;
     }
 
-    m_opengl.reset(new OpenglEngine(hwnd));
+    if(!m_opengl->Initialize())
+    {
+        Logger::LogError("OpenGL failed to initialise");
+        return false;
+    }
+
     if(!m_opengl->InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders()))
     {
         Logger::LogError("OpenGL Scene failed to initialise");
         return false;
     }
+    
+    if(!m_directx->Initialize())
+    {
+        Logger::LogError("DirectX failed to initialise");
+        return false;
+    }
 
-    m_directx.reset(new DirectxEngine(hwnd));
     if(!m_directx->InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders()))
     {
@@ -139,20 +159,22 @@ bool Application::Initialise(HWND hwnd)
         return false;
     }
 
-    const bool initialiseWithOpenGL = true;
-    SetRenderEngine(initialiseWithOpenGL);
+    if(OPENGL_START)
+    {
+        m_engine = m_opengl.get();
+    }
+    else
+    {
+        m_engine = m_directx.get();
+    }
+    InitialiseTweakBar(OPENGL_START);
     return true;
 }
 
 void Application::ToggleRenderEngine()
 {
-    const bool usingOpenGL = m_engine == m_opengl.get();
-    SetRenderEngine(!usingOpenGL);
-}
-
-void Application::SetRenderEngine(bool opengl)
-{
-    if(opengl)
+    const bool useOpenGL = !(m_engine == m_opengl.get());
+    if(useOpenGL)
     {
         m_engine = m_opengl.get();
     }
@@ -165,8 +187,7 @@ void Application::SetRenderEngine(bool opengl)
     {
         Logger::LogError(m_engine->GetName() + " failed to initialise");
     }
-
-    InitialiseTweakBar(opengl);
+    InitialiseTweakBar(useOpenGL);
 }
 
 void Application::InitialiseTweakBar(bool opengl)

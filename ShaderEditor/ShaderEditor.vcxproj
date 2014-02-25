@@ -50,6 +50,11 @@
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Shaders\shader.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{14D5F556-2E51-4F6F-8133-9762A0CA6517}</ProjectGuid>
     <RootNamespace>Shader</RootNamespace>

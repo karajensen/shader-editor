@@ -27,6 +27,11 @@ struct OpenglData
     */
     ~OpenglData();
 
+    /**
+    * Releases the device/context
+    */
+    void Release();
+
     glm::mat4 projectionMat;  ///< Matrix for 3D rendering
 
     HGLRC hrc;  ///< Rendering context  
@@ -41,6 +46,11 @@ OpenglData::OpenglData() :
 
 OpenglData::~OpenglData()
 {
+    Release();
+}
+
+void OpenglData::Release()
+{
     wglMakeCurrent(nullptr, nullptr);
     if(hrc)
     {
@@ -50,6 +60,7 @@ OpenglData::~OpenglData()
 }
 
 OpenglEngine::OpenglEngine(HWND hwnd) :
+    m_data(new OpenglData()),
     m_hwnd(hwnd)
 {
 }
@@ -60,7 +71,7 @@ OpenglEngine::~OpenglEngine()
 
 bool OpenglEngine::Initialize()
 {
-    m_data.reset(new OpenglData());
+    m_data->Release();
     m_data->hdc = GetDC(m_hwnd);
 
     PIXELFORMATDESCRIPTOR pfd;  
@@ -151,15 +162,19 @@ void OpenglEngine::BeginRender()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 }
 
+void OpenglEngine::Render(const std::vector<Light>& lights)
+{
+
+}
+
 void OpenglEngine::EndRender()
 {
     SwapBuffers(m_data->hdc); 
 }
 
-void OpenglEngine::CompileShader(int index)
+std::string OpenglEngine::CompileShader(int index)
 {
-
-
+    return "";
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 

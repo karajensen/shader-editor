@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "fragmentlinker.h"
+#include "elements.h"
 #include <boost/assign/list_of.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
@@ -28,6 +29,10 @@ FragmentLinker::FragmentLinker()
     if(boost::filesystem::exists(GENERATED_FOLDER))    
     {
         boost::filesystem::remove_all(GENERATED_FOLDER);
+        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
+        {
+            Logger::LogError(GENERATED_FOLDER + " could not be created");
+        }
     }
 }
 
@@ -93,47 +98,52 @@ std::string FragmentLinker::GetComponentDescription(ComponentVisibility componen
     };
 }
 
-bool FragmentLinker::InitialiseFromFragments(const std::string& name, 
-                                             std::string& generatedPath, 
+bool FragmentLinker::InitialiseFromFragments(Shader& shader,
                                              unsigned int maxLights)
 {
-    if(!boost::filesystem::exists(GENERATED_FOLDER))
-    {
-       if(!boost::filesystem::create_directory(GENERATED_FOLDER))
-        {
-            Logger::LogError(GENERATED_FOLDER + " could not be created");
-            return false;
-        }
-    }
+    const std::string filename = GENERATED_FOLDER + shader.name;
 
     // take apart name to find what components are needed for the shader
     m_shaderComponents.clear();
     std::vector<std::string> availableComponents(GetComponentDescriptions());
     BOOST_FOREACH(std::string component, availableComponents)
     {
-        if(boost::algorithm::icontains(name, component))
+        if(boost::algorithm::icontains(shader.name, component))
         {
             m_shaderComponents.push_back(component);
         }
     }
 
     // generate a shader from the shader components
-    if(!CreateShaderFromFragments(name, true, maxLights) ||
-       !CreateShaderFromFragments(name, false, maxLights))
+    shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
+    if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION, boost::none))
     {
-        Logger::LogError(name + " Shader Failed to be generated");
-        return false;
+        Logger::LogError(shader.name + " GLSL Vertex Shader failed");
+        return false;            
     }
 
-    generatedPath = GENERATED_FOLDER + name;
+    shader.glslFragmentFile = filename + GLSL_FRAGMENT_EXTENSION;
+    if(!CreateShaderFromFragments(shader.name, GLSL_FRAGMENT_EXTENSION, maxLights))
+    {
+        Logger::LogError(shader.name + " GLSL Fragment Shader failed");
+        return false;            
+    }
+
+    shader.hlslFragmentFile = filename + HLSL_SHADER_EXTENSION;
+    if(!CreateShaderFromFragments(shader.name, HLSL_SHADER_EXTENSION, maxLights))
+    {
+        Logger::LogError(shader.name + " HLSL Shader failed");
+        return false;            
+    }
+
     return true;
 }
 
-bool FragmentLinker::CreateShaderFromFragments(
-    const std::string& name, bool isVertex, unsigned int maxLights)
+bool FragmentLinker::CreateShaderFromFragments(const std::string& name,         
+                                               const std::string& extension,
+                                               boost::optional<unsigned int> maxLights)
 {
-    std::string extension = isVertex ? VERTEX_EXTENSION : FRAGMENT_EXTENSION;
-    std::string filepath = GENERATED_FOLDER + name + extension;
+    const std::string filepath = GENERATED_FOLDER + name + extension;
     std::ofstream generatedFile(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
     
     if(!generatedFile.is_open())
@@ -143,9 +153,9 @@ bool FragmentLinker::CreateShaderFromFragments(
     }
 
     // Add the #define for multiple lights support in fragment shader only
-    if(!isVertex && maxLights > 0)
+    if(maxLights.is_initialized())
     {
-        generatedFile << "#define MAX_LIGHTS " << maxLights << std::endl << std::endl;
+        generatedFile << "#define MAX_LIGHTS " << *maxLights << std::endl << std::endl;
     }
 
     // Open/copy from the base shader 

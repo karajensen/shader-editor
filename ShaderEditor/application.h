@@ -50,18 +50,12 @@ public:
     */
     void ToggleRenderEngine();
 
-private:
+private: 
 
     /**
     * Updates and renders the application
     */
     void TickApplication();
-
-    /**
-    * Sets which is the currently active render engine
-    * @param opengl Whether to use opengl or directx
-    */
-    void SetRenderEngine(bool opengl);
 
     /**
     * Initialises the tweak bar
@@ -85,6 +79,12 @@ private:
     * @param msg The windows event message
     */
     void HandleInputEvents(WPARAM& keydown, const MSG& msg);
+
+    /**
+    * Handles any custom key press events
+    * @param keydown The current key being pressed
+    */
+    void HandleKeyPress(const WPARAM& keydown);
 
     bool m_runApplication; ///< Whether the application is running or not
     RenderEngine* m_engine; ///< currently selected rendering engine

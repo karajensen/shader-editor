@@ -8,6 +8,8 @@
 #include <array>
 #include <boost/noncopyable.hpp>
 
+struct Shader;
+
 /**
 * Links part of a shader together to output a filename of the generated shader
 * Also holds visibility modifiers for each shared component of linked shaders
@@ -84,13 +86,11 @@ public:
 
     /**
     * Initialises the shader from fragments
-    * @param name The name of the shader
-    * @param generatedPath The final generated shader path
+    * @param shader The shader object to fill in 
     * @param maxLights The amount of lighting the shader will consider
     * @return whether or not initialisation succeeded
     */
-    bool InitialiseFromFragments(const std::string& name, 
-        std::string& generatedPath, unsigned int maxLights);
+    bool InitialiseFromFragments(Shader& shader, unsigned int maxLights);
 
 private:
 
@@ -105,12 +105,13 @@ private:
     * Does custom pre-processing of the shader files before sending them to irrlicht
     * This allows shaders to be constructed from shader fragments
     * @param name The name of the shader
-    * @param isVertex Whether or not this shader is the vertex shader
+    * @param extension The file extension of the shader
     * @param maxLights The amount of lighting the shader will consider
     * @return whether or not the generation failed
     */
     bool CreateShaderFromFragments(const std::string& name, 
-        bool isVertex, unsigned int maxLights);
+        const std::string& extension,
+        boost::optional<unsigned int> maxLights);
 
     /**
     * Reads the base shader until the end of the file

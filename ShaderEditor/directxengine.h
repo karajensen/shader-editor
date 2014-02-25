@@ -40,6 +40,12 @@ public:
     virtual void BeginRender() override;
 
     /**
+    * Renders the 3D scene
+    * @param lights All lighting in the scene
+    */
+    virtual void Render(const std::vector<Light>& lights) override;
+
+    /**
     * Ends rendering the scene
     */
     virtual void EndRender() override;
@@ -59,8 +65,9 @@ public:
     /**
     * Generates the shader for the engine
     * @param index An unique index for the shader
+    * @return an error message if compilation failed
     */
-    virtual void CompileShader(int index) override;
+    virtual std::string CompileShader(int index) override;
 
     /**
     * @return the name of the render engine

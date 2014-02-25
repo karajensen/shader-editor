@@ -59,6 +59,11 @@ public:
     const std::vector<Shader> GetShaders() const;
 
     /**
+    * @return the lights in the scene
+    */
+    const std::vector<Light> GetLights() const;
+
+    /**
     * Adds tweakable scene parameters to the tweak bar
     * @param tweakbar Used for runtime diagnostics
     */

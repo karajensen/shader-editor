@@ -16,9 +16,11 @@ struct Shader
     */
     Shader();
 
-    int index;        ///< Unique index of the shader
-    std::string name; ///< name of the shader
-    std::string file; ///< filename of the shader
+    int index;                    ///< Unique index of the shader
+    std::string name;             ///< name of the shader
+    std::string glslVertexFile;   ///< filename of the glsl shader
+    std::string glslFragmentFile; ///< filename of the glsl shader
+    std::string hlslFragmentFile; ///< filename of the hlsl shader
 };
 
 /**

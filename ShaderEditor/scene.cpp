@@ -100,7 +100,7 @@ bool Scene::InitialiseMeshes()
             // Shader does not exist, create from fragments
             Shader shader;
             shader.name = shadername;
-            if(!m_linker->InitialiseFromFragments(shader.name, shader.file, m_lights.size()))
+            if(!m_linker->InitialiseFromFragments(shader, m_lights.size()))
             {
                 Logger::LogError("Shader name " + shadername +
                     " for " + mesh.name + " is an invalid combination");
@@ -292,4 +292,9 @@ const std::vector<Mesh> Scene::GetAlpha() const
 const std::vector<Shader> Scene::GetShaders() const
 {
     return m_shaders;
+}
+
+const std::vector<Light> Scene::GetLights() const
+{
+    return m_lights;
 }
