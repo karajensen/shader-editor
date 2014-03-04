@@ -28,7 +28,6 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="directxengine.cpp" />
-    <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />

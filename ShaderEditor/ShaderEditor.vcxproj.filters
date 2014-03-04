@@ -68,9 +68,6 @@
     <ClCompile Include="fragmentlinker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="elements.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="directxengine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

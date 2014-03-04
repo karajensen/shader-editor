@@ -14,7 +14,10 @@ struct Shader
     /**
     * Constructor
     */
-    Shader();
+    Shader() :
+        index(NO_INDEX)
+    {
+    }
 
     int index;                    ///< Unique index of the shader
     std::string name;             ///< name of the shader
@@ -31,7 +34,11 @@ struct Light
     /**
     * Constructor
     */
-    Light();
+    Light() :
+        castshadow(false),
+        specularity(0.0f)
+    {
+    }
 
     bool castshadow;     ///< Whether the light casts shadows or not
     std::string name;    ///< Name of the light
@@ -43,14 +50,24 @@ struct Light
 };
 
 /**
-* Mesh Vertex structure
+* Aggregate Mesh Vertex structure
 */
 struct Vertex
 {
     /**
-    * Contructor
+    * Constructor
     */
-    Vertex();
+    Vertex() :
+        x(0.0f),
+        y(0.0f),
+        z(0.0f),
+        nx(0.0f),
+        ny(0.0f),
+        nz(0.0f),
+        u(0.0f),
+        v(0.0f)
+    {
+    }
 
     float x,y,z;     ///< Vertex position
     float nx,ny,nz;  ///< Vertex normal
@@ -65,7 +82,12 @@ struct Mesh
     /**
     * Constructor
     */
-    Mesh();
+    Mesh() :
+        specularity(0.0f),
+        shaderIndex(NO_INDEX),
+        backfacecull(true)
+    {
+    }
 
     bool backfacecull;              ///< Whether back facing polygons are culled
     int shaderIndex;                ///< Index of which shader to use

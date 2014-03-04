@@ -13,7 +13,7 @@
 
 namespace
 {
-    const bool OPENGL_START = false; ///< Whether to start app with opengl
+    const bool OPENGL_START = true;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     /**

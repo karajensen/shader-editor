@@ -10,6 +10,10 @@
 #include "directx/include/d3dx11.h"
 #include "directx/include/d3dx10.h"
 
+///////////////////////////////////////////
+struct VERTEX{FLOAT X, Y, Z; D3DXCOLOR Color;};
+///////////////////////////////////////////
+
 /**
 * Holds information for an individual directx shader
 */
@@ -30,10 +34,10 @@ struct DxShader
     */
     void Release();
 
-    std::string filepath;      // Path to the shader file
-    ID3D11InputLayout* layout; // Shader input layout
-    ID3D11VertexShader* vs;    // HLSL vertex shader
-    ID3D11PixelShader* ps;     // HLSL pixel shader
+    std::string filepath;      ///< Path to the shader file
+    ID3D11InputLayout* layout; ///< Shader input layout
+    ID3D11VertexShader* vs;    ///< HLSL vertex shader
+    ID3D11PixelShader* ps;     ///< HLSL pixel shader
 };
 
 /**
@@ -61,6 +65,10 @@ struct DirectxData
     IDXGISwapChain* swapchain;            ///< swap chain interface
     ID3D11Device* device;                 ///< Direct3D device interface
     ID3D11DeviceContext* context;         ///< Direct3D device context
+
+    ///////////////////////////////////////////
+    ID3D11Buffer *pVBuffer;
+    ///////////////////////////////////////////
 };
 
 DxShader::DxShader() :
@@ -191,15 +199,17 @@ std::string DirectxEngine::CompileShader(int index)
     if(FAILED(D3DX11CompileFromFile(shader.filepath.c_str(), 0, 0,
         "VShader", "vs_5_0", 0, 0, 0, &vsBlob, &errors, 0)))
     {
-        return errors ? static_cast<char*>(errors->GetBufferPointer()) : 
-            std::string("Unknown Error in Vertex Shader").c_str();
+        const std::string error = errors ? static_cast<char*>(errors->GetBufferPointer()) : 
+            std::string("Unknown Error").c_str();
+        return "Vertex Shader: " + error;
     }
 
     if(FAILED(D3DX11CompileFromFile(shader.filepath.c_str(), 0, 0, 
         "PShader", "ps_5_0", 0, 0, 0, &psBlob, &errors, 0)))
     {
-        return errors ? static_cast<char*>(errors->GetBufferPointer()) : 
-            std::string("Unknown Error in Pixel Shader").c_str();
+        const std::string error = errors ? static_cast<char*>(errors->GetBufferPointer()) : 
+            std::string("Unknown Error").c_str();
+        return "Pixel Shader: " + error;
     }
 
     shader.Release();
@@ -229,6 +239,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
                                     const std::vector<Mesh>& alpha, 
                                     const std::vector<Shader>& shaders)
 {
+    // Generate HLSL DirectX Shaders
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
@@ -242,6 +253,33 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
             return false;
         }
     }
+
+    /////////////////////////////////////////////////
+    VERTEX OurVertices[] =
+    {
+        {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+        {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
+        {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
+    };
+
+    // create the vertex buffer
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(bd));
+
+    bd.Usage = D3D11_USAGE_DYNAMIC;                // write access access by CPU and GPU
+    bd.ByteWidth = sizeof(VERTEX) * 3;             // size is the VERTEX struct * 3
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;       // use as a vertex buffer
+    bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;    // allow CPU to write in buffer
+
+    m_data->device->CreateBuffer(&bd, NULL, &m_data->pVBuffer);
+
+    D3D11_MAPPED_SUBRESOURCE ms;
+    m_data->context->Map(m_data->pVBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
+    memcpy(ms.pData, OurVertices, sizeof(OurVertices));
+    m_data->context->Unmap(m_data->pVBuffer, NULL); 
+    /////////////////////////////////////////////////
+
+
     return true;
 }
 
@@ -263,9 +301,22 @@ void DirectxEngine::BeginRender()
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
-    //m_data->context->VSSetShader(shader.vs, 0, 0);
-    //m_data->context->PSSetShader(shader.ps, 0, 0);
-    //m_data->context->IASetInputLayout(shader.layout);
+    //for (DxShader& shader: m_data->shaders)
+    DxShader& shader = m_data->shaders[0];
+    {
+        m_data->context->VSSetShader(shader.vs, 0, 0);
+        m_data->context->PSSetShader(shader.ps, 0, 0);
+        m_data->context->IASetInputLayout(shader.layout);
+
+        //////////////////////////////////////////////
+        UINT stride = sizeof(VERTEX);
+        UINT offset = 0;
+        m_data->context->IASetVertexBuffers(0, 1, &m_data->pVBuffer, &stride, &offset);
+        m_data->context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_data->context->Draw(3, 0);
+        //////////////////////////////////////////////
+
+    }
 }
 
 void DirectxEngine::EndRender()

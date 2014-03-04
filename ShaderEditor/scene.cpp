@@ -46,6 +46,13 @@ bool Scene::Initialise()
     bool success = true;
     success = success ? InitialiseLighting() : false;
     success = success ? InitialiseMeshes() : false;
+
+    // To prevent unnecessary shader switching, sort by shader used
+    std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
+    {
+        return m1.shaderIndex < m2.shaderIndex;
+    });
+
     return success;
 }
 
@@ -120,6 +127,7 @@ bool Scene::InitialiseMeshes()
         boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
     }
 
+    Logger::LogInfo("Mesh: All meshes created successfully");
     return true;
 }
 
@@ -236,6 +244,7 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
             mesh.indices.push_back(indexOffset + pFace->mIndices[2]);
         }
     }
+    Logger::LogInfo("Mesh: " + path + " created");
     return true;
 }
 

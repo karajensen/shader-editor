@@ -1,12 +1,14 @@
 
-- improving switching between APIs
+- opengl loading shaders
+- opengl triangle rendering
+- switching engines doesn't remove triangle
+
 
 Opengl/Directx
-	- loading in shaders in HLSL
-	- loading in meshes/shaders/lighting to engines
-	- loading in textures
+	- Convert shader to HLSL
+	- loading in meshes/shaders/lighting/textures to engines
+	- camera setup
 	- render to texture/antialising
-
 
 - fix depth/normalmap/bump/attenuation
 - Create 3D scene
