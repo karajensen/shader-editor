@@ -1,8 +1,5 @@
 
-- opengl loading shaders
-- opengl triangle rendering
-- switching engines doesn't remove triangle
-
+- fix switching engines doesn't remove triangle/crash
 
 Opengl/Directx
 	- Convert shader to HLSL

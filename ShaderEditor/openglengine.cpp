@@ -13,6 +13,14 @@
 #include <iomanip>
 #include <assert.h>
 
+////////////////////////////////////////////////////
+GLfloat vertices[] = {-1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f};
+GLfloat colours[] = {1.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f,0.0f, 0.0f, 1.0f};
+GLfloat vertices2[] = {	0.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,1.0f,0.0f,0.0f };
+unsigned int vertexArrayObjID[2];
+unsigned int vertexBufferObjID[3];
+////////////////////////////////////////////////////
+
 /**
 * Holds information for an individual opengl shader
 */
@@ -60,12 +68,12 @@ struct OpenglData
     */
     void Release();
 
-    glm::mat4 projectionMat;           ///< Matrix for 3D rendering
-    std::vector<GlShader> shaders;     ///< OpenGL shader objects
-    HGLRC hrc;                         ///< Rendering context  
-    HDC hdc;                           ///< Device context  
-	GLint scratchVS;                   ///< Scratch GLSL Vertex Shader
-	GLint scratchFS;                   ///< Scratch GLSL Fragment Shader
+    glm::mat4 projectionMat;         ///< Matrix for 3D rendering
+    std::vector<GlShader> shaders;   ///< OpenGL shader objects
+    HGLRC hrc;                       ///< Rendering context  
+    HDC hdc;                         ///< Device context  
+    GLint scratchVS;                 ///< Scratch GLSL Vertex Shader
+    GLint scratchFS;                 ///< Scratch GLSL Fragment Shader
 };
 
 OpenglData::OpenglData() :
@@ -131,6 +139,16 @@ void GlShader::Release()
 {
     if(program != NO_INDEX)
     {
+        // Must detach before deletion
+        if(vs != NO_INDEX)
+        {
+            glDetachShader(program, vs);
+        }
+        if(fs != NO_INDEX)
+        {
+            glDetachShader(program, fs);
+        }
+
         glDeleteProgram(program);
         program = NO_INDEX;
     }
@@ -226,9 +244,9 @@ bool OpenglEngine::Initialize()
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
         CAMERA_NEAR, CAMERA_FAR);
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS); 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS); 
+	//glEnable(GL_CULL_FACE);
 
     if(m_data->scratchVS == NO_INDEX)
     {
@@ -242,79 +260,113 @@ bool OpenglEngine::Initialize()
     return true;
 }
 
-std::string OpenglEngine::CompileShader(int index)
+std::string OpenglEngine::CompileShader(int index, const char* source, int size)
 {
-    GlShader& shader = m_data->shaders[index];
+    std::string errorBuffer;
+    GLint success = GL_FALSE;
+    glShaderSource(index, 1, &source, &size);
+    glCompileShader(index);
+    glGetShaderiv(index, GL_COMPILE_STATUS, &success);
 
-    auto loaderShaderFile = [&](const std::string& path, GLint& size, std::string& text)
+    if(success == GL_FALSE)
     {
-        std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
-        if(file.is_open())
+        int errorLength = 0;
+        glGetShaderiv(index, GL_INFO_LOG_LENGTH, &errorLength);
+        if(errorLength <= 0)
         {
-            size = static_cast<GLint>(file.tellg());
-            file.seekg(0, std::ios::beg);
-            text.resize(size);
-            file.read(&text[0], text.size());
-            assert(!text.empty());
-
-            file.close();
+            errorBuffer = "Unknown Error";
         }
         else
         {
-            Logger::LogError("OpenGL: Could not open file " + path);
+            int actualLength = 0;
+            errorBuffer.resize(errorLength);
+            glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
+            errorBuffer.resize(actualLength);
         }
-    };
+    }
+    return errorBuffer;
+}
 
-    GLint vSize, fSize;
-    std::string vText, fText;
-    loaderShaderFile(shader.vsFilepath, vSize, vText);
-    loaderShaderFile(shader.fsFilepath, fSize, fText);
-
+std::string OpenglEngine::LoadShaderFile(const std::string& path, int& size, std::string& text)
+{
     std::string errorBuffer;
-    auto compileShader = [&](GLint glIndex, const char* source, GLint size) -> bool
+    std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
+    if(file.is_open())
     {
-        GLint status = NO_INDEX;
-        glShaderSource(glIndex, 1, &source, &size);
-        glCompileShader(glIndex);
-        glGetShaderiv(glIndex, GL_COMPILE_STATUS, &status);
-        if(!status)
-        {
-            int errorLength = 0;
-            glGetShaderiv(glIndex, GL_INFO_LOG_LENGTH, &errorLength);
-            if(errorLength <= 0)
-            {
-                errorBuffer = "Unknown Error";
-            }
-            else
-            {
-                int actualLength = 0;
-                errorBuffer.resize(errorLength);
-                glGetShaderInfoLog(glIndex, errorLength, &actualLength, &errorBuffer[0]);
-                errorBuffer.resize(actualLength);
-            }
-            return false;
-        }
-        return true;
-    };
+        size = static_cast<int>(file.tellg());
+        file.seekg(0, std::ios::beg);
+        text.resize(size);
+        file.read(&text[0], text.size());
+        assert(!text.empty());
 
-    // Test compilation before overwriting
-    if(!compileShader(m_data->scratchVS, vText.c_str(), vSize))
+        file.close();
+    }
+    else
+    {
+        errorBuffer = "Could not open file " + path;
+    }
+    return errorBuffer;
+}
+
+std::string OpenglEngine::CompileShader(int index)
+{
+    std::string errorBuffer;
+    GlShader& shader = m_data->shaders[index];
+
+    // Load the vertex and fragment shader files
+    int vSize = 0;
+    std::string vText;
+    errorBuffer = LoadShaderFile(shader.vsFilepath, vSize, vText);
+    if(!errorBuffer.empty())
     {
         return "Vertex Shader: " + errorBuffer;
     }
-    if(!compileShader(m_data->scratchFS, fText.c_str(), fSize))
+
+    int fSize = 0;
+    std::string fText;
+    errorBuffer = LoadShaderFile(shader.fsFilepath, fSize, fText);
+    if(!errorBuffer.empty())
     {
         return "Fragment Shader: " + errorBuffer;
     }
 
+    // Test compilation on the scratch shaders before overwriting current
+    errorBuffer = CompileShader(m_data->scratchVS, vText.c_str(), vSize);
+    if(!errorBuffer.empty())
+    {
+        return "Vertex Shader: " + errorBuffer;
+    }
+
+    errorBuffer = CompileShader(m_data->scratchFS, fText.c_str(), fSize);
+    if(!errorBuffer.empty())
+    {
+        return "Fragment Shader: " + errorBuffer;
+    }
+
+    // Create the actual shader/program
     shader.Release();
+    CompileShader(shader.vs, vText.c_str(), vSize);
+    CompileShader(shader.vs, fText.c_str(), fSize);
     shader.program = glCreateProgram();
-    compileShader(shader.vs, vText.c_str(), vSize);
-    compileShader(shader.vs, fText.c_str(), fSize);
+    glBindAttribLocation(shader.program, 0, "in_Position");
+    glBindAttribLocation(shader.program, 1, "in_Color");
+
 	glAttachShader(shader.program, shader.vs);
     glAttachShader(shader.program, shader.fs);
 
-    return "";
+    // Link the programe and test everything is good to go
+    GLint linkSuccess = GL_FALSE;
+    glLinkProgram(shader.program);
+    glGetProgramiv(shader.program, GL_LINK_STATUS, &linkSuccess);
+    if(linkSuccess == GL_FALSE)
+    {
+        const int bufferSize = 1024;
+        errorBuffer.resize(bufferSize);
+        glGetProgramInfoLog(shader.program, bufferSize, 0, &errorBuffer[0]);
+        return errorBuffer;
+    }
+
+    return std::string();
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
@@ -337,6 +389,31 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////
+    glGenVertexArrays(2, &vertexArrayObjID[0]);
+    glBindVertexArray(vertexArrayObjID[0]);
+    glGenBuffers(2, vertexBufferObjID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+ 
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colours, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
+ 
+    glBindVertexArray(vertexArrayObjID[1]);
+    glGenBuffers(1, &vertexBufferObjID[2]);
+ 
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[2]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices2, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+ 
+    glBindVertexArray(0);
+    //////////////////////////////////////////////////////////////////////////////
 
     return true;
 }
@@ -348,7 +425,18 @@ void OpenglEngine::BeginRender()
 
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
+    GlShader& shader = m_data->shaders[0];
 
+    glUseProgram(shader.program);
+
+    //////////////////////////////////////////////////////////////////////////////
+	glBindVertexArray(vertexArrayObjID[0]);	// First VAO
+    glDrawArrays(GL_TRIANGLES, 0, 3);	// draw first object 
+    glBindVertexArray(vertexArrayObjID[1]);	// select second VAO
+    glVertexAttrib3f((GLuint)1, 1.0, 0.0, 0.0); // set constant color attribute
+    glDrawArrays(GL_TRIANGLES, 0, 3);	// draw second object
+    glBindVertexArray(0);
+    //////////////////////////////////////////////////////////////////////////////
 }
 
 void OpenglEngine::EndRender()

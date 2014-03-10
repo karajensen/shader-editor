@@ -301,22 +301,19 @@ void DirectxEngine::BeginRender()
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
-    //for (DxShader& shader: m_data->shaders)
     DxShader& shader = m_data->shaders[0];
-    {
-        m_data->context->VSSetShader(shader.vs, 0, 0);
-        m_data->context->PSSetShader(shader.ps, 0, 0);
-        m_data->context->IASetInputLayout(shader.layout);
 
-        //////////////////////////////////////////////
-        UINT stride = sizeof(VERTEX);
-        UINT offset = 0;
-        m_data->context->IASetVertexBuffers(0, 1, &m_data->pVBuffer, &stride, &offset);
-        m_data->context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_data->context->Draw(3, 0);
-        //////////////////////////////////////////////
+    m_data->context->VSSetShader(shader.vs, 0, 0);
+    m_data->context->PSSetShader(shader.ps, 0, 0);
+    m_data->context->IASetInputLayout(shader.layout);
 
-    }
+    //////////////////////////////////////////////
+    UINT stride = sizeof(VERTEX);
+    UINT offset = 0;
+    m_data->context->IASetVertexBuffers(0, 1, &m_data->pVBuffer, &stride, &offset);
+    m_data->context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_data->context->Draw(3, 0);
+    //////////////////////////////////////////////
 }
 
 void DirectxEngine::EndRender()
