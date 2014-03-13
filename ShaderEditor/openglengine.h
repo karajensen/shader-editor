@@ -93,6 +93,12 @@ private:
     */
     std::string LoadShaderFile(const std::string& path, int& size, std::string& text);
 
+    /**
+    * Checks and logs if there is an error in openGL
+    * @return whether an error was found
+    */
+    bool HasCallFailed();
+
     HWND m_hwnd;                        ///< handle to the window
     std::unique_ptr<OpenglData> m_data; ///<  member data of opengl
 };                     

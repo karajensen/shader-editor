@@ -86,8 +86,8 @@ OpenglData::OpenglData() :
 
 GlShader::GlShader() :
     program(NO_INDEX),
-    vs(glCreateShader(GL_VERTEX_SHADER)),
-    fs(glCreateShader(GL_FRAGMENT_SHADER))
+    vs(NO_INDEX),
+    fs(NO_INDEX)
 {
 }
 
@@ -111,18 +111,6 @@ OpenglData::~OpenglData()
 GlShader::~GlShader()
 {
     Release();
-
-    if(vs != NO_INDEX)
-    {
-        glDeleteShader(vs);
-        vs = NO_INDEX;
-    }
-
-    if(fs != NO_INDEX)
-    {
-        glDeleteShader(fs);
-        fs = NO_INDEX;
-    }
 }
 
 void OpenglData::Release()
@@ -139,7 +127,6 @@ void GlShader::Release()
 {
     if(program != NO_INDEX)
     {
-        // Must detach before deletion
         if(vs != NO_INDEX)
         {
             glDetachShader(program, vs);
@@ -148,9 +135,19 @@ void GlShader::Release()
         {
             glDetachShader(program, fs);
         }
-
         glDeleteProgram(program);
         program = NO_INDEX;
+    }
+
+    if(vs != NO_INDEX)
+    {
+        glDeleteShader(vs);
+        vs = NO_INDEX;
+    }
+    if(fs != NO_INDEX)
+    {
+        glDeleteShader(fs);
+        fs = NO_INDEX;
     }
 }
 
@@ -244,10 +241,6 @@ bool OpenglEngine::Initialize()
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
         CAMERA_NEAR, CAMERA_FAR);
 
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS); 
-	//glEnable(GL_CULL_FACE);
-
     if(m_data->scratchVS == NO_INDEX)
     {
         m_data->scratchVS = glCreateShader(GL_VERTEX_SHADER);
@@ -308,6 +301,24 @@ std::string OpenglEngine::LoadShaderFile(const std::string& path, int& size, std
     return errorBuffer;
 }
 
+bool OpenglEngine::HasCallFailed()
+{
+    switch(glGetError())
+    {
+    case GL_NO_ERROR:
+        return false;
+    case GL_INVALID_VALUE:
+        Logger::LogError("OpenGL: GL_INVALID_VALUE");
+        return true;
+    case GL_INVALID_OPERATION:
+        Logger::LogError("OpenGL: GL_INVALID_OPERATION");
+        return true;
+    default:
+        Logger::LogError("OpenGL: Unknown Error");
+        return true;
+    }
+}
+
 std::string OpenglEngine::CompileShader(int index)
 {
     std::string errorBuffer;
@@ -345,16 +356,39 @@ std::string OpenglEngine::CompileShader(int index)
 
     // Create the actual shader/program
     shader.Release();
-    CompileShader(shader.vs, vText.c_str(), vSize);
-    CompileShader(shader.vs, fText.c_str(), fSize);
+    shader.vs = glCreateShader(GL_VERTEX_SHADER);
+    shader.fs = glCreateShader(GL_FRAGMENT_SHADER);
     shader.program = glCreateProgram();
+    CompileShader(shader.vs, vText.c_str(), vSize);
+    CompileShader(shader.fs, fText.c_str(), fSize);
+
+    // TO DO: Allow each shader to have a map of its own 
+    // values which are read in from the vertex shader 'in' variables
     glBindAttribLocation(shader.program, 0, "in_Position");
+    if(HasCallFailed())
+    {
+        return "Failed to bind attribute in_Position";
+    }
     glBindAttribLocation(shader.program, 1, "in_Color");
+    if(HasCallFailed())
+    {
+        return "Failed to bind attribute in_Color";
+    }
 
+    // Attach both shaders to the program
 	glAttachShader(shader.program, shader.vs);
-    glAttachShader(shader.program, shader.fs);
+    if(HasCallFailed())
+    {
+        return "Failed to attach vertex shader";
+    }
 
-    // Link the programe and test everything is good to go
+    glAttachShader(shader.program, shader.fs);
+    if(HasCallFailed())
+    {
+        return "Failed to attach fragment shader";
+    }
+
+    // Link the program and test everything is good to go
     GLint linkSuccess = GL_FALSE;
     glLinkProgram(shader.program);
     glGetProgramiv(shader.program, GL_LINK_STATUS, &linkSuccess);

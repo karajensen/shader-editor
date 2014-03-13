@@ -1,8 +1,9 @@
 
+- clean opengl shader code
 - fix switching engines doesn't remove triangle/crash
 
 Opengl/Directx
-	- Convert shader to HLSL
+	- Convert shaders to HLSL
 	- loading in meshes/shaders/lighting/textures to engines
 	- camera setup
 	- render to texture/antialising
