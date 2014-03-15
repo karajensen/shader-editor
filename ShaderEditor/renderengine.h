@@ -56,6 +56,12 @@ public:
         const std::vector<Shader>& shaders) = 0;
 
     /**
+    * ReInitialises the scene for openGL
+    * @return whether initialisation was successful
+    */
+    virtual bool ReInitialiseScene() = 0;
+
+    /**
     * @return the name of the render engine
     */
     virtual std::string GetName() const = 0;

@@ -62,6 +62,12 @@ public:
         const std::vector<Shader>& shaders) override;
 
     /**
+    * ReInitialises the scene for openGL
+    * @return whether initialisation was successful
+    */
+    virtual bool ReInitialiseScene() override;
+
+    /**
     * Generates the shader for the engine
     * @param index An unique index for the shader
     * @return an error message if compilation failed
@@ -92,6 +98,21 @@ private:
     * @return error message if failed or empty if succeeded
     */
     std::string LoadShaderFile(const std::string& path, int& size, std::string& text);
+
+    /**
+    * Links together all shaders within the shader program
+    * @param program The program to link
+    * @return error message if failed or empty if succeeded
+    */
+    std::string LinkShaderProgram(int program);
+
+    /**
+    * Determines the vertex shader 'in' attributes and caches them
+    * @param index The shader to find attributes for
+    * @param vs The text for the vertex shader
+    * @return error message if failed or empty if succeeded
+    */
+    std::string OpenglEngine::DetermineShaderAttributes(int index, const std::string& vs);
 
     /**
     * Checks and logs if there is an error in openGL

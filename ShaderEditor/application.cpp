@@ -129,33 +129,33 @@ bool Application::Initialise(HWND hwnd)
 
     if(!m_scene->Initialise())
     {
-        Logger::LogError("Scene Failed to initialise");
+        Logger::LogError("Scene: Failed to initialise");
         return false;
     }
 
     if(!m_opengl->Initialize())
     {
-        Logger::LogError("OpenGL failed to initialise");
+        Logger::LogError("OpenGL: Failed to initialise");
         return false;
     }
 
     if(!m_opengl->InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders()))
     {
-        Logger::LogError("OpenGL Scene failed to initialise");
+        Logger::LogError("OpenGL: Scene failed to initialise");
         return false;
     }
     
     if(!m_directx->Initialize())
     {
-        Logger::LogError("DirectX failed to initialise");
+        Logger::LogError("DirectX: Failed to initialise");
         return false;
     }
 
     if(!m_directx->InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders()))
     {
-        Logger::LogError("DirectX Scene failed to initialise");
+        Logger::LogError("DirectX: Scene failed to initialise");
         return false;
     }
 
@@ -180,13 +180,16 @@ void Application::ToggleRenderEngine()
     }
     else
     {
-        m_engine = m_directx.get();
+        m_engine = m_opengl.get();
+        //m_engine = m_directx.get();
     }
 
-    if(!m_engine->Initialize())
+    // Reinitialise the engine as it has lost focus
+    if(!m_engine->Initialize() || !m_engine->ReInitialiseScene())
     {
-        Logger::LogError(m_engine->GetName() + " failed to initialise");
+        Logger::LogError(m_engine->GetName() + ": Failed to reinitialise");
     }
+
     InitialiseTweakBar(useOpenGL);
 }
 

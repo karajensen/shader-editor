@@ -283,6 +283,11 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     return true;
 }
 
+bool DirectxEngine::ReInitialiseScene()
+{
+    return true;
+}
+
 ID3D11Device* DirectxEngine::GetDevice() const
 {
     return m_data->device;

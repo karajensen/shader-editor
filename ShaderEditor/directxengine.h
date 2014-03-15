@@ -63,6 +63,12 @@ public:
         const std::vector<Shader>& shaders) override;
 
     /**
+    * ReInitialises the scene for openGL
+    * @return whether initialisation was successful
+    */
+    virtual bool ReInitialiseScene() override;
+
+    /**
     * Generates the shader for the engine
     * @param index An unique index for the shader
     * @return an error message if compilation failed

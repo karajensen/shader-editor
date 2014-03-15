@@ -1,6 +1,9 @@
 
-- clean opengl shader code
-- fix switching engines doesn't remove triangle/crash
+
+- Attribute finding for opengl
+- Directx fix switching engines doesn't remove triangle
+- Fix mesh/triangle loading/rendering
+
 
 Opengl/Directx
 	- Convert shaders to HLSL

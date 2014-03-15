@@ -12,6 +12,7 @@
 #include "common.h"
 #include <iomanip>
 #include <assert.h>
+#include <unordered_map>
 
 ////////////////////////////////////////////////////
 GLfloat vertices[] = {-1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f};
@@ -46,6 +47,8 @@ struct GlShader
 	GLint program;           ///< Shader program
 	GLint vs;                ///< GLSL Vertex Shader
 	GLint fs;                ///< GLSL Fragment Shader
+
+    std::unordered_map<std::string, int> attributes; ///< Vertex shader attributes
 };
 
 /**
@@ -94,7 +97,15 @@ GlShader::GlShader() :
 OpenglData::~OpenglData()
 {
     Release();
+}
 
+GlShader::~GlShader()
+{
+    Release();
+}
+
+void OpenglData::Release()
+{
     if(scratchVS != NO_INDEX)
     {
         glDeleteShader(scratchVS);
@@ -106,15 +117,12 @@ OpenglData::~OpenglData()
         glDeleteShader(scratchFS);
         scratchFS = NO_INDEX;
     }
-}
 
-GlShader::~GlShader()
-{
-    Release();
-}
+    for(GlShader& shader : shaders)
+    {
+        shader.Release();
+    }
 
-void OpenglData::Release()
-{
     wglMakeCurrent(nullptr, nullptr);
     if(hrc)
     {
@@ -138,7 +146,6 @@ void GlShader::Release()
         glDeleteProgram(program);
         program = NO_INDEX;
     }
-
     if(vs != NO_INDEX)
     {
         glDeleteShader(vs);
@@ -253,36 +260,58 @@ bool OpenglEngine::Initialize()
     return true;
 }
 
+std::string OpenglEngine::DetermineShaderAttributes(int index, const std::string& vs)
+{
+    // Look for all uses of 'in ' before 'void main'
+
+
+    
+    GlShader& shader = m_data->shaders[index];
+    shader.attributes.clear();
+
+    glBindAttribLocation(shader.program, 0, "in_Position");
+    if(HasCallFailed())
+    {
+        return "Failed to bind attribute in_Position";
+    }
+
+    glBindAttribLocation(shader.program, 1, "in_Color");
+    if(HasCallFailed())
+    {
+        return "Failed to bind attribute in_Color";
+    }
+
+    return std::string();
+}
+
 std::string OpenglEngine::CompileShader(int index, const char* source, int size)
 {
-    std::string errorBuffer;
     GLint success = GL_FALSE;
     glShaderSource(index, 1, &source, &size);
     glCompileShader(index);
     glGetShaderiv(index, GL_COMPILE_STATUS, &success);
-
     if(success == GL_FALSE)
     {
         int errorLength = 0;
         glGetShaderiv(index, GL_INFO_LOG_LENGTH, &errorLength);
         if(errorLength <= 0)
         {
-            errorBuffer = "Unknown Error";
+            return "Unknown Error";
         }
         else
         {
             int actualLength = 0;
-            errorBuffer.resize(errorLength);
+            std::string errorBuffer(errorLength, ' ');
             glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
             errorBuffer.resize(actualLength);
+            return errorBuffer;
         }
     }
-    return errorBuffer;
+    return std::string();
 }
 
 std::string OpenglEngine::LoadShaderFile(const std::string& path, int& size, std::string& text)
 {
-    std::string errorBuffer;
     std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
     if(file.is_open())
     {
@@ -291,14 +320,13 @@ std::string OpenglEngine::LoadShaderFile(const std::string& path, int& size, std
         text.resize(size);
         file.read(&text[0], text.size());
         assert(!text.empty());
-
         file.close();
     }
     else
     {
-        errorBuffer = "Could not open file " + path;
+       return "Could not open file " + path;
     }
-    return errorBuffer;
+    return std::string();
 }
 
 bool OpenglEngine::HasCallFailed()
@@ -308,10 +336,10 @@ bool OpenglEngine::HasCallFailed()
     case GL_NO_ERROR:
         return false;
     case GL_INVALID_VALUE:
-        Logger::LogError("OpenGL: GL_INVALID_VALUE");
+        Logger::LogError("OpenGL: Invalid Value");
         return true;
     case GL_INVALID_OPERATION:
-        Logger::LogError("OpenGL: GL_INVALID_OPERATION");
+        Logger::LogError("OpenGL: Invalid Operation");
         return true;
     default:
         Logger::LogError("OpenGL: Unknown Error");
@@ -319,63 +347,85 @@ bool OpenglEngine::HasCallFailed()
     }
 }
 
+std::string OpenglEngine::LinkShaderProgram(int program)
+{
+    GLint linkSuccess = GL_FALSE;
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
+    if(linkSuccess == GL_FALSE)
+    {
+        const int bufferSize = 1024;
+        std::string errorBuffer(bufferSize, ' ');
+        glGetProgramInfoLog(program, bufferSize, 0, &errorBuffer[0]);
+        return errorBuffer;
+    }
+    return std::string();
+}
+
 std::string OpenglEngine::CompileShader(int index)
 {
-    std::string errorBuffer;
     GlShader& shader = m_data->shaders[index];
 
+    std::string errorBuffer;
+    int vSize = 0, fSize = 0;
+    std::string vText, fText;
+
     // Load the vertex and fragment shader files
-    int vSize = 0;
-    std::string vText;
     errorBuffer = LoadShaderFile(shader.vsFilepath, vSize, vText);
     if(!errorBuffer.empty())
     {
         return "Vertex Shader: " + errorBuffer;
     }
 
-    int fSize = 0;
-    std::string fText;
     errorBuffer = LoadShaderFile(shader.fsFilepath, fSize, fText);
     if(!errorBuffer.empty())
     {
         return "Fragment Shader: " + errorBuffer;
     }
 
-    // Test compilation on the scratch shaders before overwriting current
-    errorBuffer = CompileShader(m_data->scratchVS, vText.c_str(), vSize);
-    if(!errorBuffer.empty())
+    // Test on the scratch shaders to give an overview of any compilation errors
+    std::string vertexErrors = CompileShader(m_data->scratchVS, vText.c_str(), vSize);
+    if(!vertexErrors.empty())
     {
-        return "Vertex Shader: " + errorBuffer;
+        vertexErrors = "Vertex Shader: " + vertexErrors;
     }
 
-    errorBuffer = CompileShader(m_data->scratchFS, fText.c_str(), fSize);
-    if(!errorBuffer.empty())
+    std::string fragmentErrors = CompileShader(m_data->scratchFS, fText.c_str(), fSize);
+    if(!fragmentErrors.empty())
     {
-        return "Fragment Shader: " + errorBuffer;
+        fragmentErrors = "Fragment Shader: " + fragmentErrors;
     }
 
-    // Create the actual shader/program
+    if(!fragmentErrors.empty() || !vertexErrors.empty())
+    {
+        return vertexErrors.empty() ? fragmentErrors :
+            vertexErrors + (fragmentErrors.empty() ? "" : "\n"+fragmentErrors);
+    }
+
+    // Recreate the actual shader/program
     shader.Release();
+    shader.program = glCreateProgram();
     shader.vs = glCreateShader(GL_VERTEX_SHADER);
     shader.fs = glCreateShader(GL_FRAGMENT_SHADER);
-    shader.program = glCreateProgram();
-    CompileShader(shader.vs, vText.c_str(), vSize);
-    CompileShader(shader.fs, fText.c_str(), fSize);
 
-    // TO DO: Allow each shader to have a map of its own 
-    // values which are read in from the vertex shader 'in' variables
-    glBindAttribLocation(shader.program, 0, "in_Position");
-    if(HasCallFailed())
+    errorBuffer = CompileShader(shader.vs, vText.c_str(), vSize);
+    if(!errorBuffer.empty())
     {
-        return "Failed to bind attribute in_Position";
-    }
-    glBindAttribLocation(shader.program, 1, "in_Color");
-    if(HasCallFailed())
-    {
-        return "Failed to bind attribute in_Color";
+        return "Vertex Shader " + errorBuffer;
     }
 
-    // Attach both shaders to the program
+    errorBuffer = CompileShader(shader.fs, fText.c_str(), fSize);
+    if(!errorBuffer.empty())
+    {
+        return "Fragment Shader " + errorBuffer;
+    }
+
+    errorBuffer = DetermineShaderAttributes(index, vText);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
 	glAttachShader(shader.program, shader.vs);
     if(HasCallFailed())
     {
@@ -388,16 +438,10 @@ std::string OpenglEngine::CompileShader(int index)
         return "Failed to attach fragment shader";
     }
 
-    // Link the program and test everything is good to go
-    GLint linkSuccess = GL_FALSE;
-    glLinkProgram(shader.program);
-    glGetProgramiv(shader.program, GL_LINK_STATUS, &linkSuccess);
-    if(linkSuccess == GL_FALSE)
+    errorBuffer = LinkShaderProgram(shader.program);
+    if(!errorBuffer.empty())
     {
-        const int bufferSize = 1024;
-        errorBuffer.resize(bufferSize);
-        glGetProgramInfoLog(shader.program, bufferSize, 0, &errorBuffer[0]);
-        return errorBuffer;
+        return "Failed to link program: " + errorBuffer;
     }
 
     return std::string();
@@ -416,6 +460,47 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
         m_data->shaders[index].vsFilepath = shader.glslVertexFile;
         m_data->shaders[index].fsFilepath = shader.glslFragmentFile;
         const std::string result = CompileShader(index);
+        if(!result.empty())
+        {
+            Logger::LogError("OpenGL: " + result);
+            return false;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    glGenVertexArrays(2, &vertexArrayObjID[0]);
+    glBindVertexArray(vertexArrayObjID[0]);
+    glGenBuffers(2, vertexBufferObjID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+ 
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colours, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
+ 
+    glBindVertexArray(vertexArrayObjID[1]);
+    glGenBuffers(1, &vertexBufferObjID[2]);
+ 
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[2]);
+    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices2, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+ 
+    glBindVertexArray(0);
+    //////////////////////////////////////////////////////////////////////////////
+
+    return true;
+}
+
+bool OpenglEngine::ReInitialiseScene()
+{
+    for(unsigned int i = 0; i < m_data->shaders.size(); ++i)
+    {
+        const std::string result = CompileShader(i);
         if(!result.empty())
         {
             Logger::LogError("OpenGL: " + result);
