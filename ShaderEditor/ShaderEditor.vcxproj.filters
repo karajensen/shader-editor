@@ -71,6 +71,12 @@
     <ClCompile Include="directxengine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="openglshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="directxshader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -107,6 +113,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="directxengine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openglshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openglcommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directxcommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directxshader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

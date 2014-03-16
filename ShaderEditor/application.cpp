@@ -13,7 +13,7 @@
 
 namespace
 {
-    const bool OPENGL_START = true;
+    const bool OPENGL_START = false;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     /**
@@ -180,8 +180,7 @@ void Application::ToggleRenderEngine()
     }
     else
     {
-        m_engine = m_opengl.get();
-        //m_engine = m_directx.get();
+        m_engine = m_directx.get();
     }
 
     // Reinitialise the engine as it has lost focus

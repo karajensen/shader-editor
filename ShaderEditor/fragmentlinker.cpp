@@ -129,7 +129,7 @@ bool FragmentLinker::InitialiseFromFragments(Shader& shader,
         return false;            
     }
 
-    shader.hlslFragmentFile = filename + HLSL_SHADER_EXTENSION;
+    shader.hlslShaderFile = filename + HLSL_SHADER_EXTENSION;
     if(!CreateShaderFromFragments(shader.name, HLSL_SHADER_EXTENSION, maxLights))
     {
         Logger::LogError(shader.name + " HLSL Shader failed");

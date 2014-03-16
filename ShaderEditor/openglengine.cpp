@@ -3,16 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "openglengine.h"
-#include "opengl/include/glew.h"
-#include "opengl/include/wglew.h"
-#include "opengl/include/GL.h"
-#include "opengl/include/GLU.h"
-#include "opengl/glm/glm.hpp"
-#include "opengl/glm/gtc/matrix_transform.hpp"
-#include "common.h"
-#include <iomanip>
-#include <assert.h>
-#include <unordered_map>
+#include "openglshader.h"
 
 ////////////////////////////////////////////////////
 GLfloat vertices[] = {-1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f};
@@ -21,35 +12,6 @@ GLfloat vertices2[] = {	0.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,1.0f,0.0f,0.0f };
 unsigned int vertexArrayObjID[2];
 unsigned int vertexBufferObjID[3];
 ////////////////////////////////////////////////////
-
-/**
-* Holds information for an individual opengl shader
-*/
-struct GlShader
-{
-    /**
-    * Constructor
-    */
-    GlShader();
-
-    /**
-    * Destructor
-    */
-    ~GlShader();
-
-    /**
-    * Releases the shader object
-    */
-    void Release();
-
-    std::string vsFilepath;  ///< Path to the vertex shader file
-    std::string fsFilepath;  ///< Path to the fragment shader file
-	GLint program;           ///< Shader program
-	GLint vs;                ///< GLSL Vertex Shader
-	GLint fs;                ///< GLSL Fragment Shader
-
-    std::unordered_map<std::string, int> attributes; ///< Vertex shader attributes
-};
 
 /**
 * Internal data for the opengl rendering engine
@@ -87,19 +49,7 @@ OpenglData::OpenglData() :
 {
 }
 
-GlShader::GlShader() :
-    program(NO_INDEX),
-    vs(NO_INDEX),
-    fs(NO_INDEX)
-{
-}
-
 OpenglData::~OpenglData()
-{
-    Release();
-}
-
-GlShader::~GlShader()
 {
     Release();
 }
@@ -128,33 +78,6 @@ void OpenglData::Release()
     {
         wglDeleteContext(hrc);
         hrc = nullptr;
-    }
-}
-
-void GlShader::Release()
-{
-    if(program != NO_INDEX)
-    {
-        if(vs != NO_INDEX)
-        {
-            glDetachShader(program, vs);
-        }
-        if(fs != NO_INDEX)
-        {
-            glDetachShader(program, fs);
-        }
-        glDeleteProgram(program);
-        program = NO_INDEX;
-    }
-    if(vs != NO_INDEX)
-    {
-        glDeleteShader(vs);
-        vs = NO_INDEX;
-    }
-    if(fs != NO_INDEX)
-    {
-        glDeleteShader(fs);
-        fs = NO_INDEX;
     }
 }
 
@@ -260,191 +183,10 @@ bool OpenglEngine::Initialize()
     return true;
 }
 
-std::string OpenglEngine::DetermineShaderAttributes(int index, const std::string& vs)
-{
-    // Look for all uses of 'in ' before 'void main'
-
-
-    
-    GlShader& shader = m_data->shaders[index];
-    shader.attributes.clear();
-
-    glBindAttribLocation(shader.program, 0, "in_Position");
-    if(HasCallFailed())
-    {
-        return "Failed to bind attribute in_Position";
-    }
-
-    glBindAttribLocation(shader.program, 1, "in_Color");
-    if(HasCallFailed())
-    {
-        return "Failed to bind attribute in_Color";
-    }
-
-    return std::string();
-}
-
-std::string OpenglEngine::CompileShader(int index, const char* source, int size)
-{
-    GLint success = GL_FALSE;
-    glShaderSource(index, 1, &source, &size);
-    glCompileShader(index);
-    glGetShaderiv(index, GL_COMPILE_STATUS, &success);
-    if(success == GL_FALSE)
-    {
-        int errorLength = 0;
-        glGetShaderiv(index, GL_INFO_LOG_LENGTH, &errorLength);
-        if(errorLength <= 0)
-        {
-            return "Unknown Error";
-        }
-        else
-        {
-            int actualLength = 0;
-            std::string errorBuffer(errorLength, ' ');
-            glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
-            errorBuffer.resize(actualLength);
-            return errorBuffer;
-        }
-    }
-    return std::string();
-}
-
-std::string OpenglEngine::LoadShaderFile(const std::string& path, int& size, std::string& text)
-{
-    std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
-    if(file.is_open())
-    {
-        size = static_cast<int>(file.tellg());
-        file.seekg(0, std::ios::beg);
-        text.resize(size);
-        file.read(&text[0], text.size());
-        assert(!text.empty());
-        file.close();
-    }
-    else
-    {
-       return "Could not open file " + path;
-    }
-    return std::string();
-}
-
-bool OpenglEngine::HasCallFailed()
-{
-    switch(glGetError())
-    {
-    case GL_NO_ERROR:
-        return false;
-    case GL_INVALID_VALUE:
-        Logger::LogError("OpenGL: Invalid Value");
-        return true;
-    case GL_INVALID_OPERATION:
-        Logger::LogError("OpenGL: Invalid Operation");
-        return true;
-    default:
-        Logger::LogError("OpenGL: Unknown Error");
-        return true;
-    }
-}
-
-std::string OpenglEngine::LinkShaderProgram(int program)
-{
-    GLint linkSuccess = GL_FALSE;
-    glLinkProgram(program);
-    glGetProgramiv(program, GL_LINK_STATUS, &linkSuccess);
-    if(linkSuccess == GL_FALSE)
-    {
-        const int bufferSize = 1024;
-        std::string errorBuffer(bufferSize, ' ');
-        glGetProgramInfoLog(program, bufferSize, 0, &errorBuffer[0]);
-        return errorBuffer;
-    }
-    return std::string();
-}
-
 std::string OpenglEngine::CompileShader(int index)
 {
-    GlShader& shader = m_data->shaders[index];
-
-    std::string errorBuffer;
-    int vSize = 0, fSize = 0;
-    std::string vText, fText;
-
-    // Load the vertex and fragment shader files
-    errorBuffer = LoadShaderFile(shader.vsFilepath, vSize, vText);
-    if(!errorBuffer.empty())
-    {
-        return "Vertex Shader: " + errorBuffer;
-    }
-
-    errorBuffer = LoadShaderFile(shader.fsFilepath, fSize, fText);
-    if(!errorBuffer.empty())
-    {
-        return "Fragment Shader: " + errorBuffer;
-    }
-
-    // Test on the scratch shaders to give an overview of any compilation errors
-    std::string vertexErrors = CompileShader(m_data->scratchVS, vText.c_str(), vSize);
-    if(!vertexErrors.empty())
-    {
-        vertexErrors = "Vertex Shader: " + vertexErrors;
-    }
-
-    std::string fragmentErrors = CompileShader(m_data->scratchFS, fText.c_str(), fSize);
-    if(!fragmentErrors.empty())
-    {
-        fragmentErrors = "Fragment Shader: " + fragmentErrors;
-    }
-
-    if(!fragmentErrors.empty() || !vertexErrors.empty())
-    {
-        return vertexErrors.empty() ? fragmentErrors :
-            vertexErrors + (fragmentErrors.empty() ? "" : "\n"+fragmentErrors);
-    }
-
-    // Recreate the actual shader/program
-    shader.Release();
-    shader.program = glCreateProgram();
-    shader.vs = glCreateShader(GL_VERTEX_SHADER);
-    shader.fs = glCreateShader(GL_FRAGMENT_SHADER);
-
-    errorBuffer = CompileShader(shader.vs, vText.c_str(), vSize);
-    if(!errorBuffer.empty())
-    {
-        return "Vertex Shader " + errorBuffer;
-    }
-
-    errorBuffer = CompileShader(shader.fs, fText.c_str(), fSize);
-    if(!errorBuffer.empty())
-    {
-        return "Fragment Shader " + errorBuffer;
-    }
-
-    errorBuffer = DetermineShaderAttributes(index, vText);
-    if(!errorBuffer.empty())
-    {
-        return errorBuffer;
-    }
-
-	glAttachShader(shader.program, shader.vs);
-    if(HasCallFailed())
-    {
-        return "Failed to attach vertex shader";
-    }
-
-    glAttachShader(shader.program, shader.fs);
-    if(HasCallFailed())
-    {
-        return "Failed to attach fragment shader";
-    }
-
-    errorBuffer = LinkShaderProgram(shader.program);
-    if(!errorBuffer.empty())
-    {
-        return "Failed to link program: " + errorBuffer;
-    }
-
-    return std::string();
+    return m_data->shaders[index].CompileShader(
+        m_data->scratchVS, m_data->scratchFS);
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
@@ -456,9 +198,7 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         const int index = m_data->shaders.size();
-        m_data->shaders.push_back(GlShader());
-        m_data->shaders[index].vsFilepath = shader.glslVertexFile;
-        m_data->shaders[index].fsFilepath = shader.glslFragmentFile;
+        m_data->shaders.push_back(GlShader(shader.glslVertexFile, shader.glslFragmentFile));
         const std::string result = CompileShader(index);
         if(!result.empty())
         {
@@ -546,7 +286,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     GlShader& shader = m_data->shaders[0];
 
-    glUseProgram(shader.program);
+    glUseProgram(shader.GetProgram());
 
     //////////////////////////////////////////////////////////////////////////////
 	glBindVertexArray(vertexArrayObjID[0]);	// First VAO

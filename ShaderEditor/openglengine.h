@@ -81,45 +81,6 @@ public:
 
 private:
 
-    /**
-    * Generates the shader for the engine
-    * @param index The unique index of the shader to compile
-    * @param source The text to compile
-    * @param size The amount of text to compile
-    * @return error message if failed or empty if succeeded
-    */
-    std::string OpenglEngine::CompileShader(int index, const char* source, int size);
-
-    /**
-    * Loads the shader from the path
-    * @param path The absolute path to the shader file
-    * @param size The size of the file
-    * @param text The text within the file
-    * @return error message if failed or empty if succeeded
-    */
-    std::string LoadShaderFile(const std::string& path, int& size, std::string& text);
-
-    /**
-    * Links together all shaders within the shader program
-    * @param program The program to link
-    * @return error message if failed or empty if succeeded
-    */
-    std::string LinkShaderProgram(int program);
-
-    /**
-    * Determines the vertex shader 'in' attributes and caches them
-    * @param index The shader to find attributes for
-    * @param vs The text for the vertex shader
-    * @return error message if failed or empty if succeeded
-    */
-    std::string OpenglEngine::DetermineShaderAttributes(int index, const std::string& vs);
-
-    /**
-    * Checks and logs if there is an error in openGL
-    * @return whether an error was found
-    */
-    bool HasCallFailed();
-
     HWND m_hwnd;                        ///< handle to the window
     std::unique_ptr<OpenglData> m_data; ///<  member data of opengl
 };                     

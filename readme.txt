@@ -1,16 +1,12 @@
 
 
-- Attribute finding for opengl
-- Directx fix switching engines doesn't remove triangle
-- Fix mesh/triangle loading/rendering
+- DirectX BindShaderAttributes
+- OpenGL initialization speed
+- Both get textures rendering
+- Both get mesh scenes rendering
+- camera setup
 
-
-Opengl/Directx
-	- Convert shaders to HLSL
-	- loading in meshes/shaders/lighting/textures to engines
-	- camera setup
-	- render to texture/antialising
-
+- render to texture/antialising
 - fix depth/normalmap/bump/attenuation
 - Create 3D scene
 - Post effects (fog, dof, glow, SSAO, Color correction)

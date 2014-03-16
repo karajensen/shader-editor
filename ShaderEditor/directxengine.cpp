@@ -3,42 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directxengine.h"
-#include "common.h"
-
-#pragma warning (disable : 4005)
-#include "directx/include/d3d11.h"
-#include "directx/include/d3dx11.h"
-#include "directx/include/d3dx10.h"
+#include "directxcommon.h"
+#include "directxshader.h"
 
 ///////////////////////////////////////////
 struct VERTEX{FLOAT X, Y, Z; D3DXCOLOR Color;};
 ///////////////////////////////////////////
-
-/**
-* Holds information for an individual directx shader
-*/
-struct DxShader
-{
-    /**
-    * Constructor
-    */
-    DxShader();
-
-    /**
-    * Destructor
-    */
-    ~DxShader();
-
-    /**
-    * Releases the shader object
-    */
-    void Release();
-
-    std::string filepath;      ///< Path to the shader file
-    ID3D11InputLayout* layout; ///< Shader input layout
-    ID3D11VertexShader* vs;    ///< HLSL vertex shader
-    ID3D11PixelShader* ps;     ///< HLSL pixel shader
-};
 
 /**
 * Internal data for the directx rendering engine
@@ -71,13 +41,6 @@ struct DirectxData
     ///////////////////////////////////////////
 };
 
-DxShader::DxShader() :
-    layout(nullptr),
-    vs(nullptr),
-    ps(nullptr)
-{
-}
-
 DirectxData::DirectxData() :
     swapchain(nullptr),
     device(nullptr),
@@ -86,47 +49,18 @@ DirectxData::DirectxData() :
 {
 }
 
-DirectxEngine::DirectxEngine(HWND hwnd) :
-    m_data(new DirectxData()),
-    m_hwnd(hwnd)
-{
-}
-
-DxShader::~DxShader()
-{
-    Release();
-}
-
 DirectxData::~DirectxData()
 {
     Release();
 }
 
-DirectxEngine::~DirectxEngine()
-{
-}
-
-void DxShader::Release()
-{
-    if(layout)
-    {
-        layout->Release();
-        layout = nullptr;
-    }
-    if(vs)
-    {
-        vs->Release();
-        vs = nullptr;
-    }
-    if(ps)
-    {
-        ps->Release();
-        ps = nullptr;
-    }
-}
-
 void DirectxData::Release()
 {
+    for(DxShader& shader : shaders)
+    {
+        shader.Release();
+    }
+
     if(swapchain)
     {
         swapchain->Release();
@@ -147,6 +81,16 @@ void DirectxData::Release()
         backbuffer->Release();
         backbuffer = nullptr;
     }
+}
+
+DirectxEngine::DirectxEngine(HWND hwnd) :
+    m_data(new DirectxData()),
+    m_hwnd(hwnd)
+{
+}
+
+DirectxEngine::~DirectxEngine()
+{
 }
 
 bool DirectxEngine::Initialize()
@@ -191,48 +135,7 @@ bool DirectxEngine::Initialize()
 
 std::string DirectxEngine::CompileShader(int index)
 {
-    DxShader& shader = m_data->shaders[index];
-    ID3D10Blob* vsBlob = nullptr;
-    ID3D10Blob* psBlob = nullptr;
-    ID3D10Blob* errors = nullptr;
-
-    if(FAILED(D3DX11CompileFromFile(shader.filepath.c_str(), 0, 0,
-        "VShader", "vs_5_0", 0, 0, 0, &vsBlob, &errors, 0)))
-    {
-        const std::string error = errors ? static_cast<char*>(errors->GetBufferPointer()) : 
-            std::string("Unknown Error").c_str();
-        return "Vertex Shader: " + error;
-    }
-
-    if(FAILED(D3DX11CompileFromFile(shader.filepath.c_str(), 0, 0, 
-        "PShader", "ps_5_0", 0, 0, 0, &psBlob, &errors, 0)))
-    {
-        const std::string error = errors ? static_cast<char*>(errors->GetBufferPointer()) : 
-            std::string("Unknown Error").c_str();
-        return "Pixel Shader: " + error;
-    }
-
-    shader.Release();
-
-    m_data->device->CreateVertexShader(vsBlob->GetBufferPointer(),
-        vsBlob->GetBufferSize(), 0, &shader.vs);
-    
-    m_data->device->CreatePixelShader(psBlob->GetBufferPointer(),
-        psBlob->GetBufferSize(), 0, &shader.ps);
-    
-    D3D11_INPUT_ELEMENT_DESC vertexDescription[] =
-    {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-    
-    if(FAILED(m_data->device->CreateInputLayout(vertexDescription, 2, 
-        vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &shader.layout)))
-    {
-        return "DirectX: Could not create input layout";
-    }
-
-    return "";
+    return m_data->shaders[index].CompileShader(m_data->device);
 }
 
 bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
@@ -244,8 +147,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         const int index = m_data->shaders.size();
-        m_data->shaders.push_back(DxShader());
-        m_data->shaders[index].filepath = shader.hlslFragmentFile;
+        m_data->shaders.push_back(DxShader(shader.hlslShaderFile));
         const std::string result = CompileShader(index);
         if(!result.empty())
         {
@@ -279,12 +181,21 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->context->Unmap(m_data->pVBuffer, NULL); 
     /////////////////////////////////////////////////
 
-
     return true;
 }
 
 bool DirectxEngine::ReInitialiseScene()
 {
+    for(unsigned int i = 0; i < m_data->shaders.size(); ++i)
+    {
+        const std::string result = CompileShader(i);
+        if(!result.empty())
+        {
+            Logger::LogError("DirectX: " + result);
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -307,10 +218,7 @@ void DirectxEngine::BeginRender()
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
     DxShader& shader = m_data->shaders[0];
-
-    m_data->context->VSSetShader(shader.vs, 0, 0);
-    m_data->context->PSSetShader(shader.ps, 0, 0);
-    m_data->context->IASetInputLayout(shader.layout);
+    shader.SetAsActive(m_data->context);
 
     //////////////////////////////////////////////
     UINT stride = sizeof(VERTEX);

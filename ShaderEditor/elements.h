@@ -23,7 +23,7 @@ struct Shader
     std::string name;             ///< name of the shader
     std::string glslVertexFile;   ///< filename of the glsl shader
     std::string glslFragmentFile; ///< filename of the glsl shader
-    std::string hlslFragmentFile; ///< filename of the hlsl shader
+    std::string hlslShaderFile;   ///< filename of the hlsl shader
 };
 
 /**
