@@ -83,47 +83,87 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     return BindShaderAttributes(device, vsBlob);
 }
 
-std::string DxShader::BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs)
+std::string DxShader::LoadShaderFile(std::string& text)
 {
     std::string shaderText;
     std::ifstream file(m_filepath, std::ios::in|std::ios::binary|std::ios::ate);
-    if(file.is_open())
+    if(!file.is_open())
     {
-        int size = static_cast<int>(file.tellg());
-        file.seekg(0, std::ios::beg);
-        shaderText.resize(size);
-        file.read(&shaderText[0], shaderText.size());
-        assert(!shaderText.empty());
-        file.close();
+        return "Could not open file " + m_filepath;
     }
-    else
+
+    int size = static_cast<int>(file.tellg());
+    file.seekg(0, std::ios::beg);
+    text.resize(size);
+    file.read(&text[0], text.size());
+    assert(!text.empty());
+    file.close();
+    return std::string();
+}
+
+std::string DxShader::BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs)
+{
+    std::string text;
+    const std::string errorBuffer = LoadShaderFile(text);
+    if(!errorBuffer.empty())
     {
-       return "Could not open file " + m_filepath;
+        return errorBuffer;
+    }
+
+    std::string attributeList;
+    const std::string entryPoint("VShader(");
+    int index = text.find(entryPoint, 0) + entryPoint.size();
+    while(text[index] != ')')
+    {
+        attributeList += text[index];
+        ++index;
     }
 
     m_attributes.clear();
     std::vector<std::string> components;
-    boost::split(components, shaderText, 
-        boost::is_any_of(";\n\r "), boost::token_compress_on);
+    boost::split(components, attributeList, boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
-
-
-
-
-
-
-
-    D3D11_INPUT_ELEMENT_DESC vertexDescription[] =
+    int byteOffset = 0;
+    for(unsigned index = 0; index < components.size(); index += 3)
     {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
+        AttributeData data;
+        data.name = components[index+2];
+
+        if(components[index] == "float3" || data.name == "POSITION")
+        {
+            data.byteOffset = byteOffset;
+            data.format = DXGI_FORMAT_R32G32B32_FLOAT;
+            byteOffset += 12;
+        }
+        else if(components[index] == "float4")
+        {
+            data.byteOffset = byteOffset;
+            data.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            byteOffset += 16;
+        }
+
+        m_attributes.push_back(data);
+    }
+   
+    D3D11_INPUT_ELEMENT_DESC* vertexDescription = new D3D11_INPUT_ELEMENT_DESC[m_attributes.size()];
+    for(unsigned int i = 0; i < m_attributes.size(); ++i)
+    {
+        vertexDescription[i].AlignedByteOffset = m_attributes[i].byteOffset;
+        vertexDescription[i].Format = m_attributes[i].format;
+        vertexDescription[i].InputSlot = 0;
+        vertexDescription[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        vertexDescription[i].InstanceDataStepRate = 0;
+        vertexDescription[i].SemanticIndex= 0;
+        vertexDescription[i].SemanticName = m_attributes[i].name.c_str();
+    }
     
     if(FAILED(device->CreateInputLayout(vertexDescription, 2, 
         vs->GetBufferPointer(), vs->GetBufferSize(), &m_layout)))
     {
         return "Could not create input layout";
     }
+
+    delete [] vertexDescription;
     return std::string();
 }
 

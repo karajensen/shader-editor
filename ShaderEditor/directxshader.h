@@ -5,7 +5,6 @@
 #pragma once
 
 #include "directxcommon.h"
-#include <unordered_map>
 
 /**
 * Holds information for an individual directx shader
@@ -46,6 +45,13 @@ public:
 private:
 
     /**
+    * Loads the shader from the path
+    * @param text The text within the file
+    * @return error message if failed or empty if succeeded
+    */
+    std::string LoadShaderFile(std::string& text);
+
+    /**
     * Determines the vertex shader 'in' attributes and caches them
     * @param device The directX device
     * @param vs The vertex shader object
@@ -53,11 +59,19 @@ private:
     */
     std::string BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs);
 
-    typedef std::unordered_map<std::string, int> AttributeMap;
+    /**
+    * Information for each vertex input attribute
+    */
+    struct AttributeData
+    {
+        int byteOffset;      ///< Offset between current and previous attribute
+        std::string name;    ///< The name of the attribute
+        DXGI_FORMAT format;  ///< Layout of the attribute
+    };
 
-    AttributeMap m_attributes;     ///< Vertex shader attributes
-    std::string m_filepath;        ///< Path to the shader file
-    ID3D11InputLayout* m_layout;   ///< Shader input layout
-    ID3D11VertexShader* m_vs;      ///< HLSL vertex shader
-    ID3D11PixelShader* m_ps;       ///< HLSL pixel shader
+    std::vector<AttributeData> m_attributes;     ///< Vertex shader attributes
+    std::string m_filepath;                      ///< Path to the shader file
+    ID3D11InputLayout* m_layout;                 ///< Shader input layout
+    ID3D11VertexShader* m_vs;                    ///< HLSL vertex shader
+    ID3D11PixelShader* m_ps;                     ///< HLSL pixel shader
 };  

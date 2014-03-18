@@ -5,7 +5,6 @@
 #pragma once
 
 #include "openglcommon.h"
-#include <unordered_map>
 
 /**
 * Holds information for an individual opengl shader
@@ -77,12 +76,19 @@ private:
     */
     std::string LinkShaderProgram();
 
-    typedef std::unordered_map<std::string, int> AttributeMap;
+    /**
+    * Information for each vertex input attribute
+    */
+    struct AttributeData
+    {
+        int location;        ///< The index location of the attribute
+        std::string name;    ///< The name of the attribute
+    };
 
-    AttributeMap m_attributes;    ///< Vertex shader attributes
-    std::string m_vsFilepath;     ///< Path to the vertex shader file
-    std::string m_fsFilepath;     ///< Path to the fragment shader file
-	GLint m_program;              ///< Shader program
-	GLint m_vs;                   ///< GLSL Vertex Shader
-	GLint m_fs;                   ///< GLSL Fragment Shader    
+    std::vector<AttributeData> m_attributes;  ///< Vertex shader attributes
+    std::string m_vsFilepath;                 ///< Path to the vertex shader file
+    std::string m_fsFilepath;                 ///< Path to the fragment shader file
+	GLint m_program;                          ///< Shader program
+	GLint m_vs;                               ///< GLSL Vertex Shader
+	GLint m_fs;                               ///< GLSL Fragment Shader    
 };

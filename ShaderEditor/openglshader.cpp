@@ -60,14 +60,17 @@ std::string GlShader::BindShaderAttributes(const std::string& vsText)
     boost::split(components, vsText, boost::is_any_of(";\n\r "), boost::token_compress_on);
 
     int currentIndex = 0;
-    int currentRegister = 0;
+    int currentLocation = 0;
     while(components[currentIndex] != "main(void)")
     {
         if(components[currentIndex] == "in")
         {
             currentIndex += 2;
-            m_attributes[components[currentIndex]] = currentRegister;
-            ++currentRegister;
+            AttributeData data;
+            data.name = components[currentIndex];
+            data.location = currentLocation;
+            m_attributes.push_back(data);
+            ++currentLocation;
         }
         else
         {
@@ -82,10 +85,10 @@ std::string GlShader::BindShaderAttributes(const std::string& vsText)
 
     for(const auto& attribute : m_attributes)
     {
-        glBindAttribLocation(m_program, attribute.second, attribute.first.c_str());
+        glBindAttribLocation(m_program, attribute.location, attribute.name.c_str());
         if(HasCallFailed())
         {
-            return "Failed to bind attribute " + attribute.first;
+            return "Failed to bind attribute " + attribute.name;
         }
     }
 
