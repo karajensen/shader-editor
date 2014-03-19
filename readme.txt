@@ -1,11 +1,10 @@
 
+- Look into release/creation requires for each vbuffer
 
-- DirectX BindShaderAttributes
-- OpenGL initialization speed
-- Both get textures rendering
 - Both get mesh scenes rendering
+- Both get shader usage rendering
+- Both get textures rendering
 - camera setup
-
 - render to texture/antialising
 - fix depth/normalmap/bump/attenuation
 - Create 3D scene

@@ -5,10 +5,7 @@
 #include "directxengine.h"
 #include "directxcommon.h"
 #include "directxshader.h"
-
-///////////////////////////////////////////
-struct VERTEX{FLOAT X, Y, Z; D3DXCOLOR Color;};
-///////////////////////////////////////////
+#include "directxmesh.h"
 
 /**
 * Internal data for the directx rendering engine
@@ -30,15 +27,12 @@ struct DirectxData
     */
     void Release();
             
+    std::vector<DxMesh> meshes;           ///< DirectX mesh objects
     std::vector<DxShader> shaders;        ///< DirectX shader objects
     ID3D11RenderTargetView* backbuffer;   ///< Main back buffer render target
     IDXGISwapChain* swapchain;            ///< swap chain interface
     ID3D11Device* device;                 ///< Direct3D device interface
     ID3D11DeviceContext* context;         ///< Direct3D device context
-
-    ///////////////////////////////////////////
-    ID3D11Buffer *pVBuffer;
-    ///////////////////////////////////////////
 };
 
 DirectxData::DirectxData() :
@@ -142,46 +136,18 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
                                     const std::vector<Mesh>& alpha, 
                                     const std::vector<Shader>& shaders)
 {
-    // Generate HLSL DirectX Shaders
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        const int index = m_data->shaders.size();
         m_data->shaders.push_back(DxShader(shader.hlslShaderFile));
-        const std::string result = CompileShader(index);
-        if(!result.empty())
-        {
-            Logger::LogError("DirectX: " + result);
-            return false;
-        }
     }
 
-    /////////////////////////////////////////////////
-    VERTEX OurVertices[] =
+    //for(const Mesh& mesh : meshes)
     {
-        {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-        {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-        {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
-    };
+        m_data->meshes.push_back(DxMesh(m_data->device, m_data->context));
+    }
 
-    // create the vertex buffer
-    D3D11_BUFFER_DESC bd;
-    ZeroMemory(&bd, sizeof(bd));
-
-    bd.Usage = D3D11_USAGE_DYNAMIC;                // write access access by CPU and GPU
-    bd.ByteWidth = sizeof(VERTEX) * 3;             // size is the VERTEX struct * 3
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;       // use as a vertex buffer
-    bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;    // allow CPU to write in buffer
-
-    m_data->device->CreateBuffer(&bd, NULL, &m_data->pVBuffer);
-
-    D3D11_MAPPED_SUBRESOURCE ms;
-    m_data->context->Map(m_data->pVBuffer, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
-    memcpy(ms.pData, OurVertices, sizeof(OurVertices));
-    m_data->context->Unmap(m_data->pVBuffer, NULL); 
-    /////////////////////////////////////////////////
-
-    return true;
+    return ReInitialiseScene();
 }
 
 bool DirectxEngine::ReInitialiseScene()
@@ -199,16 +165,6 @@ bool DirectxEngine::ReInitialiseScene()
     return true;
 }
 
-ID3D11Device* DirectxEngine::GetDevice() const
-{
-    return m_data->device;
-}
-
-std::string DirectxEngine::GetName() const
-{
-    return "DirectX";
-}
-
 void DirectxEngine::BeginRender()
 {
     m_data->context->ClearRenderTargetView(
@@ -220,16 +176,23 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     DxShader& shader = m_data->shaders[0];
     shader.SetAsActive(m_data->context);
 
-    //////////////////////////////////////////////
-    UINT stride = sizeof(VERTEX);
-    UINT offset = 0;
-    m_data->context->IASetVertexBuffers(0, 1, &m_data->pVBuffer, &stride, &offset);
-    m_data->context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_data->context->Draw(3, 0);
-    //////////////////////////////////////////////
+    for(DxMesh& mesh : m_data->meshes)
+    {
+        mesh.Render(m_data->context);
+    }
 }
 
 void DirectxEngine::EndRender()
 {
     m_data->swapchain->Present(0, 0);
+}
+
+ID3D11Device* DirectxEngine::GetDevice() const
+{
+    return m_data->device;
+}
+
+std::string DirectxEngine::GetName() const
+{
+    return "DirectX";
 }

@@ -4,14 +4,7 @@
 
 #include "openglengine.h"
 #include "openglshader.h"
-
-////////////////////////////////////////////////////
-GLfloat vertices[] = {-1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f};
-GLfloat colours[] = {1.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f,0.0f, 0.0f, 1.0f};
-GLfloat vertices2[] = {	0.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,1.0f,0.0f,0.0f };
-unsigned int vertexArrayObjID[2];
-unsigned int vertexBufferObjID[3];
-////////////////////////////////////////////////////
+#include "openglmesh.h"
 
 /**
 * Internal data for the opengl rendering engine
@@ -34,6 +27,7 @@ struct OpenglData
     void Release();
 
     glm::mat4 projectionMat;         ///< Matrix for 3D rendering
+    std::vector<GlMesh> meshes;      ///< OpenGL mesh objects
     std::vector<GlShader> shaders;   ///< OpenGL shader objects
     HGLRC hrc;                       ///< Rendering context  
     HDC hdc;                         ///< Device context  
@@ -193,47 +187,18 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
                                    const std::vector<Mesh>& alpha, 
                                    const std::vector<Shader>& shaders)
 {
-    // Generate GLSL OpenGL Shaders
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        const int index = m_data->shaders.size();
         m_data->shaders.push_back(GlShader(shader.glslVertexFile, shader.glslFragmentFile));
-        const std::string result = CompileShader(index);
-        if(!result.empty())
-        {
-            Logger::LogError("OpenGL: " + result);
-            return false;
-        }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    glGenVertexArrays(2, &vertexArrayObjID[0]);
-    glBindVertexArray(vertexArrayObjID[0]);
-    glGenBuffers(2, vertexBufferObjID);
+    //for(const Mesh& mesh : meshes)
+    {
+        m_data->meshes.push_back(GlMesh());
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
- 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colours, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
- 
-    glBindVertexArray(vertexArrayObjID[1]);
-    glGenBuffers(1, &vertexBufferObjID[2]);
- 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[2]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices2, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
- 
-    glBindVertexArray(0);
-    //////////////////////////////////////////////////////////////////////////////
-
-    return true;
+    return ReInitialiseScene();
 }
 
 bool OpenglEngine::ReInitialiseScene()
@@ -248,31 +213,13 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////
-    glGenVertexArrays(2, &vertexArrayObjID[0]);
-    glBindVertexArray(vertexArrayObjID[0]);
-    glGenBuffers(2, vertexBufferObjID);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
- 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colours, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
- 
-    glBindVertexArray(vertexArrayObjID[1]);
-    glGenBuffers(1, &vertexBufferObjID[2]);
- 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[2]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices2, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
- 
-    glBindVertexArray(0);
-    //////////////////////////////////////////////////////////////////////////////
+    unsigned int* vertexArrayIDs = new unsigned int[m_data->meshes.size()];
+    glGenVertexArrays(m_data->meshes.size(), vertexArrayIDs);
+    for(unsigned int i = 0; i < m_data->meshes.size(); ++i)
+    {
+        m_data->meshes[i].Initialise(vertexArrayIDs[i]);
+    }
+    delete [] vertexArrayIDs;
 
     return true;
 }
@@ -285,17 +232,12 @@ void OpenglEngine::BeginRender()
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     GlShader& shader = m_data->shaders[0];
-
     glUseProgram(shader.GetProgram());
 
-    //////////////////////////////////////////////////////////////////////////////
-	glBindVertexArray(vertexArrayObjID[0]);	// First VAO
-    glDrawArrays(GL_TRIANGLES, 0, 3);	// draw first object 
-    glBindVertexArray(vertexArrayObjID[1]);	// select second VAO
-    glVertexAttrib3f((GLuint)1, 1.0, 0.0, 0.0); // set constant color attribute
-    glDrawArrays(GL_TRIANGLES, 0, 3);	// draw second object
-    glBindVertexArray(0);
-    //////////////////////////////////////////////////////////////////////////////
+    for(GlMesh& mesh : m_data->meshes)
+    {
+        mesh.Render();
+    }
 }
 
 void OpenglEngine::EndRender()

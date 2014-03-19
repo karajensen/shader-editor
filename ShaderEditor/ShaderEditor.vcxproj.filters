@@ -77,6 +77,12 @@
     <ClCompile Include="directxshader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="directxmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openglmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -125,6 +131,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="directxshader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directxmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openglmesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
