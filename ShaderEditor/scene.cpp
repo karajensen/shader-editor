@@ -85,9 +85,10 @@ bool Scene::InitialiseMeshes()
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();
         std::string newShaderName;
-        std::vector<std::string> shaderComponents(m_linker->GetComponentDescriptions());
-        for(const std::string& component : shaderComponents)
+        std::string component;
+        for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
         {
+            component = Shader::GetComponentDescription(i);
             if(boost::algorithm::icontains(shadername, component))
             {
                 newShaderName += component;
@@ -123,7 +124,7 @@ bool Scene::InitialiseMeshes()
         }
 
         // Store the mesh in the correct container
-        const std::string alpha = m_linker->GetComponentDescription(FragmentLinker::ALPHA);
+        const std::string alpha = Shader::GetComponentDescription(Shader::ALPHA);
         boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
     }
 
@@ -210,23 +211,21 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
     for(unsigned int i = 0; i < numMeshes; ++i)
     {
         aiMesh* pMesh = meshes[i];
-        unsigned int indexOffset = mesh.vertices.size();
+        unsigned int indexOffset = mesh.position.size();
         unsigned int numVerts = pMesh->mNumVertices;
         unsigned int numFaces = pMesh->mNumFaces;
 
         // For each vertex
         for(unsigned int vert = 0; vert < numVerts; ++vert)
         {
-            Vertex v;
-            v.x = pMesh->mVertices[vert].x;
-            v.y = pMesh->mVertices[vert].y;
-            v.z = pMesh->mVertices[vert].z;
-            v.nx = pMesh->mNormals[vert].x;
-            v.ny = pMesh->mNormals[vert].y;
-            v.nz = pMesh->mNormals[vert].z;
-            v.u = pMesh->mTextureCoords[0][vert].x;
-            v.v = pMesh->mTextureCoords[0][vert].y;
-            mesh.vertices.push_back(v);
+            mesh.position.push_back(Float3(pMesh->mVertices[vert].x,
+                pMesh->mVertices[vert].y, pMesh->mVertices[vert].z));
+
+            mesh.normals.push_back(Float3(pMesh->mNormals[vert].x,
+                pMesh->mNormals[vert].y, pMesh->mNormals[vert].z));
+
+            mesh.uvs.push_back(UV(pMesh->mTextureCoords[0][vert].x,
+                pMesh->mTextureCoords[0][vert].y));
         }
 
         // For each face

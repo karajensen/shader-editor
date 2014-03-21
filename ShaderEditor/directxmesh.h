@@ -5,6 +5,7 @@
 #pragma once
 
 #include "directxcommon.h"
+#include "elements.h"
 
 /**
 * DirectX Individual mesh
@@ -17,8 +18,9 @@ public:
     * Constructor
     * @param device Direct3D device interface
     * @param context Direct3D device context
+    * @param mesh The mesh object to use as a template
     */
-    DxMesh(ID3D11Device* device, ID3D11DeviceContext* context);
+    DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& mesh);
 
     /**
     * Destructor

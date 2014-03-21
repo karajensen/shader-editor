@@ -18,30 +18,6 @@ class FragmentLinker : boost::noncopyable
 {
 public:
 
-    /**
-    * All shader components
-    */
-    enum Component
-    {
-        FLAT,
-        BUMP,
-        SPECULAR,
-        ALPHA,
-        PARALLAX,
-        SHADOW
-    };
-
-    /**
-    * Shader Components avaliable for editing
-    */
-    enum ComponentVisibility
-    {
-        SPECULAR_VISIBILITY,
-        BUMP_VISIBILITY,
-        PARALLAX_VISIBILITY,
-        SOFTSHADOW_VISIBILITY,
-        MAX_EDITABLE
-    };
 
     /**
     * Constructor
@@ -52,37 +28,6 @@ public:
     * Destructor
     */
     ~FragmentLinker();
-
-    /**
-    * @return a vector of all shader component names
-    */
-    std::vector<std::string> GetComponentDescriptions() const;
-
-    /**
-    * Sets the visiblity of the editable component
-    * @param component The component to set
-    * @param value The level of visibilty of the component
-    */
-    void SetComponentVisibility(ComponentVisibility component, float value);
-
-    /**
-    * Gets the visiblity of the editable component
-    * @param component The component to set
-    * @return The level of visibilty of the component
-    */
-    float GetComponentVisibility(ComponentVisibility component) const;
-
-    /**
-    * @param component The component to get a description for
-    * @return a string description of the editable component
-    */
-    std::string GetComponentDescription(ComponentVisibility component) const;
-
-    /**
-    * @param component The component to get a description for
-    * @return a string description of the component
-    */
-    std::string GetComponentDescription(Component component) const;
 
     /**
     * Initialises the shader from fragments
@@ -100,6 +45,12 @@ private:
     * @param name The name of the shader
     */
     void AddShaderComponent(const std::string& component, const std::string& name);
+
+    /**
+    * Finds the relevant components required to generate the shader
+    * @param shader The shader object
+    */
+    void FindShaderComponents(Shader& shader);
 
     /**
     * Does custom pre-processing of the shader files before sending them to irrlicht
@@ -138,7 +89,6 @@ private:
     bool SolveConditionalLine(int level, std::string line, 
         std::ifstream& baseFile, std::ofstream& generatedFile, bool skiplines);
 
-    std::array<float, MAX_EDITABLE> m_componentVisibility;  ///< component visibilities for editing
     std::vector<std::string> m_shaderComponents;  ///< components of the shader currently being linked
 };
 

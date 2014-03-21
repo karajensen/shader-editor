@@ -142,9 +142,9 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
         m_data->shaders.push_back(DxShader(shader.hlslShaderFile));
     }
 
-    //for(const Mesh& mesh : meshes)
+    for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(DxMesh(m_data->device, m_data->context));
+        m_data->meshes.push_back(DxMesh(m_data->device, m_data->context, mesh));
     }
 
     return ReInitialiseScene();

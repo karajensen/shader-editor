@@ -14,16 +14,34 @@ struct Shader
     /**
     * Constructor
     */
-    Shader() :
-        index(NO_INDEX)
-    {
-    }
+    Shader();
 
-    int index;                    ///< Unique index of the shader
-    std::string name;             ///< name of the shader
-    std::string glslVertexFile;   ///< filename of the glsl shader
-    std::string glslFragmentFile; ///< filename of the glsl shader
-    std::string hlslShaderFile;   ///< filename of the hlsl shader
+    /**
+    * All shader components
+    */
+    enum Component
+    {
+        FLAT,
+        BUMP,
+        SPECULAR,
+        ALPHA,
+        PARALLAX,
+        MAX_COMPONENTS
+    };
+
+    /**
+    * Gets a text description of the shader component
+    * @param component The component to query for text
+    * @return the text description of the component
+    */
+    static std::string GetComponentDescription(unsigned int component);
+
+    int index;                         ///< Unique index of the shader
+    std::string name;                  ///< name of the shader
+    std::string glslVertexFile;        ///< filename of the glsl shader
+    std::string glslFragmentFile;      ///< filename of the glsl shader
+    std::string hlslShaderFile;        ///< filename of the hlsl shader
+    std::vector<Component> components; ///< Sections that make up this shader
 };
 
 /**
@@ -34,11 +52,7 @@ struct Light
     /**
     * Constructor
     */
-    Light() :
-        castshadow(false),
-        specularity(0.0f)
-    {
-    }
+    Light();
 
     bool castshadow;     ///< Whether the light casts shadows or not
     std::string name;    ///< Name of the light
@@ -50,28 +64,16 @@ struct Light
 };
 
 /**
-* Aggregate Mesh Vertex structure
+* UV Coordinate for a vertex
 */
-struct Vertex
+struct UV
 {
     /**
     * Constructor
     */
-    Vertex() :
-        x(0.0f),
-        y(0.0f),
-        z(0.0f),
-        nx(0.0f),
-        ny(0.0f),
-        nz(0.0f),
-        u(0.0f),
-        v(0.0f)
-    {
-    }
+    UV(float U, float V);
 
-    float x,y,z;     ///< Vertex position
-    float nx,ny,nz;  ///< Vertex normal
-    float u,v;       ///< Vertex uvs
+    float u, v; ///< Texture coordinates
 };
 
 /**
@@ -82,18 +84,17 @@ struct Mesh
     /**
     * Constructor
     */
-    Mesh() :
-        specularity(0.0f),
-        shaderIndex(NO_INDEX),
-        backfacecull(true)
-    {
-    }
+    Mesh();
 
-    bool backfacecull;              ///< Whether back facing polygons are culled
-    int shaderIndex;                ///< Index of which shader to use
-    float specularity;              ///< Brightness of the specular highlights
-    std::string name;               ///< Name of the mesh
-    std::vector<Vertex> vertices;   ///< Vertex buffer
-    std::vector<DWORD> indices;     ///< Index buffer
-    Matrix world;                   ///< World matrix of the mesh
+    bool backfacecull;                   ///< Whether back facing polygons are culled
+    int shaderIndex;                     ///< Index of which shader to use
+    float specularity;                   ///< Brightness of the specular highlights
+    std::string name;                    ///< Name of the mesh
+    std::vector<Float3> position;        ///< Position Vertex information
+    std::vector<Float3> normals;         ///< Normal Vertex information
+    std::vector<Float3> tangent;         ///< Tangent Vertex information
+    std::vector<Float3> bitangent;       ///< Bitangent Vertex information
+    std::vector<Colour> colour;          ///< Colour Vertex information
+    std::vector<UV> uvs;                 ///< UV Texture Vertex information
+    std::vector<DWORD> indices;          ///< Mesh Index information
 };

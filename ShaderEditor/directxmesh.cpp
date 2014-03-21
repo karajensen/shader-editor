@@ -4,28 +4,32 @@
 
 #include "directxmesh.h"
 
-DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context) :
+DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& mesh) :
     m_vertexBuffer(nullptr),
     m_vertexStride(0),
     m_vertexCount(0)
 {
-    //////////////////////////TO CUSTOMISE
-    struct VERTEX
+    struct Vertex
     {
         FLOAT X, Y, Z; 
         D3DXCOLOR Color;
     };
+    m_vertexStride = sizeof(Vertex);
 
-    VERTEX Vertices[] =
+    // Copy the mesh vertices to a format DirectX can map
+    m_vertexCount = mesh.position.size();
+    Vertex* vertices = new Vertex[m_vertexCount];
+    for(unsigned int i = 0; i < m_vertexCount; ++i)
     {
-        {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-        {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-        {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
-    };
+        vertices[i].X = mesh.position[i].x;
+        vertices[i].Y = mesh.position[i].y;
+        vertices[i].Z = mesh.position[i].z;
 
-    m_vertexStride = sizeof(VERTEX);
-    m_vertexCount = 3;
-    //////////////////////////
+        vertices[i].Color.r = 1.0f;
+        vertices[i].Color.g = 1.0f;
+        vertices[i].Color.b = 1.0f;
+        vertices[i].Color.a = 1.0f;
+    }
 
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -36,10 +40,13 @@ DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context) :
 
     device->CreateBuffer(&bd, 0, &m_vertexBuffer);
 
+    // Copy the mesh vertices to the directx mesh
     D3D11_MAPPED_SUBRESOURCE ms;
     context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-    memcpy(ms.pData, Vertices, sizeof(Vertices));
+    memcpy(ms.pData, vertices, sizeof(vertices));
     context->Unmap(m_vertexBuffer, 0); 
+
+    delete [] vertices;
 }
 
 DxMesh::~DxMesh()

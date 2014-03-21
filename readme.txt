@@ -1,5 +1,8 @@
 
-- Look into release/creation requires for each vbuffer
+- Get scene rendering for directx: camera, index buffers
+- Look into release/creation requires for opengl vbuffer
+- Get scene rendering for opengl
+
 
 - Both get mesh scenes rendering
 - Both get shader usage rendering

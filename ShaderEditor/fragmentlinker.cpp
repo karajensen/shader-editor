@@ -5,7 +5,7 @@
 #include "common.h"
 #include "fragmentlinker.h"
 #include "elements.h"
-#include <boost/assign/list_of.hpp>
+#include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
@@ -24,8 +24,6 @@ namespace
 
 FragmentLinker::FragmentLinker()
 {
-    m_componentVisibility.assign(1.0f);
-
     if(boost::filesystem::exists(GENERATED_FOLDER))    
     {
         boost::filesystem::remove_all(GENERATED_FOLDER);
@@ -40,81 +38,29 @@ FragmentLinker::~FragmentLinker()
 {
 }
 
-std::vector<std::string> FragmentLinker::GetComponentDescriptions() const
+void FragmentLinker::FindShaderComponents(Shader& shader)
 {
-    return boost::assign::list_of<std::string>
-        (GetComponentDescription(FLAT))
-        (GetComponentDescription(BUMP))
-        (GetComponentDescription(SPECULAR))
-        (GetComponentDescription(ALPHA))
-        (GetComponentDescription(PARALLAX));
-}
-
-float FragmentLinker::GetComponentVisibility(FragmentLinker::ComponentVisibility component) const
-{
-    return m_componentVisibility[component];
-}
-
-void FragmentLinker::SetComponentVisibility(FragmentLinker::ComponentVisibility component, float value)
-{
-    m_componentVisibility[component] = value;
-}
-
-std::string FragmentLinker::GetComponentDescription(Component component) const
-{
-    switch(component)
+    // take apart name to find what components are needed for the shader
+    m_shaderComponents.clear();
+    std::string component;
+    for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
     {
-    case FLAT:
-        return "FLAT";
-    case BUMP:
-        return "BUMP";
-    case SPECULAR:
-        return "SPECULAR";
-    case ALPHA:
-        return "ALPHA";
-    case PARALLAX:
-        return "PARALLAX";
-    case SHADOW:
-        return "SHADOW";
-    default:
-        return "NONE";
-    };
-}
-
-std::string FragmentLinker::GetComponentDescription(ComponentVisibility component) const
-{
-    switch(component)
-    {
-    case BUMP_VISIBILITY:
-        return "Bump";
-    case SPECULAR_VISIBILITY:
-        return "Specular";
-    case SOFTSHADOW_VISIBILITY:
-        return "Shadows";
-    case PARALLAX_VISIBILITY:
-        return "Parallax";
-    default:
-        return "None";
-    };
+        component = Shader::GetComponentDescription(i);
+        if(boost::algorithm::icontains(shader.name, component))
+        {
+            m_shaderComponents.push_back(component);
+            shader.components.push_back(Shader::Component(i));
+        }
+    }
 }
 
 bool FragmentLinker::InitialiseFromFragments(Shader& shader,
                                              unsigned int maxLights)
 {
-    const std::string filename = GENERATED_FOLDER + shader.name;
-
-    // take apart name to find what components are needed for the shader
-    m_shaderComponents.clear();
-    std::vector<std::string> availableComponents(GetComponentDescriptions());
-    BOOST_FOREACH(std::string component, availableComponents)
-    {
-        if(boost::algorithm::icontains(shader.name, component))
-        {
-            m_shaderComponents.push_back(component);
-        }
-    }
+    FindShaderComponents(shader);
 
     // generate a shader from the shader components
+    const std::string filename = GENERATED_FOLDER + shader.name;
     shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
     if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION, boost::none))
     {

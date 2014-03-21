@@ -30,6 +30,7 @@
     <ClCompile Include="directxengine.cpp" />
     <ClCompile Include="directxmesh.cpp" />
     <ClCompile Include="directxshader.cpp" />
+    <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
