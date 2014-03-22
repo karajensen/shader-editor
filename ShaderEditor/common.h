@@ -36,6 +36,22 @@ const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");
 
 /**
+* Simple 2D point
+*/
+struct Float2
+{
+    Float2() : x(0), y(0)
+    {
+    }
+
+    Float2(float X, float Y) : x(X), y(Y)
+    {
+    }
+
+    float x, y;
+};
+
+/**
 * Colour avaliable in the application
 */
 struct Colour

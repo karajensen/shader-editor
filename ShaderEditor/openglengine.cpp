@@ -249,3 +249,8 @@ std::string OpenglEngine::GetName() const
 {
     return "OpenGL";
 }
+
+void OpenglEngine::UpdateView(const Matrix& view)
+{
+
+}

@@ -64,19 +64,6 @@ struct Light
 };
 
 /**
-* UV Coordinate for a vertex
-*/
-struct UV
-{
-    /**
-    * Constructor
-    */
-    UV(float U, float V);
-
-    float u, v; ///< Texture coordinates
-};
-
-/**
 * Inidividual mesh object
 */
 struct Mesh
@@ -95,6 +82,6 @@ struct Mesh
     std::vector<Float3> tangent;         ///< Tangent Vertex information
     std::vector<Float3> bitangent;       ///< Bitangent Vertex information
     std::vector<Colour> colour;          ///< Colour Vertex information
-    std::vector<UV> uvs;                 ///< UV Texture Vertex information
+    std::vector<Float2> uvs;             ///< UV Texture Vertex information
     std::vector<DWORD> indices;          ///< Mesh Index information
 };

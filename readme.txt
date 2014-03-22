@@ -1,15 +1,16 @@
 
-- Get scene rendering for directx: camera, index buffers
-- Look into release/creation requires for opengl vbuffer
-- Get scene rendering for opengl
-
+- projection view matrices
+- matrix inverse
+- Look into release/creation requirements for opengl vbuffer
+- Passing transforms to shader
 
 - Both get mesh scenes rendering
 - Both get shader usage rendering
 - Both get textures rendering
-- camera setup
-- render to texture/antialising
-- fix depth/normalmap/bump/attenuation
+- render to texture
+- antialising
+- normal map
+
 - Create 3D scene
 - Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping

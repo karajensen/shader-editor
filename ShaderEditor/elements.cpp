@@ -34,12 +34,6 @@ Light::Light() :
 {
 }
 
-UV::UV(float U, float V) :
-    u(U),
-    v(V)
-{
-}
-
 Mesh::Mesh() :
     specularity(0.0f),
     shaderIndex(NO_INDEX),

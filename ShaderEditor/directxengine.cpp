@@ -196,3 +196,8 @@ std::string DirectxEngine::GetName() const
 {
     return "DirectX";
 }
+
+void DirectxEngine::UpdateView(const Matrix& view)
+{
+
+}

@@ -65,4 +65,10 @@ public:
     * @return the name of the render engine
     */
     virtual std::string GetName() const = 0;
+
+    /**
+    * Updates the engine's cached view matrix
+    * @param view The view matrix to update to
+    */
+    virtual void UpdateView(const Matrix& view) = 0;
 };

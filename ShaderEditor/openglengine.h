@@ -79,6 +79,12 @@ public:
     */
     virtual std::string GetName() const override;
 
+    /**
+    * Updates the engine's cached view matrix
+    * @param view The view matrix to update to
+    */
+    virtual void UpdateView(const Matrix& view) override;
+
 private:
 
     HWND m_hwnd;                        ///< handle to the window

@@ -224,7 +224,7 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
             mesh.normals.push_back(Float3(pMesh->mNormals[vert].x,
                 pMesh->mNormals[vert].y, pMesh->mNormals[vert].z));
 
-            mesh.uvs.push_back(UV(pMesh->mTextureCoords[0][vert].x,
+            mesh.uvs.push_back(Float2(pMesh->mTextureCoords[0][vert].x,
                 pMesh->mTextureCoords[0][vert].y));
         }
 
