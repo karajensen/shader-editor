@@ -23,8 +23,9 @@ static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 static const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
 static const int WINDOW_Y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-static const float CAMERA_NEAR = 0.1f;
+static const float CAMERA_NEAR = 1.0f;
 static const float CAMERA_FAR = 100.0f;
+static const float CAMERA_ASPECT_RATIO = 45.0f;
 static const float FOV = 60.0f;
 static const int NO_INDEX = -1;
 

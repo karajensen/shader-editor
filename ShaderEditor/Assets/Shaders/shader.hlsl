@@ -1,3 +1,8 @@
+cbuffer ConstantBuffer
+{
+    float4x4 viewProjection;
+}
+
 struct VertexOutput
 {
     float4 position :SV_POSITION;
@@ -9,7 +14,7 @@ VertexOutput VShader(float4 position :POSITION,
 {
     VertexOutput output;
 
-    output.position = position;
+    output.position = mul(viewProjection, position);
     output.color = color;
 
     return output;

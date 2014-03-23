@@ -54,9 +54,9 @@ public:
     void Rotation(const Float2& mouseDir, bool isMouseDown, float speed);
 
     /**
-    * @return the camera view matrix
+    * @return the camera world matrix
     */
-    const Matrix& GetView() const { return m_view; }
+    const Matrix& GetWorld() const { return m_world; }
 
     /**
     * @return whether the camera requires an update
@@ -101,7 +101,6 @@ private:
     */
     void Up(float val);
 
-    Matrix m_view;             ///< View Matrix for the camera
     Matrix m_world;            ///< World Matrix for the camera
     bool m_cameraNeedsUpdate;  ///< Whether the camera requires updating or not
     Float3 m_initialPos;       ///< Camera initial position in world space

@@ -68,7 +68,7 @@ public:
 
     /**
     * Updates the engine's cached view matrix
-    * @param view The view matrix to update to
+    * @param world The world matrix of the camera
     */
-    virtual void UpdateView(const Matrix& view) = 0;
+    virtual void UpdateView(const Matrix& world) = 0;
 };

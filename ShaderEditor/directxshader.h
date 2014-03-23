@@ -42,6 +42,11 @@ public:
     */
     void SetAsActive(ID3D11DeviceContext* context);
 
+    /**
+    * @return the constant buffer
+    */
+    ID3D11Buffer* GetConstantBuffer() const;
+
 private:
 
     /**
@@ -60,6 +65,13 @@ private:
     std::string BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs);
 
     /**
+    * Generates the constant buffer
+    * @param device The directX device
+    * @return error message if failed or empty if succeeded
+    */
+    std::string CreateConstantBuffer(ID3D11Device* device);
+
+    /**
     * Information for each vertex input attribute
     */
     struct AttributeData
@@ -74,4 +86,5 @@ private:
     ID3D11InputLayout* m_layout;                 ///< Shader input layout
     ID3D11VertexShader* m_vs;                    ///< HLSL vertex shader
     ID3D11PixelShader* m_ps;                     ///< HLSL pixel shader
+    ID3D11Buffer* m_constant;                    ///< Constant buffer
 };  

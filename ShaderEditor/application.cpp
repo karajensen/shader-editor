@@ -18,7 +18,7 @@ namespace
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     const Float3 CAMERA_TARGET(0.0f, 0.0f, 0.0f);     ///< Target camera will look at
-    const Float3 CAMERA_POSITION(0.0f, 0.0f, -30.0f); ///< Starting camera position
+    const Float3 CAMERA_POSITION(0.0f, 0.0f, -10.0f); ///< Starting camera position
     const float CAMERA_MOVE_SPEED = 40.0f;            ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;              ///< Speed the camera will rotate
 
@@ -162,7 +162,7 @@ void Application::TickApplication()
     if(m_camera->RequiresUpdate())
     {
         m_camera->Update();
-        m_engine->UpdateView(m_camera->GetView());
+        m_engine->UpdateView(m_camera->GetWorld());
     }
 
     m_scene->Update();
@@ -241,7 +241,7 @@ void Application::ToggleRenderEngine()
         Logger::LogError(m_engine->GetName() + ": Failed to reinitialise");
     }
 
-    m_engine->UpdateView(m_camera->GetView());
+    m_engine->UpdateView(m_camera->GetWorld());
     InitialiseTweakBar(useOpenGL);
 }
 

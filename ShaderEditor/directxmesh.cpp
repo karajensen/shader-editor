@@ -21,9 +21,9 @@ DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& m
 
     VERTEX vertices[] =
     {
-        {0.0f, 0.5f, 0.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
-        {0.45f, -0.5, 0.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
-        {-0.45f, -0.5f, 0.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
+        {0.0f, 0.5f, -5.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
+        {0.45f, -0.5, -5.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
+        {-0.45f, -0.5f, -5.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
     };
 
     //std::vector<VERTEX> vertices(m_vertexCount);

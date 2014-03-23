@@ -9,7 +9,8 @@ DxShader::DxShader(const std::string& path) :
     m_filepath(path),
     m_layout(nullptr),
     m_vs(nullptr),
-    m_ps(nullptr)
+    m_ps(nullptr),
+    m_constant(nullptr)
 {
 }
 
@@ -34,6 +35,11 @@ void DxShader::Release()
     {
         m_layout->Release();
         m_layout = nullptr;
+    }
+    if(m_constant)
+    {
+        m_constant->Release();
+        m_constant = nullptr;
     }
 }
 
@@ -80,7 +86,33 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return "Could not create pixel shader";
     }
 
-    return BindShaderAttributes(device, vsBlob);
+    std::string attributeError = BindShaderAttributes(device, vsBlob);
+    if(!attributeError.empty())
+    {
+        return attributeError;
+    }
+
+    return CreateConstantBuffer(device);
+}
+
+std::string DxShader::CreateConstantBuffer(ID3D11Device* device)
+{
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(bd));
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = 64;
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+    if(FAILED(device->CreateBuffer(&bd, 0, &m_constant)))
+    {
+        return "Constant buffer creation failed";
+    }
+    return std::string();
+}
+
+ID3D11Buffer* DxShader::GetConstantBuffer() const
+{
+    return m_constant;
 }
 
 std::string DxShader::LoadShaderFile(std::string& text)
@@ -172,4 +204,5 @@ void DxShader::SetAsActive(ID3D11DeviceContext* context)
     context->VSSetShader(m_vs, 0, 0);
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
+    context->VSSetConstantBuffers(0, 1, &m_constant);
 }
