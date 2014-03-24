@@ -83,15 +83,15 @@ void Application::HandleKeyPress(const WPARAM& keydown)
     case VK_F2:
         ToggleRenderEngine();
         break;
-    case VK_LSHIFT:
-        m_camera->ForwardMovement(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
-        break;
-    case VK_LMENU:
+    case VK_MENU:
         m_camera->Rotation(m_mouseDirection, m_mousePressed,
             m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
         break;
-    case VK_LCONTROL:
+    case VK_SHIFT:
+        m_camera->ForwardMovement(m_mouseDirection, m_mousePressed,
+            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
+        break;
+    case VK_CONTROL:
         m_camera->SideMovement(m_mouseDirection, m_mousePressed,
             m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
         break;
@@ -104,9 +104,11 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
 {
     switch(msg.message)
     {
+    case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
         keydown = msg.wParam;
         break;
+    case WM_SYSKEYUP:
     case WM_KEYUP:
         HandleKeyPress(keydown);
         break;

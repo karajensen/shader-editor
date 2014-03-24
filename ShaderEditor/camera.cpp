@@ -99,8 +99,8 @@ void Camera::Update()
     m_world.MakeIdentity();
     m_world.SetPosition(m_pos);
 
-    //Matrix pitch = Matrix::CreateRotateX(m_pitch);
-    //Matrix yaw = Matrix::CreateRotateY(m_yaw);
-    //Matrix roll = Matrix::CreateRotateZ(m_roll);
-    //m_world *= roll * yaw * pitch;
+    Matrix pitch = Matrix::CreateRotateX(m_pitch);
+    Matrix yaw = Matrix::CreateRotateY(m_yaw);
+    Matrix roll = Matrix::CreateRotateZ(m_roll);
+    m_world *= roll * yaw * pitch;
 }
