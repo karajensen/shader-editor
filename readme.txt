@@ -1,6 +1,5 @@
 
 DIRECTX
-- camera movement
 - custom constant buffers
 
 OPENGL

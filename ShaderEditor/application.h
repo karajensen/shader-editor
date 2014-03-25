@@ -91,7 +91,13 @@ private:
     * Determines the direction and position of movement for the mouse
     * @param msg The windows event message
     */
-    void UpdateMouseCoordinates(const MSG& msg);
+    void HandleMouseMovement(const MSG& msg);
+
+    /**
+    * @return whether the vk key code is current pressed
+    * @param key The VK_ key code to query
+    */
+    bool IsKeyDown(unsigned int key) const;
 
     RenderEngine* m_engine;  ///< currently selected rendering engine
     bool m_showTweakBar;     ///< Whether the tweak bar is currently visible

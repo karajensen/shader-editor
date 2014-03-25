@@ -21,6 +21,7 @@ namespace
     const Float3 CAMERA_POSITION(0.0f, 0.0f, -10.0f); ///< Starting camera position
     const float CAMERA_MOVE_SPEED = 40.0f;            ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;              ///< Speed the camera will rotate
+    const float CAMERA_SIDE_SPEED = 20.0f;            ///< Speed the camera will strafe
 
     /**
     * Anttweakbar button callback for toggling through render engines
@@ -36,7 +37,8 @@ Application::Application() :
     m_engine(nullptr),
     m_tweakbar(nullptr),
     m_showTweakBar(false),
-    m_camera(new Camera(CAMERA_POSITION, CAMERA_TARGET))
+    m_camera(new Camera(CAMERA_POSITION, CAMERA_TARGET)),
+    m_mousePressed(false)
 {
 }
 
@@ -55,8 +57,7 @@ bool Application::Run()
     {
         if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            if((GetAsyncKeyState(VK_ESCAPE) & 0x8000) ||
-               (msg.message == WM_QUIT))
+            if(IsKeyDown(VK_ESCAPE) || msg.message == WM_QUIT)
             {
                 return true;
             }
@@ -73,31 +74,9 @@ bool Application::Run()
     return true;
 }
 
-void Application::HandleKeyPress(const WPARAM& keydown)
+bool Application::IsKeyDown(unsigned int key) const
 {
-    switch(keydown)
-    {
-    case VK_F1:
-        ToggleTweakBar();
-        break;
-    case VK_F2:
-        ToggleRenderEngine();
-        break;
-    case VK_MENU:
-        m_camera->Rotation(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
-        break;
-    case VK_SHIFT:
-        m_camera->ForwardMovement(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
-        break;
-    case VK_CONTROL:
-        m_camera->SideMovement(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
-        break;
-    default:
-        TwKeyPressed(toascii(keydown),0);
-    }
+    return GetAsyncKeyState(key) & 0x8000;
 }
 
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
@@ -129,18 +108,34 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
         TwMouseButton(TW_MOUSE_PRESSED,TW_MOUSE_RIGHT);
         break;
     case WM_MOUSEMOVE:
-        UpdateMouseCoordinates(msg);
+        HandleMouseMovement(msg);
         break;
     }
 }
 
-void Application::UpdateMouseCoordinates(const MSG& msg)
+void Application::HandleKeyPress(const WPARAM& keydown)
+{
+    switch(keydown)
+    {
+    case VK_F1:
+        ToggleTweakBar();
+        break;
+    case VK_F2:
+        ToggleRenderEngine();
+        break;
+    default:
+        TwKeyPressed(toascii(keydown),0);
+    }
+}
+
+void Application::HandleMouseMovement(const MSG& msg)
 {
     const int ix = GET_X_LPARAM(msg.lParam);
     const int iy = GET_Y_LPARAM(msg.lParam);
     const float x = static_cast<float>(ix);
     const float y = static_cast<float>(iy);
 
+    // Determine the direction the mouse is moving
     m_mouseDirection.x = m_mousePosition.x - x;
     m_mouseDirection.y = m_mousePosition.y - y;
 
@@ -152,6 +147,23 @@ void Application::UpdateMouseCoordinates(const MSG& msg)
     {
         m_mouseDirection.x /= length;
         m_mouseDirection.y /= length;
+    }
+
+    // Adjust camera according to the movement
+    if(IsKeyDown(VK_MENU))
+    {
+        m_camera->Rotation(m_mouseDirection, m_mousePressed,
+            m_timer->GetDeltaTime()*CAMERA_ROT_SPEED);
+    }
+    else if(IsKeyDown(VK_SHIFT))
+    {
+        m_camera->ForwardMovement(m_mouseDirection, m_mousePressed,
+            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
+    }
+    else if(IsKeyDown(VK_CONTROL))
+    {
+        m_camera->SideMovement(m_mouseDirection, m_mousePressed,
+            m_timer->GetDeltaTime()*CAMERA_SIDE_SPEED);
     }
 
     m_mousePosition.x = x;
@@ -172,6 +184,9 @@ void Application::TickApplication()
     m_engine->Render(m_scene->GetLights());
     TwDraw();
     m_engine->EndRender();
+
+    m_mouseDirection.x = 0;
+    m_mouseDirection.y = 0;
 }
 
 bool Application::Initialise(HWND hwnd)
@@ -279,6 +294,12 @@ void Application::InitialiseTweakBar(bool opengl)
 
     TwAddButton(m_tweakbar, "Toggle Render Engine",
         &ButtonToggleRenderEngine, this, "");
+
+    TwAddVarRO(m_tweakbar, "DirX", TW_TYPE_FLOAT, &m_mouseDirection.x, "");
+    TwAddVarRO(m_tweakbar, "DirY", TW_TYPE_FLOAT, &m_mouseDirection.y, "");
+    TwAddVarRO(m_tweakbar, "Pressed", TW_TYPE_BOOL8, &m_mousePressed, "");
+    TwAddVarRO(m_tweakbar, "PosX", TW_TYPE_FLOAT, &m_mousePosition.x, "");
+    TwAddVarRO(m_tweakbar, "PosY", TW_TYPE_FLOAT, &m_mousePosition.y, "");
 
     m_scene->InitialiseTweakBar(m_tweakbar);
 }
