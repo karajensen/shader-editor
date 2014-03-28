@@ -126,7 +126,7 @@ bool DirectxEngine::Initialize()
     m_data->context->RSSetViewports(1, &viewport);
 
     D3DXMatrixPerspectiveFovLH(&m_data->projection,
-        (FLOAT)D3DXToRadian(CAMERA_ASPECT_RATIO),
+        (FLOAT)D3DXToRadian(FIELD_OF_VIEW),
         (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
         CAMERA_NEAR, CAMERA_FAR);
 
@@ -149,6 +149,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
         m_data->shaders.push_back(DxShader(shader.hlslShaderFile));
     }
 
+    m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
         m_data->meshes.push_back(DxMesh(m_data->device, m_data->context, mesh));

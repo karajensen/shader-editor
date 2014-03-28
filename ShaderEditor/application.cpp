@@ -14,7 +14,7 @@
 
 namespace
 {
-    const bool OPENGL_START = false;
+    const bool OPENGL_START = true;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     const Float3 CAMERA_TARGET(0.0f, 0.0f, 0.0f);     ///< Target camera will look at

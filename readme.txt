@@ -1,14 +1,13 @@
 
-DIRECTX
-- custom constant buffers
-
 OPENGL
-- Look into release/creation requirements for opengl vbuffer
-- updating view matrix
+- why glGetUniformLocation is failing
 - passing viewproj to shaders
+- getting cameras working
+- Look into release/creation requirements for opengl vbuffer
 
 
 
+- Both custom uniform/constant values
 - Both get mesh scenes rendering
 - Both get shader usage rendering
 - Both get textures rendering

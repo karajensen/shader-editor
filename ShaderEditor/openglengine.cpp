@@ -26,7 +26,8 @@ struct OpenglData
     */
     void Release();
 
-    glm::mat4 projectionMat;         ///< Matrix for 3D rendering
+    glm::mat4 projection;            ///< Projection matrix
+    glm::mat4 view;                  ///< Camera View matrix
     std::vector<GlMesh> meshes;      ///< OpenGL mesh objects
     std::vector<GlShader> shaders;   ///< OpenGL shader objects
     HGLRC hrc;                       ///< Rendering context  
@@ -159,9 +160,9 @@ bool OpenglEngine::Initialize()
     Logger::LogInfo(stream.str());
 
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT); 
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    m_data->projectionMat = glm::perspective(FOV, 
+    m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
         CAMERA_NEAR, CAMERA_FAR);
 
@@ -193,9 +194,11 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
         m_data->shaders.push_back(GlShader(shader.glslVertexFile, shader.glslFragmentFile));
     }
 
-    //for(const Mesh& mesh : meshes)
+    m_data->meshes.reserve(meshes.size());
+    for(const Mesh& mesh : meshes)
     {
         m_data->meshes.push_back(GlMesh());
+        break;
     }
 
     return ReInitialiseScene();
@@ -234,6 +237,21 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     GlShader& shader = m_data->shaders[0];
     glUseProgram(shader.GetProgram());
 
+    /////////////////////////////////////
+    glm::mat4 viewProj = m_data->projection * m_data->view;
+    GLint location = glGetUniformLocation(shader.GetProgram(), "viewProjection");
+    if(HasCallFailed() || location == -1)
+    {
+        Logger::LogError("Could not find viewProjection");
+    }
+
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(viewProj));
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not bind viewProjection");
+    }
+    /////////////////////////////////////////
+
     for(GlMesh& mesh : m_data->meshes)
     {
         mesh.Render();
@@ -252,5 +270,20 @@ std::string OpenglEngine::GetName() const
 
 void OpenglEngine::UpdateView(const Matrix& world)
 {
+    m_data->view[0][0] = world.m11;
+    m_data->view[0][1] = world.m12;
+    m_data->view[0][2] = world.m13;
+    m_data->view[0][3] = world.m14;
 
+    m_data->view[1][0] = world.m11;
+    m_data->view[1][1] = world.m12;
+    m_data->view[1][2] = world.m13;
+    m_data->view[1][3] = world.m14;
+
+    m_data->view[2][0] = world.m11;
+    m_data->view[2][1] = world.m12;
+    m_data->view[2][2] = world.m13;
+    m_data->view[2][3] = world.m14;
+
+    m_data->view = glm::inverse(m_data->view);
 }

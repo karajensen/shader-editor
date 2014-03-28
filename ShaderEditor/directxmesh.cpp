@@ -9,6 +9,8 @@ DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& m
     m_vertexStride(0),
     m_vertexCount(0)
 {
+
+    //////////////////////////////TO CUSTOMISE
     struct VERTEX
     {
         FLOAT X, Y, Z; 
@@ -18,28 +20,13 @@ DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& m
     m_vertexStride = sizeof(VERTEX);
     m_vertexCount = 3;
 
-
     VERTEX vertices[] =
     {
         {0.0f, 0.5f, -5.0f, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f)},
         {0.45f, -0.5, -5.0f, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f)},
         {-0.45f, -0.5f, -5.0f, D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f)}
     };
-
-    //std::vector<VERTEX> vertices(m_vertexCount);
-    //vertices[0].X = 0.0f;
-    //vertices[0].Y = 0.5f;
-    //vertices[0].Z = 0.0f;
-    //vertices[0].Color = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-    //vertices[1].X = 0.45f;
-    //vertices[1].Y = -0.5f;
-    //vertices[1].Z = 0.0f;
-    //vertices[1].Color = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
-    //vertices[2].X = -0.45f;
-    //vertices[2].Y = -0.5f;
-    //vertices[2].Z = 0.0f;
-    //vertices[2].Color = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-
+    //////////////////////////////
 
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));

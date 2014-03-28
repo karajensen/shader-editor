@@ -11,6 +11,7 @@
 #include "opengl/include/GLU.h"
 #include "opengl/glm/glm.hpp"
 #include "opengl/glm/gtc/matrix_transform.hpp"
+#include "opengl/glm/gtc/type_ptr.hpp"
 
 /**
 * OpenGL call checking
