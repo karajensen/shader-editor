@@ -102,5 +102,5 @@ void Camera::Update()
     Matrix pitch = Matrix::CreateRotateX(m_pitch);
     Matrix yaw = Matrix::CreateRotateY(m_yaw);
     Matrix roll = Matrix::CreateRotateZ(m_roll);
-    m_world *= pitch * yaw * roll;
+    m_world *= roll * yaw * pitch;
 }

@@ -1,13 +1,11 @@
 
+- Fix DXGI WARNING and ERROR(AntTweakBar) in output window
+
 OPENGL
-- why glGetUniformLocation is failing
-- passing viewproj to shaders
-- getting cameras working
-- Look into release/creation requirements for opengl vbuffer
+- viewproj not transforming properly
+- Look into release/creation requirements for vbuffer
 
 
-
-- Both custom uniform/constant values
 - Both get mesh scenes rendering
 - Both get shader usage rendering
 - Both get textures rendering

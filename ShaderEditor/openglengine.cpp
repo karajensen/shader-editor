@@ -235,25 +235,17 @@ void OpenglEngine::BeginRender()
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     GlShader& shader = m_data->shaders[0];
-    glUseProgram(shader.GetProgram());
+    shader.SetAsActive();
 
-    /////////////////////////////////////
-    glm::mat4 viewProj = m_data->projection * m_data->view;
-    GLint location = glGetUniformLocation(shader.GetProgram(), "viewProjection");
-    if(HasCallFailed() || location == -1)
-    {
-        Logger::LogError("Could not find viewProjection");
-    }
+    const glm::mat4 viewProj = m_data->projection * m_data->view;
+    shader.SendUniformMatrix("viewProjection", viewProj);
 
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(viewProj));
-    if(HasCallFailed())
-    {
-        Logger::LogError("Could not bind viewProjection");
-    }
-    /////////////////////////////////////////
+    const float testing = 0.5f;
+    shader.SendUniformFloat("testing", testing);
 
     for(GlMesh& mesh : m_data->meshes)
     {
+        glDisable(GL_CULL_FACE);
         mesh.Render();
     }
 }
@@ -270,20 +262,28 @@ std::string OpenglEngine::GetName() const
 
 void OpenglEngine::UpdateView(const Matrix& world)
 {
-    m_data->view[0][0] = world.m11;
-    m_data->view[0][1] = world.m12;
-    m_data->view[0][2] = world.m13;
-    m_data->view[0][3] = world.m14;
+    // RHS Matrix
+    // | 11 12 13 x |
+    // | 21 22 23 y |
+    // | 31 32 33 z |
+    // | 0  0  0  1 |
 
-    m_data->view[1][0] = world.m11;
-    m_data->view[1][1] = world.m12;
-    m_data->view[1][2] = world.m13;
-    m_data->view[1][3] = world.m14;
+    glm::mat4 viewMatrix;
 
-    m_data->view[2][0] = world.m11;
-    m_data->view[2][1] = world.m12;
-    m_data->view[2][2] = world.m13;
-    m_data->view[2][3] = world.m14;
+    viewMatrix[0][0] = world.m11;  
+    viewMatrix[0][1] = world.m12;
+    viewMatrix[0][2] = world.m13;
+    viewMatrix[0][3] = world.m14;
 
-    m_data->view = glm::inverse(m_data->view);
+    viewMatrix[1][0] = world.m21;
+    viewMatrix[1][1] = world.m22;
+    viewMatrix[1][2] = world.m23;
+    viewMatrix[1][3] = world.m24;
+
+    viewMatrix[2][0] = world.m31;
+    viewMatrix[2][1] = world.m32;
+    viewMatrix[2][2] = world.m33;
+    viewMatrix[2][3] = -world.m34;
+
+    m_data->view = glm::inverse(viewMatrix);
 }

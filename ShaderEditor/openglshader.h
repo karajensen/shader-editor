@@ -5,6 +5,7 @@
 #pragma once
 
 #include "openglcommon.h"
+#include <unordered_map>
 
 /**
 * Holds information for an individual opengl shader
@@ -39,18 +40,39 @@ public:
     std::string CompileShader(GLint scratchVS, GLint scratchFS);
 
     /**
-    * @return the program for the shader
+    * Sets the shader as activated for rendering
     */
-    GLint GetProgram() const;
+    void SetAsActive();
+
+    /**
+    * Sends the matrix to the shader
+    * @param name Name of the matrix to send
+    * @param matrix The matrix to send
+    */
+    void SendUniformMatrix(const std::string& name, const glm::mat4& matrix);
+
+    /**
+    * Sends the float to the shader
+    * @param name Name of the float to send
+    * @param value The float to send
+    */
+    void SendUniformFloat(const std::string& name, float value);
 
 private:
 
     /**
     * Determines the vertex shader 'in' attributes and caches them
-    * @param vsText The text for the vertex shader
+    * @param vText Vertex shader text split into components
     * @return error message if failed or empty if succeeded
     */
-    std::string BindShaderAttributes(const std::string& vsText);
+    std::string BindShaderAttributes(const std::vector<std::string>& vText);
+
+    /**
+    * Determines the vertex and fragment shader uniform variables
+    * @param text Shader text split into components
+    * @return error message if failed or empty if succeeded
+    */
+    std::string FindShaderUniforms(const std::vector<std::string>& text);
 
     /**
     * Generates the shader for the engine
@@ -77,6 +99,15 @@ private:
     std::string LinkShaderProgram();
 
     /**
+    * Validates the uniform that is requesting to be sent
+    * @param expectedType Type of uniform wanting to send
+    * @param actualType Tyep of uniform being sent
+    * @param name Name of the uniform
+    */
+    bool CanSendUniform(const std::string& expectedType, 
+        const std::string& actualType, const std::string& name) const;
+
+    /**
     * Information for each vertex input attribute
     */
     struct AttributeData
@@ -85,10 +116,22 @@ private:
         std::string name;    ///< The name of the attribute
     };
 
-    std::vector<AttributeData> m_attributes;  ///< Vertex shader attributes
-    std::string m_vsFilepath;                 ///< Path to the vertex shader file
-    std::string m_fsFilepath;                 ///< Path to the fragment shader file
-	GLint m_program;                          ///< Shader program
-	GLint m_vs;                               ///< GLSL Vertex Shader
-	GLint m_fs;                               ///< GLSL Fragment Shader    
+    /**
+    * Information for a shader uniform
+    */
+    struct UniformData
+    {
+        std::string type;    ///< Type of data stored in the location
+        int location;        ///< Unique location within the shader
+    };
+
+    typedef std::unordered_map<std::string, UniformData> UniformMap;
+
+    UniformMap m_uniforms;                       ///< Vertex and fragment shader uniform data
+    std::vector<AttributeData> m_attributes;     ///< Vertex shader attributes
+    std::string m_vsFilepath;                    ///< Path to the vertex shader file
+    std::string m_fsFilepath;                    ///< Path to the fragment shader file
+	GLint m_program;                             ///< Shader program
+	GLint m_vs;                                  ///< GLSL Vertex Shader
+	GLint m_fs;                                  ///< GLSL Fragment Shader    
 };

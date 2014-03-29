@@ -5,6 +5,12 @@
 #include "directxshader.h"
 #include "boost/algorithm/string.hpp"
 
+namespace
+{
+    const std::string VS("Vertex Shader: ");    ///< Text for vertex shader diagnostics
+    const std::string PS("Pixel Shader: ");     ///< Text for pixel shader diagnostics
+}
+
 DxShader::DxShader(const std::string& path) :
     m_filepath(path),
     m_layout(nullptr),
@@ -21,6 +27,10 @@ DxShader::~DxShader()
 
 void DxShader::Release()
 {
+    m_attributes.clear();
+    m_constants.clear();
+    m_constantScratch.clear();
+
     if(m_vs)
     {
         m_vs->Release();
@@ -54,16 +64,16 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     if(FAILED(D3DX11CompileFromFile(m_filepath.c_str(), 0, 0,
         "VShader", "vs_5_0", 0, 0, 0, &vsBlob, &vsErrorBlob, 0)))
     {
-        vertexError = std::string("Vertex Shader: ") + (vsErrorBlob ? 
-            static_cast<char*>(vsErrorBlob->GetBufferPointer()) : "Unknown Error");
+        const std::string error(static_cast<char*>(vsErrorBlob->GetBufferPointer()));
+        vertexError = VS + (vsErrorBlob ? error : "Unknown Error");
     }
 
     std::string pixelError;
     if(FAILED(D3DX11CompileFromFile(m_filepath.c_str(), 0, 0,
         "PShader", "ps_5_0", 0, 0, 0, &psBlob, &psErrorBlob, 0)))
     {
-        pixelError = std::string("Pixel Shader: ") + (psErrorBlob ? 
-            static_cast<char*>(psErrorBlob->GetBufferPointer()) : "Unknown Error");
+        const std::string error(static_cast<char*>(psErrorBlob->GetBufferPointer()));
+        pixelError = PS + (psErrorBlob ? error : "Unknown Error");
     }
 
     if(!vertexError.empty() || !pixelError.empty())
@@ -77,42 +87,29 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     if(FAILED(device->CreateVertexShader(vsBlob->GetBufferPointer(),
         vsBlob->GetBufferSize(), 0, &m_vs)))
     {
-        return "Could not create vertex shader";
+        return VS + "Could not create shader";
     }
     
     if(FAILED(device->CreatePixelShader(psBlob->GetBufferPointer(),
         psBlob->GetBufferSize(), 0, &m_ps)))
     {
-        return "Could not create pixel shader";
+        return PS + "Could not create shader";
     }
 
-    std::string attributeError = BindShaderAttributes(device, vsBlob);
+    std::string shadertext;
+    const std::string errorBuffer = LoadShaderFile(shadertext);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    std::string attributeError = BindShaderAttributes(device, vsBlob, shadertext);
     if(!attributeError.empty())
     {
         return attributeError;
     }
 
-    return CreateConstantBuffer(device);
-}
-
-std::string DxShader::CreateConstantBuffer(ID3D11Device* device)
-{
-    D3D11_BUFFER_DESC bd;
-    ZeroMemory(&bd, sizeof(bd));
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = 64;
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-    if(FAILED(device->CreateBuffer(&bd, 0, &m_constant)))
-    {
-        return "Constant buffer creation failed";
-    }
-    return std::string();
-}
-
-ID3D11Buffer* DxShader::GetConstantBuffer() const
-{
-    return m_constant;
+    return CreateConstantBuffer(device, shadertext);
 }
 
 std::string DxShader::LoadShaderFile(std::string& text)
@@ -133,27 +130,23 @@ std::string DxShader::LoadShaderFile(std::string& text)
     return std::string();
 }
 
-std::string DxShader::BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs)
+std::string DxShader::BindShaderAttributes(ID3D11Device* device, 
+                                           ID3D10Blob* vs,
+                                           const std::string& shadertext)
 {
-    std::string text;
-    const std::string errorBuffer = LoadShaderFile(text);
-    if(!errorBuffer.empty())
-    {
-        return errorBuffer;
-    }
-
+    // Find a string of all text within the entry point brackets
     std::string attributeList;
     const std::string entryPoint("VShader(");
-    int index = text.find(entryPoint, 0) + entryPoint.size();
-    while(text[index] != ')')
+    int index = shadertext.find(entryPoint, 0) + entryPoint.size();
+    while(shadertext[index] != ')')
     {
-        attributeList += text[index];
+        attributeList += shadertext[index];
         ++index;
     }
 
-    m_attributes.clear();
     std::vector<std::string> components;
-    boost::split(components, attributeList, boost::is_any_of(",:;\n\r "), boost::token_compress_on);
+    boost::split(components, attributeList, 
+        boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
     int byteOffset = 0;
     for(unsigned index = 0; index < components.size(); index += 3)
@@ -199,10 +192,148 @@ std::string DxShader::BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs)
     return std::string();
 }
 
+std::string DxShader::CreateConstantBuffer(ID3D11Device* device, 
+                                           const std::string& shadertext)
+{
+    // Generate a list of all variables in the constant buffer
+    std::string constantList;
+    const std::string bufferName("ConstantBuffer");
+    int index = shadertext.find(bufferName, 0) + bufferName.size();
+    while(shadertext[index] != '}')
+    {
+        constantList += shadertext[index];
+        ++index;
+    }
+
+    std::vector<std::string> components;
+    boost::split(components, constantList, 
+        boost::is_any_of("{},:;\n\r "), boost::token_compress_on);
+
+    int byteWidth = 0;
+    int slotsRemaining = 0;
+    for(unsigned index = 0; index < components.size(); ++index)
+    {
+        if(!components[index].empty())
+        {
+            const std::string& type = components[index];
+            const std::string& name = components[index+1];
+            m_constants[name].index = byteWidth/sizeof(float);
+
+            // When determining the byte offset of constant buffer data
+            // take into account optimizations that the buffer will perform where
+            // float/float2/float3 are packed together in lots of float4 if possible
+            // Each component of a float4 is considered a 'slot'
+            if(type == "float4x4")
+            {
+                byteWidth += slotsRemaining * 4; // fill in empty slots
+                byteWidth += 64;
+                slotsRemaining = 4;
+            }
+            else if(type == "float4")
+            {
+                byteWidth += slotsRemaining * 4; // fill in empty slots
+                byteWidth += 16;
+                slotsRemaining = 4;
+            }
+            else if(type == "float3")
+            {
+                if(slotsRemaining <= 2)
+                {
+                    byteWidth += slotsRemaining * 4; // can only fit in slots of 3+
+                    slotsRemaining = 4;
+                }
+                byteWidth += 12;
+                slotsRemaining -= 3;
+            }
+            else if(type == "float2")
+            {
+                if(slotsRemaining <= 1)
+                {
+                    byteWidth += slotsRemaining * 4; // can only fit in slots of 2+
+                    slotsRemaining = 4;
+                }
+                byteWidth += 8;
+                slotsRemaining -= 2;
+            }
+            else if(type == "float")
+            {
+                byteWidth += 4;
+                if(slotsRemaining == 0)
+                {
+                    slotsRemaining = 4;
+                }
+                --slotsRemaining;
+            }
+            
+            m_constants[name].type = type;
+            ++index;
+        }
+    }
+    byteWidth += slotsRemaining * 4;
+
+    D3D11_BUFFER_DESC bd;
+    ZeroMemory(&bd, sizeof(bd));
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = byteWidth;
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+    m_constantScratch.resize(byteWidth/sizeof(float));
+    m_constantScratch.assign(m_constantScratch.size(), 0.0f);
+    
+    if(FAILED(device->CreateBuffer(&bd, 0, &m_constant)))
+    {
+        return "Constant buffer creation failed";
+    }
+    return std::string();
+}
+
 void DxShader::SetAsActive(ID3D11DeviceContext* context)
 {
     context->VSSetShader(m_vs, 0, 0);
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
     context->VSSetConstantBuffers(0, 1, &m_constant);
+}
+
+void DxShader::UpdateConstantFloat(const std::string& name, const float& value)
+{
+    auto itr = m_constants.find(name);
+    if(itr != m_constants.end() && 
+        CanSendConstant("float", itr->second.type, name))
+    {
+        m_constantScratch[itr->second.index] = value;
+    }
+}
+
+void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& matrix)
+{
+    auto itr = m_constants.find(name);
+    if(itr != m_constants.end() && 
+        CanSendConstant("float4x4", itr->second.type, name))
+    {
+        const int scratchIndex = itr->second.index;
+        const FLOAT* matArray = matrix;
+        for(int i = 0; i < 16; ++i) // 16 floats in a directx matrix
+        {
+            m_constantScratch[scratchIndex + i] = matArray[i];
+        }
+    }
+}
+
+bool DxShader::CanSendConstant(const std::string& expectedType, 
+                               const std::string& actualType, 
+                               const std::string& name) const
+{
+    if(actualType != expectedType)
+    {
+        Logger::LogError(name + " type mismatch. Attempting to send " + 
+            actualType + " as a " + expectedType);
+        return false;
+    }
+    return true;
+}
+
+void DxShader::SendConstants(ID3D11DeviceContext* context)
+{
+    context->UpdateSubresource(m_constant, 0, 0, &m_constantScratch[0], 0, 0);
 }

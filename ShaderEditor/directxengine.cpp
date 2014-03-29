@@ -185,8 +185,13 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     DxShader& shader = m_data->shaders[0];
     shader.SetAsActive(m_data->context);
 
-    D3DXMATRIX viewProj = m_data->view * m_data->projection;
-    m_data->context->UpdateSubresource(shader.GetConstantBuffer(), 0, 0, &viewProj, 0, 0);
+    const D3DXMATRIX viewProj = m_data->view * m_data->projection;
+    shader.UpdateConstantMatrix("viewProjection", viewProj);
+
+    const float testing = 0.2f;
+    shader.UpdateConstantFloat("testing", testing);
+
+    shader.SendConstants(m_data->context);
 
     for(DxMesh& mesh : m_data->meshes)
     {

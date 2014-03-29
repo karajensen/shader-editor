@@ -14,7 +14,7 @@
 
 namespace
 {
-    const bool OPENGL_START = true;
+    const bool OPENGL_START = false;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     const Float3 CAMERA_TARGET(0.0f, 0.0f, 0.0f);     ///< Target camera will look at
@@ -76,7 +76,7 @@ bool Application::Run()
 
 bool Application::IsKeyDown(unsigned int key) const
 {
-    return GetAsyncKeyState(key) & 0x8000;
+    return (GetAsyncKeyState(key) & 0x8000) ? true : false;
 }
 
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
@@ -295,13 +295,14 @@ void Application::InitialiseTweakBar(bool opengl)
     TwAddButton(m_tweakbar, "Toggle Render Engine",
         &ButtonToggleRenderEngine, this, "");
 
-    TwAddVarRO(m_tweakbar, "DirX", TW_TYPE_FLOAT, &m_mouseDirection.x, "");
-    TwAddVarRO(m_tweakbar, "DirY", TW_TYPE_FLOAT, &m_mouseDirection.y, "");
-    TwAddVarRO(m_tweakbar, "Pressed", TW_TYPE_BOOL8, &m_mousePressed, "");
-    TwAddVarRO(m_tweakbar, "PosX", TW_TYPE_FLOAT, &m_mousePosition.x, "");
-    TwAddVarRO(m_tweakbar, "PosY", TW_TYPE_FLOAT, &m_mousePosition.y, "");
-
     m_scene->InitialiseTweakBar(m_tweakbar);
+
+    const std::string inputGrp("group=Input");
+    TwAddVarRO(m_tweakbar, "Direction X", TW_TYPE_FLOAT, &m_mouseDirection.x, inputGrp.c_str());
+    TwAddVarRO(m_tweakbar, "Direction Y", TW_TYPE_FLOAT, &m_mouseDirection.y, inputGrp.c_str());
+    TwAddVarRO(m_tweakbar, "Position X", TW_TYPE_FLOAT, &m_mousePosition.x, inputGrp.c_str());
+    TwAddVarRO(m_tweakbar, "Position Y", TW_TYPE_FLOAT, &m_mousePosition.y, inputGrp.c_str());
+    TwAddVarRO(m_tweakbar, "Pressed", TW_TYPE_BOOL8, &m_mousePressed, inputGrp.c_str());
 }
 
 void Application::RemoveTweakBar()

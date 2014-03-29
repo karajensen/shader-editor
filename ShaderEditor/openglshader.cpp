@@ -7,6 +7,13 @@
 #include <iomanip>
 #include <assert.h>
 
+namespace
+{
+    const std::string MAIN_ENTRY("main(void)"); ///< Text for the shader main entry point
+    const std::string VS("Vertex Shader: ");    ///< Text for vertex shader diagnostics
+    const std::string FS("Fragment Shader: ");  ///< Text for fragment shader diagnostics
+}
+
 GlShader::GlShader(const std::string& vs, const std::string& fs) :
     m_vsFilepath(vs),
     m_fsFilepath(fs),
@@ -23,6 +30,9 @@ GlShader::~GlShader()
 
 void GlShader::Release()
 {
+    m_uniforms.clear();
+    m_attributes.clear();
+
     if(m_program != NO_INDEX)
     {
         if(m_vs != NO_INDEX)
@@ -48,26 +58,17 @@ void GlShader::Release()
     }
 }
 
-GLint GlShader::GetProgram() const
+std::string GlShader::BindShaderAttributes(const std::vector<std::string>& vText)
 {
-    return m_program;
-}
-
-std::string GlShader::BindShaderAttributes(const std::string& vsText)
-{
-    m_attributes.clear();
-    std::vector<std::string> components;
-    boost::split(components, vsText, boost::is_any_of(";\n\r "), boost::token_compress_on);
-
     int currentIndex = 0;
     int currentLocation = 0;
-    while(components[currentIndex] != "main(void)")
+    while(vText[currentIndex] != MAIN_ENTRY)
     {
-        if(components[currentIndex] == "in")
+        if(vText[currentIndex] == "in")
         {
             currentIndex += 2;
             AttributeData data;
-            data.name = components[currentIndex];
+            data.name = vText[currentIndex];
             data.location = currentLocation;
             m_attributes.push_back(data);
             ++currentLocation;
@@ -165,26 +166,26 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     errorBuffer = LoadShaderFile(m_vsFilepath, vSize, vText);
     if(!errorBuffer.empty())
     {
-        return "Vertex Shader: " + errorBuffer;
+        return VS + errorBuffer;
     }
 
     errorBuffer = LoadShaderFile(m_fsFilepath, fSize, fText);
     if(!errorBuffer.empty())
     {
-        return "Fragment Shader: " + errorBuffer;
+        return FS + errorBuffer;
     }
 
     // Test on the scratch shaders to give an overview of any compilation errors
     std::string vertexErrors = CompileShader(scratchVS, vText.c_str(), vSize);
     if(!vertexErrors.empty())
     {
-        vertexErrors = "Vertex Shader: " + vertexErrors;
+        vertexErrors = VS + vertexErrors;
     }
 
     std::string fragmentErrors = CompileShader(scratchFS, fText.c_str(), fSize);
     if(!fragmentErrors.empty())
     {
-        fragmentErrors = "Fragment Shader: " + fragmentErrors;
+        fragmentErrors = FS + fragmentErrors;
     }
 
     if(!fragmentErrors.empty() || !vertexErrors.empty())
@@ -202,16 +203,21 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     errorBuffer = CompileShader(m_vs, vText.c_str(), vSize);
     if(!errorBuffer.empty())
     {
-        return "Vertex Shader " + errorBuffer;
+        return VS + errorBuffer;
     }
 
     errorBuffer = CompileShader(m_fs, fText.c_str(), fSize);
     if(!errorBuffer.empty())
     {
-        return "Fragment Shader " + errorBuffer;
+        return FS + errorBuffer;
     }
 
-    errorBuffer = BindShaderAttributes(vText);
+    auto deliminator = boost::is_any_of(";\n\r ");
+    std::vector<std::string> splitVertexText, splitFragmentText;
+    boost::split(splitVertexText, vText, deliminator, boost::token_compress_on);
+    boost::split(splitFragmentText, fText, deliminator, boost::token_compress_on);
+
+    errorBuffer = BindShaderAttributes(splitVertexText);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
@@ -220,13 +226,13 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
 	glAttachShader(m_program, m_vs);
     if(HasCallFailed())
     {
-        return "Failed to attach vertex shader";
+        return VS + "Failed to attach";
     }
 
     glAttachShader(m_program, m_fs);
     if(HasCallFailed())
     {
-        return "Failed to attach fragment shader";
+        return FS + "Failed to attach";
     }
 
     errorBuffer = LinkShaderProgram();
@@ -235,5 +241,86 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
         return "Failed to link program: " + errorBuffer;
     }
 
+    errorBuffer = FindShaderUniforms(splitVertexText);
+    if(!errorBuffer.empty())
+    {
+        return VS + errorBuffer;
+    }
+
+    errorBuffer = FindShaderUniforms(splitFragmentText);
+    if(!errorBuffer.empty())
+    {
+        return FS + errorBuffer;
+    }
+
     return std::string();
+}
+
+std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
+{
+    int currentIndex = 0;
+    while(text[currentIndex] != MAIN_ENTRY)
+    {
+        if(text[currentIndex] == "uniform")
+        {
+            const std::string& name = text[currentIndex+2];
+            GLint location = glGetUniformLocation(m_program, name.c_str());
+            if(HasCallFailed() || location == NO_INDEX)
+            {
+                return "Could not find uniform " + name;
+            }
+            m_uniforms[name].location = location;
+            m_uniforms[name].type = text[currentIndex+1];
+            currentIndex += 2;
+        }
+        else
+        {
+            ++currentIndex;
+        }
+    }
+    return std::string();
+}
+
+void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matrix)
+{
+    auto itr = m_uniforms.find(name);
+    if(itr != m_uniforms.end() && CanSendUniform("mat4", itr->second.type, name))
+    {
+        glUniformMatrix4fv(itr->second.location, 1, GL_FALSE, &matrix[0][0]);
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not send uniform " + name);
+        }
+    }
+}
+
+void GlShader::SendUniformFloat(const std::string& name, float value)
+{
+    auto itr = m_uniforms.find(name);
+    if(itr != m_uniforms.end() && CanSendUniform("float", itr->second.type, name))
+    {
+        glUniform1f(itr->second.location, value);
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not send uniform " + name);
+        }
+    }
+}
+
+bool GlShader::CanSendUniform(const std::string& expectedType, 
+                              const std::string& actualType, 
+                              const std::string& name) const
+{
+    if(actualType != expectedType)
+    {
+        Logger::LogError(name + " type mismatch. Attempting to send " + 
+            actualType + " as a " + expectedType);
+        return false;
+    }
+    return true;
+}
+
+void GlShader::SetAsActive()
+{
+    glUseProgram(m_program);
 }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "directxcommon.h"
+#include <unordered_map>
 
 /**
 * Holds information for an individual directx shader
@@ -43,9 +44,25 @@ public:
     void SetAsActive(ID3D11DeviceContext* context);
 
     /**
-    * @return the constant buffer
+    * Sends the matrix to the shader
+    * @param name Name of the matrix to send
+    * @param matrix The matrix to send
     */
-    ID3D11Buffer* GetConstantBuffer() const;
+    void UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& matrix);
+
+    /**
+    * Sends the float to the shader
+    * @param name Name of the float to send
+    * @param value The float to send
+    */
+    void UpdateConstantFloat(const std::string& name, const float& value);
+
+    /**
+    * This bulk sends all constant data saved in the scratch buffer to the shader
+    * @note Done this way as currently not possible to partially update a cbuffer
+    * @param context Direct3D device context
+    */
+    void SendConstants(ID3D11DeviceContext* context);
 
 private:
 
@@ -60,16 +77,29 @@ private:
     * Determines the vertex shader 'in' attributes and caches them
     * @param device The directX device
     * @param vs The vertex shader object
+    * @param shadertext The text of the hlsl shader
     * @return error message if failed or empty if succeeded
     */
-    std::string BindShaderAttributes(ID3D11Device* device, ID3D10Blob* vs);
+    std::string BindShaderAttributes(ID3D11Device* device, 
+        ID3D10Blob* vs, const std::string& shadertext);
 
     /**
     * Generates the constant buffer
     * @param device The directX device
+    * @param shadertext The text of the hlsl shader
     * @return error message if failed or empty if succeeded
     */
-    std::string CreateConstantBuffer(ID3D11Device* device);
+    std::string CreateConstantBuffer(ID3D11Device* device,
+        const std::string& shadertext);
+
+    /**
+    * Validates the uniform that is requesting to be sent
+    * @param expectedType Type of uniform wanting to send
+    * @param actualType Tyep of uniform being sent
+    * @param name Name of the uniform
+    */
+    bool CanSendConstant(const std::string& expectedType, 
+        const std::string& actualType, const std::string& name) const;
 
     /**
     * Information for each vertex input attribute
@@ -81,10 +111,23 @@ private:
         DXGI_FORMAT format;  ///< Layout of the attribute
     };
 
-    std::vector<AttributeData> m_attributes;     ///< Vertex shader attributes
-    std::string m_filepath;                      ///< Path to the shader file
-    ID3D11InputLayout* m_layout;                 ///< Shader input layout
-    ID3D11VertexShader* m_vs;                    ///< HLSL vertex shader
-    ID3D11PixelShader* m_ps;                     ///< HLSL pixel shader
-    ID3D11Buffer* m_constant;                    ///< Constant buffer
+    /**
+    * Information for a shader constant
+    */
+    struct ConstantData
+    {
+        std::string type;    ///< Type of data stored in the location
+        int index;           ///< Offset from beginning of scratch buffer
+    };
+
+    typedef std::unordered_map<std::string, ConstantData> ConstantMap;
+
+    ConstantMap m_constants;                    ///< Shader constant variables
+    std::vector<AttributeData> m_attributes;    ///< Vertex shader attributes
+    std::string m_filepath;                     ///< Path to the shader file
+    ID3D11InputLayout* m_layout;                ///< Shader input layout
+    ID3D11VertexShader* m_vs;                   ///< HLSL vertex shader
+    ID3D11PixelShader* m_ps;                    ///< HLSL pixel shader
+    ID3D11Buffer* m_constant;                   ///< Constant buffer
+    std::vector<float> m_constantScratch;       ///< Holds temporary constant values
 };  
