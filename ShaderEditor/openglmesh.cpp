@@ -20,7 +20,7 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
     glBindVertexArray(m_vertexArrayID);
 
     //////////////////////////////TO CUSTOMISE
-    GLfloat vertices[] = {-1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f};
+    GLfloat vertices[] = {0.0f, 0.5f, -5.0f, 0.45f, -0.5f, -5.0f, -0.45f, -0.5f, -5.0f};
     GLfloat colours[] = {1.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f,0.0f, 0.0f, 1.0f};
     unsigned int vertexBufferObjID[2];
     m_vertexCount = 3;
@@ -43,6 +43,8 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
 
 void GlMesh::Render()
 {
+    glDisable(GL_CULL_FACE);
+
 	glBindVertexArray(m_vertexArrayID);	
     glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
     glBindVertexArray(0);

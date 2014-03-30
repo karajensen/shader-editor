@@ -14,11 +14,9 @@
 
 namespace
 {
-    const bool OPENGL_START = false;
+    const bool OPENGL_START = true;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
-    const Float3 CAMERA_TARGET(0.0f, 0.0f, 0.0f);     ///< Target camera will look at
-    const Float3 CAMERA_POSITION(0.0f, 0.0f, -10.0f); ///< Starting camera position
     const float CAMERA_MOVE_SPEED = 40.0f;            ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;              ///< Speed the camera will rotate
     const float CAMERA_SIDE_SPEED = 20.0f;            ///< Speed the camera will strafe
@@ -37,7 +35,7 @@ Application::Application() :
     m_engine(nullptr),
     m_tweakbar(nullptr),
     m_showTweakBar(false),
-    m_camera(new Camera(CAMERA_POSITION, CAMERA_TARGET)),
+    m_camera(new Camera()),
     m_mousePressed(false)
 {
 }
@@ -298,11 +296,20 @@ void Application::InitialiseTweakBar(bool opengl)
     m_scene->InitialiseTweakBar(m_tweakbar);
 
     const std::string inputGrp("group=Input");
-    TwAddVarRO(m_tweakbar, "Direction X", TW_TYPE_FLOAT, &m_mouseDirection.x, inputGrp.c_str());
-    TwAddVarRO(m_tweakbar, "Direction Y", TW_TYPE_FLOAT, &m_mouseDirection.y, inputGrp.c_str());
-    TwAddVarRO(m_tweakbar, "Position X", TW_TYPE_FLOAT, &m_mousePosition.x, inputGrp.c_str());
-    TwAddVarRO(m_tweakbar, "Position Y", TW_TYPE_FLOAT, &m_mousePosition.y, inputGrp.c_str());
-    TwAddVarRO(m_tweakbar, "Pressed", TW_TYPE_BOOL8, &m_mousePressed, inputGrp.c_str());
+    TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,
+        &m_mouseDirection.x, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Mouse Direction Y", TW_TYPE_FLOAT, 
+        &m_mouseDirection.y, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Mouse Position X", TW_TYPE_FLOAT,
+        &m_mousePosition.x, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Mouse Position Y", TW_TYPE_FLOAT,
+        &m_mousePosition.y, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
+        &m_mousePressed, inputGrp.c_str());
 }
 
 void Application::RemoveTweakBar()

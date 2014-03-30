@@ -216,13 +216,12 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
-    unsigned int* vertexArrayIDs = new unsigned int[m_data->meshes.size()];
-    glGenVertexArrays(m_data->meshes.size(), vertexArrayIDs);
+    std::vector<unsigned int> vertexArrayIDs(m_data->meshes.size());
+    glGenVertexArrays(m_data->meshes.size(), &vertexArrayIDs[0]);
     for(unsigned int i = 0; i < m_data->meshes.size(); ++i)
     {
         m_data->meshes[i].Initialise(vertexArrayIDs[i]);
     }
-    delete [] vertexArrayIDs;
 
     return true;
 }
@@ -245,7 +244,6 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     for(GlMesh& mesh : m_data->meshes)
     {
-        glDisable(GL_CULL_FACE);
         mesh.Render();
     }
 }
@@ -283,7 +281,7 @@ void OpenglEngine::UpdateView(const Matrix& world)
     viewMatrix[2][0] = world.m31;
     viewMatrix[2][1] = world.m32;
     viewMatrix[2][2] = world.m33;
-    viewMatrix[2][3] = -world.m34;
+    viewMatrix[2][3] = world.m34;
 
     m_data->view = glm::inverse(viewMatrix);
 }

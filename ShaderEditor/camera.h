@@ -14,10 +14,8 @@ public:
 
     /**
     * Constructor
-    * @param position The initial position of the camera
-    * @param target The target the camera looks at
     */
-    Camera(const Float3& position, const Float3& target);
+    Camera();
 
     /**
     * Updates the view matrix

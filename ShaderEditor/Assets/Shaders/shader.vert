@@ -13,5 +13,5 @@ void main(void)
 	ex_Color.g = testing;
 
 	gl_Position = in_Position;
-	//gl_Position = viewProjection * in_Position;
+	gl_Position = viewProjection * in_Position;
 }

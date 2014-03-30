@@ -4,11 +4,10 @@
 
 #include "Camera.h"
 
-Camera::Camera(const Float3& position, const Float3& target) : 
+Camera::Camera() : 
     m_cameraNeedsUpdate(true),
-    m_initialPos(position),
+    m_initialPos(0.0f, 0.0f, -10.0f),
     m_pos(0.0f, 0.0f, 0.0f),
-    m_target(target),
     m_yaw(0.0f),     
     m_pitch(0.0f),
     m_roll(0.0f)

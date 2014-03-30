@@ -1,17 +1,15 @@
 
-- Fix DXGI WARNING and ERROR(AntTweakBar) in output window
+- Camera working uniformly between lhs and rhs
+- Fix DXGI WARNING / ERROR(AntTweakBar) in output window
+- Opengl Look into release/creation requirements for vbuffer
 
-OPENGL
-- viewproj not transforming properly
-- Look into release/creation requirements for vbuffer
-
-
-- Both get mesh scenes rendering
-- Both get shader usage rendering
-- Both get textures rendering
-- render to texture
-- antialising
-- normal maps
+- Get mesh scenes rendering
+- Get shader usage rendering
+- Get textures rendering
+- Render to texture
+- Antialising
+- Bump mapping working
+- Normal map generation for post
 
 - Create 3D scene
 - Post effects (fog, dof, glow, SSAO, Color correction)
