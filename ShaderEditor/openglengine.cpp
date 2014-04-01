@@ -34,6 +34,7 @@ struct OpenglData
     HDC hdc;                         ///< Device context  
     GLint scratchVS;                 ///< Scratch GLSL Vertex Shader
     GLint scratchFS;                 ///< Scratch GLSL Fragment Shader
+    std::vector<unsigned int> vao;   ///< IDs for the Vertex Array Objects
 };
 
 OpenglData::OpenglData() :
@@ -51,6 +52,16 @@ OpenglData::~OpenglData()
 
 void OpenglData::Release()
 {
+    for(GlMesh& mesh : meshes)
+    {
+        mesh.Release();
+    }
+
+    for(GlShader& shader : shaders)
+    {
+        shader.Release();
+    }
+
     if(scratchVS != NO_INDEX)
     {
         glDeleteShader(scratchVS);
@@ -63,9 +74,10 @@ void OpenglData::Release()
         scratchFS = NO_INDEX;
     }
 
-    for(GlShader& shader : shaders)
+    if(!vao.empty())
     {
-        shader.Release();
+        glDeleteBuffers(vao.size(), &vao[0]);
+        vao.clear();
     }
 
     wglMakeCurrent(nullptr, nullptr);
@@ -91,14 +103,15 @@ bool OpenglEngine::Initialize()
     m_data->Release();
     m_data->hdc = GetDC(m_hwnd);
 
-    PIXELFORMATDESCRIPTOR pfd;  
-    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR)); 
-    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR); 
-    pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-    pfd.iPixelType = PFD_TYPE_RGBA; 
-    pfd.cColorBits = 32;
-    pfd.cDepthBits = 32;
-    pfd.iLayerType = PFD_MAIN_PLANE;
+    const int colourDepth = 32;
+    const int depthBufferBits = 32;
+    PIXELFORMATDESCRIPTOR pfd =
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1, PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA, colourDepth, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        depthBufferBits, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
+    };
 
     int pixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
     if(pixelFormat == 0)
@@ -118,6 +131,7 @@ bool OpenglEngine::Initialize()
     wglMakeCurrent(m_data->hdc, tempOpenGLContext);
 
     // Initialize GLEW
+    glewExperimental = GL_TRUE;
     GLenum error = glewInit();
     if(error != GLEW_OK)
     {
@@ -155,12 +169,13 @@ bool OpenglEngine::Initialize()
         return false;
     }
     
-    std::stringstream stream;
-    stream << "OpenGL: Verson " << version[0] << "." << version[1] << " successful";
-    Logger::LogInfo(stream.str());
-
+    // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -175,7 +190,14 @@ bool OpenglEngine::Initialize()
         m_data->scratchFS = glCreateShader(GL_FRAGMENT_SHADER);
     }
 
-    return true;
+    if(!HasCallFailed())
+    {
+        std::stringstream stream;
+        stream << "OpenGL: Verson " << version[0] << "." << version[1] << " successful";
+        Logger::LogInfo(stream.str());
+        return true;
+    }
+    return false;
 }
 
 std::string OpenglEngine::CompileShader(int index)
@@ -216,11 +238,11 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
-    std::vector<unsigned int> vertexArrayIDs(m_data->meshes.size());
-    glGenVertexArrays(m_data->meshes.size(), &vertexArrayIDs[0]);
+    m_data->vao.resize(m_data->meshes.size());
+    glGenVertexArrays(m_data->vao.size(), &m_data->vao[0]);
     for(unsigned int i = 0; i < m_data->meshes.size(); ++i)
     {
-        m_data->meshes[i].Initialise(vertexArrayIDs[i]);
+        m_data->meshes[i].Initialise(m_data->vao[i]);
     }
 
     return true;

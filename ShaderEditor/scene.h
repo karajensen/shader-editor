@@ -84,9 +84,14 @@ private:
     bool InitialiseMeshes();
 
     /**
-    * Reloads the twear bar to show the desired selected parameters
+    * Adds tweakable scene parameters to the tweak bar
     */
-    void ReloadTweakBar();
+    void InitialiseTweakParameters();
+
+    /**
+    * Removes tweakable scene parameters from the tweak bar
+    */
+    void ReleaseTweakParameters();
 
     /**
     * Fills in mesh data from the given file

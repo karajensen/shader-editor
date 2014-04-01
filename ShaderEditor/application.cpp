@@ -36,7 +36,8 @@ Application::Application() :
     m_tweakbar(nullptr),
     m_showTweakBar(false),
     m_camera(new Camera()),
-    m_mousePressed(false)
+    m_mousePressed(false),
+    m_switchEngine(false)
 {
 }
 
@@ -53,6 +54,12 @@ bool Application::Run()
     
     while(true)
     {
+        if(m_switchEngine)
+        {
+            m_switchEngine = false;
+            SwitchRenderEngine();
+        }
+
         if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if(IsKeyDown(VK_ESCAPE) || msg.message == WM_QUIT)
@@ -240,6 +247,11 @@ bool Application::Initialise(HWND hwnd)
 
 void Application::ToggleRenderEngine()
 {
+    m_switchEngine = true;
+}
+
+void Application::SwitchRenderEngine()
+{
     const bool useOpenGL = !(m_engine == m_opengl.get());
     if(useOpenGL)
     {
@@ -276,12 +288,12 @@ void Application::InitialiseTweakBar(bool opengl)
     TwWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     m_tweakbar = TwNewBar(TWEAK_BAR_NAME.c_str());
     TwDefine(" TW_HELP visible=false ");
-
+    
     const int border = 10;
     std::ostringstream stream;
     const std::string visible(m_showTweakBar ? "true" : "false");
     const std::string barLabel("Shader Editor: " + m_engine->GetName());
-
+    
     stream << TWEAK_BAR_NAME << " label='" << barLabel << "' " 
         << "position='" << border << " " << border << "' "
         << "size='200 " << WINDOW_HEIGHT-border*2 << "' "
@@ -298,16 +310,16 @@ void Application::InitialiseTweakBar(bool opengl)
     const std::string inputGrp("group=Input");
     TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,
         &m_mouseDirection.x, inputGrp.c_str());
-
+    
     TwAddVarRO(m_tweakbar, "Mouse Direction Y", TW_TYPE_FLOAT, 
         &m_mouseDirection.y, inputGrp.c_str());
-
+    
     TwAddVarRO(m_tweakbar, "Mouse Position X", TW_TYPE_FLOAT,
         &m_mousePosition.x, inputGrp.c_str());
-
+    
     TwAddVarRO(m_tweakbar, "Mouse Position Y", TW_TYPE_FLOAT,
         &m_mousePosition.y, inputGrp.c_str());
-
+    
     TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
         &m_mousePressed, inputGrp.c_str());
 }
@@ -317,6 +329,7 @@ void Application::RemoveTweakBar()
     if(m_tweakbar)
     {
         TwDeleteBar(m_tweakbar);
+        m_tweakbar = nullptr;
     }
     TwTerminate();
 }

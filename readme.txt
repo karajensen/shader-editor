@@ -1,7 +1,7 @@
 
+- fix triangle rendering opengl
 - Camera working uniformly between lhs and rhs
-- Fix DXGI WARNING / ERROR(AntTweakBar) in output window
-- Opengl Look into release/creation requirements for vbuffer
+
 
 - Get mesh scenes rendering
 - Get shader usage rendering

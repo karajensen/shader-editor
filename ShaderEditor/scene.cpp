@@ -254,16 +254,20 @@ void Scene::SelectNextLight()
     {
         m_selectedLight = 0;
     }
-    ReloadTweakBar();
+    ReleaseTweakParameters();
+    InitialiseTweakParameters();
 }
 
-void Scene::ReloadTweakBar()
+void Scene::ReleaseTweakParameters()
 {
     TwRemoveVar(m_tweakbar, "Select Next Light");
     TwRemoveVar(m_tweakbar, "Position X");
     TwRemoveVar(m_tweakbar, "Position Y");
     TwRemoveVar(m_tweakbar, "Position Z");
+}
 
+void Scene::InitialiseTweakParameters()
+{
     const std::string light = m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name;
     const std::string lightGroup = " group='Light: " + light + "' ";
     TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, lightGroup.c_str());
@@ -284,7 +288,7 @@ void Scene::ReloadTweakBar()
 void Scene::InitialiseTweakBar(CTwBar* tweakbar)
 {
     m_tweakbar = tweakbar;
-    ReloadTweakBar();
+    InitialiseTweakParameters();
 }
 
 const std::vector<Mesh> Scene::GetMeshes() const

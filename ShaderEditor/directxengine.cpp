@@ -33,6 +33,7 @@ struct DirectxData
     IDXGISwapChain* swapchain;            ///< swap chain interface
     ID3D11Device* device;                 ///< Direct3D device interface
     ID3D11DeviceContext* context;         ///< Direct3D device context
+    ID3D11Debug* debug;                   ///< Direct3D debug interface
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
 };
@@ -41,17 +42,29 @@ DirectxData::DirectxData() :
     swapchain(nullptr),
     device(nullptr),
     context(nullptr),
-    backbuffer(nullptr)
+    backbuffer(nullptr),
+    debug(nullptr)
 {
 }
 
 DirectxData::~DirectxData()
 {
     Release();
+    if(debug)
+    {
+        debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+        debug->Release();
+        debug = nullptr;
+    }
 }
 
 void DirectxData::Release()
 {
+    for(DxMesh& mesh : meshes)
+    {
+        mesh.Release();
+    }
+
     for(DxShader& shader : shaders)
     {
         shader.Release();
@@ -62,20 +75,23 @@ void DirectxData::Release()
         swapchain->Release();
         swapchain = nullptr;
     }
-    if(device)
+
+    if(backbuffer)
     {
-        device->Release();
-        device = nullptr;
+        backbuffer->Release();
+        backbuffer = nullptr;
     }
+
     if(context)
     {
         context->Release();
         context = nullptr;
     }
-    if(backbuffer)
+
+    if(device)
     {
-        backbuffer->Release();
-        backbuffer = nullptr;
+        device->Release();
+        device = nullptr;
     }
 }
 
@@ -101,14 +117,32 @@ bool DirectxEngine::Initialize()
     scd.OutputWindow = m_hwnd;                            
     scd.SampleDesc.Count = 4;                           
     scd.Windowed = TRUE; 
+    
+    #ifdef _DEBUG
+    unsigned int deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
+    #elif
+    unsigned int deviceFlags = 0;
+    #endif
 
     if(FAILED(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
-        nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &scd, &m_data->swapchain,
-        &m_data->device, nullptr, &m_data->context)))
+        nullptr, deviceFlags, nullptr, 0, D3D11_SDK_VERSION, &scd, 
+        &m_data->swapchain, &m_data->device, nullptr, &m_data->context)))
     {
         Logger::LogError("DirectX: Device creation failed");
         return false;
     }
+
+    #ifdef _DEBUG
+    if(SUCCEEDED(m_data->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&m_data->debug)))
+    {
+        ID3D11InfoQueue *d3dInfoQueue = nullptr;
+        if(SUCCEEDED(m_data->debug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&d3dInfoQueue)))
+        {
+            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
+            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
+        }
+    }
+    #endif
 
     // Set the back buffer as the main render target
     ID3D11Texture2D* backBuffer;
@@ -152,7 +186,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(DxMesh(m_data->device, m_data->context, mesh));
+        m_data->meshes.push_back(DxMesh());
         break;
     }
 
@@ -171,6 +205,11 @@ bool DirectxEngine::ReInitialiseScene()
         }
     }
 
+    for(DxMesh& mesh : m_data->meshes)
+    {
+        mesh.Initialise(m_data->device, m_data->context);
+    }
+
     return true;
 }
 
@@ -184,15 +223,15 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
 {
     DxShader& shader = m_data->shaders[0];
     shader.SetAsActive(m_data->context);
-
+    
     const D3DXMATRIX viewProj = m_data->view * m_data->projection;
     shader.UpdateConstantMatrix("viewProjection", viewProj);
-
+    
     const float testing = 0.2f;
     shader.UpdateConstantFloat("testing", testing);
-
+    
     shader.SendConstants(m_data->context);
-
+    
     for(DxMesh& mesh : m_data->meshes)
     {
         mesh.Render(m_data->context);

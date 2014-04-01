@@ -4,12 +4,29 @@
 
 #include "directxmesh.h"
 
-DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& mesh) :
+DxMesh::DxMesh() :
     m_vertexBuffer(nullptr),
     m_vertexStride(0),
     m_vertexCount(0)
 {
+}
 
+DxMesh::~DxMesh()
+{
+    Release();
+}
+
+void DxMesh::Release()
+{
+    if(m_vertexBuffer)
+    {
+        m_vertexBuffer->Release();
+        m_vertexBuffer = nullptr;
+    }
+}
+
+void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
+{
     //////////////////////////////TO CUSTOMISE
     struct VERTEX
     {
@@ -41,10 +58,6 @@ DxMesh::DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& m
     context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
     memcpy(ms.pData, vertices, sizeof(vertices));
     context->Unmap(m_vertexBuffer, 0); 
-}
-
-DxMesh::~DxMesh()
-{
 }
 
 void DxMesh::Render(ID3D11DeviceContext* context)

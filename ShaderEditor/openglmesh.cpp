@@ -12,6 +12,11 @@ GlMesh::GlMesh() :
 
 GlMesh::~GlMesh()
 {
+    Release();
+}
+
+void GlMesh::Release()
+{
 }
 
 void GlMesh::Initialise(unsigned int vertexArrayID)
@@ -25,7 +30,7 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
     unsigned int vertexBufferObjID[2];
     m_vertexCount = 3;
 
-    glGenBuffers(2, vertexBufferObjID);
+    glGenBuffers(2, vertexBufferObjID); // Create 2 VBOs
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
     glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);

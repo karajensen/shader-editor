@@ -54,6 +54,11 @@ public:
 private: 
 
     /**
+    * Switches to the currently set render engine
+    */
+    void SwitchRenderEngine();
+
+    /**
     * Updates and renders the application
     */
     void TickApplication();
@@ -101,6 +106,7 @@ private:
 
     RenderEngine* m_engine;  ///< currently selected rendering engine
     bool m_showTweakBar;     ///< Whether the tweak bar is currently visible
+    bool m_switchEngine;     ///< Whether an engine switch is required
     CTwBar* m_tweakbar;      ///< Used for runtime diagnostics
 
     bool m_mousePressed;     ///< Whether the mouse is held down or not

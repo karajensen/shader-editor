@@ -24,6 +24,11 @@ public:
     ~GlMesh();
 
     /**
+    * Releases the opengl mesh
+    */
+    void Release();
+
+    /**
     * Renders the mesh
     */
     void Render();
@@ -37,5 +42,5 @@ public:
 private:
 
     GLsizei m_vertexCount;          ///< Number of vertices for the mesh
-    unsigned int m_vertexArrayID;   ///< An unique ID for the opengl mesh
+    unsigned int m_vertexArrayID;   ///< An unique ID for Vertex Array Object (VAO)
 };                     

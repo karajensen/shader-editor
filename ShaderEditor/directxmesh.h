@@ -16,11 +16,8 @@ public:
 
     /**
     * Constructor
-    * @param device Direct3D device interface
-    * @param context Direct3D device context
-    * @param mesh The mesh object to use as a template
     */
-    DxMesh(ID3D11Device* device, ID3D11DeviceContext* context, const Mesh& mesh);
+    DxMesh();
 
     /**
     * Destructor
@@ -28,10 +25,22 @@ public:
     ~DxMesh();
 
     /**
+    * Releases the directx mesh
+    */
+    void Release();
+
+    /**
     * Renders the mesh
     * @param context Direct3D device context
     */
     void Render(ID3D11DeviceContext* context);
+
+    /**
+    * Initialises the mesh
+    * @param device Direct3D device interface
+    * @param context Direct3D device context
+    */
+    void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);
 
 private:
 
