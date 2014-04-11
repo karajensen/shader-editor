@@ -16,9 +16,10 @@ public:
 
     /**
     * Constructor
+    * @param the unique index of the shader
     * @param path The filepath for the shader
     */
-    DxShader(const std::string& path);
+    DxShader(int index, const std::string& path);
 
     /**
     * Destructor
@@ -63,6 +64,11 @@ public:
     * @param context Direct3D device context
     */
     void SendConstants(ID3D11DeviceContext* context);
+
+    /**
+    * @return the unique index of the shader
+    */
+    int GetIndex() const;
 
 private:
 
@@ -130,4 +136,5 @@ private:
     ID3D11PixelShader* m_ps;                    ///< HLSL pixel shader
     ID3D11Buffer* m_constant;                   ///< Constant buffer
     std::vector<float> m_constantScratch;       ///< Holds temporary constant values
+    int m_index;                                ///< Unique index of the shader
 };  

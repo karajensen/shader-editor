@@ -132,6 +132,7 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
+    // Set to throw if there is any severe problem with directX
     #ifdef _DEBUG
     if(SUCCEEDED(m_data->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&m_data->debug)))
     {
@@ -151,6 +152,7 @@ bool DirectxEngine::Initialize()
     m_data->context->OMSetRenderTargets(1, &m_data->backbuffer, nullptr);
     backBuffer->Release();
 
+    // Setup the directX environment
     D3D11_VIEWPORT viewport;
     ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
     viewport.TopLeftX = 0;
@@ -180,13 +182,14 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        m_data->shaders.push_back(DxShader(shader.hlslShaderFile));
+        m_data->shaders.push_back(DxShader(
+            shader.index, shader.hlslShaderFile));
     }
 
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(DxMesh());
+        m_data->meshes.push_back(DxMesh(mesh));
         break;
     }
 

@@ -10,16 +10,17 @@
 /**
 * Holds information for an individual opengl shader
 */
-struct GlShader
+class GlShader
 {
 public:
 
     /**
     * Constructor
+    * @param the unique index of the shader
     * @param vs The filepath for the vertex shader
     * @param fs The filepath for the fragment shader
     */
-    GlShader(const std::string& vs, const std::string& fs);
+    GlShader(int index, const std::string& vs, const std::string& fs);
 
     /**
     * Destructor
@@ -57,6 +58,16 @@ public:
     * @param value The float to send
     */
     void SendUniformFloat(const std::string& name, float value);
+
+    /**
+    * @return the unique index of the shader
+    */
+    int GetIndex() const;
+
+    /**
+    * Enables the vertex shader 'in' attributes
+    */
+    void EnableAttributes();
 
 private:
 
@@ -112,6 +123,7 @@ private:
     */
     struct AttributeData
     {
+        int components;      ///< Number of float components in the type
         int location;        ///< The index location of the attribute
         std::string name;    ///< The name of the attribute
     };
@@ -133,5 +145,7 @@ private:
     std::string m_fsFilepath;                    ///< Path to the fragment shader file
 	GLint m_program;                             ///< Shader program
 	GLint m_vs;                                  ///< GLSL Vertex Shader
-	GLint m_fs;                                  ///< GLSL Fragment Shader    
+	GLint m_fs;                                  ///< GLSL Fragment Shader
+    GLsizei m_stride;                            ///< Stride required for vertex attributes
+    int m_index;                                 ///< Unique index of the shader
 };

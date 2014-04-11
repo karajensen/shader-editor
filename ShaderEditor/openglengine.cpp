@@ -34,7 +34,7 @@ struct OpenglData
     HDC hdc;                         ///< Device context  
     GLint scratchVS;                 ///< Scratch GLSL Vertex Shader
     GLint scratchFS;                 ///< Scratch GLSL Fragment Shader
-    std::vector<unsigned int> vao;   ///< IDs for the Vertex Array Objects
+    std::vector<GLuint> vao;         ///< IDs for the Vertex Array Objects
 };
 
 OpenglData::OpenglData() :
@@ -104,13 +104,14 @@ bool OpenglEngine::Initialize()
     m_data->hdc = GetDC(m_hwnd);
 
     const int colourDepth = 32;
-    const int depthBufferBits = 32;
+    const int depthBufferBits = 24;
+    const int stencilBits = 8;
     PIXELFORMATDESCRIPTOR pfd =
     {
         sizeof(PIXELFORMATDESCRIPTOR),
         1, PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
         PFD_TYPE_RGBA, colourDepth, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        depthBufferBits, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
+        depthBufferBits, stencilBits, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
     };
 
     int pixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
@@ -126,7 +127,7 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    // Create a temporary OpenGL context
+    // Create a temporary OpenGL context required to initialise GLEW
     HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc); 
     wglMakeCurrent(m_data->hdc, tempOpenGLContext);
 
@@ -143,7 +144,7 @@ bool OpenglEngine::Initialize()
     {  
         //OpenGL Version: Major.Minor
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
         WGL_CONTEXT_FLAGS_ARB, 0, 0  
     };  
 
@@ -168,19 +169,12 @@ bool OpenglEngine::Initialize()
         Logger::LogInfo("OpenGL: Version not supported");
         return false;
     }
-    
-    // Initialise the opengl environment
-    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-    glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
         CAMERA_NEAR, CAMERA_FAR);
 
+    // Scratch required to check for compilation errors before overwriting
     if(m_data->scratchVS == NO_INDEX)
     {
         m_data->scratchVS = glCreateShader(GL_VERTEX_SHADER);
@@ -189,6 +183,14 @@ bool OpenglEngine::Initialize()
     {
         m_data->scratchFS = glCreateShader(GL_FRAGMENT_SHADER);
     }
+
+    // Initialise the opengl environment
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDepthRange(CAMERA_NEAR, CAMERA_FAR);
 
     if(!HasCallFailed())
     {
@@ -213,13 +215,14 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        m_data->shaders.push_back(GlShader(shader.glslVertexFile, shader.glslFragmentFile));
+        m_data->shaders.push_back(GlShader(shader.index, 
+            shader.glslVertexFile, shader.glslFragmentFile));
     }
 
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(GlMesh());
+        m_data->meshes.push_back(GlMesh(mesh));
         break;
     }
 
@@ -260,12 +263,14 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     const glm::mat4 viewProj = m_data->projection * m_data->view;
     shader.SendUniformMatrix("viewProjection", viewProj);
-
+    
     const float testing = 0.5f;
     shader.SendUniformFloat("testing", testing);
 
     for(GlMesh& mesh : m_data->meshes)
     {
+        mesh.PreRender();
+        shader.EnableAttributes();
         mesh.Render();
     }
 }

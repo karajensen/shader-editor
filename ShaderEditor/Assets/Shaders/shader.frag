@@ -1,4 +1,5 @@
-precision highp float; // needed only for version 1.30
+#version 150
+
 in vec3 ex_Color;
 out vec4 out_Color;
  

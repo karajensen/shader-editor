@@ -3,11 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directxmesh.h"
+#include "elements.h"
 
-DxMesh::DxMesh() :
+DxMesh::DxMesh(const Mesh& mesh) :
     m_vertexBuffer(nullptr),
     m_vertexStride(0),
-    m_vertexCount(0)
+    m_vertexCount(0),
+    m_mesh(mesh)
 {
 }
 

@@ -1,5 +1,5 @@
 
-- fix triangle rendering opengl
+- Fix opengl depth rendering
 - Camera working uniformly between lhs and rhs
 
 

@@ -322,6 +322,15 @@ void Application::InitialiseTweakBar(bool opengl)
     
     TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
         &m_mousePressed, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Camera Pos X", TW_TYPE_FLOAT, 
+        &m_camera->GetWorld().m14, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Camera Pos Y", TW_TYPE_FLOAT, 
+        &m_camera->GetWorld().m24, inputGrp.c_str());
+
+    TwAddVarRO(m_tweakbar, "Camera Pos Z", TW_TYPE_FLOAT, 
+        &m_camera->GetWorld().m34, inputGrp.c_str());
 }
 
 void Application::RemoveTweakBar()

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "directxcommon.h"
-#include "elements.h"
+struct Mesh;
 
 /**
 * DirectX Individual mesh
@@ -16,8 +16,9 @@ public:
 
     /**
     * Constructor
+    * @param mesh The mesh to use as a template
     */
-    DxMesh();
+    DxMesh(const Mesh& mesh);
 
     /**
     * Destructor
@@ -44,6 +45,7 @@ public:
 
 private:
 
+    const Mesh& m_mesh;             ///< Mesh template for this directxmesh
     UINT m_vertexCount;             ///< Number of vertices for the mesh
     UINT m_vertexStride;            ///< Size of the vertex structure
     ID3D11Buffer* m_vertexBuffer;   ///< Buffer of vertex data for the mesh

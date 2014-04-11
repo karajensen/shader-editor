@@ -5,6 +5,7 @@
 #pragma once
 
 #include "openglcommon.h"
+struct Mesh;
 
 /**
 * OpenGL Individual mesh
@@ -15,8 +16,9 @@ public:
 
     /**
     * Constructor
+    * @param mesh The mesh to use as a template
     */
-    GlMesh();
+    GlMesh(const Mesh& mesh);
 
     /**
     * Destructor
@@ -34,6 +36,11 @@ public:
     void Render();
 
     /**
+    * Sets up the mesh for rendering
+    */
+    void PreRender();
+
+    /**
     * Initialises the mesh
     * @param vertexArrayID an unique ID for the opengl mesh
     */
@@ -41,6 +48,9 @@ public:
 
 private:
 
-    GLsizei m_vertexCount;          ///< Number of vertices for the mesh
-    unsigned int m_vertexArrayID;   ///< An unique ID for Vertex Array Object (VAO)
+    const Mesh& m_mesh;     ///< Mesh template for this openglmesh
+    GLsizei m_vertexCount;  ///< Number of vertices for the mesh
+    GLuint m_vaoID;         ///< An unique ID for Vertex Array Object (VAO)
+    GLuint m_vboID;         ///< Unique ID for the Vertex Buffer Object (VBO)   
+    bool m_initialised;     ///< Whether the vertex buffer object is initialised or not
 };                     

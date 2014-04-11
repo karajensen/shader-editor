@@ -3,10 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "openglmesh.h"
+#include "elements.h"
 
-GlMesh::GlMesh() :
+GlMesh::GlMesh(const Mesh& mesh) :
     m_vertexCount(0),
-    m_vertexArrayID(0)
+    m_vaoID(0),
+    m_mesh(mesh),
+    m_vboID(0),
+    m_initialised(false)
 {
 }
 
@@ -17,40 +21,105 @@ GlMesh::~GlMesh()
 
 void GlMesh::Release()
 {
+    if(m_initialised)
+    {
+        glDeleteBuffers(1, &m_vboID);
+        m_initialised = false;
+    }
 }
 
 void GlMesh::Initialise(unsigned int vertexArrayID)
 {
-    m_vertexArrayID = vertexArrayID;
-    glBindVertexArray(m_vertexArrayID);
-
     //////////////////////////////TO CUSTOMISE
-    GLfloat vertices[] = {0.0f, 0.5f, -5.0f, 0.45f, -0.5f, -5.0f, -0.45f, -0.5f, -5.0f};
-    GLfloat colours[] = {1.0f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f,0.0f, 0.0f, 1.0f};
-    unsigned int vertexBufferObjID[2];
-    m_vertexCount = 3;
+    struct VERTEX
+    {
+        GLfloat X, Y, Z, R, G, B;
+    };
 
-    glGenBuffers(2, vertexBufferObjID); // Create 2 VBOs
+    //VERTEX vertices[] =
+    //{
+    //    {0.0f, 0.5f, -5.0f, 1.0f, 0.0f, 0.0f},
+    //    {0.45f, -0.5, -50.0f, 0.0f, 1.0f, 0.0f},
+    //    {-0.45f, -0.5f, -5.0f, 0.0f, 0.0f, 1.0f}
+    //
+    //    {0.0f, 0.5f, -5.0f, 1.0f, 0.0f, 0.0f},
+    //    {0.45f, -0.5, -50.0f, 0.0f, 1.0f, 0.0f},
+    //    {-0.45f, -0.5f, -5.0f, 0.0f, 0.0f, 1.0f}
+    //};
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[0]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
- 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID[1]);
-    glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colours, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(1);
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+        -1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+         1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+         1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+    };
+
+    m_vertexCount = 36;
     //////////////////////////////
- 
-    glBindVertexArray(0);
+
+    m_vaoID = vertexArrayID;
+    glBindVertexArray(m_vaoID);
+
+    glGenBuffers(1, &m_vboID);
+    m_initialised = true;
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+}
+
+void GlMesh::PreRender()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+
+    //m_mesh.backfacecull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
 }
 
 void GlMesh::Render()
 {
-    glDisable(GL_CULL_FACE);
-
-	glBindVertexArray(m_vertexArrayID);	
     glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
-    glBindVertexArray(0);
 }

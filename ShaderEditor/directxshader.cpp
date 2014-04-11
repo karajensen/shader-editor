@@ -11,12 +11,13 @@ namespace
     const std::string PS("Pixel Shader: ");     ///< Text for pixel shader diagnostics
 }
 
-DxShader::DxShader(const std::string& path) :
+DxShader::DxShader(int index, const std::string& path) :
     m_filepath(path),
     m_layout(nullptr),
     m_vs(nullptr),
     m_ps(nullptr),
-    m_constant(nullptr)
+    m_constant(nullptr),
+    m_index(index)
 {
 }
 
@@ -336,4 +337,9 @@ bool DxShader::CanSendConstant(const std::string& expectedType,
 void DxShader::SendConstants(ID3D11DeviceContext* context)
 {
     context->UpdateSubresource(m_constant, 0, 0, &m_constantScratch[0], 0, 0);
+}
+
+int DxShader::GetIndex() const
+{
+    return m_index;
 }

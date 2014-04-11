@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <Windows.h>
 #include <string>
 #include <vector>
@@ -62,6 +64,22 @@ struct Colour
 
     float r, g, b, a;
 };
+
+/**
+* Converts degrees to radians
+*/
+template<typename T> T DegToRad(T degrees)
+{
+    return static_cast<T>(M_PI/180.0)*degrees;
+}
+
+/**
+* Converts radians to degrees
+*/
+template<typename T> T RadToDeg(T radians)
+{
+    return static_cast<T>(180.0/M_PI)*radians;
+}
 
 /**
 * Gets the value if it exists in the tree or returns defaultValue

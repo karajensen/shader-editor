@@ -14,12 +14,14 @@ namespace
     const std::string FS("Fragment Shader: ");  ///< Text for fragment shader diagnostics
 }
 
-GlShader::GlShader(const std::string& vs, const std::string& fs) :
+GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
     m_vsFilepath(vs),
     m_fsFilepath(fs),
     m_program(NO_INDEX),
     m_vs(NO_INDEX),
-    m_fs(NO_INDEX)
+    m_fs(NO_INDEX),
+    m_index(index),
+    m_stride(0)
 {
 }
 
@@ -56,44 +58,6 @@ void GlShader::Release()
         glDeleteShader(m_fs);
         m_fs = NO_INDEX;
     }
-}
-
-std::string GlShader::BindShaderAttributes(const std::vector<std::string>& vText)
-{
-    int currentIndex = 0;
-    int currentLocation = 0;
-    while(vText[currentIndex] != MAIN_ENTRY)
-    {
-        if(vText[currentIndex] == "in")
-        {
-            currentIndex += 2;
-            AttributeData data;
-            data.name = vText[currentIndex];
-            data.location = currentLocation;
-            m_attributes.push_back(data);
-            ++currentLocation;
-        }
-        else
-        {
-            ++currentIndex;
-        }
-    }
-
-    if(m_attributes.empty())
-    {
-        return "Failed to find any attributes";
-    }
-
-    for(const auto& attribute : m_attributes)
-    {
-        glBindAttribLocation(m_program, attribute.location, attribute.name.c_str());
-        if(HasCallFailed())
-        {
-            return "Failed to bind attribute " + attribute.name;
-        }
-    }
-
-    return std::string();
 }
 
 std::string GlShader::CompileShader(GLint index, const char* source, int size)
@@ -235,6 +199,12 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
         return FS + "Failed to attach";
     }
 
+    glBindFragDataLocation(m_program, 0, "outColor");
+    if(HasCallFailed())
+    {
+        return FS + "Failed to bind outColour";
+    }
+
     errorBuffer = LinkShaderProgram();
     if(!errorBuffer.empty())
     {
@@ -254,6 +224,86 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     }
 
     return std::string();
+}
+
+std::string GlShader::BindShaderAttributes(const std::vector<std::string>& vText)
+{
+    m_stride = 0;
+    int currentIndex = 0;
+    int currentLocation = 0;
+    while(vText[currentIndex] != MAIN_ENTRY)
+    {
+        if(vText[currentIndex] == "in")
+        {
+            AttributeData data;
+            data.name = vText[currentIndex+2];
+
+            const std::string type = vText[currentIndex+1];
+            if(type == "vec3")
+            {
+                data.components = 3;
+            }
+            else if(type == "vec2")
+            {
+                data.components = 2;
+            }
+            else if(type == "vec4")
+            {
+                data.components = 4;
+            }
+            else
+            {
+                return "Unknown attribute type for " + data.name;
+            }
+
+            m_stride += data.components;
+            data.location = currentLocation;
+            m_attributes.push_back(data);
+            currentIndex += 2;
+            ++currentLocation;
+        }
+        else
+        {
+            ++currentIndex;
+        }
+    }
+
+    if(m_attributes.empty())
+    {
+        return "Failed to find any attributes";
+    }
+
+    for(const auto& attribute : m_attributes)
+    {
+        glBindAttribLocation(m_program, attribute.location, attribute.name.c_str());
+        if(HasCallFailed())
+        {
+            return "Failed to bind attribute " + attribute.name;
+        }
+    }
+    return std::string();
+}
+
+void GlShader::EnableAttributes()
+{
+    int offset = 0;
+    for(const AttributeData& attr : m_attributes)
+    {
+        glEnableVertexAttribArray(attr.location);
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not enable attribute " + attr.name);
+        }
+    
+        glVertexAttribPointer(attr.location, attr.components, GL_FLOAT, 
+            GL_FALSE, m_stride*sizeof(GLfloat), (void*)(offset*sizeof(GLfloat)));
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not set attribute " + attr.name);
+        }
+    
+        offset += attr.components;
+    }
 }
 
 std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
@@ -323,4 +373,9 @@ bool GlShader::CanSendUniform(const std::string& expectedType,
 void GlShader::SetAsActive()
 {
     glUseProgram(m_program);
+}
+
+int GlShader::GetIndex() const
+{
+    return m_index;
 }
