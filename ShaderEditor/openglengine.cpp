@@ -103,76 +103,102 @@ bool OpenglEngine::Initialize()
     m_data->Release();
     m_data->hdc = GetDC(m_hwnd);
 
-    const int colourDepth = 32;
-    const int depthBufferBits = 24;
-    const int stencilBits = 8;
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-        sizeof(PIXELFORMATDESCRIPTOR),
-        1, PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-        PFD_TYPE_RGBA, colourDepth, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        depthBufferBits, stencilBits, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
-    };
+    const int colourBits = 32;
+    const int depthBits = 24;
 
-    int pixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
-    if(pixelFormat == 0)
+    PIXELFORMATDESCRIPTOR pfd;
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = colourBits;
+    pfd.cDepthBits = depthBits;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    // Initialise Glew with a temporary opengl context
+    int tempPixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
+    if(tempPixelFormat == 0)
     {
-        Logger::LogError("OpenGL: PIXELFORMATDESCRIPTOR unsupported");
+        Logger::LogError("OpenGL: GLEW Pixel Format unsupported");
         return false;
     }
   
-    if(!SetPixelFormat(m_data->hdc, pixelFormat, &pfd))
+    if(!SetPixelFormat(m_data->hdc, tempPixelFormat, &pfd))
     {
-        Logger::LogError("OpenGL: SetPixelFormat failed");
+        Logger::LogError("OpenGL: GLEW Set Pixel Format failed");
         return false;
     }
 
-    // Create a temporary OpenGL context required to initialise GLEW
     HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc); 
     wglMakeCurrent(m_data->hdc, tempOpenGLContext);
+    if(!tempOpenGLContext || HasCallFailed())
+    {
+        Logger::LogError("OpenGL: GLEW Temporary context creation failed");
+        return false;
+    }
 
-    // Initialize GLEW
     glewExperimental = GL_TRUE;
     GLenum error = glewInit();
-    if(error != GLEW_OK)
+    if(error != GLEW_OK || HasCallFailed())
     {
         Logger::LogError("OpenGL: GLEW Initialization failed");
         return false;
     }
 
-    int attributes[] = 
-    {  
-        //OpenGL Version: Major.Minor
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-        WGL_CONTEXT_FLAGS_ARB, 0, 0  
-    };  
-
-    if(wglewIsSupported("WGL_ARB_create_context") == 1)
+    if(!wglewIsSupported("WGL_ARB_create_context") || HasCallFailed())
     { 
-        m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, nullptr, attributes);
-        wglMakeCurrent(nullptr, nullptr);
-        wglDeleteContext(tempOpenGLContext); 
-        wglMakeCurrent(m_data->hdc, m_data->hrc); 
-    }  
-    else
-    {  
-        Logger::LogError("OpenGL: No support for 3.0+");
+        Logger::LogError("OpenGL: GLEW No support for 3.0+");
         return false;
     }  
 
-    int version[2] = {-1, -1}; 
-    glGetIntegerv(GL_MAJOR_VERSION, &version[0]); 
-    glGetIntegerv(GL_MINOR_VERSION, &version[1]); 
-    if(version[0] == -1 || version[1] == -1)
+    // Create the actual opengl context
+    const int pixelAttributes[] = 
     {
-        Logger::LogInfo("OpenGL: Version not supported");
+        WGL_DRAW_TO_WINDOW_ARB,     TRUE,
+        WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
+        WGL_SUPPORT_OPENGL_ARB,     TRUE,
+        WGL_DOUBLE_BUFFER_ARB,      TRUE,
+        WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
+        WGL_COLOR_BITS_ARB,         colourBits,
+        WGL_DEPTH_BITS_ARB,         depthBits,
+        WGL_STENCIL_BITS_ARB,       0,
+        0,                          0
+    };
+
+    UINT numFormats = 0;
+    int pixelFormat = 0;
+    wglChoosePixelFormatARB(m_data->hdc, pixelAttributes, 0, 1, &pixelFormat, &numFormats);
+    if(pixelFormat == 0 || numFormats == 0 || HasCallFailed())
+    {
+        Logger::LogInfo("OpenGL: Choose pixel format failed");
         return false;
     }
+    
+    if(!SetPixelFormat(m_data->hdc, pixelFormat, &pfd))
+    {
+        Logger::LogInfo("OpenGL: Set pixel format failed");
+        return false;
+    }
+             
+    int contextAttributes[] = 
+    {  
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        WGL_CONTEXT_FLAGS_ARB,
+        0, 0  
+    };  
 
-    m_data->projection = glm::perspective(FIELD_OF_VIEW, 
-        WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
-        CAMERA_NEAR, CAMERA_FAR);
+    wglMakeCurrent(nullptr, nullptr);
+    wglDeleteContext(tempOpenGLContext);
+
+    m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, 0, contextAttributes);
+    wglMakeCurrent(m_data->hdc, m_data->hrc);
+    if(!m_data->hrc || HasCallFailed())
+    {
+        Logger::LogInfo("OpenGL: Context creation failed");
+        return false;
+    }
 
     // Scratch required to check for compilation errors before overwriting
     if(m_data->scratchVS == NO_INDEX)
@@ -183,6 +209,11 @@ bool OpenglEngine::Initialize()
     {
         m_data->scratchFS = glCreateShader(GL_FRAGMENT_SHADER);
     }
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Scratch shader generation failed");
+        return false;
+    }
 
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -192,13 +223,28 @@ bool OpenglEngine::Initialize()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(CAMERA_NEAR, CAMERA_FAR);
 
+    m_data->projection = glm::perspective(FIELD_OF_VIEW, 
+        WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
+        CAMERA_NEAR, CAMERA_FAR);
+
+    // Determine version accepted and if there was anything wrong
+    int minor, major;
+    glGetIntegerv(GL_MAJOR_VERSION, &major); 
+    glGetIntegerv(GL_MINOR_VERSION, &minor); 
+    if(minor == -1 || major == -1)
+    {
+        Logger::LogInfo("OpenGL: Version not supported");
+        return false;
+    }
+
     if(!HasCallFailed())
     {
         std::stringstream stream;
-        stream << "OpenGL: Verson " << version[0] << "." << version[1] << " successful";
+        stream << "OpenGL: Verson " << major << "." << minor << " successful";
         Logger::LogInfo(stream.str());
         return true;
     }
+
     return false;
 }
 
@@ -253,7 +299,7 @@ bool OpenglEngine::ReInitialiseScene()
 
 void OpenglEngine::BeginRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void OpenglEngine::Render(const std::vector<Light>& lights)
@@ -261,8 +307,10 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     GlShader& shader = m_data->shaders[0];
     shader.SetAsActive();
 
-    const glm::mat4 viewProj = m_data->projection * m_data->view;
-    shader.SendUniformMatrix("viewProjection", viewProj);
+    const glm::mat4 viewMat = m_data->view;
+    const glm::mat4 projMat = m_data->projection;
+    shader.SendUniformMatrix("viewMat", viewMat);
+    shader.SendUniformMatrix("projMat", projMat);
     
     const float testing = 0.5f;
     shader.SendUniformFloat("testing", testing);

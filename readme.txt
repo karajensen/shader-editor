@@ -1,8 +1,5 @@
 
-- Fix opengl depth rendering
 - Camera working uniformly between lhs and rhs
-
-
 - Get mesh scenes rendering
 - Get shader usage rendering
 - Get textures rendering
