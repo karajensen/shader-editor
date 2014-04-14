@@ -335,28 +335,22 @@ std::string OpenglEngine::GetName() const
 
 void OpenglEngine::UpdateView(const Matrix& world)
 {
-    // RHS Matrix
-    // | 11 12 13 x |
-    // | 21 22 23 y |
-    // | 31 32 33 z |
-    // | 0  0  0  1 |
-
     glm::mat4 viewMatrix;
 
     viewMatrix[0][0] = world.m11;  
-    viewMatrix[0][1] = world.m12;
-    viewMatrix[0][2] = world.m13;
-    viewMatrix[0][3] = world.m14;
+    viewMatrix[1][0] = world.m12;
+    viewMatrix[2][0] = world.m13;
+    viewMatrix[3][0] = world.m14;
 
-    viewMatrix[1][0] = world.m21;
+    viewMatrix[0][1] = world.m21;
     viewMatrix[1][1] = world.m22;
-    viewMatrix[1][2] = world.m23;
-    viewMatrix[1][3] = world.m24;
+    viewMatrix[2][1] = world.m23;
+    viewMatrix[3][1] = world.m24;
 
-    viewMatrix[2][0] = world.m31;
-    viewMatrix[2][1] = world.m32;
+    viewMatrix[0][2] = world.m31;
+    viewMatrix[1][2] = world.m32;
     viewMatrix[2][2] = world.m33;
-    viewMatrix[2][3] = world.m34;
+    viewMatrix[3][2] = world.m34;
 
     m_data->view = glm::inverse(viewMatrix);
 }

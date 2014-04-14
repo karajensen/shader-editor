@@ -258,12 +258,6 @@ std::string DirectxEngine::GetName() const
 
 void DirectxEngine::UpdateView(const Matrix& world)
 {
-    // Convert RHS Matrix to LHS Matrix
-    // | 11 12 13 x |      | 11 21 31 0 |
-    // | 21 22 23 y |      | 12 22 32 0 |
-    // | 31 32 33 z |  ->  | 13 23 33 0 |
-    // | 0  0  0  1 |      | x  y  z  1 |
-
     D3DXMatrixIdentity(&m_data->view);
 
     m_data->view._11 = world.m11;

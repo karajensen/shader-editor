@@ -12,5 +12,5 @@ void main(void)
 {
 	ex_Color = in_Color;
 	ex_Color.g *= testing;
-	gl_Position = vec4(in_Position, 1.0) * viewMat * projMat;
+	gl_Position = projMat * viewMat * vec4(in_Position, 1.0);
 }
