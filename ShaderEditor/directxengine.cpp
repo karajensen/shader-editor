@@ -190,7 +190,6 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Mesh& mesh : meshes)
     {
         m_data->meshes.push_back(DxMesh(mesh));
-        break;
     }
 
     return ReInitialiseScene();

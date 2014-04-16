@@ -7,6 +7,7 @@
 
 GlMesh::GlMesh(const Mesh& mesh) :
     m_vertexCount(0),
+    m_indexCount(0),
     m_vaoID(0),
     m_mesh(mesh),
     m_vboID(0),
@@ -33,17 +34,30 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
     //////////////////////////////TO CUSTOMISE
     struct VERTEX
     {
-        GLfloat X, Y, Z, R, G, B;
+        float X, Y, Z, R, G, B, A;
     };
+
+    m_vertexCount = 5;
+    m_indexCount = 18;
 
     VERTEX vertices[] =
     {
-        {0.0f, 0.5f, -5.0f, 1.0f, 0.0f, 0.0f},
-        {0.45f, -0.5, -5.0f, 0.0f, 1.0f, 0.0f},
-        {-0.45f, -0.5f, -5.0f, 0.0f, 0.0f, 1.0f}
+        {-1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f},
+        {1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f},
+        {-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+        {1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f},
+        {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f}
     };
 
-    m_vertexCount = 3;
+    DWORD indices[] = 
+    {
+        0, 2, 1,
+        1, 2, 3,
+        0, 1, 4,
+        1, 3, 4,
+        3, 2, 4,
+        2, 0, 4,
+    };
     //////////////////////////////
 
     m_vaoID = vertexArrayID;

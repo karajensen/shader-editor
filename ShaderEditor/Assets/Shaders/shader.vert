@@ -1,8 +1,8 @@
 #version 150
 
 in vec3 in_Position;
-in vec3 in_Color;
-out vec3 ex_Color;
+in vec4 in_Color;
+out vec4 ex_Color;
 
 uniform float testing;
 uniform mat4 projMat;

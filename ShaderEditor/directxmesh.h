@@ -46,7 +46,9 @@ public:
 private:
 
     const Mesh& m_mesh;             ///< Mesh template for this directxmesh
+    UINT m_indexCount;              ///< Number of indices for the mesh
     UINT m_vertexCount;             ///< Number of vertices for the mesh
     UINT m_vertexStride;            ///< Size of the vertex structure
     ID3D11Buffer* m_vertexBuffer;   ///< Buffer of vertex data for the mesh
+    ID3D11Buffer* m_indexBuffer;    ///< Buffer of index data for the mesh
 };                     

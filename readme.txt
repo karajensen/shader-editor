@@ -1,7 +1,9 @@
 
 - Camera working uniformly between lhs and rhs
+- opengl index buffers working
+- Customise meshes passed in
 
-- Get mesh scenes rendering
+
 - Get shader usage rendering
 - Get textures rendering
 - Render to texture
