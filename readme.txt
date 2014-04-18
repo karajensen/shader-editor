@@ -1,21 +1,19 @@
 
-- Camera working uniformly between lhs and rhs
-- opengl index buffers working
+- Camera/meshe working uniformly between lhs and rhs
 - Customise meshes passed in
 
-
-- Get shader usage rendering
+- Get shader usage rendering + check between shader in and mesh vertices
+- Light tweaking
 - Get textures rendering
-- Render to texture
 - Antialising
 - Bump mapping working
+- Render to texture
 - Normal map generation for post
+- Post effects (fog, dof, glow, SSAO, Color correction)
 
 - Create 3D scene
-- Post effects (fog, dof, glow, SSAO, Color correction)
 - soft shadow mapping
-
-- Qt GUI text box/button for editing shaders toggled by tweak bar
+- Qt textbox for viewing shader code
 - Runtime editing of shaders
 
 =================================================================
