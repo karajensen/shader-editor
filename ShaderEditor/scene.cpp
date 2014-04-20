@@ -208,28 +208,82 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
     unsigned int numMeshes = scene->mNumMeshes;
     aiMesh** meshes = scene->mMeshes;
 
+    // For each submesh
+    bool generatedComponentCount = false;
     for(unsigned int i = 0; i < numMeshes; ++i)
     {
         aiMesh* pMesh = meshes[i];
-        unsigned int indexOffset = mesh.position.size();
-        unsigned int numVerts = pMesh->mNumVertices;
-        unsigned int numFaces = pMesh->mNumFaces;
+
+        unsigned int indexOffset = mesh.vertices.size() / mesh.vertexComponentCount;
+        mesh.vertexCount += pMesh->mNumVertices;
+        mesh.faceCount += pMesh->mNumFaces;
+
+        if(!pMesh->HasPositions())
+        {
+            errorBuffer = "Assimp error for mesh " + path + ": does not contain positional data";
+            return false;
+        }
 
         // For each vertex
-        for(unsigned int vert = 0; vert < numVerts; ++vert)
+        int componentCount = 0;
+        for(unsigned int vert = 0; vert < pMesh->mNumVertices; ++vert)
         {
-            mesh.position.push_back(Float3(pMesh->mVertices[vert].x,
-                pMesh->mVertices[vert].y, pMesh->mVertices[vert].z));
+            componentCount = 3;
+            mesh.vertices.push_back(pMesh->mVertices[vert].x);
+            mesh.vertices.push_back(pMesh->mVertices[vert].y);
+            mesh.vertices.push_back(pMesh->mVertices[vert].z);
 
-            mesh.normals.push_back(Float3(pMesh->mNormals[vert].x,
-                pMesh->mNormals[vert].y, pMesh->mNormals[vert].z));
+            // Temporary add random colour
+            mesh.vertices.push_back((rand() % 100) / 100.0f);
+            mesh.vertices.push_back((rand() % 100) / 100.0f);
+            mesh.vertices.push_back((rand() % 100) / 100.0f);
+            mesh.vertices.push_back(1.0f);
+            componentCount += 4;
 
-            mesh.uvs.push_back(Float2(pMesh->mTextureCoords[0][vert].x,
-                pMesh->mTextureCoords[0][vert].y));
+            //if(pMesh->HasVertexColors(0))
+            //{
+            //    mesh.vertices.push_back(pMesh->mColors[0][vert].r);
+            //    mesh.vertices.push_back(pMesh->mColors[0][vert].g);
+            //    mesh.vertices.push_back(pMesh->mColors[0][vert].b);
+            //    mesh.vertices.push_back(pMesh->mColors[0][vert].a);
+            //    componentCount += 4;
+            //}
+            //
+            //if(pMesh->HasNormals())
+            //{
+            //    mesh.vertices.push_back(pMesh->mNormals[vert].x);
+            //    mesh.vertices.push_back(pMesh->mNormals[vert].y);
+            //    mesh.vertices.push_back(pMesh->mNormals[vert].z);
+            //    componentCount += 3;
+            //}
+            //
+            //if(pMesh->HasTextureCoords(0))
+            //{
+            //    mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].x);
+            //    mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].y);
+            //    componentCount += 2;
+            //}
+        }
+
+        // Make sure vertex layout is consistant between submeshes
+        if(generatedComponentCount)
+        {
+            if(componentCount != mesh.vertexComponentCount)
+            {
+                errorBuffer = "Assimp error for mesh " + path + ": " + 
+                    boost::lexical_cast<std::string>(componentCount) + " does not match " +
+                    boost::lexical_cast<std::string>(mesh.vertexComponentCount);
+                return false;
+            }
+        }
+        else
+        {
+            mesh.vertexComponentCount = componentCount;
+            generatedComponentCount = true;
         }
 
         // For each face
-        for(unsigned int face = 0; face < numFaces; ++face)
+        for(unsigned int face = 0; face < pMesh->mNumFaces; ++face)
         {
             aiFace *pFace = &pMesh->mFaces[face];
             if(pFace->mNumIndices != 3)
@@ -243,6 +297,8 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
             mesh.indices.push_back(indexOffset + pFace->mIndices[2]);
         }
     }
+
+    mesh.indexCount = mesh.indices.size();
     Logger::LogInfo("Mesh: " + path + " created");
     return true;
 }

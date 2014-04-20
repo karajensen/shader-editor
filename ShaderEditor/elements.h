@@ -77,11 +77,10 @@ struct Mesh
     int shaderIndex;                     ///< Index of which shader to use
     float specularity;                   ///< Brightness of the specular highlights
     std::string name;                    ///< Name of the mesh
-    std::vector<Float3> position;        ///< Position Vertex information
-    std::vector<Float3> normals;         ///< Normal Vertex information
-    std::vector<Float3> tangent;         ///< Tangent Vertex information
-    std::vector<Float3> bitangent;       ///< Bitangent Vertex information
-    std::vector<Colour> colour;          ///< Colour Vertex information
-    std::vector<Float2> uvs;             ///< UV Texture Vertex information
+    std::vector<float> vertices;         ///< Mesh Vertex information
     std::vector<DWORD> indices;          ///< Mesh Index information
+    int vertexComponentCount;            ///< Number of components that make up a vertex
+    int vertexCount;                     ///< Number of vertices in the mesh
+    int faceCount;                       ///< Number of faces in the mesh
+    int indexCount;                      ///< Number of indicies in the mesh
 };

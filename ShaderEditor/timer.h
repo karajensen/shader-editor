@@ -5,6 +5,8 @@
 #pragma once
 #include <Windows.h>
 
+struct CTwBar;
+
 /**
 * FPS class for determining frame rate and delta time
 */
@@ -31,6 +33,12 @@ public:
     * @return The time passed since last frame in seconds
     */
     float GetDeltaTime() const;
+
+    /**
+    * Adds tweakable timer parameters to the tweak bar
+    * @param tweakbar Used for runtime diagnostics
+    */
+    void InitialiseTweakBar(CTwBar* tweakbar);
 
 private:
 

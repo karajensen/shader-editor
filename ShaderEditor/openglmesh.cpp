@@ -6,14 +6,15 @@
 #include "elements.h"
 
 GlMesh::GlMesh(const Mesh& mesh) :
-    m_vertexCount(0),
-    m_triangleCount(0),
-    m_indexCount(0),
+    m_vertexCount(mesh.vertexCount),
+    m_indexCount(mesh.indexCount),
     m_vaoID(0),
-    m_mesh(mesh),
     m_vboID(0),
     m_iboID(0),
-    m_initialised(false)
+    m_initialised(false),
+    m_vertices(mesh.vertices),
+    m_indices(mesh.indices),
+    m_name(mesh.name)
 {
 }
 
@@ -34,46 +35,23 @@ void GlMesh::Release()
 
 void GlMesh::Initialise(unsigned int vertexArrayID)
 {
-    //////////////////////////////TO CUSTOMISE
-    struct VERTEX
-    {
-        float X, Y, Z, R, G, B, A;
-    };
-
-    m_vertexCount = 5;
-    m_indexCount = 18;
-    m_triangleCount = m_indexCount / 3;
-
-    VERTEX vertices[] =
-    {
-        {-1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f},
-        {1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f},
-        {-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f},
-        {1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f},
-        {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f}
-    };
-
-    GLushort indices[] = 
-    {
-        0, 2, 1,
-        1, 2, 3,
-        0, 1, 4,
-        1, 3, 4,
-        3, 2, 4,
-        2, 0, 4,
-    };
-    //////////////////////////////
-
     m_vaoID = vertexArrayID;
     glBindVertexArray(m_vaoID);
 
     glGenBuffers(1, &m_vboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_vertices.size(), 
+        &m_vertices[0], GL_STATIC_DRAW);
 
     glGenBuffers(1, &m_iboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_indices.size(), 
+        &m_indices[0], GL_STATIC_DRAW);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + m_name + " buffers");
+    }
 
     m_initialised = true;
 }
@@ -86,6 +64,6 @@ void GlMesh::PreRender()
 
 void GlMesh::Render()
 {
-    m_mesh.backfacecull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_SHORT, 0);
+    //m_mesh.backfacecull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 }

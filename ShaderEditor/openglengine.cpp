@@ -269,7 +269,6 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Mesh& mesh : meshes)
     {
         m_data->meshes.push_back(GlMesh(mesh));
-        break;
     }
 
     return ReInitialiseScene();

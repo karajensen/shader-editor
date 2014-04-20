@@ -48,12 +48,13 @@ public:
 
 private:
 
-    const Mesh& m_mesh;      ///< Mesh template for this openglmesh
-    GLsizei m_vertexCount;   ///< Number of vertices for the mesh
-    GLsizei m_indexCount;    ///< Number of indices for the mesh
-    GLsizei m_triangleCount; ///< Number of triangles for the mesh
-    GLuint m_vaoID;          ///< An unique ID for Vertex Array Object (VAO)
-    GLuint m_vboID;          ///< Unique ID for the Vertex Buffer Object (VBO)   
-    GLuint m_iboID;          ///< Unique ID for the Index Buffer Object (IBO)
-    bool m_initialised;      ///< Whether the vertex buffer object is initialised or not
+    GLsizei m_vertexCount;          ///< Number of vertices for the mesh
+    GLsizei m_indexCount;           ///< Number of indices for the mesh
+    GLuint m_vaoID;                 ///< An unique ID for Vertex Array Object (VAO)
+    GLuint m_vboID;                 ///< Unique ID for the Vertex Buffer Object (VBO)   
+    GLuint m_iboID;                 ///< Unique ID for the Index Buffer Object (IBO)
+    bool m_initialised;             ///< Whether the vertex buffer object is initialised or not
+    std::vector<float> m_vertices;  ///< Vertex data for mesh
+    std::vector<DWORD> m_indices;   ///< Index data for mesh
+    const std::string m_name;       ///< Name of the mesh
 };                     

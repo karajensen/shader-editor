@@ -37,6 +37,10 @@ Light::Light() :
 Mesh::Mesh() :
     specularity(0.0f),
     shaderIndex(NO_INDEX),
-    backfacecull(true)
+    backfacecull(true),
+    vertexComponentCount(1),
+    vertexCount(0),
+    faceCount(0),
+    indexCount(0)
 {
 }

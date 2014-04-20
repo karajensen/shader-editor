@@ -1,8 +1,9 @@
 
-- Camera/meshe working uniformly between lhs and rhs
-- Customise meshes passed in
+- Fix opengl fps: using vao instead of always setting vbo
+- Get depth rendering working and scenes uniform
 
-- Get shader usage rendering + check between shader in and mesh vertices
+- Get shader usage rendering
+- Add check between shader in and mesh vertices (type and ordering)
 - Light tweaking
 - Get textures rendering
 - Antialising

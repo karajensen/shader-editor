@@ -261,15 +261,15 @@ void DirectxEngine::UpdateView(const Matrix& world)
 
     m_data->view._11 = world.m11;
     m_data->view._21 = world.m12;
-    m_data->view._31 = world.m13;
+    m_data->view._31 = -world.m13;
 
     m_data->view._12 = world.m21;
     m_data->view._22 = world.m22;
-    m_data->view._32 = world.m23;
+    m_data->view._32 = -world.m23;
 
     m_data->view._13 = world.m31;
     m_data->view._23 = world.m32;
-    m_data->view._33 = world.m33;
+    m_data->view._33 = -world.m33;
 
     m_data->view._41 = world.m14;
     m_data->view._42 = world.m24;

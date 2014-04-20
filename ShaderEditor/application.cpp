@@ -17,9 +17,9 @@ namespace
     const bool OPENGL_START = true;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
-    const float CAMERA_MOVE_SPEED = 40.0f;            ///< Speed the camera will translate
-    const float CAMERA_ROT_SPEED = 2.0f;              ///< Speed the camera will rotate
-    const float CAMERA_SIDE_SPEED = 20.0f;            ///< Speed the camera will strafe
+    const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
+    const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
+    const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
 
     /**
     * Anttweakbar button callback for toggling through render engines
@@ -306,31 +306,23 @@ void Application::InitialiseTweakBar(bool opengl)
         &ButtonToggleRenderEngine, this, "");
 
     m_scene->InitialiseTweakBar(m_tweakbar);
+    m_timer->InitialiseTweakBar(m_tweakbar);
 
-    const std::string inputGrp("group=Input");
+    const std::string group("group=Application");
     TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,
-        &m_mouseDirection.x, inputGrp.c_str());
+        &m_mouseDirection.x, group.c_str());
     
     TwAddVarRO(m_tweakbar, "Mouse Direction Y", TW_TYPE_FLOAT, 
-        &m_mouseDirection.y, inputGrp.c_str());
+        &m_mouseDirection.y, group.c_str());
     
     TwAddVarRO(m_tweakbar, "Mouse Position X", TW_TYPE_FLOAT,
-        &m_mousePosition.x, inputGrp.c_str());
+        &m_mousePosition.x, group.c_str());
     
     TwAddVarRO(m_tweakbar, "Mouse Position Y", TW_TYPE_FLOAT,
-        &m_mousePosition.y, inputGrp.c_str());
+        &m_mousePosition.y, group.c_str());
     
     TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
-        &m_mousePressed, inputGrp.c_str());
-
-    TwAddVarRO(m_tweakbar, "Camera Pos X", TW_TYPE_FLOAT, 
-        &m_camera->GetWorld().m14, inputGrp.c_str());
-
-    TwAddVarRO(m_tweakbar, "Camera Pos Y", TW_TYPE_FLOAT, 
-        &m_camera->GetWorld().m24, inputGrp.c_str());
-
-    TwAddVarRO(m_tweakbar, "Camera Pos Z", TW_TYPE_FLOAT, 
-        &m_camera->GetWorld().m34, inputGrp.c_str());
+        &m_mousePressed, group.c_str());
 }
 
 void Application::RemoveTweakBar()
