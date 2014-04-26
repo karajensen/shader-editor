@@ -1,8 +1,7 @@
 
-- Fix opengl fps: using vao instead of always setting vbo
-- Get depth rendering working and scenes uniform
-
+- change winding order of verts
 - Get shader usage rendering
+
 - Add check between shader in and mesh vertices (type and ordering)
 - Light tweaking
 - Get textures rendering
@@ -16,6 +15,9 @@
 - soft shadow mapping
 - Qt textbox for viewing shader code
 - Runtime editing of shaders
+
+- Fix opengl fps: using vao instead of always setting vbo
+
 
 =================================================================
 SHADER EDITOR

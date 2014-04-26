@@ -29,6 +29,7 @@ struct DirectxData
             
     std::vector<DxMesh> meshes;           ///< DirectX mesh objects
     std::vector<DxShader> shaders;        ///< DirectX shader objects
+    ID3D11DepthStencilView* zbuffer;      ///< Depth buffer
     ID3D11RenderTargetView* backbuffer;   ///< Main back buffer render target
     IDXGISwapChain* swapchain;            ///< swap chain interface
     ID3D11Device* device;                 ///< Direct3D device interface
@@ -43,7 +44,8 @@ DirectxData::DirectxData() :
     device(nullptr),
     context(nullptr),
     backbuffer(nullptr),
-    debug(nullptr)
+    debug(nullptr),
+    zbuffer(nullptr)
 {
 }
 
@@ -68,6 +70,12 @@ void DirectxData::Release()
     for(DxShader& shader : shaders)
     {
         shader.Release();
+    }
+
+    if(zbuffer)
+    {
+        zbuffer->Release();
+        zbuffer = nullptr;
     }
 
     if(swapchain)
@@ -117,7 +125,9 @@ bool DirectxEngine::Initialize()
     scd.OutputWindow = m_hwnd;                            
     scd.SampleDesc.Count = 4;                           
     scd.Windowed = TRUE; 
-    
+    scd.BufferDesc.Width = WINDOW_WIDTH;
+    scd.BufferDesc.Height = WINDOW_HEIGHT;
+
     #ifdef _DEBUG
     unsigned int deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
     #elif
@@ -145,11 +155,47 @@ bool DirectxEngine::Initialize()
     }
     #endif
 
+    // Create the depth texture
+    D3D11_TEXTURE2D_DESC depthTextureDesc;
+    ZeroMemory(&depthTextureDesc, sizeof(depthTextureDesc));
+    depthTextureDesc.Width = WINDOW_WIDTH;
+    depthTextureDesc.Height = WINDOW_HEIGHT;
+    depthTextureDesc.ArraySize = 1;
+    depthTextureDesc.MipLevels = 1;
+    depthTextureDesc.SampleDesc.Count = 4;
+    depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+    ID3D11Texture2D* depthTexture;
+    if(FAILED(m_data->device->CreateTexture2D(&depthTextureDesc, 0, &depthTexture)))
+    {
+        Logger::LogError("DirectX: Depth buffer texture creation failed");
+        return false;
+    }
+
+    // Create the depth buffer
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferDesc;
+    ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+    depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthBufferDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+
+    if(FAILED(m_data->device->CreateDepthStencilView(
+        depthTexture, &depthBufferDesc, &m_data->zbuffer)))
+    {
+        Logger::LogError("DirectX: Depth buffer creation failed");
+        return false;
+    }
+    depthTexture->Release();
+
     // Set the back buffer as the main render target
     ID3D11Texture2D* backBuffer;
     m_data->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
-    m_data->device->CreateRenderTargetView(backBuffer, nullptr, &m_data->backbuffer);
-    m_data->context->OMSetRenderTargets(1, &m_data->backbuffer, nullptr);
+    if(FAILED(m_data->device->CreateRenderTargetView(backBuffer, nullptr, &m_data->backbuffer)))
+    {
+        Logger::LogError("DirectX: Failed to create back buffer render target");
+        return false;
+    }
+    m_data->context->OMSetRenderTargets(1, &m_data->backbuffer, m_data->zbuffer);
     backBuffer->Release();
 
     // Setup the directX environment
@@ -159,6 +205,8 @@ bool DirectxEngine::Initialize()
     viewport.TopLeftY = 0;
     viewport.Width = WINDOW_WIDTH;
     viewport.Height = WINDOW_HEIGHT;
+    viewport.MinDepth = 0.0;
+    viewport.MaxDepth = 1.0;
     m_data->context->RSSetViewports(1, &viewport);
 
     D3DXMatrixPerspectiveFovLH(&m_data->projection,
@@ -219,6 +267,9 @@ void DirectxEngine::BeginRender()
 {
     m_data->context->ClearRenderTargetView(
         m_data->backbuffer, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f));
+
+    m_data->context->ClearDepthStencilView(
+        m_data->zbuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void DirectxEngine::Render(const std::vector<Light>& lights)

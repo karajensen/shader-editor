@@ -5,6 +5,8 @@
 #pragma once
 #include "common.h"
 
+struct CTwBar;
+
 /**
 * Maya styled camera class 
 */
@@ -60,6 +62,12 @@ public:
     * @return whether the camera requires an update
     */
     bool RequiresUpdate() const { return m_cameraNeedsUpdate; }
+
+    /**
+    * Adds tweakable timer parameters to the tweak bar
+    * @param tweakbar Used for runtime diagnostics
+    */
+    void InitialiseTweakBar(CTwBar* tweakbar);
 
 private:
 

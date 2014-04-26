@@ -3,14 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Camera.h"
+#include <AntTweakBar.h>
 
-Camera::Camera() : 
-    m_cameraNeedsUpdate(true),
-    m_initialPos(0.0f, 0.0f, 10.0f),
-    m_pos(0.0f, 0.0f, 0.0f),
-    m_yaw(0.0f),     
-    m_pitch(0.0f),
-    m_roll(0.0f)
+Camera::Camera()
 {
     Reset();
 }
@@ -85,10 +80,15 @@ void Camera::Roll(float angle)
 void Camera::Reset()
 {
     m_cameraNeedsUpdate = true;
-    m_pos = m_initialPos; 
-    m_yaw = 0;
-    m_roll = 0;
-    m_pitch = 0;
+    m_initialPos.x = 3.0f;
+    m_initialPos.y = 52.0f;
+    m_initialPos.z = -12.0f;
+    m_pos.x = 3.0f;
+    m_pos.y = 52.0f;
+    m_pos.z = -12.0f;
+    m_yaw = -2.0f;
+    m_pitch = 0.35f;
+    m_roll = 0.0f;
 }
 
 void Camera::Update()
@@ -102,4 +102,15 @@ void Camera::Update()
     Matrix yaw = Matrix::CreateRotateY(m_yaw);
     Matrix roll = Matrix::CreateRotateZ(m_roll);
     m_world *= roll * yaw * pitch;
+}
+
+void Camera::InitialiseTweakBar(CTwBar* tweakbar)
+{
+    const std::string group("group=Camera");
+    TwAddVarRO(tweakbar, "Camera X", TW_TYPE_FLOAT, &m_pos.x, group.c_str());
+    TwAddVarRO(tweakbar, "Camera Y", TW_TYPE_FLOAT, &m_pos.y, group.c_str());
+    TwAddVarRO(tweakbar, "Camera Z", TW_TYPE_FLOAT, &m_pos.z, group.c_str());
+    TwAddVarRO(tweakbar, "Pitch", TW_TYPE_FLOAT, &m_pitch, group.c_str());
+    TwAddVarRO(tweakbar, "Yaw", TW_TYPE_FLOAT, &m_yaw, group.c_str());
+    TwAddVarRO(tweakbar, "Roll", TW_TYPE_FLOAT, &m_roll, group.c_str());
 }

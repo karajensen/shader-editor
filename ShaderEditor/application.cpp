@@ -307,6 +307,7 @@ void Application::InitialiseTweakBar(bool opengl)
 
     m_scene->InitialiseTweakBar(m_tweakbar);
     m_timer->InitialiseTweakBar(m_tweakbar);
+    m_camera->InitialiseTweakBar(m_tweakbar);
 
     const std::string group("group=Application");
     TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,

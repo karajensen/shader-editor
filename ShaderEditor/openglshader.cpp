@@ -284,28 +284,6 @@ std::string GlShader::BindShaderAttributes(const std::vector<std::string>& vText
     return std::string();
 }
 
-void GlShader::EnableAttributes()
-{
-    int offset = 0;
-    for(const AttributeData& attr : m_attributes)
-    {
-        glEnableVertexAttribArray(attr.location);
-        if(HasCallFailed())
-        {
-            Logger::LogError("Could not enable attribute " + attr.name);
-        }
-    
-        glVertexAttribPointer(attr.location, attr.components, GL_FLOAT, 
-            GL_FALSE, m_stride*sizeof(GLfloat), (void*)(offset*sizeof(GLfloat)));
-        if(HasCallFailed())
-        {
-            Logger::LogError("Could not set attribute " + attr.name);
-        }
-    
-        offset += attr.components;
-    }
-}
-
 std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
 {
     int currentIndex = 0;
@@ -368,6 +346,28 @@ bool GlShader::CanSendUniform(const std::string& expectedType,
         return false;
     }
     return true;
+}
+
+void GlShader::EnableAttributes()
+{
+    int offset = 0;
+    for(const AttributeData& attr : m_attributes)
+    {
+        glEnableVertexAttribArray(attr.location);
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not enable attribute " + attr.name);
+        }
+    
+        glVertexAttribPointer(attr.location, attr.components, GL_FLOAT, 
+            GL_FALSE, m_stride*sizeof(GLfloat), (void*)(offset*sizeof(GLfloat)));
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not set attribute " + attr.name);
+        }
+    
+        offset += attr.components;
+    }
 }
 
 void GlShader::SetAsActive()
