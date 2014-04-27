@@ -1,22 +1,22 @@
 
-- change winding order of verts
-- Get shader usage rendering
-
+- Opengl multisampling
+- Get shader usage rendering (diffuse, specular, attenuation)
 - Add check between shader in and mesh vertices (type and ordering)
+- Get transparency rendering
+
 - Light tweaking
-- Get textures rendering
-- Antialising
-- Bump mapping working
+- Texture rendering
+- Bump mapping rendering
 - Render to texture
-- Normal map generation for post
-- Post effects (fog, dof, glow, SSAO, Color correction)
 
 - Create 3D scene
-- soft shadow mapping
 - Qt textbox for viewing shader code
+- Normal map generation for post
+- Post effects (fog, dof, glow, SSAO, Color correction)
+- soft shadow mapping
 - Runtime editing of shaders
 
-- Fix opengl fps: using vao instead of always setting vbo
+- Fix opengl fps: using vao instead of always setting vbo/attributes
 
 
 =================================================================

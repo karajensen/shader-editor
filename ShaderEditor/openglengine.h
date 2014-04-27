@@ -87,6 +87,12 @@ public:
 
 private:
 
+    /**
+    * Sets whether opengl should cull backfaces or not
+    * @param shouldCull whether to cull or not
+    */
+    void SetBackfaceCull(bool shouldCull);
+
     HWND m_hwnd;                        ///< handle to the window
     std::unique_ptr<OpenglData> m_data; ///<  member data of opengl
 };                     

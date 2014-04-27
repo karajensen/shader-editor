@@ -43,6 +43,11 @@ public:
     */
     void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);
 
+    /**
+    * @return whether the mesh requires backface culling or not
+    */
+    bool ShouldBackfaceCull() const;
+
 private:
 
     UINT m_indexCount;              ///< Number of indices for the mesh
@@ -53,4 +58,5 @@ private:
     std::vector<float> m_vertices;  ///< Vertex data for mesh
     std::vector<DWORD> m_indices;   ///< Index data for mesh
     const std::string m_name;       ///< Name of the mesh
+    bool m_backfaceCull;            ///< Whether the mesh requires backface culling
 };                     

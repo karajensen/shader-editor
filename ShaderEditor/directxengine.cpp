@@ -37,6 +37,9 @@ struct DirectxData
     ID3D11Debug* debug;                   ///< Direct3D debug interface
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
+    bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
+    ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
+    ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
 };
 
 DirectxData::DirectxData() :
@@ -45,7 +48,10 @@ DirectxData::DirectxData() :
     context(nullptr),
     backbuffer(nullptr),
     debug(nullptr),
-    zbuffer(nullptr)
+    zbuffer(nullptr),
+    cullState(nullptr),
+    nocullState(nullptr),
+    isBackfaceCull(true)
 {
 }
 
@@ -70,6 +76,18 @@ void DirectxData::Release()
     for(DxShader& shader : shaders)
     {
         shader.Release();
+    }
+
+    if(cullState)
+    {
+        cullState->Release();
+        cullState = nullptr;
+    }
+
+    if(nocullState)
+    {
+        nocullState->Release();
+        nocullState = nullptr;
     }
 
     if(zbuffer)
@@ -199,6 +217,32 @@ bool DirectxEngine::Initialize()
     backBuffer->Release();
 
     // Setup the directX environment
+    D3D11_RASTERIZER_DESC rasterDesc;
+    rasterDesc.AntialiasedLineEnable = false;
+    rasterDesc.DepthBias = 0;
+    rasterDesc.DepthBiasClamp = 0.0f;
+    rasterDesc.DepthClipEnable = true;
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    rasterDesc.FrontCounterClockwise = true;
+    rasterDesc.MultisampleEnable = true;
+    rasterDesc.ScissorEnable = false;
+    rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+    rasterDesc.CullMode = D3D11_CULL_BACK; // for Maya vert winding order
+    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->cullState)))
+    {
+        Logger::LogError("DirectX: Failed to create cull rasterizer state");
+        return false;
+    }
+    SetBackfaceCull(true);
+
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->nocullState)))
+    {
+        Logger::LogError("DirectX: Failed to create no cull rasterizer state");
+        return false;
+    }
+
     D3D11_VIEWPORT viewport;
     ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
     viewport.TopLeftX = 0;
@@ -287,6 +331,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     
     for(DxMesh& mesh : m_data->meshes)
     {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
         mesh.Render(m_data->context);
     }
 }
@@ -327,4 +372,13 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._43 = world.m34;
 
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
+}
+
+void DirectxEngine::SetBackfaceCull(bool shouldCull)
+{
+    if(shouldCull != m_data->isBackfaceCull)
+    {
+        m_data->isBackfaceCull = shouldCull;
+        m_data->context->RSSetState(shouldCull ? m_data->cullState : m_data->nocullState);
+    }
 }

@@ -13,7 +13,8 @@ DxMesh::DxMesh(const Mesh& mesh) :
     m_indexCount(mesh.indexCount),
     m_vertices(mesh.vertices),
     m_indices(mesh.indices),
-    m_name(mesh.name)
+    m_name(mesh.name),
+    m_backfaceCull(mesh.backfacecull)
 {
 }
 
@@ -76,4 +77,9 @@ void DxMesh::Render(ID3D11DeviceContext* context)
     context->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     context->DrawIndexed(m_indexCount, 0, 0);
+}
+
+bool DxMesh::ShouldBackfaceCull() const
+{
+    return m_backfaceCull;
 }

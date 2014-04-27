@@ -35,13 +35,15 @@ struct OpenglData
     GLint scratchVS;                 ///< Scratch GLSL Vertex Shader
     GLint scratchFS;                 ///< Scratch GLSL Fragment Shader
     std::vector<GLuint> vao;         ///< IDs for the Vertex Array Objects
+    bool isBackfaceCull;             ///< Whether backface culling is currently active
 };
 
 OpenglData::OpenglData() :
     hdc(nullptr),
     hrc(nullptr),
     scratchVS(NO_INDEX),
-    scratchFS(NO_INDEX)
+    scratchFS(NO_INDEX),
+    isBackfaceCull(true)
 {
 }
 
@@ -221,7 +223,9 @@ bool OpenglEngine::Initialize()
     glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDepthRange(CAMERA_NEAR, CAMERA_FAR);
+    glDepthRange(0.0f, 1.0f);
+    glFrontFace(GL_CCW); // for Maya vert winding order
+    glMatrixMode(GL_PROJECTION);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -316,6 +320,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     for(GlMesh& mesh : m_data->meshes)
     {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
         mesh.PreRender();
         shader.EnableAttributes();
         mesh.Render();
@@ -352,4 +357,13 @@ void OpenglEngine::UpdateView(const Matrix& world)
     viewMatrix[3][2] = world.m34;
 
     m_data->view = glm::inverse(viewMatrix);
+}
+
+void OpenglEngine::SetBackfaceCull(bool shouldCull)
+{
+    if(shouldCull != m_data->isBackfaceCull)
+    {
+        m_data->isBackfaceCull = shouldCull;
+        shouldCull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    }
 }

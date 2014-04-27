@@ -46,6 +46,11 @@ public:
     */
     void Initialise(unsigned int vertexArrayID);
 
+    /**
+    * @return whether the mesh requires backface culling or not
+    */
+    bool ShouldBackfaceCull() const;
+
 private:
 
     GLsizei m_vertexCount;          ///< Number of vertices for the mesh
@@ -57,4 +62,5 @@ private:
     std::vector<float> m_vertices;  ///< Vertex data for mesh
     std::vector<DWORD> m_indices;   ///< Index data for mesh
     const std::string m_name;       ///< Name of the mesh
+    bool m_backfaceCull;            ///< Whether the mesh requires backface culling
 };                     

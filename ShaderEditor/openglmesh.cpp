@@ -14,7 +14,8 @@ GlMesh::GlMesh(const Mesh& mesh) :
     m_initialised(false),
     m_vertices(mesh.vertices),
     m_indices(mesh.indices),
-    m_name(mesh.name)
+    m_name(mesh.name),
+    m_backfaceCull(mesh.backfacecull)
 {
 }
 
@@ -64,6 +65,10 @@ void GlMesh::PreRender()
 
 void GlMesh::Render()
 {
-    //m_mesh.backfacecull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
+}
+
+bool GlMesh::ShouldBackfaceCull() const
+{
+    return m_backfaceCull;
 }
