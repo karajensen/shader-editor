@@ -194,12 +194,12 @@ void Application::TickApplication()
     m_mouseDirection.y = 0;
 }
 
-bool Application::Initialise(HWND hwnd)
+bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
 {
     m_timer.reset(new Timer());
     m_scene.reset(new Scene());
     m_directx.reset(new DirectxEngine(hwnd));
-    m_opengl.reset(new OpenglEngine(hwnd));
+    m_opengl.reset(new OpenglEngine(hwnd, hinstance));
 
     if(!m_scene->Initialise())
     {

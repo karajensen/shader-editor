@@ -90,10 +90,22 @@ void OpenglData::Release()
     }
 }
 
-OpenglEngine::OpenglEngine(HWND hwnd) :
+OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
     m_data(new OpenglData()),
     m_hwnd(hwnd)
 {
+    // Create temporary window used only for Glew
+	WNDCLASSEX wc;
+    ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
+	wc.cbSize = sizeof(WNDCLASSEX);
+    wc.lpfnWndProc = nullptr;
+    wc.hInstance = hinstance; 
+    wc.lpszClassName = "GlewWindow";
+    RegisterClassEx(&wc); 
+
+    m_temporaryHwnd = CreateWindowEx(WS_EX_APPWINDOW,
+        "GlewWindow", TEXT("GlewWindow"), 0, 0, 0, 0, 0, 
+        nullptr, nullptr, hinstance, nullptr);
 }
 
 OpenglEngine::~OpenglEngine()
@@ -102,11 +114,13 @@ OpenglEngine::~OpenglEngine()
 
 bool OpenglEngine::Initialize()
 {
-    m_data->Release();
-    m_data->hdc = GetDC(m_hwnd);
+    // SetPixelFormat can only be called once per window and is required for Glew.
+    // Initialise Glew with a temporary opengl context and temporary window.
+    // http://msdn.microsoft.com/en-us/library/windows/desktop/dd369049%28v=vs.85%29.aspx
 
-    const int colourBits = 32;
-    const int depthBits = 24;
+    m_data->Release();
+    HDC tempHdc = GetDC(m_temporaryHwnd);
+    m_data->hdc = GetDC(m_hwnd);
 
     PIXELFORMATDESCRIPTOR pfd;
     memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -114,26 +128,25 @@ bool OpenglEngine::Initialize()
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = colourBits;
-    pfd.cDepthBits = depthBits;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 24;
     pfd.iLayerType = PFD_MAIN_PLANE;
 
-    // Initialise Glew with a temporary opengl context
-    int tempPixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
+    int tempPixelFormat = ChoosePixelFormat(tempHdc, &pfd);
     if(tempPixelFormat == 0)
     {
         Logger::LogError("OpenGL: GLEW Pixel Format unsupported");
         return false;
     }
   
-    if(!SetPixelFormat(m_data->hdc, tempPixelFormat, &pfd))
+    if(!SetPixelFormat(tempHdc, tempPixelFormat, &pfd))
     {
         Logger::LogError("OpenGL: GLEW Set Pixel Format failed");
         return false;
     }
 
-    HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc); 
-    wglMakeCurrent(m_data->hdc, tempOpenGLContext);
+    HGLRC tempOpenGLContext = wglCreateContext(tempHdc); 
+    wglMakeCurrent(tempHdc, tempOpenGLContext);
     if(!tempOpenGLContext || HasCallFailed())
     {
         Logger::LogError("OpenGL: GLEW Temporary context creation failed");
@@ -154,17 +167,20 @@ bool OpenglEngine::Initialize()
         return false;
     }  
 
-    // Create the actual opengl context
+    // Determine the supported attributes for opengl. Do this before deleting 
+    // the temporary context as HasCallFailed() does not work without one
     const int pixelAttributes[] = 
     {
-        WGL_DRAW_TO_WINDOW_ARB,     TRUE,
+        WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
+        WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
         WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
-        WGL_SUPPORT_OPENGL_ARB,     TRUE,
-        WGL_DOUBLE_BUFFER_ARB,      TRUE,
+        WGL_SAMPLE_BUFFERS_ARB,     GL_TRUE,
+        WGL_COLOR_BITS_ARB,         32,
+        WGL_DEPTH_BITS_ARB,         24,
         WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
-        WGL_COLOR_BITS_ARB,         colourBits,
-        WGL_DEPTH_BITS_ARB,         depthBits,
+        WGL_SUPPORT_OPENGL_ARB,     TRUE,
         WGL_STENCIL_BITS_ARB,       0,
+        WGL_SAMPLES_ARB,            MULTISAMPLING_COUNT,
         0,                          0
     };
 
@@ -182,7 +198,11 @@ bool OpenglEngine::Initialize()
         Logger::LogInfo("OpenGL: Set pixel format failed");
         return false;
     }
-             
+
+    wglMakeCurrent(nullptr, nullptr);
+    wglDeleteContext(tempOpenGLContext);
+
+    // Create the actual opengl context
     int contextAttributes[] = 
     {  
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
@@ -191,14 +211,20 @@ bool OpenglEngine::Initialize()
         0, 0  
     };  
 
-    wglMakeCurrent(nullptr, nullptr);
-    wglDeleteContext(tempOpenGLContext);
-
     m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, 0, contextAttributes);
     wglMakeCurrent(m_data->hdc, m_data->hrc);
     if(!m_data->hrc || HasCallFailed())
     {
         Logger::LogInfo("OpenGL: Context creation failed");
+        return false;
+    }
+
+    int minor, major;
+    glGetIntegerv(GL_MAJOR_VERSION, &major); 
+    glGetIntegerv(GL_MINOR_VERSION, &minor); 
+    if(minor == -1 || major == -1)
+    {
+        Logger::LogInfo("OpenGL: Version not supported");
         return false;
     }
 
@@ -230,16 +256,6 @@ bool OpenglEngine::Initialize()
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
         CAMERA_NEAR, CAMERA_FAR);
-
-    // Determine version accepted and if there was anything wrong
-    int minor, major;
-    glGetIntegerv(GL_MAJOR_VERSION, &major); 
-    glGetIntegerv(GL_MINOR_VERSION, &minor); 
-    if(minor == -1 || major == -1)
-    {
-        Logger::LogInfo("OpenGL: Version not supported");
-        return false;
-    }
 
     if(!HasCallFailed())
     {

@@ -42,9 +42,10 @@ public:
     /**
     * Initialise the world
     * @param hwnd The handle to the window
+    * @param hinstance Handle to the current instance of the application
     * @return whether or not initialisation succeeded
     */
-    bool Initialise(HWND hwnd);
+    bool Initialise(HWND hwnd, HINSTANCE hinstance);
 
     /**
     * Toggles through the avaliable render engines

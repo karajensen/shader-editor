@@ -180,7 +180,7 @@ bool DirectxEngine::Initialize()
     depthTextureDesc.Height = WINDOW_HEIGHT;
     depthTextureDesc.ArraySize = 1;
     depthTextureDesc.MipLevels = 1;
-    depthTextureDesc.SampleDesc.Count = 4;
+    depthTextureDesc.SampleDesc.Count = MULTISAMPLING_COUNT;
     depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
     depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 

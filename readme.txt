@@ -1,5 +1,4 @@
 
-- Opengl multisampling
 - Get shader usage rendering (diffuse, specular, attenuation)
 - Add check between shader in and mesh vertices (type and ordering)
 - Get transparency rendering

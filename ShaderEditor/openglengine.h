@@ -19,8 +19,9 @@ public:
     /**
     * Constructor
     * @param hwnd Handle to the window
+    * @param hinstance Handle to the current instance of the application
     */
-    OpenglEngine(HWND hwnd);
+    OpenglEngine(HWND hwnd, HINSTANCE hinstance);
 
     /**
     * Destructor
@@ -93,6 +94,7 @@ private:
     */
     void SetBackfaceCull(bool shouldCull);
 
-    HWND m_hwnd;                        ///< handle to the window
-    std::unique_ptr<OpenglData> m_data; ///<  member data of opengl
+    HWND m_hwnd;                         ///< handle to the window
+    HWND m_temporaryHwnd;                ///< Handle to the temporary window used for glew
+    std::unique_ptr<OpenglData> m_data;  ///< member data of opengl
 };                     

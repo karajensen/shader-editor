@@ -19,7 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     InitializeWindow(hInstance);
 
     std::unique_ptr<Application> game(new Application());
-    if(!game->Initialise(hWnd))
+    if(!game->Initialise(hWnd, hInstance))
     {
         Logger::LogError("Application failed to initialise");
         return EXIT_FAILURE;
