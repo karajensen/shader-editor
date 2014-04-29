@@ -36,6 +36,13 @@ struct Shader
     */
     static std::string GetComponentDescription(unsigned int component);
 
+    /**
+    * Determines whether the shader has the component
+    * @param component The component to query for text
+    * @return whether the shader has the component
+    */
+    bool HasComponent(unsigned int component) const;
+
     int index;                         ///< Unique index of the shader
     std::string name;                  ///< name of the shader
     std::string glslVertexFile;        ///< filename of the glsl shader

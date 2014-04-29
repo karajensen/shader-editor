@@ -74,14 +74,6 @@ bool Scene::InitialiseMeshes()
         mesh.specularity = GetPtreeValue(it,5.0f,"Specularity");
         mesh.backfacecull = GetPtreeValue(it,true,"BackfaceCulling");
 
-        std::string errorBuffer;
-        const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
-        if(!CreateMesh(path, errorBuffer, mesh))
-        {
-            Logger::LogError(path + ": " + errorBuffer);
-            return false;
-        }
-
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();
         std::string newShaderName;
@@ -121,6 +113,15 @@ bool Scene::InitialiseMeshes()
         else
         {
             mesh.shaderIndex = shaderItr->index;
+        }
+
+        // Create the mesh. Requires mesh shader to be known before creation.
+        std::string errorBuffer;
+        const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
+        if(!CreateMesh(path, errorBuffer, mesh))
+        {
+            Logger::LogError(path + ": " + errorBuffer);
+            return false;
         }
 
         // Store the mesh in the correct container
@@ -205,6 +206,10 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
         return false;
     }
 
+    const Shader& shader = m_shaders[mesh.shaderIndex];
+    const bool usesFlatShader = shader.HasComponent(Shader::FLAT);
+    const bool usesNormalMapping = shader.HasComponent(Shader::BUMP);
+
     unsigned int numMeshes = scene->mNumMeshes;
     aiMesh** meshes = scene->mMeshes;
 
@@ -220,7 +225,12 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
 
         if(!pMesh->HasPositions())
         {
-            errorBuffer = "Assimp error for mesh " + path + ": does not contain positional data";
+            errorBuffer = mesh.name + " requires positions for requested shader";
+            return false;
+        }
+        if(!pMesh->HasTextureCoords(0))
+        {
+            errorBuffer = mesh.name + " requires uvs for requested shader";
             return false;
         }
 
@@ -228,41 +238,49 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
         int componentCount = 0;
         for(unsigned int vert = 0; vert < pMesh->mNumVertices; ++vert)
         {
-            componentCount = 3;
             mesh.vertices.push_back(pMesh->mVertices[vert].x);
             mesh.vertices.push_back(pMesh->mVertices[vert].y);
             mesh.vertices.push_back(pMesh->mVertices[vert].z);
+            mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].x);
+            mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].y);
+            componentCount = 5;
 
-            // Temporary add random colour
-            mesh.vertices.push_back((rand() % 100) / 100.0f);
-            mesh.vertices.push_back((rand() % 100) / 100.0f);
-            mesh.vertices.push_back((rand() % 100) / 100.0f);
-            mesh.vertices.push_back(1.0f);
-            componentCount += 4;
+            // Add any normals for the mesh
+            if(!usesFlatShader)
+            {
+                if(pMesh->HasNormals())
+                {
+                    mesh.vertices.push_back(pMesh->mNormals[vert].x);
+                    mesh.vertices.push_back(pMesh->mNormals[vert].y);
+                    mesh.vertices.push_back(pMesh->mNormals[vert].z);
+                    componentCount += 3;
+                }
+                else
+                {
+                    errorBuffer = mesh.name + " requires normals for requested shader";
+                    return false;
+                }
+            }
 
-            //if(pMesh->HasVertexColors(0))
-            //{
-            //    mesh.vertices.push_back(pMesh->mColors[0][vert].r);
-            //    mesh.vertices.push_back(pMesh->mColors[0][vert].g);
-            //    mesh.vertices.push_back(pMesh->mColors[0][vert].b);
-            //    mesh.vertices.push_back(pMesh->mColors[0][vert].a);
-            //    componentCount += 4;
-            //}
-            //
-            //if(pMesh->HasNormals())
-            //{
-            //    mesh.vertices.push_back(pMesh->mNormals[vert].x);
-            //    mesh.vertices.push_back(pMesh->mNormals[vert].y);
-            //    mesh.vertices.push_back(pMesh->mNormals[vert].z);
-            //    componentCount += 3;
-            //}
-            //
-            //if(pMesh->HasTextureCoords(0))
-            //{
-            //    mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].x);
-            //    mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-            //    componentCount += 2;
-            //}
+            // Add any bitangents/tangents for the mesh
+            if(usesNormalMapping)
+            {
+                if(pMesh->HasTangentsAndBitangents())
+                {
+                    mesh.vertices.push_back(pMesh->mTangents[vert].x);
+                    mesh.vertices.push_back(pMesh->mTangents[vert].y);
+                    mesh.vertices.push_back(pMesh->mTangents[vert].z);
+                    mesh.vertices.push_back(pMesh->mBitangents[vert].x);
+                    mesh.vertices.push_back(pMesh->mBitangents[vert].y);
+                    mesh.vertices.push_back(pMesh->mBitangents[vert].z);
+                    componentCount += 6;
+                }
+                else
+                {
+                    errorBuffer = mesh.name + " requires tangents for requested shader";
+                    return false;
+                }
+            }
         }
 
         // Make sure vertex layout is consistant between submeshes

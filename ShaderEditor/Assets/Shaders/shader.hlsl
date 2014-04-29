@@ -6,24 +6,26 @@ cbuffer ConstantBuffer
 
 struct VertexOutput
 {
-    float4 position :SV_POSITION;
-    float4 color    :COLOR;
+    float4 position  :SV_POSITION;
+    float2 uvs       :TEXCOORD0;
+    float3 normal    :NORMAL;
+    float4 colour    :COLOR;
 };
 
-VertexOutput VShader(float4 position :POSITION, 
-                     float4 color    :COLOR)
+VertexOutput VShader(float4 position  :POSITION, 
+                     float2 uvs       :TEXCOORD0,
+                     float3 normal    :NORMAL)
 {
     VertexOutput output;
 
     output.position = mul(viewProjection, position);
-    output.color = color;
-    output.color.g = testing;
-
+    output.normal = normal;
+    output.uvs = uvs;
+    output.colour = float4(testing, testing, testing, 1.0);
     return output;
 }
 
-float4 PShader(float4 position :SV_POSITION, 
-               float4 color    :COLOR) : SV_TARGET
+float4 PShader(VertexOutput input) : SV_TARGET
 {
-    return color;
+    return input.colour;
 }

@@ -97,7 +97,7 @@ OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
     // Create temporary window used only for Glew
 	WNDCLASSEX wc;
     ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
-	wc.cbSize = sizeof(WNDCLASSEX);
+    wc.cbSize = sizeof(WNDCLASSEX);
     wc.lpfnWndProc = nullptr;
     wc.hInstance = hinstance; 
     wc.lpszClassName = "GlewWindow";

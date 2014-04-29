@@ -27,10 +27,10 @@ FragmentLinker::FragmentLinker()
     if(boost::filesystem::exists(GENERATED_FOLDER))    
     {
         boost::filesystem::remove_all(GENERATED_FOLDER);
-        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
-        {
-            Logger::LogError(GENERATED_FOLDER + " could not be created");
-        }
+    }
+    if(!boost::filesystem::create_directory(GENERATED_FOLDER))
+    {
+        Logger::LogError(GENERATED_FOLDER + " could not be created");
     }
 }
 

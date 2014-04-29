@@ -149,23 +149,33 @@ std::string DxShader::BindShaderAttributes(ID3D11Device* device,
     boost::split(components, attributeList, 
         boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
+    int numElements = 0;
     int byteOffset = 0;
     for(unsigned index = 0; index < components.size(); index += 3)
     {
         AttributeData data;
         data.name = components[index+2];
 
-        if(components[index] == "float3" || data.name == "POSITION")
+        if(components[index] == "float3")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32_FLOAT;
             byteOffset += 12;
+            ++numElements;
         }
         else if(components[index] == "float4")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
             byteOffset += 16;
+            ++numElements;
+        }
+        else if(components[index] == "float2")
+        {
+            data.byteOffset = byteOffset;
+            data.format = DXGI_FORMAT_R32G32_FLOAT;
+            byteOffset += 8;
+            ++numElements;
         }
 
         m_attributes.push_back(data);
@@ -179,11 +189,11 @@ std::string DxShader::BindShaderAttributes(ID3D11Device* device,
         vertexDescription[i].InputSlot = 0;
         vertexDescription[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         vertexDescription[i].InstanceDataStepRate = 0;
-        vertexDescription[i].SemanticIndex= 0;
+        vertexDescription[i].SemanticIndex = 0;
         vertexDescription[i].SemanticName = m_attributes[i].name.c_str();
     }
     
-    if(FAILED(device->CreateInputLayout(vertexDescription, 2, 
+    if(FAILED(device->CreateInputLayout(vertexDescription, numElements, 
         vs->GetBufferPointer(), vs->GetBufferSize(), &m_layout)))
     {
         return "Could not create input layout";

@@ -28,6 +28,12 @@ std::string Shader::GetComponentDescription(unsigned int component)
     };
 }
 
+bool Shader::HasComponent(unsigned int component) const
+{
+    return std::find(components.begin(), components.end(), 
+        Component(component)) != components.end();
+}
+
 Light::Light() :
     castshadow(false),
     specularity(0.0f)
@@ -44,3 +50,4 @@ Mesh::Mesh() :
     indexCount(0)
 {
 }
+

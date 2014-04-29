@@ -52,7 +52,7 @@ void InitializeWindow(HINSTANCE hInstance)
 {
 	WNDCLASSEX wc;
     ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
-	wc.cbSize = sizeof(WNDCLASSEX);
+    wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc = (WNDPROC)WindowProc;
     wc.hInstance = hInstance; 
