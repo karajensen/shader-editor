@@ -28,6 +28,7 @@ struct OpenglData
 
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< Camera View matrix
+    glm::mat4 viewInvTranspose;      ///< View inverse transpose matrix
     std::vector<GlMesh> meshes;      ///< OpenGL mesh objects
     std::vector<GlShader> shaders;   ///< OpenGL shader objects
     HGLRC hrc;                       ///< Rendering context  
@@ -326,9 +327,9 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     GlShader& shader = m_data->shaders[0];
     shader.SetAsActive();
 
-    const glm::mat4 viewMat = m_data->view;
-    const glm::mat4 projMat = m_data->projection;
-    shader.SendUniformMatrix("viewProjection", projMat * viewMat);
+    shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
+    shader.SendUniformMatrix("viewInvTranspose", m_data->viewInvTranspose);
+    shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
 
     for(GlMesh& mesh : m_data->meshes)
     {
@@ -351,24 +352,25 @@ std::string OpenglEngine::GetName() const
 
 void OpenglEngine::UpdateView(const Matrix& world)
 {
-    glm::mat4 viewMatrix;
+    glm::mat4 view;
 
-    viewMatrix[0][0] = world.m11;  
-    viewMatrix[1][0] = world.m12;
-    viewMatrix[2][0] = world.m13;
-    viewMatrix[3][0] = world.m14;
+    view[0][0] = world.m11;  
+    view[1][0] = world.m12;
+    view[2][0] = world.m13;
+    view[3][0] = world.m14;
 
-    viewMatrix[0][1] = world.m21;
-    viewMatrix[1][1] = world.m22;
-    viewMatrix[2][1] = world.m23;
-    viewMatrix[3][1] = world.m24;
+    view[0][1] = world.m21;
+    view[1][1] = world.m22;
+    view[2][1] = world.m23;
+    view[3][1] = world.m24;
 
-    viewMatrix[0][2] = world.m31;
-    viewMatrix[1][2] = world.m32;
-    viewMatrix[2][2] = world.m33;
-    viewMatrix[3][2] = world.m34;
+    view[0][2] = world.m31;
+    view[1][2] = world.m32;
+    view[2][2] = world.m33;
+    view[3][2] = world.m34;
 
-    m_data->view = glm::inverse(viewMatrix);
+    m_data->view = glm::inverse(view);
+    m_data->viewInvTranspose = glm::transpose(view);
 }
 
 void OpenglEngine::SetBackfaceCull(bool shouldCull)

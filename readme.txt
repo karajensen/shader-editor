@@ -1,5 +1,6 @@
 
-- Get shader usage rendering (diffuse, specular, attenuation, transparency)
+- Get diffuse uniform accross both shaders
+- Get shader usage rendering (specular, attenuation, transparency)
 
 - Texture rendering
 - Bump mapping rendering

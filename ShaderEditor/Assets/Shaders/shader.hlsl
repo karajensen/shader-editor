@@ -1,6 +1,7 @@
 cbuffer ConstantBuffer
 {
     float4x4 viewProjection;
+    float4x4 viewInvTranspose;
     float3 lightPosition;
     float3 lightAttenuation;
     float3 lightDiffuse;
@@ -23,9 +24,9 @@ VertexOutput VShader(float4 position  :POSITION,
     VertexOutput output;
 
     output.position = mul(viewProjection, position);
-    output.normal = normal;
+    output.normal = mul(viewInvTranspose, normal);
     output.uvs = uvs;
-    output.vertToLight = lightPosition - position;
+    output.vertToLight = normalize(mul(viewInvTranspose, lightPosition) - output.position);
 
     return output;
 }

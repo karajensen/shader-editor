@@ -55,9 +55,10 @@ public:
     /**
     * Sends the float to the shader
     * @param name Name of the float to send
-    * @param value The float to send
+    * @param value The pointer to the float array to send
+    * @param size The number of floats to send
     */
-    void SendUniformFloat(const std::string& name, float value);
+    void SendUniformFloat(const std::string& name, const float* value, int size);
 
     /**
     * @return the unique index of the shader
@@ -80,6 +81,8 @@ private:
 
     /**
     * Determines the vertex and fragment shader uniform variables
+    * @note OpenGL will sometimes remove uniforms when compiling 
+    * if they are not used within the body of the shader.
     * @param text Shader text split into components
     * @return error message if failed or empty if succeeded
     */

@@ -322,12 +322,42 @@ void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matri
     }
 }
 
-void GlShader::SendUniformFloat(const std::string& name, float value)
+void GlShader::SendUniformFloat(const std::string& name, const float* value, int size)
 {
-    auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform("float", itr->second.type, name))
+    std::string floatType;
+    if(size == 1)
     {
-        glUniform1f(itr->second.location, value);
+        floatType = "float";
+    }
+    else
+    {
+        floatType = "vec" + boost::lexical_cast<std::string>(size);
+    }
+    
+    auto itr = m_uniforms.find(name);
+    if(itr != m_uniforms.end() && CanSendUniform(floatType, itr->second.type, name))
+    {
+        if(size == 1)
+        {
+            glUniform1f(itr->second.location, value[0]);
+        }
+        else if(size == 2)
+        {
+            glUniform2f(itr->second.location, value[0], value[1]);
+        }
+        else if(size == 3)
+        {
+            glUniform3f(itr->second.location, value[0], value[1], value[2]);
+        }
+        else if(size == 4)
+        {
+            glUniform4f(itr->second.location, value[0], value[1], value[2], value[3]);
+        }
+        else
+        {
+            Logger::LogError("Size too large for uniform " + name);
+        }
+
         if(HasCallFailed())
         {
             Logger::LogError("Could not send uniform " + name);
