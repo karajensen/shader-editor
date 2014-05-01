@@ -104,7 +104,7 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return errorBuffer;
     }
 
-    std::string attributeError = BindShaderAttributes(device, vsBlob, shadertext);
+    std::string attributeError = BindVertexAttributes(device, vsBlob, shadertext);
     if(!attributeError.empty())
     {
         return attributeError;
@@ -131,7 +131,7 @@ std::string DxShader::LoadShaderFile(std::string& text)
     return std::string();
 }
 
-std::string DxShader::BindShaderAttributes(ID3D11Device* device, 
+std::string DxShader::BindVertexAttributes(ID3D11Device* device, 
                                            ID3D10Blob* vs,
                                            const std::string& shadertext)
 {
@@ -149,33 +149,39 @@ std::string DxShader::BindShaderAttributes(ID3D11Device* device,
     boost::split(components, attributeList, 
         boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
-    int numElements = 0;
     int byteOffset = 0;
+    const std::string texCoord = "TEXCOORD";
     for(unsigned index = 0; index < components.size(); index += 3)
     {
         AttributeData data;
+        data.slot = 0;
         data.name = components[index+2];
 
-        if(components[index] == "float3")
+        // TEXCOORD0->9 requires input slot 0->9 to be set
+        if(boost::icontains(data.name, texCoord))
+        {            
+            data.slot = boost::lexical_cast<int>(
+                boost::erase_head_copy(data.name, texCoord.size()));
+            data.name = texCoord;
+        }
+
+        if(components[index] == "float3" || data.name == "POSITION")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32_FLOAT;
             byteOffset += 12;
-            ++numElements;
         }
         else if(components[index] == "float4")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
             byteOffset += 16;
-            ++numElements;
         }
         else if(components[index] == "float2")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32_FLOAT;
             byteOffset += 8;
-            ++numElements;
         }
 
         m_attributes.push_back(data);
@@ -186,14 +192,14 @@ std::string DxShader::BindShaderAttributes(ID3D11Device* device,
     {
         vertexDescription[i].AlignedByteOffset = m_attributes[i].byteOffset;
         vertexDescription[i].Format = m_attributes[i].format;
-        vertexDescription[i].InputSlot = 0;
+        vertexDescription[i].InputSlot = m_attributes[i].slot;
         vertexDescription[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         vertexDescription[i].InstanceDataStepRate = 0;
         vertexDescription[i].SemanticIndex = 0;
         vertexDescription[i].SemanticName = m_attributes[i].name.c_str();
     }
     
-    if(FAILED(device->CreateInputLayout(vertexDescription, numElements, 
+    if(FAILED(device->CreateInputLayout(vertexDescription, m_attributes.size(), 
         vs->GetBufferPointer(), vs->GetBufferSize(), &m_layout)))
     {
         return "Could not create input layout";

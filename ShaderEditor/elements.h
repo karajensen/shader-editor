@@ -30,6 +30,19 @@ struct Shader
     };
 
     /**
+    * Vertex Shader Attribute ordering
+    */
+    enum VertexAttribute
+    {
+        POSITION,
+        UVS,
+        NORMAL,
+        COLOUR,
+        TANGENT,
+        BITANGENT
+    };
+
+    /**
     * Gets a text description of the shader component
     * @param component The component to query for text
     * @return the text description of the component

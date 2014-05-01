@@ -86,7 +86,7 @@ private:
     * @param shadertext The text of the hlsl shader
     * @return error message if failed or empty if succeeded
     */
-    std::string BindShaderAttributes(ID3D11Device* device, 
+    std::string BindVertexAttributes(ID3D11Device* device, 
         ID3D10Blob* vs, const std::string& shadertext);
 
     /**
@@ -115,6 +115,7 @@ private:
         int byteOffset;      ///< Offset between current and previous attribute
         std::string name;    ///< The name of the attribute
         DXGI_FORMAT format;  ///< Layout of the attribute
+        int slot;            ///< Slot for the attribute semantic
     };
 
     /**

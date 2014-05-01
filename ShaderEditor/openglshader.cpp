@@ -181,7 +181,7 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     boost::split(splitVertexText, vText, deliminator, boost::token_compress_on);
     boost::split(splitFragmentText, fText, deliminator, boost::token_compress_on);
 
-    errorBuffer = BindShaderAttributes(splitVertexText);
+    errorBuffer = BindVertexAttributes(splitVertexText);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
@@ -226,7 +226,7 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     return std::string();
 }
 
-std::string GlShader::BindShaderAttributes(const std::vector<std::string>& vText)
+std::string GlShader::BindVertexAttributes(const std::vector<std::string>& vText)
 {
     m_stride = 0;
     int currentIndex = 0;

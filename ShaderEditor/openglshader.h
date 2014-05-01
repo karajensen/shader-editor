@@ -76,7 +76,7 @@ private:
     * @param vText Vertex shader text split into components
     * @return error message if failed or empty if succeeded
     */
-    std::string BindShaderAttributes(const std::vector<std::string>& vText);
+    std::string BindVertexAttributes(const std::vector<std::string>& vText);
 
     /**
     * Determines the vertex and fragment shader uniform variables

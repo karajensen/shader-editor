@@ -9,7 +9,6 @@ struct VertexOutput
     float4 position  :SV_POSITION;
     float2 uvs       :TEXCOORD0;
     float3 normal    :NORMAL;
-    float4 colour    :COLOR;
 };
 
 VertexOutput VShader(float4 position  :POSITION, 
@@ -21,11 +20,11 @@ VertexOutput VShader(float4 position  :POSITION,
     output.position = mul(viewProjection, position);
     output.normal = normal;
     output.uvs = uvs;
-    output.colour = float4(testing, testing, testing, 1.0);
+    output.uvs.x = testing;
     return output;
 }
 
 float4 PShader(VertexOutput input) : SV_TARGET
 {
-    return input.colour;
+    return float4(input.normal,1.0);
 }
