@@ -305,11 +305,10 @@ void Application::InitialiseTweakBar(bool opengl)
     TwAddButton(m_tweakbar, "Toggle Render Engine",
         &ButtonToggleRenderEngine, this, "");
 
-    m_scene->InitialiseTweakBar(m_tweakbar);
-    m_timer->InitialiseTweakBar(m_tweakbar);
-    m_camera->InitialiseTweakBar(m_tweakbar);
+    const std::string group = " group='Application' ";
+    m_timer->InitialiseTweakBar(m_tweakbar, group);
+    m_camera->InitialiseTweakBar(m_tweakbar, group);
 
-    const std::string group("group=Application");
     TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,
         &m_mouseDirection.x, group.c_str());
     
@@ -324,6 +323,8 @@ void Application::InitialiseTweakBar(bool opengl)
     
     TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
         &m_mousePressed, group.c_str());
+
+    m_scene->InitialiseTweakBar(m_tweakbar);
 }
 
 void Application::RemoveTweakBar()

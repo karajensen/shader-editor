@@ -1,7 +1,6 @@
 
 - Get shader usage rendering (diffuse, specular, attenuation, transparency)
 
-- Light tweaking
 - Texture rendering
 - Bump mapping rendering
 - Render to texture

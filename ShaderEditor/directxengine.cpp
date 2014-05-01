@@ -294,7 +294,7 @@ bool DirectxEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("DirectX: " + result);
+            Logger::LogError("DirectX: " + result, true);
             return false;
         }
     }
@@ -320,15 +320,19 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
 {
     DxShader& shader = m_data->shaders[0];
     shader.SetAsActive(m_data->context);
+
+    // Model pivot points exist at the origin: world matrix is the identity
+    const D3DXMATRIX viewProjection = m_data->view * m_data->projection;
+    shader.UpdateConstantMatrix("viewProjection", viewProjection);
     
-    const D3DXMATRIX viewProj = m_data->view * m_data->projection;
-    shader.UpdateConstantMatrix("viewProjection", viewProj);
-    
-    const float testing = 0.2f;
-    shader.UpdateConstantFloat("testing", testing);
+    // Send light information
+    shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
+    shader.UpdateConstantFloat("lightAttenuation", &lights[0].attenuation.x, 3);
+    shader.UpdateConstantFloat("lightDiffuse", &lights[0].diffuse.r, 3);
+    shader.UpdateConstantFloat("lightSpecular", &lights[0].specular.r, 3);
+    shader.UpdateConstantFloat("lightSpecularity", &lights[0].specularity, 1);
     
     shader.SendConstants(m_data->context);
-    
     for(DxMesh& mesh : m_data->meshes)
     {
         SetBackfaceCull(mesh.ShouldBackfaceCull());

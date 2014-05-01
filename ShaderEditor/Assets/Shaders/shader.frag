@@ -1,9 +1,20 @@
 #version 150
 
+in vec3 ex_VertToLight;
 in vec3 ex_Normal;
+
 out vec4 out_Color;
  
 void main(void)
 {
-	out_Color = vec4(ex_Normal,1.0);
+    vec4 finalColour;
+    normalize(ex_Normal);
+
+    float diffuse = (dot(ex_VertToLight, ex_Normal) + 1.0) * 0.5; 
+    
+    finalColour.r = diffuse;
+	finalColour.g = diffuse;
+	finalColour.b = diffuse;
+    finalColour.a = 1.0;
+    out_Color = finalColour;
 }

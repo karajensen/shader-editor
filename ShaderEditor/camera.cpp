@@ -104,9 +104,8 @@ void Camera::Update()
     m_world *= roll * yaw * pitch;
 }
 
-void Camera::InitialiseTweakBar(CTwBar* tweakbar)
+void Camera::InitialiseTweakBar(CTwBar* tweakbar, const std::string& group)
 {
-    const std::string group("group=Camera");
     TwAddVarRO(tweakbar, "Camera X", TW_TYPE_FLOAT, &m_pos.x, group.c_str());
     TwAddVarRO(tweakbar, "Camera Y", TW_TYPE_FLOAT, &m_pos.y, group.c_str());
     TwAddVarRO(tweakbar, "Camera Z", TW_TYPE_FLOAT, &m_pos.z, group.c_str());

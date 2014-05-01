@@ -52,11 +52,12 @@ public:
     void UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& matrix);
 
     /**
-    * Sends the float to the shader
+    * Sends a float or float array to the shader
     * @param name Name of the float to send
-    * @param value The float to send
+    * @param value Pointer to the float array to send
+    * @param size The size of the float array
     */
-    void UpdateConstantFloat(const std::string& name, const float& value);
+    void UpdateConstantFloat(const std::string& name, const float* value, int size);
 
     /**
     * This bulk sends all constant data saved in the scratch buffer to the shader

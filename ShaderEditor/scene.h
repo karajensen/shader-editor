@@ -6,9 +6,7 @@
 
 #include "common.h"
 #include "elements.h"
-
-struct CTwBar;
-class FragmentLinker;
+#include "AntTweakBar.h"
 
 /**
 * Manager and owner of all objects and diagnostics
@@ -102,11 +100,11 @@ private:
     */
     bool CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& mesh);
 
-    std::unique_ptr<FragmentLinker> m_linker; ///< Linker for auto generating shaders
     std::vector<Shader> m_shaders;            ///< All shaders in the scene
     std::vector<Mesh> m_alpha;                ///< All translucent meshes in the scene
     std::vector<Mesh> m_meshes;               ///< All meshes in the scene
     std::vector<Light> m_lights;              ///< All lights in the scene
     int m_selectedLight;                      ///< Index of the selected light
+    TwType m_vectorType;                      ///< Tweakable vector type for the tweak bar
     CTwBar* m_tweakbar;                       ///< Used for runtime diagnostics
 };                     

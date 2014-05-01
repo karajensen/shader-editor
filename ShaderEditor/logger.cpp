@@ -4,10 +4,7 @@
 
 #include "logger.h"
 #include <string>
-
-#ifdef _IRR_WINDOWS_
 #include <Windows.h>
-#endif
 
 std::unique_ptr<Logger> Logger::sm_logger;
 
@@ -39,11 +36,16 @@ void Logger::LogInfo(const std::string& info)
     #endif
 }
 
-void Logger::LogError(const std::string& error)
+void Logger::LogError(const std::string& error, bool popup)
 {
     sm_logger->m_logfile << "ERROR: \t" <<  error << std::endl;
 
     #ifdef _IRR_WINDOWS_
     OutputDebugString((error+"\n").c_str());
     #endif
+
+    if(popup)
+    {
+        MessageBox(nullptr, error.c_str(), TEXT("ERROR"), MB_OK);
+    }
 }

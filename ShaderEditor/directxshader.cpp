@@ -312,13 +312,22 @@ void DxShader::SetAsActive(ID3D11DeviceContext* context)
     context->VSSetConstantBuffers(0, 1, &m_constant);
 }
 
-void DxShader::UpdateConstantFloat(const std::string& name, const float& value)
+void DxShader::UpdateConstantFloat(const std::string& name, const float* value, int size)
 {
+    std::string floatType = "float";
+    if(size > 1)
+    {
+        floatType += boost::lexical_cast<std::string>(size);
+    }
+
     auto itr = m_constants.find(name);
     if(itr != m_constants.end() && 
-        CanSendConstant("float", itr->second.type, name))
+        CanSendConstant(floatType, itr->second.type, name))
     {
-        m_constantScratch[itr->second.index] = value;
+        for(int i = 0; i < size; ++i)
+        {
+            m_constantScratch[itr->second.index] = value[i];
+        }
     }
 }
 

@@ -11,7 +11,6 @@
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
-#include "AntTweakBar.h"
 #include "fragmentlinker.h"
 
 namespace
@@ -28,8 +27,7 @@ namespace
 
 Scene::Scene() :
     m_tweakbar(nullptr),
-    m_selectedLight(NO_INDEX),
-    m_linker(new FragmentLinker())
+    m_selectedLight(NO_INDEX)
 {
 }
 
@@ -58,6 +56,8 @@ bool Scene::Initialise()
 
 bool Scene::InitialiseMeshes()
 {
+    FragmentLinker linker;
+
     boost::property_tree::ptree meshes;
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
         meshes, boost::property_tree::xml_parser::trim_whitespace);
@@ -100,7 +100,7 @@ bool Scene::InitialiseMeshes()
             // Shader does not exist, create from fragments
             Shader shader;
             shader.name = shadername;
-            if(!m_linker->InitialiseFromFragments(shader, m_lights.size()))
+            if(!linker.InitialiseFromFragments(shader, m_lights.size()))
             {
                 Logger::LogError("Shader name " + shadername +
                     " for " + mesh.name + " is an invalid combination");
@@ -335,33 +335,61 @@ void Scene::SelectNextLight()
 void Scene::ReleaseTweakParameters()
 {
     TwRemoveVar(m_tweakbar, "Select Next Light");
-    TwRemoveVar(m_tweakbar, "Position X");
-    TwRemoveVar(m_tweakbar, "Position Y");
-    TwRemoveVar(m_tweakbar, "Position Z");
+    TwRemoveVar(m_tweakbar, "LightName");
+    TwRemoveVar(m_tweakbar, "LightPosition");
+    TwRemoveVar(m_tweakbar, "LightAttenuation");
+    TwRemoveVar(m_tweakbar, "LightDiffuse");
+    TwRemoveVar(m_tweakbar, "LightSpecular");
+    TwRemoveVar(m_tweakbar, "LightSpecularity");
 }
 
 void Scene::InitialiseTweakParameters()
 {
-    const std::string light = m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name;
-    const std::string lightGroup = " group='Light: " + light + "' ";
+    const std::string lightGroup = " group='Light' ";
     TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, lightGroup.c_str());
  
     if(m_selectedLight != NO_INDEX)
     {
-        TwAddVarRW(m_tweakbar, "Position X", TW_TYPE_FLOAT, 
-            &m_lights[m_selectedLight].position.x, lightGroup.c_str());
+        const std::string selected = " label='Selected: " + 
+            (m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name) + "' ";
 
-        TwAddVarRW(m_tweakbar, "Position Y", TW_TYPE_FLOAT, 
-            &m_lights[m_selectedLight].position.y, lightGroup.c_str());
+        TwAddButton(m_tweakbar, "LightName", nullptr, 
+            nullptr, (selected + lightGroup).c_str());
 
-        TwAddVarRW(m_tweakbar, "Position Z", TW_TYPE_FLOAT, 
-            &m_lights[m_selectedLight].position.z, lightGroup.c_str());
+        TwAddVarRW(m_tweakbar, "LightPosition", m_vectorType, 
+            &m_lights[m_selectedLight].position.x, 
+            (" label='Position' " + lightGroup).c_str());
+
+        TwAddVarRW(m_tweakbar, "LightAttenuation", m_vectorType, 
+            &m_lights[m_selectedLight].attenuation.x, 
+            (" label='Attenuation' " + lightGroup).c_str());
+
+        TwAddVarRW(m_tweakbar, "LightDiffuse", TW_TYPE_COLOR3F, 
+            &m_lights[m_selectedLight].diffuse.r, 
+            (" label='Diffuse' " + lightGroup).c_str());
+
+        TwAddVarRW(m_tweakbar, "LightSpecular", TW_TYPE_COLOR3F, 
+            &m_lights[m_selectedLight].specular.r, 
+            (" label='Specular' " + lightGroup).c_str());
+
+        TwAddVarRW(m_tweakbar, "LightSpecularity", TW_TYPE_FLOAT, 
+            &m_lights[m_selectedLight].specularity, 
+            (" label='Specularity' " + lightGroup).c_str());
     }
 }
 
 void Scene::InitialiseTweakBar(CTwBar* tweakbar)
 {
     m_tweakbar = tweakbar;
+
+    TwStructMember members[] = 
+    {
+        { "x", TW_TYPE_FLOAT, offsetof(Float3, x), " step = 0.1 " },
+        { "y", TW_TYPE_FLOAT, offsetof(Float3, y), " step = 0.1 " },
+        { "z", TW_TYPE_FLOAT, offsetof(Float3, z), " step = 0.1 " }
+    };
+    m_vectorType = TwDefineStruct("Vector", members, 3, sizeof(Float3), 0, 0);
+
     InitialiseTweakParameters();
 }
 

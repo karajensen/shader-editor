@@ -301,7 +301,7 @@ bool OpenglEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("OpenGL: " + result);
+            Logger::LogError("OpenGL: " + result, true);
             return false;
         }
     }
@@ -328,11 +328,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     const glm::mat4 viewMat = m_data->view;
     const glm::mat4 projMat = m_data->projection;
-    shader.SendUniformMatrix("viewMat", viewMat);
-    shader.SendUniformMatrix("projMat", projMat);
-    
-    const float testing = 0.5f;
-    shader.SendUniformFloat("testing", testing);
+    shader.SendUniformMatrix("viewProjection", projMat * viewMat);
 
     for(GlMesh& mesh : m_data->meshes)
     {

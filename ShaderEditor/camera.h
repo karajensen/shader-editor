@@ -66,8 +66,9 @@ public:
     /**
     * Adds tweakable timer parameters to the tweak bar
     * @param tweakbar Used for runtime diagnostics
+    * @param group The header to put any diagnostics under
     */
-    void InitialiseTweakBar(CTwBar* tweakbar);
+    void InitialiseTweakBar(CTwBar* tweakbar, const std::string& group);
 
 private:
 

@@ -57,9 +57,8 @@ float Timer::GetDeltaTime() const
     return static_cast<float>(m_deltaTime); 
 }
 
-void Timer::InitialiseTweakBar(CTwBar* tweakbar)
+void Timer::InitialiseTweakBar(CTwBar* tweakbar, const std::string& group)
 {
-    const std::string group("group=Application");
     TwAddVarRO(tweakbar, "Delta Time", TW_TYPE_DOUBLE, &m_deltaTime, group.c_str());
     TwAddVarRO(tweakbar, "Frames Per Sec", TW_TYPE_UINT32, &m_fps, group.c_str());
 }
