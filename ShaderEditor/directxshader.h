@@ -113,11 +113,11 @@ private:
     */
     struct AttributeData
     {
-        int byteOffset;      ///< Offset between current and previous attribute
-        std::string name;    ///< The name of the attribute
-        DXGI_FORMAT format;  ///< Layout of the attribute
-        int slot;            ///< Slot for the attribute semantic
-    };
+        int byteOffset;       ///< Offset between current and previous attribute
+        std::string semantic; ///< The HLSL description of the attribute
+        DXGI_FORMAT format;   ///< Layout of the attribute
+        int slot;             ///< Slot for the attribute semantic
+    };                       
 
     /**
     * Information for a shader constant

@@ -150,24 +150,23 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
         boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
     int byteOffset = 0;
-    const std::string texCoord = "TEXCOORD";
     for(unsigned index = 0; index < components.size(); index += 3)
     {
         AttributeData data;
         data.slot = 0;
-        data.name = components[index+2];
+        data.semantic = components[index+2];
 
-        // TEXCOORD0->9 requires input slot 0->9 to be set
-        if(boost::icontains(data.name, texCoord))
+        // SEMANTIC0->9 requires input slot 0->9 to be set
+        char lastChar = data.semantic[data.semantic.size()-1];
+        if(isdigit(lastChar))
         {            
-            data.slot = boost::lexical_cast<int>(
-                boost::erase_head_copy(data.name, texCoord.size()));
-            data.name = texCoord;
+            data.slot = boost::lexical_cast<int>(lastChar);
+            data.semantic = std::string(data.semantic.begin(), data.semantic.end()-1);
         }
 
-        // Pass position as a vec3 into a vec4 slot as an 
-        // optimization to have the 'w' component set as 1.0
-        if(components[index] == "float3" || data.name == "POSITION")
+        // Pass position as a vec3 into a vec4 slot to use the optimization 
+        // where the 'w' component is automatically set as 1.0
+        if(components[index] == "float3" || data.semantic == "POSITION")
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -198,7 +197,7 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
         vertexDescription[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         vertexDescription[i].InstanceDataStepRate = 0;
         vertexDescription[i].SemanticIndex = 0;
-        vertexDescription[i].SemanticName = m_attributes[i].name.c_str();
+        vertexDescription[i].SemanticName = m_attributes[i].semantic.c_str();
     }
     
     if(FAILED(device->CreateInputLayout(vertexDescription, m_attributes.size(), 

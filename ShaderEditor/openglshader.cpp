@@ -239,8 +239,8 @@ std::string GlShader::BindVertexAttributes(const std::vector<std::string>& vText
             data.name = vText[currentIndex+2];
             const std::string type = vText[currentIndex+1];
 
-            // Pass position as a vec3 into a vec4 slot as an 
-            // optimization to have the 'w' component set as 1.0
+            // Pass position as a vec3 into a vec4 slot to use the optimization 
+            // where the 'w' component is automatically set as 1.0
             if(type == "vec3" || data.name == "in_Position")
             {
                 data.components = 3;
