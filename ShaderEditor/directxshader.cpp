@@ -165,6 +165,8 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
             data.name = texCoord;
         }
 
+        // Pass position as a vec3 into a vec4 slot as an 
+        // optimization to have the 'w' component set as 1.0
         if(components[index] == "float3" || data.name == "POSITION")
         {
             data.byteOffset = byteOffset;

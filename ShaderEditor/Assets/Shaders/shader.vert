@@ -1,6 +1,6 @@
 #version 150
 
-in vec3 in_Position;
+in vec4 in_Position;
 in vec2 in_UVs;
 in vec3 in_Normal;
 
@@ -13,7 +13,7 @@ uniform vec3 lightPosition;
  
 void main(void)
 {
-	gl_Position = viewProjection * vec4(in_Position, 1.0);
+	gl_Position = viewProjection * in_Position;
 	ex_Normal = (viewInvTranspose * vec4(in_Normal, 1.0)).xyz;
 	gl_TexCoord[0].st = in_UVs;
 
