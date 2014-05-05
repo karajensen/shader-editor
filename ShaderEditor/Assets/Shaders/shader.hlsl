@@ -3,10 +3,6 @@ cbuffer ConstantBuffer
     float4x4 viewProjection;
     float4x4 viewInvTranspose;
     float3 lightPosition;
-    float3 lightAttenuation;
-    float3 lightDiffuse;
-    float3 lightSpecular;
-    float lightSpecularity;
 }
 
 struct VertexOutput

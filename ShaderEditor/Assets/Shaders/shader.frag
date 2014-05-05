@@ -8,9 +8,10 @@ out vec4 out_Color;
 void main(void)
 {
     vec4 finalColour;
-    normalize(ex_Normal);
+	vec3 normal = ex_Normal;
+    normalize(normal);
 
-    float diffuse = (dot(ex_VertToLight, ex_Normal) + 1.0) * 0.5; 
+    float diffuse = (dot(ex_VertToLight, normal) + 1.0) * 0.5; 
     
     finalColour.r = diffuse;
 	finalColour.g = diffuse;

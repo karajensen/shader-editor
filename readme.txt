@@ -1,20 +1,19 @@
+- Output asm for opengl
 
 - Get diffuse uniform accross both shaders
-- Get shader usage rendering (specular, attenuation, transparency)
-
-- Texture rendering
-- Bump mapping rendering
-- Render to texture
+- Rendering: specular, attenuation, transparency, texture, bump mapping
 
 - Create 3D scene
-- Qt textbox for viewing shader code
-- Normal map generation for post
-- Post effects (fog, dof, glow, SSAO, Color correction)
-- soft shadow mapping
+- Qt textbox for viewing shader code/assembly
 - Runtime editing of shaders
 
-- Fix opengl fps: using vao instead of always setting vbo/attributes
+- Render to texture
+- Normal map generation for post
+- Switching on/off post effects and post textures
+- Post effects: fog, dof, glow, SSAO, Color correction, shadows
 
+TO DETERMINE:
+- Fix opengl fps: using vao instead of always setting vbo/attributes
 
 =================================================================
 SHADER EDITOR

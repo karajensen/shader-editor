@@ -4,6 +4,7 @@
 
 #include "directxshader.h"
 #include "boost/algorithm/string.hpp"
+#include "directx/include/D3Dcompiler.h"
 
 namespace
 {
@@ -98,19 +99,68 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     }
 
     std::string shadertext;
-    const std::string errorBuffer = LoadShaderFile(shadertext);
+    std::string errorBuffer = LoadShaderFile(shadertext);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    std::string attributeError = BindVertexAttributes(device, vsBlob, shadertext);
-    if(!attributeError.empty())
+    errorBuffer = BindVertexAttributes(device, vsBlob, shadertext);
+    if(!errorBuffer.empty())
     {
-        return attributeError;
+        return errorBuffer;
     }
 
-    return CreateConstantBuffer(device, shadertext);
+    errorBuffer = CreateConstantBuffer(device, shadertext);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    errorBuffer = OutputAssembly(vsBlob, psBlob);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    return std::string();
+}
+
+std::string DxShader::OutputAssembly(ID3D10Blob* vs, ID3D10Blob* ps)
+{
+    ID3DBlob* vertexAsm = nullptr;
+    D3DDisassemble(vs->GetBufferPointer(), vs->GetBufferSize(), 
+        D3D_DISASM_ENABLE_INSTRUCTION_NUMBERING, 0, &vertexAsm);
+ 
+    ID3DBlob* pixelAsm = nullptr;
+    D3DDisassemble(ps->GetBufferPointer(), ps->GetBufferSize(), 
+        D3D_DISASM_ENABLE_INSTRUCTION_NUMBERING, 0, &pixelAsm);
+
+    if (!vertexAsm || !pixelAsm)
+    {
+        return "Could not generate assembly";
+    }
+
+    const std::string path = m_filepath + ".asm";
+    std::ofstream asmFile(path.c_str(), std::ios_base::out|std::ios_base::trunc);
+
+    if(!asmFile.is_open())
+    {
+        return "Could not open " + path;
+    }
+
+    asmFile << "===== VERTEX SHADER =====" << std::endl;
+    asmFile << static_cast<char*>(vertexAsm->GetBufferPointer());
+    asmFile << std::endl << std::endl;
+    asmFile << "===== PIXEL SHADER =====" << std::endl;
+    asmFile << static_cast<char*>(pixelAsm->GetBufferPointer());
+
+    asmFile.flush();
+    asmFile.close();
+    pixelAsm->Release();
+    vertexAsm->Release();
+
+    return std::string();
 }
 
 std::string DxShader::LoadShaderFile(std::string& text)
