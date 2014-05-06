@@ -3,9 +3,9 @@
 *.suo
 *.db
 *.vcxproj.user
-*.exe
 *.ilk
 *.pdb
+ShaderEditor/ShaderEditor.exe
 ShaderEditor/logfile.txt
 ShaderEditor/Debug/
 ShaderEditor/Release/
