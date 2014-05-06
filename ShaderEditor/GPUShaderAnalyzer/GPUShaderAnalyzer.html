@@ -1,0 +1,463 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>GPU ShaderAnalyzer</title>
+</head>
+<body>
+<h1 align="center">GPU ShaderAnalyzer v1.58</h1>
+
+<p><h3>Contents</h3></p>
+<UL>
+        <LI><a href="#Overview">Overview</A><br>
+        <LI><a href="#New">What's New</A><br>
+        <LI><a href="#Requirements">Requirements</A>
+        <LI><a href="#Known Issues">Known Issues</A>
+        <LI><a href="#Getting Started">Getting Started</A>
+        <LI><a href="#Compiler Statistics">About the Compiler Statistics</A>
+        <LI><a href="#D3D Assembly Statistics">About the D3D Assembly Statistics</A>
+        <LI><a href="#Command Line">Using the Command Line Interface</A>
+        <LI><a href="#Shader Annotation">Shader Annotation</A>
+        <LI><a href="#Support">Support</A>
+        <LI><a href="#Resources">Resources</A>
+</UL></p>
+
+<p><a name="Overview"><h3>Overview</h3></p>
+<p>GPU ShaderAnalyzer is a tool for analyzing the performance of pixel, vertex, geometry, hull, domain and compute shaders for ATI Radeon&trade; graphics cards. It gives you accurate performance estimates for your shaders and even allows you to view disassembly of the generated hardware shader, all without having to run the application on actual hardware. GPU ShaderAnalyzer can be used as a GUI tool for interactive tuning of your shaders or in command line mode to generate detailed reports. It supports Direct3D (D3D9.0 - D3D11) and OpenGL (GLSL 1.50, arb_fp and arb_vp) shaders.</p>
+
+<p><a name="New"><h3>What's New</h3>
+<UL>
+        <LI>
+		<b>v1.59.3208 (13th April 2012)</b>
+		<UL>
+		<li>Support for Catalyst&trade; drivers 12.1, 12.2, 12.3, 12.4.
+		</UL>
+		<br>
+        <LI>
+                <b>v1.58.3084 (23rd December 2011)</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 11.9-11.12.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.57.2971 (16th September 2011)</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 11.1-11.8.
+                <li>Support for AMD Radeon&trade; HD 6670 and HD 6450 graphics cards. 
+                <li>Improved analysis for ATI Radeon&trade; HD 6970 graphics cards.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.56.2720 (18th January 2011) - January 2011 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 10.10-10.12.
+                <li>Support for ATI Radeon&trade; HD 6870 and HD 6970 graphics cards. 
+                <li>Report compilation time from HLSL shaders to D3D assembly.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.55.2597 (23rd September 2010) - September 2010 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 10.4-10.9.
+                <li>Support for June 2010 DirectX SDK.
+                <li>Fixed an installation problem on a machine with VBScript disabled.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.54.2438 (5th May 2010) - May 2010 Refresh</b>
+                <ul>
+                <li>Support for GLSL 1.50 (OpenGL 3.2).
+                <li>Support for Catalyst&trade; driver 10.1-10.3.
+                <li>Support for ATI Radeon&trade; HD 5570 graphics cards.
+                <li>Support for ATI Radeon&trade; HD 5450 graphics cards.
+                <li>Additional control over the shader source type used for compilation.
+                <li>Updated the ALUTexRatio to report the ALU vs Tex ratio from the non Tex bottleneck vs Tex ratio.
+                <li>Improved static analysis for ATI Radeon&trade; HD 5870 graphics cards.
+                <li>Disassembly window now handles large outputs.
+                <li>Disassembly and statistics now stay visible while code is modified.
+                <li>GLSL macros now fully supported.
+                <li>Added tooltips.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.53.2271 (15th January 2010) - January 2010 Refresh</b>
+                <ul>
+                <li>Support for Microsoft&reg; DirectX&reg; 11.
+                <li>Support for Catalyst&trade; driver 9.9-9.12.
+                <li>Support for ATI Radeon&trade; HD 5870 graphics cards.
+                <li>Support for ATI Radeon&trade; HD 5770 graphics cards.
+                <li>Fixed support for IL disassembly.
+                <li>Fixed issue with simple GLSL shaders.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.52.2177 (3rd September 2009) - August 09 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 9.5-9.8.
+                <li>Support for ATI Radeon&trade; HD 4890 graphics cards.
+                <li>Support for ATI Radeon&trade; HD 4770 graphics cards.
+                <li>Improved interface for selecting which ASICs to generate statistics for.
+                <li>Compiler Statistics table now remembers which column to sort by.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.51.1983 (23rd April 2009) - April 09 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 9.2-9.4.
+                <li>Support for Microsoft&reg; DirectX&reg; November 2008 and March 2009.
+                <li>Improved support for HLSL compiler options.
+                <li>Fixed a bug where the object code window might not show the full disassembly output.
+                <li>Fixed a bug where the statistics report the number of GPRs one larger than it should be.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.50.1904 (6th February 2009) - January 09 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 9.1.
+                <li>Support for GLSL 1.30 (OpenGL 3.0).
+                <li>Improved analysis for dynamic flow controls.
+                <li>Fixed an issue with compiling DX9 shader (SM 3) for ATI Radeon&trade; x1300, x1600 and x1900 graphics cards.
+                <li>Support for ATI Radeon&trade; HD 4550 graphics cards.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.49.1845 (12th December 2008) - December 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.12.
+                <li>Support for Brook+ & IL (Intermediate Language) shaders has been moved to a newly created tool Stream KernelAnalyzer.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.48.1822 (20th November 2008) - November 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.11.
+                <li>Improved stability.
+                <li>Catalyst&trade; driver 7.2 to 7.10 modules have been removed from the installer.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.47.1786 (22th October 2008) - October 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.10.
+                <li>Added -NoGeometryShader (G) option for a DX10 shader to the command line option.
+                <li>Fixed several issues with CAL compute shader.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.46.1735 (19th September 2008) - September 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.9.
+                <li>Support for ATI Radeon&trade; HD 4670 graphics cards.
+                <li>Support for CAL 1.2.
+                <li>Support for CAL Compute Shader (only for ATI Radeon&trade; HD 48xx graphics cards).
+                <li>Improved analysis of bottleneck computation for shaders with dynamic branching.
+                <li>No geometry shader setting is turned on by default for DX10 shader.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.45.1701 (28th August 2008) - August 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.8.
+                <li>More descriptive text for bottleneck statistics.
+                <li>Improved behaviour when saving & restoring window size & state.
+                <li>Improved support for shader annotation when auto compile is off.
+                <li>ESC key will not exit the app.
+                <li>Improved support for Add All in the Statistics Column Selection option window.
+                <li>A new -verbose option to the command line version to provide detailed statistics of the shader analysis.
+                <li>Reformatted the DX error message.  Now, you can double click on the error message to jump to the error line.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.44.1647 (31st July 2008) - July 08 Refresh</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver 8.7.
+                <li>Fixed default file extensions.
+                <li>Fixed a bug in calculating min, max and avg cycles for RV770.
+                <li>Removing an item in the Statistics Column Selection option window now works properly.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.43.1597 (30th June 2008) - June 08 Refresh</b>
+                <ul>
+                <li>Support for Radeon&trade; HD 4870.
+                <li>Support for Catalyst&trade; driver 8.6.
+                <li>Fix for erroneous output color buffer target compilation problem with GLSL shaders.
+                <li>Support for June 2008 DirectX SDK.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.42.1586 (20th May 2008) - May 08 Refresh</b>
+                <ul>
+                <li>Support for <a href="#Shader Annotation">Shader Annotation</A>.
+                <li>Support for Catalyst&trade; driver versions 7.2 - 8.5.
+                <li>Support for CAL version 1.1 as used by the StreamComputing SDK. The StreamComputing SDK is available from <a title="http://ati.amd.com/technology/streamcomputing/index.html" href="http://ati.amd.com/technology/streamcomputing/index.html">http://ati.amd.com/technology/streamcomputing/index.html</A>.
+                <li>Support for March 2008 DirectX SDK.
+                <li>Brook+ compilation errors now reported in Object Code window.
+                <li>Support for Radeon&trade; HD 3870 disassembly.
+                <li>New "No Geometry Shader" option for DX10 pixel & vertex shaders.
+                <li>Fixed file associations.
+                <li>Improved stability.
+                <li>Various UI improvements.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.41.1373 (5th February 2008) - Catalyst&trade; 8.1 Update</b>
+                <ul>
+                <li>Support for Catalyst&trade; driver versions 7.1 - 8.1.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.40.1326 (19th December 2007) - December 07 Refresh</b>
+                <ul>
+                <li>Support for DX10.1 shaders (ps_4_1/vs_4_1/gs_4_1).
+                <li>Support for ATI Radeon&trade; HD 3870 graphics cards.
+                <li>Support for ATI Radeon&trade; x1300 & x1600 graphics cards.
+                <li>Support for Catalyst&trade; driver versions 6.9 - 7.12.
+                <li>Support for Brook+ & IL (Intermediate Language) shaders as used by the StreamComputing SDK. The StreamComputing SDK will be available shortly.
+                <li>New AMD Updater utility checks for the lastest version of GSA.
+                <li>Support for setting the value of bool constants.
+                <li>Switch to using D3DX10 for compiling DX10 shaders. The version of D3DX10 used can be configured in the Options dialog.
+                <li>Improved sort ordering of stats list columns.
+                <li>Improved support for include paths.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.30.1141 (16th August 2007) - Summer 07 Tools Release</b>
+                <ul>
+                <li>Support for DX10 shaders (ps_4_0/vs_4_0/gs_4_0).
+                <li>Support for OpenGL shaders (GLSL/arb_fp/arb_vp).
+                <li>Improved analysis of shaders with flow control.
+                <li>Analysis of probable shader bottleneck.
+                <li>Calculation of shader throughput.
+                <li>Support for ATI Radeon&trade; HD 2000 series graphics cards.
+                <li>Support for multiple Catalyst&trade; driver revisions.
+                This release contains Catalyst&trade; versions 6.9 - 7.6, future releases will add later Catalyst&trade; versions.
+                <li>User-configurable shader context-coloring (available in the Options dialog).
+                <li>User-selectable statistics columns (available in the Options dialog).
+                <LI>Support for configuring flow control coherence settings.
+                </UL>
+                <br>
+        <LI>
+                <b>v1.0.1024 (31st October 2006) - Initial public release.</b>
+                <ul>
+                <li>So everything is kinda new.
+                </ul>
+</UL></p>
+
+<p><a name="Requirements"><h3>Requirements</h3></p>
+<ul>
+        <li>Windows&reg; XP, Windows&reg; Vista&reg; or Windows&reg; 7
+        <li>Microsoft&reg; DirectX&reg; SDK (April 07 or later).
+</ul>
+
+<p><a name="Known Issues"><h3>Known Issues</h3></p>
+<dl>
+        <dt><b>GLSL Interface blocks are not supported</b></dt>
+        <dd>GLSL shaders which declare variables within interface blocks are not supported. Please remove variables from interface block to successfully analyze shader.</dd>
+        <dt><b>GLSL unsized arrays are not supported</b></dt>
+        <dd>GLSL geometry shaders which declare input/output variables as unsized arrays are not supported. Please explicitly declare the size of the array to match the number of primitive vertices.</dd>
+        <dt><b>Incomplete handling of R6xx HW Break & Continue instructions</b></dt>
+        <dd>The current implementation takes some account of break & continue instructions but research is ongoing on understanding the full performance implications of these instructions. If your shader makes usage of the break instruction you can still consider the reported performance estimates as good but if for instance you know that the break will likely be triggered after only a few iterations of a loop then you should factor this into your analysis.</dd>
+        <dt><b>OpenGL vertex shaders not supported on R3xx-R5xx GPUs</b></dt>
+        <dt><b>General Purpose Register usage is not currently considered</b></dt>
+        <dd>In circumstances where a shader has a high latency (generally when there is a high texture dependency level) and high GPR usage the GPU can run out of the GPRs that is uses to hide latency. In these circumstances lowering the number of GPRs can improve shader performance.
+        This is not currently factored into GSAs analysis but it is something we are actively researching.</dd>
+        <dt><b>Unmatched <tt>#ifdef</tt> with <tt>#endif</tt> usage can cause crashes</b></dt>
+        <dd>If you suffer crashes when editing shaders which use preprocessor commands (<tt>#ifdef</tt>, <tt>#endif</tt>, etc.) it is recommended that you disable <b>Auto Compile</b> in the Options dialog and instead click the "Compile" button when you have completed editting your shader.</dd>
+</dl>
+
+<p><a name="Getting Started"><h3>Getting Started</h3></p>
+<ul>
+        <li>Enter your shader into the <b>Source Code</b> window. You can load it via the File menu, drag and drop it onto the window or type it in from scratch if you prefer.
+        <li>If you load your shader via the File menu or drag and drop, GPU ShaderAnalyzer will attempt to automatically detect the shader type.<i>This functionality can be changed in the <b>Options</b></i>.
+        <li>Ensure the <b>Source type</b> is set correctly and, if required, the HLSL or GLSL <b>Target</b> is also set correctly for your shader.
+        <li>If your shader is HLSL then you may need to set the <b>Function</b> correctly for your shader.
+        <li>Click the <b>Compile</b> button. <i>Auto compile can be enabled in the <b>Options</b></i>
+        <li>If your shader is compiled successfully you should see the disassembly of it in the <b>Object Code</b> window.
+</ul>
+The <b>Compiler Statistics</b> window and <b>D3D Assembly Statistics window</b> will list statistics about your program. If you wish to see disassembly of the hardware shader as generated by ATI’s Shader Compiler, you may select the ATI Radeon&trade; graphics card you are interested in from the <b>Format</b> list above the <b>Object Code</b>.
+
+<p><a name="Compiler Statistics"><h3>About the Compiler Statistics</h3></p>
+<p>GPU ShaderAnalyzer (GSA) analyzes the hardware shader generated by ATI’s Shader Compiler and estimates the number of cycles it will take to process each pixel, vertex or primitive. For shaders that contain flow control instructions, the quoted figures are the estimated average performance results. If your shader always executes the maximum number of loops or always takes the slowest execution path then your runtime results will differ.</p>
+<p>The cost of texture instructions varies with the type of filtering being used so GSA quotes figures for bilinear, trilinear and anisotropic filtering. These figures are based on the estimated cost of filtering once texture caching has been taken into account. If your shader is ALU bound rather than texture bound then increasing the texture filtering level may have no effect on performance. Estimates are based upon 32bpp textures, wider format textures will have a greater performance cost. If your texture usage shows bad cache coherence then the cost of texture instructions can be much higher. This is not factored into GSA's calculations as in this case performance is considered to be texture bound rather than shader bound.</p>
+<p>The ALU:Tex ratio statistics estimate how close you are to the sweet spot of balancing the ALU and Texture cost of your shader. This information can guide you as to where you have extra ALU compute available to spare. ALU:Tex ratios of 1.2 or greater are highlighted in green and those of 0.9 or less are highlighted in red. When a particular GPU has the capability to execute multiple ALU instructions on each pixel this is factored into GSA's analysis.</p>
+
+<table border="1">
+<tr><th>Column Heading</th><th>Full Name</th><th>Description</th></tr>
+<tr><td>Name</td><td>Name</td><td>The name of the GPU being analyzed.</td></tr>
+<tr><td>Code</td><td>Code</td><td>The internal product code for the GPU being analyzed.</td></tr>
+<tr><td>ALU</td><td>Alu Instructions</td><td>The number of ALU instructions in the shader.</td></tr>
+<tr><td>TEX</td><td>Texture Instructions</td><td>The number of texture fetch instructions in the shader.</td></tr>
+<tr><td>VTX</td><td>Vertex Instructions</td><td>The number of vertex fetch instructions in the shader.</td></tr>
+<tr><td>Interp</td><td>Interpolator Instructions</td><td>The number of interpolator instructions in the shader.<br>
+                                                                                                                On R3xx-R5xx GPUs interpolator instructions interpolate the input parameters passed from vertex shader to pixel shader.</td></tr>
+<tr><td>CF</td><td>Control Flow Instructions</td><td>The number of control flow instructions in the shader.</td></tr>
+<tr><td>EXP</td><td>Export Instructions</td><td>The number of export instructions in the shader.</td></tr>
+<tr><td>EMIT</td><td>Emit Instructions</td><td>The number of emit, cut and emit_cut instructions in the shader.</td></tr>
+<tr><td>TexDependency</td><td>Texture Dependancy Levels</td><td>The maximum number of texture dependancy levels.</td></tr>
+<tr><td>GPR</td><td>General Purpose Registers</td><td>The number of General Purpose Registers used or allocated. This can affect shader performance.</td></tr>
+<tr><td>Min</td><td>Min Cycles</td><td>The minimum number of cycles the shader is expected to take.</td></tr>
+<tr><td>Max</td><td>Max Cycles</td><td>The maximum number of cycles the shader is expected to take.</td></tr>
+<tr><td>Avg</td><td>Avg Cycles</td><td>The average number of cycles the shader is expected to take.</td></tr>
+<tr><td>Est Cycles(Pt)</td><td>Estimated Cycles(Point)</td><td>The estimated number of cycles the shader is expected to take with point filtering on textures.<br>
+                                                                                                                                On current GPUs point filtering bares the same cost as bilinear filtering.</td></tr>
+<tr><td>Est Cycles(Bi)</td><td>Estimated Cycles(Bilinear)</td><td>The estimated number of cycles the shader is expected to take with bilinear filtering on textures.</td></tr>
+<tr><td>Est Cycles(Tri)</td><td>Estimated Cycles(Trilinear)</td><td>The estimated number of cycles the shader is expected to take with trilinear filtering on textures.</td></tr>
+<tr><td>Est Cycles(Aniso)</td><td>Estimated Cycles(Aniso)</td><td>The estimated number of cycles the shader is expected to take with anisotropic filtering on textures.</td></tr>
+<tr><td>ALU:TEX(Pt)</td><td>ALU:TEX Ratio(Point)</td><td>The expected ALU:Texture instruction ratio with point filtering on textures.<br>
+                                                                                                                                On current GPUs point filtering bares the same cost as bilinear filtering.</td></tr>
+<tr><td>ALU:TEX(Bi)</td><td>ALU:TEX Ratio(Bilinear)</td><td>The expected ALU:Texture instruction ratio with bilinear filtering on textures.</td></tr>
+<tr><td>ALU:TEX(Tri)</td><td>ALU:TEX Ratio(Trilinear)</td><td>The expected ALU:Texture instruction ratio with trilinear filtering on textures.</td></tr>
+<tr><td>ALU:TEX(Aniso)</td><td>ALU:TEX Ratio(Aniso)</td><td>The expected ALU:Texture instruction ratio with anisotropic filtering on textures.</td></tr>
+<tr><td>BottleNeck(Pt)</td><td>BottleNeck(Point)</td><td>The likely bottleneck(s) to shader performance with point filtering.</td></tr>
+<tr><td>BottleNeck(Bi)</td><td>BottleNeck(Bilinear)</td><td>The likely bottleneck(s) to shader performance with bilinear filtering.</td></tr>
+<tr><td>BottleNeck(Tri)</td><td>BottleNeck(Trilinear)</td><td>The likely bottleneck(s) to shader performance with trilinear filtering.</td></tr>
+<tr><td>BottleNeck(Aniso)</td><td>BottleNeck(Aniso)</td><td>The likely bottleneck(s) to shader performance with anisotropic filtering.</td></tr>
+<tr><td>Throughput(Pt)</td><td>Avg Peak Throughput(Point)</td><td>The estimated average peak throughput with point filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></tr>
+<tr><td>Throughput(Bi)</td><td>Avg Peak Throughput(Bilinear)</td><td>The estimated average peak throughput with bilinear filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Throughput(Tri)</td><td>Avg Peak Throughput(Trilinear)</td><td>The estimated average peak throughput with trilinear filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Throughput(Aniso)</td><td>Avg Peak Throughput(Aniso)</td><td>The estimated average peak throughput with anisotropic filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Item\\Clock(Pt)</td><td>Avg Throughput Per Clock(Point)</td><td>The estimated average peak per clock throughput with point filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></tr>
+<tr><td>Item\\Clock(Bi)</td><td>Avg Throughput Per Clock(Bilinear)</td><td>The estimated average peak per clock throughput with bilinear filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Item\\Clock(Tri)</td><td>Avg Throughput Per Clock(Trilinear)</td><td>The estimated average peak per clock throughput with trilinear filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Item\\Clock(Aniso)</td><td>Avg Throughput Per Clock(Aniso)</td><td>The estimated average peak per clock throughput with anisotropic filtering.<br>
+                                                                                                                                        This does not take into account the cost of other shaders on a unified shader architecture such as R6xx and as such will<br>
+                                                                                                                                        only be achievable when the other shaders (i.e. vs & gs when analying ps) pose minimal cost.</td></td></tr>
+<tr><td>Scratch Reg</td><td>Max Scratch Registers</td><td>The maximum number of scratch memory registers used by the shader. Use of scratch memory tends to  have a performance cost.</td></tr>
+</table>
+
+<p><a name="D3D Assembly Statistics"><h3>About the D3D Assembly Statistics</h3></p>
+<p>The D3D Assembly Statistics window shows you statistics based on static analysis of the D3D shader stream. It summarizes the instruction and register usages at the D3D assembly shader level.</p>
+
+<P><a name="Command Line"><h3>Using the Command Line Interface</h3></P>
+<pre>Usage: GPUShaderAnalyzer &lt;InputFile&gt; &lt;command&gt; [OutputFile] [options]
+Commands:
+    -Analyze     (-A)  Analyze InputFile, saving to OutputFile if specified.
+    -CSV         (-V)  Generate a csv file named OutputFile with analysis of the
+                       shader(s) specified by InputFile. Wildcards are accepted.
+    -Disassemble (-I)  Disassemble InputFile, saving to OutputFile if specified.
+    -ListModules (-L)  List the available SC Compiler module versions.
+Options:
+    -Module      (-M)  Specify which SC Compiler module to use.
+                       [Latest|LatestCatalyst], or specify module name from
+                       -ListModules
+                       Defaults to Latest.
+    -Profile     (-P)  Specify which profile to compile shaders to.
+                       [ ps_1_1 | ps_1_2 | ps_1_3 | ps_1_4 ]
+                       [ ps_2_0 | ps_2_a | ps_2_b | ps_3_0 ]
+                       [ vs_1_1 | vs_2_0 | vs_2_a | vs_3_0 ]
+                       [ ps_4_0 | ps_4_1 | vs_4_0 | vs_4_1 | gs_4_0 | gs_4_1 ]
+                       [ vs_5_0 | gs_5_0 | ps_5_0 | hs_5_0 | ds_5_0 ]
+                       [ glsl | glsl_fp_asm | glsl_vp_asm | glsl_ps | glsl_vs | glsl_gs ]
+                       [ cs_4_0 | cs_4_1 | cs_5_0 ]
+    -Function    (-F)  Specify which function to compile in a HLSL shader.
+                       Defaults to "main".
+    -ASIC        (-C)  Which ASIC(s) to target this can be multiple ASICs in
+                       Analyze & CSV mode or a single ASIC to Disassemble.
+                       [ HD2400 | HD2600 | HD2900 | HD3870 ]
+                       [ R600 | RV610 | RV630 | RV670 ]
+                       [ HD4890 | HD4870 | HD4770 | HD4670 | HD4550 ]
+                       [ RV790 | RV770 | RV740 | RV730 | RV710 ]
+                       [ HD5870 | HD5770 | HD5670 | HD5450 ]
+                       [ Cypress | Juniper | Cedar | Redwood ]
+                       [ HD6970 | HD6870 | HD6670 | HD6450 ]
+                       [ Cayman | Barts | Turks | Caicos ]
+                       [ IL | D3D | ALL ]
+    -Static      (-S)  Perform static analysis.
+    -Define      (-D)  Define a symbol. -D [symbol] <value>.
+    -Recurse     (-R)  Recursively search for shader files. CSV mode only.
+    -Append      (-E)  Append the results to specified csv file. CSV mode only.
+    -Coherence   (-O)  Set pixel shader flow control quad coherence.
+    -IncludePath (-IP) Set the include path to a ';' seperated list.
+                       -IP [pathlist].
+    -UseDX9Mode  (-9)  Use DX9 instrinsics for a DX10 shader.
+    -NoGeometryShader  (-G)  No Geometry Shader option for a DX10/DX11 shader.
+    -Verbose     (-Z)  Use with the Analyze option to output detailed statistics.
+Example:
+    GPUShaderAnalyzer Test.hlsl -Analyze Test.txt -Profile ps_3_0 -ASIC ALL
+If no command is specified GPUShaderAnalyzer will load InputFile in GUI mode
+</pre>
+
+<p><a name="Shader Annotation"><h3>Shader Annotation</h3></p>
+<p>GPU ShaderAnalyzer supports a number of shader file annotations that set preferences for the analysis of a particular shader file. Whenever a shader file is loaded is is scanned for these annotations. The annotations take the syntax: "<code>// Annotation: Value</code>" e.g. "<code>// Profile: ps_3_0</code>".</p>
+Commands:
+<br>
+<dl>
+        <dt><b>SourceType [type]</b></dt>
+        <dd>The source type to compile code to.<br>
+        [ DX Asm | HLSL | GL FP Asm | GL VP Asm | GLSL ]<br><br>
+        </dd>
+        <dt><b>Profile [profile]</b></dt>
+        <dd>Which profile to compile HLSL shaders to.<br>
+        [ ps_1_1 | ps_1_2 | ps_1_3 | ps_1_4 ]<br>
+        [ ps_2_0 | ps_2_a | ps_2_b | ps_3_0 ]<br>
+        [ vs_1_1 | vs_2_0 | vs_2_a | vs_3_0 ]<br>
+        [ ps_4_0 | ps_4_1 | vs_4_0 | vs_4_1 | gs_4_0 | gs_4_1 ]<br>
+        [ vs_5_0 | gs_5_0 | ps_5_0 | hs_5_0 | ds_5_0 ]<br>
+        [ cs_4_0 | cs_4_1 | cs_5_0 ]<br><br>
+        </dd>
+        <dt><b>Function [function]</b><br>
+        <b>EntryPoint [function]</b></dt>
+        <dd>Which function to compile in an HLSL shader.<br><br>
+        </dd>
+        <dt><b>Define &lt;symbol&gt; &lt;value&gt;</b><br>
+        <b>D &lt;symbol&gt; &lt;value&gt;</b></dt>
+        <dd>Define a symbol. If no symbol is provided the macro list is cleared.<br><br>
+        </dd>
+        <dt><b>AvoidFlowControl [option]</b></dt>
+        <dd>Avoid Flow Control (DX HLSL Only).<br>
+        [TRUE|FALSE|1|0]<br><br>
+        </dd>
+        <dt><b>PreferFlowControl [option]</b></dt>
+        <dd>Prefer Flow Control (DX HLSL Only).<br>
+        [TRUE|FALSE|1|0]<br><br>
+        </dd>
+        <dt><b>UseDX9Intrinsics [option]</b></dt>
+        <dd>Use DX9 Intrinsics (DX10 HLSL Only).<br>
+        [TRUE|FALSE|1|0]<br><br>
+        </dd>
+        <dt><b>SkipOptimization [option]</b></dt>
+        <dd>Skip Optimization (DX HLSL Only]).<br>
+        [TRUE|FALSE|1|0]<br><br>
+        </dd>
+        <dt><b>NoGS [option]</b></dt>
+        <dd>Presume no geometry shader when compiling shader (DX10/DX11 PS/VS HLSL Only).<br>
+        [TRUE|FALSE|1|0]<br>
+        </dd>
+</dl>
+
+<a name="Support"><h3>Support</h3>
+<UL>
+        <LI> <a href="http://developer.amd.com/support/pages/default.aspx">General Support & Training website</a><BR>
+        <LI> <a href="http://developer.amd.com/gpu/Pages/default.aspx">GPU Developer Tools website</a><BR>
+        <LI> <a href="http://forums.amd.com/devforum/categories.cfm?catid=347">GPU Developer Tools forum</A><br>
+</UL>
+Report a specific problem or request help for GPU ShaderAnalyzer at
+<a href="http://developer.amd.com/support/KnowledgeBase/pages/HelpdeskTicketForm.aspx?Category=2&SubCategory=14">GPU Developer Tools Help Desk</a>. 
+<br>
+
+<a name="Resources"><h3>Resources</h3>
+<UL>
+        <LI> <a href="http://developer.amd.com/gpu/ATIStreamSDK/assets/ATI_Intermediate_Language_(IL)_Specification_v2a%5B1%5D.pdf">IL Specification</a>
+        <LI> <a href="http://developer.amd.com/gpu_assets/R600_Instruction_Set_Architecture.pdf">R600 ISA</a>
+        <LI> <a href="http://developer.amd.com/gpu_assets/R700-Family_Instruction_Set_Architecture.pdf">R700 ISA</a>
+        <LI> <a href="http://developer.amd.com/gpu/ATIStreamSDK/assets/AMD_Evergreen-Family_ISA_Instructions_and_Microcode.pdf">Evergreen ISA</a>
+        <LI> <a href="http://developer.amd.com/gpu/ATIStreamSDK/assets/R600-R700-Evergreen_Assembly_Language_Format.pdf">R600-R700-Evergreen Assembly Language Format</a>
+</UL>
+<br>
+Copyright &copy; 2005-2012, Advanced Micro Devices Inc. All rights reserved.<br>
+</body>
+</html>

@@ -223,6 +223,28 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
         return FS + errorBuffer;
     }
 
+    errorBuffer = OutputAssembly();
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    return std::string();
+}
+
+std::string GlShader::OutputAssembly()
+{
+    //Opengl 3.0 currently has no output of shader asm 
+
+
+
+
+
+
+
+
+
+
     return std::string();
 }
 

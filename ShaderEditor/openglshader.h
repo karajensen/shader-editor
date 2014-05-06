@@ -73,6 +73,12 @@ public:
 private:
 
     /**
+    * Ouputs the assembly instructions to a text file
+    * @return error message if failed or empty if succeeded
+    */
+    std::string OutputAssembly();
+
+    /**
     * Determines the vertex shader 'in' attributes and caches them
     * @param vText Vertex shader text split into components
     * @return error message if failed or empty if succeeded

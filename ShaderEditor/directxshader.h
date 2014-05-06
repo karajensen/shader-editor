@@ -74,7 +74,7 @@ public:
 private:
 
     /**
-    * Ouputs the assembly instructions to a text fil
+    * Ouputs the assembly instructions to a text file
     * @param vs The vertex compiled shader to output
     * @param ps The pixel compiled shader to output
     * @return error message if failed or empty if succeeded

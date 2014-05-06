@@ -1,11 +1,15 @@
-- Output asm for opengl
 
-- Get diffuse uniform accross both shaders
-- Rendering: specular, attenuation, transparency, texture, bump mapping
 
-- Create 3D scene
+GPUShaderAnalyzer.exe ./Diffuse.vert -I ./Test.txt -ASIC IL -profile glsl_vs -function main
+GPUShaderAnalyzer.exe ./Diffuse.frag -I ./Test.txt -ASIC IL -profile glsl_ps -function main
+
+- Add call to GPU Shader analyzer
+- Fix boost exception
+
 - Qt textbox for viewing shader code/assembly
 - Runtime editing of shaders
+- Rendering: diffuse specular, attenuation, transparency, texture, bump mapping
+- Create 3D scene
 
 - Render to texture
 - Normal map generation for post
