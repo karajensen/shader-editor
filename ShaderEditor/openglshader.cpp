@@ -9,9 +9,25 @@
 
 namespace
 {
-    const std::string MAIN_ENTRY("main(void)"); ///< Text for the shader main entry point
-    const std::string VS("Vertex Shader: ");    ///< Text for vertex shader diagnostics
-    const std::string FS("Fragment Shader: ");  ///< Text for fragment shader diagnostics
+    bool SHOW_CONSOLE_WINDOW = false; ///< Whether to show the ShaderAnalyzer window
+    const std::string VS("Vertex Shader: "); ///< Text for vertex shader diagnostics
+    const std::string FS("Fragment Shader: "); ///< Text for fragment shader diagnostics
+
+    // GLSL Keywords
+    const std::string ENTRY_NAME("main");
+    const std::string MAIN_ENTRY(ENTRY_NAME + "(void)");
+    const std::string VERTEX_MODEL("glsl_vs");
+    const std::string FRAGMENT_MODEL("glsl_fs");
+    const std::string GLSL_FLT("float");
+    const std::string GLSL_VEC_PREFIX("vec");
+    const std::string GLSL_VEC2(GLSL_VEC_PREFIX + "2");
+    const std::string GLSL_VEC3(GLSL_VEC_PREFIX + "3");
+    const std::string GLSL_VEC4(GLSL_VEC_PREFIX + "4");
+    const std::string GLSL_MAT4("mat4");
+    const std::string GLSL_IN_POSITION("in_Position");
+    const std::string GLSL_OUT_COLOR("outColor");
+    const std::string GLSL_IN("in");
+    const std::string GLSL_UNIFORM("uniform");
 }
 
 GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
@@ -23,6 +39,11 @@ GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
     m_index(index),
     m_stride(0)
 {
+    m_vaFilepath = boost::ireplace_last_copy(
+        m_vsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
+    
+    m_faFilepath = boost::ireplace_last_copy(
+        m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
 }
 
 GlShader::~GlShader()
@@ -124,29 +145,28 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
 {
     std::string errorBuffer;
     int vSize = 0, fSize = 0;
-    std::string vText, fText;
 
     // Load the vertex and fragment shader files
-    errorBuffer = LoadShaderFile(m_vsFilepath, vSize, vText);
+    errorBuffer = LoadShaderFile(m_vsFilepath, vSize, m_vertexText);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
     }
 
-    errorBuffer = LoadShaderFile(m_fsFilepath, fSize, fText);
+    errorBuffer = LoadShaderFile(m_fsFilepath, fSize, m_fragmentText);
     if(!errorBuffer.empty())
     {
         return FS + errorBuffer;
     }
 
     // Test on the scratch shaders to give an overview of any compilation errors
-    std::string vertexErrors = CompileShader(scratchVS, vText.c_str(), vSize);
+    std::string vertexErrors = CompileShader(scratchVS, m_vertexText.c_str(), vSize);
     if(!vertexErrors.empty())
     {
         vertexErrors = VS + vertexErrors;
     }
 
-    std::string fragmentErrors = CompileShader(scratchFS, fText.c_str(), fSize);
+    std::string fragmentErrors = CompileShader(scratchFS, m_fragmentText.c_str(), fSize);
     if(!fragmentErrors.empty())
     {
         fragmentErrors = FS + fragmentErrors;
@@ -164,13 +184,13 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     m_vs = glCreateShader(GL_VERTEX_SHADER);
     m_fs = glCreateShader(GL_FRAGMENT_SHADER);
 
-    errorBuffer = CompileShader(m_vs, vText.c_str(), vSize);
+    errorBuffer = CompileShader(m_vs, m_vertexText.c_str(), vSize);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
     }
 
-    errorBuffer = CompileShader(m_fs, fText.c_str(), fSize);
+    errorBuffer = CompileShader(m_fs, m_fragmentText.c_str(), fSize);
     if(!errorBuffer.empty())
     {
         return FS + errorBuffer;
@@ -178,8 +198,8 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
 
     auto deliminator = boost::is_any_of(";\n\r ");
     std::vector<std::string> splitVertexText, splitFragmentText;
-    boost::split(splitVertexText, vText, deliminator, boost::token_compress_on);
-    boost::split(splitFragmentText, fText, deliminator, boost::token_compress_on);
+    boost::split(splitVertexText, m_vertexText, deliminator, boost::token_compress_on);
+    boost::split(splitFragmentText, m_fragmentText, deliminator, boost::token_compress_on);
 
     errorBuffer = BindVertexAttributes(splitVertexText);
     if(!errorBuffer.empty())
@@ -199,10 +219,10 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
         return FS + "Failed to attach";
     }
 
-    glBindFragDataLocation(m_program, 0, "outColor");
+    glBindFragDataLocation(m_program, 0, GLSL_OUT_COLOR.c_str());
     if(HasCallFailed())
     {
-        return FS + "Failed to bind outColour";
+        return FS + "Failed to bind " + GLSL_OUT_COLOR;
     }
 
     errorBuffer = LinkShaderProgram();
@@ -232,18 +252,81 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     return std::string();
 }
 
+std::string GlShader::GetAssemblyText(const std::string& path, std::string& text)
+{
+    std::ifstream file(path.c_str(), std::ios::in|std::ios::ate|std::ios::_Nocreate);
+    if(!file.is_open())
+    {
+        return "Could not open file " + path;
+    }
+    
+    // Read whole output file into string
+    const int size = static_cast<int>(file.tellg());
+    file.seekg(0, std::ios::beg);   
+    text.clear();
+    text.resize(size);
+    file.read(&text[0], text.size());
+    if(text.empty())
+    {
+        return "Generated assembly file is empty";
+    }
+    
+    // Any error output from the analyzer will be in the generated file
+    const int linesForError = 3;
+    if(std::count(text.begin(), text.end(), '\n') <= linesForError)
+    {
+        return text;
+    }
+    return std::string();
+}
+
 std::string GlShader::OutputAssembly()
 {
-    //Opengl 3.0 currently has no output of shader asm 
+    // Opengl 3.0 currently has no output of shader asm 
+    // Use cmd.exe to chain both calls to ShaderAnalyzer in one process
+    const std::string process("ShaderAnalyzer\\GPUShaderAnalyzer.exe ");
+    const std::string console("C:\\windows\\system32\\cmd.exe");
 
+    const std::string vertex(m_vsFilepath + " -I " + m_vaFilepath 
+        + " -ASIC IL -profile " + VERTEX_MODEL + " -function " + ENTRY_NAME);
 
+    const std::string fragment(m_fsFilepath + " -I " + m_faFilepath 
+        + " -ASIC IL -profile " + FRAGMENT_MODEL + " -function " + ENTRY_NAME);
 
+    const std::string command = "/C " + process + vertex + " && " + process + fragment;
 
+    PROCESS_INFORMATION pi;
+    STARTUPINFO si = { sizeof(STARTUPINFO) };
+    si.cb = sizeof(si);
+    if(!SHOW_CONSOLE_WINDOW)
+    {
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+    }
+    
+    if(CreateProcess(console.c_str(), LPSTR(command.c_str()), 0, 0, FALSE,
+        (SHOW_CONSOLE_WINDOW ? 0 : CREATE_NO_WINDOW), 0, 0, &si, &pi))
+    {
+        ::WaitForSingleObject(pi.hProcess, INFINITE);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+    else
+    {
+        return "Process failed: " + command;
+    }
 
+    std::string errorBuffer = GetAssemblyText(m_vaFilepath, m_vertexAsm);
+    if(!errorBuffer.empty())
+    {
+        return VS + "ShaderAnalyzer: " + errorBuffer;
+    }
 
-
-
-
+    errorBuffer = GetAssemblyText(m_faFilepath, m_fragmentAsm);
+    if(!errorBuffer.empty())
+    {
+        return FS + "ShaderAnalyzer: " + errorBuffer;
+    }
 
     return std::string();
 }
@@ -255,7 +338,7 @@ std::string GlShader::BindVertexAttributes(const std::vector<std::string>& vText
     int currentLocation = 0;
     while(vText[currentIndex] != MAIN_ENTRY)
     {
-        if(vText[currentIndex] == "in")
+        if(vText[currentIndex] == GLSL_IN)
         {
             AttributeData data;
             data.name = vText[currentIndex+2];
@@ -263,15 +346,15 @@ std::string GlShader::BindVertexAttributes(const std::vector<std::string>& vText
 
             // Pass position as a vec3 into a vec4 slot to use the optimization 
             // where the 'w' component is automatically set as 1.0
-            if(type == "vec3" || data.name == "in_Position")
+            if(type == GLSL_VEC3 || data.name == GLSL_IN_POSITION)
             {
                 data.components = 3;
             }
-            else if(type == "vec2")
+            else if(type == GLSL_VEC2)
             {
                 data.components = 2;
             }
-            else if(type == "vec4")
+            else if(type == GLSL_VEC4)
             {
                 data.components = 4;
             }
@@ -313,7 +396,7 @@ std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
     int currentIndex = 0;
     while(text[currentIndex] != MAIN_ENTRY)
     {
-        if(text[currentIndex] == "uniform")
+        if(text[currentIndex] == GLSL_UNIFORM)
         {
             const std::string& name = text[currentIndex+2];
             GLint location = glGetUniformLocation(m_program, name.c_str());
@@ -336,7 +419,7 @@ std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
 void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matrix)
 {
     auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform("mat4", itr->second.type, name))
+    if(itr != m_uniforms.end() && CanSendUniform(GLSL_MAT4, itr->second.type, name))
     {
         glUniformMatrix4fv(itr->second.location, 1, GL_FALSE, &matrix[0][0]);
         if(HasCallFailed())
@@ -351,11 +434,11 @@ void GlShader::SendUniformFloat(const std::string& name, const float* value, int
     std::string floatType;
     if(size == 1)
     {
-        floatType = "float";
+        floatType = GLSL_FLT;
     }
     else
     {
-        floatType = "vec" + boost::lexical_cast<std::string>(size);
+        floatType = GLSL_VEC_PREFIX + boost::lexical_cast<std::string>(size);
     }
     
     auto itr = m_uniforms.find(name);

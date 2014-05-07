@@ -17,9 +17,9 @@ public:
     /**
     * Constructor
     * @param the unique index of the shader
-    * @param path The filepath for the shader
+    * @param filepath The filepath for the shader
     */
-    DxShader(int index, const std::string& path);
+    DxShader(int index, const std::string& filepath);
 
     /**
     * Destructor
@@ -75,37 +75,32 @@ private:
 
     /**
     * Ouputs the assembly instructions to a text file
-    * @param vs The vertex compiled shader to output
-    * @param ps The pixel compiled shader to output
+    * @param vs The vertex shader to output
+    * @param ps The pixel shader to output
     * @return error message if failed or empty if succeeded
     */
     std::string OutputAssembly(ID3D10Blob* vs, ID3D10Blob* ps);
 
     /**
-    * Loads the shader from the path
-    * @param text The text within the file
+    * Loads the vertex and pixel shaders into strings
     * @return error message if failed or empty if succeeded
     */
-    std::string LoadShaderFile(std::string& text);
+    std::string LoaderShaderText();
 
     /**
     * Determines the vertex shader 'in' attributes and caches them
     * @param device The directX device
     * @param vs The vertex shader object
-    * @param shadertext The text of the hlsl shader
     * @return error message if failed or empty if succeeded
     */
-    std::string BindVertexAttributes(ID3D11Device* device, 
-        ID3D10Blob* vs, const std::string& shadertext);
+    std::string BindVertexAttributes(ID3D11Device* device, ID3D10Blob* vs);
 
     /**
     * Generates the constant buffer
     * @param device The directX device
-    * @param shadertext The text of the hlsl shader
     * @return error message if failed or empty if succeeded
     */
-    std::string CreateConstantBuffer(ID3D11Device* device,
-        const std::string& shadertext);
+    std::string CreateConstantBuffer(ID3D11Device* device);
 
     /**
     * Validates the uniform that is requesting to be sent
@@ -141,6 +136,11 @@ private:
     ConstantMap m_constants;                    ///< Shader constant variables
     std::vector<AttributeData> m_attributes;    ///< Vertex shader attributes
     std::string m_filepath;                     ///< Path to the shader file
+    std::string m_sharedText;                   ///< Text to the shared shader components
+    std::string m_vertexText;                   ///< Text for the vertex shader
+    std::string m_pixelText;                    ///< Text for the pixel shader
+    std::string m_vertexAsm;                    ///< Assembly for the vertex shader
+    std::string m_pixelAsm;                     ///< Assembly for the pixel shader
     ID3D11InputLayout* m_layout;                ///< Shader input layout
     ID3D11VertexShader* m_vs;                   ///< HLSL vertex shader
     ID3D11PixelShader* m_ps;                    ///< HLSL pixel shader

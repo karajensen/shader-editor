@@ -57,6 +57,10 @@ bool Scene::Initialise()
 bool Scene::InitialiseMeshes()
 {
     FragmentLinker linker;
+    if(!linker.Initialise(m_lights.size()))
+    {
+        return false;
+    }
 
     boost::property_tree::ptree meshes;
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
@@ -100,7 +104,7 @@ bool Scene::InitialiseMeshes()
             // Shader does not exist, create from fragments
             Shader shader;
             shader.name = shadername;
-            if(!linker.InitialiseFromFragments(shader, m_lights.size()))
+            if(!linker.InitialiseFromFragments(shader))
             {
                 Logger::LogError("Shader name " + shadername +
                     " for " + mesh.name + " is an invalid combination");

@@ -24,18 +24,39 @@ namespace
 
 FragmentLinker::FragmentLinker()
 {
-    if(boost::filesystem::exists(GENERATED_FOLDER))    
-    {
-        boost::filesystem::remove_all(GENERATED_FOLDER);
-    }
-    if(!boost::filesystem::create_directory(GENERATED_FOLDER))
-    {
-        Logger::LogError(GENERATED_FOLDER + " could not be created");
-    }
 }
 
 FragmentLinker::~FragmentLinker()
 {
+}
+
+bool FragmentLinker::Initialise(unsigned int maxLights)
+{
+    m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);
+
+    if(boost::filesystem::exists(GENERATED_FOLDER))    
+    {
+        boost::filesystem::remove_all(GENERATED_FOLDER);
+    }
+
+    bool success = true;
+    try
+    {
+        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
+        {
+            success = false;
+        }
+    }
+    catch(boost::filesystem::filesystem_error)
+    {
+        success = false;
+    }
+
+    if(!success)
+    {
+        Logger::LogError(GENERATED_FOLDER + " could not be created");
+    }
+    return success;
 }
 
 void FragmentLinker::FindShaderComponents(Shader& shader)
@@ -54,31 +75,30 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
     }
 }
 
-bool FragmentLinker::InitialiseFromFragments(Shader& shader,
-                                             unsigned int maxLights)
+bool FragmentLinker::InitialiseFromFragments(Shader& shader)
 {
     FindShaderComponents(shader);
 
     // generate a shader from the shader components
     const std::string filename = GENERATED_FOLDER + shader.name;
     shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION, boost::none))
+    if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION))
     {
         Logger::LogError(shader.name + " GLSL Vertex Shader failed");
         return false;            
     }
 
     shader.glslFragmentFile = filename + GLSL_FRAGMENT_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, GLSL_FRAGMENT_EXTENSION, maxLights))
+    if(!CreateShaderFromFragments(shader.name, GLSL_FRAGMENT_EXTENSION))
     {
         Logger::LogError(shader.name + " GLSL Fragment Shader failed");
         return false;            
     }
 
     shader.hlslShaderFile = filename + HLSL_SHADER_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, HLSL_SHADER_EXTENSION, maxLights))
+    if(!CreateShaderFromFragments(shader.name, HLSL_SHADER_EXTENSION))
     {
-        Logger::LogError(shader.name + " HLSL Shader failed");
+        Logger::LogError(shader.name + " HLSL Vertex Shader failed");
         return false;            
     }
 
@@ -86,8 +106,7 @@ bool FragmentLinker::InitialiseFromFragments(Shader& shader,
 }
 
 bool FragmentLinker::CreateShaderFromFragments(const std::string& name,         
-                                               const std::string& extension,
-                                               boost::optional<unsigned int> maxLights)
+                                               const std::string& extension)
 {
     const std::string filepath = GENERATED_FOLDER + name + extension;
     std::ofstream generatedFile(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
@@ -96,12 +115,6 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
     {
         Logger::LogError("Could not open " + filepath);
         return false;
-    }
-
-    // Add the #define for multiple lights support in fragment shader only
-    if(maxLights.is_initialized())
-    {
-        generatedFile << "#define MAX_LIGHTS " << *maxLights << std::endl << std::endl;
     }
 
     // Open/copy from the base shader 
@@ -134,6 +147,13 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, std::ofstrea
         std::string line;
         std::getline(baseFile, line);
 
+        // Substitute any #defines into the body
+        for(const auto& define : m_defines)
+        {
+            boost::ireplace_all(line, define.first, define.second);
+        }
+
+        // Check for conditional keywords
         for(const auto& key : targets)
         {
             if(boost::algorithm::icontains(line, key))
@@ -143,16 +163,10 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, std::ofstrea
             }
         }
 
-        // Copy line to generated shader if not a conditional
-        if(!SolveConditionalLine(level, line, baseFile, 
-            generatedFile, skiplines) && !skiplines)
+        if(!SolveConditionalLine(level, line, baseFile, generatedFile, skiplines) && 
+           !skiplines)
         {
-            std::string trimmedline = boost::trim_left_copy(line);
-            const int spacesInTabs = 4;
-            const int spaceOffset = targets.empty() ? 0 : spacesInTabs * level;
-            const int spaceAmount = line.size()-trimmedline.size()-spaceOffset;
-            std::string spaces(max(0, spaceAmount), ' ');
-            generatedFile << spaces << trimmedline << std::endl;
+            generatedFile << line << std::endl;
         }
 
         if(boost::algorithm::icontains(line, END_OF_FILE))

@@ -79,6 +79,14 @@ private:
     std::string OutputAssembly();
 
     /**
+    * Retrieves the generated shader assembly text from file
+    * @param path The file path to open
+    * @param text The container to fill with the assembly text
+    * @return error message if failed or empty if succeeded
+    */
+    std::string GetAssemblyText(const std::string& path, std::string& text);
+
+    /**
     * Determines the vertex shader 'in' attributes and caches them
     * @param vText Vertex shader text split into components
     * @return error message if failed or empty if succeeded
@@ -152,6 +160,12 @@ private:
     std::vector<AttributeData> m_attributes;     ///< Vertex shader attributes
     std::string m_vsFilepath;                    ///< Path to the vertex shader file
     std::string m_fsFilepath;                    ///< Path to the fragment shader file
+    std::string m_vaFilepath;                    ///< Path to the vertex assembly file
+    std::string m_faFilepath;                    ///< Path to the fragment assembly file
+    std::string m_vertexText;                    ///< Text for the vertex shader
+    std::string m_fragmentText;                  ///< Text for the fragment shader
+    std::string m_vertexAsm;                     ///< Assembly for the vertex shader
+    std::string m_fragmentAsm;                   ///< Assembly for the fragment shader
 	GLint m_program;                             ///< Shader program
 	GLint m_vs;                                  ///< GLSL Vertex Shader
 	GLint m_fs;                                  ///< GLSL Fragment Shader

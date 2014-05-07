@@ -22,29 +22,8 @@
     <None Include="Assets\Meshes.xml">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Assets\Shaders\normalshader.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Shaders\postshader.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Shaders\postshader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Shaders\shader.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Shaders\shader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
-    <None Include="Assets\Shaders\normalshader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Shaders\shader.hlsl">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -148,5 +127,18 @@
     <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Assets\Shaders\shader_glsl_vert.fx">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Assets\Shaders\shader_glsl_frag.fx">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\shader_hlsl.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

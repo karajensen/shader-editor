@@ -31,9 +31,11 @@ static const float CAMERA_FAR = 1000.0f;
 static const float FIELD_OF_VIEW = 60.0f;
 static const int NO_INDEX = -1;
 
-const std::string GLSL_FRAGMENT_EXTENSION(".frag");   
-const std::string GLSL_VERTEX_EXTENSION(".vert");
-const std::string HLSL_SHADER_EXTENSION(".hlsl");
+const std::string SHADER_EXTENSION(".fx");
+const std::string ASM_EXTENSION(".as");
+const std::string GLSL_FRAGMENT_EXTENSION("_glsl_frag" + SHADER_EXTENSION);   
+const std::string GLSL_VERTEX_EXTENSION("_glsl_vert" + SHADER_EXTENSION);
+const std::string HLSL_SHADER_EXTENSION("_hlsl" + SHADER_EXTENSION);
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");

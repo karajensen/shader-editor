@@ -17,12 +17,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Assets\Meshes.xml" />
-    <None Include="Assets\Shaders\normalshader.frag" />
-    <None Include="Assets\Shaders\normalshader.vert" />
-    <None Include="Assets\Shaders\postshader.frag" />
-    <None Include="Assets\Shaders\postshader.vert" />
-    <None Include="Assets\Shaders\shader.frag" />
-    <None Include="Assets\Shaders\shader.vert" />
     <None Include="logfile.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -63,9 +57,17 @@
     <ClInclude Include="float3.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shaders\shader.hlsl">
-      <FileType>Document</FileType>
-    </None>
+    <Text Include="Assets\Shaders\shader_glsl_frag.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Text>
+    <Text Include="Assets\Shaders\shader_glsl_vert.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\shader_hlsl.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{14D5F556-2E51-4F6F-8133-9762A0CA6517}</ProjectGuid>

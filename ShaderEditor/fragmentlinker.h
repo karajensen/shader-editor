@@ -7,6 +7,7 @@
 #include <vector>
 #include <array>
 #include <boost/noncopyable.hpp>
+#include <unordered_map>
 
 struct Shader;
 
@@ -30,12 +31,18 @@ public:
     ~FragmentLinker();
 
     /**
+    * Initialises the fragment linker
+    * @param maxLights The amount of lighting the shader will consider
+    * @return whether initialisation was successful
+    */
+    bool Initialise(unsigned int maxLights);
+
+    /**
     * Initialises the shader from fragments
     * @param shader The shader object to fill in 
-    * @param maxLights The amount of lighting the shader will consider
     * @return whether or not initialisation succeeded
     */
-    bool InitialiseFromFragments(Shader& shader, unsigned int maxLights);
+    bool InitialiseFromFragments(Shader& shader);
 
 private:
 
@@ -57,12 +64,10 @@ private:
     * This allows shaders to be constructed from shader fragments
     * @param name The name of the shader
     * @param extension The file extension of the shader
-    * @param maxLights The amount of lighting the shader will consider
     * @return whether or not the generation failed
     */
     bool CreateShaderFromFragments(const std::string& name, 
-        const std::string& extension,
-        boost::optional<unsigned int> maxLights);
+        const std::string& extension);
 
     /**
     * Reads the base shader until the end of the file
@@ -89,6 +94,7 @@ private:
     bool SolveConditionalLine(int level, std::string line, 
         std::ifstream& baseFile, std::ofstream& generatedFile, bool skiplines);
 
-    std::vector<std::string> m_shaderComponents;  ///< components of the shader currently being linked
+    std::unordered_map<std::string, std::string> m_defines; ///< Map of #defined items
+    std::vector<std::string> m_shaderComponents; ///< components of the shader currently being linked
 };
 

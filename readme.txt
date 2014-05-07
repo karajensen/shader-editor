@@ -1,11 +1,5 @@
 
-
-GPUShaderAnalyzer.exe ./Diffuse.vert -I ./Test.txt -ASIC IL -profile glsl_vs -function main
-GPUShaderAnalyzer.exe ./Diffuse.frag -I ./Test.txt -ASIC IL -profile glsl_ps -function main
-
-- Add call to GPU Shader analyzer
-- Fix boost exception
-
+- section shader text into editable/non-editable
 - Qt textbox for viewing shader code/assembly
 - Runtime editing of shaders
 - Rendering: diffuse specular, attenuation, transparency, texture, bump mapping
@@ -29,3 +23,7 @@ https://github.com/karajensen/shader-editor.git
 
 RELEASE REQUIREMENTS: Windows 7
 BUILD REQUIREMENTS: Windows 7, Visual Studio 2012
+
+SHADER ANALYZER COMMAND:
+GPUShaderAnalyzer.exe Diffuse_glsl_vert.fx -I Diffuse_glsl_vert.asm -ASIC IL -profile glsl_vs -function main
+GPUShaderAnalyzer.exe Diffuse_glsl_frag.fx -I Diffuse_glsl_frag.asm -ASIC IL -profile glsl_fs -function main
