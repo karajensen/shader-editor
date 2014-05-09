@@ -28,6 +28,11 @@ namespace
     const std::string GLSL_OUT_COLOR("outColor");
     const std::string GLSL_IN("in");
     const std::string GLSL_UNIFORM("uniform");
+
+    //GLSL Assembly Keywords
+    const std::string ENDMAIN("endmain");
+    const std::string DECLARE("dcl_");
+    const std::string CONSTANT(" c");
 }
 
 GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
@@ -81,92 +86,33 @@ void GlShader::Release()
     }
 }
 
-std::string GlShader::CompileShader(GLint index, const char* source, int size)
-{
-    GLint success = GL_FALSE;
-    glShaderSource(index, 1, &source, &size);
-    glCompileShader(index);
-    glGetShaderiv(index, GL_COMPILE_STATUS, &success);
-    if(success == GL_FALSE)
-    {
-        int errorLength = 0;
-        glGetShaderiv(index, GL_INFO_LOG_LENGTH, &errorLength);
-        if(errorLength <= 0)
-        {
-            return "Unknown Error";
-        }
-        else
-        {
-            int actualLength = 0;
-            std::string errorBuffer(errorLength, ' ');
-            glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
-            errorBuffer.resize(actualLength);
-            return errorBuffer;
-        }
-    }
-    return std::string();
-}
-
-std::string GlShader::LoadShaderFile(const std::string& path, int& size, std::string& text)
-{
-    std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
-    if(file.is_open())
-    {
-        size = static_cast<int>(file.tellg());
-        file.seekg(0, std::ios::beg);
-        text.resize(size);
-        file.read(&text[0], text.size());
-        assert(!text.empty());
-        file.close();
-    }
-    else
-    {
-       return "Could not open file " + path;
-    }
-    return std::string();
-}
-
-std::string GlShader::LinkShaderProgram()
-{
-    GLint linkSuccess = GL_FALSE;
-    glLinkProgram(m_program);
-    glGetProgramiv(m_program, GL_LINK_STATUS, &linkSuccess);
-    if(linkSuccess == GL_FALSE)
-    {
-        const int bufferSize = 1024;
-        std::string errorBuffer(bufferSize, ' ');
-        glGetProgramInfoLog(m_program, bufferSize, 0, &errorBuffer[0]);
-        return errorBuffer;
-    }
-    return std::string();
-}
-
 std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
 {
     std::string errorBuffer;
-    int vSize = 0, fSize = 0;
 
     // Load the vertex and fragment shader files
-    errorBuffer = LoadShaderFile(m_vsFilepath, vSize, m_vertexText);
+    std::string vertexText;
+    errorBuffer = LoadShaderText(m_vsFilepath, vertexText);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
     }
 
-    errorBuffer = LoadShaderFile(m_fsFilepath, fSize, m_fragmentText);
+    std::string fragmentText;
+    errorBuffer = LoadShaderText(m_fsFilepath, fragmentText);
     if(!errorBuffer.empty())
     {
         return FS + errorBuffer;
     }
 
     // Test on the scratch shaders to give an overview of any compilation errors
-    std::string vertexErrors = CompileShader(scratchVS, m_vertexText.c_str(), vSize);
+    std::string vertexErrors = CompileShader(scratchVS, vertexText);
     if(!vertexErrors.empty())
     {
         vertexErrors = VS + vertexErrors;
     }
 
-    std::string fragmentErrors = CompileShader(scratchFS, m_fragmentText.c_str(), fSize);
+    std::string fragmentErrors = CompileShader(scratchFS, fragmentText);
     if(!fragmentErrors.empty())
     {
         fragmentErrors = FS + fragmentErrors;
@@ -178,30 +124,31 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
             vertexErrors + (fragmentErrors.empty() ? "" : "\n"+fragmentErrors);
     }
 
-    // Recreate the actual shader/program
+    // Only update the shader once compilation errors have been checked
     Release();
     m_program = glCreateProgram();
     m_vs = glCreateShader(GL_VERTEX_SHADER);
     m_fs = glCreateShader(GL_FRAGMENT_SHADER);
 
-    errorBuffer = CompileShader(m_vs, m_vertexText.c_str(), vSize);
+    errorBuffer = CompileShader(m_vs, vertexText);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
     }
 
-    errorBuffer = CompileShader(m_fs, m_fragmentText.c_str(), fSize);
+    errorBuffer = CompileShader(m_fs, fragmentText);
     if(!errorBuffer.empty())
     {
         return FS + errorBuffer;
     }
 
+    // Split the shader text into wordss
     auto deliminator = boost::is_any_of(";\n\r ");
-    std::vector<std::string> splitVertexText, splitFragmentText;
-    boost::split(splitVertexText, m_vertexText, deliminator, boost::token_compress_on);
-    boost::split(splitFragmentText, m_fragmentText, deliminator, boost::token_compress_on);
+    std::vector<std::string> vertexWords, fragmentWords;
+    boost::split(vertexWords, vertexText, deliminator, boost::token_compress_on);
+    boost::split(fragmentWords, fragmentText, deliminator, boost::token_compress_on);
 
-    errorBuffer = BindVertexAttributes(splitVertexText);
+    errorBuffer = BindVertexAttributes(vertexWords);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
@@ -231,28 +178,106 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
         return "Failed to link program: " + errorBuffer;
     }
 
-    errorBuffer = FindShaderUniforms(splitVertexText);
+    errorBuffer = FindShaderUniforms(vertexWords);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
     }
 
-    errorBuffer = FindShaderUniforms(splitFragmentText);
+    errorBuffer = FindShaderUniforms(fragmentWords);
     if(!errorBuffer.empty())
     {
         return FS + errorBuffer;
     }
 
-    errorBuffer = OutputAssembly();
+    std::string vertexAsm, fragmentAsm;
+    errorBuffer = GenerateAssembly(vertexAsm, fragmentAsm);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
+    UpdateShaderText(vertexText, fragmentText, vertexAsm, fragmentAsm);
     return std::string();
 }
 
-std::string GlShader::GetAssemblyText(const std::string& path, std::string& text)
+void GlShader::UpdateShaderText(const std::string& vText, 
+                                const std::string& fText,
+                                const std::string& vAsm, 
+                                const std::string& fAsm)
+{
+    m_vertexText = vText;
+    m_vertexAsm = vAsm;
+    m_fragmentText = fText;
+    m_fragmentAsm = fAsm;
+}
+
+std::string GlShader::CompileShader(GLint index, const std::string& text)
+{
+    const char* source = text.c_str();
+    const int size = static_cast<int>(text.size());
+
+    GLint success = GL_FALSE;
+    glShaderSource(index, 1, &source, &size);
+    glCompileShader(index);
+    glGetShaderiv(index, GL_COMPILE_STATUS, &success);
+    if(success == GL_FALSE)
+    {
+        // Get the compilation error message
+        int errorLength = 0;
+        glGetShaderiv(index, GL_INFO_LOG_LENGTH, &errorLength);
+        if(errorLength <= 0)
+        {
+            return "Unknown Error";
+        }
+        else
+        {
+            int actualLength = 0;
+            std::string errorBuffer(errorLength, ' ');
+            glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
+            errorBuffer.resize(actualLength);
+            return errorBuffer;
+        }
+    }
+    return std::string();
+}
+
+std::string GlShader::LoadShaderText(const std::string& path, std::string& text)
+{
+    std::ifstream file(path, std::ios::in|std::ios::binary|std::ios::ate);
+    if(file.is_open())
+    {
+        // Read all from file directly into a string
+        const int size = static_cast<int>(file.tellg());
+        file.seekg(0, std::ios::beg);
+        text.resize(size);
+        file.read(&text[0], text.size());
+        assert(!text.empty());
+        file.close();
+    }
+    else
+    {
+       return "Could not open file " + path;
+    }
+    return std::string();
+}
+
+std::string GlShader::LinkShaderProgram()
+{
+    GLint linkSuccess = GL_FALSE;
+    glLinkProgram(m_program);
+    glGetProgramiv(m_program, GL_LINK_STATUS, &linkSuccess);
+    if(linkSuccess == GL_FALSE)
+    {
+        const int bufferSize = 1024;
+        std::string errorBuffer(bufferSize, ' ');
+        glGetProgramInfoLog(m_program, bufferSize, 0, &errorBuffer[0]);
+        return errorBuffer;
+    }
+    return std::string();
+}
+
+std::string GlShader::LoadAssemblyText(const std::string& path, std::string& text)
 {
     std::ifstream file(path.c_str(), std::ios::in|std::ios::ate|std::ios::_Nocreate);
     if(!file.is_open())
@@ -260,7 +285,7 @@ std::string GlShader::GetAssemblyText(const std::string& path, std::string& text
         return "Could not open file " + path;
     }
     
-    // Read whole output file into string
+    // Read all from file directly into a string
     const int size = static_cast<int>(file.tellg());
     file.seekg(0, std::ios::beg);   
     text.clear();
@@ -280,10 +305,13 @@ std::string GlShader::GetAssemblyText(const std::string& path, std::string& text
     return std::string();
 }
 
-std::string GlShader::OutputAssembly()
+std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& fragmentAsm)
 {
     // Opengl 3.0 currently has no output of shader asm 
     // Use cmd.exe to chain both calls to ShaderAnalyzer in one process
+    // GPUShaderAnalyzer.exe Diffuse_glsl_vert.fx -I Diffuse_glsl_vert.asm -ASIC IL -profile glsl_vs -function main
+    // GPUShaderAnalyzer.exe Diffuse_glsl_frag.fx -I Diffuse_glsl_frag.asm -ASIC IL -profile glsl_fs -function main
+
     const std::string process("ShaderAnalyzer\\GPUShaderAnalyzer.exe ");
     const std::string console("C:\\windows\\system32\\cmd.exe");
 
@@ -316,13 +344,13 @@ std::string GlShader::OutputAssembly()
         return "Process failed: " + command;
     }
 
-    std::string errorBuffer = GetAssemblyText(m_vaFilepath, m_vertexAsm);
+    std::string errorBuffer = LoadAssemblyText(m_vaFilepath, vertexAsm);
     if(!errorBuffer.empty())
     {
         return VS + "ShaderAnalyzer: " + errorBuffer;
     }
 
-    errorBuffer = GetAssemblyText(m_faFilepath, m_fragmentAsm);
+    errorBuffer = LoadAssemblyText(m_faFilepath, fragmentAsm);
     if(!errorBuffer.empty())
     {
         return FS + "ShaderAnalyzer: " + errorBuffer;
@@ -331,18 +359,20 @@ std::string GlShader::OutputAssembly()
     return std::string();
 }
 
-std::string GlShader::BindVertexAttributes(const std::vector<std::string>& vText)
+std::string GlShader::BindVertexAttributes(const std::vector<std::string>& text)
 {
     m_stride = 0;
     int currentIndex = 0;
     int currentLocation = 0;
-    while(vText[currentIndex] != MAIN_ENTRY)
+
+    // Ordering of input attributes is assumed to be: 'in type name'
+    while(text[currentIndex] != MAIN_ENTRY)
     {
-        if(vText[currentIndex] == GLSL_IN)
+        if(text[currentIndex] == GLSL_IN)
         {
             AttributeData data;
-            data.name = vText[currentIndex+2];
-            const std::string type = vText[currentIndex+1];
+            data.name = text[currentIndex+2];
+            const std::string type = text[currentIndex+1];
 
             // Pass position as a vec3 into a vec4 slot to use the optimization 
             // where the 'w' component is automatically set as 1.0

@@ -9,7 +9,9 @@
 
 namespace
 {
-    bool OUTPUT_ASM_FILE = false; ///< Whether to output assembly to a file
+    bool REMOVE_ASM_COMMENTS = false; ///< Whether to strip out any comments
+    bool OUTPUT_ASM_FILE = true; ///< Whether to output assembly to a file
+
     const std::string VS("Vertex Shader: "); ///< Text for vertex shader diagnostics
     const std::string PS("Pixel Shader: "); ///< Text for pixel shader diagnostics
 
@@ -27,6 +29,11 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("ConstantBuffer");
+
+    //HLSL Assembly Keywords
+    const std::string RETURN("ret");
+    const std::string DECLARE("dcl_");
+    const std::string CONSTANT(" cb0"); //9
 }
 
 DxShader::DxShader(int index, const std::string& filepath) :
@@ -101,7 +108,15 @@ std::string DxShader::CompileShader(ID3D11Device* device)
             vertexError + (pixelError.empty() ? "" : "\n"+pixelError);
     }
 
+    // Only update the shader once compilation errors have been checked
     Release();
+
+    std::string vertexText, pixelText, sharedText;
+    std::string errorBuffer = LoadShaderText(vertexText, pixelText, sharedText);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
 
     if(FAILED(device->CreateVertexShader(vsBlob->GetBufferPointer(),
         vsBlob->GetBufferSize(), 0, &m_vs)))
@@ -115,34 +130,45 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return PS + "Could not create shader";
     }
 
-    std::string errorBuffer = LoaderShaderText();
+    errorBuffer = BindVertexAttributes(device, vsBlob, vertexText);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    errorBuffer = BindVertexAttributes(device, vsBlob);
+    errorBuffer = CreateConstantBuffer(device, sharedText);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffer(device);
+    std::string vertexAsm, pixelAsm;
+    errorBuffer = GenerateAssembly(vsBlob, psBlob, vertexAsm, pixelAsm);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    errorBuffer = OutputAssembly(vsBlob, psBlob);
-    if(!errorBuffer.empty())
-    {
-        return errorBuffer;
-    }
-
+    UpdateShaderText(vertexText, pixelText, sharedText, vertexAsm, pixelAsm);
     return std::string();
 }
 
-std::string DxShader::LoaderShaderText()
+void DxShader::UpdateShaderText(const std::string& vText, 
+                                const std::string& pText,
+                                const std::string& shared, 
+                                const std::string& vAsm, 
+                                const std::string& pAsm)
+{
+    m_vertexText = vText;
+    m_vertexAsm = vAsm;
+    m_pixelText = pText;
+    m_pixelAsm = pAsm;
+    m_sharedText = shared;
+}
+
+std::string DxShader::LoadShaderText(std::string& vertexText, 
+                                     std::string& pixelText, 
+                                     std::string& sharedText)
 {
     std::ifstream file(m_filepath.c_str(), std::ios::in|std::ios::ate|std::ios::_Nocreate);
     if(!file.is_open())
@@ -150,6 +176,7 @@ std::string DxShader::LoaderShaderText()
         return "Could not open file " + m_filepath;
     }
 
+    // Read all from file directly into a string
     const int size = static_cast<int>(file.tellg());
     file.seekg(0, std::ios::beg);
     std::string text(size, ' ');
@@ -162,40 +189,46 @@ std::string DxShader::LoaderShaderText()
     // Section into vertex and pixel shaders
     const int vertexIndex = text.find(VERTEX_RETURN + " " + VERTEX_ENTRY);
     const int pixelIndex = text.find(PIXEL_RETURN + " " + PIXEL_ENTRY);
-    m_vertexText = std::string(text.begin() + vertexIndex, text.begin() + pixelIndex - 1);
-    m_pixelText = std::string(text.begin() + pixelIndex, text.end());
-    m_sharedText = std::string(text.begin(), text.begin() + vertexIndex - 1);
+    vertexText = std::string(text.begin() + vertexIndex, text.begin() + pixelIndex - 1);
+    pixelText = std::string(text.begin() + pixelIndex, text.end());
+    sharedText = std::string(text.begin(), text.begin() + vertexIndex - 1);
 
     return std::string();
 }
 
-std::string DxShader::OutputAssembly(ID3D10Blob* vs, ID3D10Blob* ps)
+std::string DxShader::GenerateAssembly(ID3D10Blob* vs, 
+                                       ID3D10Blob* ps,
+                                       std::string& vertexAsm, 
+                                       std::string& pixelAsm)
 {
-    ID3DBlob* vertexAsm = nullptr;
+    ID3DBlob* vertexAsmBlob = nullptr;
     D3DDisassemble(vs->GetBufferPointer(), vs->GetBufferSize(), 
-        D3D_DISASM_DISABLE_DEBUG_INFO, 0, &vertexAsm);
+        D3D_DISASM_DISABLE_DEBUG_INFO, 0, &vertexAsmBlob);
 
-    if(!vertexAsm)
+    if(!vertexAsmBlob)
     {
         return "Failed to generate vertex shader assembly";
     }
 
-    ID3DBlob* pixelAsm = nullptr;
+    ID3DBlob* pixelAsmBlob = nullptr;
     D3DDisassemble(ps->GetBufferPointer(), ps->GetBufferSize(), 
-        D3D_DISASM_DISABLE_DEBUG_INFO, 0, &pixelAsm);
+        D3D_DISASM_DISABLE_DEBUG_INFO, 0, &pixelAsmBlob);
 
-    if(!pixelAsm)
+    if(!pixelAsmBlob)
     {
         return "Failed to generate pixel shader assembly";
     }
 
-    m_vertexAsm = static_cast<char*>(vertexAsm->GetBufferPointer());
-    m_pixelAsm = static_cast<char*>(pixelAsm->GetBufferPointer());
+    vertexAsm = static_cast<char*>(vertexAsmBlob->GetBufferPointer());
+    pixelAsm = static_cast<char*>(pixelAsmBlob->GetBufferPointer());
 
-    // Strip out any comments to just get the asm
-    boost::regex reg("//.*?\n");
-    m_vertexAsm = boost::regex_replace(m_vertexAsm, reg, "");
-    m_pixelAsm = boost::regex_replace(m_pixelAsm, reg, "");
+    if(REMOVE_ASM_COMMENTS)
+    {
+        // Strip out any comments to just get the asm
+        boost::regex reg("//.*?\n");
+        vertexAsm = boost::regex_replace(vertexAsm, reg, "");
+        pixelAsm = boost::regex_replace(pixelAsm, reg, "");
+    }
 
     if(OUTPUT_ASM_FILE)
     {
@@ -206,33 +239,36 @@ std::string DxShader::OutputAssembly(ID3D10Blob* vs, ID3D10Blob* ps)
             return "Could not open file " + path;
         }    
 
-        file << m_vertexAsm << std::endl << std::endl << m_pixelAsm;
+        file << vertexAsm << std::endl << std::endl << pixelAsm;
         file.close();
     }
 
-    pixelAsm->Release();
-    vertexAsm->Release();
+    pixelAsmBlob->Release();
+    vertexAsmBlob->Release();
 
     return std::string();
 }
 
 std::string DxShader::BindVertexAttributes(ID3D11Device* device, 
-                                           ID3D10Blob* vs)
+                                           ID3D10Blob* vs,
+                                           const std::string& text)
 {
-    // Find a string of all text within the entry point brackets
+    // Find a string of all text within the entry point brackets main(...)
     std::string attributeList;
     const std::string entryPoint(VERTEX_ENTRY + "(");
-    int index = m_vertexText.find(entryPoint, 0) + entryPoint.size();
-    while(m_vertexText[index] != ')')
+    int index = text.find(entryPoint, 0) + entryPoint.size();
+    while(text[index] != ')')
     {
-        attributeList += m_vertexText[index];
+        attributeList += text[index];
         ++index;
     }
 
+    // Section into words, removing any spaces, tokens etc.
     std::vector<std::string> components;
     boost::split(components, attributeList, 
         boost::is_any_of(",:;\n\r "), boost::token_compress_on);
 
+    // Ordering of input attributes is assumed to be: 'type name semantic'
     int byteOffset = 0;
     for(unsigned index = 0; index < components.size(); index += 3)
     {
@@ -254,19 +290,19 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32_FLOAT;
-            byteOffset += 12;
+            byteOffset += 3 * sizeof(float);
         }
         else if(components[index] == HLSL_FLT4)
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-            byteOffset += 16;
+            byteOffset += 4 * sizeof(float);
         }
         else if(components[index] == HLSL_FLT2)
         {
             data.byteOffset = byteOffset;
             data.format = DXGI_FORMAT_R32G32_FLOAT;
-            byteOffset += 8;
+            byteOffset += 2 * sizeof(float);
         }
 
         m_attributes.push_back(data);
@@ -294,21 +330,23 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
     return std::string();
 }
 
-std::string DxShader::CreateConstantBuffer(ID3D11Device* device)
+std::string DxShader::CreateConstantBuffer(ID3D11Device* device, const std::string& text)
 {
-    // Generate a list of all variables in the constant buffer
+    // Find a string of all text within the constant buffer brackets
     std::string constantList;
-    int index = m_sharedText.find(HLSL_CONSTANT_BUFFER, 0) + HLSL_CONSTANT_BUFFER.size();
-    while(m_sharedText[index] != '}')
+    int index = text.find(HLSL_CONSTANT_BUFFER, 0) + HLSL_CONSTANT_BUFFER.size();
+    while(text[index] != '}')
     {
-        constantList += m_sharedText[index];
+        constantList += text[index];
         ++index;
     }
 
+    // Section into words, removing any spaces, tokens etc.
     std::vector<std::string> components;
     boost::split(components, constantList, 
         boost::is_any_of("{},:;\n\r "), boost::token_compress_on);
 
+    // Ordering of constant buffer is assumed to be: 'type name'
     int byteWidth = 0;
     int slotsRemaining = 0;
     for(unsigned index = 0; index < components.size(); ++index)
@@ -325,39 +363,39 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device)
             // Each component of a float4 is considered a 'slot'
             if(type == HLSL_MAT4)
             {
-                byteWidth += slotsRemaining * 4; // fill in empty slots
-                byteWidth += 64;
+                byteWidth += slotsRemaining * sizeof(float); // fill in empty slots
+                byteWidth += 16 * sizeof(float);
                 slotsRemaining = 4;
             }
             else if(type == HLSL_FLT4)
             {
-                byteWidth += slotsRemaining * 4; // fill in empty slots
-                byteWidth += 16;
+                byteWidth += slotsRemaining * sizeof(float); // fill in empty slots
+                byteWidth += 4 * sizeof(float);
                 slotsRemaining = 4;
             }
             else if(type == HLSL_FLT3)
             {
                 if(slotsRemaining <= 2)
                 {
-                    byteWidth += slotsRemaining * 4; // can only fit in slots of 3+
+                    byteWidth += slotsRemaining * sizeof(float); // can only fit in slots of 3+
                     slotsRemaining = 4;
                 }
-                byteWidth += 12;
+                byteWidth += 3 * sizeof(float);
                 slotsRemaining -= 3;
             }
             else if(type == HLSL_FLT2)
             {
                 if(slotsRemaining <= 1)
                 {
-                    byteWidth += slotsRemaining * 4; // can only fit in slots of 2+
+                    byteWidth += slotsRemaining * sizeof(float); // can only fit in slots of 2+
                     slotsRemaining = 4;
                 }
-                byteWidth += 8;
+                byteWidth += 2 * sizeof(float);
                 slotsRemaining -= 2;
             }
             else if(type == HLSL_FLT)
             {
-                byteWidth += 4;
+                byteWidth += sizeof(float);
                 if(slotsRemaining == 0)
                 {
                     slotsRemaining = 4;
@@ -369,7 +407,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device)
             ++index;
         }
     }
-    byteWidth += slotsRemaining * 4;
+    byteWidth += slotsRemaining * sizeof(float);
 
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
