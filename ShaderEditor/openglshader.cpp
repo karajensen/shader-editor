@@ -28,11 +28,6 @@ namespace
     const std::string GLSL_OUT_COLOR("outColor");
     const std::string GLSL_IN("in");
     const std::string GLSL_UNIFORM("uniform");
-
-    //GLSL Assembly Keywords
-    const std::string ENDMAIN("endmain");
-    const std::string DECLARE("dcl_");
-    const std::string CONSTANT(" c");
 }
 
 GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :

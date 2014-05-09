@@ -9,7 +9,7 @@
 
 namespace
 {
-    bool REMOVE_ASM_COMMENTS = false; ///< Whether to strip out any comments
+    bool REMOVE_ASM_COMMENTS = true; ///< Whether to strip out any comments
     bool OUTPUT_ASM_FILE = true; ///< Whether to output assembly to a file
 
     const std::string VS("Vertex Shader: "); ///< Text for vertex shader diagnostics
@@ -29,11 +29,6 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("ConstantBuffer");
-
-    //HLSL Assembly Keywords
-    const std::string RETURN("ret");
-    const std::string DECLARE("dcl_");
-    const std::string CONSTANT(" cb0"); //9
 }
 
 DxShader::DxShader(int index, const std::string& filepath) :
