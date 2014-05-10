@@ -28,7 +28,6 @@ struct OpenglData
 
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< Camera View matrix
-    glm::mat4 viewInvTranspose;      ///< View inverse transpose matrix
     std::vector<GlMesh> meshes;      ///< OpenGL mesh objects
     std::vector<GlShader> shaders;   ///< OpenGL shader objects
     HGLRC hrc;                       ///< Rendering context  
@@ -328,7 +327,6 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     shader.SetAsActive();
 
     shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
-    shader.SendUniformMatrix("viewInvTranspose", m_data->viewInvTranspose);
     shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
 
     for(GlMesh& mesh : m_data->meshes)
@@ -370,7 +368,6 @@ void OpenglEngine::UpdateView(const Matrix& world)
     view[3][2] = world.m34;
 
     m_data->view = glm::inverse(view);
-    m_data->viewInvTranspose = glm::transpose(view);
 }
 
 void OpenglEngine::SetBackfaceCull(bool shouldCull)

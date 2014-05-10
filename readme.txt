@@ -1,9 +1,7 @@
 
-- Qt textbox for viewing shader code/assembly
-- Runtime editing of shaders
+- Qt textbox for viewing/editing shader code/assembly
 - section shader text into editable/non-editable
-
-- Rendering: diffuse specular, attenuation, texture, bump mapping
+- Rendering: specular, attenuation, texture, bump mapping, add defines
 - Create 3D scene
 
 - Transparency

@@ -36,7 +36,6 @@ struct DirectxData
     ID3D11DeviceContext* context;         ///< Direct3D device context
     ID3D11Debug* debug;                   ///< Direct3D debug interface
     D3DXMATRIX view;                      ///< View matrix
-    D3DXMATRIX viewInvTranspose;          ///< View inverse transpose matrix
     D3DXMATRIX projection;                ///< Projection matrix
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
     ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
@@ -325,7 +324,6 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     // Model pivot points exist at the origin: world matrix is the identity
     const D3DXMATRIX viewProjection = m_data->view * m_data->projection;
     shader.UpdateConstantMatrix("viewProjection", viewProjection);
-    shader.UpdateConstantMatrix("viewInvTranspose", m_data->viewInvTranspose);
 
     // Send light information
     shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
@@ -373,8 +371,6 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._42 = world.m24;
     m_data->view._43 = world.m34;
 
-    m_data->viewInvTranspose = m_data->view;
-    D3DXMatrixTranspose(&m_data->viewInvTranspose, &m_data->viewInvTranspose);
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
 }
 

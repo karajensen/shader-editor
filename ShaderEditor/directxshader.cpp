@@ -442,7 +442,7 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
     {
         for(int i = 0; i < size; ++i)
         {
-            m_constantScratch[itr->second.index] = value[i];
+            m_constantScratch[itr->second.index + i] = value[i];
         }
     }
 }
