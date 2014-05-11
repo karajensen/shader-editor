@@ -2,7 +2,8 @@
 - Qt textbox for viewing/editing shader code/assembly
 - section shader text into editable/non-editable
 
-- Loading/rendering textures
+- opengl Loading/rendering textures
+- Multiple textures
 - Rendering: specular, attenuation, bump mapping
 - Add defines to shaders
 - Create 3D scene

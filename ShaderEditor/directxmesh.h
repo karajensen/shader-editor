@@ -59,9 +59,15 @@ public:
     */
     int GetShaderID() const { return m_shaderIndex; }
 
+    /**
+    * @return Maximum textures used for this mesh
+    */
+    int GetMaxTextures() const { return m_maxTextures; }
+
 private:
 
     std::vector<int> m_textureIDs;  ///< Unique ids for the mesh textures
+    int m_maxTextures;              ///< Maximum textures used for this mesh
     int m_shaderIndex;              ///< Unique Index of the mesh shader
     UINT m_indexCount;              ///< Number of indices for the mesh
     UINT m_vertexCount;             ///< Number of vertices for the mesh

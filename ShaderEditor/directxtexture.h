@@ -38,8 +38,10 @@ public:
     /**
     * Sends the texture to the currently active shader
     * @param context The direct device context
+    * @param slot The slot to put the texture into
+    * @param maxSlots The maximum textures to send
     */
-    void SendTexture(ID3D11DeviceContext* context);
+    void SendTexture(ID3D11DeviceContext* context, int slot, int maxSlots);
 
 private:
 

@@ -31,14 +31,14 @@ VertexOutput VShader(float4 position  :POSITION,
 
 float4 PShader(VertexOutput input) : SV_TARGET
 {
-    float4 finalColour = float4(1.0, 1.0, 1.0, 1.0);
+    float4 finalColour;
     normalize(input.normal);
 
     float diffuse = (dot(input.vertToLight, input.normal) + 1.0) * 0.5; 
     
-    //float4 tex = DiffuseTexture.Sample(DiffuseSampler, input.uvs);
+    float4 tex = DiffuseTexture.Sample(DiffuseSampler, input.uvs);
 
-    //finalColour = tex;
+    finalColour = tex;
     finalColour.rgb *= diffuse;
     finalColour.a = 1.0;
     return finalColour;

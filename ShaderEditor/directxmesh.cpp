@@ -18,6 +18,9 @@ DxMesh::DxMesh(const Mesh& mesh) :
     m_shaderIndex(mesh.shaderIndex),
     m_textureIDs(mesh.textureIDs)
 {
+    const int unusedTextures = std::count(
+        m_textureIDs.begin(), m_textureIDs.end(), NO_INDEX);
+    m_maxTextures = m_textureIDs.size() - unusedTextures;
 }
 
 DxMesh::~DxMesh()

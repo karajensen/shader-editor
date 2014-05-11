@@ -241,12 +241,12 @@ bool DirectxEngine::Initialize()
     rasterDesc.DepthBiasClamp = 0.0f;
     rasterDesc.DepthClipEnable = true;
     rasterDesc.FillMode = D3D11_FILL_SOLID;
-    rasterDesc.FrontCounterClockwise = true;
+    rasterDesc.FrontCounterClockwise = false;
     rasterDesc.MultisampleEnable = true;
     rasterDesc.ScissorEnable = false;
     rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-    rasterDesc.CullMode = D3D11_CULL_BACK; // for Maya vert winding order
+    rasterDesc.CullMode = D3D11_CULL_FRONT; // for Maya vert winding order
     if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->cullState)))
     {
         Logger::LogError("DirectX: Failed to create cull rasterizer state");
@@ -290,11 +290,11 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
                                     const std::vector<Shader>& shaders,
                                     const std::vector<Texture>& textures)
 {
-    //m_data->textures.reserve(textures.size());
-    //for(const Texture& texture : textures)
-    //{
-    //    m_data->textures.push_back(DxTexture(texture.path));
-    //}
+    m_data->textures.reserve(textures.size());
+    for(const Texture& texture : textures)
+    {
+        m_data->textures.push_back(DxTexture(texture.path));
+    }
 
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
@@ -329,10 +329,10 @@ bool DirectxEngine::ReInitialiseScene()
         mesh.Initialise(m_data->device, m_data->context);
     }
 
-    //for(DxTexture& texture : m_data->textures)
-    //{
-    //    texture.Initialise(m_data->device);
-    //}
+    for(DxTexture& texture : m_data->textures)
+    {
+        texture.Initialise(m_data->device);
+    }
 
     return true;
 }
@@ -355,13 +355,15 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
         UpdateShader(mesh.GetShaderID(), lights);
 
         // Send texture information
-        //for(int id : mesh.GetTextureIDs())
-        //{
-        //    if(id != NO_INDEX)
-        //    {
-        //        m_data->textures[id].SendTexture(m_data->context);
-        //    }
-        //}
+        int slot = 0;
+        for(int id : mesh.GetTextureIDs())
+        {
+            if(id != NO_INDEX)
+            {
+                m_data->textures[id].SendTexture(
+                    m_data->context, slot++, mesh.GetMaxTextures());
+            }
+        }
 
         // Render the mesh
         SetBackfaceCull(mesh.ShouldBackfaceCull());

@@ -10,6 +10,7 @@
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <BackfaceCulling>0</BackfaceCulling>
   </Mesh>
   <Mesh>
     <Name>Ref_Lside.obj</Name>
@@ -39,6 +40,6 @@
     <Name>Ref_water.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
-    <Diffuse>plain.png</Diffuse>
+    <Diffuse>height.png</Diffuse>
   </Mesh>
 </Meshes>
