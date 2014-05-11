@@ -25,10 +25,12 @@
     <ClCompile Include="directxengine.cpp" />
     <ClCompile Include="directxmesh.cpp" />
     <ClCompile Include="directxshader.cpp" />
+    <ClCompile Include="directxtexture.cpp" />
     <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
+    <ClCompile Include="opengltexture.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -43,11 +45,13 @@
     <ClInclude Include="directxengine.h" />
     <ClInclude Include="directxmesh.h" />
     <ClInclude Include="directxshader.h" />
+    <ClInclude Include="directxtexture.h" />
     <ClInclude Include="elements.h" />
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="openglcommon.h" />
     <ClInclude Include="openglmesh.h" />
     <ClInclude Include="openglshader.h" />
+    <ClInclude Include="opengltexture.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="matrix.h" />

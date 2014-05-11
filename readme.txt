@@ -1,7 +1,10 @@
 
 - Qt textbox for viewing/editing shader code/assembly
 - section shader text into editable/non-editable
-- Rendering: specular, attenuation, texture, bump mapping, add defines
+
+- Loading opengl textures
+- Rendering: specular, attenuation, texture, bump mapping
+- Add defines to shaders
 - Create 3D scene
 
 - Transparency
@@ -11,7 +14,7 @@
 - Post effects: fog, dof, glow, SSAO, Color correction, shadows
 
 TO DETERMINE:
-- Fix opengl: loading time and fps (possibly switch vbo binding with vao)
+- Fix opengl: loading time and fps (possibly switch vbo binding with vao) or add progress bar
 - Fix directx: D3D11 WARNING: Live Object at Refcount: 0. [ STATE_CREATION WARNING #0: UNKNOWN]
 
 =================================================================

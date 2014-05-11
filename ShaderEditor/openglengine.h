@@ -55,12 +55,14 @@ public:
     * @param meshes All mesh data for the scene
     * @param alpha All translucent mesh data for the scene
     * @param shaders All shader data for the scene
+    * @param textures All texture data for the scene
     * @return whether initialisation was successful
     */
     virtual bool InitialiseScene(
         const std::vector<Mesh>& meshes, 
         const std::vector<Mesh>& alpha, 
-        const std::vector<Shader>& shaders) override;
+        const std::vector<Shader>& shaders,
+        const std::vector<Texture>& textures) override;
 
     /**
     * ReInitialises the scene for openGL

@@ -5,6 +5,7 @@
 #include "openglengine.h"
 #include "openglshader.h"
 #include "openglmesh.h"
+#include "opengltexture.h"
 
 /**
 * Internal data for the opengl rendering engine
@@ -26,16 +27,18 @@ struct OpenglData
     */
     void Release();
 
-    glm::mat4 projection;            ///< Projection matrix
-    glm::mat4 view;                  ///< Camera View matrix
-    std::vector<GlMesh> meshes;      ///< OpenGL mesh objects
-    std::vector<GlShader> shaders;   ///< OpenGL shader objects
-    HGLRC hrc;                       ///< Rendering context  
-    HDC hdc;                         ///< Device context  
-    GLint scratchVS;                 ///< Scratch GLSL Vertex Shader
-    GLint scratchFS;                 ///< Scratch GLSL Fragment Shader
-    std::vector<GLuint> vao;         ///< IDs for the Vertex Array Objects
-    bool isBackfaceCull;             ///< Whether backface culling is currently active
+    glm::mat4 projection;             ///< Projection matrix
+    glm::mat4 view;                   ///< Camera View matrix
+    std::vector<GlTexture> textures;  ///< OpenGL texture objects
+    std::vector<GlMesh> meshes;       ///< OpenGL mesh objects
+    std::vector<GlShader> shaders;    ///< OpenGL shader objects
+    HGLRC hrc;                        ///< Rendering context  
+    HDC hdc;                          ///< Device context  
+    GLint scratchVS;                  ///< Scratch GLSL Vertex Shader
+    GLint scratchFS;                  ///< Scratch GLSL Fragment Shader
+    std::vector<GLuint> vao;          ///< IDs for the Vertex Array Objects
+    std::vector<GLuint> textureIDs;   ///< IDs for the generated textures
+    bool isBackfaceCull;              ///< Whether backface culling is currently active
 };
 
 OpenglData::OpenglData() :
@@ -54,6 +57,11 @@ OpenglData::~OpenglData()
 
 void OpenglData::Release()
 {
+    for(GlTexture& texture : textures)
+    {
+        texture.Release();
+    }
+
     for(GlMesh& mesh : meshes)
     {
         mesh.Release();
@@ -74,6 +82,12 @@ void OpenglData::Release()
     {
         glDeleteShader(scratchFS);
         scratchFS = NO_INDEX;
+    }
+
+    if(!textureIDs.empty())
+    {
+        glDeleteTextures(textureIDs.size(), &textureIDs[0]);
+        textureIDs.clear();
     }
 
     if(!vao.empty())
@@ -276,8 +290,15 @@ std::string OpenglEngine::CompileShader(int index)
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
                                    const std::vector<Mesh>& alpha, 
-                                   const std::vector<Shader>& shaders)
+                                   const std::vector<Shader>& shaders,
+                                   const std::vector<Texture>& textures)
 {
+    m_data->textures.reserve(textures.size());
+    for(const Texture& texture : textures)
+    {
+        m_data->textures.push_back(GlTexture(texture.path));
+    }
+
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
@@ -311,6 +332,13 @@ bool OpenglEngine::ReInitialiseScene()
     for(unsigned int i = 0; i < m_data->meshes.size(); ++i)
     {
         m_data->meshes[i].Initialise(m_data->vao[i]);
+    }
+
+    m_data->textureIDs.resize(m_data->textures.size());
+    glGenTextures(m_data->textures.size(), &m_data->textureIDs[0]);
+    for(unsigned int i = 0; i < m_data->textures.size(); ++i)
+    {
+        m_data->textures[i].Initialise(m_data->textureIDs[i]);
     }
 
     return true;

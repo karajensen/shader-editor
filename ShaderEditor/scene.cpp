@@ -75,8 +75,11 @@ bool Scene::InitialiseMeshes()
     {
         Mesh mesh;
         mesh.name = it->second.get_child("Name").data();
-        mesh.specularity = GetPtreeValue(it,5.0f,"Specularity");
-        mesh.backfacecull = GetPtreeValue(it,true,"BackfaceCulling");
+        mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
+        mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
+        mesh.diffuseID = AddTexture(GetPtreeValue(it, std::string(), "Diffuse"));
+        mesh.specularID = AddTexture(GetPtreeValue(it, std::string(), "Specular"));
+        mesh.normalID = AddTexture(GetPtreeValue(it, std::string(), "Normal"));
 
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();
@@ -194,6 +197,28 @@ bool Scene::InitialiseLighting()
 
     Logger::LogInfo("Lighting: Initialised successfully");
     return true;
+}
+
+int Scene::AddTexture(const std::string& name)
+{
+    if(name.empty())
+    {
+        return NO_INDEX;
+    }
+
+    for(int i = 0; i < static_cast<int>(m_textures.size()); ++i)
+    {
+        if(name == m_textures[i].name)
+        {
+            return i;
+        }
+    }
+
+    Texture texture;
+    texture.name = name;
+    texture.path = TEXTURE_PATH + name;
+    m_textures.push_back(texture);
+    return m_textures.size()-1;
 }
 
 bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& mesh)
@@ -350,7 +375,8 @@ void Scene::ReleaseTweakParameters()
 void Scene::InitialiseTweakParameters()
 {
     const std::string lightGroup = " group='Light' ";
-    TwAddButton(m_tweakbar, "Select Next Light", ButtonSelectNextLight, this, lightGroup.c_str());
+    TwAddButton(m_tweakbar, "Select Next Light",
+        ButtonSelectNextLight, this, lightGroup.c_str());
  
     if(m_selectedLight != NO_INDEX)
     {
@@ -397,22 +423,27 @@ void Scene::InitialiseTweakBar(CTwBar* tweakbar)
     InitialiseTweakParameters();
 }
 
-const std::vector<Mesh> Scene::GetMeshes() const
+const std::vector<Mesh>& Scene::GetMeshes() const
 {
     return m_meshes;
 }
 
-const std::vector<Mesh> Scene::GetAlpha() const
+const std::vector<Mesh>& Scene::GetAlpha() const
 {
     return m_alpha;
 }
 
-const std::vector<Shader> Scene::GetShaders() const
+const std::vector<Shader>& Scene::GetShaders() const
 {
     return m_shaders;
 }
 
-const std::vector<Light> Scene::GetLights() const
+const std::vector<Light>& Scene::GetLights() const
 {
     return m_lights;
+}
+
+const std::vector<Texture>& Scene::GetTextures() const
+{
+    return m_textures;
 }

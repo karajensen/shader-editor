@@ -7,6 +7,20 @@
 #include "common.h"
 
 /**
+* Individual texture object
+*/
+struct Texture
+{
+    /**
+    * Constructor
+    */
+    Texture();
+
+    std::string name; ///< Name of the texture
+    std::string path; ///< Path to the texture
+};
+
+/**
 * Individual shader object
 */
 struct Shader
@@ -94,7 +108,10 @@ struct Mesh
     Mesh();
 
     bool backfacecull;                   ///< Whether back facing polygons are culled
-    int shaderIndex;                     ///< Index of which shader to use
+    int shaderIndex;                     ///< Unique Index of the mesh shader
+    int diffuseID;                       ///< Unique index of the diffuse texture
+    int normalID;                        ///< Unique index of the normal texture
+    int specularID;                      ///< Unique index of the specular texture
     float specularity;                   ///< Brightness of the specular highlights
     std::string name;                    ///< Name of the mesh
     std::vector<float> vertices;         ///< Mesh Vertex information

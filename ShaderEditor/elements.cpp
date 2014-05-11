@@ -4,6 +4,10 @@
 
 #include "elements.h"
 
+Texture::Texture()
+{
+}
+
 Shader::Shader() :
     index(NO_INDEX)
 {
@@ -47,7 +51,10 @@ Mesh::Mesh() :
     vertexComponentCount(1),
     vertexCount(0),
     faceCount(0),
-    indexCount(0)
+    indexCount(0),
+    diffuseID(NO_INDEX),
+    specularID(NO_INDEX),
+    normalID(NO_INDEX)
 {
 }
 

@@ -214,7 +214,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     }
 
     if(!m_opengl->InitialiseScene(m_scene->GetMeshes(), 
-        m_scene->GetAlpha(), m_scene->GetShaders()))
+        m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
     {
         Logger::LogError("OpenGL: Scene failed to initialise");
         return false;
@@ -227,7 +227,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     }
 
     if(!m_directx->InitialiseScene(m_scene->GetMeshes(), 
-        m_scene->GetAlpha(), m_scene->GetShaders()))
+        m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
     {
         Logger::LogError("DirectX: Scene failed to initialise");
         return false;

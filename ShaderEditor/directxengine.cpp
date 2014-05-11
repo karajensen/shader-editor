@@ -6,6 +6,7 @@
 #include "directxcommon.h"
 #include "directxshader.h"
 #include "directxmesh.h"
+#include "directxtexture.h"
 
 /**
 * Internal data for the directx rendering engine
@@ -27,6 +28,7 @@ struct DirectxData
     */
     void Release();
             
+    std::vector<DxTexture> textures;      ///< DirectX texture objects
     std::vector<DxMesh> meshes;           ///< DirectX mesh objects
     std::vector<DxShader> shaders;        ///< DirectX shader objects
     ID3D11DepthStencilView* zbuffer;      ///< Depth buffer
@@ -68,6 +70,11 @@ DirectxData::~DirectxData()
 
 void DirectxData::Release()
 {
+    for(DxTexture& texture : textures)
+    {
+        texture.Release();
+    }
+
     for(DxMesh& mesh : meshes)
     {
         mesh.Release();
@@ -269,8 +276,15 @@ std::string DirectxEngine::CompileShader(int index)
 
 bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
                                     const std::vector<Mesh>& alpha, 
-                                    const std::vector<Shader>& shaders)
+                                    const std::vector<Shader>& shaders,
+                                    const std::vector<Texture>& textures)
 {
+    m_data->textures.reserve(textures.size());
+    for(const Texture& texture : textures)
+    {
+        m_data->textures.push_back(DxTexture(texture.path));
+    }
+
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
@@ -302,6 +316,11 @@ bool DirectxEngine::ReInitialiseScene()
     for(DxMesh& mesh : m_data->meshes)
     {
         mesh.Initialise(m_data->device, m_data->context);
+    }
+
+    for(DxTexture& texture : m_data->textures)
+    {
+        texture.Initialise(m_data->device);
     }
 
     return true;

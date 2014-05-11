@@ -38,6 +38,7 @@ const std::string GLSL_VERTEX_EXTENSION("_glsl_vert" + SHADER_EXTENSION);
 const std::string HLSL_SHADER_EXTENSION("_hlsl" + SHADER_EXTENSION);
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
+const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");
 
 /**
