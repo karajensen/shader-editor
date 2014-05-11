@@ -32,3 +32,11 @@ void DxTexture::Initialise(ID3D11Device* device)
         Logger::LogError("Failed to create texture " + m_filepath);
     }
 }
+
+void DxTexture::SendTexture(ID3D11DeviceContext* context)
+{
+    if(m_texture)
+    {
+        context->PSSetShaderResources(0, 1, &m_texture);
+    }
+}

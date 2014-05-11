@@ -39,6 +39,9 @@ struct OpenglData
     std::vector<GLuint> vao;          ///< IDs for the Vertex Array Objects
     std::vector<GLuint> textureIDs;   ///< IDs for the generated textures
     bool isBackfaceCull;              ///< Whether backface culling is currently active
+    int selectedShader;               ///< Currently active shader for rendering
+    bool viewUpdated;                 ///< Whether the view matrix has updated this tick
+    bool lightsUpdated;               ///< Whether the lights have been updated this tick
 };
 
 OpenglData::OpenglData() :
@@ -46,7 +49,10 @@ OpenglData::OpenglData() :
     hrc(nullptr),
     scratchVS(NO_INDEX),
     scratchFS(NO_INDEX),
-    isBackfaceCull(true)
+    isBackfaceCull(true),
+    selectedShader(NO_INDEX),
+    viewUpdated(true),
+    lightsUpdated(true)
 {
 }
 
@@ -57,6 +63,11 @@ OpenglData::~OpenglData()
 
 void OpenglData::Release()
 {
+    viewUpdated = true;
+    lightsUpdated = true;
+    selectedShader = NO_INDEX;
+    isBackfaceCull = true;
+
     for(GlTexture& texture : textures)
     {
         texture.Release();
@@ -264,7 +275,7 @@ bool OpenglEngine::Initialize()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
-    glFrontFace(GL_CCW); // for Maya vert winding order
+    glFrontFace(GL_CCW); 
     glMatrixMode(GL_PROJECTION);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
@@ -351,18 +362,53 @@ void OpenglEngine::BeginRender()
 
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
-    GlShader& shader = m_data->shaders[0];
-    shader.SetAsActive();
-
-    shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
-    shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
+    m_data->lightsUpdated = true; // updated once per tick due to tweaking
 
     for(GlMesh& mesh : m_data->meshes)
     {
+        UpdateShader(mesh.GetShaderID(), lights);
+
+        // Send texture information
+        for(int id : mesh.GetTextureIDs())
+        {
+            if(id != NO_INDEX)
+            {
+                m_data->textures[id].SendTexture();
+            }
+        }
+
+        // Render the mesh
         SetBackfaceCull(mesh.ShouldBackfaceCull());
         mesh.PreRender();
-        shader.EnableAttributes();
+        m_data->shaders[m_data->selectedShader].EnableAttributes();
         mesh.Render();
+    }
+}
+
+void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
+{
+    bool changedShader = false;
+    if(index != m_data->selectedShader)
+    {
+        m_data->shaders[index].SetAsActive();
+        m_data->selectedShader = index;
+        changedShader = true;
+    }
+    GlShader& shader = m_data->shaders[m_data->selectedShader];
+
+    // Update transform information
+    if(changedShader || m_data->viewUpdated)
+    {
+        // Model pivot points exist at the origin: world matrix is the identity
+        shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
+        m_data->viewUpdated = false;
+    }
+    
+    // Update light information
+    if(changedShader || m_data->lightsUpdated)
+    {
+        shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
+        m_data->lightsUpdated = false;
     }
 }
 
@@ -395,6 +441,7 @@ void OpenglEngine::UpdateView(const Matrix& world)
     view[2][2] = world.m33;
     view[3][2] = world.m34;
 
+    m_data->viewUpdated = true;
     m_data->view = glm::inverse(view);
 }
 

@@ -35,6 +35,11 @@ public:
     */
     void Initialise(GLuint id);
 
+    /**
+    * Sends the texture to the currently active shader
+    */
+    void SendTexture();
+
 private:
 
     const std::string m_filepath; ///< The path for the texture

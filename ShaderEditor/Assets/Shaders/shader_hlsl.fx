@@ -4,6 +4,9 @@ cbuffer ConstantBuffer
     float3 lightPosition;
 }
 
+Texture2D DiffuseTexture;
+SamplerState DiffuseSampler;
+
 struct VertexOutput
 {
     float4 position     :SV_POSITION;
@@ -28,12 +31,15 @@ VertexOutput VShader(float4 position  :POSITION,
 
 float4 PShader(VertexOutput input) : SV_TARGET
 {
-    float4 finalColour;
+    float4 finalColour = float4(1.0, 1.0, 1.0, 1.0);
     normalize(input.normal);
 
     float diffuse = (dot(input.vertToLight, input.normal) + 1.0) * 0.5; 
     
-    finalColour.rgb = diffuse;
+    //float4 tex = DiffuseTexture.Sample(DiffuseSampler, input.uvs);
+
+    //finalColour = tex;
+    finalColour.rgb *= diffuse;
     finalColour.a = 1.0;
     return finalColour;
 }

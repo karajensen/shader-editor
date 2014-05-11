@@ -35,6 +35,12 @@ public:
     */
     void Initialise(ID3D11Device* device);
 
+    /**
+    * Sends the texture to the currently active shader
+    * @param context The direct device context
+    */
+    void SendTexture(ID3D11DeviceContext* context);
+
 private:
 
     const std::string m_filepath;        ///< The path for the texture

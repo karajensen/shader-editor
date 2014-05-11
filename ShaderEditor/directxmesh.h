@@ -5,6 +5,7 @@
 #pragma once
 
 #include "directxcommon.h"
+
 struct Mesh;
 
 /**
@@ -48,8 +49,20 @@ public:
     */
     bool ShouldBackfaceCull() const;
 
+    /**
+    * @return a container of unique IDs for the mesh textures
+    */
+    const std::vector<int>& GetTextureIDs() const;
+
+    /**
+    * @return the unique ID for the mesh shader
+    */
+    int GetShaderID() const { return m_shaderIndex; }
+
 private:
 
+    std::vector<int> m_textureIDs;  ///< Unique ids for the mesh textures
+    int m_shaderIndex;              ///< Unique Index of the mesh shader
     UINT m_indexCount;              ///< Number of indices for the mesh
     UINT m_vertexCount;             ///< Number of vertices for the mesh
     UINT m_vertexStride;            ///< Size of the vertex structure

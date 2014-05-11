@@ -15,7 +15,9 @@ GlMesh::GlMesh(const Mesh& mesh) :
     m_vertices(mesh.vertices),
     m_indices(mesh.indices),
     m_name(mesh.name),
-    m_backfaceCull(mesh.backfacecull)
+    m_backfaceCull(mesh.backfacecull),
+    m_shaderIndex(mesh.shaderIndex),
+    m_textureIDs(mesh.textureIDs)
 {
 }
 
@@ -71,4 +73,9 @@ void GlMesh::Render()
 bool GlMesh::ShouldBackfaceCull() const
 {
     return m_backfaceCull;
+}
+
+const std::vector<int>& GlMesh::GetTextureIDs() const
+{
+    return m_textureIDs;
 }

@@ -77,9 +77,11 @@ bool Scene::InitialiseMeshes()
         mesh.name = it->second.get_child("Name").data();
         mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
-        mesh.diffuseID = AddTexture(GetPtreeValue(it, std::string(), "Diffuse"));
-        mesh.specularID = AddTexture(GetPtreeValue(it, std::string(), "Specular"));
-        mesh.normalID = AddTexture(GetPtreeValue(it, std::string(), "Normal"));
+
+        std::string str;
+        mesh.textureIDs[Texture::DIFFUSE] = AddTexture(GetPtreeValue(it, str, "Diffuse"));
+        mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));
+        mesh.textureIDs[Texture::NORMAL] = AddTexture(GetPtreeValue(it, str, "Normal"));
 
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();

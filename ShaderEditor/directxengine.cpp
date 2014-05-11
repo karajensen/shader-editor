@@ -42,6 +42,9 @@ struct DirectxData
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
     ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
     ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
+    int selectedShader;                   ///< currently selected shader
+    bool viewUpdated;                     ///< Whether the view matrix has updated this tick
+    bool lightsUpdated;                   ///< Whether the lights have been updated this tick
 };
 
 DirectxData::DirectxData() :
@@ -53,7 +56,10 @@ DirectxData::DirectxData() :
     zbuffer(nullptr),
     cullState(nullptr),
     nocullState(nullptr),
-    isBackfaceCull(true)
+    isBackfaceCull(true),
+    selectedShader(NO_INDEX),
+    viewUpdated(true),
+    lightsUpdated(true)
 {
 }
 
@@ -70,6 +76,11 @@ DirectxData::~DirectxData()
 
 void DirectxData::Release()
 {
+    viewUpdated = true;
+    lightsUpdated = true;
+    selectedShader = NO_INDEX;
+    isBackfaceCull = true;
+
     for(DxTexture& texture : textures)
     {
         texture.Release();
@@ -279,11 +290,11 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
                                     const std::vector<Shader>& shaders,
                                     const std::vector<Texture>& textures)
 {
-    m_data->textures.reserve(textures.size());
-    for(const Texture& texture : textures)
-    {
-        m_data->textures.push_back(DxTexture(texture.path));
-    }
+    //m_data->textures.reserve(textures.size());
+    //for(const Texture& texture : textures)
+    //{
+    //    m_data->textures.push_back(DxTexture(texture.path));
+    //}
 
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
@@ -318,10 +329,10 @@ bool DirectxEngine::ReInitialiseScene()
         mesh.Initialise(m_data->device, m_data->context);
     }
 
-    for(DxTexture& texture : m_data->textures)
-    {
-        texture.Initialise(m_data->device);
-    }
+    //for(DxTexture& texture : m_data->textures)
+    //{
+    //    texture.Initialise(m_data->device);
+    //}
 
     return true;
 }
@@ -337,21 +348,59 @@ void DirectxEngine::BeginRender()
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
-    DxShader& shader = m_data->shaders[0];
-    shader.SetAsActive(m_data->context);
+    m_data->lightsUpdated = true; // updated once per tick due to tweaking
 
-    // Model pivot points exist at the origin: world matrix is the identity
-    const D3DXMATRIX viewProjection = m_data->view * m_data->projection;
-    shader.UpdateConstantMatrix("viewProjection", viewProjection);
-
-    // Send light information
-    shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
-    
-    shader.SendConstants(m_data->context);
     for(DxMesh& mesh : m_data->meshes)
     {
+        UpdateShader(mesh.GetShaderID(), lights);
+
+        // Send texture information
+        //for(int id : mesh.GetTextureIDs())
+        //{
+        //    if(id != NO_INDEX)
+        //    {
+        //        m_data->textures[id].SendTexture(m_data->context);
+        //    }
+        //}
+
+        // Render the mesh
         SetBackfaceCull(mesh.ShouldBackfaceCull());
         mesh.Render(m_data->context);
+    }
+}
+
+void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
+{
+    bool updatedConstants = false;
+    bool changedShader = false;
+    if(index != m_data->selectedShader)
+    {
+        m_data->shaders[index].SetAsActive(m_data->context);
+        m_data->selectedShader = index;
+        changedShader = true;
+    }
+    DxShader& shader = m_data->shaders[m_data->selectedShader];
+
+    // Update transform information
+    if(changedShader || m_data->viewUpdated)
+    {
+        // Model pivot points exist at the origin: world matrix is the identity
+        shader.UpdateConstantMatrix("viewProjection", m_data->view * m_data->projection);
+        m_data->viewUpdated = false;
+        updatedConstants = true;
+    }
+
+    // Update light information
+    if(changedShader || m_data->lightsUpdated)
+    {
+        shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
+        m_data->lightsUpdated = false;
+        updatedConstants = true;
+    }
+
+    if(updatedConstants)
+    {
+        shader.SendConstants(m_data->context);
     }
 }
 
@@ -390,6 +439,7 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._42 = world.m24;
     m_data->view._43 = world.m34;
 
+    m_data->viewUpdated = true;
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
 }
 

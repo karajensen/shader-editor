@@ -12,6 +12,17 @@
 struct Texture
 {
     /**
+    * Type of texture
+    */
+    enum Type
+    {
+        DIFFUSE,
+        SPECULAR,
+        NORMAL,
+        MAX_TYPES
+    };
+
+    /**
     * Constructor
     */
     Texture();
@@ -109,13 +120,11 @@ struct Mesh
 
     bool backfacecull;                   ///< Whether back facing polygons are culled
     int shaderIndex;                     ///< Unique Index of the mesh shader
-    int diffuseID;                       ///< Unique index of the diffuse texture
-    int normalID;                        ///< Unique index of the normal texture
-    int specularID;                      ///< Unique index of the specular texture
     float specularity;                   ///< Brightness of the specular highlights
     std::string name;                    ///< Name of the mesh
     std::vector<float> vertices;         ///< Mesh Vertex information
     std::vector<DWORD> indices;          ///< Mesh Index information
+    std::vector<int> textureIDs;         ///< IDs for each texture used
     int vertexComponentCount;            ///< Number of components that make up a vertex
     int vertexCount;                     ///< Number of vertices in the mesh
     int faceCount;                       ///< Number of faces in the mesh

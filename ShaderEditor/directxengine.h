@@ -101,6 +101,13 @@ private:
     */
     void SetBackfaceCull(bool shouldCull);
 
+    /**
+    * Updates and switches to the given shader index if necessary
+    * @param index The shader to switch to
+    * @param lights All lighting in the scene
+    */
+    void UpdateShader(int index, const std::vector<Light>& lights);
+
     HWND m_hwnd;                         ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
 };                     
