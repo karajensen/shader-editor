@@ -13,6 +13,9 @@
 - Switching on/off post effects and post textures
 - Post effects: fog, dof, glow, SSAO, Color correction, shadows
 
+- Particle effects
+- Switch qt with anttweakbar
+
 TO DETERMINE:
 - Fix opengl: loading time and fps (possibly switch vbo binding with vao) or add progress bar
 - Fix directx: D3D11 WARNING: Live Object at Refcount: 0. [ STATE_CREATION WARNING #0: UNKNOWN]
