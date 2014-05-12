@@ -3,9 +3,8 @@
 - section shader text into editable/non-editable
 
 - opengl Loading/rendering textures
-- Multiple textures
 - Rendering: specular, attenuation, bump mapping
-- Add defines to shaders
+- Add defines to shaders, using mutliple shaders
 - Create 3D scene
 
 - Transparency
