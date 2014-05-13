@@ -373,6 +373,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
         {
             if(id != NO_INDEX)
             {
+                glActiveTexture(GL_TEXTURE0); //fix for multiple textures
                 m_data->textures[id].SendTexture();
             }
         }

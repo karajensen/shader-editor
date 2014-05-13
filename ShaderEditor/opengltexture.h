@@ -42,5 +42,6 @@ public:
 
 private:
 
+    int m_id; ///< Unique id for the texture
     const std::string m_filepath; ///< The path for the texture
 };
