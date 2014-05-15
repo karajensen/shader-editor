@@ -51,7 +51,8 @@ Mesh::Mesh() :
     vertexComponentCount(1),
     vertexCount(0),
     faceCount(0),
-    indexCount(0)
+    indexCount(0),
+    maxTextures(0)
 {
     textureIDs.resize(Texture::MAX_TYPES);
     textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);

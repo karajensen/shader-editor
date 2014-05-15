@@ -118,15 +118,16 @@ struct Mesh
     */
     Mesh();
 
-    bool backfacecull;                   ///< Whether back facing polygons are culled
-    int shaderIndex;                     ///< Unique Index of the mesh shader
-    float specularity;                   ///< Brightness of the specular highlights
-    std::string name;                    ///< Name of the mesh
-    std::vector<float> vertices;         ///< Mesh Vertex information
-    std::vector<DWORD> indices;          ///< Mesh Index information
-    std::vector<int> textureIDs;         ///< IDs for each texture used
-    int vertexComponentCount;            ///< Number of components that make up a vertex
-    int vertexCount;                     ///< Number of vertices in the mesh
-    int faceCount;                       ///< Number of faces in the mesh
-    int indexCount;                      ///< Number of indicies in the mesh
+    bool backfacecull;            ///< Whether back facing polygons are culled
+    int shaderIndex;              ///< Unique Index of the mesh shader
+    float specularity;            ///< Brightness of the specular highlights
+    std::string name;             ///< Name of the mesh
+    std::vector<float> vertices;  ///< Mesh Vertex information
+    std::vector<DWORD> indices;   ///< Mesh Index information
+    std::vector<int> textureIDs;  ///< IDs for each texture used
+    int vertexComponentCount;     ///< Number of components that make up a vertex
+    int vertexCount;              ///< Number of vertices in the mesh
+    int faceCount;                ///< Number of faces in the mesh
+    int indexCount;               ///< Number of indicies in the mesh
+    int maxTextures;              ///< Maximum textures used for this mesh
 };

@@ -12,12 +12,7 @@ GlMesh::GlMesh(const Mesh& mesh) :
     m_vboID(0),
     m_iboID(0),
     m_initialised(false),
-    m_vertices(mesh.vertices),
-    m_indices(mesh.indices),
-    m_name(mesh.name),
-    m_backfaceCull(mesh.backfacecull),
-    m_shaderIndex(mesh.shaderIndex),
-    m_textureIDs(mesh.textureIDs)
+    m_mesh(mesh)
 {
 }
 
@@ -43,17 +38,17 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
 
     glGenBuffers(1, &m_vboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_vertices.size(), 
-        &m_vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_mesh.vertices.size(), 
+        &m_mesh.vertices[0], GL_STATIC_DRAW);
 
     glGenBuffers(1, &m_iboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_indices.size(), 
-        &m_indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_mesh.indices.size(), 
+        &m_mesh.indices[0], GL_STATIC_DRAW);
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + m_name + " buffers");
+        Logger::LogError("OpenGL: Failed " + m_mesh.name + " buffers");
     }
 
     m_initialised = true;
@@ -72,10 +67,15 @@ void GlMesh::Render()
 
 bool GlMesh::ShouldBackfaceCull() const
 {
-    return m_backfaceCull;
+    return m_mesh.backfacecull;
 }
 
 const std::vector<int>& GlMesh::GetTextureIDs() const
 {
-    return m_textureIDs;
+    return m_mesh.textureIDs;
+}
+
+int GlMesh::GetShaderID() const 
+{ 
+    return m_mesh.shaderIndex;
 }

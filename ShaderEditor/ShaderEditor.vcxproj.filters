@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Render Engine Source">
+      <UniqueIdentifier>{df8d1dfb-1910-489c-9f0d-a34bc4d64c45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render Engine Header">
+      <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="logfile.txt" />
@@ -35,9 +41,6 @@
     <ClCompile Include="logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="openglengine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,32 +50,35 @@
     <ClCompile Include="fragmentlinker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="directxengine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="openglshader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="directxshader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="directxmesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="openglmesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="elements.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="directxengine.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="directxmesh.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="directxshader.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
     <ClCompile Include="directxtexture.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="openglengine.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="openglmesh.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="openglshader.cpp">
+      <Filter>Render Engine Source</Filter>
     </ClCompile>
     <ClCompile Include="opengltexture.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Render Engine Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +92,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderengine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="openglengine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">
@@ -109,35 +112,38 @@
     <ClInclude Include="elements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="directxengine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="openglshader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="openglcommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="directxcommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="directxshader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="directxmesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="openglmesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="directxcommon.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="directxengine.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="directxmesh.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="directxshader.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
     <ClInclude Include="directxtexture.h">
-      <Filter>Header Files</Filter>
+      <Filter>Render Engine Header</Filter>
     </ClInclude>
     <ClInclude Include="opengltexture.h">
-      <Filter>Header Files</Filter>
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="openglcommon.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="openglengine.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="openglmesh.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="openglshader.h">
+      <Filter>Render Engine Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

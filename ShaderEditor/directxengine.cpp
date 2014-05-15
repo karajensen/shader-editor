@@ -166,7 +166,7 @@ bool DirectxEngine::Initialize()
 
     #ifdef _DEBUG
     unsigned int deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
-    #elif
+    #else
     unsigned int deviceFlags = 0;
     #endif
 

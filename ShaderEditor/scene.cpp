@@ -83,6 +83,10 @@ bool Scene::InitialiseMeshes()
         mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));
         mesh.textureIDs[Texture::NORMAL] = AddTexture(GetPtreeValue(it, str, "Normal"));
 
+        const int unusedTextures = std::count(
+            mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
+        mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
+
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();
         std::string newShaderName;

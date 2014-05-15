@@ -11,16 +11,8 @@ DxMesh::DxMesh(const Mesh& mesh) :
     m_vertexStride(sizeof(float) * mesh.vertexComponentCount),
     m_vertexCount(mesh.vertexCount),
     m_indexCount(mesh.indexCount),
-    m_vertices(mesh.vertices),
-    m_indices(mesh.indices),
-    m_name(mesh.name),
-    m_backfaceCull(mesh.backfacecull),
-    m_shaderIndex(mesh.shaderIndex),
-    m_textureIDs(mesh.textureIDs)
+    m_mesh(mesh)
 {
-    const int unusedTextures = std::count(
-        m_textureIDs.begin(), m_textureIDs.end(), NO_INDEX);
-    m_maxTextures = m_textureIDs.size() - unusedTextures;
 }
 
 DxMesh::~DxMesh()
@@ -56,7 +48,7 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     // Copy the mesh vertices to the directx mesh
     D3D11_MAPPED_SUBRESOURCE vms;
     context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vms);
-    memcpy(vms.pData, &m_vertices[0], sizeof(float)*m_vertices.size());
+    memcpy(vms.pData, &m_mesh.vertices[0], sizeof(float)*m_mesh.vertices.size());
     context->Unmap(m_vertexBuffer, 0); 
     
     // Create the index buffer
@@ -71,7 +63,7 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     // Copy the mesh indicies to the directx mesh
     D3D11_MAPPED_SUBRESOURCE ims;
     context->Map(m_indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ims); 
-    memcpy(ims.pData, &m_indices[0], sizeof(DWORD)*m_indices.size());
+    memcpy(ims.pData, &m_mesh.indices[0], sizeof(DWORD)*m_mesh.indices.size());
     context->Unmap(m_indexBuffer, 0);
 }
 
@@ -86,10 +78,20 @@ void DxMesh::Render(ID3D11DeviceContext* context)
 
 bool DxMesh::ShouldBackfaceCull() const
 {
-    return m_backfaceCull;
+    return m_mesh.backfacecull;
 }
 
 const std::vector<int>& DxMesh::GetTextureIDs() const
 {
-    return m_textureIDs;
+    return m_mesh.textureIDs;
+}
+
+int DxMesh::GetShaderID() const 
+{ 
+    return m_mesh.shaderIndex;
+}
+
+int DxMesh::GetMaxTextures() const 
+{ 
+    return m_mesh.maxTextures; 
 }

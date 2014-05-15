@@ -63,14 +63,17 @@
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_frag.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </Text>
     <Text Include="Assets\Shaders\shader_glsl_vert.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\shader_hlsl.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -118,20 +121,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\anttweakbar\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vld.lib;assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOIL.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vld.lib;assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\$(TargetName)\vld\lib\Win32;$(SolutionDir)\$(TargetName)\assimp\lib\x86;$(SolutionDir)\$(TargetName)\opengl\lib;$(SolutionDir)\$(TargetName)\anttweakbar\lib;$(SolutionDir)\$(TargetName)\boost\lib;$(SolutionDir)\$(TargetName)\directx\lib\x86;$(SolutionDir)\$(TargetName)\opengl\soil;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\anttweakbar\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
