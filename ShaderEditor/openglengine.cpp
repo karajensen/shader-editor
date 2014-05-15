@@ -369,12 +369,12 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
         UpdateShader(mesh.GetShaderID(), lights);
 
         // Send texture information
+        int slot = 0;
         for(int id : mesh.GetTextureIDs())
         {
             if(id != NO_INDEX)
             {
-                glActiveTexture(GL_TEXTURE0); //fix for multiple textures
-                m_data->textures[id].SendTexture();
+                m_data->textures[id].SendTexture(slot++);
             }
         }
 

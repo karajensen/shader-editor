@@ -4,12 +4,16 @@
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal> 
   </Mesh>
   <Mesh>
     <Name>Skybox.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal>
     <BackfaceCulling>0</BackfaceCulling>
   </Mesh>
   <Mesh>
@@ -17,29 +21,39 @@
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
     <Name>Ref_middle.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
     <Name>Ref_Rocks.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal>  
   </Mesh>
   <Mesh>
     <Name>Ref_Rside.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
+    <Specular>height.png</Specular>
+    <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
     <Name>Ref_water.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Diffuse</Shader>
-    <Diffuse>height.png</Diffuse>
+    <Diffuse>caustic.bmp</Diffuse>
+    <Specular>specular.JPG</Specular>
+    <Normal>normal.png</Normal>
   </Mesh>
 </Meshes>

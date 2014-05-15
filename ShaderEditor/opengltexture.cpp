@@ -35,7 +35,40 @@ void GlTexture::Initialise(GLuint id)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void GlTexture::SendTexture()
+void GlTexture::SendTexture(int slot)
 {
+    switch(slot)
+    {
+    case 0:
+        glActiveTexture(GL_TEXTURE0);
+        break;
+    case 1:
+        glActiveTexture(GL_TEXTURE1);
+        break;
+    case 2:
+        glActiveTexture(GL_TEXTURE2);
+        break;
+    case 3:
+        glActiveTexture(GL_TEXTURE3);
+        break;
+    case 4:
+        glActiveTexture(GL_TEXTURE4);
+        break;
+    case 5:
+        glActiveTexture(GL_TEXTURE5);
+        break;
+    case 6:
+        glActiveTexture(GL_TEXTURE6);
+        break;
+    case 7:
+        glActiveTexture(GL_TEXTURE7);
+        break;
+    case 8:
+        glActiveTexture(GL_TEXTURE8);
+        break;
+    default:
+        Logger::LogError("Unknown texture slot");
+    }
+
     glBindTexture(GL_TEXTURE_2D, m_id);
 }

@@ -4,8 +4,10 @@ cbuffer ConstantBuffer
     float3 lightPosition;
 }
 
-Texture2D DiffuseTexture;
-SamplerState DiffuseSampler;
+Texture2D DiffuseTexture : register(t0);
+Texture2D SpecularTexture : register(t1);
+Texture2D NormalTexture : register(t2);
+SamplerState Sampler;
 
 struct VertexOutput
 {
@@ -36,9 +38,11 @@ float4 PShader(VertexOutput input) : SV_TARGET
 
     float diffuse = (dot(input.vertToLight, input.normal) + 1.0) * 0.5; 
     
-    float4 tex = DiffuseTexture.Sample(DiffuseSampler, input.uvs);
+    float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
+    float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
+    float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
 
-    finalColour = tex;
+    finalColour = specularTex;
     finalColour.rgb *= diffuse;
     finalColour.a = 1.0;
     return finalColour;

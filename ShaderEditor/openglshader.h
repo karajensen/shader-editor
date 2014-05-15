@@ -171,6 +171,7 @@ private:
     typedef std::unordered_map<std::string, UniformData> UniformMap;
 
     UniformMap m_uniforms;                    ///< Vertex and fragment non-attribute uniform data
+    std::vector<int> m_samplers;              ///< Fragment shader sampler locations
     std::vector<AttributeData> m_attributes;  ///< Vertex shader input attributes
     std::string m_vsFilepath;                 ///< Path to the vertex shader file
     std::string m_fsFilepath;                 ///< Path to the fragment shader file

@@ -28,6 +28,7 @@ namespace
     const std::string GLSL_OUT_COLOR("outColor");
     const std::string GLSL_IN("in");
     const std::string GLSL_UNIFORM("uniform");
+    const std::string GLSL_SAMPLER2D("sampler2D");
 }
 
 GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
@@ -55,6 +56,7 @@ void GlShader::Release()
 {
     m_uniforms.clear();
     m_attributes.clear();
+    m_samplers.clear();
 
     if(m_program != NO_INDEX)
     {
@@ -418,19 +420,31 @@ std::string GlShader::BindVertexAttributes(const std::vector<std::string>& text)
 
 std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
 {
+    // Find the vertex shader uniforms
     int currentIndex = 0;
     while(text[currentIndex] != MAIN_ENTRY)
     {
         if(text[currentIndex] == GLSL_UNIFORM)
         {
             const std::string& name = text[currentIndex+2];
+            const std::string& type = text[currentIndex+1];
             GLint location = glGetUniformLocation(m_program, name.c_str());
+
             if(HasCallFailed() || location == NO_INDEX)
             {
                 return "Could not find uniform " + name;
             }
-            m_uniforms[name].location = location;
-            m_uniforms[name].type = text[currentIndex+1];
+
+            if(type == GLSL_SAMPLER2D)
+            {
+                m_samplers.push_back(location);
+            }
+            else
+            {
+                m_uniforms[name].location = location;
+                m_uniforms[name].type = type;
+            }
+
             currentIndex += 2;
         }
         else
@@ -438,6 +452,7 @@ std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
             ++currentIndex;
         }
     }
+
     return std::string();
 }
 
@@ -535,6 +550,13 @@ void GlShader::EnableAttributes()
 void GlShader::SetAsActive()
 {
     glUseProgram(m_program);
+
+    // Enable the texture samplers once per activation
+    int slot = 0;
+    for(int location : m_samplers)
+    {
+        glUniform1i(location, slot++);
+    }
 }
 
 int GlShader::GetIndex() const

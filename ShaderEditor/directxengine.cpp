@@ -360,8 +360,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
         {
             if(id != NO_INDEX)
             {
-                m_data->textures[id].SendTexture(
-                    m_data->context, slot++, mesh.GetMaxTextures());
+                m_data->textures[id].SendTexture(m_data->context, slot++);
             }
         }
 

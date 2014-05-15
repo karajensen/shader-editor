@@ -37,8 +37,9 @@ public:
 
     /**
     * Sends the texture to the currently active shader
+    * @param slot The slot to put the texture into
     */
-    void SendTexture();
+    void SendTexture(int slot);
 
 private:
 

@@ -33,7 +33,7 @@ void DxTexture::Initialise(ID3D11Device* device)
     }
 }
 
-void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot, int maxSlots)
+void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot)
 {
-    context->PSSetShaderResources(slot, maxSlots, &m_texture);
+    context->PSSetShaderResources(slot, 1, &m_texture);
 }

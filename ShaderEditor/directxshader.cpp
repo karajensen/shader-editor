@@ -219,7 +219,6 @@ std::string DxShader::GenerateAssembly(ID3D10Blob* vs,
 
     if(REMOVE_ASM_COMMENTS)
     {
-        // Strip out any comments to just get the asm
         boost::regex reg("//.*?\n");
         vertexAsm = boost::regex_replace(vertexAsm, reg, "");
         pixelAsm = boost::regex_replace(pixelAsm, reg, "");
@@ -355,6 +354,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device, const std::stri
             // When determining the byte offset of constant buffer data
             // take into account optimizations that the buffer will perform where
             // float/float2/float3 are packed together in lots of float4 if possible
+            // This is similar to how a C++ struct/class is packed together
             // Each component of a float4 is considered a 'slot'
             if(type == HLSL_MAT4)
             {
