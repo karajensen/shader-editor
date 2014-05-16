@@ -85,9 +85,6 @@
     <ClInclude Include="application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -107,9 +104,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fragmentlinker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="elements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
@@ -144,6 +138,12 @@
     </ClInclude>
     <ClInclude Include="openglshader.h">
       <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="elements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

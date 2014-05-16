@@ -367,22 +367,33 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     for(GlMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
-
-        // Send texture information
-        int slot = 0;
-        for(int id : mesh.GetTextureIDs())
-        {
-            if(id != NO_INDEX)
-            {
-                m_data->textures[id].SendTexture(slot++);
-            }
-        }
-
-        // Render the mesh
+        SetTextures(mesh.GetTextureIDs());
         SetBackfaceCull(mesh.ShouldBackfaceCull());
+
         mesh.PreRender();
         m_data->shaders[m_data->selectedShader].EnableAttributes();
         mesh.Render();
+    }
+}
+
+void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
+{
+    GlShader& shader = m_data->shaders[m_data->selectedShader];
+
+    int slot = 0;
+    for(int id : textureIDs)
+    {
+        if(id != NO_INDEX)
+        {
+            if(shader.HasTextureSlot(slot))
+            {
+                m_data->textures[id].SendTexture(slot++);
+            }
+            else
+            {
+                Logger::LogError("Shader and mesh textures do not match");
+            }
+        }
     }
 }
 

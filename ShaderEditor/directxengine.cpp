@@ -353,20 +353,30 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     for(DxMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
+        SetTextures(mesh.GetTextureIDs());
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.Render(m_data->context);
+    }
+}
 
-        // Send texture information
-        int slot = 0;
-        for(int id : mesh.GetTextureIDs())
+void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
+{
+    DxShader& shader = m_data->shaders[m_data->selectedShader];
+
+    int slot = 0;
+    for(int id : textureIDs)
+    {
+        if(id != NO_INDEX)
         {
-            if(id != NO_INDEX)
+            if(shader.HasTextureSlot(slot))
             {
                 m_data->textures[id].SendTexture(m_data->context, slot++);
             }
+            else
+            {
+                Logger::LogError("Shader and mesh textures do not match");
+            }
         }
-
-        // Render the mesh
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
-        mesh.Render(m_data->context);
     }
 }
 

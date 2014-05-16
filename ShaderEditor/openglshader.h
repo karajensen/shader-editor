@@ -71,6 +71,13 @@ public:
     */
     void EnableAttributes();
 
+    /**
+    * Determines whether the texture slot is available for the texture
+    * @param slot The slot to query
+    * @return whether the shader allows the slot to be bound to
+    */
+    bool HasTextureSlot(int slot);
+
 private:
 
     /**

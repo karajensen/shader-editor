@@ -78,6 +78,7 @@ bool Scene::InitialiseMeshes()
         mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 
+        // Ordering of textures needs to be in same order of shader samplers
         std::string str;
         mesh.textureIDs[Texture::DIFFUSE] = AddTexture(GetPtreeValue(it, str, "Diffuse"));
         mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));

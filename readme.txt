@@ -1,6 +1,4 @@
 
-- D3D11 WARNING: ID3D11DeviceContext::DrawIndexed: The Pixel Shader unit expects a Sampler to be set at Slot 0, but none is bound. This is perfectly valid, as a NULL Sampler maps to default Sampler state. However, the developer may not want to rely on the defaults.  [ EXECUTION WARNING #352: DEVICE_DRAW_SAMPLER_NOT_SET]
-
 - Rendering: specular, attenuation, bump mapping, transparency
 - Add defines to shaders, using mutliple shaders
 - Create 3D scene

@@ -563,3 +563,8 @@ int GlShader::GetIndex() const
 {
     return m_index;
 }
+
+bool GlShader::HasTextureSlot(int slot)
+{
+    return slot < static_cast<int>(m_samplers.size());
+}

@@ -108,6 +108,12 @@ private:
     */
     void UpdateShader(int index, const std::vector<Light>& lights);
 
+    /**
+    * Sends the textures to the selected shader
+    * @param textureIDs the unique ids of the textures to send
+    */
+    void SetTextures(const std::vector<int>& textureIDs);
+
     HWND m_hwnd;                         ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
 };                     

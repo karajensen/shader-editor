@@ -103,6 +103,12 @@ private:
     */
     void UpdateShader(int index, const std::vector<Light>& lights);
 
+    /**
+    * Sends the textures to the selected shader
+    * @param textureIDs the unique ids of the textures to send
+    */
+    void SetTextures(const std::vector<int>& textureIDs);
+
     HWND m_hwnd;                         ///< handle to the window
     HWND m_temporaryHwnd;                ///< Handle to the temporary window used for glew
     std::unique_ptr<OpenglData> m_data;  ///< member data of opengl

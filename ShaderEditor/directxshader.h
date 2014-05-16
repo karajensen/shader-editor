@@ -71,6 +71,13 @@ public:
     */
     int GetIndex() const;
 
+    /**
+    * Determines whether the texture slot is available for the texture
+    * @param slot The slot to query
+    * @return whether the shader allows the slot to be bound to
+    */
+    bool HasTextureSlot(int slot);
+
 private:
 
     /**
@@ -119,6 +126,14 @@ private:
         ID3D10Blob* vs, const std::string& text);
 
     /**
+    * Creates the state of the sampler
+    * @param device The directX device
+    * @param text The shared components of the shader
+    * @return Error message if failed or empty if succeeded
+    */
+    std::string CreateSamplerState(ID3D11Device* device, const std::string& text);
+
+    /**
     * Generates the constant buffer which holds all non-attribute uniforms
     * @param device The directX device
     * @param text The text for the shared shader components
@@ -157,18 +172,20 @@ private:
 
     typedef std::unordered_map<std::string, ConstantData> ConstantMap;
 
-    ConstantMap m_constants;                    ///< Shader constant variables
-    std::vector<AttributeData> m_attributes;    ///< Vertex shader input attributes
-    std::string m_filepath;                     ///< Path to the shader file
-    std::string m_sharedText;                   ///< Text to the shared shader components
-    std::string m_vertexText;                   ///< Text for the vertex shader
-    std::string m_pixelText;                    ///< Text for the pixel shader
-    std::string m_vertexAsm;                    ///< Assembly for the vertex shader
-    std::string m_pixelAsm;                     ///< Assembly for the pixel shader
-    ID3D11InputLayout* m_layout;                ///< Shader input layout
-    ID3D11VertexShader* m_vs;                   ///< HLSL vertex shader
-    ID3D11PixelShader* m_ps;                    ///< HLSL pixel shader
-    ID3D11Buffer* m_constant;                   ///< Constant buffer
-    std::vector<float> m_constantScratch;       ///< Holds temporary constant values
-    int m_index;                                ///< Unique index of the shader
+    ConstantMap m_constants;                   ///< Shader constant variables
+    std::vector<AttributeData> m_attributes;   ///< Vertex shader input attributes
+    std::string m_filepath;                    ///< Path to the shader file
+    std::string m_sharedText;                  ///< Text to the shared shader components
+    std::string m_vertexText;                  ///< Text for the vertex shader
+    std::string m_pixelText;                   ///< Text for the pixel shader
+    std::string m_vertexAsm;                   ///< Assembly for the vertex shader
+    std::string m_pixelAsm;                    ///< Assembly for the pixel shader
+    ID3D11InputLayout* m_layout;               ///< Shader input layout
+    ID3D11VertexShader* m_vs;                  ///< HLSL vertex shader
+    ID3D11PixelShader* m_ps;                   ///< HLSL pixel shader
+    ID3D11Buffer* m_constant;                  ///< Constant buffer
+    ID3D11SamplerState* m_samplerState;        ///< Texture Sampler state
+    std::vector<float> m_constantScratch;      ///< Holds temporary constant values
+    int m_index;                               ///< Unique index of the shader
+    int m_textureSlots;                        ///< Number of textures allowed for this mesh
 };  

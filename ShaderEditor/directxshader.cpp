@@ -29,6 +29,8 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("ConstantBuffer");
+    const std::string HLSL_TEXTURE2D("Texture2D");
+    const std::string HLSL_SAMPLER("SamplerState");
 }
 
 DxShader::DxShader(int index, const std::string& filepath) :
@@ -37,7 +39,9 @@ DxShader::DxShader(int index, const std::string& filepath) :
     m_vs(nullptr),
     m_ps(nullptr),
     m_constant(nullptr),
-    m_index(index)
+    m_index(index),
+    m_samplerState(nullptr),
+    m_textureSlots(0)
 {
 }
 
@@ -51,6 +55,13 @@ void DxShader::Release()
     m_attributes.clear();
     m_constants.clear();
     m_constantScratch.clear();
+    m_textureSlots = 0;
+    
+    if(m_samplerState)
+    {
+        m_samplerState->Release();
+        m_samplerState = nullptr;
+    }
 
     if(m_vs)
     {
@@ -132,6 +143,12 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     }
 
     errorBuffer = CreateConstantBuffer(device, sharedText);
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    errorBuffer = CreateSamplerState(device, sharedText);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
@@ -426,6 +443,11 @@ void DxShader::SetAsActive(ID3D11DeviceContext* context)
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
     context->VSSetConstantBuffers(0, 1, &m_constant);
+
+    if(m_samplerState)
+    {
+        context->PSSetSamplers(0, 1, &m_samplerState);
+    }
 }
 
 void DxShader::UpdateConstantFloat(const std::string& name, const float* value, int size)
@@ -483,4 +505,42 @@ void DxShader::SendConstants(ID3D11DeviceContext* context)
 int DxShader::GetIndex() const
 {
     return m_index;
+}
+
+std::string DxShader::CreateSamplerState(ID3D11Device* device, const std::string& text)
+{
+    if(boost::algorithm::icontains(text, HLSL_SAMPLER))
+    {
+        D3D11_SAMPLER_DESC samplerDesc;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.MipLODBias = 0.0f;
+        samplerDesc.MaxAnisotropy = 1;
+        samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        samplerDesc.BorderColor[0] = 0;
+        samplerDesc.BorderColor[1] = 0;
+        samplerDesc.BorderColor[2] = 0;
+        samplerDesc.BorderColor[3] = 0;
+        samplerDesc.MinLOD = 0;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+        if(FAILED(device->CreateSamplerState(&samplerDesc, &m_samplerState)))
+        {
+            return "Failed to create texture sampler";
+        }
+
+        // Determine the number of allowed texture slots
+        std::vector<std::string> components;
+        boost::split(components, text, boost::is_any_of("\n "), boost::token_compress_on);
+        m_textureSlots = std::count(components.begin(), components.end(), HLSL_TEXTURE2D);
+    }
+
+    return std::string();
+}
+
+bool DxShader::HasTextureSlot(int slot)
+{
+    return slot <= m_textureSlots;
 }
