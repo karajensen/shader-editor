@@ -39,6 +39,7 @@ struct DirectxData
     ID3D11Debug* debug;                   ///< Direct3D debug interface
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
+    D3DXVECTOR3 camera;                   ///< Position of the camera
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
     ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
     ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
@@ -374,7 +375,7 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
             }
             else
             {
-                Logger::LogError("Shader and mesh textures do not match");
+                Logger::LogError("Shader and mesh texture count does not match");
             }
         }
     }
@@ -397,6 +398,8 @@ void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
     {
         // Model pivot points exist at the origin: world matrix is the identity
         shader.UpdateConstantMatrix("viewProjection", m_data->view * m_data->projection);
+        shader.UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
+
         m_data->viewUpdated = false;
         updatedConstants = true;
     }
@@ -449,6 +452,10 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._41 = world.m14;
     m_data->view._42 = world.m24;
     m_data->view._43 = world.m34;
+
+    m_data->camera.x = world.m14;
+    m_data->camera.y = world.m24;
+    m_data->camera.z = world.m34;
 
     m_data->viewUpdated = true;
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);

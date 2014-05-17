@@ -16,7 +16,7 @@ namespace
     const std::string PS("Pixel Shader: "); ///< Text for pixel shader diagnostics
 
     // HLSL Keywords
-    const std::string VERTEX_RETURN("VertexOutput");
+    const std::string VERTEX_RETURN("Attributes");
     const std::string PIXEL_RETURN("float4");
     const std::string VERTEX_ENTRY("VShader");
     const std::string PIXEL_ENTRY("PShader");
@@ -273,6 +273,7 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
         attributeList += text[index];
         ++index;
     }
+    boost::trim(attributeList);
 
     // Section into words, removing any spaces, tokens etc.
     std::vector<std::string> components;

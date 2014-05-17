@@ -96,5 +96,6 @@ private:
 
     std::unordered_map<std::string, std::string> m_defines; ///< Map of #defined items
     std::vector<std::string> m_shaderComponents; ///< components of the shader currently being linked
+    std::string m_previousLine; ///< The line previously written to the generates file
 };
 

@@ -127,6 +127,7 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
         return false;
     }
 
+    m_previousLine = "No Line";
     std::vector<std::string> emptyTarget;
     std::string result = ReadBaseShader(baseFile, generatedFile, emptyTarget, false, 0);
 
@@ -139,8 +140,11 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
     return result != FAILURE;
 }
 
-std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, std::ofstream& generatedFile, 
-    const std::vector<std::string>& targets, bool skiplines, int level)
+std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, 
+                                           std::ofstream& generatedFile, 
+                                           const std::vector<std::string>& targets, 
+                                           bool skiplines, 
+                                           int level)
 {
     while(!baseFile.eof())
     {
@@ -163,10 +167,18 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, std::ofstrea
             }
         }
 
+        std::string trimmedline = boost::trim_left_copy(line);
         if(!SolveConditionalLine(level, line, baseFile, generatedFile, skiplines) && 
-           !skiplines)
+           !skiplines && !(m_previousLine.empty() && trimmedline.empty()))
         {
-            generatedFile << line << std::endl;
+            const int spacesInTabs = 4;
+            const int spaceOffset = targets.empty() ? 0 : spacesInTabs * level;
+            const int spaceAmount = line.size()-trimmedline.size()-spaceOffset;
+            const std::string spaces(max(0, spaceAmount), ' ');
+            const std::string extraSpaces(spaceOffset, ' ');
+            boost::ireplace_all(trimmedline, ":", extraSpaces + ":"); // Ensure semantics align
+            generatedFile << spaces << trimmedline << std::endl;
+            m_previousLine = trimmedline;
         }
 
         if(boost::algorithm::icontains(line, END_OF_FILE))

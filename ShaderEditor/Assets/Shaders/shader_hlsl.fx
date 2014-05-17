@@ -1,49 +1,85 @@
 cbuffer ConstantBuffer
 {
     float4x4 viewProjection;
-    float3 lightPosition;
-}
-
-Texture2D DiffuseTexture : register(t0);
-Texture2D SpecularTexture : register(t1);
-Texture2D NormalTexture : register(t2);
-SamplerState Sampler;
-
-struct VertexOutput
-{
-    float4 position     :SV_POSITION;
-    float2 uvs          :TEXCOORD0;
-    float3 normal       :NORMAL;
-    float3 vertToLight  :TEXCOORD1;
+    ifndefined: FLAT
+        float3 lightPosition;
+        ifdefined: SPECULAR
+            float3 cameraPosition;
+        endif
+    endif
 };
 
-VertexOutput VShader(float4 position  :POSITION, 
-                     float2 uvs       :TEXCOORD0,
-                     float3 normal    :NORMAL)
+SamplerState Sampler;
+Texture2D DiffuseTexture          : register(t0);
+ifndefined: FLAT
+    ifdefined: SPECULAR|BUMP
+        Texture2D SpecularTexture : register(t1);
+        Texture2D NormalTexture   : register(t2);
+    elseif: SPECULAR
+        Texture2D SpecularTexture : register(t1);
+    elseif: BUMP
+        Texture2D NormalTexture   : register(t1);
+    endif
+endif
+
+struct Attributes
 {
-    VertexOutput output;
+    float4 position               : SV_POSITION;
+    float2 uvs                    : TEXCOORD0;
+    ifndefined: FLAT               
+        float3 normal             : NORMAL;
+        float3 vertToLight        : TEXCOORD1;
+        ifdefined: SPECULAR       
+            float3 vertToCamera   : TEXCOORD2;
+        endif
+    endif
+};
+
+Attributes VShader(float4 position    : POSITION,
+                   ifdefined: FLAT
+                       float2 uvs     : TEXCOORD0)
+                   else:              
+                       float2 uvs     : TEXCOORD0,
+                       float3 normal  : NORMAL)
+                   endif
+{
+    Attributes output;
 
     output.position = mul(viewProjection, position);
-    output.normal = normal;
     output.uvs = uvs;
-    output.vertToLight = normalize(lightPosition - position.xyz);
+    
+    ifndefined: FLAT
+        output.normal = normal;
+        output.vertToLight = normalize(lightPosition - position.xyz);
+        ifdefined: SPECULAR
+            output.vertToCamera = normalize(cameraPosition - position.xyz);
+        endif
+    endif
 
     return output;
 }
 
-float4 PShader(VertexOutput input) : SV_TARGET
+float4 PShader(Attributes input) : SV_TARGET
 {
-    float4 finalColour;
-    normalize(input.normal);
-
-    float diffuse = (dot(input.vertToLight, input.normal) + 1.0) * 0.5; 
+    float4 finalColour = DiffuseTexture.Sample(Sampler, input.uvs);
     
-    float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
-    float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
-    float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
+    ifndefined: FLAT
+        normalize(input.normal);
 
-    finalColour = specularTex;
-    finalColour.rgb *= diffuse;
+        ifdefined: BUMP
+            float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
+        endif       
+        
+        finalColour.rgb *= (dot(input.vertToLight, input.normal) + 1.0) * 0.5;
+                
+        ifdefined: SPECULAR
+            float specularity = 0.5;
+            float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
+            float3 halfVector = normalize(input.vertToLight + input.vertToCamera);
+            finalColour.rgb += pow(max(dot(input.normal, halfVector), 0.0), specularity);
+        endif
+    endif
+
     finalColour.a = 1.0;
     return finalColour;
 }

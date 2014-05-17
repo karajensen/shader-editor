@@ -27,6 +27,7 @@ struct OpenglData
     */
     void Release();
 
+    glm::vec3 camera;                 ///< Position of the camera
     glm::mat4 projection;             ///< Projection matrix
     glm::mat4 view;                   ///< Camera View matrix
     std::vector<GlTexture> textures;  ///< OpenGL texture objects
@@ -391,7 +392,7 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
             }
             else
             {
-                Logger::LogError("Shader and mesh textures do not match");
+                Logger::LogError("Shader and mesh texture count does not match");
             }
         }
     }
@@ -413,6 +414,7 @@ void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
     {
         // Model pivot points exist at the origin: world matrix is the identity
         shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
+        shader.SendUniformFloat("cameraPosition", &m_data->camera.x, 3);
         m_data->viewUpdated = false;
     }
     
@@ -452,6 +454,10 @@ void OpenglEngine::UpdateView(const Matrix& world)
     view[1][2] = world.m32;
     view[2][2] = world.m33;
     view[3][2] = world.m34;
+
+    m_data->camera.x = world.m14;
+    m_data->camera.y = world.m24;
+    m_data->camera.z = world.m34;
 
     m_data->viewUpdated = true;
     m_data->view = glm::inverse(view);
