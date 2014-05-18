@@ -34,11 +34,9 @@ public:
 
     /**
     * Generates the shader for the engine
-    * @param scratchVS A vertex shader to test changes on
-    * @param scratchFS A fragment shader to test changes on
     * @return Error message if failed or empty if succeeded
     */
-    std::string CompileShader(GLint scratchVS, GLint scratchFS);
+    std::string CompileShader();
 
     /**
     * Sets the shader as activated for rendering

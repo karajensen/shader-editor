@@ -1,10 +1,11 @@
 
-- Rendering: specular, attenuation, bump, transparency with defines
+- fix opengl
+- Rendering: specular, attenuation, bump with defines
 
 - Qt textbox for viewing/editing shader code/assembly
 - Qt switch with anttweakbar
+- Qt Loading progress bar
 - Selecting and tweaking mesh/lights/shaders
-- Opengl loading time and fps (possibly switch vbo binding with vao) or add progress bar
 
 - Render to texture
 - Scene Normal/Depth map generation
@@ -13,8 +14,11 @@
 - Optimise shaders
 
 - Create 3D scene
+- Transparency
 - Particle effects
 
+TO DETERMINE:
+- Opengl fps (possibly switch vbo binding with vao)
 
 =================================================================
 SHADER EDITOR

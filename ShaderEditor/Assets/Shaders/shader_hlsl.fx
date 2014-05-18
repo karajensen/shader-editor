@@ -73,10 +73,11 @@ float4 PShader(Attributes input) : SV_TARGET
         finalColour.rgb *= (dot(input.vertToLight, input.normal) + 1.0) * 0.5;
                 
         ifdefined: SPECULAR
-            float specularity = 0.5;
+            // Specular Blinn-Phong
+            float specularity = 5.0;
             float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
             float3 halfVector = normalize(input.vertToLight + input.vertToCamera);
-            finalColour.rgb += pow(max(dot(input.normal, halfVector), 0.0), specularity);
+            finalColour.rgb += pow(saturate(dot(input.normal, halfVector)), specularity);
         endif
     endif
 

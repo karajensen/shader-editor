@@ -4,8 +4,8 @@
     <Specularity>5.0</Specularity>
     <Shader>SpecularBump</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-    <Specular>height.png</Specular>
-    <Normal>normal.png</Normal> 
+    <Specular>specular.JPG</Specular>
+    <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
     <Name>Skybox.obj</Name>
@@ -19,14 +19,14 @@
     <Specularity>5.0</Specularity>
     <Shader>Specular</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-    <Specular>height.png</Specular>
+    <Specular>specular.JPG</Specular>
   </Mesh>
   <Mesh>
     <Name>Ref_middle.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>SpecularBump</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-    <Specular>height.png</Specular>
+    <Specular>specular.JPG</Specular>
     <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
@@ -34,14 +34,14 @@
     <Specularity>5.0</Specularity>
     <Shader>Bump</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-    <Normal>normal.png</Normal>  
+    <Normal>normal.png</Normal>
   </Mesh>
   <Mesh>
     <Name>Ref_Rside.obj</Name>
     <Specularity>5.0</Specularity>
     <Shader>Specular</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-    <Specular>height.png</Specular>
+    <Specular>specular.JPG</Specular>
   </Mesh>
   <Mesh>
     <Name>Ref_water.obj</Name>

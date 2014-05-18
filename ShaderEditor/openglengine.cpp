@@ -35,8 +35,6 @@ struct OpenglData
     std::vector<GlShader> shaders;    ///< OpenGL shader objects
     HGLRC hrc;                        ///< Rendering context  
     HDC hdc;                          ///< Device context  
-    GLint scratchVS;                  ///< Scratch GLSL Vertex Shader
-    GLint scratchFS;                  ///< Scratch GLSL Fragment Shader
     std::vector<GLuint> vao;          ///< IDs for the Vertex Array Objects
     std::vector<GLuint> textureIDs;   ///< IDs for the generated textures
     bool isBackfaceCull;              ///< Whether backface culling is currently active
@@ -48,8 +46,6 @@ struct OpenglData
 OpenglData::OpenglData() :
     hdc(nullptr),
     hrc(nullptr),
-    scratchVS(NO_INDEX),
-    scratchFS(NO_INDEX),
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
     viewUpdated(true),
@@ -82,18 +78,6 @@ void OpenglData::Release()
     for(GlShader& shader : shaders)
     {
         shader.Release();
-    }
-
-    if(scratchVS != NO_INDEX)
-    {
-        glDeleteShader(scratchVS);
-        scratchVS = NO_INDEX;
-    }
-
-    if(scratchFS != NO_INDEX)
-    {
-        glDeleteShader(scratchFS);
-        scratchFS = NO_INDEX;
     }
 
     if(!textureIDs.empty())
@@ -254,21 +238,6 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    // Scratch required to check for compilation errors before overwriting
-    if(m_data->scratchVS == NO_INDEX)
-    {
-        m_data->scratchVS = glCreateShader(GL_VERTEX_SHADER);
-    }
-    if(m_data->scratchFS == NO_INDEX)
-    {
-        m_data->scratchFS = glCreateShader(GL_FRAGMENT_SHADER);
-    }
-    if(HasCallFailed())
-    {
-        Logger::LogError("OpenGL: Scratch shader generation failed");
-        return false;
-    }
-
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -296,8 +265,7 @@ bool OpenglEngine::Initialize()
 
 std::string OpenglEngine::CompileShader(int index)
 {
-    return m_data->shaders[index].CompileShader(
-        m_data->scratchVS, m_data->scratchFS);
+    return m_data->shaders[index].CompileShader();
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 

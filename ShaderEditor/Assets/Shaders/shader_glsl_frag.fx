@@ -1,27 +1,43 @@
 #version 150
 
-in vec3 ex_VertToLight;
-in vec3 ex_Normal;
-
+ifndefined: FLAT
+    in vec3 ex_VertToLight;
+    in vec3 ex_Normal;
+endif
 out vec4 out_Color;
 
 uniform sampler2D DiffuseSampler;
-uniform sampler2D SpecularSampler;
-uniform sampler2D NormalSampler;
+ifndefined: FLAT
+    ifdefined: SPECULAR
+        uniform sampler2D SpecularSampler;
+    endif
+    ifdefined: BUMP
+        uniform sampler2D NormalSampler;
+    endif
+endif
  
 void main(void)
 {
-    vec4 finalColour;
-    normalize(ex_Normal);
-
-    float diffuse = (dot(ex_VertToLight, ex_Normal) + 1.0) * 0.5;
+    vec4 finalColour = texture(DiffuseSampler, gl_TexCoord[0].st);
     
-    vec4 diffuseTex = texture(DiffuseSampler, gl_TexCoord[0].st);
-    vec4 specularTex = texture(SpecularSampler, gl_TexCoord[0].st);
-    vec4 normalTex = texture(NormalSampler, gl_TexCoord[0].st);
+    ifndefined: FLAT
+        normalize(ex_Normal);
 
-    finalColour = specularTex;
-    finalColour.rgb *= vec3(diffuse);
-    finalColour.a = diffuseTex.a + normalTex.a;
+        ifdefined: BUMP
+            vec4 normalTex = texture(NormalSampler, gl_TexCoord[0].st);
+            finalColour.a = normalTex.a;
+        endif       
+        
+        finalColour.rgb *= (dot(ex_VertToLight, ex_Normal) + 1.0) * 0.5;
+                
+        ifdefined: SPECULAR
+            // Specular Blinn-Phong
+            float specularity = 5.0;
+            vec4 specularTex = texture(SpecularSampler, gl_TexCoord[0].st);
+            finalColour.a = specularTex.a;
+        endif
+    endif   
+
+    //finalColour.a = 1.0;
     out_Color = finalColour;
 }

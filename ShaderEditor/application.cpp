@@ -14,7 +14,7 @@
 
 namespace
 {
-    const bool OPENGL_START = false;
+    const bool OPENGL_START = true;
     const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate

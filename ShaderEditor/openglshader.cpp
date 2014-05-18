@@ -83,7 +83,7 @@ void GlShader::Release()
     }
 }
 
-std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
+std::string GlShader::CompileShader()
 {
     std::string errorBuffer;
 
@@ -103,13 +103,16 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     }
 
     // Test on the scratch shaders to give an overview of any compilation errors
-    std::string vertexErrors = CompileShader(scratchVS, vertexText);
+    GLint vertex = glCreateShader(GL_VERTEX_SHADER);
+    GLint fragment = glCreateShader(GL_FRAGMENT_SHADER);
+
+    std::string vertexErrors = CompileShader(vertex, vertexText);
     if(!vertexErrors.empty())
     {
         vertexErrors = VS + vertexErrors;
     }
 
-    std::string fragmentErrors = CompileShader(scratchFS, fragmentText);
+    std::string fragmentErrors = CompileShader(fragment, fragmentText);
     if(!fragmentErrors.empty())
     {
         fragmentErrors = FS + fragmentErrors;
@@ -117,6 +120,9 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
 
     if(!fragmentErrors.empty() || !vertexErrors.empty())
     {
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+
         return vertexErrors.empty() ? fragmentErrors :
             vertexErrors + (fragmentErrors.empty() ? "" : "\n"+fragmentErrors);
     }
@@ -124,20 +130,8 @@ std::string GlShader::CompileShader(GLint scratchVS, GLint scratchFS)
     // Only update the shader once compilation errors have been checked
     Release();
     m_program = glCreateProgram();
-    m_vs = glCreateShader(GL_VERTEX_SHADER);
-    m_fs = glCreateShader(GL_FRAGMENT_SHADER);
-
-    errorBuffer = CompileShader(m_vs, vertexText);
-    if(!errorBuffer.empty())
-    {
-        return VS + errorBuffer;
-    }
-
-    errorBuffer = CompileShader(m_fs, fragmentText);
-    if(!errorBuffer.empty())
-    {
-        return FS + errorBuffer;
-    }
+    m_vs = vertex;
+    m_fs = fragment;
 
     // Split the shader text into wordss
     auto deliminator = boost::is_any_of(";\n\r ");
