@@ -1,5 +1,4 @@
 
-- fix opengl
 - Rendering: specular, attenuation, bump with defines
 
 - Qt textbox for viewing/editing shader code/assembly

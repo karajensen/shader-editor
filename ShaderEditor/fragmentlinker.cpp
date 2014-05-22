@@ -2,7 +2,6 @@
 // Kara Jensen - mail@karajensen.com - fragmentlinker.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common.h"
 #include "fragmentlinker.h"
 #include "elements.h"
 #include <boost/assign.hpp>
@@ -34,39 +33,16 @@ bool FragmentLinker::Initialise(unsigned int maxLights)
 {
     m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);
 
-    if(boost::filesystem::exists(GENERATED_FOLDER))    
-    {
-        boost::filesystem::remove_all(GENERATED_FOLDER);
-    }
-
-    bool success = true;
-    try
-    {
-        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
-        {
-            success = false;
-        }
-    }
-    catch(boost::filesystem::filesystem_error)
-    {
-        success = false;
-    }
-
-    if(!success)
-    {
-        Logger::LogError(GENERATED_FOLDER + " could not be created");
-    }
-    return success;
+    return CreateGeneratedFolder();
 }
 
 void FragmentLinker::FindShaderComponents(Shader& shader)
 {
     // take apart name to find what components are needed for the shader
     m_shaderComponents.clear();
-    std::string component;
     for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
     {
-        component = Shader::GetComponentDescription(i);
+        const std::string component = Shader::GetComponentDescription(i);
         if(boost::algorithm::icontains(shader.name, component))
         {
             m_shaderComponents.push_back(component);
@@ -77,10 +53,9 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
 
 bool FragmentLinker::InitialiseFromFragments(Shader& shader)
 {
+    const std::string filename = GENERATED_FOLDER + shader.name;
     FindShaderComponents(shader);
 
-    // generate a shader from the shader components
-    const std::string filename = GENERATED_FOLDER + shader.name;
     shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
     if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION))
     {
@@ -117,22 +92,20 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
         return false;
     }
 
-    // Open/copy from the base shader 
-    std::ifstream baseFile((SHADER_PATH + "shader" + extension).c_str(), 
-        std::ios_base::in|std::ios_base::out|std::ios_base::_Nocreate);
+    const std::string basepath = SHADER_PATH + "shader" + extension;
+    std::ifstream baseFile(basepath.c_str(), std::ios_base::in|std::ios_base::_Nocreate);
 
     if(!baseFile.is_open())
     {
-        Logger::LogError("Could not open base shader");
+        Logger::LogError("Could not open " + basepath);
         return false;
     }
 
-    m_previousLine = "No Line";
+    std::string previousLine = "No Line";
     std::vector<std::string> emptyTarget;
-    std::string result = ReadBaseShader(baseFile, generatedFile, emptyTarget, false, 0);
+    const std::string result = ReadBaseShader(baseFile, 
+        generatedFile, emptyTarget, previousLine, false, 0);
 
-    baseFile.sync();
-    baseFile.clear();
     baseFile.close();
     generatedFile.flush();
     generatedFile.close();
@@ -142,7 +115,8 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
 
 std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, 
                                            std::ofstream& generatedFile, 
-                                           const std::vector<std::string>& targets, 
+                                           const std::vector<std::string>& targets,
+                                           std::string& previousLine,
                                            bool skiplines, 
                                            int level)
 {
@@ -166,11 +140,14 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
                 return line;
             }
         }
-
+         
+        // Determine whether to write to the generated file
         std::string trimmedline = boost::trim_left_copy(line);
-        if(!SolveConditionalLine(level, line, baseFile, generatedFile, skiplines) && 
-           !skiplines && !(m_previousLine.empty() && trimmedline.empty()))
+
+        if(!SolveConditionalLine(level, line, previousLine, baseFile, generatedFile, skiplines) && 
+           !skiplines && !(previousLine.empty() && trimmedline.empty()))
         {
+            // Make sure text is aligned once conditionals are removed
             const int spacesInTabs = 4;
             const int spaceOffset = targets.empty() ? 0 : spacesInTabs * level;
             const int spaceAmount = line.size()-trimmedline.size()-spaceOffset;
@@ -178,7 +155,7 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
             const std::string extraSpaces(spaceOffset, ' ');
             boost::ireplace_all(trimmedline, ":", extraSpaces + ":"); // Ensure semantics align
             generatedFile << spaces << trimmedline << std::endl;
-            m_previousLine = trimmedline;
+            previousLine = trimmedline;
         }
 
         if(boost::algorithm::icontains(line, END_OF_FILE))
@@ -194,8 +171,12 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
     return END_OF_FILE;
 }
 
-bool FragmentLinker::SolveConditionalLine(int level, std::string line,
-    std::ifstream& baseFile, std::ofstream& generatedFile, bool skiplines)
+bool FragmentLinker::SolveConditionalLine(int level, 
+                                          std::string line,
+                                          std::string& previousLine,
+                                          std::ifstream& baseFile, 
+                                          std::ofstream& generatedFile, 
+                                          bool skiplines)
 {
     std::string conditional;
     std::vector<std::string> components;
@@ -233,7 +214,7 @@ bool FragmentLinker::SolveConditionalLine(int level, std::string line,
         if(skiplines)
         {
             ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ENDIF), 
+                boost::assign::list_of(ENDIF), previousLine,
                 skiplines, level+1);
         }
         else
@@ -250,9 +231,11 @@ bool FragmentLinker::SolveConditionalLine(int level, std::string line,
 
             // Solve ifdefined/ifndefined blocks
             bool skipConditionalBlock = shouldSkipBlock(conditional);
+
             line = ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
-                skipConditionalBlock, level+1);
+                boost::assign::list_of(ELSE)(ENDIF)(ELSEIF), 
+                previousLine, skipConditionalBlock, level+1);
+
             solvedConditional = !skipConditionalBlock;
 
             // Solve elseif blocks
@@ -260,9 +243,10 @@ bool FragmentLinker::SolveConditionalLine(int level, std::string line,
             {
                 skipConditionalBlock = solvedConditional ? true : shouldSkipBlock(ELSEIF);
                 solvedConditional = !skipConditionalBlock ? true : solvedConditional;
+
                 line = ReadBaseShader(baseFile, generatedFile, 
                     boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
-                    skipConditionalBlock, level+1);
+                    previousLine, skipConditionalBlock, level+1);
             }
 
             // Solve else blocks
@@ -270,11 +254,38 @@ bool FragmentLinker::SolveConditionalLine(int level, std::string line,
             {
                 ReadBaseShader(baseFile, generatedFile, 
                     boost::assign::list_of(ENDIF), 
-                    solvedConditional, level+1);
+                    previousLine, solvedConditional, level+1);
             }
 
         }
         return true;
     }
     return false;
+}
+
+bool FragmentLinker::CreateGeneratedFolder()
+{
+    bool success = true;
+    try
+    {
+        if(boost::filesystem::exists(GENERATED_FOLDER))    
+        {
+            boost::filesystem::remove_all(GENERATED_FOLDER);
+        }
+
+        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
+        {
+            success = false;
+        }
+    }
+    catch(boost::filesystem::filesystem_error&)
+    {
+        success = false;
+    }
+
+    if(!success)
+    {
+        Logger::LogError(GENERATED_FOLDER + " could not be created");
+    }
+    return success;
 }
