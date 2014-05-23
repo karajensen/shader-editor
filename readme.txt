@@ -1,9 +1,8 @@
 
-- Open in seperate window
+- Open/close qt window
+- Move gui to main application
 - Create textbox ui
 - Hook up gui to main application
-- Open in another thread
-
 
 - Qt switch with anttweakbar
 - Qt Loading progress bar

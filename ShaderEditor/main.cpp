@@ -13,7 +13,7 @@ void InitializeWindow(HINSTANCE);
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 HWND hWnd;
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int cmdShow) 
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int cmdShow)
 {
     Logger::Initialise();
     InitializeWindow(hInstance);

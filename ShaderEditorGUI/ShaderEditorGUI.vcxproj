@@ -65,12 +65,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;QT_THREAD_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;D:\Projects\ShaderEditor\ShaderEditor\boost</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(TargetName)\qt\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\$(TargetName)\qt\lib;D:\Projects\ShaderEditor\ShaderEditor\boost\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
