@@ -101,7 +101,7 @@ private:
                               std::ofstream& generatedFile,
                               bool skiplines);
 
-    std::unordered_map<std::string, std::string> m_defines; ///< Map of #defined items
+    std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
     std::vector<std::string> m_shaderComponents; ///< components of currently linked shader
 };
 

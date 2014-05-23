@@ -1,0 +1,14 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - main.cpp
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include <QtWidgets\qapplication.h>
+#include "shaderEditorGUI.h"
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    ShaderEditorGUI gui;
+    gui.show();
+    return app.exec();
+}

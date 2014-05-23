@@ -1,9 +1,15 @@
 
-- Rendering: specular, attenuation, bump with defines
+- Open in seperate window
+- Create textbox ui
+- Hook up gui to main application
+- Open in another thread
 
-- Qt textbox for viewing/editing shader code/assembly
+
 - Qt switch with anttweakbar
 - Qt Loading progress bar
+- Remove unneeded Qt libraries
+
+- Rendering: specular, attenuation, bump with defines
 - Selecting and tweaking mesh/lights/shaders
 
 - Render to texture
