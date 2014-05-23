@@ -1,4 +1,4 @@
-﻿Build started 23/05/2014 5:08:39 PM.
+﻿Build started 23/05/2014 5:37:36 PM.
      1>Project "D:\Projects\ShaderEditor\ShaderEditorGUI\ShaderEditorGUI.vcxproj" on node 3 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ID:\Projects\ShaderEditor\\ShaderEditorGUI\qt\include /ID:\Projects\ShaderEditor\\ShaderEditorGUI\qt\include\QtCore /ID:\Projects\ShaderEditor\\ShaderEditorGUI\qt\include\QtGui /ID:\Projects\ShaderEditor\\ShaderEditorGUI\qt\include\QtWidgets /ID:\Projects\ShaderEditor\\ShaderEditorGUI\qt\include\QtANGLE /ID:\Projects\ShaderEditor\ShaderEditor\boost /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D QT_THREAD_SUPPORT /D QT_CORE_LIB /D QT_GUI_LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt qt\main.cpp
@@ -12,4 +12,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:15.76
+Time Elapsed 00:00:15.86

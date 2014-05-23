@@ -52,10 +52,10 @@ void RunMain()
 int main(int argc, char *argv[])
 {
     boost::thread qtThread(&RunQt, argc, argv);
-    boost::thread mainThread(&RunMain);
+    //boost::thread mainThread(&RunMain);
 
     qtThread.join();
-    mainThread.join();
+    //mainThread.join();
 
     return 0;    
 }
