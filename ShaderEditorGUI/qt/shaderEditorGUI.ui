@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Calculator Form</string>
+   <string>Shader Editor</string>
   </property>
   <layout class="QGridLayout">
    <property name="leftMargin">

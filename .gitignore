@@ -5,6 +5,14 @@
 *.vcxproj.user
 *.ilk
 *.pdb
+*.Debug
+*.Release
+ShaderEditorGUI/ShaderEditorGUI.exe
+ShaderEditorGUI/Debug/
+ShaderEditorGUI/Release/
+ShaderEditorGUI/qt/release/
+ShaderEditorGUI/qt/debug/
+ShaderEditorGUI/qt/Makefile
 ShaderEditor/ShaderEditor.exe
 ShaderEditor/logfile.txt
 ShaderEditor/Debug/

@@ -131,13 +131,14 @@ public:
 
 
         retranslateUi(ShaderEditorGUI);
+        QObject::connect(label_3_2, SIGNAL(destroyed()), ShaderEditorGUI, SLOT(close()));
 
         QMetaObject::connectSlotsByName(ShaderEditorGUI);
     } // setupUi
 
     void retranslateUi(QWidget *ShaderEditorGUI)
     {
-        ShaderEditorGUI->setWindowTitle(QApplication::translate("ShaderEditorGUI", "Calculator Form", 0));
+        ShaderEditorGUI->setWindowTitle(QApplication::translate("ShaderEditorGUI", "Shader Editor", 0));
         label_3_2->setText(QApplication::translate("ShaderEditorGUI", "=", 0));
         label_2_2_2->setText(QApplication::translate("ShaderEditorGUI", "Output", 0));
         outputWidget->setText(QApplication::translate("ShaderEditorGUI", "0", 0));

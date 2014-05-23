@@ -1,5 +1,5 @@
 
-- Open/close qt window
+- Close qt window when main app closes
 - Move gui to main application
 - Create textbox ui
 - Hook up gui to main application
