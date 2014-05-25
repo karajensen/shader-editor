@@ -52,6 +52,12 @@
 #include <initializer_list>
 #endif
 
+#if defined(Q_CC_MSVC)
+#pragma warning( push )
+#pragma warning( disable : 4311 ) // disable pointer truncation warning
+#pragma warning( disable : 4127 ) // conditional expression is constant
+#endif
+
 QT_BEGIN_NAMESPACE
 
 class QBitArray;
@@ -85,6 +91,11 @@ inline uint qHash(quint64 key, uint seed = 0) Q_DECL_NOTHROW
     }
 }
 inline uint qHash(qint64 key, uint seed = 0) Q_DECL_NOTHROW { return qHash(quint64(key), seed); }
+Q_CORE_EXPORT uint qHash(float key, uint seed = 0) Q_DECL_NOTHROW;
+Q_CORE_EXPORT uint qHash(double key, uint seed = 0) Q_DECL_NOTHROW;
+#ifndef Q_OS_DARWIN
+Q_CORE_EXPORT uint qHash(long double key, uint seed = 0) Q_DECL_NOTHROW;
+#endif
 inline uint qHash(QChar key, uint seed = 0) Q_DECL_NOTHROW { return qHash(key.unicode(), seed); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key, uint seed = 0) Q_DECL_NOTHROW;
 Q_CORE_EXPORT uint qHash(const QString &key, uint seed = 0) Q_DECL_NOTHROW;
@@ -94,18 +105,10 @@ Q_CORE_EXPORT uint qHash(QLatin1String key, uint seed = 0) Q_DECL_NOTHROW;
 Q_CORE_EXPORT uint qt_hash(const QString &key) Q_DECL_NOTHROW;
 Q_CORE_EXPORT uint qt_hash(const QStringRef &key) Q_DECL_NOTHROW;
 
-#if defined(Q_CC_MSVC)
-#pragma warning( push )
-#pragma warning( disable : 4311 ) // disable pointer truncation warning
-#endif
 template <class T> inline uint qHash(const T *key, uint seed = 0) Q_DECL_NOTHROW
 {
     return qHash(reinterpret_cast<quintptr>(key), seed);
 }
-#if defined(Q_CC_MSVC)
-#pragma warning( pop )
-#endif
-
 template<typename T> inline uint qHash(const T &t, uint seed)
     Q_DECL_NOEXCEPT_EXPR(noexcept(qHash(t)))
 { return (qHash(t) ^ seed); }
@@ -213,6 +216,9 @@ struct QHashNode
     inline QHashNode(const Key &key0, const T &value0, uint hash, QHashNode *n)
         : next(n), h(hash), key(key0), value(value0) {}
     inline bool same_key(uint h0, const Key &key0) const { return h0 == h && key0 == key; }
+
+private:
+    Q_DISABLE_COPY(QHashNode)
 };
 
 template <class Key, class T>
@@ -223,6 +229,9 @@ struct QHashDummyNode
     const Key key;
 
     inline QHashDummyNode(const Key &key0, uint hash, QHashNode<Key, T> *n) : next(n), h(hash), key(key0) {}
+
+private:
+    Q_DISABLE_COPY(QHashDummyNode)
 };
 
 
@@ -321,7 +330,9 @@ public:
 
     inline void detach() { if (d->ref.isShared()) detach_helper(); }
     inline bool isDetached() const { return !d->ref.isShared(); }
+#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
     inline void setSharable(bool sharable) { if (!sharable) detach(); if (d != &QHashData::shared_null) d->sharable = sharable; }
+#endif
     inline bool isSharedWith(const QHash<Key, T> &other) const { return d == other.d; }
 
     void clear();
@@ -1085,5 +1096,9 @@ Q_DECLARE_ASSOCIATIVE_ITERATOR(Hash)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Hash)
 
 QT_END_NAMESPACE
+
+#if defined(Q_CC_MSVC)
+#pragma warning( pop )
+#endif
 
 #endif // QHASH_H

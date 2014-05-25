@@ -62,6 +62,8 @@
 #include "qcolor.h"
 #include "qmatrix.h"
 #include "qpagedpaintdevice.h"
+#include "qpagelayout.h"
+#include "qpagesize.h"
 #include "qpaintdevice.h"
 #include "qpaintengine.h"
 #include "qpainter.h"

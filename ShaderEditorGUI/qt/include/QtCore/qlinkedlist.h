@@ -106,7 +106,9 @@ public:
     inline void detach()
     { if (d->ref.isShared()) detach_helper2(this->e); }
     inline bool isDetached() const { return !d->ref.isShared(); }
+#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
     inline void setSharable(bool sharable) { if (!sharable) detach(); if (d != &QLinkedListData::shared_null) d->sharable = sharable; }
+#endif
     inline bool isSharedWith(const QLinkedList<T> &other) const { return d == other.d; }
 
     inline bool isEmpty() const { return d->size == 0; }
@@ -170,7 +172,7 @@ public:
         inline const_iterator(Node *n) : i(n) {}
         inline const_iterator(const const_iterator &o) : i(o.i){}
         inline const_iterator(iterator ci) : i(ci.i){}
-	inline const_iterator &operator=(const const_iterator &o) { i = o.i; return *this; }
+        inline const_iterator &operator=(const const_iterator &o) { i = o.i; return *this; }
         inline const T &operator*() const { return i->t; }
         inline const T *operator->() const { return &i->t; }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }

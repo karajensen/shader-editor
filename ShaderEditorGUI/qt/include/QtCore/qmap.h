@@ -260,6 +260,11 @@ QMapNode<Key, T> *QMapNode<Key, T>::copy(QMapData<Key, T> *d) const
     return n;
 }
 
+#if defined(Q_CC_MSVC)
+#pragma warning( push )
+#pragma warning( disable : 4127 ) // conditional expression is constant
+#endif
+
 template <class Key, class T>
 void QMapNode<Key, T>::destroySubTree()
 {
@@ -274,6 +279,10 @@ void QMapNode<Key, T>::destroySubTree()
             rightNode()->destroySubTree();
     }
 }
+
+#if defined(Q_CC_MSVC)
+#pragma warning( pop )
+#endif
 
 template <class Key, class T>
 void QMapData<Key, T>::deleteNode(QMapNode<Key, T> *z)
@@ -368,6 +377,7 @@ public:
 
     inline void detach() { if (d->ref.isShared()) detach_helper(); }
     inline bool isDetached() const { return !d->ref.isShared(); }
+#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
     inline void setSharable(bool sharable)
     {
         if (sharable == d->ref.isSharable())
@@ -377,6 +387,7 @@ public:
         // Don't call on shared_null
         d->ref.setSharable(sharable);
     }
+#endif
     inline bool isSharedWith(const QMap<Key, T> &other) const { return d == other.d; }
 
     void clear();

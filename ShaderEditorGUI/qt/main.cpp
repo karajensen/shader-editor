@@ -3,19 +3,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <Windows.h>
-#include <boost/thread.hpp>
-#include "shaderEditorGUI.h"
+#include <thread>
 #include <QtWidgets/qapplication.h>
-
-bool quitApplication;
+#include "shaderEditorGUI.h"
 
 void RunQt(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+	QApplication app(argc, argv);
     ShaderEditorGUI gui;
-    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     gui.show();
-    app.exec();
+	app.exec();
 }
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
@@ -31,10 +29,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 int main(int argc, char *argv[])
 { 
-    quitApplication = false;
+	std::thread thread(&RunQt, argc, argv);
 
-    boost::thread qtThread(&RunQt, argc, argv);
-    
     WNDCLASSEX wndclass = { sizeof(WNDCLASSEX), CS_DBLCLKS, WindowProc,
                             0, 0, GetModuleHandle(0), LoadIcon(0,IDI_APPLICATION),
                             LoadCursor(0,IDC_ARROW), HBRUSH(COLOR_WINDOW+1),
@@ -48,13 +44,13 @@ int main(int argc, char *argv[])
 
     ShowWindow(window, SW_SHOWDEFAULT);
 
-    MSG msg;
-    while(GetMessage(&msg, 0, 0, 0)) 
-    {
-        DispatchMessage(&msg);
-    }
+	MSG msg;
+	while(GetMessage(&msg, 0, 0, 0)) 
+	{
+	    DispatchMessage(&msg);
+	}
 
-    qtThread.join();
-
+	thread.join();
+	
     return 0;    
 }

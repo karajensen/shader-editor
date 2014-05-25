@@ -303,7 +303,7 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
     // GPUShaderAnalyzer.exe Diffuse_glsl_vert.fx -I Diffuse_glsl_vert.asm -ASIC IL -profile glsl_vs -function main
     // GPUShaderAnalyzer.exe Diffuse_glsl_frag.fx -I Diffuse_glsl_frag.asm -ASIC IL -profile glsl_fs -function main
 
-    const std::string process("ShaderAnalyzer\\GPUShaderAnalyzer.exe ");
+    const std::string process("Assets\\ShaderAnalyzer\\GPUShaderAnalyzer.exe ");
     const std::string console("C:\\windows\\system32\\cmd.exe");
 
     const std::string vertex(m_vsFilepath + " -I " + m_vaFilepath 
@@ -312,7 +312,8 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
     const std::string fragment(m_fsFilepath + " -I " + m_faFilepath 
         + " -ASIC IL -profile " + FRAGMENT_MODEL + " -function " + ENTRY_NAME);
 
-    const std::string command = "/C " + process + vertex + " && " + process + fragment;
+    const std::string command = "/C " + process + vertex + " && " + process + fragment + 
+		(SHOW_CONSOLE_WINDOW ? " && pause" : "");
 
     PROCESS_INFORMATION pi;
     STARTUPINFO si = { sizeof(STARTUPINFO) };
@@ -322,9 +323,9 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
         si.dwFlags = STARTF_USESHOWWINDOW;
         si.wShowWindow = SW_HIDE;
     }
-    
-    if(CreateProcess(console.c_str(), LPSTR(command.c_str()), 0, 0, FALSE,
-        (SHOW_CONSOLE_WINDOW ? 0 : CREATE_NO_WINDOW), 0, 0, &si, &pi))
+
+    if(CreateProcess(console.c_str(), LPSTR(command.c_str()), 0, 0, FALSE, 
+		(SHOW_CONSOLE_WINDOW ? 0 : CREATE_NO_WINDOW), 0, 0, &si, &pi))
     {
         ::WaitForSingleObject(pi.hProcess, INFINITE);
         CloseHandle(pi.hProcess);

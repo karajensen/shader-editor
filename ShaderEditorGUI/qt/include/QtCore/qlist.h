@@ -58,6 +58,11 @@
 #include <limits.h>
 #include <string.h>
 
+#ifdef Q_CC_MSVC
+#pragma warning( push )
+#pragma warning( disable : 4127 ) // "conditional expression is constant"
+#endif
+
 QT_BEGIN_NAMESPACE
 
 
@@ -141,6 +146,7 @@ public:
     }
 
     inline bool isDetached() const { return !d->ref.isShared(); }
+#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
     inline void setSharable(bool sharable)
     {
         if (sharable == d->ref.isSharable())
@@ -150,6 +156,7 @@ public:
         if (d != &QListData::shared_null)
             d->ref.setSharable(sharable);
     }
+#endif
     inline bool isSharedWith(const QList<T> &other) const { return d == other.d; }
 
     inline bool isEmpty() const { return p.isEmpty(); }
@@ -936,5 +943,9 @@ Q_DECLARE_SEQUENTIAL_ITERATOR(List)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(List)
 
 QT_END_NAMESPACE
+
+#ifdef Q_CC_MSVC
+#pragma warning( pop )
+#endif
 
 #endif // QLIST_H

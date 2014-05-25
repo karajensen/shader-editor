@@ -1,16 +1,11 @@
 
-- Close qt window when main app closes
-- Move gui to main application
-- Create textbox ui
-- Hook up gui to main application
+- Qt window closing when main window does
+- Qt passing info to/from app
+- Qt text editor/tweak bar
 
-- Qt switch with anttweakbar
-- Qt Loading progress bar
-- Remove unneeded Qt libraries
-
+- Fade in-out for opengl/directx switching
 - Rendering: specular, attenuation, bump with defines
 - Selecting and tweaking mesh/lights/shaders
-
 - Render to texture
 - Scene Normal/Depth map generation
 - Switching on/off post effects and post textures

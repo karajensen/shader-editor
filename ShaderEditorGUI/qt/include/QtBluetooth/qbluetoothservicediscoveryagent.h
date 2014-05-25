@@ -65,6 +65,7 @@ public:
         NoError =  QBluetoothDeviceDiscoveryAgent::NoError,
         InputOutputError = QBluetoothDeviceDiscoveryAgent::InputOutputError,
         PoweredOffError = QBluetoothDeviceDiscoveryAgent::PoweredOffError,
+        InvalidBluetoothAdapterError = QBluetoothDeviceDiscoveryAgent::InvalidBluetoothAdapterError,
         UnknownError = QBluetoothDeviceDiscoveryAgent::UnknownError //=100
         //New Errors must be added after Unknown Error the space before UnknownError is reserved
         //for future device discovery errors
@@ -113,6 +114,12 @@ private:
 #ifdef QT_BLUEZ_BLUETOOTH
     Q_PRIVATE_SLOT(d_func(), void _q_discoveredServices(QDBusPendingCallWatcher*))
     Q_PRIVATE_SLOT(d_func(), void _q_createdDevice(QDBusPendingCallWatcher*))
+#endif
+#ifdef QT_ANDROID_BLUETOOTH
+    Q_PRIVATE_SLOT(d_func(), void _q_processFetchedUuids(const QBluetoothAddress &address,
+                                                         const QList<QBluetoothUuid>&))
+    Q_PRIVATE_SLOT(d_func(), void _q_fetchUuidsTimeout())
+    Q_PRIVATE_SLOT(d_func(), void _q_hostModeStateChanged(QBluetoothLocalDevice::HostMode state))
 #endif
 };
 

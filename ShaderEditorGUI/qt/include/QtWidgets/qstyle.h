@@ -685,7 +685,7 @@ public:
         SH_Menu_FadeOutOnHide,
         SH_SpinBox_ClickAutoRepeatThreshold,
         SH_ItemView_PaintAlternatingRowColorsForEmptyArea,
-	    SH_FormLayoutWrapPolicy,
+        SH_FormLayoutWrapPolicy,
         SH_TabWidget_DefaultTabPosition,
         SH_ToolBar_Movable,
         SH_FormLayoutFieldGrowthPolicy,
@@ -702,6 +702,7 @@ public:
         SH_ToolTip_FallAsleepDelay,
         SH_Widget_Animate,
         SH_Splitter_OpaqueResize,
+        SH_ComboBox_UseNativePopup,
         // Add new style hint values here
 
         SH_CustomBase = 0xf0000000

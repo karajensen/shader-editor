@@ -68,7 +68,9 @@ class Q_SERIALPORT_EXPORT QSerialPort : public QIODevice
     Q_PROPERTY(bool dataTerminalReady READ isDataTerminalReady WRITE setDataTerminalReady NOTIFY dataTerminalReadyChanged)
     Q_PROPERTY(bool requestToSend READ isRequestToSend WRITE setRequestToSend NOTIFY requestToSendChanged)
     Q_PROPERTY(SerialPortError error READ error RESET clearError NOTIFY error)
+#if QT_DEPRECATED_SINCE(5, 3)
     Q_PROPERTY(bool settingsRestoredOnClose READ settingsRestoredOnClose WRITE setSettingsRestoredOnClose NOTIFY settingsRestoredOnCloseChanged)
+#endif
 
     Q_ENUMS(BaudRate DataBits Parity StopBits FlowControl DataErrorPolicy SerialPortError)
     Q_FLAGS(Directions PinoutSignals)
@@ -198,8 +200,10 @@ public:
     bool open(OpenMode mode) Q_DECL_OVERRIDE;
     void close() Q_DECL_OVERRIDE;
 
-    void setSettingsRestoredOnClose(bool restore);
-    bool settingsRestoredOnClose() const;
+#if QT_DEPRECATED_SINCE(5, 3)
+    QT_DEPRECATED void setSettingsRestoredOnClose(bool restore);
+    QT_DEPRECATED bool settingsRestoredOnClose() const;
+#endif
 
     bool setBaudRate(qint32 baudRate, Directions directions = AllDirections);
     qint32 baudRate(Directions directions = AllDirections) const;
@@ -213,7 +217,7 @@ public:
     bool setStopBits(StopBits stopBits);
     StopBits stopBits() const;
 
-    bool setFlowControl(FlowControl flow);
+    bool setFlowControl(FlowControl flowControl);
     FlowControl flowControl() const;
 
     bool setDataTerminalReady(bool set);
@@ -258,7 +262,7 @@ Q_SIGNALS:
     void dataBitsChanged(QSerialPort::DataBits dataBits);
     void parityChanged(QSerialPort::Parity parity);
     void stopBitsChanged(QSerialPort::StopBits stopBits);
-    void flowControlChanged(QSerialPort::FlowControl flow);
+    void flowControlChanged(QSerialPort::FlowControl flowControl);
     void dataErrorPolicyChanged(QSerialPort::DataErrorPolicy policy);
     void dataTerminalReadyChanged(bool set);
     void requestToSendChanged(bool set);
@@ -278,9 +282,9 @@ private:
     Q_DISABLE_COPY(QSerialPort)
 
 #if defined (Q_OS_WIN32) || defined(Q_OS_WIN64)
-    Q_PRIVATE_SLOT(d_func(), void _q_canCompleteCommunication())
-    Q_PRIVATE_SLOT(d_func(), void _q_canCompleteRead())
-    Q_PRIVATE_SLOT(d_func(), void _q_canCompleteWrite())
+    Q_PRIVATE_SLOT(d_func(), void _q_completeAsyncCommunication())
+    Q_PRIVATE_SLOT(d_func(), void _q_completeAsyncRead())
+    Q_PRIVATE_SLOT(d_func(), void _q_completeAsyncWrite())
 #endif
 };
 

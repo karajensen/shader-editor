@@ -58,10 +58,10 @@ public:
     virtual void componentComplete()=0;
 
 private:
-    friend class QQmlVME;
     friend class QQmlComponent;
     friend class QQmlComponentPrivate;
     friend class QQmlEnginePrivate;
+    friend class QQmlObjectCreator;
     QQmlParserStatus **d;
 };
 

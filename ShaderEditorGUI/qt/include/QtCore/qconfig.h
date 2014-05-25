@@ -4,11 +4,6 @@
 #define QT_PRODUCT_LICENSEE "Open Source"
 #define QT_PRODUCT_LICENSE "OpenSource"
 
-// Qt Edition
-#ifndef QT_EDITION
-#  define QT_EDITION QT_EDITION_OPENSOURCE
-#endif
-
 
 // Compiler sub-arch support
 #define QT_COMPILER_SUPPORTS_SSE2
@@ -36,6 +31,12 @@
 # undef QT_NO_DBUS
 #elif !defined(QT_NO_DBUS)
 # define QT_NO_DBUS
+#endif
+
+#if defined(QT_NO_EVDEV) && defined(QT_EVDEV)
+# undef QT_NO_EVDEV
+#elif !defined(QT_NO_EVDEV)
+# define QT_NO_EVDEV
 #endif
 
 #if defined(QT_NO_EVENTFD) && defined(QT_EVENTFD)
@@ -80,6 +81,12 @@
 # define QT_NO_INOTIFY
 #endif
 
+#if defined(QT_NO_MTDEV) && defined(QT_MTDEV)
+# undef QT_NO_MTDEV
+#elif !defined(QT_NO_MTDEV)
+# define QT_NO_MTDEV
+#endif
+
 #if defined(QT_NO_NIS) && defined(QT_NIS)
 # undef QT_NO_NIS
 #elif !defined(QT_NO_NIS)
@@ -98,12 +105,6 @@
 # define QT_NO_STYLE_GTK
 #endif
 
-#if defined(QT_NO_STYLE_S60) && defined(QT_STYLE_S60)
-# undef QT_NO_STYLE_S60
-#elif !defined(QT_NO_STYLE_S60)
-# define QT_NO_STYLE_S60
-#endif
-
 #if defined(QT_NO_STYLE_WINDOWSCE) && defined(QT_STYLE_WINDOWSCE)
 # undef QT_NO_STYLE_WINDOWSCE
 #elif !defined(QT_NO_STYLE_WINDOWSCE)
@@ -114,18 +115,6 @@
 # undef QT_NO_STYLE_WINDOWSMOBILE
 #elif !defined(QT_NO_STYLE_WINDOWSMOBILE)
 # define QT_NO_STYLE_WINDOWSMOBILE
-#endif
-
-#if defined(QT_OPENGL_ES) && defined(QT_NO_OPENGL_ES)
-# undef QT_OPENGL_ES
-#elif !defined(QT_OPENGL_ES)
-# define QT_OPENGL_ES
-#endif
-
-#if defined(QT_OPENGL_ES_2) && defined(QT_NO_OPENGL_ES_2)
-# undef QT_OPENGL_ES_2
-#elif !defined(QT_OPENGL_ES_2)
-# define QT_OPENGL_ES_2
 #endif
 
 #if defined(QT_POINTER_SIZE) && defined(QT_NO_POINTER_SIZE)
