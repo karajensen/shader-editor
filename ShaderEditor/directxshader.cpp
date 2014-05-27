@@ -6,6 +6,7 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
 #include "directx/include/D3Dcompiler.h"
+#include <fstream>
 
 namespace
 {

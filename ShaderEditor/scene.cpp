@@ -13,20 +13,7 @@
 #include "assimp/include/postprocess.h"
 #include "fragmentlinker.h"
 
-namespace
-{
-    /**
-    * Anttweakbar button callback for selecting the next light
-    * @param clientData The user given data
-    */
-    void TW_CALL ButtonSelectNextLight(void *clientData)
-    {
-        (static_cast<Scene*>(clientData))->SelectNextLight();
-    }
-}
-
 Scene::Scene() :
-    m_tweakbar(nullptr),
     m_selectedLight(NO_INDEX)
 {
 }
@@ -123,6 +110,8 @@ bool Scene::InitialiseMeshes()
             shader.index = m_shaders.size();
             mesh.shaderIndex = shader.index;
             m_shaders.push_back(shader);
+
+			Logger::LogInfo("Shader: " + shader.name + " created");
         }
         else
         {
@@ -143,7 +132,6 @@ bool Scene::InitialiseMeshes()
         boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
     }
 
-    Logger::LogInfo("Mesh: All meshes created successfully");
     return true;
 }
 
@@ -357,78 +345,6 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
     return true;
 }
 
-void Scene::SelectNextLight()
-{
-    ++m_selectedLight;
-    if(m_selectedLight >= static_cast<int>(m_lights.size()))
-    {
-        m_selectedLight = 0;
-    }
-    ReleaseTweakParameters();
-    InitialiseTweakParameters();
-}
-
-void Scene::ReleaseTweakParameters()
-{
-    TwRemoveVar(m_tweakbar, "Select Next Light");
-    TwRemoveVar(m_tweakbar, "LightName");
-    TwRemoveVar(m_tweakbar, "LightPosition");
-    TwRemoveVar(m_tweakbar, "LightAttenuation");
-    TwRemoveVar(m_tweakbar, "LightDiffuse");
-    TwRemoveVar(m_tweakbar, "LightSpecular");
-    TwRemoveVar(m_tweakbar, "LightSpecularity");
-}
-
-void Scene::InitialiseTweakParameters()
-{
-    const std::string lightGroup = " group='Light' ";
-    TwAddButton(m_tweakbar, "Select Next Light",
-        ButtonSelectNextLight, this, lightGroup.c_str());
- 
-    if(m_selectedLight != NO_INDEX)
-    {
-        const std::string selected = " label='Selected: " + 
-            (m_selectedLight == NO_INDEX ? "None" : m_lights[m_selectedLight].name) + "' ";
-
-        TwAddButton(m_tweakbar, "LightName", nullptr, 
-            nullptr, (selected + lightGroup).c_str());
-
-        TwAddVarRW(m_tweakbar, "LightPosition", m_vectorType, 
-            &m_lights[m_selectedLight].position.x, 
-            (" label='Position' " + lightGroup).c_str());
-
-        TwAddVarRW(m_tweakbar, "LightAttenuation", m_vectorType, 
-            &m_lights[m_selectedLight].attenuation.x, 
-            (" label='Attenuation' " + lightGroup).c_str());
-
-        TwAddVarRW(m_tweakbar, "LightDiffuse", TW_TYPE_COLOR3F, 
-            &m_lights[m_selectedLight].diffuse.r, 
-            (" label='Diffuse' " + lightGroup).c_str());
-
-        TwAddVarRW(m_tweakbar, "LightSpecular", TW_TYPE_COLOR3F, 
-            &m_lights[m_selectedLight].specular.r, 
-            (" label='Specular' " + lightGroup).c_str());
-
-        TwAddVarRW(m_tweakbar, "LightSpecularity", TW_TYPE_FLOAT, 
-            &m_lights[m_selectedLight].specularity, 
-            (" label='Specularity' " + lightGroup).c_str());
-    }
-}
-
-void Scene::InitialiseTweakBar(CTwBar* tweakbar)
-{
-    m_tweakbar = tweakbar;
-
-    TwStructMember members[] = 
-    {
-        { "x", TW_TYPE_FLOAT, offsetof(Float3, x), " step = 0.1 " },
-        { "y", TW_TYPE_FLOAT, offsetof(Float3, y), " step = 0.1 " },
-        { "z", TW_TYPE_FLOAT, offsetof(Float3, z), " step = 0.1 " }
-    };
-    m_vectorType = TwDefineStruct("Vector", members, 3, sizeof(Float3), 0, 0);
-
-    InitialiseTweakParameters();
-}
 
 const std::vector<Mesh>& Scene::GetMeshes() const
 {

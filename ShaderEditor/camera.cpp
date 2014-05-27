@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Camera.h"
-#include <AntTweakBar.h>
 
 Camera::Camera()
 {
@@ -102,14 +101,4 @@ void Camera::Update()
     Matrix yaw = Matrix::CreateRotateY(m_yaw);
     Matrix roll = Matrix::CreateRotateZ(m_roll);
     m_world *= roll * yaw * pitch;
-}
-
-void Camera::InitialiseTweakBar(CTwBar* tweakbar, const std::string& group)
-{
-    TwAddVarRO(tweakbar, "Camera X", TW_TYPE_FLOAT, &m_pos.x, group.c_str());
-    TwAddVarRO(tweakbar, "Camera Y", TW_TYPE_FLOAT, &m_pos.y, group.c_str());
-    TwAddVarRO(tweakbar, "Camera Z", TW_TYPE_FLOAT, &m_pos.z, group.c_str());
-    TwAddVarRO(tweakbar, "Pitch", TW_TYPE_FLOAT, &m_pitch, group.c_str());
-    TwAddVarRO(tweakbar, "Yaw", TW_TYPE_FLOAT, &m_yaw, group.c_str());
-    TwAddVarRO(tweakbar, "Roll", TW_TYPE_FLOAT, &m_roll, group.c_str());
 }

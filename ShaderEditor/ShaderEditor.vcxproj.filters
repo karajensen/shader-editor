@@ -19,9 +19,14 @@
     <Filter Include="Render Engine Header">
       <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Qt">
+      <UniqueIdentifier>{e5b38e7e-480e-4274-84b7-952c6fb7157d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Qt\Generated">
+      <UniqueIdentifier>{e0d4d512-2179-4f41-b3d2-b83d50c03ff4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="logfile.txt" />
     <None Include="Assets\Lights.xml">
       <Filter>Resource Files</Filter>
     </None>
@@ -30,6 +35,9 @@
     </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
+    <None Include="qt\shaderEditorGUI.ui">
+      <Filter>Qt</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -79,6 +87,12 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\shaderEditorGUI.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\moc_shaderEditorGUI.cpp">
+      <Filter>Qt\Generated</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\shaderEditorGUI.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\ui_shaderEditorGUI.h">
+      <Filter>Qt\Generated</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

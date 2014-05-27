@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderEditor", "ShaderEditor\ShaderEditor.vcxproj", "{14D5F556-2E51-4F6F-8133-9762A0CA6517}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderEditorGUI", "ShaderEditorGUI\ShaderEditorGUI.vcxproj", "{150A3921-886C-4490-884F-1862F37AB598}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,10 +13,6 @@ Global
 		{14D5F556-2E51-4F6F-8133-9762A0CA6517}.Debug|Win32.Build.0 = Debug|Win32
 		{14D5F556-2E51-4F6F-8133-9762A0CA6517}.Release|Win32.ActiveCfg = Release|Win32
 		{14D5F556-2E51-4F6F-8133-9762A0CA6517}.Release|Win32.Build.0 = Release|Win32
-		{150A3921-886C-4490-884F-1862F37AB598}.Debug|Win32.ActiveCfg = Debug|Win32
-		{150A3921-886C-4490-884F-1862F37AB598}.Debug|Win32.Build.0 = Debug|Win32
-		{150A3921-886C-4490-884F-1862F37AB598}.Release|Win32.ActiveCfg = Release|Win32
-		{150A3921-886C-4490-884F-1862F37AB598}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

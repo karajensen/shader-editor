@@ -6,6 +6,7 @@
 #include "boost/algorithm/string.hpp"
 #include <iomanip>
 #include <assert.h>
+#include <fstream>
 
 namespace
 {

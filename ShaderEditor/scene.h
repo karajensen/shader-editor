@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "elements.h"
-#include "AntTweakBar.h"
 
 /**
 * Manager and owner of all objects and diagnostics
@@ -37,11 +36,6 @@ public:
     void Update();
 
     /**
-    * Selects the next light to be editable
-    */
-    void SelectNextLight();
-
-    /**
     * @return the meshes in the scene
     */
     const std::vector<Mesh>& GetMeshes() const;
@@ -66,12 +60,6 @@ public:
     */
     const std::vector<Texture>& GetTextures() const;
 
-    /**
-    * Adds tweakable scene parameters to the tweak bar
-    * @param tweakbar Used for runtime diagnostics
-    */
-    void InitialiseTweakBar(CTwBar* tweakbar);
-
 private:
 
     /**
@@ -85,16 +73,6 @@ private:
     * @return Whether the initialization was successful
     */
     bool InitialiseMeshes();
-
-    /**
-    * Adds tweakable scene parameters to the tweak bar
-    */
-    void InitialiseTweakParameters();
-
-    /**
-    * Removes tweakable scene parameters from the tweak bar
-    */
-    void ReleaseTweakParameters();
 
     /**
     * Adds a texture from a mesh if it doesn't already exist
@@ -118,6 +96,4 @@ private:
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene
     std::vector<Light> m_lights;      ///< All lights in the scene
     int m_selectedLight;              ///< Index of the selected light
-    TwType m_vectorType;              ///< Tweakable vector type for the tweak bar
-    CTwBar* m_tweakbar;               ///< Used for runtime diagnostics
 };                     

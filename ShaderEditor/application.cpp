@@ -9,32 +9,19 @@
 #include "directxengine.h"
 #include "scene.h"
 #include "camera.h"
-#include <AntTweakBar.h>
 #include <windowsx.h>
 
 namespace
 {
     const bool OPENGL_START = true;
-    const std::string TWEAK_BAR_NAME("ShaderEditor");
 
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
     const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
-
-    /**
-    * Anttweakbar button callback for toggling through render engines
-    * @param clientData The user given data
-    */
-    void TW_CALL ButtonToggleRenderEngine(void *clientData)
-    {
-        (static_cast<Application*>(clientData))->ToggleRenderEngine();
-    }
 }
 
 Application::Application() :
     m_engine(nullptr),
-    m_tweakbar(nullptr),
-    m_showTweakBar(false),
     m_camera(new Camera()),
     m_mousePressed(false),
     m_switchEngine(false)
@@ -43,16 +30,16 @@ Application::Application() :
 
 Application::~Application()
 {
-    RemoveTweakBar();
 }
 
-bool Application::Run()
+void Application::Run()
 {
     WPARAM keyDown;
     MSG msg;
     m_timer->StartTimer();
+	bool runApplication = true;
     
-    while(true)
+    while(runApplication)
     {
         if(m_switchEngine)
         {
@@ -64,7 +51,7 @@ bool Application::Run()
         {
             if(IsKeyDown(VK_ESCAPE) || msg.message == WM_QUIT)
             {
-                return true;
+                runApplication = false;
             }
             HandleInputEvents(keyDown, msg);
             TranslateMessage(&msg);
@@ -76,7 +63,6 @@ bool Application::Run()
             TickApplication();
         }
     }
-    return true;
 }
 
 bool Application::IsKeyDown(unsigned int key) const
@@ -96,22 +82,6 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
     case WM_KEYUP:
         HandleKeyPress(keydown);
         break;
-    case WM_LBUTTONUP:
-        m_mousePressed = false;
-        TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_LEFT);
-        break;
-    case WM_RBUTTONUP:
-        m_mousePressed = false;
-        TwMouseButton(TW_MOUSE_RELEASED,TW_MOUSE_RIGHT);
-        break;
-    case WM_LBUTTONDOWN:
-        m_mousePressed = true;
-        TwMouseButton(TW_MOUSE_PRESSED,TW_MOUSE_LEFT);
-        break;
-    case WM_RBUTTONDOWN:
-        m_mousePressed = true;
-        TwMouseButton(TW_MOUSE_PRESSED,TW_MOUSE_RIGHT);
-        break;
     case WM_MOUSEMOVE:
         HandleMouseMovement(msg);
         break;
@@ -122,14 +92,9 @@ void Application::HandleKeyPress(const WPARAM& keydown)
 {
     switch(keydown)
     {
-    case VK_F1:
-        ToggleTweakBar();
-        break;
     case VK_F2:
         ToggleRenderEngine();
         break;
-    default:
-        TwKeyPressed(toascii(keydown),0);
     }
 }
 
@@ -173,7 +138,6 @@ void Application::HandleMouseMovement(const MSG& msg)
 
     m_mousePosition.x = x;
     m_mousePosition.y = y;
-    TwMouseMotion(ix, iy);
 }
 
 void Application::TickApplication()
@@ -187,7 +151,6 @@ void Application::TickApplication()
     m_scene->Update();
     m_engine->BeginRender();
     m_engine->Render(m_scene->GetLights());
-    TwDraw();
     m_engine->EndRender();
 
     m_mouseDirection.x = 0;
@@ -241,7 +204,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     {
         m_engine = m_directx.get();
     }
-    InitialiseTweakBar(OPENGL_START);
+
     return true;
 }
 
@@ -269,77 +232,4 @@ void Application::SwitchRenderEngine()
     }
 
     m_engine->UpdateView(m_camera->GetWorld());
-    InitialiseTweakBar(useOpenGL);
-}
-
-void Application::InitialiseTweakBar(bool opengl)
-{
-    RemoveTweakBar();
-
-    if(opengl)
-    {
-        TwInit(TW_OPENGL_CORE, nullptr);
-    }
-    else
-    {
-        TwInit(TW_DIRECT3D11, m_directx->GetDevice());
-    }
-
-    TwWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    m_tweakbar = TwNewBar(TWEAK_BAR_NAME.c_str());
-    TwDefine(" TW_HELP visible=false ");
-    
-    const int border = 10;
-    std::ostringstream stream;
-    const std::string visible(m_showTweakBar ? "true" : "false");
-    const std::string barLabel("Shader Editor: " + m_engine->GetName());
-    
-    stream << TWEAK_BAR_NAME << " label='" << barLabel << "' " 
-        << "position='" << border << " " << border << "' "
-        << "size='200 " << WINDOW_HEIGHT-border*2 << "' "
-        << "alpha=180 text=light valueswidth=70 color='0 0 0' "
-        << "refresh=0.05 iconified=false resizable=false "
-        << "fontsize=2 fontresizable=false visible=" << visible << " ";
-    TwDefine(stream.str().c_str());
-
-    TwAddButton(m_tweakbar, "Toggle Render Engine",
-        &ButtonToggleRenderEngine, this, "");
-
-    const std::string group = " group='Application' ";
-    m_timer->InitialiseTweakBar(m_tweakbar, group);
-    m_camera->InitialiseTweakBar(m_tweakbar, group);
-
-    TwAddVarRO(m_tweakbar, "Mouse Direction X", TW_TYPE_FLOAT,
-        &m_mouseDirection.x, group.c_str());
-    
-    TwAddVarRO(m_tweakbar, "Mouse Direction Y", TW_TYPE_FLOAT, 
-        &m_mouseDirection.y, group.c_str());
-    
-    TwAddVarRO(m_tweakbar, "Mouse Position X", TW_TYPE_FLOAT,
-        &m_mousePosition.x, group.c_str());
-    
-    TwAddVarRO(m_tweakbar, "Mouse Position Y", TW_TYPE_FLOAT,
-        &m_mousePosition.y, group.c_str());
-    
-    TwAddVarRO(m_tweakbar, "Mouse Pressed", TW_TYPE_BOOLCPP, 
-        &m_mousePressed, group.c_str());
-
-    m_scene->InitialiseTweakBar(m_tweakbar);
-}
-
-void Application::RemoveTweakBar()
-{
-    if(m_tweakbar)
-    {
-        TwDeleteBar(m_tweakbar);
-        m_tweakbar = nullptr;
-    }
-    TwTerminate();
-}
-
-void Application::ToggleTweakBar()
-{
-    m_showTweakBar = !m_showTweakBar;
-    const std::string visible(m_showTweakBar ? "true" : "false");
-    TwDefine((" " + TWEAK_BAR_NAME + " visible=" + visible + " ").c_str());
 }
