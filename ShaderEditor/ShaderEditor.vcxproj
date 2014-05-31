@@ -25,6 +25,7 @@
     <ClCompile Include="directxengine.cpp" />
     <ClCompile Include="directxmesh.cpp" />
     <ClCompile Include="directxshader.cpp" />
+    <ClCompile Include="directxtarget.cpp" />
     <ClCompile Include="directxtexture.cpp" />
     <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="directxengine.h" />
     <ClInclude Include="directxmesh.h" />
     <ClInclude Include="directxshader.h" />
+    <ClInclude Include="directxtarget.h" />
     <ClInclude Include="directxtexture.h" />
     <ClInclude Include="elements.h" />
     <ClInclude Include="fragmentlinker.h" />

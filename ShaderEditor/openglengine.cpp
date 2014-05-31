@@ -105,7 +105,7 @@ OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
     m_hwnd(hwnd)
 {
     // Create temporary window used only for Glew
-	WNDCLASSEX wc;
+    WNDCLASSEX wc;
     ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.lpfnWndProc = nullptr;

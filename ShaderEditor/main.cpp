@@ -19,19 +19,19 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     {
     case WM_DESTROY:
         PostQuitMessage(0);
-		break;
+        break;
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 {
-	*hInstance = GetModuleHandle(0);
+    *hInstance = GetModuleHandle(0);
 
-	WNDCLASSEX wc;
+    WNDCLASSEX wc;
     ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
     wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc = (WNDPROC)WindowProc;
     wc.hInstance = *hInstance; 
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -47,33 +47,37 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 
 void RunQt(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
     ShaderEditorGUI gui;
-    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     gui.show();
-	app.exec();
+    app.exec();
 }
 
 int main(int argc, char *argv[])
 {
-	HWND hWnd;
-	HINSTANCE hInstance;
+    HWND hWnd;
+    HINSTANCE hInstance;
     InitializeWindow(&hInstance, &hWnd);
 
     std::unique_ptr<Application> game(new Application());
-    if(!game->Initialise(hWnd, hInstance))
+    if(game->Initialise(hWnd, hInstance))
     {
-        return EXIT_FAILURE;
+        Logger::LogInfo("Initialising Qt");
+        std::thread thread(&RunQt, argc, argv);
+
+        ShowWindow(hWnd, SW_SHOWDEFAULT);
+    
+        game->Run();
+
+        thread.join();
+
+        return EXIT_SUCCESS;
     }
 
-	Logger::LogInfo("Initialising Qt");
-	std::thread thread(&RunQt, argc, argv);
+    #ifdef _DEBUG
+    std::cin.get(); // pause the console
+    #endif
 
-    ShowWindow(hWnd, SW_SHOWDEFAULT);
-	
-	game->Run();
-
-	thread.join();
-
-	return EXIT_SUCCESS;
-}
+    return EXIT_FAILURE;
+};

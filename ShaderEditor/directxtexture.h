@@ -45,5 +45,5 @@ public:
 private:
 
     const std::string m_filepath;        ///< The path for the texture
-    ID3D11ShaderResourceView* m_texture; ///< The actual texture
+    ID3D11ShaderResourceView* m_texture; ///< The actual texture view
 };

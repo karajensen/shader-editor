@@ -1,4 +1,6 @@
 
+- Render to texture
+
 - Qt window closing when main window does
 - Qt passing info to/from app
 - Qt text editor/tweak bar
@@ -6,7 +8,6 @@
 - Fade in-out for opengl/directx switching
 - Rendering: specular, attenuation, bump with defines
 - Selecting and tweaking mesh/lights/shaders
-- Render to texture
 - Scene Normal/Depth map generation
 - Switching on/off post effects and post textures
 - Post effects: fog, dof, glow, SSAO, Color correction, shadows

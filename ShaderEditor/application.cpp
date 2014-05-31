@@ -13,7 +13,7 @@
 
 namespace
 {
-    const bool OPENGL_START = true;
+    const bool OPENGL_START = false;
 
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
@@ -37,7 +37,7 @@ void Application::Run()
     WPARAM keyDown;
     MSG msg;
     m_timer->StartTimer();
-	bool runApplication = true;
+    bool runApplication = true;
     
     while(runApplication)
     {
@@ -81,6 +81,14 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
     case WM_SYSKEYUP:
     case WM_KEYUP:
         HandleKeyPress(keydown);
+        break;
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+        m_mousePressed = false;
+        break;
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+        m_mousePressed = true;
         break;
     case WM_MOUSEMOVE:
         HandleMouseMovement(msg);

@@ -94,6 +94,9 @@
     <ClCompile Include="qt\moc_shaderEditorGUI.cpp">
       <Filter>Qt\Generated</Filter>
     </ClCompile>
+    <ClCompile Include="directxtarget.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="qt\ui_shaderEditorGUI.h">
       <Filter>Qt\Generated</Filter>
+    </ClInclude>
+    <ClInclude Include="directxtarget.h">
+      <Filter>Render Engine Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

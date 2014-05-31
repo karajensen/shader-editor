@@ -7,6 +7,7 @@
 #include "directxshader.h"
 #include "directxmesh.h"
 #include "directxtexture.h"
+#include "directxtarget.h"
 
 /**
 * Internal data for the directx rendering engine
@@ -28,22 +29,26 @@ struct DirectxData
     */
     void Release();
             
-    std::vector<DxTexture> textures;      ///< DirectX texture objects
-    std::vector<DxMesh> meshes;           ///< DirectX mesh objects
-    std::vector<DxShader> shaders;        ///< DirectX shader objects
+    std::vector<DxTexture> textures;      ///< Textures shared by all meshes
+    std::vector<DxMesh> meshes;           ///< Each mesh in the scene
+    std::vector<DxShader> shaders;        ///< Shaders shared by all meshes
+    
+    DxRenderTarget backBuffer;            ///< Render target for the back buffer
+    DxRenderTarget sceneTarget;           ///< Render target for the main scene
     ID3D11DepthStencilView* zbuffer;      ///< Depth buffer
-    ID3D11RenderTargetView* backbuffer;   ///< Main back buffer render target
-    IDXGISwapChain* swapchain;            ///< swap chain interface
+    ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
+    ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
+
+    IDXGISwapChain* swapchain;            ///< Collection of buffers for displaying frames
     ID3D11Device* device;                 ///< Direct3D device interface
     ID3D11DeviceContext* context;         ///< Direct3D device context
     ID3D11Debug* debug;                   ///< Direct3D debug interface
+
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
     D3DXVECTOR3 camera;                   ///< Position of the camera
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
-    ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
-    ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
-    int selectedShader;                   ///< currently selected shader
+    int selectedShader;                   ///< currently selected shader for rendering the scene
     bool viewUpdated;                     ///< Whether the view matrix has updated this tick
     bool lightsUpdated;                   ///< Whether the lights have been updated this tick
 };
@@ -52,7 +57,6 @@ DirectxData::DirectxData() :
     swapchain(nullptr),
     device(nullptr),
     context(nullptr),
-    backbuffer(nullptr),
     debug(nullptr),
     zbuffer(nullptr),
     cullState(nullptr),
@@ -60,7 +64,9 @@ DirectxData::DirectxData() :
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
     viewUpdated(true),
-    lightsUpdated(true)
+    lightsUpdated(true),
+    sceneTarget("Scene"),
+    backBuffer("BackBuffer", true)
 {
 }
 
@@ -109,6 +115,9 @@ void DirectxData::Release()
         nocullState = nullptr;
     }
 
+    sceneTarget.Release();
+    backBuffer.Release();
+
     if(zbuffer)
     {
         zbuffer->Release();
@@ -119,12 +128,6 @@ void DirectxData::Release()
     {
         swapchain->Release();
         swapchain = nullptr;
-    }
-
-    if(backbuffer)
-    {
-        backbuffer->Release();
-        backbuffer = nullptr;
     }
 
     if(context)
@@ -224,16 +227,13 @@ bool DirectxEngine::Initialize()
     }
     depthTexture->Release();
 
-    // Set the back buffer as the main render target
-    ID3D11Texture2D* backBuffer;
-    m_data->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
-    if(FAILED(m_data->device->CreateRenderTargetView(backBuffer, nullptr, &m_data->backbuffer)))
+    // Create the render targets, back buffer needs to be created first
+    if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
+       !m_data->sceneTarget.Initialise(m_data->device))
     {
-        Logger::LogError("DirectX: Failed to create back buffer render target");
+        Logger::LogError("DirectX: Failed to create render targets");
         return false;
     }
-    m_data->context->OMSetRenderTargets(1, &m_data->backbuffer, m_data->zbuffer);
-    backBuffer->Release();
 
     // Setup the directX environment
     D3D11_RASTERIZER_DESC rasterDesc;
@@ -340,11 +340,7 @@ bool DirectxEngine::ReInitialiseScene()
 
 void DirectxEngine::BeginRender()
 {
-    m_data->context->ClearRenderTargetView(
-        m_data->backbuffer, D3DXCOLOR(0.0f, 0.2f, 0.4f, 1.0f));
-
-    m_data->context->ClearDepthStencilView(
-        m_data->zbuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_data->backBuffer.SetActive(m_data->context, m_data->zbuffer);
 }
 
 void DirectxEngine::Render(const std::vector<Light>& lights)

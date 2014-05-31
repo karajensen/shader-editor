@@ -111,7 +111,7 @@ bool Scene::InitialiseMeshes()
             mesh.shaderIndex = shader.index;
             m_shaders.push_back(shader);
 
-			Logger::LogInfo("Shader: " + shader.name + " created");
+            Logger::LogInfo("Shader: " + shader.name + " created");
         }
         else
         {

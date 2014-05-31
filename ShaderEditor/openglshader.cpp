@@ -146,7 +146,7 @@ std::string GlShader::CompileShader()
         return errorBuffer;
     }
 
-	glAttachShader(m_program, m_vs);
+    glAttachShader(m_program, m_vs);
     if(HasCallFailed())
     {
         return VS + "Failed to attach";
@@ -314,7 +314,7 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
         + " -ASIC IL -profile " + FRAGMENT_MODEL + " -function " + ENTRY_NAME);
 
     const std::string command = "/C " + process + vertex + " && " + process + fragment + 
-		(SHOW_CONSOLE_WINDOW ? " && pause" : "");
+        (SHOW_CONSOLE_WINDOW ? " && pause" : "");
 
     PROCESS_INFORMATION pi;
     STARTUPINFO si = { sizeof(STARTUPINFO) };
@@ -326,7 +326,7 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
     }
 
     if(CreateProcess(console.c_str(), LPSTR(command.c_str()), 0, 0, FALSE, 
-		(SHOW_CONSOLE_WINDOW ? 0 : CREATE_NO_WINDOW), 0, 0, &si, &pi))
+        (SHOW_CONSOLE_WINDOW ? 0 : CREATE_NO_WINDOW), 0, 0, &si, &pi))
     {
         ::WaitForSingleObject(pi.hProcess, INFINITE);
         CloseHandle(pi.hProcess);
