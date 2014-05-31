@@ -5,15 +5,66 @@
 #include "openglmesh.h"
 #include "elements.h"
 
-GlMesh::GlMesh(const Mesh& mesh) :
-    m_vertexCount(mesh.vertexCount),
-    m_indexCount(mesh.indexCount),
+GlMesh::GlMesh(const Mesh* mesh) :
+    m_vertexCount(mesh->vertexCount),
+    m_indexCount(mesh->indexCount),
     m_vaoID(0),
     m_vboID(0),
     m_iboID(0),
     m_initialised(false),
-    m_mesh(mesh)
+    m_mesh(mesh),
+    m_vertices(mesh->vertices),
+    m_indices(mesh->indices),
+    m_name(mesh->name)
 {
+}
+
+GlMesh::GlMesh(const std::string& name) :
+    m_vaoID(0),
+    m_vboID(0),
+    m_iboID(0),
+    m_initialised(false),
+    m_mesh(nullptr),
+    m_name(name)
+{
+    // Top left corner
+    m_vertices.push_back(-1.0); // x
+    m_vertices.push_back(1.0);  // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(0.0); // u
+    m_vertices.push_back(0.0);  // v
+
+    // Top right corner
+    m_vertices.push_back(1.0); // x
+    m_vertices.push_back(1.0); // y
+    m_vertices.push_back(0.0); // z
+    m_vertices.push_back(1.0); // u
+    m_vertices.push_back(0.0); // v
+
+    // Bot right corner
+    m_vertices.push_back(1.0);  // x
+    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(1.0);  // u
+    m_vertices.push_back(1.0); // v
+
+    // Bot left corner
+    m_vertices.push_back(-1.0); // x
+    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(0.0); // u
+    m_vertices.push_back(1.0); // v
+
+    m_indices.push_back(0);
+    m_indices.push_back(3);
+    m_indices.push_back(1);
+
+    m_indices.push_back(1);
+    m_indices.push_back(3);
+    m_indices.push_back(2);
+
+    m_vertexCount = m_vertices.size();
+    m_indexCount = m_indices.size();
 }
 
 GlMesh::~GlMesh()
@@ -38,17 +89,17 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
 
     glGenBuffers(1, &m_vboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_mesh.vertices.size(), 
-        &m_mesh.vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_vertices.size(), 
+        &m_vertices[0], GL_STATIC_DRAW);
 
     glGenBuffers(1, &m_iboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_mesh.indices.size(), 
-        &m_mesh.indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_indices.size(), 
+        &m_indices[0], GL_STATIC_DRAW);
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + m_mesh.name + " buffers");
+        Logger::LogError("OpenGL: Failed " + m_name + " buffers");
     }
 
     m_initialised = true;
@@ -67,15 +118,18 @@ void GlMesh::Render()
 
 bool GlMesh::ShouldBackfaceCull() const
 {
-    return m_mesh.backfacecull;
+    assert(m_mesh);
+    return m_mesh->backfacecull;
 }
 
 const std::vector<int>& GlMesh::GetTextureIDs() const
 {
-    return m_mesh.textureIDs;
+    assert(m_mesh);
+    return m_mesh->textureIDs;
 }
 
 int GlMesh::GetShaderID() const 
 { 
-    return m_mesh.shaderIndex;
+    assert(m_mesh);
+    return m_mesh->shaderIndex;
 }

@@ -44,6 +44,21 @@ DxShader::DxShader(int index, const std::string& filepath) :
     m_samplerState(nullptr),
     m_textureSlots(0)
 {
+    m_asmpath = boost::ireplace_last_copy(
+        m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
+}
+
+DxShader::DxShader(const std::string& filepath, const std::string& asmpath) :
+    m_filepath(filepath),
+    m_asmpath(asmpath),
+    m_layout(nullptr),
+    m_vs(nullptr),
+    m_ps(nullptr),
+    m_constant(nullptr),
+    m_index(NO_INDEX),
+    m_samplerState(nullptr),
+    m_textureSlots(0)
+{
 }
 
 DxShader::~DxShader()
@@ -244,11 +259,10 @@ std::string DxShader::GenerateAssembly(ID3D10Blob* vs,
 
     if(OUTPUT_ASM_FILE)
     {
-        const std::string path(boost::ireplace_last_copy(m_filepath, SHADER_EXTENSION, ASM_EXTENSION));
-        std::ofstream file(path.c_str(), std::ios_base::out|std::ios_base::trunc);
+        std::ofstream file(m_asmpath.c_str(), std::ios_base::out|std::ios_base::trunc);
         if(!file.is_open())
         {
-            return "Could not open file " + path;
+            return "Could not open file " + m_asmpath;
         }    
 
         file << vertexAsm << std::endl << std::endl << pixelAsm;
@@ -439,7 +453,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device, const std::stri
     return std::string();
 }
 
-void DxShader::SetAsActive(ID3D11DeviceContext* context)
+void DxShader::SetActive(ID3D11DeviceContext* context)
 {
     context->VSSetShader(m_vs, 0, 0);
     context->PSSetShader(m_ps, 0, 0);

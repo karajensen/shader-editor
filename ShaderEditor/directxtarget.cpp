@@ -53,17 +53,15 @@ bool DxRenderTarget::Initialise(ID3D11Device* device, IDXGISwapChain* swapchain)
     else
     {
         D3D11_TEXTURE2D_DESC textureDesc;
-	    ZeroMemory(&textureDesc, sizeof(textureDesc));
-	    textureDesc.Width = WINDOW_WIDTH;
-	    textureDesc.Height = WINDOW_HEIGHT;
-	    textureDesc.MipLevels = 1;
-	    textureDesc.ArraySize = 1;
+        ZeroMemory(&textureDesc, sizeof(textureDesc));
+        textureDesc.ArraySize = 1;
+        textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+        textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        textureDesc.Width = WINDOW_WIDTH;
+        textureDesc.Height = WINDOW_HEIGHT;
+        textureDesc.MipLevels = 1;
+        textureDesc.SampleDesc.Count = 1;
 	    textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	    textureDesc.SampleDesc.Count = 1;
-	    textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	    textureDesc.CPUAccessFlags = 0;
-	    textureDesc.MiscFlags = 0;
 
 	    if(FAILED(device->CreateTexture2D(&textureDesc, 0, &m_texture)))
         {
@@ -71,26 +69,26 @@ bool DxRenderTarget::Initialise(ID3D11Device* device, IDXGISwapChain* swapchain)
             return false;
         }
 
-	    D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	    renderTargetViewDesc.Format = textureDesc.Format;
-	    renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	    renderTargetViewDesc.Texture2D.MipSlice = 0;
+	    D3D11_RENDER_TARGET_VIEW_DESC renderTargetDesc;
+        ZeroMemory(&renderTargetDesc, sizeof(renderTargetDesc));
+	    renderTargetDesc.Format = textureDesc.Format;
+	    renderTargetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	    renderTargetDesc.Texture2D.MipSlice = 0;
 
-	    if(FAILED(device->CreateRenderTargetView(m_texture,
-            &renderTargetViewDesc, &m_renderTarget)))
+	    if(FAILED(device->CreateRenderTargetView(m_texture, &renderTargetDesc, &m_renderTarget)))
         {
             Logger::LogError("DirectX: Failed to create render target for " + m_name);
             return false;
         }
 
-	    D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	    shaderResourceViewDesc.Format = textureDesc.Format;
-	    shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	    shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	    shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	    D3D11_SHADER_RESOURCE_VIEW_DESC textureViewDesc;
+        ZeroMemory(&textureViewDesc, sizeof(textureViewDesc));
+	    textureViewDesc.Format = textureDesc.Format;
+	    textureViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	    textureViewDesc.Texture2D.MipLevels = 1;
+        textureViewDesc.Texture2D.MostDetailedMip = 0;
 
-	    if(FAILED(device->CreateShaderResourceView(m_texture,
-            &shaderResourceViewDesc, &m_textureView)))
+	    if(FAILED(device->CreateShaderResourceView(m_texture, &textureViewDesc, &m_textureView)))
         {
             Logger::LogError("DirectX: Failed to create texture view for " + m_name);
             return false;
@@ -104,10 +102,14 @@ void DxRenderTarget::SetActive(ID3D11DeviceContext* context, ID3D11DepthStencilV
 {
 	context->OMSetRenderTargets(1, &m_renderTarget, zbuffer);
     context->ClearRenderTargetView(m_renderTarget, D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f));
-    context->ClearDepthStencilView(zbuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    if(zbuffer)
+    {
+        context->ClearDepthStencilView(zbuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    }
 }
 
-ID3D11ShaderResourceView* DxRenderTarget::GetTexture()
+void DxRenderTarget::SendTexture(ID3D11DeviceContext* context, int slot)
 {
-	return m_textureView;
+    context->PSSetShaderResources(slot, 1, &m_textureView);
 }

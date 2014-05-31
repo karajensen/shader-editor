@@ -5,14 +5,62 @@
 #include "directxmesh.h"
 #include "elements.h"
 
-DxMesh::DxMesh(const Mesh& mesh) :
+DxMesh::DxMesh(const Mesh* mesh) :
     m_vertexBuffer(nullptr),
     m_indexBuffer(nullptr),
-    m_vertexStride(sizeof(float) * mesh.vertexComponentCount),
-    m_vertexCount(mesh.vertexCount),
-    m_indexCount(mesh.indexCount),
-    m_mesh(mesh)
+    m_vertexStride(sizeof(float) * mesh->vertexComponentCount),
+    m_vertexCount(mesh->vertexCount),
+    m_indexCount(mesh->indexCount),
+    m_mesh(mesh),
+    m_vertices(mesh->vertices),
+    m_indices(mesh->indices)
 {
+}
+
+DxMesh::DxMesh() :
+    m_vertexBuffer(nullptr),
+    m_indexBuffer(nullptr)
+{
+    // Top left corner
+    m_vertices.push_back(-1.0); // x
+    m_vertices.push_back(1.0);  // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(0.0); // u
+    m_vertices.push_back(0.0);  // v
+
+    // Top right corner
+    m_vertices.push_back(1.0); // x
+    m_vertices.push_back(1.0); // y
+    m_vertices.push_back(0.0); // z
+    m_vertices.push_back(1.0); // u
+    m_vertices.push_back(0.0); // v
+
+    // Bot right corner
+    m_vertices.push_back(1.0);  // x
+    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(1.0);  // u
+    m_vertices.push_back(1.0); // v
+
+    // Bot left corner
+    m_vertices.push_back(-1.0); // x
+    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(0.0);  // z
+    m_vertices.push_back(0.0); // u
+    m_vertices.push_back(1.0); // v
+
+    m_indices.push_back(0);
+    m_indices.push_back(3);
+    m_indices.push_back(1);
+
+    m_indices.push_back(1);
+    m_indices.push_back(3);
+    m_indices.push_back(2);
+
+    // 3 floats in position, 2 floats in uvs
+    m_vertexStride = sizeof(float) * 5;
+    m_vertexCount = m_vertices.size();
+    m_indexCount = m_indices.size();
 }
 
 DxMesh::~DxMesh()
@@ -48,7 +96,7 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     // Copy the mesh vertices to the directx mesh
     D3D11_MAPPED_SUBRESOURCE vms;
     context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vms);
-    memcpy(vms.pData, &m_mesh.vertices[0], sizeof(float)*m_mesh.vertices.size());
+    memcpy(vms.pData, &m_vertices[0], sizeof(float)*m_vertices.size());
     context->Unmap(m_vertexBuffer, 0); 
     
     // Create the index buffer
@@ -63,7 +111,7 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     // Copy the mesh indicies to the directx mesh
     D3D11_MAPPED_SUBRESOURCE ims;
     context->Map(m_indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ims); 
-    memcpy(ims.pData, &m_mesh.indices[0], sizeof(DWORD)*m_mesh.indices.size());
+    memcpy(ims.pData, &m_indices[0], sizeof(DWORD)*m_indices.size());
     context->Unmap(m_indexBuffer, 0);
 }
 
@@ -78,20 +126,24 @@ void DxMesh::Render(ID3D11DeviceContext* context)
 
 bool DxMesh::ShouldBackfaceCull() const
 {
-    return m_mesh.backfacecull;
+    assert(m_mesh);
+    return m_mesh->backfacecull;
 }
 
 const std::vector<int>& DxMesh::GetTextureIDs() const
 {
-    return m_mesh.textureIDs;
+    assert(m_mesh);
+    return m_mesh->textureIDs;
 }
 
 int DxMesh::GetShaderID() const 
 { 
-    return m_mesh.shaderIndex;
+    assert(m_mesh);
+    return m_mesh->shaderIndex;
 }
 
 int DxMesh::GetMaxTextures() const 
 { 
-    return m_mesh.maxTextures; 
+    assert(m_mesh);
+    return m_mesh->maxTextures; 
 }

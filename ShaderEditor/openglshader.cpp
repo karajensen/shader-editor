@@ -32,7 +32,10 @@ namespace
     const std::string GLSL_SAMPLER2D("sampler2D");
 }
 
-GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
+GlShader::GlShader(int index, 
+                   const std::string& vs, 
+                   const std::string& fs) :
+
     m_vsFilepath(vs),
     m_fsFilepath(fs),
     m_program(NO_INDEX),
@@ -46,6 +49,23 @@ GlShader::GlShader(int index, const std::string& vs, const std::string& fs) :
     
     m_faFilepath = boost::ireplace_last_copy(
         m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
+}
+
+GlShader::GlShader(const std::string& vs, 
+                   const std::string& fs,
+                   const std::string& vsAsm,
+                   const std::string& fsAsm) :
+
+    m_vsFilepath(vs),
+    m_fsFilepath(fs),
+    m_vaFilepath(vsAsm),
+    m_faFilepath(fsAsm),
+    m_program(NO_INDEX),
+    m_vs(NO_INDEX),
+    m_fs(NO_INDEX),
+    m_index(NO_INDEX),
+    m_stride(0)
+{
 }
 
 GlShader::~GlShader()
@@ -543,7 +563,7 @@ void GlShader::EnableAttributes()
     }
 }
 
-void GlShader::SetAsActive()
+void GlShader::SetActive()
 {
     glUseProgram(m_program);
 

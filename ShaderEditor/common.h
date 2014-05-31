@@ -33,13 +33,16 @@ static const int NO_INDEX = -1;
 
 const std::string SHADER_EXTENSION(".fx");
 const std::string ASM_EXTENSION(".as");
-const std::string GLSL_FRAGMENT_EXTENSION("_glsl_frag" + SHADER_EXTENSION);   
-const std::string GLSL_VERTEX_EXTENSION("_glsl_vert" + SHADER_EXTENSION);
-const std::string HLSL_SHADER_EXTENSION("_hlsl" + SHADER_EXTENSION);
+const std::string GLSL_VERTEX("_glsl_vert");
+const std::string GLSL_FRAGMENT("_glsl_frag");
+const std::string HLSL_SHADER("_hlsl");
+const std::string GLSL_FRAGMENT_EXTENSION(GLSL_FRAGMENT + SHADER_EXTENSION);   
+const std::string GLSL_VERTEX_EXTENSION(GLSL_VERTEX + SHADER_EXTENSION);
+const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
-const std::string GENERATED_FOLDER(SHADER_PATH + "Generated//");
+const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 
 /**
 * Simple 2D point

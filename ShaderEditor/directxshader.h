@@ -22,6 +22,13 @@ public:
     DxShader(int index, const std::string& filepath);
 
     /**
+    * Constructor
+    * @param filepath The path for the shader
+    * @param asmPath The path to save the generated assembly
+    */
+    DxShader(const std::string& filepath, const std::string& asmpath);
+
+    /**
     * Destructor
     */
     ~DxShader();
@@ -42,7 +49,7 @@ public:
     * Sets the shader as activated for rendering
     * @param context Direct3D device context
     */
-    void SetAsActive(ID3D11DeviceContext* context);
+    void SetActive(ID3D11DeviceContext* context);
 
     /**
     * Sends a matrix to the shader
@@ -175,6 +182,7 @@ private:
     ConstantMap m_constants;                   ///< Shader constant variables
     std::vector<AttributeData> m_attributes;   ///< Vertex shader input attributes
     std::string m_filepath;                    ///< Path to the shader file
+    std::string m_asmpath;                     ///< Path to the generated assembly file
     std::string m_sharedText;                  ///< Text to the shared shader components
     std::string m_vertexText;                  ///< Text for the vertex shader
     std::string m_pixelText;                   ///< Text for the pixel shader

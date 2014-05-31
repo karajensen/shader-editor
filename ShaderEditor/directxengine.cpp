@@ -9,6 +9,13 @@
 #include "directxtexture.h"
 #include "directxtarget.h"
 
+namespace
+{
+    const std::string POST_SHADER("post" + HLSL_SHADER);
+    const std::string POST_FX_PATH(SHADER_PATH + POST_SHADER + SHADER_EXTENSION);
+    const std::string POST_ASM_PATH(GENERATED_PATH + POST_SHADER + ASM_EXTENSION);
+}
+
 /**
 * Internal data for the directx rendering engine
 */
@@ -28,22 +35,23 @@ struct DirectxData
     * Releases the device/context
     */
     void Release();
-            
-    std::vector<DxTexture> textures;      ///< Textures shared by all meshes
-    std::vector<DxMesh> meshes;           ///< Each mesh in the scene
-    std::vector<DxShader> shaders;        ///< Shaders shared by all meshes
-    
-    DxRenderTarget backBuffer;            ///< Render target for the back buffer
-    DxRenderTarget sceneTarget;           ///< Render target for the main scene
+
     ID3D11DepthStencilView* zbuffer;      ///< Depth buffer
     ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
     ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
-
     IDXGISwapChain* swapchain;            ///< Collection of buffers for displaying frames
     ID3D11Device* device;                 ///< Direct3D device interface
     ID3D11DeviceContext* context;         ///< Direct3D device context
-    ID3D11Debug* debug;                   ///< Direct3D debug interface
+    ID3D11Debug* debug;                   ///< Direct3D debug interface, only created in debug
 
+    DxShader postShader;                  ///< Post processing shader
+    DxMesh quad;                          ///< Quad to render the final post processed scene onto
+    DxRenderTarget backBuffer;            ///< Render target for the back buffer
+    DxRenderTarget sceneTarget;           ///< Render target for the main scene
+
+    std::vector<DxTexture> textures;      ///< Textures shared by all meshes
+    std::vector<DxMesh> meshes;           ///< Each mesh in the scene
+    std::vector<DxShader> shaders;        ///< Shaders shared by all meshes
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
     D3DXVECTOR3 camera;                   ///< Position of the camera
@@ -66,7 +74,8 @@ DirectxData::DirectxData() :
     viewUpdated(true),
     lightsUpdated(true),
     sceneTarget("Scene"),
-    backBuffer("BackBuffer", true)
+    backBuffer("BackBuffer", true),
+    postShader(POST_FX_PATH, POST_ASM_PATH)
 {
 }
 
@@ -103,6 +112,11 @@ void DirectxData::Release()
         shader.Release();
     }
 
+    postShader.Release();
+    quad.Release();
+    sceneTarget.Release();
+    backBuffer.Release();
+
     if(cullState)
     {
         cullState->Release();
@@ -114,9 +128,6 @@ void DirectxData::Release()
         nocullState->Release();
         nocullState = nullptr;
     }
-
-    sceneTarget.Release();
-    backBuffer.Release();
 
     if(zbuffer)
     {
@@ -163,7 +174,7 @@ bool DirectxEngine::Initialize()
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  
     scd.OutputWindow = m_hwnd;                            
-    scd.SampleDesc.Count = 4;                           
+    scd.SampleDesc.Count = 1;                           
     scd.Windowed = TRUE; 
     scd.BufferDesc.Width = WINDOW_WIDTH;
     scd.BufferDesc.Height = WINDOW_HEIGHT;
@@ -202,7 +213,7 @@ bool DirectxEngine::Initialize()
     depthTextureDesc.Height = WINDOW_HEIGHT;
     depthTextureDesc.ArraySize = 1;
     depthTextureDesc.MipLevels = 1;
-    depthTextureDesc.SampleDesc.Count = MULTISAMPLING_COUNT;
+    depthTextureDesc.SampleDesc.Count = 1;
     depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
     depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
@@ -216,7 +227,7 @@ bool DirectxEngine::Initialize()
     // Create the depth buffer
     D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferDesc;
     ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-    depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthBufferDesc.Format = depthTextureDesc.Format;
     depthBufferDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 
     if(FAILED(m_data->device->CreateDepthStencilView(
@@ -232,6 +243,15 @@ bool DirectxEngine::Initialize()
        !m_data->sceneTarget.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
+        return false;
+    }
+
+    // Create the post processing quad and shader
+    m_data->quad.Initialise(m_data->device, m_data->context);
+    const std::string errors = m_data->postShader.CompileShader(m_data->device);
+    if(!errors.empty())
+    {
+        Logger::LogError("DirectX: Post shader failed: " + errors);
         return false;
     }
 
@@ -307,7 +327,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(DxMesh(mesh));
+        m_data->meshes.push_back(DxMesh(&mesh));
     }
 
     return ReInitialiseScene();
@@ -340,7 +360,8 @@ bool DirectxEngine::ReInitialiseScene()
 
 void DirectxEngine::BeginRender()
 {
-    m_data->backBuffer.SetActive(m_data->context, m_data->zbuffer);
+    m_data->selectedShader = NO_INDEX; // always due to post shader
+    m_data->sceneTarget.SetActive(m_data->context, m_data->zbuffer);
 }
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
@@ -354,6 +375,12 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
         SetBackfaceCull(mesh.ShouldBackfaceCull());
         mesh.Render(m_data->context);
     }
+
+    // Render the scene as a texture to the backbuffer
+    m_data->backBuffer.SetActive(m_data->context);
+    m_data->postShader.SetActive(m_data->context);
+    m_data->sceneTarget.SendTexture(m_data->context, 0);
+    m_data->quad.Render(m_data->context);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -383,7 +410,7 @@ void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
     bool changedShader = false;
     if(index != m_data->selectedShader)
     {
-        m_data->shaders[index].SetAsActive(m_data->context);
+        m_data->shaders[index].SetActive(m_data->context);
         m_data->selectedShader = index;
         changedShader = true;
     }

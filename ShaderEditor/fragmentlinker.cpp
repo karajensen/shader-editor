@@ -53,7 +53,7 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
 
 bool FragmentLinker::InitialiseFromFragments(Shader& shader)
 {
-    const std::string filename = GENERATED_FOLDER + shader.name;
+    const std::string filename = GENERATED_PATH + shader.name;
     FindShaderComponents(shader);
 
     shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
@@ -83,7 +83,7 @@ bool FragmentLinker::InitialiseFromFragments(Shader& shader)
 bool FragmentLinker::CreateShaderFromFragments(const std::string& name,         
                                                const std::string& extension)
 {
-    const std::string filepath = GENERATED_FOLDER + name + extension;
+    const std::string filepath = GENERATED_PATH + name + extension;
     std::ofstream generatedFile(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
     
     if(!generatedFile.is_open())
@@ -268,12 +268,12 @@ bool FragmentLinker::CreateGeneratedFolder()
     bool success = true;
     try
     {
-        if(boost::filesystem::exists(GENERATED_FOLDER))    
+        if(boost::filesystem::exists(GENERATED_PATH))    
         {
-            boost::filesystem::remove_all(GENERATED_FOLDER);
+            boost::filesystem::remove_all(GENERATED_PATH);
         }
 
-        if(!boost::filesystem::create_directory(GENERATED_FOLDER))
+        if(!boost::filesystem::create_directory(GENERATED_PATH))
         {
             success = false;
         }
@@ -285,7 +285,7 @@ bool FragmentLinker::CreateGeneratedFolder()
 
     if(!success)
     {
-        Logger::LogError(GENERATED_FOLDER + " could not be created");
+        Logger::LogError(GENERATED_PATH + " could not be created");
     }
     return success;
 }

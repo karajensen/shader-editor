@@ -1,5 +1,8 @@
 
-- Render to texture
+- Using ID3D11Debug::ReportLiveDeviceObjects with D3D11_RLDO_DETAIL will help drill into object lifetimes. Objects with ExtRef=0 and IntRef=0 will be eventually destroyed through typical Immediate Context usage. However, if the application requires these objects to be destroyed sooner, ClearState followed by Flush on the Immediate Context will realize their destruction.
+- Directx Name="unnamed" change
+- DirectX multisampling with render targets
+- OpenGL Render targets and multisampling
 
 - Qt window closing when main window does
 - Qt passing info to/from app

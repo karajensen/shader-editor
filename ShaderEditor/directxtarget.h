@@ -41,14 +41,17 @@ public:
     /**
     * Sets the render target as activated and clears it
     * @param context The directx device context
-    * @param zBuffer The depth buffer
+    * @param zBuffer The depth buffer or null if one is not used
     */
-    void SetActive(ID3D11DeviceContext* context, ID3D11DepthStencilView* zbuffer);
+    void SetActive(ID3D11DeviceContext* context, 
+        ID3D11DepthStencilView* zbuffer = nullptr);
 
     /**
-    * @return the shader view of the texture
+    * Sends the texture to the currently active shader
+    * @param context The direct device context
+    * @param slot The slot to put the texture into
     */
-    ID3D11ShaderResourceView* GetTexture();
+    void SendTexture(ID3D11DeviceContext* context, int slot);
 
 private:
 
@@ -57,5 +60,4 @@ private:
 	ID3D11Texture2D* m_texture;                 ///< Texture ofthe render target
 	ID3D11RenderTargetView* m_renderTarget;     ///< Render target buffer
 	ID3D11ShaderResourceView* m_textureView;    ///< Shader view of the texture
-
 };

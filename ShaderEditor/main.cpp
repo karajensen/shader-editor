@@ -64,13 +64,13 @@ int main(int argc, char *argv[])
     if(game->Initialise(hWnd, hInstance))
     {
         Logger::LogInfo("Initialising Qt");
-        std::thread thread(&RunQt, argc, argv);
+        //std::thread thread(&RunQt, argc, argv);
 
         ShowWindow(hWnd, SW_SHOWDEFAULT);
     
         game->Run();
 
-        thread.join();
+        //thread.join();
 
         return EXIT_SUCCESS;
     }

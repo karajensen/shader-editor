@@ -7,6 +7,16 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 
+namespace
+{
+    const std::string POST_VERT("post" + GLSL_VERTEX);
+    const std::string POST_FRAG("post" + GLSL_FRAGMENT);
+    const std::string POST_VERT_FX(SHADER_PATH + POST_VERT + SHADER_EXTENSION);
+    const std::string POST_VERT_ASM(GENERATED_PATH + POST_VERT + ASM_EXTENSION);
+    const std::string POST_FRAG_FX(SHADER_PATH + POST_FRAG + SHADER_EXTENSION);
+    const std::string POST_FRAG_ASM(GENERATED_PATH + POST_FRAG + ASM_EXTENSION);
+}
+
 /**
 * Internal data for the opengl rendering engine
 */
@@ -27,16 +37,20 @@ struct OpenglData
     */
     void Release();
 
-    glm::vec3 camera;                 ///< Position of the camera
-    glm::mat4 projection;             ///< Projection matrix
-    glm::mat4 view;                   ///< Camera View matrix
+    HGLRC hrc;                        ///< Rendering context  
+    HDC hdc;                          ///< Device context  
+
+    GlShader postShader;              ///< Shader for post processing the scene
+    GlMesh quad;                      ///< Quad to render the final post processed scene onto
+
     std::vector<GlTexture> textures;  ///< OpenGL texture objects
     std::vector<GlMesh> meshes;       ///< OpenGL mesh objects
     std::vector<GlShader> shaders;    ///< OpenGL shader objects
-    HGLRC hrc;                        ///< Rendering context  
-    HDC hdc;                          ///< Device context  
     std::vector<GLuint> vao;          ///< IDs for the Vertex Array Objects
     std::vector<GLuint> textureIDs;   ///< IDs for the generated textures
+    glm::vec3 camera;                 ///< Position of the camera
+    glm::mat4 projection;             ///< Projection matrix
+    glm::mat4 view;                   ///< Camera View matrix
     bool isBackfaceCull;              ///< Whether backface culling is currently active
     int selectedShader;               ///< Currently active shader for rendering
     bool viewUpdated;                 ///< Whether the view matrix has updated this tick
@@ -49,7 +63,9 @@ OpenglData::OpenglData() :
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
     viewUpdated(true),
-    lightsUpdated(true)
+    lightsUpdated(true),
+    quad("ScreenQuad"),
+    postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM)
 {
 }
 
@@ -79,6 +95,9 @@ void OpenglData::Release()
     {
         shader.Release();
     }
+
+    postShader.Release();
+    quad.Release();
 
     if(!textureIDs.empty())
     {
@@ -238,6 +257,14 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
+    // Create the post processing shader (Quad needs to be updated with meshes)
+    const std::string errors = m_data->postShader.CompileShader();
+    if(!errors.empty())
+    {
+        Logger::LogError("OpenGL: Post shader failed: " + errors);
+        return false;
+    }
+
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -289,7 +316,7 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(GlMesh(mesh));
+        m_data->meshes.push_back(GlMesh(&mesh));
     }
 
     return ReInitialiseScene();
@@ -314,9 +341,10 @@ bool OpenglEngine::ReInitialiseScene()
         m_data->meshes[i].Initialise(m_data->vao[i]);
     }
 
-    m_data->textureIDs.resize(m_data->textures.size());
+    m_data->textureIDs.resize(m_data->textures.size() + 1);
     glGenTextures(m_data->textures.size(), &m_data->textureIDs[0]);
-    for(unsigned int i = 0; i < m_data->textures.size(); ++i)
+    m_data->quad.Initialise(m_data->textureIDs[0]);
+    for(unsigned int i = 1; i < m_data->textures.size(); ++i)
     {
         m_data->textures[i].Initialise(m_data->textureIDs[i]);
     }
@@ -326,6 +354,7 @@ bool OpenglEngine::ReInitialiseScene()
 
 void OpenglEngine::BeginRender()
 {
+    m_data->selectedShader = NO_INDEX; // always due to post shader
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -333,16 +362,21 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     m_data->lightsUpdated = true; // updated once per tick due to tweaking
 
-    for(GlMesh& mesh : m_data->meshes)
-    {
-        UpdateShader(mesh.GetShaderID(), lights);
-        SetTextures(mesh.GetTextureIDs());
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
+    //for(GlMesh& mesh : m_data->meshes)
+    //{
+    //    UpdateShader(mesh.GetShaderID(), lights);
+    //    SetTextures(mesh.GetTextureIDs());
+    //    SetBackfaceCull(mesh.ShouldBackfaceCull());
+    //
+    //    mesh.PreRender();
+    //    m_data->shaders[m_data->selectedShader].EnableAttributes();
+    //    mesh.Render();
+    //}
 
-        mesh.PreRender();
-        m_data->shaders[m_data->selectedShader].EnableAttributes();
-        mesh.Render();
-    }
+    m_data->postShader.SetActive();
+    m_data->quad.PreRender();
+    m_data->postShader.EnableAttributes();
+    m_data->quad.Render();
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -371,7 +405,7 @@ void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
     bool changedShader = false;
     if(index != m_data->selectedShader)
     {
-        m_data->shaders[index].SetAsActive();
+        m_data->shaders[index].SetActive();
         m_data->selectedShader = index;
         changedShader = true;
     }

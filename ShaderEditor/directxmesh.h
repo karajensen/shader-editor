@@ -16,10 +16,15 @@ class DxMesh
 public:
 
     /**
-    * Constructor
+    * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
     */
-    DxMesh(const Mesh& mesh);
+    DxMesh(const Mesh* mesh);
+
+    /**
+    * Constructor for a 2D screen quad
+    */
+    DxMesh();
 
     /**
     * Destructor
@@ -71,5 +76,7 @@ private:
     UINT m_vertexStride;            ///< Size of the vertex structure
     ID3D11Buffer* m_vertexBuffer;   ///< Buffer of vertex data for the mesh
     ID3D11Buffer* m_indexBuffer;    ///< Buffer of index data for the mesh
-    const Mesh& m_mesh;             ///< Mesh information
+    std::vector<float> m_vertices;  ///< Mesh Vertex information
+    std::vector<DWORD> m_indices;   ///< Mesh Index information
+    const Mesh* m_mesh;             ///< Mesh information or null if a quad
 };                     
