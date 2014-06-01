@@ -114,6 +114,12 @@ private:
     */
     void SetTextures(const std::vector<int>& textureIDs);
 
+    /**
+    * Initialises the DirectX debugging layer
+    * @note only for _DEBUG
+    */
+    void InitialiseDebugging();
+
     HWND m_hwnd;                         ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
 };                     

@@ -178,6 +178,12 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     }
 
     UpdateShaderText(vertexText, pixelText, sharedText, vertexAsm, pixelAsm);
+    SetDebugName(m_vs, m_filepath + "_Vertex");
+    SetDebugName(m_ps, m_filepath + "_Pixel");
+    SetDebugName(m_layout, m_filepath + "_Layout");
+    SetDebugName(m_constant, m_filepath + "_Constant");
+    SetDebugName(m_samplerState, m_filepath + "_Sampler");
+
     return std::string();
 }
 

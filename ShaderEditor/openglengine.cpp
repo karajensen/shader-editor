@@ -7,16 +7,6 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 
-namespace
-{
-    const std::string POST_VERT("post" + GLSL_VERTEX);
-    const std::string POST_FRAG("post" + GLSL_FRAGMENT);
-    const std::string POST_VERT_FX(SHADER_PATH + POST_VERT + SHADER_EXTENSION);
-    const std::string POST_VERT_ASM(GENERATED_PATH + POST_VERT + ASM_EXTENSION);
-    const std::string POST_FRAG_FX(SHADER_PATH + POST_FRAG + SHADER_EXTENSION);
-    const std::string POST_FRAG_ASM(GENERATED_PATH + POST_FRAG + ASM_EXTENSION);
-}
-
 /**
 * Internal data for the opengl rendering engine
 */
@@ -354,7 +344,7 @@ bool OpenglEngine::ReInitialiseScene()
 
 void OpenglEngine::BeginRender()
 {
-    m_data->selectedShader = NO_INDEX; // always due to post shader
+    m_data->selectedShader = NO_INDEX; // always reset due to post shader
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

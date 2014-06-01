@@ -13,13 +13,15 @@ DxMesh::DxMesh(const Mesh* mesh) :
     m_indexCount(mesh->indexCount),
     m_mesh(mesh),
     m_vertices(mesh->vertices),
-    m_indices(mesh->indices)
+    m_indices(mesh->indices),
+    m_name(mesh->name)
 {
 }
 
-DxMesh::DxMesh() :
+DxMesh::DxMesh(const std::string& name) :
     m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr)
+    m_indexBuffer(nullptr),
+    m_name(name)
 {
     // Top left corner
     m_vertices.push_back(-1.0); // x
@@ -113,6 +115,9 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     context->Map(m_indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ims); 
     memcpy(ims.pData, &m_indices[0], sizeof(DWORD)*m_indices.size());
     context->Unmap(m_indexBuffer, 0);
+
+    SetDebugName(m_indexBuffer, m_name + "_IndexBuffer");
+    SetDebugName(m_vertexBuffer, m_name + "_VertexBuffer");
 }
 
 void DxMesh::Render(ID3D11DeviceContext* context)

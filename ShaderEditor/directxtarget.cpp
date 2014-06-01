@@ -95,6 +95,10 @@ bool DxRenderTarget::Initialise(ID3D11Device* device, IDXGISwapChain* swapchain)
         }
     }
 
+    SetDebugName(m_texture, m_name + "_Texture");
+    SetDebugName(m_textureView, m_name + "_TextureView");
+    SetDebugName(m_renderTarget, m_name + "_RenderTarget");
+
 	return true;
 }
 
@@ -112,4 +116,10 @@ void DxRenderTarget::SetActive(ID3D11DeviceContext* context, ID3D11DepthStencilV
 void DxRenderTarget::SendTexture(ID3D11DeviceContext* context, int slot)
 {
     context->PSSetShaderResources(slot, 1, &m_textureView);
+}
+
+void DxRenderTarget::ClearTexture(ID3D11DeviceContext* context, int slot)
+{
+    ID3D11ShaderResourceView* nullView = nullptr;
+    context->PSSetShaderResources(slot, 1, &nullView);
 }

@@ -9,13 +9,6 @@
 #include "directxtexture.h"
 #include "directxtarget.h"
 
-namespace
-{
-    const std::string POST_SHADER("post" + HLSL_SHADER);
-    const std::string POST_FX_PATH(SHADER_PATH + POST_SHADER + SHADER_EXTENSION);
-    const std::string POST_ASM_PATH(GENERATED_PATH + POST_SHADER + ASM_EXTENSION);
-}
-
 /**
 * Internal data for the directx rendering engine
 */
@@ -75,7 +68,8 @@ DirectxData::DirectxData() :
     lightsUpdated(true),
     sceneTarget("Scene"),
     backBuffer("BackBuffer", true),
-    postShader(POST_FX_PATH, POST_ASM_PATH)
+    postShader(POST_FX_PATH, POST_ASM_PATH),
+    quad("SceneQuad")
 {
 }
 
@@ -193,18 +187,7 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    // Set to throw if there is any severe problem with directX
-    #ifdef _DEBUG
-    if(SUCCEEDED(m_data->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&m_data->debug)))
-    {
-        ID3D11InfoQueue *d3dInfoQueue = nullptr;
-        if(SUCCEEDED(m_data->debug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&d3dInfoQueue)))
-        {
-            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
-            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
-        }
-    }
-    #endif
+    InitialiseDebugging();
 
     // Create the depth texture
     D3D11_TEXTURE2D_DESC depthTextureDesc;
@@ -236,6 +219,7 @@ bool DirectxEngine::Initialize()
         Logger::LogError("DirectX: Depth buffer creation failed");
         return false;
     }
+    SetDebugName(depthTexture, "DepthBufferTexture");
     depthTexture->Release();
 
     // Create the render targets, back buffer needs to be created first
@@ -297,8 +281,42 @@ bool DirectxEngine::Initialize()
         (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
         CAMERA_NEAR, CAMERA_FAR);
 
+    SetDebugName(m_data->cullState, "CullState");
+    SetDebugName(m_data->nocullState, "NoCullState");
+    SetDebugName(m_data->device, "Device");
+    SetDebugName(m_data->context, "Context");
+    SetDebugName(m_data->swapchain, "SwapChain");
+    SetDebugName(m_data->zbuffer, "DepthBuffer");
+
     Logger::LogInfo("DirectX: D3D11 sucessful");
     return true;
+}
+
+void DirectxEngine::InitialiseDebugging()
+{
+    #ifdef _DEBUG
+    if(SUCCEEDED(m_data->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&m_data->debug)))
+    {
+        ID3D11InfoQueue* infoQueue = nullptr;
+        if(SUCCEEDED(m_data->debug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&infoQueue)))
+        {
+            D3D11_MESSAGE_ID knownMessages[] =
+            {
+                D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+            };
+ 
+            D3D11_INFO_QUEUE_FILTER filter;
+            memset( &filter, 0, sizeof(filter) );
+            filter.DenyList.NumIDs = _countof(knownMessages);
+            filter.DenyList.pIDList = knownMessages;
+
+            infoQueue->AddStorageFilterEntries(&filter);
+            infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
+            infoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
+            infoQueue->Release();
+        }
+    }
+    #endif
 }
 
 std::string DirectxEngine::CompileShader(int index)
@@ -360,7 +378,7 @@ bool DirectxEngine::ReInitialiseScene()
 
 void DirectxEngine::BeginRender()
 {
-    m_data->selectedShader = NO_INDEX; // always due to post shader
+    m_data->selectedShader = NO_INDEX; // always reset due to post shader
     m_data->sceneTarget.SetActive(m_data->context, m_data->zbuffer);
 }
 
@@ -381,6 +399,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->postShader.SetActive(m_data->context);
     m_data->sceneTarget.SendTexture(m_data->context, 0);
     m_data->quad.Render(m_data->context);
+    m_data->sceneTarget.ClearTexture(m_data->context, 0);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)

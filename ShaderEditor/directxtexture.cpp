@@ -31,6 +31,7 @@ void DxTexture::Initialise(ID3D11Device* device)
     {
         Logger::LogError("Failed to create texture " + m_filepath);
     }
+    SetDebugName(m_texture, m_filepath);
 }
 
 void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot)

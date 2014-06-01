@@ -23,8 +23,9 @@ public:
 
     /**
     * Constructor for a 2D screen quad
+    * @param name The name of the mesh
     */
-    DxMesh();
+    DxMesh(const std::string& name);
 
     /**
     * Destructor
@@ -79,4 +80,5 @@ private:
     std::vector<float> m_vertices;  ///< Mesh Vertex information
     std::vector<DWORD> m_indices;   ///< Mesh Index information
     const Mesh* m_mesh;             ///< Mesh information or null if a quad
+    std::string m_name;             ///< Name of the mesh
 };                     

@@ -13,7 +13,7 @@
 
 namespace
 {
-    const bool OPENGL_START = true;
+    const bool OPENGL_START = false;
 
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
