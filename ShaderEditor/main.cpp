@@ -49,7 +49,7 @@ void RunQt(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     ShaderEditorGUI gui;
-    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     gui.show();
     app.exec();
 }

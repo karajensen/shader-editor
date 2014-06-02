@@ -20,23 +20,9 @@ DxRenderTarget::~DxRenderTarget()
 
 void DxRenderTarget::Release()
 {
-    if(m_texture)
-    {
-        m_texture->Release();
-        m_texture = nullptr;
-    }
-
-    if(m_renderTarget)
-    {
-        m_renderTarget->Release();
-        m_renderTarget = nullptr;
-    }
-
-    if(m_textureView)
-    {
-        m_textureView->Release();
-        m_textureView = nullptr;
-    }
+    SafeRelease(&m_texture);
+    SafeRelease(&m_renderTarget);
+    SafeRelease(&m_textureView);
 }
 
 bool DxRenderTarget::Initialise(ID3D11Device* device, IDXGISwapChain* swapchain)

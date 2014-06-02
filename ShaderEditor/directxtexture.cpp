@@ -17,11 +17,7 @@ DxTexture::~DxTexture()
 
 void DxTexture::Release()
 {
-    if(m_texture)
-    {
-        m_texture->Release();
-        m_texture = nullptr;
-    }
+    SafeRelease(&m_texture);
 }
 
 void DxTexture::Initialise(ID3D11Device* device)

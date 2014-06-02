@@ -76,12 +76,6 @@ DirectxData::DirectxData() :
 DirectxData::~DirectxData()
 {
     Release();
-    if(debug)
-    {
-        debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-        debug->Release();
-        debug = nullptr;
-    }
 }
 
 void DirectxData::Release()
@@ -111,40 +105,21 @@ void DirectxData::Release()
     sceneTarget.Release();
     backBuffer.Release();
 
-    if(cullState)
-    {
-        cullState->Release();
-        cullState = nullptr;
-    }
+    SafeRelease(&cullState);
+    SafeRelease(&nocullState);
+    SafeRelease(&zbuffer);
+    SafeRelease(&swapchain);
+    SafeRelease(&context);
+    SafeRelease(&device);
 
-    if(nocullState)
+    if(debug)
     {
-        nocullState->Release();
-        nocullState = nullptr;
-    }
+        debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+        debug->Release();
+        debug = nullptr;
 
-    if(zbuffer)
-    {
-        zbuffer->Release();
-        zbuffer = nullptr;
-    }
-
-    if(swapchain)
-    {
-        swapchain->Release();
-        swapchain = nullptr;
-    }
-
-    if(context)
-    {
-        context->Release();
-        context = nullptr;
-    }
-
-    if(device)
-    {
-        device->Release();
-        device = nullptr;
+        std::string seperator(100, '=');
+        OutputDebugString((seperator + "\n").c_str());
     }
 }
 
@@ -238,6 +213,7 @@ bool DirectxEngine::Initialize()
         Logger::LogError("DirectX: Post shader failed: " + errors);
         return false;
     }
+    assert(m_data->postShader.HasTextureSlot(0));
 
     // Setup the directX environment
     D3D11_RASTERIZER_DESC rasterDesc;

@@ -72,33 +72,12 @@ void DxShader::Release()
     m_constants.clear();
     m_constantScratch.clear();
     m_textureSlots = 0;
-    
-    if(m_samplerState)
-    {
-        m_samplerState->Release();
-        m_samplerState = nullptr;
-    }
 
-    if(m_vs)
-    {
-        m_vs->Release();
-        m_vs = nullptr;
-    }
-    if(m_ps)
-    {
-        m_ps->Release();
-        m_ps = nullptr;
-    }
-    if(m_layout)
-    {
-        m_layout->Release();
-        m_layout = nullptr;
-    }
-    if(m_constant)
-    {
-        m_constant->Release();
-        m_constant = nullptr;
-    }
+    SafeRelease(&m_samplerState);
+    SafeRelease(&m_vs);
+    SafeRelease(&m_ps);
+    SafeRelease(&m_layout);
+    SafeRelease(&m_constant);
 }
 
 std::string DxShader::CompileShader(ID3D11Device* device)

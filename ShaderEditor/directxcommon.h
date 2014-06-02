@@ -28,3 +28,16 @@ template <typename T> void SetDebugName(T* object, const std::string& name)
     }
     #endif
 }
+
+/**
+* Releases the directx object safely
+* @param object The object to release
+*/
+template <typename T> void SafeRelease(T** object)
+{
+    if(*object)
+    {
+        (*object)->Release();
+        *object = nullptr;
+    }
+}

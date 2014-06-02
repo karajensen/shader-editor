@@ -72,16 +72,8 @@ DxMesh::~DxMesh()
 
 void DxMesh::Release()
 {
-    if(m_vertexBuffer)
-    {
-        m_vertexBuffer->Release();
-        m_vertexBuffer = nullptr;
-    }
-    if(m_indexBuffer)
-    {
-        m_indexBuffer->Release();
-        m_indexBuffer = nullptr;
-    }
+    SafeRelease(&m_vertexBuffer);
+    SafeRelease(&m_indexBuffer);
 }
 
 void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
