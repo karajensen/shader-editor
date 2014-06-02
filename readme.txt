@@ -1,7 +1,6 @@
 
-- DirectX multisampling
-- OpenGL Render targets and multisampling
-- Add Quad as a mesh and pass during initialization if possible
+- Multisampling
+- Normal/Depth render target
 
 - Qt window closing when main window does
 - Qt passing info to/from app
@@ -9,7 +8,6 @@
 - Tweaking mesh/lights/shaders/post
 
 - Rendering: specular, attenuation, bump with defines
-- Scene Normal/Depth map generation
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Optimise shaders
 

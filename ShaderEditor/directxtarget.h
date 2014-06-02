@@ -7,7 +7,7 @@
 #include "directxcommon.h"
 
 /**
-* Holds a single render target 
+* Render target that uses a shared depth buffer
 */
 class DxRenderTarget
 {

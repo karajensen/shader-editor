@@ -31,9 +31,9 @@ public:
 
     /**
     * Initialises the texture
-    * @param id The unique OpenGL id for the texture
+    * @return whether initialisation succeeded or not
     */
-    void Initialise(GLuint id);
+    bool Initialise();
 
     /**
     * Sends the texture to the currently active shader
@@ -43,6 +43,7 @@ public:
 
 private:
 
-    int m_id; ///< Unique id for the texture
+    bool m_initialised;           ///< Whether this texture is initialised
+    GLuint m_id;                  ///< Unique id for the texture
     const std::string m_filepath; ///< The path for the texture
 };

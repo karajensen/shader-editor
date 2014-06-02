@@ -6,7 +6,9 @@
 #include "opengl/soil/SOIL.h"
 
 GlTexture::GlTexture(const std::string& filepath) :
-    m_filepath(filepath)
+    m_filepath(filepath),
+    m_id(0),
+    m_initialised(false)
 {
 }
 
@@ -17,11 +19,16 @@ GlTexture::~GlTexture()
 
 void GlTexture::Release()
 {
+    if(m_initialised)
+    {
+        glDeleteTextures(1, &m_id);
+        m_initialised = false;
+    }
 }
 
-void GlTexture::Initialise(GLuint id)
+bool GlTexture::Initialise()
 {
-    m_id = id;
+    glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
 
     int width, height;
@@ -33,42 +40,20 @@ void GlTexture::Initialise(GLuint id)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + m_filepath + " texture");
+        return false;
+    }
+
+    m_initialised = true;
+    return true;
 }
 
 void GlTexture::SendTexture(int slot)
 {
-    switch(slot)
-    {
-    case 0:
-        glActiveTexture(GL_TEXTURE0);
-        break;
-    case 1:
-        glActiveTexture(GL_TEXTURE1);
-        break;
-    case 2:
-        glActiveTexture(GL_TEXTURE2);
-        break;
-    case 3:
-        glActiveTexture(GL_TEXTURE3);
-        break;
-    case 4:
-        glActiveTexture(GL_TEXTURE4);
-        break;
-    case 5:
-        glActiveTexture(GL_TEXTURE5);
-        break;
-    case 6:
-        glActiveTexture(GL_TEXTURE6);
-        break;
-    case 7:
-        glActiveTexture(GL_TEXTURE7);
-        break;
-    case 8:
-        glActiveTexture(GL_TEXTURE8);
-        break;
-    default:
-        Logger::LogError("Unknown texture slot");
-    }
-
+    assert(m_initialised);
+    glActiveTexture(GetTexture(slot));
     glBindTexture(GL_TEXTURE_2D, m_id);
 }

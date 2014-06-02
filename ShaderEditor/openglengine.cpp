@@ -6,6 +6,7 @@
 #include "openglshader.h"
 #include "openglmesh.h"
 #include "opengltexture.h"
+#include "opengltarget.h"
 
 /**
 * Internal data for the opengl rendering engine
@@ -27,24 +28,24 @@ struct OpenglData
     */
     void Release();
 
-    HGLRC hrc;                        ///< Rendering context  
-    HDC hdc;                          ///< Device context  
-
-    GlShader postShader;              ///< Shader for post processing the scene
-    GlMesh quad;                      ///< Quad to render the final post processed scene onto
-
-    std::vector<GlTexture> textures;  ///< OpenGL texture objects
-    std::vector<GlMesh> meshes;       ///< OpenGL mesh objects
-    std::vector<GlShader> shaders;    ///< OpenGL shader objects
-    std::vector<GLuint> vao;          ///< IDs for the Vertex Array Objects
-    std::vector<GLuint> textureIDs;   ///< IDs for the generated textures
-    glm::vec3 camera;                 ///< Position of the camera
-    glm::mat4 projection;             ///< Projection matrix
-    glm::mat4 view;                   ///< Camera View matrix
-    bool isBackfaceCull;              ///< Whether backface culling is currently active
-    int selectedShader;               ///< Currently active shader for rendering
-    bool viewUpdated;                 ///< Whether the view matrix has updated this tick
-    bool lightsUpdated;               ///< Whether the lights have been updated this tick
+    HGLRC hrc;                       ///< Rendering context  
+    HDC hdc;                         ///< Device context  
+                                     
+    GlRenderTarget backBuffer;       ///< Render target for the back buffer
+    GlRenderTarget sceneTarget;      ///< Render target for the main scene
+    GlShader postShader;             ///< Shader for post processing the scene
+    GlMesh quad;                     ///< Quad to render the final post processed scene onto
+                                     
+    std::vector<GlTexture> textures; ///< Textures shared by all meshes
+    std::vector<GlMesh> meshes;      ///< Each mesh in the scene
+    std::vector<GlShader> shaders;   ///< Shaders shared by all meshes
+    glm::vec3 camera;                ///< Position of the camera
+    glm::mat4 projection;            ///< Projection matrix
+    glm::mat4 view;                  ///< Camera View matrix
+    bool isBackfaceCull;             ///< Whether backface culling is currently active
+    int selectedShader;              ///< Currently active shader for rendering
+    bool viewUpdated;                ///< Whether the view matrix has updated this tick
+    bool lightsUpdated;              ///< Whether the lights have been updated this tick
 };
 
 OpenglData::OpenglData() :
@@ -55,6 +56,8 @@ OpenglData::OpenglData() :
     viewUpdated(true),
     lightsUpdated(true),
     quad("ScreenQuad"),
+    sceneTarget("SceneTarget"),
+    backBuffer("BackBuffer", true),
     postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM)
 {
 }
@@ -86,20 +89,10 @@ void OpenglData::Release()
         shader.Release();
     }
 
+    backBuffer.Release();
+    sceneTarget.Release();
     postShader.Release();
     quad.Release();
-
-    if(!textureIDs.empty())
-    {
-        glDeleteTextures(textureIDs.size(), &textureIDs[0]);
-        textureIDs.clear();
-    }
-
-    if(!vao.empty())
-    {
-        glDeleteBuffers(vao.size(), &vao[0]);
-        vao.clear();
-    }
 
     wglMakeCurrent(nullptr, nullptr);
     if(hrc)
@@ -234,7 +227,7 @@ bool OpenglEngine::Initialize()
     wglMakeCurrent(m_data->hdc, m_data->hrc);
     if(!m_data->hrc || HasCallFailed())
     {
-        Logger::LogInfo("OpenGL: Context creation failed");
+        Logger::LogError("OpenGL: Context creation failed");
         return false;
     }
 
@@ -243,23 +236,32 @@ bool OpenglEngine::Initialize()
     glGetIntegerv(GL_MINOR_VERSION, &minor); 
     if(minor == -1 || major == -1)
     {
-        Logger::LogInfo("OpenGL: Version not supported");
+        Logger::LogError("OpenGL: Version not supported");
         return false;
     }
 
-    // Create the post processing shader (Quad needs to be updated with meshes)
+    // Create the render targets
+    if(!m_data->backBuffer.Initialise() ||
+       !m_data->sceneTarget.Initialise())
+    {
+        Logger::LogError("OpenGL: Could not create render targets");
+        return false;
+    }
+
+    // Create the post processing shader and scene quad
     const std::string errors = m_data->postShader.CompileShader();
     if(!errors.empty())
     {
         Logger::LogError("OpenGL: Post shader failed: " + errors);
         return false;
     }
+    m_data->quad.Initialise();
+    assert(m_data->postShader.HasTextureSlot(0));
 
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
@@ -324,19 +326,22 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
-    m_data->vao.resize(m_data->meshes.size());
-    glGenVertexArrays(m_data->vao.size(), &m_data->vao[0]);
-    for(unsigned int i = 0; i < m_data->meshes.size(); ++i)
+    for(GlMesh& mesh : m_data->meshes)
     {
-        m_data->meshes[i].Initialise(m_data->vao[i]);
+        if(!mesh.Initialise())
+        {
+            Logger::LogError("OpenGL: Failed to re-initialise mesh");
+            return false;
+        }
     }
 
-    m_data->textureIDs.resize(m_data->textures.size() + 1);
-    glGenTextures(m_data->textures.size(), &m_data->textureIDs[0]);
-    m_data->quad.Initialise(m_data->textureIDs[0]);
-    for(unsigned int i = 1; i < m_data->textures.size(); ++i)
+    for(GlTexture& texture : m_data->textures)
     {
-        m_data->textures[i].Initialise(m_data->textureIDs[i]);
+        if(!texture.Initialise())
+        {
+            Logger::LogError("OpenGL: Failed to re-initialise texture");
+            return false;
+        }
     }
 
     return true;
@@ -345,28 +350,32 @@ bool OpenglEngine::ReInitialiseScene()
 void OpenglEngine::BeginRender()
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_data->sceneTarget.SetActive();
 }
 
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     m_data->lightsUpdated = true; // updated once per tick due to tweaking
 
-    //for(GlMesh& mesh : m_data->meshes)
-    //{
-    //    UpdateShader(mesh.GetShaderID(), lights);
-    //    SetTextures(mesh.GetTextureIDs());
-    //    SetBackfaceCull(mesh.ShouldBackfaceCull());
-    //
-    //    mesh.PreRender();
-    //    m_data->shaders[m_data->selectedShader].EnableAttributes();
-    //    mesh.Render();
-    //}
+    for(GlMesh& mesh : m_data->meshes)
+    {
+        UpdateShader(mesh.GetShaderID(), lights);
+        SetTextures(mesh.GetTextureIDs());
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+    
+        mesh.PreRender();
+        m_data->shaders[m_data->selectedShader].EnableAttributes();
+        mesh.Render();
+    }
 
+    // Render the scene as a texture to the backbuffer
+    m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
+    m_data->sceneTarget.SendTexture(0);
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
+    m_data->sceneTarget.ClearTexture(0);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)

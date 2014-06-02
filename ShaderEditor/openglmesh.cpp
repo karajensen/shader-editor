@@ -46,14 +46,14 @@ GlMesh::GlMesh(const std::string& name) :
     m_vertices.push_back(-1.0); // y
     m_vertices.push_back(0.0);  // z
     m_vertices.push_back(1.0);  // u
-    m_vertices.push_back(1.0); // v
+    m_vertices.push_back(-1.0); // v
 
     // Bot left corner
     m_vertices.push_back(-1.0); // x
     m_vertices.push_back(-1.0); // y
     m_vertices.push_back(0.0);  // z
     m_vertices.push_back(0.0); // u
-    m_vertices.push_back(1.0); // v
+    m_vertices.push_back(-1.0); // v
 
     m_indices.push_back(0);
     m_indices.push_back(3);
@@ -78,13 +78,14 @@ void GlMesh::Release()
     {
         glDeleteBuffers(1, &m_vboID);
         glDeleteBuffers(1, &m_iboID);
+        glDeleteBuffers(1, &m_vaoID);
         m_initialised = false;
     }
 }
 
-void GlMesh::Initialise(unsigned int vertexArrayID)
+bool GlMesh::Initialise()
 {
-    m_vaoID = vertexArrayID;
+    glGenVertexArrays(1, &m_vaoID);
     glBindVertexArray(m_vaoID);
 
     glGenBuffers(1, &m_vboID);
@@ -100,9 +101,11 @@ void GlMesh::Initialise(unsigned int vertexArrayID)
     if(HasCallFailed())
     {
         Logger::LogError("OpenGL: Failed " + m_name + " buffers");
+        return false;
     }
 
     m_initialised = true;
+    return true;
 }
 
 void GlMesh::PreRender()
@@ -113,6 +116,7 @@ void GlMesh::PreRender()
 
 void GlMesh::Render()
 {
+    assert(m_initialised);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 }
 

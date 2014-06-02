@@ -48,9 +48,9 @@ public:
 
     /**
     * Initialises the mesh
-    * @param vertexArrayID an unique ID for the opengl mesh
+    * @return whether initialisation succeeded
     */
-    void Initialise(unsigned int vertexArrayID);
+    bool Initialise();
 
     /**
     * @return whether the mesh requires backface culling or not

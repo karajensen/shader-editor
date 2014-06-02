@@ -29,7 +29,6 @@ struct DirectxData
     */
     void Release();
 
-    ID3D11DepthStencilView* zbuffer;      ///< Depth buffer
     ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
     ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
     IDXGISwapChain* swapchain;            ///< Collection of buffers for displaying frames
@@ -41,6 +40,7 @@ struct DirectxData
     DxMesh quad;                          ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;            ///< Render target for the back buffer
     DxRenderTarget sceneTarget;           ///< Render target for the main scene
+    ID3D11DepthStencilView* depthBuffer;  ///< Depth buffer shared between render targets
 
     std::vector<DxTexture> textures;      ///< Textures shared by all meshes
     std::vector<DxMesh> meshes;           ///< Each mesh in the scene
@@ -59,14 +59,14 @@ DirectxData::DirectxData() :
     device(nullptr),
     context(nullptr),
     debug(nullptr),
-    zbuffer(nullptr),
+    depthBuffer(nullptr),
     cullState(nullptr),
     nocullState(nullptr),
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
     viewUpdated(true),
     lightsUpdated(true),
-    sceneTarget("Scene"),
+    sceneTarget("SceneTarget"),
     backBuffer("BackBuffer", true),
     postShader(POST_FX_PATH, POST_ASM_PATH),
     quad("SceneQuad")
@@ -107,7 +107,7 @@ void DirectxData::Release()
 
     SafeRelease(&cullState);
     SafeRelease(&nocullState);
-    SafeRelease(&zbuffer);
+    SafeRelease(&depthBuffer);
     SafeRelease(&swapchain);
     SafeRelease(&context);
     SafeRelease(&device);
@@ -182,14 +182,14 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    // Create the depth buffer
+    // Create the shared depth buffer
     D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferDesc;
     ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
     depthBufferDesc.Format = depthTextureDesc.Format;
     depthBufferDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 
     if(FAILED(m_data->device->CreateDepthStencilView(
-        depthTexture, &depthBufferDesc, &m_data->zbuffer)))
+        depthTexture, &depthBufferDesc, &m_data->depthBuffer)))
     {
         Logger::LogError("DirectX: Depth buffer creation failed");
         return false;
@@ -262,7 +262,7 @@ bool DirectxEngine::Initialize()
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
     SetDebugName(m_data->swapchain, "SwapChain");
-    SetDebugName(m_data->zbuffer, "DepthBuffer");
+    SetDebugName(m_data->depthBuffer, "DepthBuffer");
 
     Logger::LogInfo("DirectX: D3D11 sucessful");
     return true;
@@ -355,7 +355,7 @@ bool DirectxEngine::ReInitialiseScene()
 void DirectxEngine::BeginRender()
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    m_data->sceneTarget.SetActive(m_data->context, m_data->zbuffer);
+    m_data->sceneTarget.SetActive(m_data->context, m_data->depthBuffer);
 }
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
