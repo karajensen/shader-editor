@@ -17,6 +17,8 @@ void Logger::LogError(const std::string& error, bool popup)
 
     if(popup)
     {
+        #ifndef _DEBUG
         MessageBox(nullptr, error.c_str(), TEXT("ERROR"), MB_OK);
+        #endif
     }
 }

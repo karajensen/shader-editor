@@ -19,6 +19,13 @@ const std::string POST_VERT_ASM(GENERATED_PATH + POST_VERT + ASM_EXTENSION);
 const std::string POST_FRAG_FX(SHADER_PATH + POST_FRAG + SHADER_EXTENSION);
 const std::string POST_FRAG_ASM(GENERATED_PATH + POST_FRAG + ASM_EXTENSION);
 
+const std::string NORM_VERT("normal" + GLSL_VERTEX);
+const std::string NORM_FRAG("normal" + GLSL_FRAGMENT);
+const std::string NORM_VERT_FX(SHADER_PATH + NORM_VERT + SHADER_EXTENSION);
+const std::string NORM_VERT_ASM(GENERATED_PATH + NORM_VERT + ASM_EXTENSION);
+const std::string NORM_FRAG_FX(SHADER_PATH + NORM_FRAG + SHADER_EXTENSION);
+const std::string NORM_FRAG_ASM(GENERATED_PATH + NORM_FRAG + ASM_EXTENSION);
+
 /**
 * OpenGL call checking
 * @return whether the last call to OpenGL has failed

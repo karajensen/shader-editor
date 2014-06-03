@@ -33,7 +33,9 @@ struct OpenglData
                                      
     GlRenderTarget backBuffer;       ///< Render target for the back buffer
     GlRenderTarget sceneTarget;      ///< Render target for the main scene
+    GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
     GlShader postShader;             ///< Shader for post processing the scene
+    GlShader normalShader;           ///< Shader for rendering normals/depth for the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
                                      
     std::vector<GlTexture> textures; ///< Textures shared by all meshes
@@ -57,8 +59,10 @@ OpenglData::OpenglData() :
     lightsUpdated(true),
     quad("ScreenQuad"),
     sceneTarget("SceneTarget"),
+    normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM)
+    postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM),
+    normalShader(NORM_VERT_FX, NORM_FRAG_FX, NORM_VERT_ASM, NORM_FRAG_ASM)
 {
 }
 
@@ -91,7 +95,9 @@ void OpenglData::Release()
 
     backBuffer.Release();
     sceneTarget.Release();
+    normalTarget.Release();
     postShader.Release();
+    normalShader.Release();
     quad.Release();
 
     wglMakeCurrent(nullptr, nullptr);
@@ -242,21 +248,41 @@ bool OpenglEngine::Initialize()
 
     // Create the render targets
     if(!m_data->backBuffer.Initialise() ||
-       !m_data->sceneTarget.Initialise())
+       !m_data->sceneTarget.Initialise() ||
+       !m_data->normalTarget.Initialise())
     {
         Logger::LogError("OpenGL: Could not create render targets");
         return false;
     }
 
-    // Create the post processing shader and scene quad
-    const std::string errors = m_data->postShader.CompileShader();
-    if(!errors.empty())
+    // Create the normal/depth shader
+    std::string errorBuffer = m_data->normalShader.CompileShader();
+    if(!errorBuffer.empty())
     {
-        Logger::LogError("OpenGL: Post shader failed: " + errors);
+        Logger::LogError("OpenGL: Normal shader failed: " + errorBuffer);
         return false;
     }
-    m_data->quad.Initialise();
-    assert(m_data->postShader.HasTextureSlot(0));
+
+    // Create the post processing quad and shader
+    if(!m_data->quad.Initialise())
+    {
+        Logger::LogError("OpenGL: Scene quad failed to initialise");
+        return false;
+    }
+
+    errorBuffer = m_data->postShader.CompileShader();
+    if(!errorBuffer.empty())
+    {
+        Logger::LogError("OpenGL: Post shader failed: " + errorBuffer);
+        return false;
+    }
+
+    if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
+       !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
+    {
+        Logger::LogError("OpenGL: Post shader does not have required texture slots");
+        return false;
+    }
 
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -350,13 +376,13 @@ bool OpenglEngine::ReInitialiseScene()
 void OpenglEngine::BeginRender()
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    m_data->sceneTarget.SetActive();
+    m_data->lightsUpdated = true; // updated once per tick due to tweaking
 }
 
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
-    m_data->lightsUpdated = true; // updated once per tick due to tweaking
-
+    // Render the scene
+    m_data->sceneTarget.SetActive();
     for(GlMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
@@ -368,14 +394,27 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
         mesh.Render();
     }
 
+    // Render the scene normal/depth map
+    m_data->normalTarget.SetActive();
+    m_data->normalShader.SetActive();
+    for(GlMesh& mesh : m_data->meshes)
+    {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.PreRender();
+        m_data->normalShader.EnableAttributes();
+        mesh.Render();
+    }
+
     // Render the scene as a texture to the backbuffer
     m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
-    m_data->sceneTarget.SendTexture(0);
+    m_data->sceneTarget.SendTexture(SCENE_TEXTURE);
+    m_data->normalTarget.SendTexture(NORMAL_TEXTURE);
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
-    m_data->sceneTarget.ClearTexture(0);
+    m_data->sceneTarget.ClearTexture(SCENE_TEXTURE);
+    m_data->normalTarget.ClearTexture(NORMAL_TEXTURE);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)

@@ -36,10 +36,12 @@ struct DirectxData
     ID3D11DeviceContext* context;         ///< Direct3D device context
     ID3D11Debug* debug;                   ///< Direct3D debug interface, only created in debug
 
+    DxShader normalShader;                ///< Shader for rendering normals/depth for the scene
     DxShader postShader;                  ///< Post processing shader
     DxMesh quad;                          ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;            ///< Render target for the back buffer
     DxRenderTarget sceneTarget;           ///< Render target for the main scene
+    DxRenderTarget normalTarget;          ///< Render target for the scene normal/depth map
     ID3D11DepthStencilView* depthBuffer;  ///< Depth buffer shared between render targets
 
     std::vector<DxTexture> textures;      ///< Textures shared by all meshes
@@ -67,8 +69,10 @@ DirectxData::DirectxData() :
     viewUpdated(true),
     lightsUpdated(true),
     sceneTarget("SceneTarget"),
+    normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     postShader(POST_FX_PATH, POST_ASM_PATH),
+    normalShader(NORM_FX_PATH, NORM_ASM_PATH),
     quad("SceneQuad")
 {
 }
@@ -100,9 +104,11 @@ void DirectxData::Release()
         shader.Release();
     }
 
+    normalShader.Release();
     postShader.Release();
     quad.Release();
     sceneTarget.Release();
+    normalTarget.Release();
     backBuffer.Release();
 
     SafeRelease(&cullState);
@@ -143,7 +149,7 @@ bool DirectxEngine::Initialize()
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  
     scd.OutputWindow = m_hwnd;                            
-    scd.SampleDesc.Count = 1;                           
+    scd.SampleDesc.Count = MULTISAMPLING_COUNT;                           
     scd.Windowed = TRUE; 
     scd.BufferDesc.Width = WINDOW_WIDTH;
     scd.BufferDesc.Height = WINDOW_HEIGHT;
@@ -199,21 +205,36 @@ bool DirectxEngine::Initialize()
 
     // Create the render targets, back buffer needs to be created first
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
-       !m_data->sceneTarget.Initialise(m_data->device))
+       !m_data->sceneTarget.Initialise(m_data->device) ||
+       !m_data->normalTarget.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
     }
 
-    // Create the post processing quad and shader
-    m_data->quad.Initialise(m_data->device, m_data->context);
-    const std::string errors = m_data->postShader.CompileShader(m_data->device);
-    if(!errors.empty())
+    // Create the normal/depth shader
+    std::string errorBuffer = m_data->normalShader.CompileShader(m_data->device);
+    if(!errorBuffer.empty())
     {
-        Logger::LogError("DirectX: Post shader failed: " + errors);
+        Logger::LogError("DirectX: Normal shader failed: " + errorBuffer);
         return false;
     }
-    assert(m_data->postShader.HasTextureSlot(0));
+
+    // Create the post processing quad and shader
+    m_data->quad.Initialise(m_data->device, m_data->context);
+    errorBuffer = m_data->postShader.CompileShader(m_data->device);
+    if(!errorBuffer.empty())
+    {
+        Logger::LogError("DirectX: Post shader failed: " + errorBuffer);
+        return false;
+    }
+
+    if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
+       !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
+    {
+        Logger::LogError("DirectX: Post shader does not have required texture slots");
+        return false;
+    }
 
     // Setup the directX environment
     D3D11_RASTERIZER_DESC rasterDesc;
@@ -355,13 +376,13 @@ bool DirectxEngine::ReInitialiseScene()
 void DirectxEngine::BeginRender()
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    m_data->sceneTarget.SetActive(m_data->context, m_data->depthBuffer);
+    m_data->lightsUpdated = true; // updated once per tick due to tweaking
 }
 
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
-    m_data->lightsUpdated = true; // updated once per tick due to tweaking
-
+    // Render the scene
+    m_data->sceneTarget.SetActive(m_data->context, m_data->depthBuffer);
     for(DxMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
@@ -370,12 +391,23 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
         mesh.Render(m_data->context);
     }
 
+    // Render the scene normal/depth map
+    m_data->normalTarget.SetActive(m_data->context, m_data->depthBuffer);
+    m_data->normalShader.SetActive(m_data->context);
+    for(DxMesh& mesh : m_data->meshes)
+    {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.Render(m_data->context);
+    }
+
     // Render the scene as a texture to the backbuffer
     m_data->backBuffer.SetActive(m_data->context);
     m_data->postShader.SetActive(m_data->context);
-    m_data->sceneTarget.SendTexture(m_data->context, 0);
+    m_data->sceneTarget.SendTexture(m_data->context, SCENE_TEXTURE);
+    m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
     m_data->quad.Render(m_data->context);
-    m_data->sceneTarget.ClearTexture(m_data->context, 0);
+    m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
+    m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)

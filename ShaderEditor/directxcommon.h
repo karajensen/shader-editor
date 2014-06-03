@@ -14,6 +14,10 @@ const std::string POST_SHADER("post" + HLSL_SHADER);
 const std::string POST_FX_PATH(SHADER_PATH + POST_SHADER + SHADER_EXTENSION);
 const std::string POST_ASM_PATH(GENERATED_PATH + POST_SHADER + ASM_EXTENSION);
 
+const std::string NORM_SHADER("normal" + HLSL_SHADER);
+const std::string NORM_FX_PATH(SHADER_PATH + NORM_SHADER + SHADER_EXTENSION);
+const std::string NORM_ASM_PATH(GENERATED_PATH + NORM_SHADER + ASM_EXTENSION);
+
 /**
 * Sets the name of the directx object for debugging
 * @param object The object to set

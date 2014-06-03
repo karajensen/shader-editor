@@ -7,6 +7,15 @@
 #include "common.h"
 
 /**
+* Post shader textures
+*/
+enum PostTexture
+{
+    SCENE_TEXTURE,
+    NORMAL_TEXTURE
+};
+
+/**
 * Individual texture object
 */
 struct Texture

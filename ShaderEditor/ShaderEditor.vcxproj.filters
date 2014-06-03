@@ -199,5 +199,14 @@
     <FxCompile Include="Assets\Shaders\post_glsl_vert.fx">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_glsl_frag.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_glsl_vert.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_hlsl.fx">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
