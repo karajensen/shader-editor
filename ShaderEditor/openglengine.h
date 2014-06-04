@@ -35,20 +35,10 @@ public:
     virtual bool Initialize() override;
 
     /**
-    * Begins rendering the scene
-    */
-    virtual void BeginRender() override;
-
-    /**
     * Renders the 3D scene
     * @param lights All lighting in the scene
     */
     virtual void Render(const std::vector<Light>& lights) override;
-
-    /**
-    * Ends rendering the scene
-    */
-    virtual void EndRender() override;
 
     /**
     * Initialises the scene for openGL

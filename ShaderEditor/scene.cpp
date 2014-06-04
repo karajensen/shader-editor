@@ -257,6 +257,12 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
             errorBuffer = mesh.name + " requires uvs for requested shader";
             return false;
         }
+        if(!pMesh->HasNormals())
+        {
+            errorBuffer = mesh.name + " requires normals for requested shader";
+            return false;
+        }
+
 
         // For each vertex
         int componentCount = 0;
@@ -267,24 +273,10 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
             mesh.vertices.push_back(pMesh->mVertices[vert].z);
             mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].x);
             mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-            componentCount = 5;
-
-            // Add any normals for the mesh
-            if(!usesFlatShader)
-            {
-                if(pMesh->HasNormals())
-                {
-                    mesh.vertices.push_back(pMesh->mNormals[vert].x);
-                    mesh.vertices.push_back(pMesh->mNormals[vert].y);
-                    mesh.vertices.push_back(pMesh->mNormals[vert].z);
-                    componentCount += 3;
-                }
-                else
-                {
-                    errorBuffer = mesh.name + " requires normals for requested shader";
-                    return false;
-                }
-            }
+            mesh.vertices.push_back(pMesh->mNormals[vert].x);
+            mesh.vertices.push_back(pMesh->mNormals[vert].y);
+            mesh.vertices.push_back(pMesh->mNormals[vert].z);
+            componentCount = 8;
 
             // Add any bitangents/tangents for the mesh
             //if(usesNormalMapping)

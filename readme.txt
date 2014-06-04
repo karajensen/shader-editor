@@ -1,15 +1,12 @@
 
-- Normal/Depth render target
-	- meshes outputting only position/normals
-	- shaders outputting normal/depth
-
 - Qt window closing when main window does
 - Qt passing info to/from app
 - Qt text editor/tweak bar
 - Tweaking mesh/lights/shaders/post
 
 - Multisampling
-- Rendering: specular, attenuation, bump with defines
+- Sending multiple lights
+- Rendering: specular, attenuation, bump
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Optimise shaders
 

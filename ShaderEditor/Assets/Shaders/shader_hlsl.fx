@@ -35,13 +35,9 @@ struct Attributes
     endif
 };
 
-Attributes VShader(float4 position    : POSITION,
-                   ifdefined: FLAT
-                       float2 uvs     : TEXCOORD0)
-                   else:              
-                       float2 uvs     : TEXCOORD0,
-                       float3 normal  : NORMAL)
-                   endif
+Attributes VShader(float4 position    : POSITION,    
+                   float2 uvs         : TEXCOORD0,
+                   float3 normal      : NORMAL)
 {
     Attributes output;
 

@@ -48,8 +48,8 @@ bool GlRenderTarget::Initialise()
         glGenTextures(1, &m_colorBuffer);
         glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, 
-            WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, 
+            WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

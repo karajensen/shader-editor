@@ -1,9 +1,11 @@
 #version 150
 
-in vec4 ex_Position;
+in vec3 ex_Normal;
+in float ex_Depth;
+
 out vec4 out_Color;
  
 void main(void)
 {
-    out_Color = ex_Position;
+    out_Color = vec4(normalize(ex_Normal), ex_Depth);
 }

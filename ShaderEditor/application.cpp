@@ -157,9 +157,7 @@ void Application::TickApplication()
     }
 
     m_scene->Update();
-    m_engine->BeginRender();
     m_engine->Render(m_scene->GetLights());
-    m_engine->EndRender();
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
@@ -178,6 +176,27 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         return false;
     }
 
+    bool openglSuccess = false;
+    bool directxSuccess = false;
+
+    if(OPENGL_START)
+    {
+        directxSuccess = InitialiseDirectX();
+        openglSuccess = InitialiseOpenGL();
+        m_engine = m_opengl.get();
+    }
+    else
+    {
+        openglSuccess = InitialiseOpenGL();
+        directxSuccess = InitialiseDirectX();
+        m_engine = m_directx.get();
+    }
+
+    return openglSuccess && directxSuccess;
+}
+
+bool Application::InitialiseOpenGL()
+{
     if(!m_opengl->Initialize())
     {
         Logger::LogError("OpenGL: Failed to initialise");
@@ -190,7 +209,12 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         Logger::LogError("OpenGL: Scene failed to initialise");
         return false;
     }
-    
+
+    return true;
+}
+
+bool Application::InitialiseDirectX()
+{
     if(!m_directx->Initialize())
     {
         Logger::LogError("DirectX: Failed to initialise");
@@ -202,15 +226,6 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     {
         Logger::LogError("DirectX: Scene failed to initialise");
         return false;
-    }
-
-    if(OPENGL_START)
-    {
-        m_engine = m_opengl.get();
-    }
-    else
-    {
-        m_engine = m_directx.get();
     }
 
     return true;

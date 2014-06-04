@@ -87,6 +87,18 @@ private:
     */
     bool IsKeyDown(unsigned int key) const;
 
+    /**
+    * Initialises the OpenGL Render Engine
+    * @return whether initialisation succeeded
+    */
+    bool InitialiseOpenGL();
+
+    /**
+    * Initialises the DirectX Render Engine
+    * @return whether initialisation succeeded
+    */
+    bool InitialiseDirectX();
+
     RenderEngine* m_engine;  ///< currently selected rendering engine
     bool m_switchEngine;     ///< Whether an engine switch is required
 

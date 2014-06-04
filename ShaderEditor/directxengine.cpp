@@ -49,11 +49,11 @@ struct DirectxData
     std::vector<DxShader> shaders;        ///< Shaders shared by all meshes
     D3DXMATRIX view;                      ///< View matrix
     D3DXMATRIX projection;                ///< Projection matrix
+    D3DXMATRIX viewProjection;            ///< View projection matrix
     D3DXVECTOR3 camera;                   ///< Position of the camera
+    D3DXVECTOR2 frustum;                  ///< Camera near and far values
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
     int selectedShader;                   ///< currently selected shader for rendering the scene
-    bool viewUpdated;                     ///< Whether the view matrix has updated this tick
-    bool lightsUpdated;                   ///< Whether the lights have been updated this tick
 };
 
 DirectxData::DirectxData() :
@@ -66,11 +66,10 @@ DirectxData::DirectxData() :
     nocullState(nullptr),
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
-    viewUpdated(true),
-    lightsUpdated(true),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
+    frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(POST_FX_PATH, POST_ASM_PATH),
     normalShader(NORM_FX_PATH, NORM_ASM_PATH),
     quad("SceneQuad")
@@ -84,8 +83,6 @@ DirectxData::~DirectxData()
 
 void DirectxData::Release()
 {
-    viewUpdated = true;
-    lightsUpdated = true;
     selectedShader = NO_INDEX;
     isBackfaceCull = true;
 
@@ -373,14 +370,10 @@ bool DirectxEngine::ReInitialiseScene()
     return true;
 }
 
-void DirectxEngine::BeginRender()
-{
-    m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    m_data->lightsUpdated = true; // updated once per tick due to tweaking
-}
-
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
+    m_data->selectedShader = NO_INDEX; // always reset due to post shader
+
     // Render the scene
     m_data->sceneTarget.SetActive(m_data->context, m_data->depthBuffer);
     for(DxMesh& mesh : m_data->meshes)
@@ -391,9 +384,12 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
         mesh.Render(m_data->context);
     }
 
-    // Render the scene normal/depth map
+    // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context, m_data->depthBuffer);
     m_data->normalShader.SetActive(m_data->context);
+    m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+    m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
+    m_data->normalShader.SendConstants(m_data->context);
     for(DxMesh& mesh : m_data->meshes)
     {
         SetBackfaceCull(mesh.ShouldBackfaceCull());
@@ -408,6 +404,8 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->quad.Render(m_data->context);
     m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
     m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
+
+    m_data->swapchain->Present(0, 0);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -433,44 +431,17 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
 
 void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
 {
-    bool updatedConstants = false;
-    bool changedShader = false;
     if(index != m_data->selectedShader)
     {
-        m_data->shaders[index].SetActive(m_data->context);
         m_data->selectedShader = index;
-        changedShader = true;
-    }
-    DxShader& shader = m_data->shaders[m_data->selectedShader];
-
-    // Update transform information
-    if(changedShader || m_data->viewUpdated)
-    {
-        // Model pivot points exist at the origin: world matrix is the identity
-        shader.UpdateConstantMatrix("viewProjection", m_data->view * m_data->projection);
+        DxShader& shader = m_data->shaders[index];
+        shader.SetActive(m_data->context);
+        
+        shader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader.UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
-
-        m_data->viewUpdated = false;
-        updatedConstants = true;
-    }
-
-    // Update light information
-    if(changedShader || m_data->lightsUpdated)
-    {
         shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
-        m_data->lightsUpdated = false;
-        updatedConstants = true;
-    }
-
-    if(updatedConstants)
-    {
         shader.SendConstants(m_data->context);
     }
-}
-
-void DirectxEngine::EndRender()
-{
-    m_data->swapchain->Present(0, 0);
 }
 
 ID3D11Device* DirectxEngine::GetDevice() const
@@ -507,8 +478,10 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->camera.y = world.m24;
     m_data->camera.z = world.m34;
 
-    m_data->viewUpdated = true;
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
+
+    // Model pivot points exist at the origin: world matrix is the identity
+    m_data->viewProjection = m_data->view * m_data->projection;
 }
 
 void DirectxEngine::SetBackfaceCull(bool shouldCull)

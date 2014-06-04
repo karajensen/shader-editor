@@ -38,6 +38,5 @@ void main(void)
         endif
     endif   
 
-    //finalColour.a = 1.0;
     out_Color = finalColour;
 }

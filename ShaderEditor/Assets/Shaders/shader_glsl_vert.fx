@@ -2,8 +2,8 @@
 
 in vec4 in_Position;
 in vec2 in_UVs;
+in vec3 in_Normal;
 ifndefined: FLAT
-    in vec3 in_Normal;
     out vec3 ex_VertToLight;
     out vec3 ex_Normal;
 endif

@@ -91,12 +91,12 @@ bool GlMesh::Initialise()
     glGenBuffers(1, &m_vboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_vertices.size(), 
-        &m_vertices[0], GL_STATIC_DRAW);
+        &m_vertices[0], GL_STREAM_DRAW);
 
     glGenBuffers(1, &m_iboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_indices.size(), 
-        &m_indices[0], GL_STATIC_DRAW);
+        &m_indices[0], GL_STREAM_DRAW);
 
     if(HasCallFailed())
     {

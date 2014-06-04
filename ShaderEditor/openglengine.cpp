@@ -41,13 +41,13 @@ struct OpenglData
     std::vector<GlTexture> textures; ///< Textures shared by all meshes
     std::vector<GlMesh> meshes;      ///< Each mesh in the scene
     std::vector<GlShader> shaders;   ///< Shaders shared by all meshes
+    glm::vec2 frustum;               ///< Camera near and far values
     glm::vec3 camera;                ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
-    glm::mat4 view;                  ///< Camera View matrix
+    glm::mat4 view;                  ///< View matrix
+    glm::mat4 viewProjection;        ///< View projection matrix
     bool isBackfaceCull;             ///< Whether backface culling is currently active
     int selectedShader;              ///< Currently active shader for rendering
-    bool viewUpdated;                ///< Whether the view matrix has updated this tick
-    bool lightsUpdated;              ///< Whether the lights have been updated this tick
 };
 
 OpenglData::OpenglData() :
@@ -55,12 +55,11 @@ OpenglData::OpenglData() :
     hrc(nullptr),
     isBackfaceCull(true),
     selectedShader(NO_INDEX),
-    viewUpdated(true),
-    lightsUpdated(true),
     quad("ScreenQuad"),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
+    frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM),
     normalShader(NORM_VERT_FX, NORM_FRAG_FX, NORM_VERT_ASM, NORM_FRAG_ASM)
 {
@@ -73,8 +72,6 @@ OpenglData::~OpenglData()
 
 void OpenglData::Release()
 {
-    viewUpdated = true;
-    lightsUpdated = true;
     selectedShader = NO_INDEX;
     isBackfaceCull = true;
 
@@ -373,14 +370,10 @@ bool OpenglEngine::ReInitialiseScene()
     return true;
 }
 
-void OpenglEngine::BeginRender()
-{
-    m_data->selectedShader = NO_INDEX; // always reset due to post shader
-    m_data->lightsUpdated = true; // updated once per tick due to tweaking
-}
-
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
+    m_data->selectedShader = NO_INDEX; // always reset due to post shader
+
     // Render the scene
     m_data->sceneTarget.SetActive();
     for(GlMesh& mesh : m_data->meshes)
@@ -394,12 +387,15 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
         mesh.Render();
     }
 
-    // Render the scene normal/depth map
+    // Render the normal/depth map
     m_data->normalTarget.SetActive();
     m_data->normalShader.SetActive();
+    m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
+    m_data->normalShader.SendUniformFloat("frustum", &m_data->frustum.x, 2);
     for(GlMesh& mesh : m_data->meshes)
     {
         SetBackfaceCull(mesh.ShouldBackfaceCull());
+
         mesh.PreRender();
         m_data->normalShader.EnableAttributes();
         mesh.Render();
@@ -415,6 +411,8 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     m_data->quad.Render();
     m_data->sceneTarget.ClearTexture(SCENE_TEXTURE);
     m_data->normalTarget.ClearTexture(NORMAL_TEXTURE);
+
+    SwapBuffers(m_data->hdc); 
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -440,35 +438,15 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
 
 void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
 {
-    bool changedShader = false;
     if(index != m_data->selectedShader)
     {
-        m_data->shaders[index].SetActive();
         m_data->selectedShader = index;
-        changedShader = true;
-    }
-    GlShader& shader = m_data->shaders[m_data->selectedShader];
+        GlShader& shader = m_data->shaders[index];
+        shader.SetActive();
 
-    // Update transform information
-    if(changedShader || m_data->viewUpdated)
-    {
-        // Model pivot points exist at the origin: world matrix is the identity
-        shader.SendUniformMatrix("viewProjection",  m_data->projection * m_data->view);
-        shader.SendUniformFloat("cameraPosition", &m_data->camera.x, 3);
-        m_data->viewUpdated = false;
-    }
-    
-    // Update light information
-    if(changedShader || m_data->lightsUpdated)
-    {
+        shader.SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
-        m_data->lightsUpdated = false;
     }
-}
-
-void OpenglEngine::EndRender()
-{
-    SwapBuffers(m_data->hdc); 
 }
 
 std::string OpenglEngine::GetName() const
@@ -499,8 +477,10 @@ void OpenglEngine::UpdateView(const Matrix& world)
     m_data->camera.y = world.m24;
     m_data->camera.z = world.m34;
 
-    m_data->viewUpdated = true;
     m_data->view = glm::inverse(view);
+
+    // Model pivot points exist at the origin: world matrix is the identity
+    m_data->viewProjection = m_data->projection * m_data->view;
 }
 
 void OpenglEngine::SetBackfaceCull(bool shouldCull)
