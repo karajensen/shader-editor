@@ -15,5 +15,6 @@ ShaderEditor/qt/Makefile
 ShaderEditor/Debug/
 ShaderEditor/Release/
 ShaderEditor/Assets/Shaders/Generated/
+ShaderEditor/Assets/Lights_Previous.xml
 ipch/
 html/

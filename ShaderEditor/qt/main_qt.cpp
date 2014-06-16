@@ -2,13 +2,13 @@
 // Kara Jensen - mail@karajensen.com - main.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "shaderEditorGUI.h"
+#include "gui.h"
 #include <QtWidgets/qapplication.h>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    ShaderEditorGUI gui;
+    Gui gui;
     gui.show();
     return app.exec(); 
 }

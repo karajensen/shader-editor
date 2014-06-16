@@ -11,7 +11,7 @@
 #include "application.h"
 #include <thread>
 #include <QtWidgets/qapplication.h>
-#include "qt/shaderEditorGUI.h"
+#include "qt/gui.h"
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {  
@@ -48,8 +48,8 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 void RunQt(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    ShaderEditorGUI gui;
-    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    Gui gui;
+    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     gui.show();
     app.exec();
 }

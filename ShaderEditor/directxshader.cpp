@@ -31,6 +31,7 @@ namespace
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("ConstantBuffer");
     const std::string HLSL_TEXTURE2D("Texture2D");
+    const std::string HLSL_TEXTURE2DMS("Texture2DMS<float4," + SAMPLES + ">");
     const std::string HLSL_SAMPLER("SamplerState");
 }
 
@@ -510,7 +511,9 @@ int DxShader::GetIndex() const
 
 std::string DxShader::CreateSamplerState(ID3D11Device* device, const std::string& text)
 {
-    if(boost::algorithm::icontains(text, HLSL_SAMPLER))
+    if(boost::algorithm::icontains(text, HLSL_SAMPLER) ||
+       boost::algorithm::icontains(text, HLSL_TEXTURE2D) ||
+       boost::algorithm::icontains(text, HLSL_TEXTURE2DMS))
     {
         D3D11_SAMPLER_DESC samplerDesc;
         samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -535,7 +538,10 @@ std::string DxShader::CreateSamplerState(ID3D11Device* device, const std::string
         // Determine the number of allowed texture slots
         std::vector<std::string> components;
         boost::split(components, text, boost::is_any_of("\n "), boost::token_compress_on);
-        m_textureSlots = std::count(components.begin(), components.end(), HLSL_TEXTURE2D);
+
+        m_textureSlots = 
+            std::count(components.begin(), components.end(), HLSL_TEXTURE2D) +
+            std::count(components.begin(), components.end(), HLSL_TEXTURE2DMS);
     }
 
     return std::string();

@@ -8,6 +8,6 @@ uniform sampler2D NormalTexture;
 void main(void)
 {
     vec4 finalColor = texture(SceneTexture, gl_TexCoord[0].st);
-    finalColor.rgb = texture(NormalTexture, gl_TexCoord[0].st).aaa;
+    finalColor.a = texture(NormalTexture, gl_TexCoord[0].st).a;
     out_Color = finalColor;
 }

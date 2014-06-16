@@ -42,7 +42,6 @@ struct DirectxData
     DxRenderTarget backBuffer;            ///< Render target for the back buffer
     DxRenderTarget sceneTarget;           ///< Render target for the main scene
     DxRenderTarget normalTarget;          ///< Render target for the scene normal/depth map
-    ID3D11DepthStencilView* depthBuffer;  ///< Depth buffer shared between render targets
 
     std::vector<DxTexture> textures;      ///< Textures shared by all meshes
     std::vector<DxMesh> meshes;           ///< Each mesh in the scene
@@ -61,7 +60,6 @@ DirectxData::DirectxData() :
     device(nullptr),
     context(nullptr),
     debug(nullptr),
-    depthBuffer(nullptr),
     cullState(nullptr),
     nocullState(nullptr),
     isBackfaceCull(true),
@@ -110,7 +108,6 @@ void DirectxData::Release()
 
     SafeRelease(&cullState);
     SafeRelease(&nocullState);
-    SafeRelease(&depthBuffer);
     SafeRelease(&swapchain);
     SafeRelease(&context);
     SafeRelease(&device);
@@ -142,10 +139,10 @@ bool DirectxEngine::Initialize()
 
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
+    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; 
     scd.BufferCount = 1;                                
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
-    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  
-    scd.OutputWindow = m_hwnd;                            
+    scd.OutputWindow = m_hwnd;                     
     scd.SampleDesc.Count = MULTISAMPLING_COUNT;                           
     scd.Windowed = TRUE; 
     scd.BufferDesc.Width = WINDOW_WIDTH;
@@ -167,40 +164,7 @@ bool DirectxEngine::Initialize()
 
     InitialiseDebugging();
 
-    // Create the depth texture
-    D3D11_TEXTURE2D_DESC depthTextureDesc;
-    ZeroMemory(&depthTextureDesc, sizeof(depthTextureDesc));
-    depthTextureDesc.Width = WINDOW_WIDTH;
-    depthTextureDesc.Height = WINDOW_HEIGHT;
-    depthTextureDesc.ArraySize = 1;
-    depthTextureDesc.MipLevels = 1;
-    depthTextureDesc.SampleDesc.Count = 1;
-    depthTextureDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-    ID3D11Texture2D* depthTexture;
-    if(FAILED(m_data->device->CreateTexture2D(&depthTextureDesc, 0, &depthTexture)))
-    {
-        Logger::LogError("DirectX: Depth buffer texture creation failed");
-        return false;
-    }
-
-    // Create the shared depth buffer
-    D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferDesc;
-    ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
-    depthBufferDesc.Format = depthTextureDesc.Format;
-    depthBufferDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-
-    if(FAILED(m_data->device->CreateDepthStencilView(
-        depthTexture, &depthBufferDesc, &m_data->depthBuffer)))
-    {
-        Logger::LogError("DirectX: Depth buffer creation failed");
-        return false;
-    }
-    SetDebugName(depthTexture, "DepthBufferTexture");
-    depthTexture->Release();
-
-    // Create the render targets, back buffer needs to be created first
+    // Create the render targets. Back buffer must be initialised first.
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
        !m_data->sceneTarget.Initialise(m_data->device) ||
        !m_data->normalTarget.Initialise(m_data->device))
@@ -280,7 +244,6 @@ bool DirectxEngine::Initialize()
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
     SetDebugName(m_data->swapchain, "SwapChain");
-    SetDebugName(m_data->depthBuffer, "DepthBuffer");
 
     Logger::LogInfo("DirectX: D3D11 sucessful");
     return true;
@@ -375,7 +338,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
 
     // Render the scene
-    m_data->sceneTarget.SetActive(m_data->context, m_data->depthBuffer);
+    m_data->sceneTarget.SetActive(m_data->context);
     for(DxMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
@@ -385,25 +348,25 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     }
 
     // Render the normal/depth map
-    m_data->normalTarget.SetActive(m_data->context, m_data->depthBuffer);
-    m_data->normalShader.SetActive(m_data->context);
-    m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
-    m_data->normalShader.SendConstants(m_data->context);
-    for(DxMesh& mesh : m_data->meshes)
-    {
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
-        mesh.Render(m_data->context);
-    }
+    //m_data->normalTarget.SetActive(m_data->context);
+    //m_data->normalShader.SetActive(m_data->context);
+    //m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+    //m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
+    //m_data->normalShader.SendConstants(m_data->context);
+    //for(DxMesh& mesh : m_data->meshes)
+    //{
+    //    SetBackfaceCull(mesh.ShouldBackfaceCull());
+    //    mesh.Render(m_data->context);
+    //}
 
     // Render the scene as a texture to the backbuffer
     m_data->backBuffer.SetActive(m_data->context);
     m_data->postShader.SetActive(m_data->context);
     m_data->sceneTarget.SendTexture(m_data->context, SCENE_TEXTURE);
-    m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
+    //m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
     m_data->quad.Render(m_data->context);
     m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
-    m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
+    //m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
 
     m_data->swapchain->Present(0, 0);
 }

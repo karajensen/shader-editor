@@ -1,15 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - shaderEditorGUI.h
+// Kara Jensen - mail@karajensen.com - gui.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "ui_shaderEditorGUI.h"
+#include "ui_gui.h"
 
 /**
 * Temporary test widget for the GUI
 */
-class ShaderEditorGUI : public QWidget
+class Gui : public QWidget
 {
     Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
     * Constructor
     * @param parent The parent widget of this one
     */
-    ShaderEditorGUI(QWidget* parent = nullptr);
+    Gui(QWidget* parent = nullptr);
 
 private slots:
 
@@ -37,5 +37,5 @@ private slots:
 
 private:
 
-    Ui::ShaderEditorGUI ui; ///< Internal Qt UI for this widget
+    Ui::Gui ui; ///< Internal Qt UI for this widget
 };

@@ -25,7 +25,7 @@ static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 static const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
 static const int WINDOW_Y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-static const int MULTISAMPLING_COUNT = 4; 
+static const int MULTISAMPLING_COUNT = 4;
 static const float CAMERA_NEAR = 1.0f;
 static const float CAMERA_FAR = 1000.0f;
 static const float FIELD_OF_VIEW = 60.0f;
@@ -43,6 +43,7 @@ const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
+const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
 
 /**
 * Simple 2D point

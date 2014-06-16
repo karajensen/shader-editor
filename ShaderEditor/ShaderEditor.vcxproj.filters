@@ -35,7 +35,13 @@
     </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
-    <None Include="qt\shaderEditorGUI.ui">
+    <None Include="qt\gui.ui">
+      <Filter>Qt</Filter>
+    </None>
+    <None Include="qt\gui.pro">
+      <Filter>Qt</Filter>
+    </None>
+    <None Include="qt\gui.pro.user">
       <Filter>Qt</Filter>
     </None>
   </ItemGroup>
@@ -88,17 +94,17 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qt\shaderEditorGUI.cpp">
-      <Filter>Qt</Filter>
-    </ClCompile>
-    <ClCompile Include="qt\moc_shaderEditorGUI.cpp">
-      <Filter>Qt\Generated</Filter>
-    </ClCompile>
     <ClCompile Include="directxtarget.cpp">
       <Filter>Render Engine Source</Filter>
     </ClCompile>
     <ClCompile Include="opengltarget.cpp">
       <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\gui.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\moc_gui.cpp">
+      <Filter>Qt\Generated</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -165,17 +171,17 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qt\shaderEditorGUI.h">
-      <Filter>Qt</Filter>
-    </ClInclude>
-    <ClInclude Include="qt\ui_shaderEditorGUI.h">
-      <Filter>Qt\Generated</Filter>
-    </ClInclude>
     <ClInclude Include="directxtarget.h">
       <Filter>Render Engine Header</Filter>
     </ClInclude>
     <ClInclude Include="opengltarget.h">
       <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\gui.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\ui_gui.h">
+      <Filter>Qt\Generated</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

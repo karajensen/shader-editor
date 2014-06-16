@@ -1,5 +1,5 @@
 /********************************************************************************
-** Form generated from reading UI file 'shaderEditorGUI.ui'
+** Form generated from reading UI file 'gui.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.2.1
 **
@@ -23,7 +23,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_ShaderEditorGUI
+class Ui_Gui
 {
 public:
     QGridLayout *gridLayout;
@@ -41,17 +41,17 @@ public:
     QLabel *label;
     QSpinBox *inputSpinBox1;
 
-    void setupUi(QWidget *ShaderEditorGUI)
+    void setupUi(QWidget *Gui)
     {
-        if (ShaderEditorGUI->objectName().isEmpty())
-            ShaderEditorGUI->setObjectName(QStringLiteral("ShaderEditorGUI"));
-        ShaderEditorGUI->resize(400, 300);
+        if (Gui->objectName().isEmpty())
+            Gui->setObjectName(QStringLiteral("Gui"));
+        Gui->resize(400, 300);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(ShaderEditorGUI->sizePolicy().hasHeightForWidth());
-        ShaderEditorGUI->setSizePolicy(sizePolicy);
-        gridLayout = new QGridLayout(ShaderEditorGUI);
+        sizePolicy.setHeightForWidth(Gui->sizePolicy().hasHeightForWidth());
+        Gui->setSizePolicy(sizePolicy);
+        gridLayout = new QGridLayout(Gui);
         gridLayout->setSpacing(6);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         gridLayout->setContentsMargins(9, 9, 9, 9);
@@ -59,7 +59,7 @@ public:
 
         gridLayout->addItem(horizontalSpacer, 0, 6, 1, 1);
 
-        label_3_2 = new QLabel(ShaderEditorGUI);
+        label_3_2 = new QLabel(Gui);
         label_3_2->setObjectName(QStringLiteral("label_3_2"));
         label_3_2->setAlignment(Qt::AlignCenter);
 
@@ -69,12 +69,12 @@ public:
         vboxLayout->setSpacing(6);
         vboxLayout->setObjectName(QStringLiteral("vboxLayout"));
         vboxLayout->setContentsMargins(1, 1, 1, 1);
-        label_2_2_2 = new QLabel(ShaderEditorGUI);
+        label_2_2_2 = new QLabel(Gui);
         label_2_2_2->setObjectName(QStringLiteral("label_2_2_2"));
 
         vboxLayout->addWidget(label_2_2_2);
 
-        outputWidget = new QLabel(ShaderEditorGUI);
+        outputWidget = new QLabel(Gui);
         outputWidget->setObjectName(QStringLiteral("outputWidget"));
         outputWidget->setFrameShape(QFrame::Box);
         outputWidget->setFrameShadow(QFrame::Sunken);
@@ -93,12 +93,12 @@ public:
         vboxLayout1->setSpacing(6);
         vboxLayout1->setObjectName(QStringLiteral("vboxLayout1"));
         vboxLayout1->setContentsMargins(1, 1, 1, 1);
-        label_2 = new QLabel(ShaderEditorGUI);
+        label_2 = new QLabel(Gui);
         label_2->setObjectName(QStringLiteral("label_2"));
 
         vboxLayout1->addWidget(label_2);
 
-        inputSpinBox2 = new QSpinBox(ShaderEditorGUI);
+        inputSpinBox2 = new QSpinBox(Gui);
         inputSpinBox2->setObjectName(QStringLiteral("inputSpinBox2"));
 
         vboxLayout1->addWidget(inputSpinBox2);
@@ -106,7 +106,7 @@ public:
 
         gridLayout->addLayout(vboxLayout1, 0, 3, 1, 1);
 
-        label_3 = new QLabel(ShaderEditorGUI);
+        label_3 = new QLabel(Gui);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setAlignment(Qt::AlignCenter);
 
@@ -116,12 +116,12 @@ public:
         vboxLayout2->setSpacing(6);
         vboxLayout2->setObjectName(QStringLiteral("vboxLayout2"));
         vboxLayout2->setContentsMargins(1, 1, 1, 1);
-        label = new QLabel(ShaderEditorGUI);
+        label = new QLabel(Gui);
         label->setObjectName(QStringLiteral("label"));
 
         vboxLayout2->addWidget(label);
 
-        inputSpinBox1 = new QSpinBox(ShaderEditorGUI);
+        inputSpinBox1 = new QSpinBox(Gui);
         inputSpinBox1->setObjectName(QStringLiteral("inputSpinBox1"));
 
         vboxLayout2->addWidget(inputSpinBox1);
@@ -130,27 +130,27 @@ public:
         gridLayout->addLayout(vboxLayout2, 0, 0, 1, 1);
 
 
-        retranslateUi(ShaderEditorGUI);
-        QObject::connect(label_3_2, SIGNAL(destroyed()), ShaderEditorGUI, SLOT(close()));
+        retranslateUi(Gui);
+        QObject::connect(label_3_2, SIGNAL(destroyed()), Gui, SLOT(close()));
 
-        QMetaObject::connectSlotsByName(ShaderEditorGUI);
+        QMetaObject::connectSlotsByName(Gui);
     } // setupUi
 
-    void retranslateUi(QWidget *ShaderEditorGUI)
+    void retranslateUi(QWidget *Gui)
     {
-        ShaderEditorGUI->setWindowTitle(QApplication::translate("ShaderEditorGUI", "Shader Editor", 0));
-        label_3_2->setText(QApplication::translate("ShaderEditorGUI", "=", 0));
-        label_2_2_2->setText(QApplication::translate("ShaderEditorGUI", "Output", 0));
-        outputWidget->setText(QApplication::translate("ShaderEditorGUI", "0", 0));
-        label_2->setText(QApplication::translate("ShaderEditorGUI", "Input 2", 0));
-        label_3->setText(QApplication::translate("ShaderEditorGUI", "+", 0));
-        label->setText(QApplication::translate("ShaderEditorGUI", "Input 1", 0));
+        Gui->setWindowTitle(QApplication::translate("Gui", "Shader Editor", 0));
+        label_3_2->setText(QApplication::translate("Gui", "=", 0));
+        label_2_2_2->setText(QApplication::translate("Gui", "Output", 0));
+        outputWidget->setText(QApplication::translate("Gui", "0", 0));
+        label_2->setText(QApplication::translate("Gui", "Input 2", 0));
+        label_3->setText(QApplication::translate("Gui", "+", 0));
+        label->setText(QApplication::translate("Gui", "Input 1", 0));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class ShaderEditorGUI: public Ui_ShaderEditorGUI {};
+    class Gui: public Ui_Gui {};
 } // namespace Ui
 
 QT_END_NAMESPACE

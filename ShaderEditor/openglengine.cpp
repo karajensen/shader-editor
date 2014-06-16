@@ -288,7 +288,6 @@ bool OpenglEngine::Initialize()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
-    glMatrixMode(GL_PROJECTION);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),

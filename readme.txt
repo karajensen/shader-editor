@@ -1,10 +1,15 @@
 
+
+- Allow post/normal shaders to be looked at by the fragment linker for #defines
+- Fix DirectX multisampling
+- OpenGL Multisampling
+
+- Creating Qt Window in C++
 - Qt window closing when main window does
 - Qt passing info to/from app
 - Qt text editor/tweak bar
 - Tweaking mesh/lights/shaders/post
 
-- Multisampling
 - Sending multiple lights
 - Rendering: specular, attenuation, bump
 - Post effects: fog, dof, glow, SSAO, Color correction
