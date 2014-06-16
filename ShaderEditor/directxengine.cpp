@@ -348,25 +348,25 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     }
 
     // Render the normal/depth map
-    //m_data->normalTarget.SetActive(m_data->context);
-    //m_data->normalShader.SetActive(m_data->context);
-    //m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-    //m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
-    //m_data->normalShader.SendConstants(m_data->context);
-    //for(DxMesh& mesh : m_data->meshes)
-    //{
-    //    SetBackfaceCull(mesh.ShouldBackfaceCull());
-    //    mesh.Render(m_data->context);
-    //}
+    m_data->normalTarget.SetActive(m_data->context);
+    m_data->normalShader.SetActive(m_data->context);
+    m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+    m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
+    m_data->normalShader.SendConstants(m_data->context);
+    for(DxMesh& mesh : m_data->meshes)
+    {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.Render(m_data->context);
+    }
 
     // Render the scene as a texture to the backbuffer
     m_data->backBuffer.SetActive(m_data->context);
     m_data->postShader.SetActive(m_data->context);
     m_data->sceneTarget.SendTexture(m_data->context, SCENE_TEXTURE);
-    //m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
+    m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
     m_data->quad.Render(m_data->context);
     m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
-    //m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
+    m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
 
     m_data->swapchain->Present(0, 0);
 }
