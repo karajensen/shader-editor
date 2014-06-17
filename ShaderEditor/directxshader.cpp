@@ -49,19 +49,6 @@ DxShader::DxShader(int index, const std::string& filepath) :
         m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
 }
 
-DxShader::DxShader(const std::string& filepath, const std::string& asmpath) :
-    m_filepath(filepath),
-    m_asmpath(asmpath),
-    m_layout(nullptr),
-    m_vs(nullptr),
-    m_ps(nullptr),
-    m_constant(nullptr),
-    m_index(NO_INDEX),
-    m_samplerState(nullptr),
-    m_textureSlots(0)
-{
-}
-
 DxShader::~DxShader()
 {
     Release();

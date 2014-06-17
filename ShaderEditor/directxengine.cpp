@@ -68,8 +68,8 @@ DirectxData::DirectxData() :
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(POST_FX_PATH, POST_ASM_PATH),
-    normalShader(NORM_FX_PATH, NORM_ASM_PATH),
+    postShader(NO_INDEX, POST_PATH),
+    normalShader(NO_INDEX, NORM_PATH),
     quad("SceneQuad")
 {
 }

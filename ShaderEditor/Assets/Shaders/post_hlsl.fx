@@ -5,8 +5,8 @@ struct Attributes
     float2 uvs        : TEXCOORD0;
 };
 
-Texture2DMS<float4,4> SceneTexture   : register(t0);
-Texture2DMS<float4,4> NormalTexture  : register(t1);
+Texture2DMS<float4,SAMPLES> SceneTexture   : register(t0);
+Texture2DMS<float4,SAMPLES> NormalTexture  : register(t1);
 
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
@@ -21,12 +21,13 @@ float4 PShader(Attributes input) : SV_TARGET
 {
     float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < SAMPLES; ++i)
     {
         finalColor += SceneTexture.Load(int3(
-            input.uvs.x * 800, input.uvs.y * 600, 0), i);
+            input.uvs.x * WINDOW_WIDTH, 
+            input.uvs.y * WINDOW_HEIGHT, 0), i);
     }
-    finalColor *= 1.0 / 4;
+    finalColor *= 1.0 / SAMPLES;
 
     return finalColor;
 }

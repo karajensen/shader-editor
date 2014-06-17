@@ -7,6 +7,8 @@
 #include "common.h"
 #include "elements.h"
 
+class FragmentLinker;
+
 /**
 * Manager and owner of all objects and diagnostics
 */
@@ -70,9 +72,10 @@ private:
 
     /**
     * Initialises the meshes for the scene
+    * @param linker The fragment linker used to generate shaders
     * @return Whether the initialization was successful
     */
-    bool InitialiseMeshes();
+    bool InitialiseMeshes(FragmentLinker& linker);
 
     /**
     * Adds a texture from a mesh if it doesn't already exist

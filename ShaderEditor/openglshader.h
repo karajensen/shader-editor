@@ -23,16 +23,6 @@ public:
     GlShader(int index, const std::string& vs, const std::string& fs);
 
     /**
-    * Constructor
-    * @param vs The filepath for the vertex shader
-    * @param fs The filepath for the fragment shader
-    * @param vsAsm The filepath to generate the vertex assembly file
-    * @param fsAsm The filepath to generate the fragment assembly file
-    */
-    GlShader(const std::string& vs, const std::string& fs,
-        const std::string& vsAsm, const std::string& fsAsm);
-
-    /**
     * Destructor
     */
     ~GlShader();

@@ -60,8 +60,8 @@ OpenglData::OpenglData() :
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(POST_VERT_FX, POST_FRAG_FX, POST_VERT_ASM, POST_FRAG_ASM),
-    normalShader(NORM_VERT_FX, NORM_FRAG_FX, NORM_VERT_ASM, NORM_FRAG_ASM)
+    postShader(NO_INDEX, POST_VERT_PATH, POST_FRAG_PATH),
+    normalShader(NO_INDEX, NORM_VERT_PATH, NORM_FRAG_PATH)
 {
 }
 

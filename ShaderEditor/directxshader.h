@@ -22,13 +22,6 @@ public:
     DxShader(int index, const std::string& filepath);
 
     /**
-    * Constructor
-    * @param filepath The path for the shader
-    * @param asmPath The path to save the generated assembly
-    */
-    DxShader(const std::string& filepath, const std::string& asmpath);
-
-    /**
     * Destructor
     */
     ~DxShader();

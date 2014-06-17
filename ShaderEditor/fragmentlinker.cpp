@@ -32,6 +32,9 @@ FragmentLinker::~FragmentLinker()
 bool FragmentLinker::Initialise(unsigned int maxLights)
 {
     m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);
+    m_defines["SAMPLES"] = boost::lexical_cast<std::string>(SAMPLES);
+    m_defines["WINDOW_WIDTH"] = boost::lexical_cast<std::string>(WINDOW_WIDTH);
+    m_defines["WINDOW_HEIGHT"] = boost::lexical_cast<std::string>(WINDOW_HEIGHT);
 
     return CreateGeneratedFolder();
 }
@@ -51,7 +54,56 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
     }
 }
 
-bool FragmentLinker::InitialiseFromFragments(Shader& shader)
+bool FragmentLinker::GenerateFromFile(const std::string& directory, 
+                                      const std::string& name, 
+                                      const std::string& extension)
+{
+    const std::string filepath = GENERATED_PATH + name + extension;
+    std::ofstream generatedFile(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
+    
+    if(!generatedFile.is_open())
+    {
+        Logger::LogError("Could not open " + filepath);
+        return false;
+    }
+
+    const std::string basepath = directory + name + extension;
+    std::ifstream baseFile(basepath.c_str(), std::ios_base::in|std::ios_base::_Nocreate);
+
+    if(!baseFile.is_open())
+    {
+        Logger::LogError("Could not open " + basepath);
+        return false;
+    }
+
+    while(!baseFile.eof())
+    {
+        std::string line;
+        std::getline(baseFile, line);
+        SolveDefines(line);
+        generatedFile << line << std::endl;
+
+        if(baseFile.fail() || baseFile.bad())
+        {
+            Logger::LogError("Base shader is corrupted");
+            return false;
+        }
+    }
+
+    baseFile.close();
+    generatedFile.flush();
+    generatedFile.close();
+    return true;
+}
+
+bool FragmentLinker::GenerateFromFile(const std::string& directory, const std::string& name)
+{
+    return GenerateFromFile(directory, name, HLSL_SHADER_EXTENSION) &&
+        GenerateFromFile(directory, name, GLSL_VERTEX_EXTENSION) &&
+        GenerateFromFile(directory, name, GLSL_FRAGMENT_EXTENSION);
+}
+
+bool FragmentLinker::GenerateWithFragments(Shader& shader)
 {
     const std::string filename = GENERATED_PATH + shader.name;
     FindShaderComponents(shader);
@@ -124,12 +176,7 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
     {
         std::string line;
         std::getline(baseFile, line);
-
-        // Substitute any #defines into the body
-        for(const auto& define : m_defines)
-        {
-            boost::ireplace_all(line, define.first, define.second);
-        }
+        SolveDefines(line);
 
         // Check for conditional keywords
         for(const auto& key : targets)
@@ -261,6 +308,14 @@ bool FragmentLinker::SolveConditionalLine(int level,
         return true;
     }
     return false;
+}
+
+void FragmentLinker::SolveDefines(std::string& line)
+{
+    for(const auto& define : m_defines)
+    {
+        boost::ireplace_all(line, define.first, define.second);
+    }
 }
 
 bool FragmentLinker::CreateGeneratedFolder()

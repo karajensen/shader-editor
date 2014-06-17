@@ -51,23 +51,6 @@ GlShader::GlShader(int index,
         m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
 }
 
-GlShader::GlShader(const std::string& vs, 
-                   const std::string& fs,
-                   const std::string& vsAsm,
-                   const std::string& fsAsm) :
-
-    m_vsFilepath(vs),
-    m_fsFilepath(fs),
-    m_vaFilepath(vsAsm),
-    m_faFilepath(fsAsm),
-    m_program(NO_INDEX),
-    m_vs(NO_INDEX),
-    m_fs(NO_INDEX),
-    m_index(NO_INDEX),
-    m_stride(0)
-{
-}
-
 GlShader::~GlShader()
 {
     Release();

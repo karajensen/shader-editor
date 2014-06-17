@@ -29,8 +29,13 @@ void Scene::Update()
 bool Scene::Initialise()
 {
     bool success = true;
+    FragmentLinker linker;
+
     success = success ? InitialiseLighting() : false;
-    success = success ? InitialiseMeshes() : false;
+    success = success ? InitialiseMeshes(linker) : false;
+
+    success = success ? linker.GenerateFromFile(SHADER_PATH, "post") : false;
+    success = success ? linker.GenerateFromFile(SHADER_PATH, "normal") : false;
 
     // To prevent unnecessary shader switching, sort by shader used
     std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
@@ -41,9 +46,8 @@ bool Scene::Initialise()
     return success;
 }
 
-bool Scene::InitialiseMeshes()
+bool Scene::InitialiseMeshes(FragmentLinker& linker)
 {
-    FragmentLinker linker;
     if(!linker.Initialise(m_lights.size()))
     {
         return false;
@@ -101,7 +105,7 @@ bool Scene::InitialiseMeshes()
             // Shader does not exist, create from fragments
             Shader shader;
             shader.name = shadername;
-            if(!linker.InitialiseFromFragments(shader))
+            if(!linker.GenerateWithFragments(shader))
             {
                 Logger::LogError("Shader name " + shadername +
                     " for " + mesh.name + " is an invalid combination");

@@ -36,13 +36,31 @@ public:
     bool Initialise(unsigned int maxLights);
 
     /**
-    * Initialises the generated shader from the base shader fragments
+    * Generates a shader from base shader fragments
     * @param shader The shader object to fill in
-    * @return Whether initialisation was successful
+    * @return Whether generation was successful
     */
-    bool InitialiseFromFragments(Shader& shader);
+    bool GenerateWithFragments(Shader& shader);
+
+    /**
+    * Generates a shader from file
+    * @param directory The absolute directory of the shader
+    * @param name The name of the shader
+    * @return Whether generation was successful
+    */
+    bool GenerateFromFile(const std::string& directory, const std::string& name);
 
 private:
+
+    /**
+    * Initialises a shader from file
+    * @param directory The absolute directory of the shader
+    * @param name The name of the shader
+    * @param extension The extension for a hlsl or glsl shader
+    * @return Whether generation was successful
+    */
+    bool GenerateFromFile(const std::string& directory, 
+        const std::string& name, const std::string& extension);
 
     /**
     * Creates the folder to hold all generated shaders
@@ -100,6 +118,12 @@ private:
                               std::ifstream& baseFile, 
                               std::ofstream& generatedFile,
                               bool skiplines);
+
+    /**
+    * Determines if the given line has a defined value that requires substitution
+    * @param line The line to check and substitute a defined value
+    */
+    void SolveDefines(std::string& line);
 
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
     std::vector<std::string> m_shaderComponents; ///< components of currently linked shader

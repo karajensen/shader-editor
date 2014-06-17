@@ -1,6 +1,4 @@
 
-- Allow post/normal shaders to be looked at by the fragment linker for #defines
-- Add #defines for WINDOW_WIDTH, WINDOW_HEIGHT, MULTISAMPLE_COUNT to hlsl post shader
 - OpenGL Multisampling
 
 - Creating Qt Window in C++
