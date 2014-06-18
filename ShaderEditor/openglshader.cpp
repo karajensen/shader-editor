@@ -30,6 +30,7 @@ namespace
     const std::string GLSL_IN("in");
     const std::string GLSL_UNIFORM("uniform");
     const std::string GLSL_SAMPLER2D("sampler2D");
+    const std::string GLSL_SAMPLER2DMS("sampler2DMS");
 }
 
 GlShader::GlShader(int index, 
@@ -434,7 +435,7 @@ std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
                 return "Could not find uniform " + name;
             }
 
-            if(type == GLSL_SAMPLER2D)
+            if(type == GLSL_SAMPLER2D || type == GLSL_SAMPLER2DMS)
             {
                 m_samplers.push_back(location);
             }

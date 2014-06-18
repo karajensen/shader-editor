@@ -4,13 +4,11 @@
 
 #include "opengltarget.h"
 
-bool GlRenderTarget::sm_depthEnabled = false;
-
 GlRenderTarget::GlRenderTarget(const std::string& name, bool isBackBuffer) :
     m_isBackBuffer(isBackBuffer),
     m_name(name),
-    m_colorBuffer(0),
-    m_depthBuffer(0),
+    m_colorTexture(0),
+    m_renderBuffer(0),
     m_frameBuffer(0),
     m_initialised(false)
 {
@@ -26,8 +24,8 @@ void GlRenderTarget::Release()
     if(m_initialised && !m_isBackBuffer)
     {
         glDeleteFramebuffers(1, &m_frameBuffer);
-        glDeleteTextures(1, &m_colorBuffer);
-        glDeleteRenderbuffers(1, &m_depthBuffer);
+        glDeleteTextures(1, &m_colorTexture);
+        glDeleteRenderbuffers(1, &m_renderBuffer);
     }
     m_initialised = false;
 }
@@ -45,36 +43,41 @@ bool GlRenderTarget::Initialise()
             return false;
         }
 
-        glGenTextures(1, &m_colorBuffer);
-        glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+        // Create the colour texture
+        glGenTextures(1, &m_colorTexture);
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, 
-            WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 
+            MULTISAMPLING_COUNT, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, 
-            GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
+            GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture, 0);
 
         if(HasCallFailed())
         {
-            Logger::LogError(m_name + " Render target colour buffer failed");
+            Logger::LogError(m_name + " Failed to create color texture");
             return false;
         }
 
-        glGenRenderbuffers(1, &m_depthBuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
+        // Create the render buffer to hold depth information
+        glGenRenderbuffers(1, &m_renderBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_renderBuffer);
 
-        glRenderbufferStorage(GL_RENDERBUFFER, 
+        glRenderbufferStorageMultisample (GL_RENDERBUFFER, MULTISAMPLING_COUNT, 
             GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, 
-            GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer);
+            GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderBuffer);
 
         if(HasCallFailed())
         {
-            Logger::LogError(m_name + " Render target depth buffer failed");
+            Logger::LogError(m_name + " Failed to create depth texture");
+            return false;
+        }
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            Logger::LogError(m_name + " sampling does not match across attachments");
             return false;
         }
     }
@@ -89,36 +92,43 @@ void GlRenderTarget::SetActive()
 
     if(m_isBackBuffer)
     {
-        if(sm_depthEnabled)
-        {
-            glDisable(GL_DEPTH_TEST);
-            sm_depthEnabled = false;
-        }
+        glDisable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT);
     }
     else
     {
-        if(!sm_depthEnabled)
-        {
-            glEnable(GL_DEPTH_TEST);
-            sm_depthEnabled = true;
-        }
+        glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, m_renderBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not set " + m_name + " as active");
     }
 }
 
 void GlRenderTarget::SendTexture(int slot)
 {
     glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not send texture of " + m_name);
+    }
 }
 
 void GlRenderTarget::ClearTexture(int slot)
 {
     glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not clear texture of " + m_name);
+    }
 }

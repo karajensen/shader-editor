@@ -61,8 +61,7 @@ private:
     bool m_initialised;          ///< Whether the buffer is initialised or not
     bool m_isBackBuffer;         ///< Whether this render target is the back buffer
     const std::string m_name;    ///< Name of the render target
-    GLuint m_colorBuffer;        ///< Unique ID of the attached color buffer
-    GLuint m_depthBuffer;        ///< Unique ID of the attached depth buffer
+    GLuint m_colorTexture;       ///< Unique ID of the attached color buffer
+    GLuint m_renderBuffer;       ///< Unique ID of the buffer holding the depth information
     GLuint m_frameBuffer;        ///< Unique ID of the frame buffer
-    static bool sm_depthEnabled; ///< Whether the depth testing is enabled or not
 };
