@@ -47,6 +47,7 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 
 void RunQt(int argc, char *argv[])
 {
+    Logger::LogInfo("Initialising Qt");
     QApplication app(argc, argv);
     Gui gui;
     //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
@@ -63,7 +64,6 @@ int main(int argc, char *argv[])
     std::unique_ptr<Application> game(new Application());
     if(game->Initialise(hWnd, hInstance))
     {
-        Logger::LogInfo("Initialising Qt");
         //std::thread thread(&RunQt, argc, argv);
 
         ShowWindow(hWnd, SW_SHOWDEFAULT);

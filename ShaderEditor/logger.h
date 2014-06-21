@@ -4,6 +4,7 @@
 
 #pragma once
 #include <string>
+#include <mutex>
 
 /**
 * Static class for logging application issues
@@ -27,6 +28,5 @@ public:
 
 private:
 
-
-
+    static std::mutex sm_logMutex; ///< For getting sole access to the console
 };

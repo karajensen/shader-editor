@@ -6,19 +6,25 @@
 #include <iostream>
 #include <Windows.h>
 
+std::mutex Logger::sm_logMutex;
+
 void Logger::LogInfo(const std::string& info)
 {
-    std::cout << "INFO: \t" << info << std::endl;
+    #ifdef _DEBUG
+        std::lock_guard<std::mutex> lock(sm_logMutex);
+        std::cout << "INFO: \t" << info << std::endl;
+    #endif
 }
 
 void Logger::LogError(const std::string& error, bool popup)
 {
-    std::cout << "ERROR: \t" <<  error << std::endl;
+    #ifdef _DEBUG
+        std::lock_guard<std::mutex> lock(sm_logMutex);
+        std::cout << "ERROR: \t" <<  error << std::endl;
+    #endif
 
     if(popup)
     {
-        #ifndef _DEBUG
         MessageBox(nullptr, error.c_str(), TEXT("ERROR"), MB_OK);
-        #endif
     }
 }

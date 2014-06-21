@@ -296,7 +296,7 @@ bool OpenglEngine::Initialize()
     if(!HasCallFailed())
     {
         std::stringstream stream;
-        stream << "OpenGL: Verson " << glGetString(GL_VERSION) << " successful";
+        stream << "OpenGL: Version " << glGetString(GL_VERSION) << " successful";
         Logger::LogInfo(stream.str());
         return true;
     }

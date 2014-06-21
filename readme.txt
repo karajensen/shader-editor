@@ -1,14 +1,12 @@
 
-- Lock free logger
-
 - Creating Qt Window in C++
 - Qt window closing when main window does
 - Qt passing info to/from app
 - Qt text editor/tweak bar
 - Tweaking mesh/lights/shaders/post
 
-- Sending multiple lights
 - Rendering: specular, attenuation, bump
+- Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Optimise shaders
 
@@ -19,7 +17,7 @@ TO DETERMINE:
 - Transparency
 - Particle effects
 - Fade in-out for opengl/directx switching
-- Opengl fps (possibly switch vbo binding with vao)
+- Opengl fps
 
 =================================================================
 SHADER EDITOR
