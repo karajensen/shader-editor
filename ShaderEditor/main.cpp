@@ -13,6 +13,30 @@
 #include <QtWidgets/qapplication.h>
 #include "qt/gui.h"
 
+static bool sm_runQt = true;
+static std::mutex sm_qtMutex;
+
+/**
+* Allows the main application to send an exit call to qt
+*/
+void ExitQt()
+{
+    std::lock_guard<std::mutex> lock(sm_qtMutex);
+    sm_runQt = false;
+}
+
+/**
+* Determines whether qt is required to be running
+*/
+bool RunQt()
+{
+    std::lock_guard<std::mutex> lock(sm_qtMutex);
+    return sm_runQt;
+}
+
+/**
+* Main application window message handler
+*/
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 {  
     switch(message)
@@ -24,6 +48,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+/**
+* Initialises the main window
+*/
 void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 {
     *hInstance = GetModuleHandle(0);
@@ -45,16 +72,30 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
         nullptr, nullptr, *hInstance, nullptr);
 }
 
-void RunQt(int argc, char *argv[])
+/**
+* Runs Qt on a seperate thread to the main application
+*/
+void qtmain(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
     QApplication app(argc, argv);
+
     Gui gui;
-    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     gui.show();
-    app.exec();
+    
+    while(RunQt())
+    {
+        app.processEvents();
+    }
+
+    app.exit();
+    Logger::LogInfo("Exiting Qt");
 }
 
+/**
+* Application entry point
+*/
 int main(int argc, char *argv[])
 {
     HWND hWnd;
@@ -64,13 +105,15 @@ int main(int argc, char *argv[])
     std::unique_ptr<Application> game(new Application());
     if(game->Initialise(hWnd, hInstance))
     {
-        //std::thread thread(&RunQt, argc, argv);
+        std::thread thread(&qtmain, argc, argv);
 
         ShowWindow(hWnd, SW_SHOWDEFAULT);
     
         game->Run();
 
-        //thread.join();
+        ExitQt();
+
+        thread.join();
 
         return EXIT_SUCCESS;
     }

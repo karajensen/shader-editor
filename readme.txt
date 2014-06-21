@@ -1,9 +1,7 @@
 
-- Creating Qt Window in C++
-- Qt window closing when main window does
+- Creating text Qt Window in C++
 - Qt passing info to/from app
-- Qt text editor/tweak bar
-- Tweaking mesh/lights/shaders/post
+- Qt Tweaking mesh/lights/shaders/post
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
