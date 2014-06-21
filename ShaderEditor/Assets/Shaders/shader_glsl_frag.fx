@@ -1,9 +1,11 @@
 #version 150
 
+in vec2 ex_UVs;
 ifndefined: FLAT
     in vec3 ex_VertToLight;
     in vec3 ex_Normal;
 endif
+
 out vec4 out_Color;
 
 uniform sampler2D DiffuseSampler;
@@ -18,13 +20,13 @@ endif
  
 void main(void)
 {
-    vec4 finalColour = texture(DiffuseSampler, gl_TexCoord[0].st);
+    vec4 finalColour = texture(DiffuseSampler, ex_UVs);
     
     ifndefined: FLAT
         normalize(ex_Normal);
 
         ifdefined: BUMP
-            vec4 normalTex = texture(NormalSampler, gl_TexCoord[0].st);
+            vec4 normalTex = texture(NormalSampler, ex_UVs);
             finalColour.a = normalTex.a;
         endif       
         
@@ -33,7 +35,7 @@ void main(void)
         ifdefined: SPECULAR
             // Specular Blinn-Phong
             float specularity = 5.0;
-            vec4 specularTex = texture(SpecularSampler, gl_TexCoord[0].st);
+            vec4 specularTex = texture(SpecularSampler, ex_UVs);
             finalColour.a = specularTex.a;
         endif
     endif   

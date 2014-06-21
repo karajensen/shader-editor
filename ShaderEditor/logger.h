@@ -24,4 +24,9 @@ public:
     * @param popup Whether to show a popup windows dialog box with the error
     */
     static void LogError(const std::string& error, bool popup = false);
+
+private:
+
+
+
 };

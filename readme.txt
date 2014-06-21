@@ -1,5 +1,5 @@
 
-- OpenGL Multisampling
+- Lock free logger
 
 - Creating Qt Window in C++
 - Qt window closing when main window does

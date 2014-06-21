@@ -3,6 +3,8 @@
 in vec4 in_Position;
 in vec2 in_UVs;
 in vec3 in_Normal;
+
+out vec2 ex_UVs;
 ifndefined: FLAT
     out vec3 ex_VertToLight;
     out vec3 ex_Normal;
@@ -16,7 +18,7 @@ endif
 void main(void)
 {
     gl_Position = viewProjection * in_Position;
-    gl_TexCoord[0].st = in_UVs;
+    ex_UVs = in_UVs;
     
     ifndefined: FLAT
         ex_Normal = in_Normal;

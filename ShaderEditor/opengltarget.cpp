@@ -63,11 +63,11 @@ bool GlRenderTarget::Initialise()
         glGenRenderbuffers(1, &m_renderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, m_renderBuffer);
 
-        glRenderbufferStorageMultisample (GL_RENDERBUFFER, MULTISAMPLING_COUNT, 
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, MULTISAMPLING_COUNT, 
             GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, 
-            GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_renderBuffer);
+            GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_renderBuffer);
 
         if(HasCallFailed())
         {
@@ -92,6 +92,7 @@ void GlRenderTarget::SetActive()
 
     if(m_isBackBuffer)
     {
+        glDisable(GL_MULTISAMPLE);  
         glDisable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -99,6 +100,7 @@ void GlRenderTarget::SetActive()
     }
     else
     {
+        glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, m_renderBuffer);

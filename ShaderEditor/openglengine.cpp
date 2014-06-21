@@ -221,7 +221,7 @@ bool OpenglEngine::Initialize()
     int contextAttributes[] = 
     {  
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
         WGL_CONTEXT_FLAGS_ARB,
         0, 0  
     };  
@@ -274,12 +274,12 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    //if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
-    //   !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
-    //{
-    //    Logger::LogError("OpenGL: Post shader does not have required texture slots");
-    //    return false;
-    //}
+    if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
+       !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
+    {
+        Logger::LogError("OpenGL: Post shader does not have required texture slots");
+        return false;
+    }
 
     // Initialise the opengl environment
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -296,7 +296,7 @@ bool OpenglEngine::Initialize()
     if(!HasCallFailed())
     {
         std::stringstream stream;
-        stream << "OpenGL: Verson " << major << "." << minor << " successful";
+        stream << "OpenGL: Verson " << glGetString(GL_VERSION) << " successful";
         Logger::LogInfo(stream.str());
         return true;
     }
@@ -375,7 +375,6 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     // Render the scene
     m_data->sceneTarget.SetActive();
-    m_data->backBuffer.SetActive();
     for(GlMesh& mesh : m_data->meshes)
     {
         UpdateShader(mesh.GetShaderID(), lights);
@@ -388,29 +387,30 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     }
 
     // Render the normal/depth map
-    //m_data->normalTarget.SetActive();
-    //m_data->normalShader.SetActive();
-    //m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
-    //m_data->normalShader.SendUniformFloat("frustum", &m_data->frustum.x, 2);
-    //for(GlMesh& mesh : m_data->meshes)
-    //{
-    //    SetBackfaceCull(mesh.ShouldBackfaceCull());
-    //
-    //    mesh.PreRender();
-    //    m_data->normalShader.EnableAttributes();
-    //    mesh.Render();
-    //}
+    m_data->normalTarget.SetActive();
+    m_data->normalShader.SetActive();
+    m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
+    m_data->normalShader.SendUniformFloat("frustum", &m_data->frustum.x, 2);
+    for(GlMesh& mesh : m_data->meshes)
+    {
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+    
+        mesh.PreRender();
+        m_data->normalShader.EnableAttributes();
+        mesh.Render();
+    }
 
     // Render the scene as a texture to the backbuffer
+    SetBackfaceCull(false);
     m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
     m_data->sceneTarget.SendTexture(SCENE_TEXTURE);
-    //m_data->normalTarget.SendTexture(NORMAL_TEXTURE);
+    m_data->normalTarget.SendTexture(NORMAL_TEXTURE);
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
     m_data->sceneTarget.ClearTexture(SCENE_TEXTURE);
-    //m_data->normalTarget.ClearTexture(NORMAL_TEXTURE);
+    m_data->normalTarget.ClearTexture(NORMAL_TEXTURE);
 
     SwapBuffers(m_data->hdc); 
 }

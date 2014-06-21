@@ -29,31 +29,31 @@ GlMesh::GlMesh(const std::string& name) :
 {
     // Top left corner
     m_vertices.push_back(-1.0); // x
-    m_vertices.push_back(1.0);  // y
+    m_vertices.push_back(-1.0);  // y
     m_vertices.push_back(0.0);  // z
     m_vertices.push_back(0.0); // u
     m_vertices.push_back(0.0);  // v
 
     // Top right corner
     m_vertices.push_back(1.0); // x
-    m_vertices.push_back(1.0); // y
+    m_vertices.push_back(-1.0); // y
     m_vertices.push_back(0.0); // z
     m_vertices.push_back(1.0); // u
     m_vertices.push_back(0.0); // v
 
     // Bot right corner
     m_vertices.push_back(1.0);  // x
-    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(1.0); // y
     m_vertices.push_back(0.0);  // z
     m_vertices.push_back(1.0);  // u
-    m_vertices.push_back(-1.0); // v
+    m_vertices.push_back(1.0); // v
 
     // Bot left corner
     m_vertices.push_back(-1.0); // x
-    m_vertices.push_back(-1.0); // y
+    m_vertices.push_back(1.0); // y
     m_vertices.push_back(0.0);  // z
     m_vertices.push_back(0.0); // u
-    m_vertices.push_back(-1.0); // v
+    m_vertices.push_back(1.0); // v
 
     m_indices.push_back(0);
     m_indices.push_back(3);
