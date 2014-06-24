@@ -9,9 +9,7 @@
 *.Release
 ShaderEditor/ShaderEditor.exe
 ShaderEditor/logfile.txt
-ShaderEditor/qt/project/release/
-ShaderEditor/qt/project/debug/
-ShaderEditor/qt/project/Makefile
+ShaderEditor/qt/build/
 ShaderEditor/Debug/
 ShaderEditor/Release/
 ShaderEditor/Assets/Shaders/Generated/
