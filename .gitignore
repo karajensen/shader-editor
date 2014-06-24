@@ -9,12 +9,11 @@
 *.Release
 ShaderEditor/ShaderEditor.exe
 ShaderEditor/logfile.txt
-ShaderEditor/qt/release/
-ShaderEditor/qt/debug/
-ShaderEditor/qt/Makefile
+ShaderEditor/qt/project/release/
+ShaderEditor/qt/project/debug/
+ShaderEditor/qt/project/Makefile
 ShaderEditor/Debug/
 ShaderEditor/Release/
 ShaderEditor/Assets/Shaders/Generated/
-ShaderEditor/Assets/Lights_Previous.xml
 ipch/
 html/
