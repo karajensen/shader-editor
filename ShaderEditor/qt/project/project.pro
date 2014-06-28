@@ -3,7 +3,10 @@ HEADERS     = gui.h \
     tweaker.h
 #! [0] #! [1]
 FORMS       = gui.ui \
-    tweaker.ui
+    tweaker.ui \
+    tweak_button.ui \
+    tweak_label.ui \
+    tweak_value.ui
 #! [1]
 SOURCES     = gui.cpp \
               main.cpp \
