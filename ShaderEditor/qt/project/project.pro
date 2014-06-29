@@ -1,17 +1,25 @@
-#! [0]
-HEADERS     = gui.h \
-    tweaker.h
-#! [0] #! [1]
-FORMS       = gui.ui \
-    tweaker.ui \
-    tweak_button.ui \
-    tweak_label.ui \
-    tweak_value.ui
-#! [1]
-SOURCES     = gui.cpp \
-              main.cpp \
-    tweaker.cpp
-QT += widgets
+#-------------------------------------------------
+#
+# Project created by QtCreator 2014-06-29T10:30:01
+#
+#-------------------------------------------------
 
-target.path = $$[QT_INSTALL_EXAMPLES]/designer/gui
-INSTALLS += target
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = project
+TEMPLATE = app
+
+SOURCES += \
+    editor.cpp \
+    main.cpp \
+    tweaker.cpp
+
+HEADERS  += \
+    editor.h \
+    tweaker.h
+
+FORMS    += \
+    editor.ui \
+    tweaker.ui

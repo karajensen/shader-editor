@@ -1,5 +1,6 @@
 
-- Creating text Qt Window in C++
+
+- Fix vs build with qt files
 - Qt passing info to/from app
 - Qt Tweaking mesh/lights/shaders/post
 

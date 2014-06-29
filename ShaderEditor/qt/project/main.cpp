@@ -1,14 +1,14 @@
 
 #include <QApplication>
-#include "gui.h"
+#include "editor.h"
 #include "tweaker.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    Gui gui;
-    gui.show();
+    Editor editor;
+    editor.show();
 
     Tweaker tweaker;
     tweaker.show();
