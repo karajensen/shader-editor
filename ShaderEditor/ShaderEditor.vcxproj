@@ -17,9 +17,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Assets\Meshes.xml" />
-    <None Include="qt\gui.pro" />
-    <None Include="qt\gui.pro.user" />
-    <None Include="qt\gui.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
@@ -31,13 +28,12 @@
     <ClCompile Include="directxtexture.cpp" />
     <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
+    <ClCompile Include="cache.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
     <ClCompile Include="opengltarget.cpp" />
     <ClCompile Include="opengltexture.cpp" />
-    <ClCompile Include="qt\moc_gui.cpp" />
-    <ClCompile Include="qt\gui.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="openglengine.cpp" />
@@ -55,13 +51,12 @@
     <ClInclude Include="directxtexture.h" />
     <ClInclude Include="elements.h" />
     <ClInclude Include="fragmentlinker.h" />
+    <ClInclude Include="cache.h" />
     <ClInclude Include="openglcommon.h" />
     <ClInclude Include="openglmesh.h" />
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
     <ClInclude Include="opengltexture.h" />
-    <ClInclude Include="qt\gui.h" />
-    <ClInclude Include="qt\ui_gui.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="matrix.h" />

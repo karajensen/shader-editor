@@ -14,6 +14,7 @@ class RenderEngine;
 class Timer;
 class Scene;
 class Camera;
+class Cache;
 
 /**
 * Main application class
@@ -24,8 +25,9 @@ public:
 
     /**
     * Constructor
+    * @param cache Shared data between the gui and application
     */
-    Application();
+    Application(std::shared_ptr<Cache> cache);
 
     /**
     * Destructor
@@ -44,11 +46,6 @@ public:
     * @return whether or not initialisation succeeded
     */
     bool Initialise(HWND hwnd, HINSTANCE hinstance);
-
-    /**
-    * Toggles through the avaliable render engines
-    */
-    void ToggleRenderEngine();
 
 private: 
 
@@ -100,12 +97,11 @@ private:
     bool InitialiseDirectX();
 
     RenderEngine* m_engine;  ///< currently selected rendering engine
-    bool m_switchEngine;     ///< Whether an engine switch is required
-
     bool m_mousePressed;     ///< Whether the mouse is held down or not
     Float2 m_mouseDirection; ///< Direction of movement for the mouse
     Float2 m_mousePosition;  ///< 2D coordinates of the mouse
 
+    std::shared_ptr<Cache> m_cache;           ///< Shared data between the gui and application
     std::unique_ptr<Camera> m_camera;         ///< Scene camera for generating view matrix
     std::unique_ptr<Scene> m_scene;           ///< Holds meshes, lighting and shader data
     std::unique_ptr<Timer> m_timer;           ///< For measure change in frame time

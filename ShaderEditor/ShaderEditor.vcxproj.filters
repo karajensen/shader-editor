@@ -22,9 +22,6 @@
     <Filter Include="Qt">
       <UniqueIdentifier>{e5b38e7e-480e-4274-84b7-952c6fb7157d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Qt\Generated">
-      <UniqueIdentifier>{e0d4d512-2179-4f41-b3d2-b83d50c03ff4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Lights.xml">
@@ -35,15 +32,6 @@
     </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
-    <None Include="qt\gui.ui">
-      <Filter>Qt</Filter>
-    </None>
-    <None Include="qt\gui.pro">
-      <Filter>Qt</Filter>
-    </None>
-    <None Include="qt\gui.pro.user">
-      <Filter>Qt</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -100,11 +88,8 @@
     <ClCompile Include="opengltarget.cpp">
       <Filter>Render Engine Source</Filter>
     </ClCompile>
-    <ClCompile Include="qt\gui.cpp">
-      <Filter>Qt</Filter>
-    </ClCompile>
-    <ClCompile Include="qt\moc_gui.cpp">
-      <Filter>Qt\Generated</Filter>
+    <ClCompile Include="cache.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,11 +162,8 @@
     <ClInclude Include="opengltarget.h">
       <Filter>Render Engine Header</Filter>
     </ClInclude>
-    <ClInclude Include="qt\gui.h">
-      <Filter>Qt</Filter>
-    </ClInclude>
-    <ClInclude Include="qt\ui_gui.h">
-      <Filter>Qt\Generated</Filter>
+    <ClInclude Include="cache.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

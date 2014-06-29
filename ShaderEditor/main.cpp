@@ -9,30 +9,9 @@
 #endif
 
 #include "application.h"
+#include "cache.h"
 #include <thread>
 #include <QtWidgets/qapplication.h>
-#include "qt/gui.h"
-
-static bool sm_runQt = true;
-static std::mutex sm_qtMutex;
-
-/**
-* Allows the main application to send an exit call to qt
-*/
-void ExitQt()
-{
-    std::lock_guard<std::mutex> lock(sm_qtMutex);
-    sm_runQt = false;
-}
-
-/**
-* Determines whether qt is required to be running
-*/
-bool RunQt()
-{
-    std::lock_guard<std::mutex> lock(sm_qtMutex);
-    return sm_runQt;
-}
 
 /**
 * Main application window message handler
@@ -75,16 +54,16 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 /**
 * Runs Qt on a seperate thread to the main application
 */
-void qtmain(int argc, char *argv[])
+void qtmain(int argc, char *argv[], std::shared_ptr<Cache> cache)
 {
     Logger::LogInfo("Initialising Qt");
     QApplication app(argc, argv);
 
-    Gui gui;
-    gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
-    gui.show();
+    //Gui gui;
+    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    //gui.show();
     
-    while(RunQt())
+    while(cache->ApplicationRunning())
     {
         app.processEvents();
     }
@@ -102,16 +81,16 @@ int main(int argc, char *argv[])
     HINSTANCE hInstance;
     InitializeWindow(&hInstance, &hWnd);
 
-    std::unique_ptr<Application> game(new Application());
+    std::shared_ptr<Cache> cache(new Cache());
+    std::unique_ptr<Application> game(new Application(cache));
+
     if(game->Initialise(hWnd, hInstance))
     {
-        std::thread thread(&qtmain, argc, argv);
+        std::thread thread(&qtmain, argc, argv, cache);
 
         ShowWindow(hWnd, SW_SHOWDEFAULT);
     
         game->Run();
-
-        ExitQt();
 
         thread.join();
 

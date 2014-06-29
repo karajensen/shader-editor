@@ -9,6 +9,7 @@
 #include "directxengine.h"
 #include "scene.h"
 #include "camera.h"
+#include "cache.h"
 #include <windowsx.h>
 
 namespace
@@ -20,11 +21,11 @@ namespace
     const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
 }
 
-Application::Application() :
+Application::Application(std::shared_ptr<Cache> cache) :
     m_engine(nullptr),
     m_camera(new Camera()),
     m_mousePressed(false),
-    m_switchEngine(false)
+    m_cache(cache)
 {
 }
 
@@ -41,17 +42,12 @@ void Application::Run()
     
     while(runApplication)
     {
-        if(m_switchEngine)
-        {
-            m_switchEngine = false;
-            SwitchRenderEngine();
-        }
-
         if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if(IsKeyDown(VK_ESCAPE) || msg.message == WM_QUIT)
             {
                 runApplication = false;
+                m_cache->SetApplicationRunning(false);
             }
             HandleInputEvents(keyDown, msg);
             TranslateMessage(&msg);
@@ -101,7 +97,7 @@ void Application::HandleKeyPress(const WPARAM& keydown)
     switch(keydown)
     {
     case VK_F2:
-        ToggleRenderEngine();
+        SwitchRenderEngine();
         break;
     }
 }
@@ -229,11 +225,6 @@ bool Application::InitialiseDirectX()
     }
 
     return true;
-}
-
-void Application::ToggleRenderEngine()
-{
-    m_switchEngine = true;
 }
 
 void Application::SwitchRenderEngine()
