@@ -1,14 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - tweaker.cpp
+// Kara Jensen - mail@karajensen.com - gui.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <QtGui>
-#include "tweaker.h"
-
-Tweaker::Tweaker(QWidget *parent) :
-    QWidget(parent)
-{
-    ui.setupUi(this);
-
-}
-
+#include "gui.h"

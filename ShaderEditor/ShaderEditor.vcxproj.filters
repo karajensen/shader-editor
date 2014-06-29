@@ -22,6 +22,9 @@
     <Filter Include="Qt">
       <UniqueIdentifier>{e5b38e7e-480e-4274-84b7-952c6fb7157d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Qt\generated">
+      <UniqueIdentifier>{0c916700-ed1e-4905-9f7b-56acf5767a31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Lights.xml">
@@ -32,6 +35,12 @@
     </None>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
+    <None Include="qt\project\editor.ui">
+      <Filter>Qt</Filter>
+    </None>
+    <None Include="qt\project\tweaker.ui">
+      <Filter>Qt</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -89,6 +98,21 @@
       <Filter>Render Engine Source</Filter>
     </ClCompile>
     <ClCompile Include="cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\editor.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\tweaker.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\generated\moc\moc_editor.cpp">
+      <Filter>Qt\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp">
+      <Filter>Qt\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -163,6 +187,21 @@
       <Filter>Render Engine Header</Filter>
     </ClInclude>
     <ClInclude Include="cache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\editor.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\tweaker.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\generated\ui_editor.h">
+      <Filter>Qt\generated</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\generated\ui_tweaker.h">
+      <Filter>Qt\generated</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

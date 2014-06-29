@@ -1,5 +1,4 @@
 
-- Fix vs/qt builds
 - Qt passing info to/from app
 - Qt Tweaking mesh/lights/shaders/post
 

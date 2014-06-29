@@ -17,6 +17,8 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Assets\Meshes.xml" />
+    <None Include="qt\project\editor.ui" />
+    <None Include="qt\project\tweaker.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
@@ -29,11 +31,16 @@
     <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="cache.cpp" />
+    <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
     <ClCompile Include="opengltarget.cpp" />
     <ClCompile Include="opengltexture.cpp" />
+    <ClCompile Include="qt\project\editor.cpp" />
+    <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
+    <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp" />
+    <ClCompile Include="qt\project\tweaker.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="openglengine.cpp" />
@@ -52,11 +59,16 @@
     <ClInclude Include="elements.h" />
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="cache.h" />
+    <ClInclude Include="gui.h" />
     <ClInclude Include="openglcommon.h" />
     <ClInclude Include="openglmesh.h" />
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
     <ClInclude Include="opengltexture.h" />
+    <ClInclude Include="qt\project\editor.h" />
+    <ClInclude Include="qt\project\generated\ui_editor.h" />
+    <ClInclude Include="qt\project\generated\ui_tweaker.h" />
+    <ClInclude Include="qt\project\tweaker.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="matrix.h" />
@@ -147,7 +159,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -163,7 +175,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
