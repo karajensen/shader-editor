@@ -1,13 +1,9 @@
 
-- Fix button style not showing up
 - Qt passing info to/from app
-- Qt Tweaking mesh/lights/shaders/post
-
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Optimise shaders
-
 - Create 3D scene with baked shadows
 
 TO DETERMINE:

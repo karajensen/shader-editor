@@ -59,12 +59,12 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <property name="movable">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="sceneTab">
+     <widget class="QWidget" name="Scene">
       <property name="styleSheet">
        <string notr="true">background-color: rgb(230, 230, 230);</string>
       </property>
@@ -1285,7 +1285,7 @@ border-radius: 4px;</string>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="lightTab">
+     <widget class="QWidget" name="Light">
       <property name="styleSheet">
        <string notr="true">background-color: rgb(230, 230, 230);</string>
       </property>
@@ -3670,7 +3670,7 @@ border-radius: 4px;</string>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="meshTab">
+     <widget class="QWidget" name="Mesh">
       <property name="styleSheet">
        <string notr="true">background-color: rgb(230, 230, 230);</string>
       </property>
@@ -4753,7 +4753,7 @@ border-radius: 4px;</string>
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton#tweaker_button_btn
+            <string notr="true">QPushButton#showEditor_btn
 {
 background-color: rgb(230, 230, 230);
 border-style: solid;
@@ -4763,7 +4763,7 @@ border-right-color: rgb(200, 200, 200);
 border-top-color: rgb(255, 255, 255);
 border-left-color: rgb(255, 255, 255);
 }
-QPushButton#tweaker_button_btn:pressed
+QPushButton#showEditor_btn:pressed
 {
 background-color: rgb(210, 210, 210);
 border-style: solid;
@@ -4784,7 +4784,7 @@ border-bottom-color: rgb(255, 255, 255);
             <bool>false</bool>
            </property>
            <property name="flat">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </widget>

@@ -155,6 +155,9 @@ void Application::TickApplication()
     m_scene->Update();
     m_engine->Render(m_scene->GetLights());
 
+    m_cache->SetDeltaTime(m_timer->GetDeltaTime());
+    m_cache->SetMouse(m_mousePosition, m_mouseDirection);
+
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
 }

@@ -32,7 +32,7 @@ class Ui_Tweaker
 public:
     QVBoxLayout *verticalLayout_3;
     QTabWidget *TabMenu;
-    QWidget *sceneTab;
+    QWidget *Scene;
     QWidget *layoutWidget;
     QVBoxLayout *sceneLayout;
     QFrame *switchEngine;
@@ -65,7 +65,7 @@ public:
     QFrame *cameraZ;
     QLabel *cameraZ_lbl;
     QLabel *cameraZ_text;
-    QWidget *lightTab;
+    QWidget *Light;
     QWidget *layoutWidget1;
     QVBoxLayout *lightLayout;
     QFrame *selectedLight;
@@ -126,7 +126,7 @@ public:
     QFrame *shadows;
     QLabel *shadows_lbl;
     QCheckBox *shadows_check;
-    QWidget *meshTab;
+    QWidget *Mesh;
     QWidget *layoutWidget2;
     QVBoxLayout *meshLayout;
     QFrame *selectedMesh;
@@ -188,10 +188,10 @@ public:
         TabMenu->setTabPosition(QTabWidget::North);
         TabMenu->setTabShape(QTabWidget::Triangular);
         TabMenu->setMovable(true);
-        sceneTab = new QWidget();
-        sceneTab->setObjectName(QStringLiteral("sceneTab"));
-        sceneTab->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
-        layoutWidget = new QWidget(sceneTab);
+        Scene = new QWidget();
+        Scene->setObjectName(QStringLiteral("Scene"));
+        Scene->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
+        layoutWidget = new QWidget(Scene);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
         layoutWidget->setGeometry(QRect(0, 0, 230, 381));
         sceneLayout = new QVBoxLayout(layoutWidget);
@@ -558,11 +558,11 @@ public:
 
         sceneLayout->addWidget(cameraZ);
 
-        TabMenu->addTab(sceneTab, QString());
-        lightTab = new QWidget();
-        lightTab->setObjectName(QStringLiteral("lightTab"));
-        lightTab->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
-        layoutWidget1 = new QWidget(lightTab);
+        TabMenu->addTab(Scene, QString());
+        Light = new QWidget();
+        Light->setObjectName(QStringLiteral("Light"));
+        Light->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
+        layoutWidget1 = new QWidget(Light);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
         layoutWidget1->setGeometry(QRect(0, 0, 230, 571));
         lightLayout = new QVBoxLayout(layoutWidget1);
@@ -1313,11 +1313,11 @@ public:
 
         lightLayout->addWidget(shadows);
 
-        TabMenu->addTab(lightTab, QString());
-        meshTab = new QWidget();
-        meshTab->setObjectName(QStringLiteral("meshTab"));
-        meshTab->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
-        layoutWidget2 = new QWidget(meshTab);
+        TabMenu->addTab(Light, QString());
+        Mesh = new QWidget();
+        Mesh->setObjectName(QStringLiteral("Mesh"));
+        Mesh->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
+        layoutWidget2 = new QWidget(Mesh);
         layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
         layoutWidget2->setGeometry(QRect(0, 0, 230, 341));
         meshLayout = new QVBoxLayout(layoutWidget2);
@@ -1640,7 +1640,7 @@ public:
         showEditor_btn->setMinimumSize(QSize(212, 24));
         showEditor_btn->setMaximumSize(QSize(212, 24));
         showEditor_btn->setBaseSize(QSize(220, 0));
-        showEditor_btn->setStyleSheet(QLatin1String("QPushButton#tweaker_button_btn\n"
+        showEditor_btn->setStyleSheet(QLatin1String("QPushButton#showEditor_btn\n"
 "{\n"
 "background-color: rgb(230, 230, 230);\n"
 "border-style: solid;\n"
@@ -1650,7 +1650,7 @@ public:
 "border-top-color: rgb(255, 255, 255);\n"
 "border-left-color: rgb(255, 255, 255);\n"
 "}\n"
-"QPushButton#tweaker_button_btn:pressed\n"
+"QPushButton#showEditor_btn:pressed\n"
 "{\n"
 "background-color: rgb(210, 210, 210);\n"
 "border-style: solid;\n"
@@ -1662,11 +1662,11 @@ public:
 "}"));
         showEditor_btn->setAutoDefault(false);
         showEditor_btn->setDefault(false);
-        showEditor_btn->setFlat(true);
+        showEditor_btn->setFlat(false);
 
         meshLayout->addWidget(showEditor);
 
-        TabMenu->addTab(meshTab, QString());
+        TabMenu->addTab(Mesh, QString());
         postTab = new QWidget();
         postTab->setObjectName(QStringLiteral("postTab"));
         postTab->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
@@ -1752,7 +1752,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(3);
 
 
         QMetaObject::connectSlotsByName(Tweaker);
@@ -1780,7 +1780,7 @@ public:
         cameraY_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         cameraZ_lbl->setText(QApplication::translate("Tweaker", "Camera Pos Z", 0));
         cameraZ_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        TabMenu->setTabText(TabMenu->indexOf(sceneTab), QApplication::translate("Tweaker", "Scene", 0));
+        TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         selectedLight_lbl->setText(QApplication::translate("Tweaker", "Selected Light", 0));
         positionX_lbl->setText(QApplication::translate("Tweaker", "Position X", 0));
         positionY_lbl->setText(QApplication::translate("Tweaker", "Position Y", 0));
@@ -1797,7 +1797,7 @@ public:
         lightSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));
         shadows_lbl->setText(QApplication::translate("Tweaker", "Shadows", 0));
         shadows_check->setText(QString());
-        TabMenu->setTabText(TabMenu->indexOf(lightTab), QApplication::translate("Tweaker", "Light", 0));
+        TabMenu->setTabText(TabMenu->indexOf(Light), QApplication::translate("Tweaker", "Light", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Selected Mesh", 0));
         meshSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));
         backfaceCull_lbl->setText(QApplication::translate("Tweaker", "Backface Cull", 0));
@@ -1813,7 +1813,7 @@ public:
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         showEditor_btn->setText(QApplication::translate("Tweaker", "Show Editor", 0));
-        TabMenu->setTabText(TabMenu->indexOf(meshTab), QApplication::translate("Tweaker", "Mesh", 0));
+        TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         postTexture_lbl->setText(QApplication::translate("Tweaker", "Post Texture", 0));
         renderShadows_lbl->setText(QApplication::translate("Tweaker", "Shadows", 0));
         renderShadows_check->setText(QString());

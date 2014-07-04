@@ -12,12 +12,20 @@
 #include "ui_editor.h"
 #endif
 
+/**
+* Allows run time editing of shaders
+* @note Read by both VS and Qt Editor
+*/
 class Editor : public QWidget
 {
     Q_OBJECT
 
 public:
 
+    /**
+    * Constructor
+    * @param parent The owner of this widget
+    */
     Editor(QWidget* parent = nullptr);
 
 private slots:
@@ -25,5 +33,5 @@ private slots:
 
 private:
 
-    Ui::Editor m_ui;
+    Ui::Editor m_ui; ///< User interface object
 };
