@@ -9,9 +9,9 @@
 #endif
 
 #include "application.h"
+#include "gui.h"
 #include "cache.h"
 #include <thread>
-#include <QtWidgets/qapplication.h>
 
 /**
 * Main application window message handler
@@ -56,20 +56,8 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 */
 void qtmain(int argc, char *argv[], std::shared_ptr<Cache> cache)
 {
-    Logger::LogInfo("Initialising Qt");
-    QApplication app(argc, argv);
-
-    //Gui gui;
-    //gui.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
-    //gui.show();
-    
-    while(cache->ApplicationRunning())
-    {
-        app.processEvents();
-    }
-
-    app.exit();
-    Logger::LogInfo("Exiting Qt");
+    std::unique_ptr<Gui> gui(new Gui(cache));
+    gui->Run(argc, argv);
 }
 
 /**
