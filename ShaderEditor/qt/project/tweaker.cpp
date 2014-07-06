@@ -12,6 +12,23 @@ Tweaker::Tweaker(QWidget *parent) :
     m_ui.setupUi(this);
 }
 
+void Tweaker::SetSignalCallbacks(SignalCallbacks& callbacks)
+{
+    m_callbacks = callbacks;
+
+    connect(m_ui.positionX_value, 
+        SIGNAL(valueChanged(double)), this,
+        SLOT(UpdateLightPositionX(double)));  
+
+    connect(m_ui.positionY_value, 
+        SIGNAL(valueChanged(double)), this,
+        SLOT(UpdateLightPositionY(double)));  
+
+    connect(m_ui.positionZ_value, 
+        SIGNAL(valueChanged(double)), this,
+        SLOT(UpdateLightPositionZ(double)));  
+}
+
 std::string Tweaker::GetSelectedPage() const
 {
     return m_ui.TabMenu->currentWidget()->objectName().toStdString();
@@ -58,4 +75,19 @@ void Tweaker::SetLightPosition(float x, float y, float z)
 bool Tweaker::LightPositionSet() const
 {
     return m_lightPositionSet;
+}
+
+void Tweaker::UpdateLightPositionX(double value)
+{
+    m_callbacks.SetLightPositionX(value);
+}
+
+void Tweaker::UpdateLightPositionY(double value)
+{
+    m_callbacks.SetLightPositionY(value);
+}
+
+void Tweaker::UpdateLightPositionZ(double value)
+{
+    m_callbacks.SetLightPositionZ(value);
 }

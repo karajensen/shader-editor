@@ -183,7 +183,25 @@ void Application::UpdateCache()
             m_cache->LightAttenuation.Set(lights[selectedLight].attenuation);
             m_cache->LightDiffuse.Set(lights[selectedLight].diffuse);
             m_cache->LightSpecular.Set(lights[selectedLight].specular);
+            m_cache->LightSpecularity.Set(lights[selectedLight].specularity);
         }
+        else if(m_selectedLight != NO_INDEX)
+        {
+            auto& light = m_scene->GetLight(m_selectedLight);
+            light.position = m_cache->LightPosition.Get();
+            light.attenuation = m_cache->LightAttenuation.Get();
+            light.diffuse = m_cache->LightDiffuse.Get();
+            light.specular = m_cache->LightSpecular.Get();
+            light.specularity = m_cache->LightSpecularity.Get();
+        }
+    }
+    else if(page == MESH)
+    {
+
+    }
+    else if(page == POST)
+    {
+
     }
 }
 

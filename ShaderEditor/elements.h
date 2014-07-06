@@ -108,7 +108,6 @@ struct Light
     */
     Light();
 
-    bool castshadow;     ///< Whether the light casts shadows or not
     std::string name;    ///< Name of the light
     Colour diffuse;      ///< Colour of the light
     Colour specular;     ///< Specular highlights the light will cast

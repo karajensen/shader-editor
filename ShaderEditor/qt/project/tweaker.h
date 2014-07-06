@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 #ifdef _VS
 #include "generated/ui_tweaker.h"
@@ -23,10 +24,37 @@ class Tweaker : public QWidget
 public:
 
     /**
+    * Holds functions called when a tweakable value emits a signal
+    */
+    struct SignalCallbacks
+    {
+        std::function<void(float)> SetLightPositionX;   ///< Sets the selected light position
+        std::function<void(float)> SetLightPositionY;   ///< Sets the selected light position
+        std::function<void(float)> SetLightPositionZ;   ///< Sets the selected light position
+        std::function<void(float)> SetLightAttX;        ///< Sets the selected light attenuation
+        std::function<void(float)> SetLightAttY;        ///< Sets the selected light attenuation
+        std::function<void(float)> SetLightAttZ;        ///< Sets the selected light attenuation
+        std::function<void(float)> SetLightDiffuseR;    ///< Sets the selected light diffuse color
+        std::function<void(float)> SetLightDiffuseG;    ///< Sets the selected light diffuse color
+        std::function<void(float)> SetLightDiffuseB;    ///< Sets the selected light diffuse color
+        std::function<void(float)> SetLightDiffuseA;    ///< Sets the selected light diffuse color
+        std::function<void(float)> SetLightSpecularR;   ///< Sets the selected light specular color
+        std::function<void(float)> SetLightSpecularG;   ///< Sets the selected light specular color
+        std::function<void(float)> SetLightSpecularB;   ///< Sets the selected light specular color
+        std::function<void(float)> SetLightSpecularA;   ///< Sets the selected light specular color
+        std::function<void(float)> SetLightSpecularity; ///< Sets the selected light specular size
+    };
+
+    /**
     * Constructor
     * @param parent The owner of this widget
     */
-    Tweaker(QWidget* parent = nullptr);
+    explicit Tweaker(QWidget* parent = nullptr);
+    
+    /**
+    * Sets the functions called when a tweakable value emits a signal
+    */
+    void SetSignalCallbacks(SignalCallbacks& callbacks);
 
     /**
     * @return the name of the selected tab page
@@ -66,11 +94,29 @@ public:
     */
     bool LightPositionSet() const;
 
-private slots:
+private slots: // Any changes to slots requires building of moc
 
+    /**
+    * Sends an update for the light position x component
+    * @param value The x component
+    */
+    void UpdateLightPositionX(double value);
+
+    /**
+    * Sends an update for the light position y component
+    * @param value The y component
+    */
+    void UpdateLightPositionY(double value);
+
+    /**
+    * Sends an update for the light position z component
+    * @param value The zs component
+    */
+    void UpdateLightPositionZ(double value);
 
 private:
 
-    bool m_lightPositionSet; ///< Whether the light position has been set
-    Ui::Tweaker m_ui;        ///< User interface object
+    bool m_lightPositionSet;       ///< Whether the light position has been set
+    Ui::Tweaker m_ui;              ///< User interface object
+    SignalCallbacks m_callbacks;   ///< Callbacks to update the cache
 };

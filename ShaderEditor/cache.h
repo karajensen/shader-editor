@@ -164,6 +164,7 @@ struct Cache
     Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
 
     Lockable<int> SelectedLight;        ///< Index of the currently selected light
+    Lockable<float> LightSpecularity;   ///< Specularity of the selected light
     LockableVector LightPosition;       ///< Position of the selected light
     LockableVector LightAttenuation;    ///< Attenuation of the selected light
     LockableColour LightDiffuse;        ///< Diffuse colour of the selected light

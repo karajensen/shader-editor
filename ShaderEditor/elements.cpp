@@ -39,7 +39,6 @@ bool Shader::HasComponent(unsigned int component) const
 }
 
 Light::Light() :
-    castshadow(false),
     specularity(0.0f)
 {
 }

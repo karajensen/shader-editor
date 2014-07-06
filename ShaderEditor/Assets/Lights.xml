@@ -14,7 +14,7 @@
     <AttX>0</AttX>
     <AttY>0</AttY>
     <AttZ>0</AttZ>
-    <Shadows>0</Shadows>
+    <Specularity>5.0</Specularity>
   </Light>
   <Light>
     <Name>Point</Name>
@@ -30,6 +30,6 @@
     <AttX>0</AttX>
     <AttY>0.01</AttY>
     <AttZ>0.005</AttZ>
-    <Shadows>0</Shadows>
+    <Specularity>5.0</Specularity>
     </Light>
 </Lights>

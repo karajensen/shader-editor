@@ -123,9 +123,6 @@ public:
     QLabel *lightSpecularity_lbl;
     QDoubleSpinBox *lightSpecularity_value;
     QDial *lightSpecularity_dial;
-    QFrame *shadows;
-    QLabel *shadows_lbl;
-    QCheckBox *shadows_check;
     QWidget *Mesh;
     QWidget *layoutWidget2;
     QVBoxLayout *meshLayout;
@@ -564,7 +561,7 @@ public:
         Light->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget1 = new QWidget(Light);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(0, 0, 230, 571));
+        layoutWidget1->setGeometry(QRect(0, 0, 230, 531));
         lightLayout = new QVBoxLayout(layoutWidget1);
         lightLayout->setSpacing(0);
         lightLayout->setObjectName(QStringLiteral("lightLayout"));
@@ -1283,36 +1280,6 @@ public:
 
         lightLayout->addWidget(lightSpecularity);
 
-        shadows = new QFrame(layoutWidget1);
-        shadows->setObjectName(QStringLiteral("shadows"));
-        sizePolicy.setHeightForWidth(shadows->sizePolicy().hasHeightForWidth());
-        shadows->setSizePolicy(sizePolicy);
-        shadows->setMinimumSize(QSize(225, 35));
-        shadows->setMaximumSize(QSize(225, 35));
-        shadows->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        shadows->setFrameShape(QFrame::Panel);
-        shadows->setFrameShadow(QFrame::Raised);
-        shadows_lbl = new QLabel(shadows);
-        shadows_lbl->setObjectName(QStringLiteral("shadows_lbl"));
-        shadows_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(shadows_lbl->sizePolicy().hasHeightForWidth());
-        shadows_lbl->setSizePolicy(sizePolicy);
-        shadows_lbl->setMinimumSize(QSize(100, 30));
-        shadows_lbl->setMaximumSize(QSize(100, 30));
-        shadows_lbl->setFont(font);
-        shadows_check = new QCheckBox(shadows);
-        shadows_check->setObjectName(QStringLiteral("shadows_check"));
-        shadows_check->setGeometry(QRect(106, 2, 110, 30));
-        sizePolicy.setHeightForWidth(shadows_check->sizePolicy().hasHeightForWidth());
-        shadows_check->setSizePolicy(sizePolicy);
-        shadows_check->setMinimumSize(QSize(110, 30));
-        shadows_check->setMaximumSize(QSize(110, 30));
-        shadows_check->setLayoutDirection(Qt::RightToLeft);
-        shadows_check->setStyleSheet(QStringLiteral(""));
-
-        lightLayout->addWidget(shadows);
-
         TabMenu->addTab(Light, QString());
         Mesh = new QWidget();
         Mesh->setObjectName(QStringLiteral("Mesh"));
@@ -1752,7 +1719,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(Tweaker);
@@ -1795,8 +1762,6 @@ public:
         specularGreen_lbl->setText(QApplication::translate("Tweaker", "Specular Green", 0));
         specularBlue_lbl->setText(QApplication::translate("Tweaker", "Specular Blue", 0));
         lightSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));
-        shadows_lbl->setText(QApplication::translate("Tweaker", "Shadows", 0));
-        shadows_check->setText(QString());
         TabMenu->setTabText(TabMenu->indexOf(Light), QApplication::translate("Tweaker", "Light", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Selected Mesh", 0));
         meshSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));

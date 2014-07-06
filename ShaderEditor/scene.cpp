@@ -172,7 +172,6 @@ bool Scene::InitialiseLighting()
                 light.position.z = GetPtreeValue(it,0.0f,"Z");
 
                 light.specularity = GetPtreeValue(it,5.0f,"Specularity");
-                light.castshadow = GetPtreeValue(it,false,"Shadows");
                 light.attenuation.x = GetPtreeValue(it,0.0f,"AttX");
                 light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
                 light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
@@ -363,4 +362,9 @@ const std::vector<Light>& Scene::GetLights() const
 const std::vector<Texture>& Scene::GetTextures() const
 {
     return m_textures;
+}
+
+Light& Scene::GetLight(int index)
+{
+    return m_lights[index];
 }

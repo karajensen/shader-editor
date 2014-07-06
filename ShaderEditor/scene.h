@@ -62,6 +62,12 @@ public:
     */
     const std::vector<Texture>& GetTextures() const;
 
+    /**
+    * @param index The index of the light to get
+    * @return the light 
+    */
+    Light& GetLight(int index);
+
 private:
 
     /**
