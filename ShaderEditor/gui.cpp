@@ -13,6 +13,27 @@ Gui::Gui(std::shared_ptr<Cache> cache) :
 {
 }
 
+GuiPage Gui::ConvertStringToPage(const std::string& page)
+{
+    if(page == "Scene")
+    {
+        return SCENE;
+    }
+    else if(page == "Mesh")
+    {
+        return MESH;
+    }
+    else if(page == "Post")
+    {
+        return POST;
+    }
+    else if(page == "Light")
+    {
+        return LIGHT;
+    }
+    return NO_PAGE;
+}
+
 void Gui::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
@@ -26,22 +47,39 @@ void Gui::Run(int argc, char *argv[])
     tweaker.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     tweaker.show();
     
-    while(m_cache->ApplicationRunning())
+    while(m_cache->ApplicationRunning.Get())
     {
         app.processEvents();
 
-        const std::string page = tweaker.GetSelectedPage();
-        if(page == "Scene")
+        const auto page = ConvertStringToPage(tweaker.GetSelectedPage());
+        if(page != m_page)
         {
-            tweaker.SetDeltaTime(boost::lexical_cast<std::string>(m_cache->GetDeltaTime()));
+            m_page = page;
+            m_cache->SelectedPage.Set(page);
+        }
 
-            const Float2 mousePosition = m_cache->GetMousePosition();
-            const Float2 mouseDirection = m_cache->GetMouseDirection();
-            tweaker.SetMouse(
+        if(page == SCENE)
+        {
+            tweaker.SetDeltaTime(boost::lexical_cast<std::string>(m_cache->DeltaTime.Get()));
+
+            const Float2 mousePosition = m_cache->MousePosition.Get();
+            const Float2 mouseDirection = m_cache->MouseDirection.Get();
+
+            tweaker.SetMousePosition(
                 boost::lexical_cast<std::string>(static_cast<int>(mousePosition.x)),
-                boost::lexical_cast<std::string>(static_cast<int>(mousePosition.y)),
+                boost::lexical_cast<std::string>(static_cast<int>(mousePosition.y)));
+
+            tweaker.SetMouseDirection(
                 boost::lexical_cast<std::string>(mouseDirection.x),
                 boost::lexical_cast<std::string>(mouseDirection.y));
+        }
+        else if(page == LIGHT)
+        {
+            if(!tweaker.LightPositionSet() && m_cache->LightPosition.Initialised())
+            {
+                const Float3 position = m_cache->LightPosition.Get();
+                tweaker.SetLightPosition(position.x, position.y, position.z);
+            }
         }
     }
 

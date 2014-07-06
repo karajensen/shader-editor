@@ -25,7 +25,8 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_engine(nullptr),
     m_camera(new Camera()),
     m_mousePressed(false),
-    m_cache(cache)
+    m_cache(cache),
+    m_selectedLight(NO_INDEX)
 {
 }
 
@@ -47,7 +48,7 @@ void Application::Run()
             if(IsKeyDown(VK_ESCAPE) || msg.message == WM_QUIT)
             {
                 runApplication = false;
-                m_cache->SetApplicationRunning(false);
+                m_cache->ApplicationRunning.Set(false);
             }
             HandleInputEvents(keyDown, msg);
             TranslateMessage(&msg);
@@ -154,12 +155,36 @@ void Application::TickApplication()
 
     m_scene->Update();
     m_engine->Render(m_scene->GetLights());
-
-    m_cache->SetDeltaTime(m_timer->GetDeltaTime());
-    m_cache->SetMouse(m_mousePosition, m_mouseDirection);
+    UpdateCache();
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
+}
+
+void Application::UpdateCache()
+{
+    const auto page = m_cache->SelectedPage.Get();
+
+    if(page == SCENE)
+    {
+        m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
+        m_cache->MousePosition.Set(m_mousePosition);
+        m_cache->MouseDirection.Set(m_mouseDirection);
+    }
+    else if(page == LIGHT)
+    {
+        const int selectedLight = m_cache->SelectedLight.Get();
+        if(selectedLight != m_selectedLight)
+        {
+            m_selectedLight = selectedLight;
+
+            const auto& lights = m_scene->GetLights();
+            m_cache->LightPosition.Set(lights[selectedLight].position);
+            m_cache->LightAttenuation.Set(lights[selectedLight].attenuation);
+            m_cache->LightDiffuse.Set(lights[selectedLight].diffuse);
+            m_cache->LightSpecular.Set(lights[selectedLight].specular);
+        }
+    }
 }
 
 bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)

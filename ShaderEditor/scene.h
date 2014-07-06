@@ -98,5 +98,4 @@ private:
     std::vector<Mesh> m_alpha;        ///< All translucent meshes in the scene
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene
     std::vector<Light> m_lights;      ///< All lights in the scene
-    int m_selectedLight;              ///< Index of the selected light
 };                     

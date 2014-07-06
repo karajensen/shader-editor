@@ -5,7 +5,7 @@
 #pragma once
 #include "common.h"
 
-class Cache;
+struct Cache;
 
 /**
 * Manages qt for the gui
@@ -29,5 +29,13 @@ public:
 
 private:
 
+    /**
+    * Converts the string description to the page enum
+    * @param page The string description of the page
+    * @return the enum page id
+    */
+    GuiPage ConvertStringToPage(const std::string& page);
+
+    GuiPage m_page;                 ///< Currently selected page of the gui
     std::shared_ptr<Cache> m_cache; ///< Shared data between the gui and application
 };

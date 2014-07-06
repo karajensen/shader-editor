@@ -30,7 +30,6 @@
     <ClCompile Include="directxtexture.cpp" />
     <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
-    <ClCompile Include="cache.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="openglmesh.cpp" />

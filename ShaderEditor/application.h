@@ -14,7 +14,7 @@ class RenderEngine;
 class Timer;
 class Scene;
 class Camera;
-class Cache;
+struct Cache;
 
 /**
 * Main application class
@@ -85,6 +85,11 @@ private:
     bool IsKeyDown(unsigned int key) const;
 
     /**
+    * Updates the shared cache between the application and gui
+    */
+    void UpdateCache();
+
+    /**
     * Initialises the OpenGL Render Engine
     * @return whether initialisation succeeded
     */
@@ -100,6 +105,8 @@ private:
     bool m_mousePressed;     ///< Whether the mouse is held down or not
     Float2 m_mouseDirection; ///< Direction of movement for the mouse
     Float2 m_mousePosition;  ///< 2D coordinates of the mouse
+
+    int m_selectedLight;     ///< Current light selected
 
     std::shared_ptr<Cache> m_cache;           ///< Shared data between the gui and application
     std::unique_ptr<Camera> m_camera;         ///< Scene camera for generating view matrix

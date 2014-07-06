@@ -46,6 +46,18 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
 
 /**
+* GUI pages available
+*/
+enum GuiPage
+{
+    SCENE,
+    LIGHT,
+    MESH,
+    POST,
+    NO_PAGE
+};
+
+/**
 * Simple 2D point
 */
 struct Float2

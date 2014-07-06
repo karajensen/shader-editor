@@ -1,5 +1,9 @@
 
 - Qt passing info to/from app
+	- test writing from gui to simulation
+	- remove shadows and specularity from light gui and class
+
+
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction

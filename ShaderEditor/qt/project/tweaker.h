@@ -40,21 +40,37 @@ public:
     void SetDeltaTime(const std::string& dt);
 
     /**
-    * Sets the coordinates for the mouse
-    * @param positionX The x screen position of the mouse
-    * @param positionY The y screen position of the mouse
-    * @param directionX The x direction normalized of the mouse
-    * @param directionY The y direction normalized of the mouse
+    * Sets the position for the mouse
+    * @param x The x screen position of the mouse
+    * @param y The y screen position of the mouse
     */
-    void SetMouse(const std::string& positionX, 
-                  const std::string& positionY,
-                  const std::string& directionX,
-                  const std::string& directionY);
+    void SetMousePosition(const std::string& x, const std::string& y);
+
+    /**
+    * Sets the direction for the mouse
+    * @param x The x direction normalized of the mouse
+    * @param y The y direction normalized of the mouse
+    */
+    void SetMouseDirection(const std::string& x, const std::string& y);
+
+    /**
+    * Sets the light position
+    * @param x The x component of the light position
+    * @param y The y component of the light position
+    * @param z The z component of the light position
+    */
+    void SetLightPosition(float x, float y, float z);
+
+    /**
+    * @return whether the light position has been previously set
+    */
+    bool LightPositionSet() const;
 
 private slots:
 
 
 private:
 
-    Ui::Tweaker m_ui; ///< User interface object
+    bool m_lightPositionSet; ///< Whether the light position has been set
+    Ui::Tweaker m_ui;        ///< User interface object
 };

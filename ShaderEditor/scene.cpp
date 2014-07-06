@@ -13,8 +13,7 @@
 #include "assimp/include/postprocess.h"
 #include "fragmentlinker.h"
 
-Scene::Scene() :
-    m_selectedLight(NO_INDEX)
+Scene::Scene()
 {
 }
 
@@ -178,7 +177,6 @@ bool Scene::InitialiseLighting()
                 light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
                 light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
 
-                m_selectedLight = m_lights.size();
                 m_lights.push_back(light);
             }
         }

@@ -97,9 +97,6 @@
     <ClCompile Include="opengltarget.cpp">
       <Filter>Render Engine Source</Filter>
     </ClCompile>
-    <ClCompile Include="cache.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="qt\project\editor.cpp">
       <Filter>Qt</Filter>
     </ClCompile>
