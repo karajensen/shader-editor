@@ -1,5 +1,9 @@
 
 - Qt passing info to/from app
+	- implement dials and test app reaction to gui
+	- add multiple render engines
+	- add all tweakable values
+
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction

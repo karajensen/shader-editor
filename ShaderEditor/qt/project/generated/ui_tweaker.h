@@ -1173,6 +1173,7 @@ public:
         specularGreen_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
         specularGreen_dial->setMinimum(-10000);
         specularGreen_dial->setMaximum(10000);
+        specularGreen_dial->setOrientation(Qt::Horizontal);
 
         lightLayout->addWidget(specularGreen);
 

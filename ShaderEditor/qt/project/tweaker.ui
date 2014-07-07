@@ -3230,6 +3230,9 @@ border-width: 2px;</string>
            <property name="maximum">
             <number>10000</number>
            </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
           </widget>
          </widget>
         </item>

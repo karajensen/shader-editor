@@ -65,7 +65,7 @@ void Gui::Run(int argc, char *argv[])
 
 void Gui::SetSignalCallbacks(Tweaker& tweaker, Editor& editor)
 {
-    Tweaker::SignalCallbacks callbacks;
+    SignalCallbacks callbacks;
 
     callbacks.SetLightPositionX = [&](float x){ m_cache->LightPosition.SetX(x); };
     callbacks.SetLightPositionY = [&](float y){ m_cache->LightPosition.SetY(y); };
@@ -107,6 +107,12 @@ void Gui::UpdateCache(Tweaker& tweaker, Editor& editor)
         {
             const Float3 position = m_cache->LightPosition.Get();
             tweaker.SetLightPosition(position.x, position.y, position.z);
+        }
+
+        if(!tweaker.LightAttenuationSet() && m_cache->LightAttenuation.Initialised())
+        {
+            const Float3 attenuation = m_cache->LightAttenuation.Get();
+            tweaker.SetLightAttenuation(attenuation.x, attenuation.y, attenuation.z);
         }
     }
 }
