@@ -58,7 +58,7 @@ public:
     * @param dial The dial for the tweakable widget
     * @param signalCallback The function to call when the value changes
     */
-    void Initialise(float value, float step,
+    void Initialise(double value, double step,
         QDoubleSpinBox* box, QDial* dial,
         std::function<void(float)> signalCallback);
 
@@ -83,6 +83,8 @@ public slots:
 
 private:
 
+    int m_previousDialValue;  ///< The previous value of the dial
+    QDoubleSpinBox* m_box;    ///< The spin box used to edit/display the value
     std::function<void(float)> m_signalCallback; ///< Function to call when value is changed
 };
 

@@ -13,17 +13,20 @@ Tweaker::Tweaker(QWidget *parent) :
 
 Tweakable::Tweakable() :
     QWidget(nullptr),
-    m_signalCallback(nullptr)
+    m_signalCallback(nullptr),
+    m_previousDialValue(0),
+    m_box(nullptr)
 {
 }
 
-void Tweakable::Initialise(float value, 
-                           float step,
+void Tweakable::Initialise(double value, 
+                           double step,
                            QDoubleSpinBox* box, 
                            QDial* dial,
                            std::function<void(float)> signalCallback)
 {
     m_signalCallback = signalCallback;
+    m_box = box;
 
     box->setValue(value);
     box->setSingleStep(step);
@@ -45,6 +48,12 @@ void Tweakable::UpdateValue(double value)
 
 void Tweakable::DialValue(int value)
 {
+    if(value != m_previousDialValue)
+    {
+        const bool clockwise = value > m_previousDialValue;
+        clockwise ? m_box->stepUp() : m_box->stepDown();
+        m_previousDialValue = value;
+    }
 }
 
 bool Tweakable::IsInitialised() const
