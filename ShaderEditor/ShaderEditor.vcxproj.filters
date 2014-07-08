@@ -201,6 +201,9 @@
     <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="qt\project\signals.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_vert.fx">

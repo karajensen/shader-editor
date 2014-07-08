@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <functional>
+#include "signals.h"
 
 #ifdef _VS
 #include "generated/ui_tweaker.h"
@@ -14,30 +14,10 @@
 #endif
 
 /**
-* Holds functions called when a tweakable value emits a signal
-*/
-struct SignalCallbacks
-{
-    std::function<void(float)> SetLightPositionX;   ///< Sets the selected light position
-    std::function<void(float)> SetLightPositionY;   ///< Sets the selected light position
-    std::function<void(float)> SetLightPositionZ;   ///< Sets the selected light position
-    std::function<void(float)> SetLightAttX;        ///< Sets the selected light attenuation
-    std::function<void(float)> SetLightAttY;        ///< Sets the selected light attenuation
-    std::function<void(float)> SetLightAttZ;        ///< Sets the selected light attenuation
-    std::function<void(float)> SetLightDiffuseR;    ///< Sets the selected light diffuse color
-    std::function<void(float)> SetLightDiffuseG;    ///< Sets the selected light diffuse color
-    std::function<void(float)> SetLightDiffuseB;    ///< Sets the selected light diffuse color
-    std::function<void(float)> SetLightDiffuseA;    ///< Sets the selected light diffuse color
-    std::function<void(float)> SetLightSpecularR;   ///< Sets the selected light specular color
-    std::function<void(float)> SetLightSpecularG;   ///< Sets the selected light specular color
-    std::function<void(float)> SetLightSpecularB;   ///< Sets the selected light specular color
-    std::function<void(float)> SetLightSpecularA;   ///< Sets the selected light specular color
-    std::function<void(float)> SetLightSpecularity; ///< Sets the selected light specular size
-};
-
-/**
 * Tweakable widget that holds a double spin box and dial
 * @note Any changes to slots requires building of moc
+* @note Read by both VS and Qt Editor
+* @note cannot subclass inside Tweaker or be in seperate file
 */
 class Tweakable : public QWidget
 {
@@ -111,15 +91,16 @@ public:
     void SetSignalCallbacks(SignalCallbacks& callbacks);
 
     /**
-    * @return the name of the selected tab page
-    */
-    std::string GetSelectedPage() const;
-
-    /**
-    * Sets the readonly tweak entry 'deltaTime'
+    * Sets the readonly tweak entry
     * @param dt The time passed in seconds between ticks
     */
     void SetDeltaTime(const std::string& dt);
+
+    /**
+    * Sets the readonly tweak entry
+    * @param fps The frames per second for the application
+    */
+    void SetFramesPerSec(const std::string& fps);
 
     /**
     * Sets the position for the mouse
@@ -144,11 +125,6 @@ public:
     void SetLightPosition(float x, float y, float z);
 
     /**
-    * @return whether the light position has been previously set
-    */
-    bool LightPositionSet() const;
-
-    /**
     * Sets the light attenuation
     * @param x The x component of the light attenuation
     * @param y The y component of the light attenuation
@@ -157,18 +133,73 @@ public:
     void SetLightAttenuation(float x, float y, float z);
 
     /**
+    * Sets the light diffuse color
+    * @param x The x component of the light diffuse colour
+    * @param y The y component of the light diffuse colour
+    * @param z The z component of the light diffuse colour
+    */
+    void SetLightDiffuse(float r, float g, float b);
+
+    /**
+    * Sets the light specular color
+    * @param x The x component of the light specular colour
+    * @param y The y component of the light specular colour
+    * @param z The z component of the light specular colour
+    */
+    void SetLightSpecular(float r, float g, float b);
+
+    /**
+    * Sets the light specular size
+    * @param size The size of the specular highlights
+    */
+    void SetLightSpecularity(float size);
+
+    /**
+    * @return whether the light diffuse has been previously set
+    */
+    bool LightDiffuseSet() const;
+
+    /**
+    * @return whether the light diffuse has been previously set
+    */
+    bool LightSpecularSet() const;
+
+    /**
     * @return whether the light attenuation has been previously set
     */
     bool LightAttenuationSet() const;
 
+    /**
+    * @return whether the light position has been previously set
+    */
+    bool LightPositionSet() const;
+
+    /**
+    * @return whether the light specularity has been previously set
+    */
+    bool LightSpecularitySet() const;
+
+    /**
+    * @return the name of the selected tab page
+    */
+    std::string GetSelectedPage() const;
+
 private:
 
-    Tweakable m_lightPositionX;     ///< Tweakable x component of the light position
-    Tweakable m_lightPositionY;     ///< Tweakable y component of the light position
-    Tweakable m_lightPositionZ;     ///< Tweakable z component of the light position
-    Tweakable m_lightAttenuationX;  ///< Tweakable x component of the light attenuation
-    Tweakable m_lightAttenuationY;  ///< Tweakable y component of the light attenuation
-    Tweakable m_lightAttenuationZ;  ///< Tweakable z component of the light attenuation
+    Tweakable m_lightPositionX;     ///< Tweakable x of the light position
+    Tweakable m_lightPositionY;     ///< Tweakable y of the light position
+    Tweakable m_lightPositionZ;     ///< Tweakable z of the light position
+    Tweakable m_lightAttenuationX;  ///< Tweakable x of the light attenuation
+    Tweakable m_lightAttenuationY;  ///< Tweakable y of the light attenuation
+    Tweakable m_lightAttenuationZ;  ///< Tweakable z of the light attenuation
+    Tweakable m_lightDiffuseR;      ///< Tweakable r of the light diffuse colour
+    Tweakable m_lightDiffuseG;      ///< Tweakable g of the light diffuse colour
+    Tweakable m_lightDiffuseB;      ///< Tweakable b of the light diffuse colour
+    Tweakable m_lightSpecularR;     ///< Tweakable r of the light specular colour
+    Tweakable m_lightSpecularG;     ///< Tweakable g of the light specular colour
+    Tweakable m_lightSpecularB;     ///< Tweakable b of the light specular colour
+    Tweakable m_lightSpecularity;   ///< Tweakable specular size of the light
+
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache
 };

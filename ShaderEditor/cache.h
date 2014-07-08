@@ -72,6 +72,8 @@ protected:
 */
 class LockableColour : public Lockable<Colour>
 {
+public:
+
     /**
     * Locks the thread to set the r component
     * @param r The component to set
@@ -160,6 +162,7 @@ struct Cache
     Lockable<GuiPage> SelectedPage;     ///< Current page selected for the gui
 
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
+    Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse
     Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
 

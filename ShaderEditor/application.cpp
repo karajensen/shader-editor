@@ -167,6 +167,7 @@ void Application::UpdateCache()
 
     if(page == SCENE)
     {
+        m_cache->FramesPerSec.Set(m_timer->GetFPS());
         m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
         m_cache->MousePosition.Set(m_mousePosition);
         m_cache->MouseDirection.Set(m_mouseDirection);

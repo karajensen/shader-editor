@@ -55,3 +55,8 @@ float Timer::GetDeltaTime() const
 { 
     return static_cast<float>(m_deltaTime); 
 }
+
+int Timer::GetFPS() const
+{
+    return static_cast<int>(m_fps);
+}

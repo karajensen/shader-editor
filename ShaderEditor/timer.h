@@ -33,6 +33,11 @@ public:
     */
     float GetDeltaTime() const;
 
+    /**
+    * @return the frames per second
+    */
+    int GetFPS() const;
+
 private:
 
     double m_frequency;         ///< The frequency of the high-resolution performance counter

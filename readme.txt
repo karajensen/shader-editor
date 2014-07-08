@@ -1,8 +1,9 @@
 
 - Qt passing info to/from app
-	- implement dials and test app reaction to gui
-	- add multiple render engines
-	- add all tweakable values
+	- Add multiple render engines
+	- Display Camera position
+	- Switching selected light
+	- Mesh/Post tabs
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights

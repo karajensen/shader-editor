@@ -77,6 +77,12 @@ void Tweaker::SetDeltaTime(const std::string& dt)
     m_ui.deltaTime_text->update();
 }
 
+void Tweaker::SetFramesPerSec(const std::string& fps)
+{
+    m_ui.fps_text->setText(QString(fps.c_str()));
+    m_ui.fps_text->update();
+}
+
 void Tweaker::SetMousePosition(const std::string& x, const std::string& y)
 {
     m_ui.mousePosX_text->setText(QString(x.c_str()));
@@ -107,13 +113,6 @@ void Tweaker::SetLightPosition(float x, float y, float z)
         m_ui.positionZ_dial, m_callbacks.SetLightPositionZ);
 }
 
-bool Tweaker::LightPositionSet() const
-{
-    return m_lightPositionX.IsInitialised() &&
-        m_lightPositionY.IsInitialised() &&
-        m_lightPositionZ.IsInitialised();
-}
-
 void Tweaker::SetLightAttenuation(float x, float y, float z)
 {
     m_lightAttenuationX.Initialise(x, 0.1, m_ui.attenuationX_value,
@@ -126,9 +125,65 @@ void Tweaker::SetLightAttenuation(float x, float y, float z)
         m_ui.attenuationZ_dial, m_callbacks.SetLightAttZ);
 }
 
+void Tweaker::SetLightDiffuse(float r, float g, float b)
+{
+    m_lightDiffuseR.Initialise(r, 0.01, m_ui.diffuseRed_value,
+        m_ui.diffuseRed_dial, m_callbacks.SetLightDiffuseR);
+
+    m_lightDiffuseG.Initialise(g, 0.01, m_ui.diffuseGreen_value,
+        m_ui.diffuseGreen_dial, m_callbacks.SetLightDiffuseG);
+
+    m_lightDiffuseB.Initialise(b, 0.01, m_ui.diffuseBlue_value,
+        m_ui.diffuseBlue_dial, m_callbacks.SetLightDiffuseB);
+}
+
+void Tweaker::SetLightSpecular(float r, float g, float b)
+{
+    m_lightSpecularR.Initialise(r, 0.01, m_ui.specularRed_value,
+        m_ui.specularRed_dial, m_callbacks.SetLightSpecularR);
+
+    m_lightSpecularG.Initialise(g, 0.01, m_ui.specularGreen_value,
+        m_ui.specularGreen_dial, m_callbacks.SetLightSpecularG);
+
+    m_lightSpecularB.Initialise(b, 0.01, m_ui.specularBlue_value,
+        m_ui.specularBlue_dial, m_callbacks.SetLightSpecularB);
+}
+
+void Tweaker::SetLightSpecularity(float size)
+{
+    m_lightSpecularity.Initialise(size, 0.1, m_ui.lightSpecularity_value,
+        m_ui.lightSpecularity_dial, m_callbacks.SetLightSpecularity);
+}
+
+bool Tweaker::LightSpecularitySet() const
+{
+    return m_lightSpecularity.IsInitialised();
+}
+
+bool Tweaker::LightDiffuseSet() const
+{
+    return m_lightDiffuseR.IsInitialised() &&
+        m_lightDiffuseG.IsInitialised() &&
+        m_lightDiffuseB.IsInitialised();
+}
+
+bool Tweaker::LightSpecularSet() const
+{
+    return m_lightSpecularR.IsInitialised() &&
+        m_lightSpecularG.IsInitialised() &&
+        m_lightSpecularB.IsInitialised();
+}
+
 bool Tweaker::LightAttenuationSet() const
 {
     return m_lightAttenuationX.IsInitialised() &&
         m_lightAttenuationY.IsInitialised() &&
         m_lightAttenuationZ.IsInitialised();
+}
+
+bool Tweaker::LightPositionSet() const
+{
+    return m_lightPositionX.IsInitialised() &&
+        m_lightPositionY.IsInitialised() &&
+        m_lightPositionZ.IsInitialised();
 }

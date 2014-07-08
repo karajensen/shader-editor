@@ -17,27 +17,6 @@ Gui::~Gui()
 {
 }
 
-GuiPage Gui::ConvertStringToPage(const std::string& page)
-{
-    if(page == "Scene")
-    {
-        return SCENE;
-    }
-    else if(page == "Mesh")
-    {
-        return MESH;
-    }
-    else if(page == "Post")
-    {
-        return POST;
-    }
-    else if(page == "Light")
-    {
-        return LIGHT;
-    }
-    return NO_PAGE;
-}
-
 void Gui::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
@@ -63,17 +42,45 @@ void Gui::Run(int argc, char *argv[])
     Logger::LogInfo("Exiting Qt");
 }
 
+GuiPage Gui::ConvertStringToPage(const std::string& page)
+{
+    if(page == "Scene")
+    {
+        return SCENE;
+    }
+    else if(page == "Mesh")
+    {
+        return MESH;
+    }
+    else if(page == "Post")
+    {
+        return POST;
+    }
+    else if(page == "Light")
+    {
+        return LIGHT;
+    }
+    return NO_PAGE;
+}
+
 void Gui::SetSignalCallbacks(Tweaker& tweaker, Editor& editor)
 {
     SignalCallbacks callbacks;
 
-    callbacks.SetLightPositionX = [&](float x){ m_cache->LightPosition.SetX(x); };
-    callbacks.SetLightPositionY = [&](float y){ m_cache->LightPosition.SetY(y); };
-    callbacks.SetLightPositionZ = [&](float z){ m_cache->LightPosition.SetZ(z); };
-    callbacks.SetLightAttX =      [&](float x){ m_cache->LightAttenuation.SetX(x); };
-    callbacks.SetLightAttY =      [&](float y){ m_cache->LightAttenuation.SetY(y); };
-    callbacks.SetLightAttZ =      [&](float z){ m_cache->LightAttenuation.SetZ(z); };
-    
+    callbacks.SetLightPositionX =   [&](float x){ m_cache->LightPosition.SetX(x); };
+    callbacks.SetLightPositionY =   [&](float y){ m_cache->LightPosition.SetY(y); };
+    callbacks.SetLightPositionZ =   [&](float z){ m_cache->LightPosition.SetZ(z); };
+    callbacks.SetLightAttX =        [&](float x){ m_cache->LightAttenuation.SetX(x); };
+    callbacks.SetLightAttY =        [&](float y){ m_cache->LightAttenuation.SetY(y); };
+    callbacks.SetLightAttZ =        [&](float z){ m_cache->LightAttenuation.SetZ(z); };
+    callbacks.SetLightDiffuseR =    [&](float r){ m_cache->LightDiffuse.SetR(r); };
+    callbacks.SetLightDiffuseG =    [&](float g){ m_cache->LightDiffuse.SetG(g); };
+    callbacks.SetLightDiffuseB =    [&](float b){ m_cache->LightDiffuse.SetB(b); };
+    callbacks.SetLightSpecularR =   [&](float r){ m_cache->LightSpecular.SetR(r); };
+    callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
+    callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
+    callbacks.SetLightSpecularity = [&](float s){ m_cache->LightSpecularity.Set(s); };  
+
     tweaker.SetSignalCallbacks(callbacks);
 }
 
@@ -89,6 +96,7 @@ void Gui::UpdateCache(Tweaker& tweaker, Editor& editor)
     if(page == SCENE)
     {
         tweaker.SetDeltaTime(boost::lexical_cast<std::string>(m_cache->DeltaTime.Get()));
+        tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(m_cache->FramesPerSec.Get()));
 
         const Float2 mousePosition = m_cache->MousePosition.Get();
         const Float2 mouseDirection = m_cache->MouseDirection.Get();
@@ -113,6 +121,23 @@ void Gui::UpdateCache(Tweaker& tweaker, Editor& editor)
         {
             const Float3 attenuation = m_cache->LightAttenuation.Get();
             tweaker.SetLightAttenuation(attenuation.x, attenuation.y, attenuation.z);
+        }
+
+        if(!tweaker.LightDiffuseSet() && m_cache->LightDiffuse.Initialised())
+        {
+            const Colour diffuse = m_cache->LightDiffuse.Get();
+            tweaker.SetLightDiffuse(diffuse.r, diffuse.g, diffuse.b);
+        }
+
+        if(!tweaker.LightSpecularSet() && m_cache->LightSpecular.Initialised())
+        {
+            const Colour specular = m_cache->LightSpecular.Get();
+            tweaker.SetLightSpecular(specular.r, specular.g, specular.b);
+        }
+
+        if(!tweaker.LightSpecularitySet() && m_cache->LightSpecularity.Initialised())
+        {
+            tweaker.SetLightSpecularity(m_cache->LightSpecularity.Get());
         }
     }
 }
