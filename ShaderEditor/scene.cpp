@@ -368,3 +368,25 @@ Light& Scene::GetLight(int index)
 {
     return m_lights[index];
 }
+
+std::string Scene::GetTexture(int index)
+{
+    return index == NO_INDEX ? "None" : m_textures[index].name;
+}
+
+bool Scene::HasTransparency(int index)
+{
+    return index >= static_cast<int>(m_meshes.size());
+}
+
+Mesh& Scene::GetMesh(int index)
+{
+    return HasTransparency(index) ? 
+        m_alpha[index - static_cast<int>(m_meshes.size())] : 
+        m_meshes[index];
+}
+
+Shader& Scene::GetShader(int index)
+{
+    return m_shaders[index];
+}

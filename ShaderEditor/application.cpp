@@ -26,7 +26,8 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_mousePressed(false),
     m_cache(cache),
-    m_selectedLight(NO_INDEX)
+    m_selectedLight(NO_INDEX),
+    m_selectedMesh(NO_INDEX)
 {
 }
 
@@ -155,54 +156,84 @@ void Application::TickApplication()
 
     m_scene->Update();
     m_engine->Render(m_scene->GetLights());
-    UpdateCache();
+    
+    switch(m_cache->SelectedPage.Get())
+    {
+    case SCENE:
+        UpdateScene();
+        break;
+    case LIGHT:
+        UpdateLight();
+        break;
+    case MESH:
+        UpdateMesh();
+        break;
+    }
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
 }
 
-void Application::UpdateCache()
+void Application::UpdateScene()
 {
-    const auto page = m_cache->SelectedPage.Get();
+    m_cache->FramesPerSec.Set(m_timer->GetFPS());
+    m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
+    m_cache->MousePosition.Set(m_mousePosition);
+    m_cache->MouseDirection.Set(m_mouseDirection);
+    m_cache->CameraPosition.Set(m_camera->GetWorld().Position());
+}
 
-    if(page == SCENE)
+void Application::UpdateMesh()
+{
+    const int selectedMesh = m_cache->SelectedMesh.Get();
+    if(selectedMesh != m_selectedMesh)
     {
-        m_cache->FramesPerSec.Set(m_timer->GetFPS());
-        m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
-        m_cache->MousePosition.Set(m_mousePosition);
-        m_cache->MouseDirection.Set(m_mouseDirection);
+        m_selectedMesh = selectedMesh;
+
+        auto& mesh = m_scene->GetMesh(m_selectedMesh);
+        m_cache->BackFaceCull.Set(mesh.backfacecull);
+        m_cache->MeshSpecularity.Set(mesh.specularity);
+        m_cache->Transparency.Set(m_scene->HasTransparency(m_selectedMesh));
+        m_cache->Shader.Set(m_scene->GetShader(mesh.shaderIndex).name);
+
+        const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
+        m_cache->MeshDiffuse.Set(m_scene->GetTexture(diffuse));
+
+        const int normal = mesh.textureIDs[Texture::NORMAL];
+        m_cache->MeshNormal.Set(m_scene->GetTexture(normal));
+
+        const int specular = mesh.textureIDs[Texture::SPECULAR];
+        m_cache->MeshSpecular.Set(m_scene->GetTexture(specular));
     }
-    else if(page == LIGHT)
+    else if(m_selectedMesh != NO_INDEX)
     {
-        const int selectedLight = m_cache->SelectedLight.Get();
-        if(selectedLight != m_selectedLight)
-        {
-            m_selectedLight = selectedLight;
-
-            const auto& lights = m_scene->GetLights();
-            m_cache->LightPosition.Set(lights[selectedLight].position);
-            m_cache->LightAttenuation.Set(lights[selectedLight].attenuation);
-            m_cache->LightDiffuse.Set(lights[selectedLight].diffuse);
-            m_cache->LightSpecular.Set(lights[selectedLight].specular);
-            m_cache->LightSpecularity.Set(lights[selectedLight].specularity);
-        }
-        else if(m_selectedLight != NO_INDEX)
-        {
-            auto& light = m_scene->GetLight(m_selectedLight);
-            light.position = m_cache->LightPosition.Get();
-            light.attenuation = m_cache->LightAttenuation.Get();
-            light.diffuse = m_cache->LightDiffuse.Get();
-            light.specular = m_cache->LightSpecular.Get();
-            light.specularity = m_cache->LightSpecularity.Get();
-        }
+        auto& mesh = m_scene->GetMesh(m_selectedMesh);
+        mesh.specularity = m_cache->MeshSpecularity.Get();
     }
-    else if(page == MESH)
-    {
+}
 
+void Application::UpdateLight()
+{
+    const int selectedLight = m_cache->SelectedLight.Get();
+    if(selectedLight != m_selectedLight)
+    {
+        m_selectedLight = selectedLight;
+
+        auto& light = m_scene->GetLight(m_selectedLight);
+        m_cache->LightPosition.Set(light.position);
+        m_cache->LightAttenuation.Set(light.attenuation);
+        m_cache->LightDiffuse.Set(light.diffuse);
+        m_cache->LightSpecular.Set(light.specular);
+        m_cache->LightSpecularity.Set(light.specularity);
     }
-    else if(page == POST)
+    else if(m_selectedLight != NO_INDEX)
     {
-
+        auto& light = m_scene->GetLight(m_selectedLight);
+        light.position = m_cache->LightPosition.Get();
+        light.attenuation = m_cache->LightAttenuation.Get();
+        light.diffuse = m_cache->LightDiffuse.Get();
+        light.specular = m_cache->LightSpecular.Get();
+        light.specularity = m_cache->LightSpecularity.Get();
     }
 }
 

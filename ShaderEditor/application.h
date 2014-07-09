@@ -85,9 +85,19 @@ private:
     bool IsKeyDown(unsigned int key) const;
 
     /**
-    * Updates the shared cache between the application and gui
+    * Updates the scene shared cache between the gui and application
     */
-    void UpdateCache();
+    void UpdateScene();
+
+    /**
+    * Updates the light shared cache between the gui and application
+    */
+    void UpdateLight();
+
+    /**
+    * Updates the mesh shared cache between the gui and application
+    */
+    void UpdateMesh();
 
     /**
     * Initialises the OpenGL Render Engine
@@ -107,6 +117,7 @@ private:
     Float2 m_mousePosition;  ///< 2D coordinates of the mouse
 
     int m_selectedLight;     ///< Current light selected
+    int m_selectedMesh;      ///< Current mesh selected
 
     std::shared_ptr<Cache> m_cache;           ///< Shared data between the gui and application
     std::unique_ptr<Camera> m_camera;         ///< Scene camera for generating view matrix

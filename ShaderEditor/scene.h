@@ -68,6 +68,32 @@ public:
     */
     Light& GetLight(int index);
 
+    /**
+    * @param index The index of the mesh to get
+    * @return the mesh 
+    */
+    Mesh& GetMesh(int index);
+
+    /**
+    * @param index The index of the shader to get
+    * @return the shader 
+    */
+    Shader& GetShader(int index);
+
+    /**
+    * Determines whether the mesh has transparency
+    * @param index The unique index of the mesh
+    * @return whether the mesh has transparency
+    */
+    bool HasTransparency(int index);
+
+    /**
+    * Gets the name of the texture
+    * @param index The index of the texture
+    * @return the name of the texture
+    */
+    std::string GetTexture(int index);
+
 private:
 
     /**

@@ -101,6 +101,56 @@ void Tweaker::SetMouseDirection(const std::string& x, const std::string& y)
     m_ui.mouseDirY_text->update();
 }
 
+void Tweaker::SetCameraPosition(const std::string& x, 
+                                const std::string& y, 
+                                const std::string& z)
+{
+    m_ui.cameraX_text->setText(QString(x.c_str()));
+    m_ui.cameraX_text->update();
+
+    m_ui.cameraY_text->setText(QString(y.c_str()));
+    m_ui.cameraY_text->update();
+
+    m_ui.cameraZ_text->setText(QString(z.c_str()));
+    m_ui.cameraZ_text->update();
+}
+
+void Tweaker::SetMeshBackFaceCull(bool enable)
+{
+    m_ui.backfaceCull_text->setText(enable ? "True" : "False");
+    m_ui.backfaceCull_text->update();
+}
+
+void Tweaker::SetMeshTransparency(bool enable)
+{
+    m_ui.transparency_text->setText(enable ? "True" : "False");
+    m_ui.transparency_text->update();
+}
+
+void Tweaker::SetMeshDiffuseTexture(const std::string& name)
+{
+    m_ui.diffuseMap_text->setText(QString(name.c_str()));
+    m_ui.diffuseMap_text->update();
+}
+
+void Tweaker::SetMeshSpecularTexture(const std::string& name)
+{
+    m_ui.specularMap_text->setText(QString(name.c_str()));
+    m_ui.specularMap_text->update();
+}
+
+void Tweaker::SetMeshNormalTexture(const std::string& name)
+{
+    m_ui.normalMap_text->setText(QString(name.c_str()));
+    m_ui.normalMap_text->update();
+}
+
+void Tweaker::SetMeshShaderName(const std::string& name)
+{
+    m_ui.shader_text->setText(QString(name.c_str()));
+    m_ui.shader_text->update();
+}
+
 void Tweaker::SetLightPosition(float x, float y, float z)
 {
     m_lightPositionX.Initialise(x, 1.0, m_ui.positionX_value,
@@ -153,6 +203,17 @@ void Tweaker::SetLightSpecularity(float size)
 {
     m_lightSpecularity.Initialise(size, 0.1, m_ui.lightSpecularity_value,
         m_ui.lightSpecularity_dial, m_callbacks.SetLightSpecularity);
+}
+
+void Tweaker::SetMeshSpecularity(float size)
+{
+    m_meshSpecularity.Initialise(size, 0.1, m_ui.meshSpecularity_value,
+        m_ui.meshSpecularity_dial, m_callbacks.SetMeshSpecularity);
+}
+
+bool Tweaker::MeshSpecularitySet() const
+{
+    return m_meshSpecularity.IsInitialised();
 }
 
 bool Tweaker::LightSpecularitySet() const

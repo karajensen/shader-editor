@@ -1,14 +1,15 @@
 
 - Qt passing info to/from app
-	- Add multiple render engines
-	- Display Camera position
-	- Switching selected light
-	- Mesh/Post tabs
+	- Tweakable strings seen as memory leaks?
+	- Switching selected light/mesh/post/render engine
+	- Opening/using shader editor
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Optimise shaders
+
+- Add mesh specularity to python script
 - Create 3D scene with baked shadows
 
 TO DETERMINE:

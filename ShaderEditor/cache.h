@@ -161,10 +161,17 @@ struct Cache
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running
     Lockable<GuiPage> SelectedPage;     ///< Current page selected for the gui
 
+    Lockable<int> SelectedShader;       ///< Index for the selected shader
+    Lockable<std::string> ShaderText;   ///< Text for the selected shader
+    Lockable<std::string> ShaderAsm;    ///< Assembly for the selected shader
+    Lockable<bool> CompileShader;       ///< Whether the shader requires recompilation
+
+    Lockable<int> SelectedEngine;       ///< The selected render engine to use
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse
     Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
+    Lockable<Float3> CameraPosition;    ///< Position of the camera in world coordindates
 
     Lockable<int> SelectedLight;        ///< Index of the currently selected light
     Lockable<float> LightSpecularity;   ///< Specularity of the selected light
@@ -172,4 +179,22 @@ struct Cache
     LockableVector LightAttenuation;    ///< Attenuation of the selected light
     LockableColour LightDiffuse;        ///< Diffuse colour of the selected light
     LockableColour LightSpecular;       ///< Specular colour of the selected light
+
+    Lockable<int> SelectedMesh;         ///< Index of the currently selected mesh
+    Lockable<float> MeshSpecularity;    ///< Specularity of the selected mesh
+    Lockable<bool> BackFaceCull;        ///< Whether selected mesh is culling backfaces
+    Lockable<bool> Transparency;        ///< Whether selected mesh has transparency
+    Lockable<std::string> Shader;       ///< Shader used for the selected mesh
+    Lockable<std::string> MeshDiffuse;  ///< Diffuse texture for the selected mesh
+    Lockable<std::string> MeshSpecular; ///< Specular texture for the selected mesh
+    Lockable<std::string> MeshNormal;   ///< Normal texture for the selected mesh
+
+    Lockable<int> SelectedPost;         ///< Index of the currently selected post texture
+    Lockable<bool> Shadows;             ///< Whether to render shadows for the scene or not
+
+    Lockable<std::vector<std::string>> PostShaders;   ///< Container of all post shaders
+    Lockable<std::vector<std::string>> MeshShaders;   ///< Container of all mesh shaders
+    Lockable<std::vector<std::string>> RenderEngines; ///< Container of all render engines
+    Lockable<std::vector<std::string>> Lights;        ///< Container of all lights
+    Lockable<std::vector<std::string>> Meshes;        ///< Container of all meshes
 };

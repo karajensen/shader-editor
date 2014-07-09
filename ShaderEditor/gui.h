@@ -37,11 +37,27 @@ public:
 private:
 
     /**
-    * Updates the cache
-    * @param tweaker The gui for tweaking the application
-    * @param editor The gui for editing the application
+    * Update the cache and gui
     */
-    void UpdateCache(Tweaker& tweaker, Editor& editor);
+    void Update(Tweaker& tweaker);
+
+    /**
+    * Updates the cache and gui for the scene page
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateScene(Tweaker& tweaker);
+
+    /**
+    * Updates the cache and gui for the light page
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateLight(Tweaker& tweaker);
+
+    /**
+    * Updates the cache and gui for the mesh page
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateMesh(Tweaker& tweaker);
 
     /**
     * Sets the functions required to update the cache from the gui

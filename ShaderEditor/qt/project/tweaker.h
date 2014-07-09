@@ -117,6 +117,52 @@ public:
     void SetMouseDirection(const std::string& x, const std::string& y);
 
     /**
+    * Sets the position for the camera
+    * @param x The x world position of the camera
+    * @param y The y world position of the camera
+    * @param z The z world position of the camera
+    */
+    void SetCameraPosition(const std::string& x, 
+                           const std::string& y, 
+                           const std::string& z);
+
+    /**
+    * Sets the readonly selected mesh back face culling
+    * @param enable Whether the mesh uses back face culling
+    */
+    void SetMeshBackFaceCull(bool enable);
+
+    /**
+    * Sets the readonly selected mesh transparency
+    * @param enable Whether the mesh uses transparency
+    */
+    void SetMeshTransparency(bool enable);
+
+    /**
+    * Sets the readonly selected mesh diffuse texture
+    * @param name The name of the diffuse texture
+    */
+    void SetMeshDiffuseTexture(const std::string& name);
+
+    /**
+    * Sets the readonly selected mesh specular texture
+    * @param name The name of the specular texture
+    */
+    void SetMeshSpecularTexture(const std::string& name);
+
+    /**
+    * Sets the readonly selected mesh normal texture
+    * @param name The name of the normal texture
+    */
+    void SetMeshNormalTexture(const std::string& name);
+
+    /**
+    * Sets the readonly selected mesh shader name
+    * @param name The name of the shader
+    */
+    void SetMeshShaderName(const std::string& name);
+
+    /**
     * Sets the light position
     * @param x The x component of the light position
     * @param y The y component of the light position
@@ -155,6 +201,12 @@ public:
     void SetLightSpecularity(float size);
 
     /**
+    * Sets the mesh specular size
+    * @param size The size of the specular highlights
+    */
+    void SetMeshSpecularity(float size);
+
+    /**
     * @return whether the light diffuse has been previously set
     */
     bool LightDiffuseSet() const;
@@ -180,6 +232,11 @@ public:
     bool LightSpecularitySet() const;
 
     /**
+    * @return whether the mesh specularity has been previously set
+    */
+    bool MeshSpecularitySet() const;
+
+    /**
     * @return the name of the selected tab page
     */
     std::string GetSelectedPage() const;
@@ -199,6 +256,7 @@ private:
     Tweakable m_lightSpecularG;     ///< Tweakable g of the light specular colour
     Tweakable m_lightSpecularB;     ///< Tweakable b of the light specular colour
     Tweakable m_lightSpecularity;   ///< Tweakable specular size of the light
+    Tweakable m_meshSpecularity;    ///< Tweakable specular size of the mesh
 
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache

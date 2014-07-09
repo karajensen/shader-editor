@@ -24,4 +24,5 @@ struct SignalCallbacks
     std::function<void(float)> SetLightSpecularG;   ///< Sets the selected light specular color
     std::function<void(float)> SetLightSpecularB;   ///< Sets the selected light specular color
     std::function<void(float)> SetLightSpecularity; ///< Sets the selected light specular size
+    std::function<void(float)> SetMeshSpecularity;  ///< Sets the selected mesh specular size
 };
