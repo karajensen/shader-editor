@@ -81,6 +81,13 @@ public:
     Shader& GetShader(int index);
 
     /**
+    * Gets the name of the texture
+    * @param index The index of the texture
+    * @return the name of the texture
+    */
+    std::string GetTexture(int index);
+
+    /**
     * Determines whether the mesh has transparency
     * @param index The unique index of the mesh
     * @return whether the mesh has transparency
@@ -88,11 +95,14 @@ public:
     bool HasTransparency(int index);
 
     /**
-    * Gets the name of the texture
-    * @param index The index of the texture
-    * @return the name of the texture
+    * @return the number of meshes available
     */
-    std::string GetTexture(int index);
+    int GetMeshCount() const;
+
+    /**
+    * @return the number of lights available
+    */
+    int GetLightCount() const;
 
 private:
 

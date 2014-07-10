@@ -1,6 +1,5 @@
 
 - Qt passing info to/from app
-	- Tweakable strings seen as memory leaks?
 	- Switching selected light/mesh/post/render engine
 	- Opening/using shader editor
 

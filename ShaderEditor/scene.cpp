@@ -390,3 +390,13 @@ Shader& Scene::GetShader(int index)
 {
     return m_shaders[index];
 }
+
+int Scene::GetMeshCount() const
+{
+    return static_cast<int>(m_meshes.size() + m_alpha.size());
+}
+
+int Scene::GetLightCount() const
+{
+    return static_cast<int>(m_lights.size());
+}

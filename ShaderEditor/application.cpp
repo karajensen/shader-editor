@@ -195,17 +195,17 @@ void Application::UpdateMesh()
         m_cache->MeshSpecularity.Set(mesh.specularity);
         m_cache->Transparency.Set(m_scene->HasTransparency(m_selectedMesh));
         m_cache->Shader.Set(m_scene->GetShader(mesh.shaderIndex).name);
-
+        
         const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
         m_cache->MeshDiffuse.Set(m_scene->GetTexture(diffuse));
-
+        
         const int normal = mesh.textureIDs[Texture::NORMAL];
         m_cache->MeshNormal.Set(m_scene->GetTexture(normal));
-
+        
         const int specular = mesh.textureIDs[Texture::SPECULAR];
         m_cache->MeshSpecular.Set(m_scene->GetTexture(specular));
     }
-    else if(m_selectedMesh != NO_INDEX)
+    else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene->GetMeshCount())
     {
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
         mesh.specularity = m_cache->MeshSpecularity.Get();
@@ -226,7 +226,7 @@ void Application::UpdateLight()
         m_cache->LightSpecular.Set(light.specular);
         m_cache->LightSpecularity.Set(light.specularity);
     }
-    else if(m_selectedLight != NO_INDEX)
+    else if(m_selectedLight >= 0 && m_selectedLight < m_scene->GetLightCount())
     {
         auto& light = m_scene->GetLight(m_selectedLight);
         light.position = m_cache->LightPosition.Get();

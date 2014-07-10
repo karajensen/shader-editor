@@ -18,9 +18,9 @@ public:
     * Constructor
     */
     Lockable() :
-        m_initialised(false)
+        m_initialised(false),
+        m_data(T())
     {
-        ZeroMemory(&m_data, sizeof(m_data));
     }
 
     /**
