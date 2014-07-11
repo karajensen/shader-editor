@@ -1,4 +1,5 @@
 
+- Combo box margin
 - Qt passing info to/from app
 	- Switching selected light/mesh/post/render engine
 	- Opening/using shader editor

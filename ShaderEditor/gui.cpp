@@ -87,6 +87,11 @@ void Gui::SetSignalCallbacks(Tweaker& tweaker, Editor& editor)
 
 void Gui::UpdateScene(Tweaker& tweaker)
 {
+    if(!tweaker.HasRenderEngines())
+    {
+        tweaker.SetRenderEngines(m_cache->RenderEngines.Get());
+    }
+
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(m_cache->DeltaTime.Get()));
     tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(m_cache->FramesPerSec.Get()));
 
@@ -110,6 +115,11 @@ void Gui::UpdateScene(Tweaker& tweaker)
 
 void Gui::UpdateLight(Tweaker& tweaker)
 {
+    if(!tweaker.HasLights())
+    {
+        tweaker.SetLights(m_cache->Lights.Get());
+    }
+
     if(!tweaker.LightPositionSet() && m_cache->LightPosition.Initialised())
     {
         const Float3 position = m_cache->LightPosition.Get();
@@ -142,6 +152,11 @@ void Gui::UpdateLight(Tweaker& tweaker)
 
 void Gui::UpdateMesh(Tweaker& tweaker)
 {
+    if(!tweaker.HasMeshes())
+    {
+        tweaker.SetMeshes(m_cache->Meshes.Get());
+    }
+
     if(!tweaker.MeshSpecularitySet() && m_cache->MeshSpecularity.Initialised())
     {
         tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.Get());

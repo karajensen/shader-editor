@@ -14,20 +14,18 @@
 
 namespace
 {
-    const bool OPENGL_START = true;
-
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
     const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
 }
 
 Application::Application(std::shared_ptr<Cache> cache) :
-    m_engine(nullptr),
     m_camera(new Camera()),
     m_mousePressed(false),
     m_cache(cache),
     m_selectedLight(NO_INDEX),
-    m_selectedMesh(NO_INDEX)
+    m_selectedMesh(NO_INDEX),
+    m_selectedEngine(OPENGL)
 {
 }
 
@@ -76,10 +74,6 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
     case WM_KEYDOWN:
         keydown = msg.wParam;
         break;
-    case WM_SYSKEYUP:
-    case WM_KEYUP:
-        HandleKeyPress(keydown);
-        break;
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
         m_mousePressed = false;
@@ -90,16 +84,6 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
         break;
     case WM_MOUSEMOVE:
         HandleMouseMovement(msg);
-        break;
-    }
-}
-
-void Application::HandleKeyPress(const WPARAM& keydown)
-{
-    switch(keydown)
-    {
-    case VK_F2:
-        SwitchRenderEngine();
         break;
     }
 }
@@ -151,11 +135,11 @@ void Application::TickApplication()
     if(m_camera->RequiresUpdate())
     {
         m_camera->Update();
-        m_engine->UpdateView(m_camera->GetWorld());
+        GetEngine()->UpdateView(m_camera->GetWorld());
     }
 
     m_scene->Update();
-    m_engine->Render(m_scene->GetLights());
+    GetEngine()->Render(m_scene->GetLights());
     
     switch(m_cache->SelectedPage.Get())
     {
@@ -240,65 +224,58 @@ void Application::UpdateLight()
 bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
 {
     m_timer.reset(new Timer());
-    m_scene.reset(new Scene());
-    m_directx.reset(new DirectxEngine(hwnd));
-    m_opengl.reset(new OpenglEngine(hwnd, hinstance));
 
+    m_scene.reset(new Scene());
     if(!m_scene->Initialise())
     {
         Logger::LogError("Scene: Failed to initialise");
         return false;
     }
 
-    bool openglSuccess = false;
-    bool directxSuccess = false;
+    std::vector<std::string> engineNames;
+    m_engines.resize(MAX_ENGINES);
+    m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
+    m_engines[OPENGL].reset(new OpenglEngine(hwnd, hinstance));
 
-    if(OPENGL_START)
+    bool failed = false;
+    for(auto& engine : m_engines)
     {
-        directxSuccess = InitialiseDirectX();
-        openglSuccess = InitialiseOpenGL();
-        m_engine = m_opengl.get();
-    }
-    else
-    {
-        openglSuccess = InitialiseOpenGL();
-        directxSuccess = InitialiseDirectX();
-        m_engine = m_directx.get();
+        failed |= !InitialiseEngine(*engine);
+        engineNames.push_back(engine->GetName());
     }
 
-    return openglSuccess && directxSuccess;
-}
-
-bool Application::InitialiseOpenGL()
-{
-    if(!m_opengl->Initialize())
+    if(failed)
     {
-        Logger::LogError("OpenGL: Failed to initialise");
+        Logger::LogError("Render Engine: Failed to initialise");
         return false;
     }
 
-    if(!m_opengl->InitialiseScene(m_scene->GetMeshes(), 
-        m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
-    {
-        Logger::LogError("OpenGL: Scene failed to initialise");
-        return false;
-    }
+    m_cache->SelectedEngine.Set(m_selectedEngine);
+    m_cache->RenderEngines.Set(engineNames);
+    m_cache->Lights.Set(m_scene->GetLightNames());
+    m_cache->Meshes.Set(m_scene->GetMeshNames());
+    m_cache->MeshShaders.Set(m_scene->GetShaderNames());
 
     return true;
 }
 
-bool Application::InitialiseDirectX()
+RenderEngine* Application::GetEngine() const
 {
-    if(!m_directx->Initialize())
+    return m_engines[m_selectedEngine].get();
+}
+
+bool Application::InitialiseEngine(RenderEngine& engine)
+{
+    if(!engine.Initialize())
     {
-        Logger::LogError("DirectX: Failed to initialise");
+        Logger::LogError(engine.GetName() + ": Failed to initialise");
         return false;
     }
 
-    if(!m_directx->InitialiseScene(m_scene->GetMeshes(), 
+    if(!engine.InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
     {
-        Logger::LogError("DirectX: Scene failed to initialise");
+        Logger::LogError(engine.GetName() + ": Scene failed to initialise");
         return false;
     }
 
@@ -307,21 +284,17 @@ bool Application::InitialiseDirectX()
 
 void Application::SwitchRenderEngine()
 {
-    const bool useOpenGL = !(m_engine == m_opengl.get());
-    if(useOpenGL)
+    ++m_selectedEngine;
+    if(m_selectedEngine >= static_cast<int>(m_engines.size()))
     {
-        m_engine = m_opengl.get();
-    }
-    else
-    {
-        m_engine = m_directx.get();
+        m_selectedEngine = 0;
     }
 
     // Reinitialise the engine as it has lost focus
-    if(!m_engine->Initialize() || !m_engine->ReInitialiseScene())
+    if(!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {
-        Logger::LogError(m_engine->GetName() + ": Failed to reinitialise");
+        Logger::LogError(GetEngine()->GetName() + ": Failed to reinitialise");
     }
 
-    m_engine->UpdateView(m_camera->GetWorld());
+    GetEngine()->UpdateView(m_camera->GetWorld());
 }

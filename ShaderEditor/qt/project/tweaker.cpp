@@ -248,3 +248,42 @@ bool Tweaker::LightPositionSet() const
         m_lightPositionY.IsInitialised() &&
         m_lightPositionZ.IsInitialised();
 }
+
+bool Tweaker::HasRenderEngines() const
+{
+    return m_ui.switchEngine_box->count() > 0;
+}
+
+bool Tweaker::HasMeshes() const
+{
+    return m_ui.selectedMesh_box->count() > 0;
+}
+
+bool Tweaker::HasLights() const
+{
+    return m_ui.selectedLight_box->count() > 0;
+}
+
+void Tweaker::SetRenderEngines(const std::vector<std::string>& engines)
+{
+    for(const std::string& name : engines)
+    {
+        m_ui.switchEngine_box->addItem(QString(name.c_str()));
+    }
+}
+
+void Tweaker::SetMeshes(const std::vector<std::string>& meshes)
+{
+    for(const std::string& name : meshes)
+    {
+        m_ui.selectedMesh_box->addItem(QString(name.c_str()));
+    }
+}
+
+void Tweaker::SetLights(const std::vector<std::string>& lights)
+{
+    for(const std::string& name : lights)
+    {
+        m_ui.selectedLight_box->addItem(QString(name.c_str()));
+    }
+}

@@ -400,3 +400,37 @@ int Scene::GetLightCount() const
 {
     return static_cast<int>(m_lights.size());
 }
+
+std::vector<std::string> Scene::GetLightNames() const
+{
+    std::vector<std::string> lights;
+    for(const Light& light : m_lights)
+    {
+        lights.push_back(light.name);
+    }
+    return lights;
+}
+
+std::vector<std::string> Scene::GetMeshNames() const
+{
+    std::vector<std::string> meshes;
+    for(const Mesh& mesh : m_meshes)
+    {
+        meshes.push_back(mesh.name);
+    }
+    for(const Mesh& alpha : m_alpha)
+    {
+        meshes.push_back(alpha.name);
+    }
+    return meshes;
+}
+
+std::vector<std::string> Scene::GetShaderNames() const
+{
+    std::vector<std::string> shaders;
+    for(const Shader& shader : m_shaders)
+    {
+        shaders.push_back(shader.name);
+    }
+    return shaders;
+}

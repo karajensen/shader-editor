@@ -21,6 +21,11 @@ public:
     virtual bool Initialize() = 0;
 
     /**
+    * Destructor
+    */
+    virtual ~RenderEngine(){}
+
+    /**
     * Renders the 3D scene
     * @param lights All lighting in the scene
     */

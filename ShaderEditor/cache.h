@@ -167,6 +167,7 @@ struct Cache
     Lockable<bool> CompileShader;       ///< Whether the shader requires recompilation
 
     Lockable<int> SelectedEngine;       ///< The selected render engine to use
+    Lockable<bool> SwitchEngine;        ///< Used to send a request to switch the engine
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse

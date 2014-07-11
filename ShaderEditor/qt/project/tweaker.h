@@ -207,6 +207,24 @@ public:
     void SetMeshSpecularity(float size);
 
     /**
+    * Sets the available render engines for the combo box
+    * @param engines The render engine names to set
+    */
+    void SetRenderEngines(const std::vector<std::string>& engines);
+
+    /**
+    * Sets the available meshes for the combo box
+    * @param meshes The mesh names to set
+    */
+    void SetMeshes(const std::vector<std::string>& meshes);
+
+    /**
+    * Sets the available lights for the combo box
+    * @param lights The light names to set
+    */
+    void SetLights(const std::vector<std::string>& lights);
+
+    /**
     * @return whether the light diffuse has been previously set
     */
     bool LightDiffuseSet() const;
@@ -235,6 +253,21 @@ public:
     * @return whether the mesh specularity has been previously set
     */
     bool MeshSpecularitySet() const;
+
+    /**
+    * @return whether the render engine combo box is filled int
+    */
+    bool HasRenderEngines() const;
+
+    /**
+    * @return whether the mesh combo box is filled int
+    */
+    bool HasMeshes() const;
+
+    /**
+    * @return whether the mesh combo box is filled int
+    */
+    bool HasLights() const;
 
     /**
     * @return the name of the selected tab page
