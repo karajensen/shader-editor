@@ -5,13 +5,43 @@
 #include <QtGui>
 #include "tweaker.h"
 
-Tweaker::Tweaker(QWidget *parent) :
-    QWidget(parent)
+TweakableBox::TweakableBox() :
+    QWidget(nullptr),
+    m_signalCallback(nullptr),
+    m_comboBox(nullptr)
 {
-    m_ui.setupUi(this);
 }
 
-Tweakable::Tweakable() :
+void TweakableBox::Initialise(QComboBox* comboBox, 
+                              int selectedItem,
+                              const std::vector<std::string>& items,
+                              std::function<void(int)> signalCallback)
+{
+    m_signalCallback = signalCallback;
+    m_comboBox = comboBox;
+
+    for(const std::string& item : items)
+    {
+        comboBox->addItem(QString((" " + item).c_str()));
+    }
+
+    comboBox->setCurrentIndex(selectedItem);
+
+    connect(comboBox, SIGNAL(currentIndexChanged(int)), 
+        this, SLOT(UpdateSelected(int)));  
+}
+
+void TweakableBox::UpdateSelected(int index)
+{
+    m_signalCallback(index);
+}
+
+bool TweakableBox::IsInitialised() const
+{
+    return m_comboBox ? m_comboBox->count() > 0 : false;
+}
+
+TweakableValue::TweakableValue() :
     QWidget(nullptr),
     m_signalCallback(nullptr),
     m_previousDialValue(0),
@@ -19,11 +49,11 @@ Tweakable::Tweakable() :
 {
 }
 
-void Tweakable::Initialise(double value, 
-                           double step,
-                           QDoubleSpinBox* box, 
-                           QDial* dial,
-                           std::function<void(float)> signalCallback)
+void TweakableValue::Initialise(double value, 
+                                double step,
+                                QDoubleSpinBox* box, 
+                                QDial* dial,
+                                std::function<void(float)> signalCallback)
 {
     m_signalCallback = signalCallback;
     m_box = box;
@@ -41,12 +71,12 @@ void Tweakable::Initialise(double value,
     dial->update();
 }
 
-void Tweakable::UpdateValue(double value)
+void TweakableValue::UpdateValue(double value)
 {
     m_signalCallback(value);
 }
 
-void Tweakable::DialValue(int value)
+void TweakableValue::DialValue(int value)
 {
     if(value != m_previousDialValue)
     {
@@ -56,9 +86,15 @@ void Tweakable::DialValue(int value)
     }
 }
 
-bool Tweakable::IsInitialised() const
+bool TweakableValue::IsInitialised() const
 {
     return m_signalCallback != nullptr;
+}
+
+Tweaker::Tweaker(QWidget *parent) :
+    QWidget(parent)
+{
+    m_ui.setupUi(this);
 }
 
 void Tweaker::SetSignalCallbacks(SignalCallbacks& callbacks)
@@ -211,6 +247,37 @@ void Tweaker::SetMeshSpecularity(float size)
         m_ui.meshSpecularity_dial, m_callbacks.SetMeshSpecularity);
 }
 
+
+void Tweaker::SetRenderEngines(int selected,
+                               const std::vector<std::string>& engines)
+{
+    if(!engines.empty())
+    {
+        m_renderEngine.Initialise(m_ui.switchEngine_box, 
+            selected, engines, m_callbacks.SetSelectedEngine);
+    }
+}
+
+void Tweaker::SetMeshes(int selected,
+                        const std::vector<std::string>& meshes)
+{
+    if(!meshes.empty())
+    {
+        m_mesh.Initialise(m_ui.selectedMesh_box, 
+            selected, meshes, m_callbacks.SetSelectedMesh);
+    }
+}
+
+void Tweaker::SetLights(int selected,
+                        const std::vector<std::string>& lights)
+{
+    if(!lights.empty())
+    {
+        m_light.Initialise(m_ui.selectedLight_box, 
+            selected, lights, m_callbacks.SetSelectedLight);
+    }
+}
+
 bool Tweaker::MeshSpecularitySet() const
 {
     return m_meshSpecularity.IsInitialised();
@@ -249,41 +316,17 @@ bool Tweaker::LightPositionSet() const
         m_lightPositionZ.IsInitialised();
 }
 
-bool Tweaker::HasRenderEngines() const
-{
-    return m_ui.switchEngine_box->count() > 0;
-}
-
 bool Tweaker::HasMeshes() const
 {
-    return m_ui.selectedMesh_box->count() > 0;
+    return m_mesh.IsInitialised();
 }
 
 bool Tweaker::HasLights() const
 {
-    return m_ui.selectedLight_box->count() > 0;
+    return m_light.IsInitialised();
 }
 
-void Tweaker::SetRenderEngines(const std::vector<std::string>& engines)
+bool Tweaker::HasRenderEngines() const
 {
-    for(const std::string& name : engines)
-    {
-        m_ui.switchEngine_box->addItem(QString(name.c_str()));
-    }
-}
-
-void Tweaker::SetMeshes(const std::vector<std::string>& meshes)
-{
-    for(const std::string& name : meshes)
-    {
-        m_ui.selectedMesh_box->addItem(QString(name.c_str()));
-    }
-}
-
-void Tweaker::SetLights(const std::vector<std::string>& lights)
-{
-    for(const std::string& name : lights)
-    {
-        m_ui.selectedLight_box->addItem(QString(name.c_str()));
-    }
+    return m_renderEngine.IsInitialised();
 }

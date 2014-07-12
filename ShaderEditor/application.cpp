@@ -160,6 +160,12 @@ void Application::TickApplication()
 
 void Application::UpdateScene()
 {
+    const int selectedEngine = m_cache->SelectedEngine.Get();
+    if(selectedEngine != m_selectedEngine)
+    {
+        SwitchRenderEngine(selectedEngine);
+    }
+
     m_cache->FramesPerSec.Set(m_timer->GetFPS());
     m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
     m_cache->MousePosition.Set(m_mousePosition);
@@ -175,18 +181,16 @@ void Application::UpdateMesh()
         m_selectedMesh = selectedMesh;
 
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
+        const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
+        const int normal = mesh.textureIDs[Texture::NORMAL];
+        const int specular = mesh.textureIDs[Texture::SPECULAR];
+
         m_cache->BackFaceCull.Set(mesh.backfacecull);
         m_cache->MeshSpecularity.Set(mesh.specularity);
         m_cache->Transparency.Set(m_scene->HasTransparency(m_selectedMesh));
         m_cache->Shader.Set(m_scene->GetShader(mesh.shaderIndex).name);
-        
-        const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
         m_cache->MeshDiffuse.Set(m_scene->GetTexture(diffuse));
-        
-        const int normal = mesh.textureIDs[Texture::NORMAL];
-        m_cache->MeshNormal.Set(m_scene->GetTexture(normal));
-        
-        const int specular = mesh.textureIDs[Texture::SPECULAR];
+        m_cache->MeshNormal.Set(m_scene->GetTexture(normal));        
         m_cache->MeshSpecular.Set(m_scene->GetTexture(specular));
     }
     else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene->GetMeshCount())
@@ -250,11 +254,14 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         return false;
     }
 
+    m_cache->SelectedMesh.Set(0);
+    m_cache->SelectedLight.Set(0);
     m_cache->SelectedEngine.Set(m_selectedEngine);
+
     m_cache->RenderEngines.Set(engineNames);
     m_cache->Lights.Set(m_scene->GetLightNames());
     m_cache->Meshes.Set(m_scene->GetMeshNames());
-    m_cache->MeshShaders.Set(m_scene->GetShaderNames());
+    m_cache->Shaders.Set(m_scene->GetShaderNames());
 
     return true;
 }
@@ -282,13 +289,9 @@ bool Application::InitialiseEngine(RenderEngine& engine)
     return true;
 }
 
-void Application::SwitchRenderEngine()
+void Application::SwitchRenderEngine(int index)
 {
-    ++m_selectedEngine;
-    if(m_selectedEngine >= static_cast<int>(m_engines.size()))
-    {
-        m_selectedEngine = 0;
-    }
+    m_selectedEngine = index;
 
     // Reinitialise the engine as it has lost focus
     if(!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())

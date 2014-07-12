@@ -50,9 +50,10 @@ public:
 private: 
 
     /**
-    * Switches to the currently set render engine
+    * Switches to a new render engine
+    * @param index The index of the engine to switch to
     */
-    void SwitchRenderEngine();
+    void SwitchRenderEngine(int index);
 
     /**
     * Updates and renders the application

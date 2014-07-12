@@ -19,7 +19,7 @@
 * @note Read by both VS and Qt Editor
 * @note cannot subclass inside Tweaker or be in seperate file
 */
-class Tweakable : public QWidget
+class TweakableValue : public QWidget
 {
     Q_OBJECT
 
@@ -28,7 +28,7 @@ public:
     /**
     * Constructor
     */
-    Tweakable();
+    TweakableValue();
 
     /**
     * Initialises the tweakable widget
@@ -68,9 +68,57 @@ private:
     std::function<void(float)> m_signalCallback; ///< Function to call when value is changed
 };
 
+/**
+* Tweakable widget that holds a combo box
+* @note Any changes to slots requires building of moc
+* @note Read by both VS and Qt Editor
+* @note cannot subclass inside Tweaker or be in seperate file
+*/
+class TweakableBox : public QWidget
+{
+    Q_OBJECT
+
+public:
+
+    /**
+    * Constructor
+    */
+    TweakableBox();
+
+    /**
+    * Initialises the tweakable box
+    * @param comboBox The combo box widget
+    * @param selectedItem The initial selected item
+    * @param items The items to add to the box
+    * @param signalCallback Function to call when index is changed
+    */
+    void Initialise(QComboBox* comboBox, 
+                    int selectedItem,
+                    const std::vector<std::string>& items,
+                    std::function<void(int)> signalCallback);
+
+    /**
+    * @return whether this tweakable is initialised or not
+    */
+    bool IsInitialised() const;
+
+public slots:
+
+    /**
+    * Sends an update for the selected index
+    * @param index The new selected index from the combo box
+    */
+    void UpdateSelected(int index);
+
+private:
+
+    QComboBox* m_comboBox;                     ///< Combo box widget
+    std::function<void(int)> m_signalCallback; ///< Function to call when index is changed
+};
 
 /**
 * Allows run time editing of the scene
+* @note Any changes to slots requires building of moc
 * @note Read by both VS and Qt Editor
 */
 class Tweaker : public QWidget
@@ -208,21 +256,24 @@ public:
 
     /**
     * Sets the available render engines for the combo box
+    * @param selected The initially selected engine
     * @param engines The render engine names to set
     */
-    void SetRenderEngines(const std::vector<std::string>& engines);
+    void SetRenderEngines(int selected, const std::vector<std::string>& engines);
 
     /**
     * Sets the available meshes for the combo box
+    * @param selected The initially selected mesh
     * @param meshes The mesh names to set
     */
-    void SetMeshes(const std::vector<std::string>& meshes);
+    void SetMeshes(int selected, const std::vector<std::string>& meshes);
 
     /**
     * Sets the available lights for the combo box
+    * @param selected The initially selected light
     * @param lights The light names to set
     */
-    void SetLights(const std::vector<std::string>& lights);
+    void SetLights(int selected, const std::vector<std::string>& lights);
 
     /**
     * @return whether the light diffuse has been previously set
@@ -276,20 +327,24 @@ public:
 
 private:
 
-    Tweakable m_lightPositionX;     ///< Tweakable x of the light position
-    Tweakable m_lightPositionY;     ///< Tweakable y of the light position
-    Tweakable m_lightPositionZ;     ///< Tweakable z of the light position
-    Tweakable m_lightAttenuationX;  ///< Tweakable x of the light attenuation
-    Tweakable m_lightAttenuationY;  ///< Tweakable y of the light attenuation
-    Tweakable m_lightAttenuationZ;  ///< Tweakable z of the light attenuation
-    Tweakable m_lightDiffuseR;      ///< Tweakable r of the light diffuse colour
-    Tweakable m_lightDiffuseG;      ///< Tweakable g of the light diffuse colour
-    Tweakable m_lightDiffuseB;      ///< Tweakable b of the light diffuse colour
-    Tweakable m_lightSpecularR;     ///< Tweakable r of the light specular colour
-    Tweakable m_lightSpecularG;     ///< Tweakable g of the light specular colour
-    Tweakable m_lightSpecularB;     ///< Tweakable b of the light specular colour
-    Tweakable m_lightSpecularity;   ///< Tweakable specular size of the light
-    Tweakable m_meshSpecularity;    ///< Tweakable specular size of the mesh
+    TweakableValue m_lightPositionX;     ///< Tweakable x of the light position
+    TweakableValue m_lightPositionY;     ///< Tweakable y of the light position
+    TweakableValue m_lightPositionZ;     ///< Tweakable z of the light position
+    TweakableValue m_lightAttenuationX;  ///< Tweakable x of the light attenuation
+    TweakableValue m_lightAttenuationY;  ///< Tweakable y of the light attenuation
+    TweakableValue m_lightAttenuationZ;  ///< Tweakable z of the light attenuation
+    TweakableValue m_lightDiffuseR;      ///< Tweakable r of the light diffuse colour
+    TweakableValue m_lightDiffuseG;      ///< Tweakable g of the light diffuse colour
+    TweakableValue m_lightDiffuseB;      ///< Tweakable b of the light diffuse colour
+    TweakableValue m_lightSpecularR;     ///< Tweakable r of the light specular colour
+    TweakableValue m_lightSpecularG;     ///< Tweakable g of the light specular colour
+    TweakableValue m_lightSpecularB;     ///< Tweakable b of the light specular colour
+    TweakableValue m_lightSpecularity;   ///< Tweakable specular size of the light
+    TweakableValue m_meshSpecularity;    ///< Tweakable specular size of the mesh
+
+    TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
+    TweakableBox m_light;                ///< Combo box for selecting the light
+    TweakableBox m_mesh;                 ///< Combo box for selecting the mesh
 
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache

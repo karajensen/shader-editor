@@ -82,6 +82,10 @@ void Gui::SetSignalCallbacks(Tweaker& tweaker, Editor& editor)
     callbacks.SetLightSpecularity = [&](float s){ m_cache->LightSpecularity.Set(s); };  
     callbacks.SetMeshSpecularity =  [&](float s){ m_cache->MeshSpecularity.Set(s); };  
 
+    callbacks.SetSelectedEngine =   [&](int index){ m_cache->SelectedEngine.Set(index); };
+    callbacks.SetSelectedMesh =     [&](int index){ m_cache->SelectedMesh.Set(index); };
+    callbacks.SetSelectedLight =    [&](int index){ m_cache->SelectedLight.Set(index); };
+
     tweaker.SetSignalCallbacks(callbacks);
 }
 
@@ -89,7 +93,7 @@ void Gui::UpdateScene(Tweaker& tweaker)
 {
     if(!tweaker.HasRenderEngines())
     {
-        tweaker.SetRenderEngines(m_cache->RenderEngines.Get());
+        tweaker.SetRenderEngines(m_cache->SelectedEngine.Get(), m_cache->RenderEngines.Get());
     }
 
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(m_cache->DeltaTime.Get()));
@@ -117,34 +121,34 @@ void Gui::UpdateLight(Tweaker& tweaker)
 {
     if(!tweaker.HasLights())
     {
-        tweaker.SetLights(m_cache->Lights.Get());
+        tweaker.SetLights(m_cache->SelectedLight.Get(), m_cache->Lights.Get());
     }
 
-    if(!tweaker.LightPositionSet() && m_cache->LightPosition.Initialised())
+    if(!tweaker.LightPositionSet() && m_cache->LightPosition.Updated())
     {
         const Float3 position = m_cache->LightPosition.Get();
         tweaker.SetLightPosition(position.x, position.y, position.z);
     }
 
-    if(!tweaker.LightAttenuationSet() && m_cache->LightAttenuation.Initialised())
+    if(!tweaker.LightAttenuationSet() && m_cache->LightAttenuation.Updated())
     {
         const Float3 attenuation = m_cache->LightAttenuation.Get();
         tweaker.SetLightAttenuation(attenuation.x, attenuation.y, attenuation.z);
     }
 
-    if(!tweaker.LightDiffuseSet() && m_cache->LightDiffuse.Initialised())
+    if(!tweaker.LightDiffuseSet() && m_cache->LightDiffuse.Updated())
     {
         const Colour diffuse = m_cache->LightDiffuse.Get();
         tweaker.SetLightDiffuse(diffuse.r, diffuse.g, diffuse.b);
     }
 
-    if(!tweaker.LightSpecularSet() && m_cache->LightSpecular.Initialised())
+    if(!tweaker.LightSpecularSet() && m_cache->LightSpecular.Updated())
     {
         const Colour specular = m_cache->LightSpecular.Get();
         tweaker.SetLightSpecular(specular.r, specular.g, specular.b);
     }
 
-    if(!tweaker.LightSpecularitySet() && m_cache->LightSpecularity.Initialised())
+    if(!tweaker.LightSpecularitySet() && m_cache->LightSpecularity.Updated())
     {
         tweaker.SetLightSpecularity(m_cache->LightSpecularity.Get());
     }
@@ -154,10 +158,10 @@ void Gui::UpdateMesh(Tweaker& tweaker)
 {
     if(!tweaker.HasMeshes())
     {
-        tweaker.SetMeshes(m_cache->Meshes.Get());
+        tweaker.SetMeshes(m_cache->SelectedMesh.Get(), m_cache->Meshes.Get());
     }
 
-    if(!tweaker.MeshSpecularitySet() && m_cache->MeshSpecularity.Initialised())
+    if(!tweaker.MeshSpecularitySet() && m_cache->MeshSpecularity.Updated())
     {
         tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.Get());
     }

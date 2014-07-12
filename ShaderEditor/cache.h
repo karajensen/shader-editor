@@ -167,7 +167,6 @@ struct Cache
     Lockable<bool> CompileShader;       ///< Whether the shader requires recompilation
 
     Lockable<int> SelectedEngine;       ///< The selected render engine to use
-    Lockable<bool> SwitchEngine;        ///< Used to send a request to switch the engine
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse
@@ -190,11 +189,7 @@ struct Cache
     Lockable<std::string> MeshSpecular; ///< Specular texture for the selected mesh
     Lockable<std::string> MeshNormal;   ///< Normal texture for the selected mesh
 
-    Lockable<int> SelectedPost;         ///< Index of the currently selected post texture
-    Lockable<bool> Shadows;             ///< Whether to render shadows for the scene or not
-
-    Lockable<std::vector<std::string>> PostShaders;   ///< Container of all post shaders
-    Lockable<std::vector<std::string>> MeshShaders;   ///< Container of all mesh shaders
+    Lockable<std::vector<std::string>> Shaders;       ///< Container of all shaders
     Lockable<std::vector<std::string>> RenderEngines; ///< Container of all render engines
     Lockable<std::vector<std::string>> Lights;        ///< Container of all lights
     Lockable<std::vector<std::string>> Meshes;        ///< Container of all meshes

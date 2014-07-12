@@ -1,14 +1,13 @@
 
-- Combo box margin
 - Qt passing info to/from app
-	- Switching selected light/mesh/post/render engine
+	- Switching selected light/mesh
 	- Opening/using shader editor
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
 - Post effects: fog, dof, glow, SSAO, Color correction
+- Post tweak page
 - Optimise shaders
-
 - Add mesh specularity to python script
 - Create 3D scene with baked shadows
 
