@@ -40,7 +40,11 @@
     <ClCompile Include="opengltexture.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
+    <ClCompile Include="qt\project\generated\moc\moc_tweakable_box.cpp" />
+    <ClCompile Include="qt\project\generated\moc\moc_tweakable_value.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp" />
+    <ClCompile Include="qt\project\tweakable_box.cpp" />
+    <ClCompile Include="qt\project\tweakable_value.cpp" />
     <ClCompile Include="qt\project\tweaker.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
@@ -70,6 +74,8 @@
     <ClInclude Include="qt\project\generated\ui_editor.h" />
     <ClInclude Include="qt\project\generated\ui_tweaker.h" />
     <ClInclude Include="qt\project\signals.h" />
+    <ClInclude Include="qt\project\tweakable_box.h" />
+    <ClInclude Include="qt\project\tweakable_value.h" />
     <ClInclude Include="qt\project\tweaker.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />

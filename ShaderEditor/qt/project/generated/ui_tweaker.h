@@ -600,6 +600,8 @@ public:
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
+        selectedLight_box->setEditable(false);
+        selectedLight_box->setMinimumContentsLength(0);
         selectedLight_box->setFrame(false);
 
         lightLayout->addWidget(selectedLight);
@@ -1720,7 +1722,8 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(2);
+        selectedLight_box->setCurrentIndex(-1);
 
 
         QMetaObject::connectSlotsByName(Tweaker);

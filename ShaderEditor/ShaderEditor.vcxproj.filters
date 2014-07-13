@@ -112,6 +112,18 @@
     <ClCompile Include="gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qt\project\tweakable_box.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\tweakable_value.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\generated\moc\moc_tweakable_box.cpp">
+      <Filter>Qt\generated</Filter>
+    </ClCompile>
+    <ClCompile Include="qt\project\generated\moc\moc_tweakable_value.cpp">
+      <Filter>Qt\generated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -202,6 +214,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="qt\project\signals.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\tweakable_box.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\tweakable_value.h">
       <Filter>Qt</Filter>
     </ClInclude>
   </ItemGroup>

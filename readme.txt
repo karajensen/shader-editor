@@ -1,6 +1,5 @@
 
 - Opening/using shader editor
-	- Find a way to share qt tweakableValue/Box with editor
 	- Convert name to combo box
 	- Link editor to tweaker and app
 

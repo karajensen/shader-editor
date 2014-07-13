@@ -2,6 +2,9 @@
 #
 # Project created by QtCreator 2014-06-29T10:30:01
 #
+# Note any additional files added requires qt 
+# designer to run 'qmake' before build
+#
 #-------------------------------------------------
 
 QT       += core gui
@@ -14,11 +17,15 @@ TEMPLATE = app
 SOURCES += \
     editor.cpp \
     main.cpp \
-    tweaker.cpp
+    tweakable_value.cpp \
+    tweaker.cpp \
+    tweakable_box.cpp
 
 HEADERS  += \
     editor.h \
-    tweaker.h
+    tweakable_value.h \
+    tweaker.h \
+    tweakable_box.h
 
 FORMS    += \
     editor.ui \

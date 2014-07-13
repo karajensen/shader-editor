@@ -46,38 +46,18 @@
      <property name="spacing">
       <number>5</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="shaderNameLbl">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Shader Name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="previousBtn">
-       <property name="maximumSize">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="compileBtn">
+       <property name="minimumSize">
         <size>
-         <width>30</width>
-         <height>28</height>
+         <width>70</width>
+         <height>24</height>
         </size>
        </property>
-       <property name="text">
-        <string>&lt;</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="compileBtn">
        <property name="maximumSize">
         <size>
          <width>70</width>
-         <height>28</height>
+         <height>24</height>
         </size>
        </property>
        <property name="baseSize">
@@ -91,16 +71,38 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="nextBtn">
+     <item row="0" column="0">
+      <widget class="QComboBox" name="shadersBox">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
-         <width>30</width>
-         <height>28</height>
+         <width>16777215</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="revertBtn">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>24</height>
         </size>
        </property>
        <property name="text">
-        <string>&gt;</string>
+        <string>Revert</string>
        </property>
       </widget>
      </item>

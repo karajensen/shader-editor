@@ -13,9 +13,9 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTextEdit>
@@ -29,10 +29,9 @@ class Ui_Editor
 public:
     QVBoxLayout *verticalLayout;
     QGridLayout *gridLayout;
-    QLabel *shaderNameLbl;
-    QPushButton *previousBtn;
     QPushButton *compileBtn;
-    QPushButton *nextBtn;
+    QComboBox *shadersBox;
+    QPushButton *revertBtn;
     QSplitter *splitter;
     QTextEdit *shaderTextBox;
     QTextEdit *assemblyTextBox;
@@ -55,34 +54,27 @@ public:
         gridLayout->setSpacing(5);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
         gridLayout->setContentsMargins(0, -1, -1, -1);
-        shaderNameLbl = new QLabel(Editor);
-        shaderNameLbl->setObjectName(QStringLiteral("shaderNameLbl"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(shaderNameLbl->sizePolicy().hasHeightForWidth());
-        shaderNameLbl->setSizePolicy(sizePolicy1);
-
-        gridLayout->addWidget(shaderNameLbl, 0, 0, 1, 1);
-
-        previousBtn = new QPushButton(Editor);
-        previousBtn->setObjectName(QStringLiteral("previousBtn"));
-        previousBtn->setMaximumSize(QSize(30, 28));
-
-        gridLayout->addWidget(previousBtn, 0, 1, 1, 1);
-
         compileBtn = new QPushButton(Editor);
         compileBtn->setObjectName(QStringLiteral("compileBtn"));
-        compileBtn->setMaximumSize(QSize(70, 28));
+        compileBtn->setMinimumSize(QSize(70, 24));
+        compileBtn->setMaximumSize(QSize(70, 24));
         compileBtn->setBaseSize(QSize(0, 0));
 
-        gridLayout->addWidget(compileBtn, 0, 3, 1, 1);
+        gridLayout->addWidget(compileBtn, 0, 2, 1, 1);
 
-        nextBtn = new QPushButton(Editor);
-        nextBtn->setObjectName(QStringLiteral("nextBtn"));
-        nextBtn->setMaximumSize(QSize(30, 28));
+        shadersBox = new QComboBox(Editor);
+        shadersBox->setObjectName(QStringLiteral("shadersBox"));
+        shadersBox->setMinimumSize(QSize(0, 24));
+        shadersBox->setMaximumSize(QSize(16777215, 24));
 
-        gridLayout->addWidget(nextBtn, 0, 2, 1, 1);
+        gridLayout->addWidget(shadersBox, 0, 0, 1, 1);
+
+        revertBtn = new QPushButton(Editor);
+        revertBtn->setObjectName(QStringLiteral("revertBtn"));
+        revertBtn->setMinimumSize(QSize(70, 24));
+        revertBtn->setMaximumSize(QSize(70, 24));
+
+        gridLayout->addWidget(revertBtn, 0, 1, 1, 1);
 
 
         verticalLayout->addLayout(gridLayout);
@@ -117,10 +109,8 @@ public:
     void retranslateUi(QWidget *Editor)
     {
         Editor->setWindowTitle(QApplication::translate("Editor", "Shader Editor", 0));
-        shaderNameLbl->setText(QApplication::translate("Editor", "Shader Name", 0));
-        previousBtn->setText(QApplication::translate("Editor", "<", 0));
         compileBtn->setText(QApplication::translate("Editor", "Compile", 0));
-        nextBtn->setText(QApplication::translate("Editor", ">", 0));
+        revertBtn->setText(QApplication::translate("Editor", "Revert", 0));
     } // retranslateUi
 
 };

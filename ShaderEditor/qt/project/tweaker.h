@@ -6,6 +6,8 @@
 
 #include <memory>
 #include "signals.h"
+#include "tweakable_value.h"
+#include "tweakable_box.h"
 
 #ifdef _VS
 #include "generated/ui_tweaker.h"
@@ -13,115 +15,11 @@
 #include "ui_tweaker.h"
 #endif
 
-/*********************************************************************
-* Tweakable widget that holds a double spin box and dial
-* @note Any changes to slots requires building of moc
-* @note Read by both VS and Qt Editor
-* @note cannot subclass inside Tweaker or be in seperate file
-***********************************************************************/
-class TweakableValue : public QWidget
-{
-    Q_OBJECT
-
-public:
-
-    /**
-    * Constructor
-    */
-    TweakableValue();
-
-    /**
-    * Sets the value for the tweakable widge
-    */
-    void Set(double value);
-
-    /**
-    * Initialises the tweakable widget
-    * @param value The default value to set
-    * @param step The change if value to set
-    * @param box The spin box for the tweakable widget
-    * @param dial The dial for the tweakable widget
-    * @param signalCallback The function to call when the value changes
-    */
-    void Initialise(double step,
-                    QDoubleSpinBox* box, 
-                    QDial* dial,
-                    std::function<void(float)> signalCallback);
-
-private slots:
-
-    /**
-    * Sends an update for the tweakable value
-    * @param value The value changed to
-    */
-    void UpdateValue(double value);
-
-    /**
-    * Sends an update when the dial value is changed
-    * @param value The value the dial has changed to
-    */
-    void DialValue(int value);
-
-private:
-
-    int m_previousDialValue;  ///< The previous value of the dial
-    QDoubleSpinBox* m_box;    ///< The spin box used to edit/display the value
-    std::function<void(float)> m_signalCallback; ///< Function to call when value is changed
-};
-
-/*********************************************************************
-* Tweakable widget that holds a combo box
-* @note Any changes to slots requires building of moc
-* @note Read by both VS and Qt Editor
-* @note cannot subclass inside Tweaker or be in seperate file
-***********************************************************************/
-class TweakableBox : public QWidget
-{
-    Q_OBJECT
-
-public:
-
-    /**
-    * Constructor
-    */
-    TweakableBox();
-
-    /**
-    * Initialises the tweakable box
-    * @param comboBox The combo box widget
-    * @param selectedItem The initial selected item
-    * @param items The items to add to the box
-    * @param signalCallback Function to call when index is changed
-    */
-    void Initialise(QComboBox* comboBox, 
-                    int selectedItem,
-                    const std::vector<std::string>& items,
-                    std::function<void(int)> signalCallback);
-
-    /**
-    * @return whether this tweakable is initialised or not
-    */
-    bool IsInitialised() const;
-
-private slots:
-
-    /**
-    * Sends an update for the selected index
-    * @param index The new selected index from the combo box
-    */
-    void UpdateSelected(int index);
-
-private:
-
-    QComboBox* m_comboBox;                     ///< Combo box widget
-    std::function<void(int)> m_signalCallback; ///< Function to call when index is changed
-};
-
-/*********************************************************************
+/**
 * Allows run time editing of the scene
 * @note Any changes to slots requires building of moc
 * @note Read by both VS and Qt Editor
-***********************************************************************/
+*/
 class Tweaker : public QWidget
 {
     Q_OBJECT
