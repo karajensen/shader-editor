@@ -25,6 +25,7 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_cache(cache),
     m_selectedLight(NO_INDEX),
     m_selectedMesh(NO_INDEX),
+    m_selectedShader(NO_INDEX),
     m_selectedEngine(OPENGL)
 {
 }
@@ -140,8 +141,15 @@ void Application::TickApplication()
 
     m_scene->Update();
     GetEngine()->Render(m_scene->GetLights());
-    
-    switch(m_cache->SelectedPage.Get())
+    UpdateCache();
+
+    m_mouseDirection.x = 0;
+    m_mouseDirection.y = 0;
+}
+
+void Application::UpdateCache()
+{
+    switch(m_cache->PageSelected.Get())
     {
     case SCENE:
         UpdateScene();
@@ -153,14 +161,23 @@ void Application::TickApplication()
         UpdateMesh();
         break;
     }
-
-    m_mouseDirection.x = 0;
-    m_mouseDirection.y = 0;
+    
+    const int selectedShader = m_cache->ShaderSelected.Get();
+    if(selectedShader != m_selectedShader)
+    {
+        m_selectedShader = selectedShader;
+        m_cache->ShaderSwitched.Set(true);
+    }
+    else if(m_cache->CompileShader.Get())
+    {
+        m_cache->CompileShader.Set(false);
+        GetEngine()->CompileShader(m_selectedShader);
+    }
 }
 
 void Application::UpdateScene()
 {
-    const int selectedEngine = m_cache->SelectedEngine.Get();
+    const int selectedEngine = m_cache->EngineSelected.Get();
     if(selectedEngine != m_selectedEngine)
     {
         SwitchRenderEngine(selectedEngine);
@@ -175,20 +192,21 @@ void Application::UpdateScene()
 
 void Application::UpdateMesh()
 {
-    const int selectedMesh = m_cache->SelectedMesh.Get();
+    const int selectedMesh = m_cache->MeshSelected.Get();
     if(selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
+        m_cache->MeshSwitched.Set(true);
 
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
         const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
         const int normal = mesh.textureIDs[Texture::NORMAL];
         const int specular = mesh.textureIDs[Texture::SPECULAR];
 
-        m_cache->BackFaceCull.Set(mesh.backfacecull);
+        m_cache->MeshBackFaceCull.Set(mesh.backfacecull);
         m_cache->MeshSpecularity.Set(mesh.specularity);
-        m_cache->Transparency.Set(m_scene->HasTransparency(m_selectedMesh));
-        m_cache->Shader.Set(m_scene->GetShader(mesh.shaderIndex).name);
+        m_cache->MeshTransparency.Set(m_scene->HasTransparency(m_selectedMesh));
+        m_cache->MeshShader.Set(m_scene->GetShader(mesh.shaderIndex).name);
         m_cache->MeshDiffuse.Set(m_scene->GetTexture(diffuse));
         m_cache->MeshNormal.Set(m_scene->GetTexture(normal));        
         m_cache->MeshSpecular.Set(m_scene->GetTexture(specular));
@@ -202,10 +220,11 @@ void Application::UpdateMesh()
 
 void Application::UpdateLight()
 {
-    const int selectedLight = m_cache->SelectedLight.Get();
+    const int selectedLight = m_cache->LightSelected.Get();
     if(selectedLight != m_selectedLight)
     {
         m_selectedLight = selectedLight;
+        m_cache->LightSwitched.Set(true);
 
         auto& light = m_scene->GetLight(m_selectedLight);
         m_cache->LightPosition.Set(light.position);
@@ -238,15 +257,21 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
 
     std::vector<std::string> engineNames;
     m_engines.resize(MAX_ENGINES);
-    m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
     m_engines[OPENGL].reset(new OpenglEngine(hwnd, hinstance));
+    m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
 
     bool failed = false;
-    for(auto& engine : m_engines)
+    for(unsigned int i = 0; i < m_engines.size(); ++i)
     {
-        failed |= !InitialiseEngine(*engine);
-        engineNames.push_back(engine->GetName());
+        engineNames.push_back(m_engines[i]->GetName());
+        if(i != m_selectedEngine)
+        {
+            failed |= !InitialiseEngine(m_engines[i].get());
+        }
     }
+
+    // Initialise the selected engine last so it starts in focus
+    failed |= !InitialiseEngine(GetEngine());
 
     if(failed)
     {
@@ -254,11 +279,8 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         return false;
     }
 
-    m_cache->SelectedMesh.Set(0);
-    m_cache->SelectedLight.Set(0);
-    m_cache->SelectedEngine.Set(m_selectedEngine);
-
-    m_cache->RenderEngines.Set(engineNames);
+    m_cache->EngineSelected.Set(m_selectedEngine);
+    m_cache->Engines.Set(engineNames);
     m_cache->Lights.Set(m_scene->GetLightNames());
     m_cache->Meshes.Set(m_scene->GetMeshNames());
     m_cache->Shaders.Set(m_scene->GetShaderNames());
@@ -271,18 +293,18 @@ RenderEngine* Application::GetEngine() const
     return m_engines[m_selectedEngine].get();
 }
 
-bool Application::InitialiseEngine(RenderEngine& engine)
+bool Application::InitialiseEngine(RenderEngine* engine)
 {
-    if(!engine.Initialize())
+    if(!engine->Initialize())
     {
-        Logger::LogError(engine.GetName() + ": Failed to initialise");
+        Logger::LogError(engine->GetName() + ": Failed to initialise");
         return false;
     }
 
-    if(!engine.InitialiseScene(m_scene->GetMeshes(), 
+    if(!engine->InitialiseScene(m_scene->GetMeshes(), 
         m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
     {
-        Logger::LogError(engine.GetName() + ": Scene failed to initialise");
+        Logger::LogError(engine->GetName() + ": Scene failed to initialise");
         return false;
     }
 

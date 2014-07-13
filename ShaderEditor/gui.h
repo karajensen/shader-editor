@@ -38,8 +38,10 @@ private:
 
     /**
     * Update the cache and gui
+    * @param tweaker The gui for tweaking the application
+    * @param editor The gui for editing shaders
     */
-    void Update(Tweaker& tweaker);
+    void Update(Tweaker& tweaker, Editor& editor);
 
     /**
     * Updates the cache and gui for the scene page
@@ -58,13 +60,6 @@ private:
     * @param tweaker The gui for tweaking the application
     */
     void UpdateMesh(Tweaker& tweaker);
-
-    /**
-    * Sets the functions required to update the cache from the gui
-    * @param tweaker The gui for tweaking the application
-    * @param editor The gui for editing the application
-    */
-    void SetSignalCallbacks(Tweaker& tweaker, Editor& editor);
 
     /**
     * Converts the string description to the page enum

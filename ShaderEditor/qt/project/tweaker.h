@@ -13,12 +13,12 @@
 #include "ui_tweaker.h"
 #endif
 
-/**
+/*********************************************************************
 * Tweakable widget that holds a double spin box and dial
 * @note Any changes to slots requires building of moc
 * @note Read by both VS and Qt Editor
 * @note cannot subclass inside Tweaker or be in seperate file
-*/
+***********************************************************************/
 class TweakableValue : public QWidget
 {
     Q_OBJECT
@@ -31,6 +31,11 @@ public:
     TweakableValue();
 
     /**
+    * Sets the value for the tweakable widge
+    */
+    void Set(double value);
+
+    /**
     * Initialises the tweakable widget
     * @param value The default value to set
     * @param step The change if value to set
@@ -38,16 +43,12 @@ public:
     * @param dial The dial for the tweakable widget
     * @param signalCallback The function to call when the value changes
     */
-    void Initialise(double value, double step,
-        QDoubleSpinBox* box, QDial* dial,
-        std::function<void(float)> signalCallback);
+    void Initialise(double step,
+                    QDoubleSpinBox* box, 
+                    QDial* dial,
+                    std::function<void(float)> signalCallback);
 
-    /**
-    * @return whether this tweakable is initialised or not
-    */
-    bool IsInitialised() const;
-
-public slots:
+private slots:
 
     /**
     * Sends an update for the tweakable value
@@ -68,12 +69,12 @@ private:
     std::function<void(float)> m_signalCallback; ///< Function to call when value is changed
 };
 
-/**
+/*********************************************************************
 * Tweakable widget that holds a combo box
 * @note Any changes to slots requires building of moc
 * @note Read by both VS and Qt Editor
 * @note cannot subclass inside Tweaker or be in seperate file
-*/
+***********************************************************************/
 class TweakableBox : public QWidget
 {
     Q_OBJECT
@@ -102,7 +103,7 @@ public:
     */
     bool IsInitialised() const;
 
-public slots:
+private slots:
 
     /**
     * Sends an update for the selected index
@@ -116,11 +117,11 @@ private:
     std::function<void(int)> m_signalCallback; ///< Function to call when index is changed
 };
 
-/**
+/*********************************************************************
 * Allows run time editing of the scene
 * @note Any changes to slots requires building of moc
 * @note Read by both VS and Qt Editor
-*/
+***********************************************************************/
 class Tweaker : public QWidget
 {
     Q_OBJECT
@@ -129,14 +130,18 @@ public:
 
     /**
     * Constructor
+    * @note called by qt designer
     * @param parent The owner of this widget
     */
     explicit Tweaker(QWidget* parent = nullptr);
-    
+
     /**
-    * Sets the functions called when a tweakable value emits a signal
+    * Constructor
+    * @note called by shader editor application
+    * @param callbacks Functions called when a tweakable value emits a signal
+    * @param parent The owner of this widget
     */
-    void SetSignalCallbacks(SignalCallbacks& callbacks);
+    explicit Tweaker(const SignalCallbacks& callbacks, QWidget* parent = nullptr);
 
     /**
     * Sets the readonly tweak entry
@@ -259,56 +264,26 @@ public:
     * @param selected The initially selected engine
     * @param engines The render engine names to set
     */
-    void SetRenderEngines(int selected, const std::vector<std::string>& engines);
+    void InitialiseEngines(int selected, const std::vector<std::string>& engines);
 
     /**
     * Sets the available meshes for the combo box
     * @param selected The initially selected mesh
     * @param meshes The mesh names to set
     */
-    void SetMeshes(int selected, const std::vector<std::string>& meshes);
+    void InitialiseMeshes(int selected, const std::vector<std::string>& meshes);
 
     /**
     * Sets the available lights for the combo box
     * @param selected The initially selected light
     * @param lights The light names to set
     */
-    void SetLights(int selected, const std::vector<std::string>& lights);
-
-    /**
-    * @return whether the light diffuse has been previously set
-    */
-    bool LightDiffuseSet() const;
-
-    /**
-    * @return whether the light diffuse has been previously set
-    */
-    bool LightSpecularSet() const;
-
-    /**
-    * @return whether the light attenuation has been previously set
-    */
-    bool LightAttenuationSet() const;
-
-    /**
-    * @return whether the light position has been previously set
-    */
-    bool LightPositionSet() const;
-
-    /**
-    * @return whether the light specularity has been previously set
-    */
-    bool LightSpecularitySet() const;
-
-    /**
-    * @return whether the mesh specularity has been previously set
-    */
-    bool MeshSpecularitySet() const;
+    void InitialiseLights(int selected, const std::vector<std::string>& lights);
 
     /**
     * @return whether the render engine combo box is filled int
     */
-    bool HasRenderEngines() const;
+    bool HasEngines() const;
 
     /**
     * @return whether the mesh combo box is filled int

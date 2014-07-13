@@ -70,8 +70,6 @@ int main(int argc, char *argv[])
     InitializeWindow(&hInstance, &hWnd);
 
     std::shared_ptr<Cache> cache(new Cache());
-    cache->ApplicationRunning.Set(true);
-
     std::unique_ptr<Application> game(new Application(cache));
 
     if(game->Initialise(hWnd, hInstance))

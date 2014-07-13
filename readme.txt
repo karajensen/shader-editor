@@ -1,13 +1,17 @@
 
-- Qt passing info to/from app
-	- Switching selected light/mesh
-	- Opening/using shader editor
+- Opening/using shader editor
+	- Find a way to share qt tweakableValue/Box with editor
+	- Convert name to combo box
+	- Link editor to tweaker and app
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
+
 - Post effects: fog, dof, glow, SSAO, Color correction
-- Post tweak page
+- Post tweak page fill in
+
 - Optimise shaders
+
 - Add mesh specularity to python script
 - Create 3D scene with baked shadows
 

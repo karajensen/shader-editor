@@ -80,6 +80,11 @@ private:
     bool IsKeyDown(unsigned int key) const;
 
     /**
+    * Updates the shared cache between the gui and application
+    */
+    void UpdateCache();
+
+    /**
     * Updates the scene shared cache between the gui and application
     */
     void UpdateScene();
@@ -99,7 +104,7 @@ private:
     * @param engine the Engine to intialise
     * @return whether initialisation succeeded
     */
-    bool InitialiseEngine(RenderEngine& engine);
+    bool InitialiseEngine(RenderEngine* engine);
 
     /**
     * @return the currently selected render engine
@@ -122,6 +127,7 @@ private:
     int m_selectedLight;              ///< Current light selected
     int m_selectedMesh;               ///< Current mesh selected
     int m_selectedEngine;             ///< Current render engine selected
+    int m_selectedShader;             ///< Current shader selected
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
     std::unique_ptr<Camera> m_camera; ///< Scene camera for generating view matrix
     std::unique_ptr<Scene> m_scene;   ///< Holds meshes, lighting and shader data
