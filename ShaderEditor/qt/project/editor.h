@@ -5,6 +5,8 @@
 #pragma once
 
 #include <memory>
+#include "signals.h"
+#include "tweakable_box.h"
 
 #ifdef _VS
 #include "generated/ui_editor.h"
@@ -51,10 +53,35 @@ public:
     */
     bool HasShaders() const;
 
+    /**
+    * Sets the editable shader text for the selected shader
+    * @param text The text to edit
+    */
+    void SetShaderText(const std::string& text);
+
+    /**
+    * Sets the readonly shader assembly for the selected shader
+    * @param assembly The assembly text
+    */
+    void SetShaderAssembly(const std::string& assembly);
+
 private slots:
 
+    /**
+    * Removes any edited changes to the shader text
+    */
+    void RevertPressed();
+
+    /**
+    * Sends the current changes to the render engine to be compiled
+    */
+    void CompilePressed();
 
 private:
 
-    Ui::Editor m_ui; ///< User interface object
+    QString m_text;                ///< Text for the selected shader
+    QString m_assembly;            ///< Assembly for the selected shader
+    TweakableBox m_shaders;        ///< Combo box for holding shaders
+    SignalCallbacks m_callbacks;   ///< Callbacks to update the cache
+    Ui::Editor m_ui;               ///< User interface object
 };

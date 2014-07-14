@@ -1,7 +1,8 @@
 
-- Opening/using shader editor
-	- Convert name to combo box
-	- Link editor to tweaker and app
+- make assembly text box not editable
+- change text to get shader spacing correct
+- mesh page spacing fix
+- fix glsl editing of shaders
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights

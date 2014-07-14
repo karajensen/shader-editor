@@ -16,15 +16,10 @@ void Logger::LogInfo(const std::string& info)
     #endif
 }
 
-void Logger::LogError(const std::string& error, bool popup)
+void Logger::LogError(const std::string& error)
 {
     #ifdef _DEBUG
         std::lock_guard<std::mutex> lock(sm_logMutex);
         std::cout << "ERROR: \t" <<  error << std::endl;
     #endif
-
-    if(popup)
-    {
-        MessageBox(nullptr, error.c_str(), TEXT("ERROR"), MB_OK);
-    }
 }

@@ -568,3 +568,13 @@ bool GlShader::HasTextureSlot(int slot)
 {
     return slot < static_cast<int>(m_samplers.size());
 }
+
+std::string GlShader::GetText() const
+{
+    return m_vertexText + "\n" + m_fragmentText;
+}
+
+std::string GlShader::GetAssembly() const
+{
+    return m_vertexAsm + "\n" + m_fragmentAsm;
+}

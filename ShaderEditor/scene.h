@@ -119,6 +119,16 @@ public:
     */
     int GetLightCount() const;
 
+    /**
+    * Writes the shader text file
+    * @param index The shader to write over
+    * @param text The new text for the shader
+    * @param extension The file extension to open
+    */
+    void WriteToShader(int index, 
+        const std::string& text, 
+        const std::string& extension);
+
 private:
 
     /**

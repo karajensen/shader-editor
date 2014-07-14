@@ -41,7 +41,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
     callbacks.SetSelectedShader =   [&](int index){ m_cache->ShaderSelected.Set(index); };
-    callbacks.CompileShader =       [&](){ m_cache->CompileShader.Set(true); };
+    callbacks.CompileShader =       [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
     editor.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
@@ -54,14 +54,15 @@ void Gui::Run(int argc, char *argv[])
     while(m_cache->ApplicationRunning.Get())
     {
         app.processEvents();
-        Update(tweaker, editor);
+        UpdateTweaker(tweaker);
+        UpdateEditor(editor);
     }
 
     app.exit();
     Logger::LogInfo("Exiting Qt");
 }
 
-void Gui::Update(Tweaker& tweaker, Editor& editor)
+void Gui::UpdateTweaker(Tweaker& tweaker)
 {
     const auto page = ConvertStringToPage(tweaker.GetSelectedPage());
     if(page != m_page)
@@ -82,7 +83,10 @@ void Gui::Update(Tweaker& tweaker, Editor& editor)
         UpdateMesh(tweaker);
         break;
     }
+}
 
+void Gui::UpdateEditor(Editor& editor)
+{
     bool initialisedShaders = false;
     if(!editor.HasShaders())
     {
@@ -91,6 +95,15 @@ void Gui::Update(Tweaker& tweaker, Editor& editor)
             m_cache->ShaderSelected.Get(), m_cache->Shaders.Get());
     }
 
+    if(initialisedShaders || m_cache->ShaderText.RequiresUpdate())
+    {
+        editor.SetShaderText(m_cache->ShaderText.GetUpdated());
+    }
+
+    if(initialisedShaders || m_cache->ShaderAsm.RequiresUpdate())
+    {
+        editor.SetShaderAssembly(m_cache->ShaderAsm.GetUpdated());
+    }
 }
 
 GuiPage Gui::ConvertStringToPage(const std::string& page)
@@ -147,12 +160,6 @@ void Gui::UpdateScene(Tweaker& tweaker)
 
 void Gui::UpdateLight(Tweaker& tweaker)
 {
-    const bool lightSwitched = m_cache->LightSwitched.Get();
-    if(lightSwitched)
-    {
-        m_cache->LightSwitched.Set(false);
-    }
-
     bool initialisedLights = false;
     if(!tweaker.HasLights())
     {
@@ -161,30 +168,38 @@ void Gui::UpdateLight(Tweaker& tweaker)
             m_cache->LightSelected.Get(), m_cache->Lights.Get());
     }
 
-    // Only set once during initialisation or when a light is selected
-    if(lightSwitched || initialisedLights)
+    if(initialisedLights || m_cache->LightPosition.RequiresUpdate())
     {
-        const Float3 position = m_cache->LightPosition.Get();
-        const Float3 attenuation = m_cache->LightAttenuation.Get();
-        const Colour specular = m_cache->LightSpecular.Get();
-        const Colour diffuse = m_cache->LightDiffuse.Get();
-
+        const Float3 position = m_cache->LightPosition.GetUpdated();
         tweaker.SetLightPosition(position.x, position.y, position.z);
+    }
+
+    if(initialisedLights || m_cache->LightAttenuation.RequiresUpdate())
+    {
+        const Float3 attenuation = m_cache->LightAttenuation.GetUpdated();
         tweaker.SetLightAttenuation(attenuation.x, attenuation.y, attenuation.z);
-        tweaker.SetLightDiffuse(diffuse.r, diffuse.g, diffuse.b);
+    }
+
+    if(initialisedLights || m_cache->LightSpecular.RequiresUpdate())
+    {
+        const Colour specular = m_cache->LightSpecular.GetUpdated();
         tweaker.SetLightSpecular(specular.r, specular.g, specular.b);
-        tweaker.SetLightSpecularity(m_cache->LightSpecularity.Get());
+    }
+
+    if(initialisedLights || m_cache->LightDiffuse.RequiresUpdate())
+    {
+        const Colour diffuse = m_cache->LightDiffuse.GetUpdated();
+        tweaker.SetLightDiffuse(diffuse.r, diffuse.g, diffuse.b);
+    }
+
+    if(initialisedLights || m_cache->LightSpecularity.RequiresUpdate())
+    {
+        tweaker.SetLightSpecularity(m_cache->LightSpecularity.GetUpdated());
     }
 }
 
 void Gui::UpdateMesh(Tweaker& tweaker)
 {
-    const bool meshSwitched = m_cache->MeshSwitched.Get();
-    if(meshSwitched)
-    {
-        m_cache->MeshSwitched.Set(false);
-    }
-
     bool initialisedMeshes = false;
     if(!tweaker.HasMeshes())
     {
@@ -193,15 +208,38 @@ void Gui::UpdateMesh(Tweaker& tweaker)
             m_cache->MeshSelected.Get(), m_cache->Meshes.Get());
     }
 
-    // Only set once during initialisation or when a mesh is selected
-    if(meshSwitched || initialisedMeshes)
+    if(initialisedMeshes || m_cache->MeshSpecularity.RequiresUpdate())
     {
-        tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.Get());
-        tweaker.SetMeshBackFaceCull(m_cache->MeshBackFaceCull.Get());
-        tweaker.SetMeshTransparency(m_cache->MeshTransparency.Get());
-        tweaker.SetMeshDiffuseTexture(m_cache->MeshDiffuse.Get());
-        tweaker.SetMeshSpecularTexture(m_cache->MeshSpecular.Get());
-        tweaker.SetMeshNormalTexture(m_cache->MeshNormal.Get());
-        tweaker.SetMeshShaderName(m_cache->MeshShader.Get());
+        tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshBackFaceCull.RequiresUpdate())
+    {
+        tweaker.SetMeshBackFaceCull(m_cache->MeshBackFaceCull.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshTransparency.RequiresUpdate())
+    {
+        tweaker.SetMeshTransparency(m_cache->MeshTransparency.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshDiffuse.RequiresUpdate())
+    {
+        tweaker.SetMeshDiffuseTexture(m_cache->MeshDiffuse.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshSpecular.RequiresUpdate())
+    {
+        tweaker.SetMeshSpecularTexture(m_cache->MeshSpecular.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshNormal.RequiresUpdate())
+    {
+        tweaker.SetMeshNormalTexture(m_cache->MeshNormal.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
+    {
+        tweaker.SetMeshShaderName(m_cache->MeshShader.GetUpdated());
     }
 }

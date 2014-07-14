@@ -538,3 +538,13 @@ bool DxShader::HasTextureSlot(int slot)
 {
     return slot <= m_textureSlots;
 }
+
+std::string DxShader::GetText() const
+{
+    return m_sharedText + "\n" +  m_vertexText + "\n" + m_pixelText;
+}
+
+std::string DxShader::GetAssembly() const
+{
+    return m_vertexAsm + "\n" + m_pixelAsm;
+}

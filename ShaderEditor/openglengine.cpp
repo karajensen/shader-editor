@@ -343,7 +343,7 @@ bool OpenglEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("OpenGL: " + result, true);
+            Logger::LogError("OpenGL:" + result);
             return false;
         }
     }
@@ -490,4 +490,14 @@ void OpenglEngine::SetBackfaceCull(bool shouldCull)
         m_data->isBackfaceCull = shouldCull;
         shouldCull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
     }
+}
+
+std::string OpenglEngine::GetShaderText(int index) const
+{
+    return m_data->shaders[index].GetText();
+}
+
+std::string OpenglEngine::GetShaderAssembly(int index) const
+{
+    return m_data->shaders[index].GetAssembly();
 }

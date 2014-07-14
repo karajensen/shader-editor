@@ -78,6 +78,18 @@ public:
     */
     bool HasTextureSlot(int slot);
 
+    /**
+    * Gets the text for the shader
+    * @return the text for the shader
+    */
+    std::string GetText() const;
+
+    /**
+    * Gets the assembly for the shader
+    * @return the assembly for the shader
+    */
+    std::string GetAssembly() const;
+
 private:
 
     /**

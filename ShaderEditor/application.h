@@ -80,9 +80,9 @@ private:
     bool IsKeyDown(unsigned int key) const;
 
     /**
-    * Updates the shared cache between the gui and application
+    * Updates the shader shared cache between the gui and application
     */
-    void UpdateCache();
+    void UpdateShader();
 
     /**
     * Updates the scene shared cache between the gui and application

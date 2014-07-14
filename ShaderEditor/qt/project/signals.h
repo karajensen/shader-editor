@@ -11,6 +11,7 @@
 */
 struct SignalCallbacks
 {
+    std::function<void(const std::string&)> CompileShader; ///< Sends a compile request
     std::function<void(float)> SetLightPositionX;   ///< Sets the selected light position
     std::function<void(float)> SetLightPositionY;   ///< Sets the selected light position
     std::function<void(float)> SetLightPositionZ;   ///< Sets the selected light position
@@ -29,5 +30,4 @@ struct SignalCallbacks
     std::function<void(int)>   SetSelectedLight;    ///< Sets the selected light to display
     std::function<void(int)>   SetSelectedMesh;     ///< Sets the selected mesh to display
     std::function<void(int)>   SetSelectedShader;   ///< Sets the selected shader to edit
-    std::function<void(void)>  CompileShader;       ///< Compiles the selected shader
 };

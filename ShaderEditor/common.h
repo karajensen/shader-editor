@@ -118,3 +118,13 @@ T GetPtreeValue(boost::property_tree::ptree::iterator& itr, T defaultValue, char
     }
     return defaultValue;
 }
+
+/**
+* Displays a popup message box
+* @param message The message to display
+* @param title The header of the popup box
+*/
+inline void ShowMessage(const std::string& message, const std::string& title)
+{
+    MessageBox(nullptr, message.c_str(), title.c_str(), MB_OK);
+}

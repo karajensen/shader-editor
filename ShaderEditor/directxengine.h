@@ -83,6 +83,20 @@ public:
     */
     virtual void UpdateView(const Matrix& world) override;
 
+    /**
+    * Gets the text for a specific shader
+    * @param index The shader index
+    * @return the text for the shader
+    */
+    virtual std::string GetShaderText(int index) const override;
+
+    /**
+    * Gets the assembly for a specific shader
+    * @param index The shader index
+    * @return the assembly for the shader
+    */
+    virtual std::string GetShaderAssembly(int index) const override;
+
 private:
 
     /**

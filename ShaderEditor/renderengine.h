@@ -64,6 +64,20 @@ public:
     virtual std::string GetName() const = 0;
 
     /**
+    * Gets the text for a specific shader
+    * @param index The shader index
+    * @return the text for the shader
+    */
+    virtual std::string GetShaderText(int index) const = 0;
+
+    /**
+    * Gets the assembly for a specific shader
+    * @param index The shader index
+    * @return the assembly for the shader
+    */
+    virtual std::string GetShaderAssembly(int index) const = 0;
+
+    /**
     * Updates the engine's cached view matrix
     * @param world The world matrix of the camera
     */

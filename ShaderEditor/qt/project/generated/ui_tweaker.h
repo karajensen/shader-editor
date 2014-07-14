@@ -20,7 +20,6 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QPushButton>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -151,8 +150,6 @@ public:
     QFrame *shader;
     QLabel *shader_lbl;
     QLabel *shader_text;
-    QFrame *showEditor;
-    QPushButton *showEditor_btn;
     QWidget *postTab;
     QWidget *layoutWidget3;
     QVBoxLayout *postLayout;
@@ -1289,7 +1286,7 @@ public:
         Mesh->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget2 = new QWidget(Mesh);
         layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(0, 0, 230, 341));
+        layoutWidget2->setGeometry(QRect(0, 0, 230, 311));
         meshLayout = new QVBoxLayout(layoutWidget2);
         meshLayout->setSpacing(0);
         meshLayout->setObjectName(QStringLiteral("meshLayout"));
@@ -1594,48 +1591,6 @@ public:
 
         meshLayout->addWidget(shader);
 
-        showEditor = new QFrame(layoutWidget2);
-        showEditor->setObjectName(QStringLiteral("showEditor"));
-        sizePolicy.setHeightForWidth(showEditor->sizePolicy().hasHeightForWidth());
-        showEditor->setSizePolicy(sizePolicy);
-        showEditor->setMinimumSize(QSize(225, 35));
-        showEditor->setMaximumSize(QSize(225, 35));
-        showEditor->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        showEditor->setFrameShape(QFrame::Panel);
-        showEditor->setFrameShadow(QFrame::Raised);
-        showEditor_btn = new QPushButton(showEditor);
-        showEditor_btn->setObjectName(QStringLiteral("showEditor_btn"));
-        showEditor_btn->setGeometry(QRect(6, 5, 212, 24));
-        showEditor_btn->setMinimumSize(QSize(212, 24));
-        showEditor_btn->setMaximumSize(QSize(212, 24));
-        showEditor_btn->setBaseSize(QSize(220, 0));
-        showEditor_btn->setStyleSheet(QLatin1String("QPushButton#showEditor_btn\n"
-"{\n"
-"background-color: rgb(230, 230, 230);\n"
-"border-style: solid;\n"
-"border-width: 2px;\n"
-"border-bottom-color: rgb(200, 200, 200);\n"
-"border-right-color: rgb(200, 200, 200);\n"
-"border-top-color: rgb(255, 255, 255);\n"
-"border-left-color: rgb(255, 255, 255);\n"
-"}\n"
-"QPushButton#showEditor_btn:pressed\n"
-"{\n"
-"background-color: rgb(210, 210, 210);\n"
-"border-style: solid;\n"
-"border-width: 2px;\n"
-"border-top-color: rgb(175, 175, 175);\n"
-"border-left-color: rgb(175, 175, 175);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"}"));
-        showEditor_btn->setAutoDefault(false);
-        showEditor_btn->setDefault(false);
-        showEditor_btn->setFlat(false);
-
-        meshLayout->addWidget(showEditor);
-
         TabMenu->addTab(Mesh, QString());
         postTab = new QWidget();
         postTab->setObjectName(QStringLiteral("postTab"));
@@ -1781,7 +1736,6 @@ public:
         normalMap_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        showEditor_btn->setText(QApplication::translate("Tweaker", "Show Editor", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         postTexture_lbl->setText(QApplication::translate("Tweaker", "Post Texture", 0));
         renderShadows_lbl->setText(QApplication::translate("Tweaker", "Shadows", 0));

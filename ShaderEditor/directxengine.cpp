@@ -278,7 +278,8 @@ void DirectxEngine::InitialiseDebugging()
 
 std::string DirectxEngine::CompileShader(int index)
 {
-    return m_data->shaders[index].CompileShader(m_data->device);
+    const std::string errors = m_data->shaders[index].CompileShader(m_data->device);
+    return errors.empty() ? "" : "\n\n" + errors;
 }
 
 bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
@@ -315,7 +316,7 @@ bool DirectxEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("DirectX: " + result, true);
+            Logger::LogError("DirectX:" + result);
             return false;
         }
     }
@@ -454,4 +455,14 @@ void DirectxEngine::SetBackfaceCull(bool shouldCull)
         m_data->isBackfaceCull = shouldCull;
         m_data->context->RSSetState(shouldCull ? m_data->cullState : m_data->nocullState);
     }
+}
+
+std::string DirectxEngine::GetShaderText(int index) const
+{
+    return m_data->shaders[index].GetText();
+}
+
+std::string DirectxEngine::GetShaderAssembly(int index) const
+{
+    return m_data->shaders[index].GetAssembly();
 }

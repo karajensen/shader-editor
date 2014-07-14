@@ -37,11 +37,16 @@ public:
 private:
 
     /**
-    * Update the cache and gui
+    * Updates the tweak bar
     * @param tweaker The gui for tweaking the application
+    */
+    void UpdateTweaker(Tweaker& tweaker);
+
+    /**
+    * Updates the editor
     * @param editor The gui for editing shaders
     */
-    void Update(Tweaker& tweaker, Editor& editor);
+    void UpdateEditor(Editor& editor);
 
     /**
     * Updates the cache and gui for the scene page

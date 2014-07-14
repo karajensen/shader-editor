@@ -22,9 +22,8 @@ public:
     /**
     * Logs error to the outputstream
     * @param error The error to log
-    * @param popup Whether to show a popup windows dialog box with the error
     */
-    static void LogError(const std::string& error, bool popup = false);
+    static void LogError(const std::string& error);
 
 private:
 

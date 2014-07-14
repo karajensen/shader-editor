@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "cache.h"
 #include <windowsx.h>
+#include "boost/algorithm/string.hpp"
 
 namespace
 {
@@ -26,7 +27,7 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_selectedLight(NO_INDEX),
     m_selectedMesh(NO_INDEX),
     m_selectedShader(NO_INDEX),
-    m_selectedEngine(OPENGL)
+    m_selectedEngine(DIRECTX)
 {
 }
 
@@ -141,14 +142,8 @@ void Application::TickApplication()
 
     m_scene->Update();
     GetEngine()->Render(m_scene->GetLights());
-    UpdateCache();
 
-    m_mouseDirection.x = 0;
-    m_mouseDirection.y = 0;
-}
-
-void Application::UpdateCache()
-{
+    UpdateShader();
     switch(m_cache->PageSelected.Get())
     {
     case SCENE:
@@ -161,17 +156,43 @@ void Application::UpdateCache()
         UpdateMesh();
         break;
     }
-    
+
+    m_mouseDirection.x = 0;
+    m_mouseDirection.y = 0;
+}
+
+void Application::UpdateShader()
+{   
     const int selectedShader = m_cache->ShaderSelected.Get();
-    if(selectedShader != m_selectedShader)
+    bool updateShader = selectedShader != m_selectedShader;
+
+    const std::string updatedText = m_cache->CompileShader.Get();
+    if(!updatedText.empty() && m_selectedShader != NO_INDEX)
+    {
+        const std::string& name = boost::to_upper_copy(
+            m_scene->GetShader(m_selectedShader).name);
+
+        m_cache->CompileShader.Clear();
+        m_scene->WriteToShader(m_selectedShader, updatedText, HLSL_SHADER_EXTENSION);
+
+        std::string errors = GetEngine()->CompileShader(m_selectedShader);
+        if(errors.empty())
+        {
+            Logger::LogInfo(name + ": Recompiled successfully");
+            updateShader = true;
+        }
+        else
+        {
+            Logger::LogInfo(name + ": Failed Recompilation");
+            ShowMessage(name + ":" + errors, "Compilation Errors");
+        }
+    }
+
+    if(updateShader)
     {
         m_selectedShader = selectedShader;
-        m_cache->ShaderSwitched.Set(true);
-    }
-    else if(m_cache->CompileShader.Get())
-    {
-        m_cache->CompileShader.Set(false);
-        GetEngine()->CompileShader(m_selectedShader);
+        m_cache->ShaderText.SetUpdated(GetEngine()->GetShaderText(m_selectedShader));
+        m_cache->ShaderAsm.SetUpdated(GetEngine()->GetShaderAssembly(m_selectedShader));
     }
 }
 
@@ -196,20 +217,19 @@ void Application::UpdateMesh()
     if(selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
-        m_cache->MeshSwitched.Set(true);
 
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
         const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
         const int normal = mesh.textureIDs[Texture::NORMAL];
         const int specular = mesh.textureIDs[Texture::SPECULAR];
 
-        m_cache->MeshBackFaceCull.Set(mesh.backfacecull);
-        m_cache->MeshSpecularity.Set(mesh.specularity);
-        m_cache->MeshTransparency.Set(m_scene->HasTransparency(m_selectedMesh));
-        m_cache->MeshShader.Set(m_scene->GetShader(mesh.shaderIndex).name);
-        m_cache->MeshDiffuse.Set(m_scene->GetTexture(diffuse));
-        m_cache->MeshNormal.Set(m_scene->GetTexture(normal));        
-        m_cache->MeshSpecular.Set(m_scene->GetTexture(specular));
+        m_cache->MeshBackFaceCull.SetUpdated(mesh.backfacecull);
+        m_cache->MeshSpecularity.SetUpdated(mesh.specularity);
+        m_cache->MeshTransparency.SetUpdated(m_scene->HasTransparency(m_selectedMesh));
+        m_cache->MeshShader.SetUpdated(m_scene->GetShader(mesh.shaderIndex).name);
+        m_cache->MeshDiffuse.SetUpdated(m_scene->GetTexture(diffuse));
+        m_cache->MeshNormal.SetUpdated(m_scene->GetTexture(normal));        
+        m_cache->MeshSpecular.SetUpdated(m_scene->GetTexture(specular));
     }
     else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene->GetMeshCount())
     {
@@ -224,14 +244,13 @@ void Application::UpdateLight()
     if(selectedLight != m_selectedLight)
     {
         m_selectedLight = selectedLight;
-        m_cache->LightSwitched.Set(true);
 
         auto& light = m_scene->GetLight(m_selectedLight);
-        m_cache->LightPosition.Set(light.position);
-        m_cache->LightAttenuation.Set(light.attenuation);
-        m_cache->LightDiffuse.Set(light.diffuse);
-        m_cache->LightSpecular.Set(light.specular);
-        m_cache->LightSpecularity.Set(light.specularity);
+        m_cache->LightPosition.SetUpdated(light.position);
+        m_cache->LightAttenuation.SetUpdated(light.attenuation);
+        m_cache->LightDiffuse.SetUpdated(light.diffuse);
+        m_cache->LightSpecular.SetUpdated(light.specular);
+        m_cache->LightSpecularity.SetUpdated(light.specularity);
     }
     else if(m_selectedLight >= 0 && m_selectedLight < m_scene->GetLightCount())
     {
