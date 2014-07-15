@@ -20,6 +20,7 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -64,6 +65,7 @@ public:
     QFrame *cameraZ;
     QLabel *cameraZ_lbl;
     QLabel *cameraZ_text;
+    QSpacerItem *_sceneSpacer;
     QWidget *Light;
     QWidget *layoutWidget1;
     QVBoxLayout *lightLayout;
@@ -122,6 +124,7 @@ public:
     QLabel *lightSpecularity_lbl;
     QDoubleSpinBox *lightSpecularity_value;
     QDial *lightSpecularity_dial;
+    QSpacerItem *_lightSpacer;
     QWidget *Mesh;
     QWidget *layoutWidget2;
     QVBoxLayout *meshLayout;
@@ -150,6 +153,7 @@ public:
     QFrame *shader;
     QLabel *shader_lbl;
     QLabel *shader_text;
+    QSpacerItem *_meshSpacer;
     QWidget *postTab;
     QWidget *layoutWidget3;
     QVBoxLayout *postLayout;
@@ -159,6 +163,7 @@ public:
     QFrame *renderShadows;
     QLabel *renderShadows_lbl;
     QCheckBox *renderShadows_check;
+    QSpacerItem *_postSpacer;
 
     void setupUi(QWidget *Tweaker)
     {
@@ -187,9 +192,9 @@ public:
         Scene->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget = new QWidget(Scene);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(0, 0, 230, 381));
+        layoutWidget->setGeometry(QRect(0, 0, 230, 561));
         sceneLayout = new QVBoxLayout(layoutWidget);
-        sceneLayout->setSpacing(0);
+        sceneLayout->setSpacing(3);
         sceneLayout->setObjectName(QStringLiteral("sceneLayout"));
         sceneLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         sceneLayout->setContentsMargins(4, 4, 0, 0);
@@ -552,15 +557,19 @@ public:
 
         sceneLayout->addWidget(cameraZ);
 
+        _sceneSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        sceneLayout->addItem(_sceneSpacer);
+
         TabMenu->addTab(Scene, QString());
         Light = new QWidget();
         Light->setObjectName(QStringLiteral("Light"));
         Light->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget1 = new QWidget(Light);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(0, 0, 230, 531));
+        layoutWidget1->setGeometry(QRect(0, 0, 230, 561));
         lightLayout = new QVBoxLayout(layoutWidget1);
-        lightLayout->setSpacing(0);
+        lightLayout->setSpacing(3);
         lightLayout->setObjectName(QStringLiteral("lightLayout"));
         lightLayout->setContentsMargins(4, 4, 0, 0);
         selectedLight = new QFrame(layoutWidget1);
@@ -1280,15 +1289,19 @@ public:
 
         lightLayout->addWidget(lightSpecularity);
 
+        _lightSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        lightLayout->addItem(_lightSpacer);
+
         TabMenu->addTab(Light, QString());
         Mesh = new QWidget();
         Mesh->setObjectName(QStringLiteral("Mesh"));
         Mesh->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget2 = new QWidget(Mesh);
         layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(0, 0, 230, 311));
+        layoutWidget2->setGeometry(QRect(0, 0, 230, 561));
         meshLayout = new QVBoxLayout(layoutWidget2);
-        meshLayout->setSpacing(0);
+        meshLayout->setSpacing(3);
         meshLayout->setObjectName(QStringLiteral("meshLayout"));
         meshLayout->setContentsMargins(4, 4, 0, 0);
         selectedMesh = new QFrame(layoutWidget2);
@@ -1591,15 +1604,19 @@ public:
 
         meshLayout->addWidget(shader);
 
+        _meshSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        meshLayout->addItem(_meshSpacer);
+
         TabMenu->addTab(Mesh, QString());
         postTab = new QWidget();
         postTab->setObjectName(QStringLiteral("postTab"));
         postTab->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget3 = new QWidget(postTab);
         layoutWidget3->setObjectName(QStringLiteral("layoutWidget3"));
-        layoutWidget3->setGeometry(QRect(0, 0, 230, 81));
+        layoutWidget3->setGeometry(QRect(0, 0, 230, 561));
         postLayout = new QVBoxLayout(layoutWidget3);
-        postLayout->setSpacing(0);
+        postLayout->setSpacing(3);
         postLayout->setObjectName(QStringLiteral("postLayout"));
         postLayout->setContentsMargins(4, 4, 0, 0);
         postTexture = new QFrame(layoutWidget3);
@@ -1670,6 +1687,10 @@ public:
 
         postLayout->addWidget(renderShadows);
 
+        _postSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        postLayout->addItem(_postSpacer);
+
         TabMenu->addTab(postTab, QString());
 
         verticalLayout_3->addWidget(TabMenu);
@@ -1677,7 +1698,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(2);
+        TabMenu->setCurrentIndex(3);
         selectedLight_box->setCurrentIndex(-1);
 
 

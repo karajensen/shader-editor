@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -77,12 +77,12 @@
          <x>0</x>
          <y>0</y>
          <width>230</width>
-         <height>381</height>
+         <height>561</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="sceneLayout">
         <property name="spacing">
-         <number>0</number>
+         <number>3</number>
         </property>
         <property name="sizeConstraint">
          <enum>QLayout::SetDefaultConstraint</enum>
@@ -1282,6 +1282,19 @@ border-radius: 4px;</string>
           </widget>
          </widget>
         </item>
+        <item>
+         <spacer name="_sceneSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -1298,12 +1311,12 @@ border-radius: 4px;</string>
          <x>0</x>
          <y>0</y>
          <width>230</width>
-         <height>531</height>
+         <height>561</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="lightLayout">
         <property name="spacing">
-         <number>0</number>
+         <number>3</number>
         </property>
         <property name="leftMargin">
          <number>4</number>
@@ -3573,6 +3586,19 @@ border-width: 2px;</string>
           </widget>
          </widget>
         </item>
+        <item>
+         <spacer name="_lightSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -3589,12 +3615,12 @@ border-width: 2px;</string>
          <x>0</x>
          <y>0</y>
          <width>230</width>
-         <height>311</height>
+         <height>561</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="meshLayout">
         <property name="spacing">
-         <number>0</number>
+         <number>3</number>
         </property>
         <property name="leftMargin">
          <number>4</number>
@@ -4601,6 +4627,19 @@ border-radius: 4px;</string>
           </widget>
          </widget>
         </item>
+        <item>
+         <spacer name="_meshSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -4617,12 +4656,12 @@ border-radius: 4px;</string>
          <x>0</x>
          <y>0</y>
          <width>230</width>
-         <height>81</height>
+         <height>561</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="postLayout">
         <property name="spacing">
-         <number>0</number>
+         <number>3</number>
         </property>
         <property name="leftMargin">
          <number>4</number>
@@ -4853,6 +4892,19 @@ border-radius: 4px;</string>
            </property>
           </widget>
          </widget>
+        </item>
+        <item>
+         <spacer name="_postSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

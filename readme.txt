@@ -1,7 +1,5 @@
 
-- make assembly text box not editable
-- change text to get shader spacing correct
-- mesh page spacing fix
+- python script to copy over generated files (can qt run automatically?)
 - fix glsl editing of shaders
 
 - Rendering: specular, attenuation, bump

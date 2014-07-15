@@ -89,13 +89,18 @@ public:
         shaderTextBox->setObjectName(QStringLiteral("shaderTextBox"));
         sizePolicy.setHeightForWidth(shaderTextBox->sizePolicy().hasHeightForWidth());
         shaderTextBox->setSizePolicy(sizePolicy);
+        QFont font;
+        font.setFamily(QStringLiteral("Consolas"));
+        shaderTextBox->setFont(font);
         shaderTextBox->setLineWrapMode(QTextEdit::NoWrap);
         splitter->addWidget(shaderTextBox);
         assemblyTextBox = new QTextEdit(splitter);
         assemblyTextBox->setObjectName(QStringLiteral("assemblyTextBox"));
         sizePolicy.setHeightForWidth(assemblyTextBox->sizePolicy().hasHeightForWidth());
         assemblyTextBox->setSizePolicy(sizePolicy);
+        assemblyTextBox->setFont(font);
         assemblyTextBox->setLineWrapMode(QTextEdit::NoWrap);
+        assemblyTextBox->setReadOnly(true);
         splitter->addWidget(assemblyTextBox);
 
         verticalLayout->addWidget(splitter);
