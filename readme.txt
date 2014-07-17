@@ -1,5 +1,5 @@
 
-- python script to copy over generated files (can qt run automatically?)
+- qt run python script
 - fix glsl editing of shaders
 
 - Rendering: specular, attenuation, bump
