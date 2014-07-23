@@ -5,8 +5,8 @@
 import os
 import shutil
 
-buildDirectory = os.path.dirname(__file__)
-projectDirectory = buildDirectory.replace("build", "project")
+projectDirectory = os.path.dirname(__file__)
+buildDirectory = projectDirectory.replace("project", "build")
 generatedDirectory = projectDirectory + "\\Generated\\"
 debugFolder = "\\debug\\"
 mocFolder = "\\moc\\"

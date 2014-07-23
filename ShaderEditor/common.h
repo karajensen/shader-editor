@@ -36,6 +36,7 @@ const std::string ASM_EXTENSION(".as");
 const std::string GLSL_VERTEX("_glsl_vert");
 const std::string GLSL_FRAGMENT("_glsl_frag");
 const std::string HLSL_SHADER("_hlsl");
+const std::string GLSL_HEADER("#version");
 const std::string GLSL_FRAGMENT_EXTENSION(GLSL_FRAGMENT + SHADER_EXTENSION);   
 const std::string GLSL_VERTEX_EXTENSION(GLSL_VERTEX + SHADER_EXTENSION);
 const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);

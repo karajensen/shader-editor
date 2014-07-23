@@ -435,9 +435,10 @@ std::vector<std::string> Scene::GetShaderNames() const
     return shaders;
 }
 
-void Scene::WriteToShader(int index, const std::string& text, const std::string& extension)
+void Scene::WriteToShader(const std::string& name, 
+                          const std::string& text, 
+                          const std::string& extension)
 {
-    const std::string& name = m_shaders[index].name;
     const std::string filepath = GENERATED_PATH + name + extension;
     std::ofstream file(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
     

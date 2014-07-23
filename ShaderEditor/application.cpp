@@ -12,6 +12,7 @@
 #include "cache.h"
 #include <windowsx.h>
 #include "boost/algorithm/string.hpp"
+#include "boost/algorithm/string/regex.hpp"
 
 namespace
 {
@@ -161,34 +162,52 @@ void Application::TickApplication()
     m_mouseDirection.y = 0;
 }
 
+bool Application::ReCompileShader(const std::string& text)
+{
+    const std::string& name = m_scene->GetShader(m_selectedShader).name;
+    m_cache->CompileShader.Clear();
+
+    if(m_selectedEngine == OPENGL)
+    {
+        // GLSL uses two files that both must start with GLSL_HEADER
+        // Note first component in split regex vector is whitespace or empty
+        std::vector<std::string> components;
+        boost::algorithm::split_regex(components, text, boost::regex(GLSL_HEADER));
+        m_scene->WriteToShader(name, GLSL_HEADER + components[1], GLSL_VERTEX_EXTENSION);
+        m_scene->WriteToShader(name, GLSL_HEADER + components[2], GLSL_FRAGMENT_EXTENSION);
+    }
+    else if(m_selectedEngine == DIRECTX)
+    {
+        m_scene->WriteToShader(name, text, HLSL_SHADER_EXTENSION);
+    }
+
+    std::string errors = GetEngine()->CompileShader(m_selectedShader);
+    if(errors.empty())
+    {
+        Logger::LogInfo(name + ": Recompiled successfully");
+        return true;
+    }
+    else
+    {
+        Logger::LogInfo(name + ": Failed Recompilation");
+        ShowMessage(name + ":" + errors, "Compilation Errors");
+        return false;
+    }
+}
+
 void Application::UpdateShader()
 {   
     const int selectedShader = m_cache->ShaderSelected.Get();
-    bool updateShader = selectedShader != m_selectedShader;
+    bool changedShader = selectedShader != m_selectedShader;
+    bool recompiledShader = false;
 
     const std::string updatedText = m_cache->CompileShader.Get();
     if(!updatedText.empty() && m_selectedShader != NO_INDEX)
     {
-        const std::string& name = boost::to_upper_copy(
-            m_scene->GetShader(m_selectedShader).name);
-
-        m_cache->CompileShader.Clear();
-        m_scene->WriteToShader(m_selectedShader, updatedText, HLSL_SHADER_EXTENSION);
-
-        std::string errors = GetEngine()->CompileShader(m_selectedShader);
-        if(errors.empty())
-        {
-            Logger::LogInfo(name + ": Recompiled successfully");
-            updateShader = true;
-        }
-        else
-        {
-            Logger::LogInfo(name + ": Failed Recompilation");
-            ShowMessage(name + ":" + errors, "Compilation Errors");
-        }
+        recompiledShader = ReCompileShader(updatedText);
     }
 
-    if(updateShader)
+    if(changedShader || recompiledShader)
     {
         m_selectedShader = selectedShader;
         m_cache->ShaderText.SetUpdated(GetEngine()->GetShaderText(m_selectedShader));
@@ -333,6 +352,7 @@ bool Application::InitialiseEngine(RenderEngine* engine)
 void Application::SwitchRenderEngine(int index)
 {
     m_selectedEngine = index;
+    m_selectedShader = NO_INDEX; // allow selected shader to be re-cached
 
     // Reinitialise the engine as it has lost focus
     if(!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())

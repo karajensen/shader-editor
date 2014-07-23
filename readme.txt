@@ -1,6 +1,6 @@
 
-- qt run python script
-- fix glsl editing of shaders
+- OpenGL Intialisation time profile and reduce
+- Fade in-out for opengl/directx switching
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights
@@ -17,7 +17,6 @@ TO DETERMINE:
 - Shadows
 - Transparency
 - Particle effects
-- Fade in-out for opengl/directx switching
 - Opengl fps
 
 =================================================================

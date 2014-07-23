@@ -107,6 +107,13 @@ private:
     bool InitialiseEngine(RenderEngine* engine);
 
     /**
+    * Recompiles the currently selected shader
+    * @param text The new text to recompile with
+    * @return whether recompilation was successful
+    */
+    bool ReCompileShader(const std::string& text);
+
+    /**
     * @return the currently selected render engine
     */
     RenderEngine* GetEngine() const;

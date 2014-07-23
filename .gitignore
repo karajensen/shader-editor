@@ -11,10 +11,7 @@ ShaderEditor/ShaderEditor.exe
 ShaderEditor/logfile.txt
 ShaderEditor/qt/build/debug/
 ShaderEditor/qt/build/release/
-ShaderEditor/qt/build/*.h
-ShaderEditor/qt/build/Makefile
-ShaderEditor/qt/build/Makefile.Debug
-ShaderEditor/qt/build/Makefile.Release
+ShaderEditor/qt/build/
 ShaderEditor/Debug/
 ShaderEditor/Release/
 ShaderEditor/Assets/Shaders/Generated/
