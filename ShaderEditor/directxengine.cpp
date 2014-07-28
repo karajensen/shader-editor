@@ -53,6 +53,7 @@ struct DirectxData
     D3DXVECTOR2 frustum;                  ///< Camera near and far values
     bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
     int selectedShader;                   ///< currently selected shader for rendering the scene
+    float fadeAmount;                     ///< the amount to fade the scene by
 };
 
 DirectxData::DirectxData() :
@@ -70,7 +71,8 @@ DirectxData::DirectxData() :
     frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(NO_INDEX, POST_PATH),
     normalShader(NO_INDEX, NORM_PATH),
-    quad("SceneQuad")
+    quad("SceneQuad"),
+    fadeAmount(0.0f)
 {
 }
 
@@ -83,6 +85,7 @@ void DirectxData::Release()
 {
     selectedShader = NO_INDEX;
     isBackfaceCull = true;
+    fadeAmount = 0.0f;
 
     for(DxTexture& texture : textures)
     {
@@ -131,12 +134,16 @@ DirectxEngine::DirectxEngine(HWND hwnd) :
 
 DirectxEngine::~DirectxEngine()
 {
+    Release();
+}
+
+void DirectxEngine::Release()
+{
+    m_data->Release();
 }
 
 bool DirectxEngine::Initialize()
 {
-    m_data->Release();
-
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; 
@@ -334,6 +341,23 @@ bool DirectxEngine::ReInitialiseScene()
     return true;
 }
 
+bool DirectxEngine::FadeView(bool in, float amount)
+{
+    m_data->fadeAmount += in ? amount : -amount;
+
+    if(in && m_data->fadeAmount >= 1.0f)
+    {
+        m_data->fadeAmount = 1.0f;
+        return true;
+    }
+    else if(!in && m_data->fadeAmount <= 0.0f)
+    {
+        m_data->fadeAmount = 0.0f;
+        return true;
+    }
+    return false;
+}
+
 void DirectxEngine::Render(const std::vector<Light>& lights)
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
@@ -365,6 +389,8 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->postShader.SetActive(m_data->context);
     m_data->sceneTarget.SendTexture(m_data->context, SCENE_TEXTURE);
     m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
+    m_data->postShader.UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
+    m_data->postShader.SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
     m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
     m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);

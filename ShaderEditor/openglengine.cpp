@@ -48,6 +48,7 @@ struct OpenglData
     glm::mat4 viewProjection;        ///< View projection matrix
     bool isBackfaceCull;             ///< Whether backface culling is currently active
     int selectedShader;              ///< Currently active shader for rendering
+    float fadeAmount;                ///< the amount to fade the scene by
 };
 
 OpenglData::OpenglData() :
@@ -61,7 +62,8 @@ OpenglData::OpenglData() :
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(NO_INDEX, POST_VERT_PATH, POST_FRAG_PATH),
-    normalShader(NO_INDEX, NORM_VERT_PATH, NORM_FRAG_PATH)
+    normalShader(NO_INDEX, NORM_VERT_PATH, NORM_FRAG_PATH),
+    fadeAmount(0.0f)
 {
 }
 
@@ -74,6 +76,7 @@ void OpenglData::Release()
 {
     selectedShader = NO_INDEX;
     isBackfaceCull = true;
+    fadeAmount = 0.0f;
 
     for(GlTexture& texture : textures)
     {
@@ -125,6 +128,12 @@ OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
 
 OpenglEngine::~OpenglEngine()
 {
+    Release();
+}
+
+void OpenglEngine::Release()
+{
+    m_data->Release();
 }
 
 bool OpenglEngine::Initialize()
@@ -133,7 +142,6 @@ bool OpenglEngine::Initialize()
     // Initialise Glew with a temporary opengl context and temporary window.
     // http://msdn.microsoft.com/en-us/library/windows/desktop/dd369049%28v=vs.85%29.aspx
 
-    m_data->Release();
     HDC tempHdc = GetDC(m_temporaryHwnd);
     m_data->hdc = GetDC(m_hwnd);
 
@@ -369,6 +377,23 @@ bool OpenglEngine::ReInitialiseScene()
     return true;
 }
 
+bool OpenglEngine::FadeView(bool in, float amount)
+{
+    m_data->fadeAmount += in ? amount : -amount;
+
+    if(in && m_data->fadeAmount >= 1.0f)
+    {
+        m_data->fadeAmount = 1.0f;
+        return true;
+    }
+    else if(!in && m_data->fadeAmount <= 0.0f)
+    {
+        m_data->fadeAmount = 0.0f;
+        return true;
+    }
+    return false;
+}
+
 void OpenglEngine::Render(const std::vector<Light>& lights)
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
@@ -404,6 +429,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
+    m_data->postShader.SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     m_data->sceneTarget.SendTexture(SCENE_TEXTURE);
     m_data->normalTarget.SendTexture(NORMAL_TEXTURE);
     m_data->quad.PreRender();

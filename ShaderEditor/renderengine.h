@@ -21,6 +21,11 @@ public:
     virtual bool Initialize() = 0;
 
     /**
+    * Explicity releases resources for the engine
+    */
+    virtual void Release() = 0;
+
+    /**
     * Destructor
     */
     virtual ~RenderEngine(){}
@@ -82,4 +87,12 @@ public:
     * @param world The world matrix of the camera
     */
     virtual void UpdateView(const Matrix& world) = 0;
+
+    /**
+    * Fades the screen in or out to black by the given amount
+    * @param in Whether to fade in or out
+    * @param amount The amount to fade by
+    * @return whether the fade has reached the capped target of [0,1]
+    */
+    virtual bool FadeView(bool in, float amount) = 0;
 };

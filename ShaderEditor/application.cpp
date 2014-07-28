@@ -19,12 +19,14 @@ namespace
     const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
     const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
+    const float FADE_AMOUNT = 0.01f;       ///< Speed to fade the engine in/out
 }
 
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_mousePressed(false),
     m_cache(cache),
+    m_fadeState(FADE_IN),
     m_selectedLight(NO_INDEX),
     m_selectedMesh(NO_INDEX),
     m_selectedShader(NO_INDEX),
@@ -141,6 +143,7 @@ void Application::TickApplication()
         GetEngine()->UpdateView(m_camera->GetWorld());
     }
 
+    FadeRenderEngine();
     m_scene->Update();
     GetEngine()->Render(m_scene->GetLights());
 
@@ -220,7 +223,7 @@ void Application::UpdateScene()
     const int selectedEngine = m_cache->EngineSelected.Get();
     if(selectedEngine != m_selectedEngine)
     {
-        SwitchRenderEngine(selectedEngine);
+        m_fadeState = FADE_OUT;
     }
 
     m_cache->FramesPerSec.Set(m_timer->GetFPS());
@@ -298,6 +301,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     m_engines[OPENGL].reset(new OpenglEngine(hwnd, hinstance));
     m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
 
+    // Ensure that all engines can be initialised
     bool failed = false;
     for(unsigned int i = 0; i < m_engines.size(); ++i)
     {
@@ -305,10 +309,10 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         if(i != m_selectedEngine)
         {
             failed |= !InitialiseEngine(m_engines[i].get());
+            m_engines[i]->Release();
         }
     }
 
-    // Initialise the selected engine last so it starts in focus
     failed |= !InitialiseEngine(GetEngine());
 
     if(failed)
@@ -349,16 +353,36 @@ bool Application::InitialiseEngine(RenderEngine* engine)
     return true;
 }
 
+void Application::FadeRenderEngine()
+{
+    if(m_fadeState != NO_FADE &&
+       GetEngine()->FadeView(m_fadeState == FADE_IN, FADE_AMOUNT))
+    {
+        if(m_fadeState == FADE_OUT)
+        {
+            SwitchRenderEngine(m_cache->EngineSelected.Get());
+            m_fadeState = FADE_IN;
+        }
+        else
+        {
+            m_fadeState = NO_FADE;
+        }
+    }
+}
+
 void Application::SwitchRenderEngine(int index)
 {
-    m_selectedEngine = index;
-    m_selectedShader = NO_INDEX; // allow selected shader to be re-cached
+    m_engines[m_selectedEngine]->Release();
 
-    // Reinitialise the engine as it has lost focus
-    if(!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
+    m_selectedEngine = index;
+    m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
+
+    if(!m_engines[m_selectedEngine]->Initialize() || 
+       !m_engines[m_selectedEngine]->ReInitialiseScene())
     {
-        Logger::LogError(GetEngine()->GetName() + ": Failed to reinitialise");
+        Logger::LogError(m_engines[m_selectedEngine]->GetName()
+            + ": Failed to reinitialise");
     }
 
-    GetEngine()->UpdateView(m_camera->GetWorld());
+     m_engines[m_selectedEngine]->UpdateView(m_camera->GetWorld());
 }

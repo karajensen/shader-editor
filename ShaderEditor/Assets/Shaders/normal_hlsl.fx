@@ -1,5 +1,5 @@
 
-cbuffer ConstantBuffer
+cbuffer VertexBuffer
 {
     float4x4 viewProjection;
     float2 frustum;

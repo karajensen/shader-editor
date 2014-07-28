@@ -1,4 +1,4 @@
-cbuffer ConstantBuffer
+cbuffer VertexBuffer
 {
     float4x4 viewProjection;
     ifndefined: FLAT

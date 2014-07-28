@@ -149,9 +149,13 @@ private:
     * Generates the constant buffer which holds all non-attribute uniforms
     * @param device The directX device
     * @param text The text for the shared shader components
+    * @param bufferName The name of the buffer to create
     * @return Error message if failed or empty if succeeded
     */
-    std::string CreateConstantBuffer(ID3D11Device* device, const std::string& text);
+    std::string CreateConstantBuffer(
+        ID3D11Device* device, 
+        const std::string& text,
+        std::string bufferName);
 
     /**
     * Validates the non-attribute constant that is requesting to be sent
@@ -159,8 +163,15 @@ private:
     * @param actualType Actual type of constant in the shader
     * @param name Name of the constant
     */
-    bool CanSendConstant(const std::string& expectedType, 
-        const std::string& actualType, const std::string& name) const;
+    bool CanSendConstant(
+        const std::string& expectedType, 
+        const std::string& actualType, 
+        const std::string& name) const;
+
+    /**
+    * Sets the internal debug names for the shader objects
+    */
+    void SetDebugNames();
 
     /**
     * Information for each vertex input attribute
@@ -182,9 +193,30 @@ private:
         int index;           ///< Offset from beginning of scratch buffer
     };
 
-    typedef std::unordered_map<std::string, ConstantData> ConstantMap;
+    /**
+    * Information for a constant buffer
+    */
+    struct ConstantBuffer
+    {
+        /**
+        * Constructor
+        */
+        ConstantBuffer();
 
-    ConstantMap m_constants;                   ///< Shader constant variables
+        /**
+        * Destructor
+        */
+        ~ConstantBuffer();
+
+        typedef std::unordered_map<std::string, ConstantData> ConstantMap;
+
+        std::string name;             ///< Name of the constant buffer
+        ConstantMap constants;        ///< Shader constant variables for the buffer
+        std::vector<float> scratch;   ///< Holds temporary constant values
+        ID3D11Buffer* buffer;         ///< Buffer object
+    };
+
+    std::vector<ConstantBuffer> m_buffers;     ///< Constant buffers for the shader
     std::vector<AttributeData> m_attributes;   ///< Vertex shader input attributes
     std::string m_filepath;                    ///< Path to the shader file
     std::string m_asmpath;                     ///< Path to the generated assembly file
@@ -196,9 +228,7 @@ private:
     ID3D11InputLayout* m_layout;               ///< Shader input layout
     ID3D11VertexShader* m_vs;                  ///< HLSL vertex shader
     ID3D11PixelShader* m_ps;                   ///< HLSL pixel shader
-    ID3D11Buffer* m_constant;                  ///< Constant buffer
     ID3D11SamplerState* m_samplerState;        ///< Texture Sampler state
-    std::vector<float> m_constantScratch;      ///< Holds temporary constant values
     int m_index;                               ///< Unique index of the shader
     int m_textureSlots;                        ///< Number of textures allowed for this mesh
 };  

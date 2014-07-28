@@ -1,8 +1,14 @@
 
+cbuffer PixelBuffer
+{
+    float fadeAmount;
+};
+
 struct Attributes
 {
     float4 position   : SV_POSITION;
     float2 uvs        : TEXCOORD0;
+    float fade        : TEXCOORD1;
 };
 
 Texture2DMS<float4,SAMPLES> SceneTexture   : register(t0);
@@ -14,6 +20,7 @@ Attributes VShader(float4 position  : POSITION,
     Attributes output;
     output.position = position;
     output.uvs = uvs;
+    output.fade = fadeAmount;
     return output;
 }
 
@@ -28,5 +35,5 @@ float4 PShader(Attributes input) : SV_TARGET
     }
     finalColor *= 1.0 / SAMPLES;
 
-    return finalColor;
+    return finalColor * input.fade;
 }

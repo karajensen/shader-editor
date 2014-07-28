@@ -29,6 +29,11 @@ public:
     ~OpenglEngine();
 
     /**
+    * Explicity releases resources for the engine
+    */
+    virtual void Release() override;
+
+    /**
     * Sets up the graphics engine for rendering
     * @return whether initialization succeeded
     */
@@ -91,6 +96,14 @@ public:
     * @return the assembly for the shader
     */
     virtual std::string GetShaderAssembly(int index) const override;
+
+    /**
+    * Fades the screen in or out to black by the given amount
+    * @param in Whether to fade in or out
+    * @param amount The amount to fade by
+    * @return whether the fade has reached the capped target of [0,1]
+    */
+    virtual bool FadeView(bool in, float amount) override;
 
 private:
 

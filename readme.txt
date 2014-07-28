@@ -1,6 +1,10 @@
 
+- Add F12 engine toggle without fade
+- HLSL Multiple constant buffers support and send mesh specularity
+- HLSL PSSetConstantBuffers and remove uneeded code in post vertex shader
+- GLSL Send mesh specularity
+
 - OpenGL Intialisation time profile and reduce
-- Fade in-out for opengl/directx switching
 
 - Rendering: specular, attenuation, bump
 - Send light data and multiple lights

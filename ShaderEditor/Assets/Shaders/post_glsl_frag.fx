@@ -5,6 +5,7 @@ out vec4 out_Color;
 
 uniform sampler2DMS SceneTexture;
 uniform sampler2DMS NormalTexture;
+uniform float fadeAmount;
  
 void main(void)
 {
@@ -20,5 +21,5 @@ void main(void)
 
     finalColor.a = texelFetch(NormalTexture, uvs, 0).a;
 
-    out_Color = finalColor;
+    out_Color = finalColor * fadeAmount;
 }

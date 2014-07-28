@@ -61,6 +61,12 @@ private:
     void TickApplication();
 
     /**
+    * Fades in or out if required for the selected render engine
+    * @note when completing a fade out the render engine is release and switched
+    */
+    void FadeRenderEngine();
+
+    /**
     * Handles any custom input events
     * @param keydown The current key being pressed
     * @param msg The windows event message
@@ -119,6 +125,16 @@ private:
     RenderEngine* GetEngine() const;
 
     /**
+    * State for fading in/out the selected engine
+    */
+    enum FadeState
+    {
+        FADE_IN,
+        FADE_OUT,
+        NO_FADE
+    };
+
+    /**
     * Available render engines
     */
     enum
@@ -128,6 +144,7 @@ private:
         MAX_ENGINES
     };
 
+    FadeState m_fadeState;            ///< Current state of fading in/out the selected engine
     bool m_mousePressed;              ///< Whether the mouse is held down or not
     Float2 m_mouseDirection;          ///< Direction of movement for the mouse
     Float2 m_mousePosition;           ///< 2D coordinates of the mouse
