@@ -129,6 +129,7 @@ struct Mesh
     bool backfacecull;            ///< Whether back facing polygons are culled
     int shaderIndex;              ///< Unique Index of the mesh shader
     float specularity;            ///< Brightness of the specular highlights
+    float ambience;               ///< Ambient light multiplier
     std::string name;             ///< Name of the mesh
     std::vector<float> vertices;  ///< Mesh Vertex information
     std::vector<DWORD> indices;   ///< Mesh Index information

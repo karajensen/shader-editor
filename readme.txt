@@ -1,9 +1,14 @@
 
-- Add F12 engine toggle without fade
-- HLSL Multiple constant buffers support and send mesh specularity
-- HLSL PSSetConstantBuffers and remove uneeded code in post vertex shader
-- GLSL Send mesh specularity
+cbuffer PixelBuffer : register(b1) 
+{
+    float meshAmbience;
+    ifdefined: SPECULAR
+        float meshSpecularity;
+    endif
+};
 
+- Send Ambience and specularity for meshes
+- Add F12 engine toggle without fade
 - OpenGL Intialisation time profile and reduce
 
 - Rendering: specular, attenuation, bump
@@ -14,14 +19,13 @@
 
 - Optimise shaders
 
-- Add mesh specularity to python script
+- Add mesh specularity/ambience to python script
 - Create 3D scene with baked shadows
 
 TO DETERMINE:
 - Shadows
 - Transparency
 - Particle effects
-- Opengl fps
 
 =================================================================
 SHADER EDITOR

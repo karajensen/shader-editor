@@ -35,8 +35,9 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularR =   [&](float r){ m_cache->LightSpecular.SetR(r); };
     callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
-    callbacks.SetLightSpecularity = [&](float s){ m_cache->LightSpecularity.Set(s); };  
-    callbacks.SetMeshSpecularity =  [&](float s){ m_cache->MeshSpecularity.Set(s); };  
+    callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
+    callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
+    callbacks.SetMeshAmbience =     [&](float value){ m_cache->MeshAmbience.Set(value); };
     callbacks.SetSelectedEngine =   [&](int index){ m_cache->EngineSelected.Set(index); };
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
@@ -211,6 +212,11 @@ void Gui::UpdateMesh(Tweaker& tweaker)
     if(initialisedMeshes || m_cache->MeshSpecularity.RequiresUpdate())
     {
         tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshAmbience.RequiresUpdate())
+    {
+        tweaker.SetMeshAmbience(m_cache->MeshAmbience.GetUpdated());
     }
 
     if(initialisedMeshes || m_cache->MeshBackFaceCull.RequiresUpdate())

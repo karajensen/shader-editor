@@ -58,6 +58,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_meshSpecularity.Initialise(0.1, m_ui.meshSpecularity_value,
         m_ui.meshSpecularity_dial, m_callbacks.SetMeshSpecularity);
+
+    m_meshAmbience.Initialise(0.01, m_ui.meshAmbience_value,
+        m_ui.meshAmbience_dial, m_callbacks.SetMeshAmbience);
 }
 
 std::string Tweaker::GetSelectedPage() const
@@ -183,6 +186,10 @@ void Tweaker::SetMeshSpecularity(float size)
     m_meshSpecularity.Set(size);
 }
 
+void Tweaker::SetMeshAmbience(float value)
+{
+    m_meshAmbience.Set(value);
+}
 
 void Tweaker::InitialiseEngines(int selected,
                                 const std::vector<std::string>& engines)

@@ -21,6 +21,8 @@ namespace
     const std::string PIXEL_RETURN("float4");
     const std::string VERTEX_ENTRY("VShader");
     const std::string PIXEL_ENTRY("PShader");
+    const std::string VERTEX_BUFFER("VertexBuffer");
+    const std::string PIXEL_BUFFER("PixelBuffer");
     const std::string VERTEX_MODEL("vs_5_0");
     const std::string PIXEL_MODEL("ps_5_0");
     const std::string HLSL_IN_POSITION("POSITION");
@@ -30,8 +32,7 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("cbuffer");
-    const std::string HLSL_VERTEX_BUFFER("VertexBuffer");
-    const std::string HLSL_PIXEL_BUFFER("PixelBuffer");
+    const std::string HLSL_CONSTANT_REGISTER("register(b");
     const std::string HLSL_TEXTURE2D("Texture2D");
     const std::string HLSL_TEXTURE2DMS("Texture2DMS<float4," + SAMPLES + ">");
     const std::string HLSL_SAMPLER("SamplerState");
@@ -68,7 +69,10 @@ void DxShader::Release()
 }
 
 DxShader::ConstantBuffer::ConstantBuffer() :
-    buffer(nullptr)
+    buffer(nullptr),
+    isVertexBuffer(false),
+    updated(false),
+    registerID(NO_INDEX)
 {
 }
 
@@ -134,13 +138,13 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffer(device, sharedText, HLSL_VERTEX_BUFFER);
+    errorBuffer = CreateConstantBuffer(device, sharedText, VERTEX_BUFFER, true);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffer(device, sharedText, HLSL_PIXEL_BUFFER);
+    errorBuffer = CreateConstantBuffer(device, sharedText, PIXEL_BUFFER, false);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
@@ -272,9 +276,7 @@ std::string DxShader::GenerateAssembly(ID3D10Blob* vs,
     return std::string();
 }
 
-std::string DxShader::BindVertexAttributes(ID3D11Device* device, 
-                                           ID3D10Blob* vs,
-                                           const std::string& text)
+std::vector<std::string> DxShader::GetVertexAttributes(const std::string& text) const
 {
     // Find a string of all text within the entry point brackets main(...)
     std::string attributeList;
@@ -291,6 +293,14 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
     std::vector<std::string> components;
     boost::split(components, attributeList, 
         boost::is_any_of(",:;\n\r "), boost::token_compress_on);
+    return components;
+}
+
+std::string DxShader::BindVertexAttributes(ID3D11Device* device, 
+                                           ID3D10Blob* vs,
+                                           const std::string& text)
+{
+    std::vector<std::string> components = GetVertexAttributes(text);
 
     // Ordering of input attributes is assumed to be: 'type name semantic'
     int byteOffset = 0;
@@ -354,29 +364,34 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
     return std::string();
 }
 
-std::string DxShader::CreateConstantBuffer(ID3D11Device* device, 
-                                           const std::string& text,
-                                           std::string bufferName)
+int DxShader::FindConstantBuffer(const std::string& text, const std::string& name) const
 {
-    std::string errorBuffer;
-    bufferName = HLSL_CONSTANT_BUFFER + " " + bufferName;
-    int index = text.find(bufferName, 0);
-    if(index == NO_INDEX)
+    return text.find(HLSL_CONSTANT_BUFFER + " " + name, 0);
+}
+
+int DxShader::FindConstantBufferRegister(const std::string& text, int index) const
+{
+    // Assumes register stored in is single digit (0->9)
+    index = text.find(HLSL_CONSTANT_REGISTER, index);
+    if(index != NO_INDEX)
     {
-        return errorBuffer;
+        index += HLSL_CONSTANT_REGISTER.size(); 
+        return boost::lexical_cast<int>(text[index]);
     }
+    return NO_INDEX;
+}
 
-    m_buffers.push_back(ConstantBuffer());
-    auto& buffer = m_buffers[m_buffers.size()-1];
-    buffer.name = bufferName;
-
-    // Find a string of all text within the constant buffer brackets
+std::vector<std::string> DxShader::GetConstants(const std::string& text, int index) const
+{
     std::string constantList;
-    index += bufferName.size();
-    
+    bool startList = false;
     while(text[index] != '}')
     {
-        constantList += text[index];
+        startList = !startList ? text[index] == '{' : true;
+        if(startList)
+        {
+            constantList += text[index];
+        }
         ++index;
     }
 
@@ -384,13 +399,39 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     std::vector<std::string> components;
     boost::split(components, constantList, 
         boost::is_any_of("{},:;\n\r "), boost::token_compress_on);
+    return components;
+}
+
+std::string DxShader::CreateConstantBuffer(ID3D11Device* device, 
+                                           const std::string& text,
+                                           std::string name,
+                                           bool isVertexBuffer)
+{
+    int index = FindConstantBuffer(text, name);
+    if(index == NO_INDEX)
+    {
+        return std::string();
+    }
+
+    m_buffers.push_back(ConstantBuffer());
+    auto& buffer = m_buffers[m_buffers.size()-1];
+    buffer.name = name;
+    buffer.isVertexBuffer = isVertexBuffer;
+
+    buffer.registerID = FindConstantBufferRegister(text, index);
+    if(buffer.registerID == NO_INDEX)
+    {
+        return "Failed to find register for cbuffer " + name;
+    }
+
+    int byteWidth = 0;
+    int slotsRemaining = 0;
+    std::vector<std::string> components = GetConstants(text, index);
 
     // Ordering of constant buffer is assumed to be: 'type name'
     // Assumes all constants are used by desired vertex/pixel shader
     // Note this can affect the ordering which is not compenstated for here
-    int byteWidth = 0;
-    int slotsRemaining = 0;
-    for(unsigned index = 0; index < components.size(); ++index)
+    for(index = 0; index < static_cast<int>(components.size()); ++index)
     {
         if(!components[index].empty())
         {
@@ -462,10 +503,10 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     
     if(FAILED(device->CreateBuffer(&bd, 0, &buffer.buffer)))
     {
-        errorBuffer = "Constant buffer " + buffer.name + " creation failed";
+        return "Constant buffer " + buffer.name + " creation failed";
     }
 
-    return errorBuffer;
+    return std::string();
 }
 
 void DxShader::SetActive(ID3D11DeviceContext* context)
@@ -474,9 +515,9 @@ void DxShader::SetActive(ID3D11DeviceContext* context)
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
 
-    for(const auto& constantBuffer : m_buffers)
+    for(auto& cbuffer : m_buffers)
     {
-        context->VSSetConstantBuffers(0, 1, &constantBuffer.buffer);
+        cbuffer.updated = true;
     }
 
     if(m_samplerState)
@@ -503,6 +544,8 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
             {
                 buffer.scratch[itr->second.index + i] = value[i];
             }
+
+            buffer.updated = true;
             return;
         }
     }
@@ -522,6 +565,8 @@ void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& m
             {
                 buffer.scratch[scratchIndex + i] = matArray[i];
             }
+
+            buffer.updated = true;
             return;
         }
     }
@@ -542,11 +587,28 @@ bool DxShader::CanSendConstant(const std::string& expectedType,
 
 void DxShader::SendConstants(ID3D11DeviceContext* context)
 {
-    for(const auto& constantBuffer : m_buffers)
+    ID3D11Buffer* empty = nullptr;
+    auto setConstantBuffer = [&](ConstantBuffer& cbuffer, bool active)
     {
-        context->UpdateSubresource(
-            constantBuffer.buffer, 0, 0,
-            &constantBuffer.scratch[0], 0, 0);
+        if(cbuffer.isVertexBuffer)
+        {
+            context->VSSetConstantBuffers(cbuffer.registerID, 1, active ? &cbuffer.buffer : &empty);
+        }
+        else
+        {
+            context->PSSetConstantBuffers(cbuffer.registerID, 1, active ? &cbuffer.buffer : &empty);
+        }
+    };
+
+    for(auto& cbuffer : m_buffers)
+    {
+        if(cbuffer.updated)
+        {
+            cbuffer.updated = false;
+            setConstantBuffer(cbuffer, false); // unbind the buffer to prevent any internal copies
+            context->UpdateSubresource(cbuffer.buffer, 0, 0, &cbuffer.scratch[0], 0, 0);
+            setConstantBuffer(cbuffer, true);
+        }
     }
 }
 

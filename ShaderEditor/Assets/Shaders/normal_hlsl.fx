@@ -1,5 +1,5 @@
 
-cbuffer VertexBuffer
+cbuffer VertexBuffer : register(b0)
 {
     float4x4 viewProjection;
     float2 frustum;

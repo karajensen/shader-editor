@@ -366,9 +366,12 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->sceneTarget.SetActive(m_data->context);
     for(DxMesh& mesh : m_data->meshes)
     {
-        UpdateShader(mesh.GetShaderID(), lights);
+        const int shaderID = mesh.GetShaderID();;
+        UpdateShader(shaderID, lights);
+
         SetTextures(mesh.GetTextureIDs());
         SetBackfaceCull(mesh.ShouldBackfaceCull());
+        
         mesh.Render(m_data->context);
     }
 
@@ -421,17 +424,25 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
 
 void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
 {
+    DxShader& shader = m_data->shaders[index];
+
     if(index != m_data->selectedShader)
     {
         m_data->selectedShader = index;
-        DxShader& shader = m_data->shaders[index];
         shader.SetActive(m_data->context);
         
         shader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader.UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
         shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
-        shader.SendConstants(m_data->context);
     }
+
+    float ambience = 1.0f;
+    float specularity = 1.0f;
+
+    shader.UpdateConstantFloat("meshAmbience", &ambience, 1);
+    shader.UpdateConstantFloat("meshSpecularity", &specularity, 1);
+
+    shader.SendConstants(m_data->context);
 }
 
 ID3D11Device* DirectxEngine::GetDevice() const

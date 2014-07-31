@@ -19,8 +19,8 @@ files = ["moc_editor.cpp",
 		 "ui_tweaker.h"]
 
 for filename in files:
-	if os.path.exists(buildDirectory + filename):
-		source = buildDirectory + filename
+	if os.path.exists(buildDirectory + "\\" + filename):
+		source = buildDirectory + "\\" + filename
 		dest = generatedDirectory + filename
 		print("Copying " + source + " to " + dest + "\n\n")
 		shutil.copyfile(source, dest)

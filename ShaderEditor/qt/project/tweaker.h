@@ -158,6 +158,12 @@ public:
     void SetMeshSpecularity(float size);
 
     /**
+    * Sets the mesh ambience
+    * @param value The ambient value of the mesh
+    */
+    void SetMeshAmbience(float value);
+
+    /**
     * Sets the available render engines for the combo box
     * @param selected The initially selected engine
     * @param engines The render engine names to set
@@ -214,6 +220,7 @@ private:
     TweakableValue m_lightSpecularB;     ///< Tweakable b of the light specular colour
     TweakableValue m_lightSpecularity;   ///< Tweakable specular size of the light
     TweakableValue m_meshSpecularity;    ///< Tweakable specular size of the mesh
+    TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
 
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
     TweakableBox m_light;                ///< Combo box for selecting the light

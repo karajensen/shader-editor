@@ -62,6 +62,7 @@ public:
     /**
     * Bulk-sends all constant data saved in the constant scratch buffer to the shader
     * @note Done this way as currently not possible to partially update a cbuffer
+    * @note Will only send buffers updated last tick
     * @param context Direct3D device context
     */
     void SendConstants(ID3D11DeviceContext* context);
@@ -127,6 +128,12 @@ private:
         std::string& pixelText, std::string& sharedText);
 
     /**
+    * @return the vertex shader input attributes where the 
+    * type, name and semantic are seperated as components
+    */
+    std::vector<std::string> GetVertexAttributes(const std::string& text) const;
+
+    /**
     * Determines the vertex shader input attributes and caches them
     * @param device The directX device
     * @param vs The vertex shader object
@@ -146,16 +153,40 @@ private:
     std::string CreateSamplerState(ID3D11Device* device, const std::string& text);
 
     /**
+    * Finds the constant buffer inside the given shader text
+    * @param text The text of the shader
+    * @param name The name of the constant buffer
+    * @return The index in the shader text for the buffer or NO_INDEX if not found
+    */
+    int FindConstantBuffer(const std::string& text, const std::string& name) const;
+
+    /**
+    * Finds the register number of the constant buffer
+    * @param text The text of the shader
+    * @param index The index of the constant buffer within the shader text
+    * @return the register number of the buffer
+    */
+    int FindConstantBufferRegister(const std::string& text, int index) const;
+
+    /**
+    * Finds all members of the constant buffer
+    * @param text The text of the shader
+    * @param index The index of the constant buffer within the shader text
+    * @return a list of all members where the type preceeds the name as components
+    */
+    std::vector<std::string> GetConstants(const std::string& text, int index) const;
+
+    /**
     * Generates the constant buffer which holds all non-attribute uniforms
     * @param device The directX device
     * @param text The text for the shared shader components
-    * @param bufferName The name of the buffer to create
+    * @param name The name of the buffer to create
+    * @param isVertexBuffer Whether this buffer is read by the vertex or pixel shader
     * @return Error message if failed or empty if succeeded
     */
     std::string CreateConstantBuffer(
-        ID3D11Device* device, 
-        const std::string& text,
-        std::string bufferName);
+        ID3D11Device* device, const std::string& text,
+        std::string name, bool isVertexBuffer);
 
     /**
     * Validates the non-attribute constant that is requesting to be sent
@@ -194,7 +225,7 @@ private:
     };
 
     /**
-    * Information for a constant buffer
+    * Information for a constant buffer read from either the vertex or pixel shader
     */
     struct ConstantBuffer
     {
@@ -210,10 +241,13 @@ private:
 
         typedef std::unordered_map<std::string, ConstantData> ConstantMap;
 
-        std::string name;             ///< Name of the constant buffer
-        ConstantMap constants;        ///< Shader constant variables for the buffer
-        std::vector<float> scratch;   ///< Holds temporary constant values
-        ID3D11Buffer* buffer;         ///< Buffer object
+        std::string name;            ///< Name of the constant buffer
+        ConstantMap constants;       ///< Shader constant variables for the buffer
+        std::vector<float> scratch;  ///< Holds temporary constant values
+        ID3D11Buffer* buffer;        ///< Buffer object
+        int registerID;              ///< Register this buffer is stored in
+        bool isVertexBuffer;         ///< Whether this buffer is used by the vertex or pixel shader 
+        bool updated;                ///< Whether this buffer was updated last tick
     };
 
     std::vector<ConstantBuffer> m_buffers;     ///< Constant buffers for the shader

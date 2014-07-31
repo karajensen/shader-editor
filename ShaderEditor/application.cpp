@@ -247,6 +247,7 @@ void Application::UpdateMesh()
 
         m_cache->MeshBackFaceCull.SetUpdated(mesh.backfacecull);
         m_cache->MeshSpecularity.SetUpdated(mesh.specularity);
+        m_cache->MeshAmbience.SetUpdated(mesh.ambience);
         m_cache->MeshTransparency.SetUpdated(m_scene->HasTransparency(m_selectedMesh));
         m_cache->MeshShader.SetUpdated(m_scene->GetShader(mesh.shaderIndex).name);
         m_cache->MeshDiffuse.SetUpdated(m_scene->GetTexture(diffuse));

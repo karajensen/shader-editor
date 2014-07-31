@@ -1,4 +1,4 @@
-cbuffer VertexBuffer
+cbuffer VertexBuffer : register(b0)
 {
     float4x4 viewProjection;
     ifndefined: FLAT
@@ -77,6 +77,5 @@ float4 PShader(Attributes input) : SV_TARGET
         endif
     endif
 
-    finalColour.a = 1.0;
     return finalColour;
 }

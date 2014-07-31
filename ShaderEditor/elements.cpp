@@ -45,6 +45,7 @@ Light::Light() :
 
 Mesh::Mesh() :
     specularity(0.0f),
+    ambience(1.0f),
     shaderIndex(NO_INDEX),
     backfacecull(true),
     vertexComponentCount(1),

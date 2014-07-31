@@ -135,6 +135,10 @@ public:
     QLabel *meshSpecularity_lbl;
     QDoubleSpinBox *meshSpecularity_value;
     QDial *meshSpecularity_dial;
+    QFrame *meshAmbience;
+    QLabel *meshAmbience_lbl;
+    QDoubleSpinBox *meshAmbience_value;
+    QDial *meshAmbience_dial;
     QFrame *backfaceCull;
     QLabel *backfaceCull_lbl;
     QLabel *backfaceCull_text;
@@ -1394,6 +1398,58 @@ public:
 
         meshLayout->addWidget(meshSpecularity);
 
+        meshAmbience = new QFrame(layoutWidget2);
+        meshAmbience->setObjectName(QStringLiteral("meshAmbience"));
+        meshAmbience->setMinimumSize(QSize(225, 35));
+        meshAmbience->setMaximumSize(QSize(225, 35));
+        meshAmbience->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        meshAmbience->setFrameShape(QFrame::NoFrame);
+        meshAmbience->setFrameShadow(QFrame::Plain);
+        meshAmbience->setLineWidth(0);
+        meshAmbience_lbl = new QLabel(meshAmbience);
+        meshAmbience_lbl->setObjectName(QStringLiteral("meshAmbience_lbl"));
+        meshAmbience_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(meshAmbience_lbl->sizePolicy().hasHeightForWidth());
+        meshAmbience_lbl->setSizePolicy(sizePolicy);
+        meshAmbience_lbl->setMinimumSize(QSize(100, 30));
+        meshAmbience_lbl->setMaximumSize(QSize(100, 30));
+        meshAmbience_lbl->setFont(font);
+        meshAmbience_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        meshAmbience_lbl->setMargin(1);
+        meshAmbience_value = new QDoubleSpinBox(meshAmbience);
+        meshAmbience_value->setObjectName(QStringLiteral("meshAmbience_value"));
+        meshAmbience_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(meshAmbience_value->sizePolicy().hasHeightForWidth());
+        meshAmbience_value->setSizePolicy(sizePolicy);
+        meshAmbience_value->setMinimumSize(QSize(86, 25));
+        meshAmbience_value->setMaximumSize(QSize(86, 25));
+        meshAmbience_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        meshAmbience_value->setFrame(false);
+        meshAmbience_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        meshAmbience_value->setDecimals(3);
+        meshAmbience_value->setMinimum(-9999);
+        meshAmbience_value->setMaximum(9999);
+        meshAmbience_value->setSingleStep(0.05);
+        meshAmbience_dial = new QDial(meshAmbience);
+        meshAmbience_dial->setObjectName(QStringLiteral("meshAmbience_dial"));
+        meshAmbience_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(meshAmbience_dial->sizePolicy().hasHeightForWidth());
+        meshAmbience_dial->setSizePolicy(sizePolicy);
+        meshAmbience_dial->setMinimumSize(QSize(30, 30));
+        meshAmbience_dial->setMaximumSize(QSize(30, 30));
+        meshAmbience_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        meshAmbience_dial->setMinimum(-10000);
+        meshAmbience_dial->setMaximum(10000);
+
+        meshLayout->addWidget(meshAmbience);
+
         backfaceCull = new QFrame(layoutWidget2);
         backfaceCull->setObjectName(QStringLiteral("backfaceCull"));
         sizePolicy.setHeightForWidth(backfaceCull->sizePolicy().hasHeightForWidth());
@@ -1698,7 +1754,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(1);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -1745,6 +1801,7 @@ public:
         TabMenu->setTabText(TabMenu->indexOf(Light), QApplication::translate("Tweaker", "Light", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Selected Mesh", 0));
         meshSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));
+        meshAmbience_lbl->setText(QApplication::translate("Tweaker", "Ambience", 0));
         backfaceCull_lbl->setText(QApplication::translate("Tweaker", "Backface Cull", 0));
         backfaceCull_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         transparency_lbl->setText(QApplication::translate("Tweaker", "Transparency", 0));
