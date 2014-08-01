@@ -1,22 +1,14 @@
 
-cbuffer PixelBuffer : register(b1) 
-{
-    float meshAmbience;
-    ifdefined: SPECULAR
-        float meshSpecularity;
-    endif
-};
-
-- Send Ambience and specularity for meshes
+- HLSL Fix multiple constant buffers
+- Post/normal shaders send to qt
 - Add F12 engine toggle without fade
 - OpenGL Intialisation time profile and reduce
 
-- Rendering: specular, attenuation, bump
+- Send Ambience and specularity for meshes
 - Send light data and multiple lights
-
+- Rendering: specular, attenuation, bump
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Post tweak page fill in
-
 - Optimise shaders
 
 - Add mesh specularity/ambience to python script

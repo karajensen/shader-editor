@@ -5,6 +5,8 @@
 #include "directxshader.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
+#include "boost/assign.hpp"
+#include "boost/bimap.hpp"
 #include "directx/include/D3Dcompiler.h"
 #include <fstream>
 
@@ -21,8 +23,6 @@ namespace
     const std::string PIXEL_RETURN("float4");
     const std::string VERTEX_ENTRY("VShader");
     const std::string PIXEL_ENTRY("PShader");
-    const std::string VERTEX_BUFFER("VertexBuffer");
-    const std::string PIXEL_BUFFER("PixelBuffer");
     const std::string VERTEX_MODEL("vs_5_0");
     const std::string PIXEL_MODEL("ps_5_0");
     const std::string HLSL_IN_POSITION("POSITION");
@@ -32,10 +32,26 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("cbuffer");
-    const std::string HLSL_CONSTANT_REGISTER("register(b");
     const std::string HLSL_TEXTURE2D("Texture2D");
     const std::string HLSL_TEXTURE2DMS("Texture2DMS<float4," + SAMPLES + ">");
     const std::string HLSL_SAMPLER("SamplerState");
+
+    // Vertex constant buffer names used
+    std::vector<std::string> VERTEX_BUFFERS = boost::assign::list_of
+        ("VertexBuffer");
+
+    // Pixel constant buffer names used
+    std::vector<std::string> PIXEL_BUFFERS = boost::assign::list_of
+        ("PixelBuffer");
+
+    // How many float components to the HLSL float structure
+    boost::bimap<int, std::string> FLOAT_COMPONENTS = 
+        boost::assign::list_of<boost::bimap<int, std::string>::relation>
+        (1, HLSL_FLT)
+        (2, HLSL_FLT2)
+        (3, HLSL_FLT3)
+        (4, HLSL_FLT4)
+        (16, HLSL_MAT4);
 }
 
 DxShader::DxShader(int index, const std::string& filepath) :
@@ -43,6 +59,10 @@ DxShader::DxShader(int index, const std::string& filepath) :
     m_layout(nullptr),
     m_vs(nullptr),
     m_ps(nullptr),
+    m_psBlob(nullptr),
+    m_vsBlob(nullptr),
+    m_vsReflection(nullptr),
+    m_psReflection(nullptr),
     m_index(index),
     m_samplerState(nullptr),
     m_textureSlots(0)
@@ -53,6 +73,8 @@ DxShader::DxShader(int index, const std::string& filepath) :
 
 DxShader::~DxShader()
 {
+    SafeRelease(&m_vsBlob);
+    SafeRelease(&m_psBlob);
     Release();
 }
 
@@ -62,6 +84,8 @@ void DxShader::Release()
     m_attributes.clear();
     m_textureSlots = 0;
 
+    SafeRelease(&m_vsReflection);
+    SafeRelease(&m_psReflection);
     SafeRelease(&m_samplerState);
     SafeRelease(&m_vs);
     SafeRelease(&m_ps);
@@ -71,8 +95,7 @@ void DxShader::Release()
 DxShader::ConstantBuffer::ConstantBuffer() :
     buffer(nullptr),
     isVertexBuffer(false),
-    updated(false),
-    registerID(NO_INDEX)
+    updated(false)
 {
 }
 
@@ -83,26 +106,8 @@ DxShader::ConstantBuffer::~ConstantBuffer()
 
 std::string DxShader::CompileShader(ID3D11Device* device)
 {
-    ID3D10Blob* vsBlob = nullptr;
-    ID3D10Blob* psBlob = nullptr;
-    ID3D10Blob* vsErrorBlob = nullptr;
-    ID3D10Blob* psErrorBlob = nullptr;
-
-    std::string vertexError;
-    if(FAILED(D3DX11CompileFromFile(m_filepath.c_str(), 0, 0,
-        VERTEX_ENTRY.c_str(), VERTEX_MODEL.c_str(), 0, 0, 0, &vsBlob, &vsErrorBlob, 0)))
-    {
-        const std::string error(static_cast<char*>(vsErrorBlob->GetBufferPointer()));
-        vertexError = VS + (vsErrorBlob ? error : "Unknown Error");
-    }
-
-    std::string pixelError;
-    if(FAILED(D3DX11CompileFromFile(m_filepath.c_str(), 0, 0,
-        PIXEL_ENTRY.c_str(), PIXEL_MODEL.c_str(), 0, 0, 0, &psBlob, &psErrorBlob, 0)))
-    {
-        const std::string error(static_cast<char*>(psErrorBlob->GetBufferPointer()));
-        pixelError = PS + (psErrorBlob ? error : "Unknown Error");
-    }
+    std::string vertexError = CompileShader(&m_vsBlob, true);
+    std::string pixelError = CompileShader(&m_psBlob, false);
 
     if(!vertexError.empty() || !pixelError.empty())
     {
@@ -110,7 +115,6 @@ std::string DxShader::CompileShader(ID3D11Device* device)
             vertexError + (pixelError.empty() ? "" : "\n"+pixelError);
     }
 
-    // Only update the shader once compilation errors have been checked
     Release();
 
     std::string vertexText, pixelText, sharedText;
@@ -120,34 +124,40 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return errorBuffer;
     }
 
-    if(FAILED(device->CreateVertexShader(vsBlob->GetBufferPointer(),
-        vsBlob->GetBufferSize(), 0, &m_vs)))
-    {
-        return VS + "Could not create shader";
-    }
-
-    if(FAILED(device->CreatePixelShader(psBlob->GetBufferPointer(),
-        psBlob->GetBufferSize(), 0, &m_ps)))
-    {
-        return PS + "Could not create shader";
-    }
-
-    errorBuffer = BindVertexAttributes(device, vsBlob, vertexText);
+    errorBuffer = CreateShaders(device);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffer(device, sharedText, VERTEX_BUFFER, true);
+    errorBuffer = FindShaderDescription(m_vsBlob, &m_vsReflection, m_vertexDesc);
     if(!errorBuffer.empty())
     {
-        return errorBuffer;
+        return VS + errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffer(device, sharedText, PIXEL_BUFFER, false);
+    errorBuffer = FindShaderDescription(m_psBlob, &m_psReflection, m_pixelDesc);
     if(!errorBuffer.empty())
     {
-        return errorBuffer;
+        return PS + errorBuffer;
+    }
+
+    errorBuffer = BindVertexAttributes(device, vertexText);
+    if(!errorBuffer.empty())
+    {
+        return VS + errorBuffer;
+    }
+
+    errorBuffer = CreateConstantBuffers(device, sharedText, true);
+    if(!errorBuffer.empty())
+    {
+        return VS + errorBuffer;
+    }
+
+    errorBuffer = CreateConstantBuffers(device, sharedText, false);
+    if(!errorBuffer.empty())
+    {
+        return PS + errorBuffer;
     }
 
     errorBuffer = CreateSamplerState(device, sharedText);
@@ -157,42 +167,74 @@ std::string DxShader::CompileShader(ID3D11Device* device)
     }
 
     std::string vertexAsm, pixelAsm;
-    errorBuffer = GenerateAssembly(vsBlob, psBlob, vertexAsm, pixelAsm);
+    errorBuffer = GenerateAssembly(vertexAsm, pixelAsm);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    UpdateShaderText(vertexText, pixelText, sharedText, vertexAsm, pixelAsm);
+    m_vertexText = vertexText;
+    m_vertexAsm = vertexAsm;
+    m_pixelText = pixelText;
+    m_pixelAsm = pixelAsm;
+    m_sharedText = sharedText;
+
     SetDebugNames();
+    return std::string();
+}
+
+std::string DxShader::CompileShader(ID3D10Blob** shader, bool isVertex)
+{
+    *shader = nullptr;
+    ID3D10Blob* errorBlob = nullptr;
+
+    const std::string entry = isVertex ? VERTEX_ENTRY : PIXEL_ENTRY;
+    const std::string model = isVertex ? VERTEX_MODEL : PIXEL_MODEL;
+
+    if(FAILED(D3DX11CompileFromFile(m_filepath.c_str(), 0, 0,
+        entry.c_str(), model.c_str(), 0, 0, 0, shader, &errorBlob, 0)) || !(*shader))
+    {
+        return (isVertex ? VS : PS) + (!errorBlob ? "Unknown Error" :
+            std::string(static_cast<char*>(errorBlob->GetBufferPointer())));
+    }
+
+    SafeRelease(&errorBlob);
+    return std::string();
+}
+
+std::string DxShader::CreateShaders(ID3D11Device* device)
+{
+    if(FAILED(device->CreateVertexShader(m_vsBlob->GetBufferPointer(),
+        m_vsBlob->GetBufferSize(), 0, &m_vs)))
+    {
+        return VS + "Could not create shader";
+    }
+
+    if(FAILED(device->CreatePixelShader(m_psBlob->GetBufferPointer(),
+        m_psBlob->GetBufferSize(), 0, &m_ps)))
+    {
+        return PS + "Could not create shader";
+    }
 
     return std::string();
 }
 
-void DxShader::SetDebugNames()
+std::string DxShader::FindShaderDescription(ID3D10Blob* shader, 
+                                            ID3D11ShaderReflection** reflection,
+                                            D3D11_SHADER_DESC& desc)
 {
-    SetDebugName(m_vs, m_filepath + "_Vertex");
-    SetDebugName(m_ps, m_filepath + "_Pixel");
-    SetDebugName(m_layout, m_filepath + "_Layout");
-    SetDebugName(m_samplerState, m_filepath + "_Sampler");
-    for(const auto& constantBuffer : m_buffers)
+    if(FAILED(D3DReflect(shader->GetBufferPointer(), shader->GetBufferSize(), 
+        IID_ID3D11ShaderReflection, (void**)reflection)) || !(*reflection))
     {
-        SetDebugName(constantBuffer.buffer, 
-            m_filepath + "_" + constantBuffer.name);
+        return "Could not reflect shader details";
     }
-}
 
-void DxShader::UpdateShaderText(const std::string& vText, 
-                                const std::string& pText,
-                                const std::string& shared, 
-                                const std::string& vAsm, 
-                                const std::string& pAsm)
-{
-    m_vertexText = vText;
-    m_vertexAsm = vAsm;
-    m_pixelText = pText;
-    m_pixelAsm = pAsm;
-    m_sharedText = shared;
+    if(FAILED((*reflection)->GetDesc(&desc)))
+    {
+        return "Could not query shader description";
+    }
+
+    return std::string();
 }
 
 std::string DxShader::LoadShaderText(std::string& vertexText, 
@@ -225,13 +267,11 @@ std::string DxShader::LoadShaderText(std::string& vertexText,
     return std::string();
 }
 
-std::string DxShader::GenerateAssembly(ID3D10Blob* vs, 
-                                       ID3D10Blob* ps,
-                                       std::string& vertexAsm, 
+std::string DxShader::GenerateAssembly(std::string& vertexAsm, 
                                        std::string& pixelAsm)
 {
     ID3DBlob* vertexAsmBlob = nullptr;
-    D3DDisassemble(vs->GetBufferPointer(), vs->GetBufferSize(), 
+    D3DDisassemble(m_vsBlob->GetBufferPointer(), m_vsBlob->GetBufferSize(), 
         D3D_DISASM_DISABLE_DEBUG_INFO, 0, &vertexAsmBlob);
 
     if(!vertexAsmBlob)
@@ -240,7 +280,7 @@ std::string DxShader::GenerateAssembly(ID3D10Blob* vs,
     }
 
     ID3DBlob* pixelAsmBlob = nullptr;
-    D3DDisassemble(ps->GetBufferPointer(), ps->GetBufferSize(), 
+    D3DDisassemble(m_psBlob->GetBufferPointer(), m_psBlob->GetBufferSize(), 
         D3D_DISASM_DISABLE_DEBUG_INFO, 0, &pixelAsmBlob);
 
     if(!pixelAsmBlob)
@@ -297,7 +337,6 @@ std::vector<std::string> DxShader::GetVertexAttributes(const std::string& text) 
 }
 
 std::string DxShader::BindVertexAttributes(ID3D11Device* device, 
-                                           ID3D10Blob* vs,
                                            const std::string& text)
 {
     std::vector<std::string> components = GetVertexAttributes(text);
@@ -341,6 +380,12 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
 
         m_attributes.push_back(data);
     }
+
+    if(m_attributes.size() != m_vertexDesc.InputParameters)
+    {
+        return static_cast<sstream&>(sstream() << " Created " << m_attributes.size() 
+            << ", expected " << m_vertexDesc.InputParameters << " attributes").str();
+    }
    
     D3D11_INPUT_ELEMENT_DESC* vertexDescription = new D3D11_INPUT_ELEMENT_DESC[m_attributes.size()];
     for(unsigned int i = 0; i < m_attributes.size(); ++i)
@@ -355,7 +400,7 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
     }
     
     if(FAILED(device->CreateInputLayout(vertexDescription, m_attributes.size(), 
-        vs->GetBufferPointer(), vs->GetBufferSize(), &m_layout)))
+        m_vsBlob->GetBufferPointer(), m_vsBlob->GetBufferSize(), &m_layout)))
     {
         return "Could not create input layout";
     }
@@ -364,52 +409,50 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
     return std::string();
 }
 
-int DxShader::FindConstantBuffer(const std::string& text, const std::string& name) const
+std::string DxShader::CreateConstantBuffers(ID3D11Device* device, 
+                                            const std::string& text,
+                                            bool isVertexShader)
 {
-    return text.find(HLSL_CONSTANT_BUFFER + " " + name, 0);
-}
+    int count = 0;
+    std::string errorBuffer;
+    const auto bufferNames = isVertexShader ? VERTEX_BUFFERS : PIXEL_BUFFERS;
 
-int DxShader::FindConstantBufferRegister(const std::string& text, int index) const
-{
-    // Assumes register stored in is single digit (0->9)
-    index = text.find(HLSL_CONSTANT_REGISTER, index);
-    if(index != NO_INDEX)
+    for(const std::string& name : bufferNames)
     {
-        index += HLSL_CONSTANT_REGISTER.size(); 
-        return boost::lexical_cast<int>(text[index]);
-    }
-    return NO_INDEX;
-}
-
-std::vector<std::string> DxShader::GetConstants(const std::string& text, int index) const
-{
-    std::string constantList;
-    bool startList = false;
-    while(text[index] != '}')
-    {
-        startList = !startList ? text[index] == '{' : true;
-        if(startList)
+        if(HasConstantBuffer(text, name))
         {
-            constantList += text[index];
+            errorBuffer = CreateConstantBuffer(device, name, isVertexShader);
+            if(!errorBuffer.empty())
+            {
+                return errorBuffer;
+            }
+            ++count;
         }
-        ++index;
     }
 
-    // Section into words, removing any spaces, tokens etc.
-    std::vector<std::string> components;
-    boost::split(components, constantList, 
-        boost::is_any_of("{},:;\n\r "), boost::token_compress_on);
-    return components;
+    const auto& description = isVertexShader ? m_vertexDesc : m_pixelDesc;
+    if(count != description.ConstantBuffers)
+    {
+        return static_cast<sstream&>(sstream() << " Created " << count 
+            << ", expected " << description.ConstantBuffers << " cbuffers").str();
+    }
+
+    return errorBuffer;
 }
 
 std::string DxShader::CreateConstantBuffer(ID3D11Device* device, 
-                                           const std::string& text,
                                            std::string name,
                                            bool isVertexBuffer)
 {
-    int index = FindConstantBuffer(text, name);
-    if(index == NO_INDEX)
+    ID3D11ShaderReflectionConstantBuffer* cbuffer = isVertexBuffer ?
+        m_vsReflection->GetConstantBufferByName(name.c_str()) :
+        m_psReflection->GetConstantBufferByName(name.c_str());
+
+    D3D11_SHADER_BUFFER_DESC bufferDesc;
+    if(!cbuffer || FAILED(cbuffer->GetDesc(&bufferDesc)))
     {
+        Logger::LogInfo("Buffer " + name + 
+            " exists in shader but was optimised out");
         return std::string();
     }
 
@@ -418,87 +461,42 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     buffer.name = name;
     buffer.isVertexBuffer = isVertexBuffer;
 
-    buffer.registerID = FindConstantBufferRegister(text, index);
-    if(buffer.registerID == NO_INDEX)
+    for(UINT i = 0; i < bufferDesc.Variables; ++i)
     {
-        return "Failed to find register for cbuffer " + name;
-    }
-
-    int byteWidth = 0;
-    int slotsRemaining = 0;
-    std::vector<std::string> components = GetConstants(text, index);
-
-    // Ordering of constant buffer is assumed to be: 'type name'
-    // Assumes all constants are used by desired vertex/pixel shader
-    // Note this can affect the ordering which is not compenstated for here
-    for(index = 0; index < static_cast<int>(components.size()); ++index)
-    {
-        if(!components[index].empty())
+        ID3D11ShaderReflectionVariable* value = cbuffer->GetVariableByIndex(i);
+        if(!value)
         {
-            const std::string& type = components[index];
-            const std::string& name = components[index+1];
-            buffer.constants[name].index = byteWidth/sizeof(float);
-
-            // When determining the byte offset of constant buffer data
-            // take into account optimizations that the buffer will perform where
-            // float/float2/float3 are packed together in lots of float4 if possible
-            // This is similar to how a C++ struct/class is packed together
-            // Each component of a float4 is considered a 'slot'
-            if(type == HLSL_MAT4)
-            {
-                byteWidth += slotsRemaining * sizeof(float); // fill in empty slots
-                byteWidth += 16 * sizeof(float);
-                slotsRemaining = 4;
-            }
-            else if(type == HLSL_FLT4)
-            {
-                byteWidth += slotsRemaining * sizeof(float); // fill in empty slots
-                byteWidth += 4 * sizeof(float);
-                slotsRemaining = 4;
-            }
-            else if(type == HLSL_FLT3)
-            {
-                if(slotsRemaining <= 2)
-                {
-                    byteWidth += slotsRemaining * sizeof(float); // can only fit in slots of 3+
-                    slotsRemaining = 4;
-                }
-                byteWidth += 3 * sizeof(float);
-                slotsRemaining -= 3;
-            }
-            else if(type == HLSL_FLT2)
-            {
-                if(slotsRemaining <= 1)
-                {
-                    byteWidth += slotsRemaining * sizeof(float); // can only fit in slots of 2+
-                    slotsRemaining = 4;
-                }
-                byteWidth += 2 * sizeof(float);
-                slotsRemaining -= 2;
-            }
-            else if(type == HLSL_FLT)
-            {
-                byteWidth += sizeof(float);
-                if(slotsRemaining == 0)
-                {
-                    slotsRemaining = 4;
-                }
-                --slotsRemaining;
-            }
-            
-            buffer.constants[name].type = type;
-            ++index;
+            return "Could not get buffer " + name + 
+                " variable " + boost::lexical_cast<std::string>(i);
         }
+
+        D3D11_SHADER_VARIABLE_DESC valueDesc;
+        if(FAILED(value->GetDesc(&valueDesc)))
+        {
+            return "Could not get buffer " + name + " variable " + 
+                boost::lexical_cast<std::string>(i) + " description";
+        }
+
+        const int count = valueDesc.Size/sizeof(float);
+        auto itr = FLOAT_COMPONENTS.left.find(count);
+        if(itr == FLOAT_COMPONENTS.left.end())
+        {
+            return "Buffer " + name + " variable " + valueDesc.Name + 
+                " has float components (" + boost::lexical_cast<std::string>(count) + 
+                ") that does not match up to known structure ";
+        }
+
+        buffer.constants[valueDesc.Name].type = itr->second;
+        buffer.constants[valueDesc.Name].index = valueDesc.StartOffset / sizeof(float);
     }
-    byteWidth += slotsRemaining * sizeof(float);
 
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = byteWidth;
+    bd.ByteWidth = bufferDesc.Size;
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-    buffer.scratch.resize(byteWidth/sizeof(float));
+    buffer.scratch.resize(bufferDesc.Size/sizeof(float));
     buffer.scratch.assign(buffer.scratch.size(), 0.0f);
     
     if(FAILED(device->CreateBuffer(&bd, 0, &buffer.buffer)))
@@ -507,6 +505,25 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     }
 
     return std::string();
+}
+
+bool DxShader::HasConstantBuffer(const std::string& text, const std::string& name) const
+{
+    return text.find(HLSL_CONSTANT_BUFFER + " " + name) != NO_INDEX;
+}
+
+void DxShader::SetDebugNames()
+{
+    SetDebugName(m_vs, m_filepath + "_Vertex");
+    SetDebugName(m_ps, m_filepath + "_Pixel");
+    SetDebugName(m_layout, m_filepath + "_Layout");
+    SetDebugName(m_samplerState, m_filepath + "_Sampler");
+
+    for(const auto& constantBuffer : m_buffers)
+    {
+        SetDebugName(constantBuffer.buffer, 
+            m_filepath + "_" + constantBuffer.name);
+    }
 }
 
 void DxShader::SetActive(ID3D11DeviceContext* context)
@@ -592,11 +609,11 @@ void DxShader::SendConstants(ID3D11DeviceContext* context)
     {
         if(cbuffer.isVertexBuffer)
         {
-            context->VSSetConstantBuffers(cbuffer.registerID, 1, active ? &cbuffer.buffer : &empty);
+            context->VSSetConstantBuffers(0, 1, active ? &cbuffer.buffer : &empty);
         }
         else
         {
-            context->PSSetConstantBuffers(cbuffer.registerID, 1, active ? &cbuffer.buffer : &empty);
+            context->PSSetConstantBuffers(0, 1, active ? &cbuffer.buffer : &empty);
         }
     };
 

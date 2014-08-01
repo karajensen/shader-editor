@@ -91,18 +91,6 @@ public:
 private:
 
     /**
-    * Updates the cached text for the shader.
-    * @note done as the last step so the visible shader text in the 
-    * GUI is not wiped or corrupted if the shader compilation fails.
-    * @param vText Text for the vertex shader
-    * @param fText Text for the fragment shader
-    * @param vAsm Text for the vertex shader assembly
-    * @param pAsm Text for the fragment shader assembly
-    */
-    void UpdateShaderText(const std::string& vText, const std::string& fText,
-        const std::string& vAsm, const std::string& fAsm);
-
-    /**
     * Generates the assembly instructions for the shader
     * @param vertexAsm The text container to fill the vertex assembly with
     * @param fragmentAsm The text container to fill the fragment assembly with

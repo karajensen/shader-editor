@@ -193,19 +193,12 @@ std::string GlShader::CompileShader()
         return errorBuffer;
     }
 
-    UpdateShaderText(vertexText, fragmentText, vertexAsm, fragmentAsm);
-    return std::string();
-}
+    m_vertexText = vertexText;
+    m_vertexAsm = vertexAsm;
+    m_fragmentText = fragmentText;
+    m_fragmentAsm = fragmentAsm;
 
-void GlShader::UpdateShaderText(const std::string& vText, 
-                                const std::string& fText,
-                                const std::string& vAsm, 
-                                const std::string& fAsm)
-{
-    m_vertexText = vText;
-    m_vertexAsm = vAsm;
-    m_fragmentText = fText;
-    m_fragmentAsm = fAsm;
+    return std::string();
 }
 
 std::string GlShader::CompileShader(GLint index, const std::string& text)

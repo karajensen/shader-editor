@@ -31,13 +31,13 @@ public:
 
     /**
     * Initialises the texture
-    * @param device The directx device
+    * @param device The DirectX device interface
     */
     void Initialise(ID3D11Device* device);
 
     /**
     * Sends the texture to the currently active shader
-    * @param context The direct device context
+    * @param context Direct3D device context
     * @param slot The slot to put the texture into
     */
     void SendTexture(ID3D11DeviceContext* context, int slot);

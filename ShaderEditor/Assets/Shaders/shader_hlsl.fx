@@ -1,4 +1,8 @@
-cbuffer VertexBuffer : register(b0)
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - shader_hlsl.fx
+////////////////////////////////////////////////////////////////////////////////////////
+
+cbuffer VertexBuffer
 {
     float4x4 viewProjection;
     ifndefined: FLAT
@@ -6,6 +10,14 @@ cbuffer VertexBuffer : register(b0)
         ifdefined: SPECULAR
             float3 cameraPosition;
         endif
+    endif
+};
+
+cbuffer PixelBuffer 
+{
+    float meshAmbience;
+    ifdefined: SPECULAR
+        float meshSpecularity;
     endif
 };
 
@@ -70,12 +82,13 @@ float4 PShader(Attributes input) : SV_TARGET
                 
         ifdefined: SPECULAR
             // Specular Blinn-Phong
-            float specularity = 5.0;
+            float specularity = 5.0 * meshSpecularity;
             float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
             float3 halfVector = normalize(input.vertToLight + input.vertToCamera);
             finalColour.rgb += pow(saturate(dot(input.normal, halfVector)), specularity);
         endif
     endif
 
+    finalColour.a = meshAmbience;
     return finalColour;
 }

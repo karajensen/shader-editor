@@ -21,6 +21,8 @@
 #include "float3.h"
 #include "matrix.h"
 
+typedef std::ostringstream sstream;
+
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 static const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 

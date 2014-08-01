@@ -45,7 +45,7 @@ public:
 
     /**
     * Initialises the mesh
-    * @param device Direct3D device interface
+    * @param device The DirectX device interface
     * @param context Direct3D device context
     */
     void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);

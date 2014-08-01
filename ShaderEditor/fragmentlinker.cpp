@@ -9,6 +9,7 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
 namespace
 {
@@ -78,10 +79,7 @@ bool FragmentLinker::GenerateFromFile(const std::string& directory,
 
     while(!baseFile.eof())
     {
-        std::string line;
-        std::getline(baseFile, line);
-        SolveDefines(line);
-        generatedFile << line << std::endl;
+        generatedFile << GetNextLine(baseFile) << std::endl;
 
         if(baseFile.fail() || baseFile.bad())
         {
@@ -165,6 +163,24 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
     return result != FAILURE;
 }
 
+std::string FragmentLinker::GetNextLine(std::ifstream& file) const
+{
+    std::string line;
+    std::getline(file, line);
+
+    if(line.find("//") != NO_INDEX)
+    {
+        line = boost::regex_replace(line, boost::regex("//.*?$"), "");
+    }
+
+    for(const auto& define : m_defines)
+    {
+        boost::ireplace_all(line, define.first, define.second);
+    }
+
+    return line;
+}       
+
 std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile, 
                                            std::ofstream& generatedFile, 
                                            const std::vector<std::string>& targets,
@@ -174,9 +190,7 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
 {
     while(!baseFile.eof())
     {
-        std::string line;
-        std::getline(baseFile, line);
-        SolveDefines(line);
+        std::string line = GetNextLine(baseFile);
 
         // Check for conditional keywords
         for(const auto& key : targets)
@@ -308,14 +322,6 @@ bool FragmentLinker::SolveConditionalLine(int level,
         return true;
     }
     return false;
-}
-
-void FragmentLinker::SolveDefines(std::string& line)
-{
-    for(const auto& define : m_defines)
-    {
-        boost::ireplace_all(line, define.first, define.second);
-    }
 }
 
 bool FragmentLinker::CreateGeneratedFolder()

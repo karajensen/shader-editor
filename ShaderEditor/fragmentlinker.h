@@ -115,15 +115,15 @@ private:
     bool SolveConditionalLine(int level, 
                               std::string line, 
                               std::string& previousLine,
-                              std::ifstream& baseFile, 
+                              std::ifstream& baseFile,
                               std::ofstream& generatedFile,
                               bool skiplines);
-
     /**
-    * Determines if the given line has a defined value that requires substitution
-    * @param line The line to check and substitute a defined value
+    * Gets the next line from the file, filtering and removing as needed
+    * @param file The shader file to read from
+    * @return the next line from the file
     */
-    void SolveDefines(std::string& line);
+    std::string GetNextLine(std::ifstream& file) const;
 
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
     std::vector<std::string> m_shaderComponents; ///< components of currently linked shader

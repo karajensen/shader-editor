@@ -16,6 +16,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_callbacks(callbacks)
 {
     m_ui.setupUi(this);
+    m_ui.TabMenu->setCurrentIndex(0);
 
     m_lightPositionX.Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLightPositionX);

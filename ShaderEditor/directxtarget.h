@@ -32,7 +32,7 @@ public:
 
     /**
     * Initialises the render target
-    * @param device The directx device
+    * @param device The DirectX device interface
     * @param swapchain Collection of buffers for displaying frames
     * @return whether initialises succeeded or not
     */
@@ -40,13 +40,13 @@ public:
 
     /**
     * Sets the render target as activated and clears it
-    * @param context The directx device context
+    * @param context Direct3D device context
     */
     void SetActive(ID3D11DeviceContext* context);
 
     /**
     * Sends the texture to the currently active shader
-    * @param context The direct device context
+    * @param context Direct3D device context
     * @param slot The slot to put the texture into
     * @note requires clearing before render target can use again
     */
@@ -54,7 +54,7 @@ public:
 
     /**
     * Clears the texture sent to the currently active shader
-    * @param context The direct device context
+    * @param context Direct3D device context
     * @param slot The slot the texture exists in
     * @note Required as texture needs to be unbound from the 
     *       shader before render target is activated
@@ -65,7 +65,7 @@ private:
 
     /**
     * Initialises the shared depth buffer
-    * @param device The directx device
+    * @param device The DirectX device interface
     * @return whether initialises succeeded or not
     */
     bool InitialiseDepthBuffer(ID3D11Device* device);
