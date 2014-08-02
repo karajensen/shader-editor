@@ -10,7 +10,7 @@
 /**
 * Holds information for an opengl shader
 */
-class GlShader
+class GlShader : boost::noncopyable
 {
 public:
 

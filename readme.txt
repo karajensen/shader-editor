@@ -1,5 +1,4 @@
 
-- HLSL Fix multiple constant buffers
 - Post/normal shaders send to qt
 - Add F12 engine toggle without fade
 - OpenGL Intialisation time profile and reduce

@@ -9,7 +9,7 @@
 /**
 * Holds an individual directx texture
 */
-class DxTexture
+class DxTexture : boost::noncopyable
 {
 public:
 

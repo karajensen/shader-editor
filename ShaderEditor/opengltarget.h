@@ -9,7 +9,7 @@
 /**
 * Render target with optional attached depth buffer
 */
-class GlRenderTarget
+class GlRenderTarget : boost::noncopyable
 {
 public:
 

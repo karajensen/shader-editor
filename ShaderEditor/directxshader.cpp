@@ -32,17 +32,10 @@ namespace
     const std::string HLSL_FLT4(HLSL_FLT + "4");
     const std::string HLSL_MAT4("float4x4");
     const std::string HLSL_CONSTANT_BUFFER("cbuffer");
+    const std::string HLSL_CONSTANT_REGISTER("register(b");
     const std::string HLSL_TEXTURE2D("Texture2D");
     const std::string HLSL_TEXTURE2DMS("Texture2DMS<float4," + SAMPLES + ">");
     const std::string HLSL_SAMPLER("SamplerState");
-
-    // Vertex constant buffer names used
-    std::vector<std::string> VERTEX_BUFFERS = boost::assign::list_of
-        ("VertexBuffer");
-
-    // Pixel constant buffer names used
-    std::vector<std::string> PIXEL_BUFFERS = boost::assign::list_of
-        ("PixelBuffer");
 
     // How many float components to the HLSL float structure
     boost::bimap<int, std::string> FLOAT_COMPONENTS = 
@@ -54,7 +47,7 @@ namespace
         (16, HLSL_MAT4);
 }
 
-DxShader::DxShader(int index, const std::string& filepath) :
+DxShader::DxShader(int index, const std::string& name, const std::string& filepath) :
     m_filepath(filepath),
     m_layout(nullptr),
     m_vs(nullptr),
@@ -65,7 +58,8 @@ DxShader::DxShader(int index, const std::string& filepath) :
     m_psReflection(nullptr),
     m_index(index),
     m_samplerState(nullptr),
-    m_textureSlots(0)
+    m_textureSlots(0),
+    m_name(name)
 {
     m_asmpath = boost::ireplace_last_copy(
         m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
@@ -80,7 +74,7 @@ DxShader::~DxShader()
 
 void DxShader::Release()
 {
-    m_buffers.clear();
+    m_cbuffers.clear();
     m_attributes.clear();
     m_textureSlots = 0;
 
@@ -95,7 +89,8 @@ void DxShader::Release()
 DxShader::ConstantBuffer::ConstantBuffer() :
     buffer(nullptr),
     isVertexBuffer(false),
-    updated(false)
+    updated(false),
+    startSlot(NO_INDEX)
 {
 }
 
@@ -148,16 +143,10 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return VS + errorBuffer;
     }
 
-    errorBuffer = CreateConstantBuffers(device, sharedText, true);
+    errorBuffer = CreateConstantBuffers(device, sharedText);
     if(!errorBuffer.empty())
     {
-        return VS + errorBuffer;
-    }
-
-    errorBuffer = CreateConstantBuffers(device, sharedText, false);
-    if(!errorBuffer.empty())
-    {
-        return PS + errorBuffer;
+        return errorBuffer;
     }
 
     errorBuffer = CreateSamplerState(device, sharedText);
@@ -410,70 +399,102 @@ std::string DxShader::BindVertexAttributes(ID3D11Device* device,
 }
 
 std::string DxShader::CreateConstantBuffers(ID3D11Device* device, 
-                                            const std::string& text,
-                                            bool isVertexShader)
+                                            const std::string& text)
 {
-    int count = 0;
-    std::string errorBuffer;
-    const auto bufferNames = isVertexShader ? VERTEX_BUFFERS : PIXEL_BUFFERS;
-
-    for(const std::string& name : bufferNames)
+    std::string errorBuffer = CreateConstantBuffers(device, text, true);
+    if(!errorBuffer.empty())
     {
-        if(HasConstantBuffer(text, name))
-        {
-            errorBuffer = CreateConstantBuffer(device, name, isVertexShader);
-            if(!errorBuffer.empty())
-            {
-                return errorBuffer;
-            }
-            ++count;
-        }
+        return VS + errorBuffer;
     }
 
-    const auto& description = isVertexShader ? m_vertexDesc : m_pixelDesc;
-    if(count != description.ConstantBuffers)
+    errorBuffer = CreateConstantBuffers(device, text, false);
+    if(!errorBuffer.empty())
     {
-        return static_cast<sstream&>(sstream() << " Created " << count 
-            << ", expected " << description.ConstantBuffers << " cbuffers").str();
+        return PS + errorBuffer;
+    }
+
+    std::vector<std::string> components;
+    boost::split(components, text, boost::is_any_of("\n "), boost::token_compress_on);
+
+    const int bufferCount = std::count(components.begin(), 
+        components.end(), HLSL_CONSTANT_BUFFER);
+
+    if(bufferCount != static_cast<int>(m_cbuffers.size()))
+    {
+        Logger::LogInfo(static_cast<sstream&>(sstream() 
+            << m_name << " cbuffers: Created " << m_cbuffers.size() 
+            << ", expected " << bufferCount).str());
     }
 
     return errorBuffer;
 }
 
-std::string DxShader::CreateConstantBuffer(ID3D11Device* device, 
-                                           std::string name,
+std::string DxShader::CreateConstantBuffers(ID3D11Device* device, 
+                                            const std::string& text,
+                                            bool isVertexShader)
+{
+    std::string errorBuffer;
+    const auto& description = isVertexShader ? m_vertexDesc : m_pixelDesc;
+
+    for(UINT i = 0; i < description.ConstantBuffers; ++i)
+    {
+        errorBuffer = CreateConstantBuffer(device, text, i, isVertexShader);
+        if(!errorBuffer.empty())
+        {
+            return errorBuffer;
+        }
+    }
+    return errorBuffer;
+}
+
+std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
+                                           const std::string& text,
+                                           int index, 
                                            bool isVertexBuffer)
 {
-    ID3D11ShaderReflectionConstantBuffer* cbuffer = isVertexBuffer ?
-        m_vsReflection->GetConstantBufferByName(name.c_str()) :
-        m_psReflection->GetConstantBufferByName(name.c_str());
+    ID3D11ShaderReflection* reflection = 
+        isVertexBuffer ? m_vsReflection : m_psReflection;
+
+    ID3D11ShaderReflectionConstantBuffer* cbuffer = 
+        reflection->GetConstantBufferByIndex(index);
 
     D3D11_SHADER_BUFFER_DESC bufferDesc;
     if(!cbuffer || FAILED(cbuffer->GetDesc(&bufferDesc)))
     {
-        Logger::LogInfo("Buffer " + name + 
-            " exists in shader but was optimised out");
         return std::string();
     }
 
-    m_buffers.push_back(ConstantBuffer());
-    auto& buffer = m_buffers[m_buffers.size()-1];
-    buffer.name = name;
+    m_cbuffers.push_back(std::unique_ptr<ConstantBuffer>(new ConstantBuffer()));
+    auto& buffer = *m_cbuffers[m_cbuffers.size()-1];
+    buffer.name = bufferDesc.Name;
     buffer.isVertexBuffer = isVertexBuffer;
+    buffer.startSlot = 0;
+
+    const int bufferIndex = text.find(HLSL_CONSTANT_BUFFER + " " + buffer.name);
+    const int registerIndex = text.find(HLSL_CONSTANT_REGISTER, bufferIndex);
+    if(registerIndex == NO_INDEX || bufferIndex == NO_INDEX)
+    {
+        return "Could not find buffer " + buffer.name + " register";
+    }
+
+    // Assumes registers 0->9 are only used
+    buffer.startSlot = boost::lexical_cast<int>(
+        text[registerIndex + HLSL_CONSTANT_REGISTER.size()]);
 
     for(UINT i = 0; i < bufferDesc.Variables; ++i)
     {
         ID3D11ShaderReflectionVariable* value = cbuffer->GetVariableByIndex(i);
+
         if(!value)
         {
-            return "Could not get buffer " + name + 
+            return "Could not get buffer " + buffer.name + 
                 " variable " + boost::lexical_cast<std::string>(i);
         }
 
         D3D11_SHADER_VARIABLE_DESC valueDesc;
         if(FAILED(value->GetDesc(&valueDesc)))
         {
-            return "Could not get buffer " + name + " variable " + 
+            return "Could not get buffer " + buffer.name + " variable " + 
                 boost::lexical_cast<std::string>(i) + " description";
         }
 
@@ -481,7 +502,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
         auto itr = FLOAT_COMPONENTS.left.find(count);
         if(itr == FLOAT_COMPONENTS.left.end())
         {
-            return "Buffer " + name + " variable " + valueDesc.Name + 
+            return "Buffer " + buffer.name + " variable " + valueDesc.Name + 
                 " has float components (" + boost::lexical_cast<std::string>(count) + 
                 ") that does not match up to known structure ";
         }
@@ -507,22 +528,17 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     return std::string();
 }
 
-bool DxShader::HasConstantBuffer(const std::string& text, const std::string& name) const
-{
-    return text.find(HLSL_CONSTANT_BUFFER + " " + name) != NO_INDEX;
-}
-
 void DxShader::SetDebugNames()
 {
-    SetDebugName(m_vs, m_filepath + "_Vertex");
-    SetDebugName(m_ps, m_filepath + "_Pixel");
-    SetDebugName(m_layout, m_filepath + "_Layout");
-    SetDebugName(m_samplerState, m_filepath + "_Sampler");
+    SetDebugName(m_vs, m_name + "_Vertex");
+    SetDebugName(m_ps, m_name + "_Pixel");
+    SetDebugName(m_layout, m_name + "_Layout");
+    SetDebugName(m_samplerState, m_name + "_Sampler");
 
-    for(const auto& constantBuffer : m_buffers)
+    for(const auto& constantBuffer : m_cbuffers)
     {
-        SetDebugName(constantBuffer.buffer, 
-            m_filepath + "_" + constantBuffer.name);
+        SetDebugName(constantBuffer->buffer, 
+            m_name + "_" + constantBuffer->name);
     }
 }
 
@@ -532,9 +548,16 @@ void DxShader::SetActive(ID3D11DeviceContext* context)
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
 
-    for(auto& cbuffer : m_buffers)
+    for(auto& cbuffer : m_cbuffers)
     {
-        cbuffer.updated = true;
+        if(cbuffer->isVertexBuffer)
+        {
+            context->VSSetConstantBuffers(cbuffer->startSlot, 1, &cbuffer->buffer);
+        }
+        else
+        {
+            context->PSSetConstantBuffers(cbuffer->startSlot, 1, &cbuffer->buffer);
+        }
     }
 
     if(m_samplerState)
@@ -551,18 +574,18 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
         floatType += boost::lexical_cast<std::string>(size);
     }
 
-    for(auto& buffer : m_buffers)
+    for(auto& buffer : m_cbuffers)
     {
-        auto itr = buffer.constants.find(name);
-        if(itr != buffer.constants.end() && 
+        auto itr = buffer->constants.find(name);
+        if(itr != buffer->constants.end() && 
             CanSendConstant(floatType, itr->second.type, name))
         {
             for(int i = 0; i < size; ++i)
             {
-                buffer.scratch[itr->second.index + i] = value[i];
+                buffer->scratch[itr->second.index + i] = value[i];
             }
 
-            buffer.updated = true;
+            buffer->updated = true;
             return;
         }
     }
@@ -570,20 +593,20 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
 
 void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& matrix)
 {
-    for(auto& buffer : m_buffers)
+    for(auto& buffer : m_cbuffers)
     {
-        auto itr = buffer.constants.find(name);
-        if(itr != buffer.constants.end() && 
+        auto itr = buffer->constants.find(name);
+        if(itr != buffer->constants.end() && 
             CanSendConstant(HLSL_MAT4, itr->second.type, name))
         {
             const int scratchIndex = itr->second.index;
             const FLOAT* matArray = matrix;
             for(int i = 0; i < 16; ++i) // 16 floats in a directx matrix
             {
-                buffer.scratch[scratchIndex + i] = matArray[i];
+                buffer->scratch[scratchIndex + i] = matArray[i];
             }
 
-            buffer.updated = true;
+            buffer->updated = true;
             return;
         }
     }
@@ -604,27 +627,13 @@ bool DxShader::CanSendConstant(const std::string& expectedType,
 
 void DxShader::SendConstants(ID3D11DeviceContext* context)
 {
-    ID3D11Buffer* empty = nullptr;
-    auto setConstantBuffer = [&](ConstantBuffer& cbuffer, bool active)
+    for(auto& cbuffer : m_cbuffers)
     {
-        if(cbuffer.isVertexBuffer)
+        if(cbuffer->updated)
         {
-            context->VSSetConstantBuffers(0, 1, active ? &cbuffer.buffer : &empty);
-        }
-        else
-        {
-            context->PSSetConstantBuffers(0, 1, active ? &cbuffer.buffer : &empty);
-        }
-    };
-
-    for(auto& cbuffer : m_buffers)
-    {
-        if(cbuffer.updated)
-        {
-            cbuffer.updated = false;
-            setConstantBuffer(cbuffer, false); // unbind the buffer to prevent any internal copies
-            context->UpdateSubresource(cbuffer.buffer, 0, 0, &cbuffer.scratch[0], 0, 0);
-            setConstantBuffer(cbuffer, true);
+            cbuffer->updated = false;
+            context->UpdateSubresource(cbuffer->buffer, 
+                0, 0, &cbuffer->scratch[0], 0, 0);
         }
     }
 }

@@ -11,16 +11,17 @@
 /**
 * Holds information for a directx shader
 */
-class DxShader
+class DxShader : boost::noncopyable
 {
 public:
 
     /**
     * Constructor
     * @param index The unique index of the shader
+    * @param name The name of the shader
     * @param filepath The path for the shader
     */
-    DxShader(int index, const std::string& filepath);
+    DxShader(int index, const std::string& name, const std::string& filepath);
 
     /**
     * Destructor
@@ -160,25 +161,27 @@ private:
     std::string CreateSamplerState(ID3D11Device* device, const std::string& text);
 
     /**
-    * Determines if the constant buffer of the given name exists
-    * @param text The text of the shader
-    * @param name The name of the constant buffer
-    * @return whether the shader has the constant buffer under the name
-    */
-    bool HasConstantBuffer(const std::string& text, const std::string& name) const;
-
-    /**
     * Generates the constant buffer which holds all non-attribute uniforms
     * @param device The DirectX device interface
-    * @param name The name of the buffer to create
+    * @param index The index that the constant buffer is stored in for the shader
+    * @param text The shared text that contains the constant buffer
     * @param isVertexBuffer Whether this buffer is read by the vertex or pixel shader
     * @return Error message if failed or empty if succeeded
     */
     std::string CreateConstantBuffer(ID3D11Device* device, 
-        std::string name, bool isVertexBuffer);
+        const std::string& text, int index, bool isVertexBuffer);
 
     /**
-    * Determines constant buffers to create for the shader
+    * Generates the constant bufers for the shader
+    * @param device The DirectX device interface
+    * @param text The text for the shared shader components
+    * @return Error message if failed or empty if succeeded
+    */
+    std::string CreateConstantBuffers(ID3D11Device* device, 
+        const std::string& text);
+
+    /**
+    * Generates the constant buffers for the shader
     * @param device The DirectX device interface
     * @param text The text for the shared shader components
     * @param isVertex Whether currently creating for the vertex or pixel shader
@@ -226,7 +229,7 @@ private:
     /**
     * Information for a constant buffer read from either the vertex or pixel shader
     */
-    struct ConstantBuffer
+    struct ConstantBuffer : boost::noncopyable
     {
         /**
         * Constructor
@@ -244,15 +247,16 @@ private:
         ConstantMap constants;       ///< Shader constant variables for the buffer
         std::vector<float> scratch;  ///< Holds temporary constant values
         ID3D11Buffer* buffer;        ///< Buffer object
+        int startSlot;               ///< The register number of the buffer
         bool isVertexBuffer;         ///< Whether this buffer is used by the vertex or pixel shader 
         bool updated;                ///< Whether this buffer was updated last tick
     };
 
     D3D11_SHADER_DESC m_vertexDesc;            ///< Internal description of the vertex shader
     D3D11_SHADER_DESC m_pixelDesc;             ///< Internal description of the pixel shader
-    std::vector<ConstantBuffer> m_buffers;     ///< Constant buffers for the shader
     std::vector<AttributeData> m_attributes;   ///< Vertex shader input attributes
     std::string m_filepath;                    ///< Path to the shader file
+    std::string m_name;                        ///< Name of the shader
     std::string m_asmpath;                     ///< Path to the generated assembly file
     std::string m_sharedText;                  ///< Text to the shared shader components
     std::string m_vertexText;                  ///< Text for the vertex shader
@@ -266,8 +270,9 @@ private:
     ID3D11ShaderReflection* m_psReflection;    ///< Interface for obtaining pixel shader details
     ID3D10Blob* m_vsBlob;                      ///< Vertex shader data
     ID3D10Blob* m_psBlob;                      ///< Pixel shader data
-
     ID3D11SamplerState* m_samplerState;        ///< Texture Sampler state
     int m_index;                               ///< Unique index of the shader
     int m_textureSlots;                        ///< Number of textures allowed for this mesh
+
+    std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader
 };  

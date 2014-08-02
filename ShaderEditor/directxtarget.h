@@ -9,7 +9,7 @@
 /**
 * Render target that uses a shared depth buffer
 */
-class DxRenderTarget
+class DxRenderTarget : boost::noncopyable
 {
 public:
 

@@ -37,10 +37,6 @@ struct OpenglData
     GlShader postShader;             ///< Shader for post processing the scene
     GlShader normalShader;           ///< Shader for rendering normals/depth for the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
-                                     
-    std::vector<GlTexture> textures; ///< Textures shared by all meshes
-    std::vector<GlMesh> meshes;      ///< Each mesh in the scene
-    std::vector<GlShader> shaders;   ///< Shaders shared by all meshes
     glm::vec2 frustum;               ///< Camera near and far values
     glm::vec3 camera;                ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
@@ -49,6 +45,10 @@ struct OpenglData
     bool isBackfaceCull;             ///< Whether backface culling is currently active
     int selectedShader;              ///< Currently active shader for rendering
     float fadeAmount;                ///< the amount to fade the scene by
+
+    std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
+    std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
+    std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
 };
 
 OpenglData::OpenglData() :
@@ -78,19 +78,19 @@ void OpenglData::Release()
     isBackfaceCull = true;
     fadeAmount = 0.0f;
 
-    for(GlTexture& texture : textures)
+    for(auto& texture : textures)
     {
-        texture.Release();
+        texture->Release();
     }
 
-    for(GlMesh& mesh : meshes)
+    for(auto& mesh : meshes)
     {
-        mesh.Release();
+        mesh->Release();
     }
 
-    for(GlShader& shader : shaders)
+    for(auto& shader : shaders)
     {
-        shader.Release();
+        shader->Release();
     }
 
     backBuffer.Release();
@@ -314,7 +314,7 @@ bool OpenglEngine::Initialize()
 
 std::string OpenglEngine::CompileShader(int index)
 {
-    return m_data->shaders[index].CompileShader();
+    return m_data->shaders[index]->CompileShader();
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
@@ -325,20 +325,22 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->textures.reserve(textures.size());
     for(const Texture& texture : textures)
     {
-        m_data->textures.push_back(GlTexture(texture.path));
+        m_data->textures.push_back(std::unique_ptr<GlTexture>(
+            new GlTexture(texture.path)));
     }
 
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        m_data->shaders.push_back(GlShader(shader.index, 
-            shader.glslVertexFile, shader.glslFragmentFile));
+        m_data->shaders.push_back(std::unique_ptr<GlShader>(
+            new GlShader(shader.index, shader.glslVertexFile, shader.glslFragmentFile)));
     }
 
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(GlMesh(&mesh));
+        m_data->meshes.push_back(std::unique_ptr<GlMesh>(
+            new GlMesh(&mesh)));
     }
 
     return ReInitialiseScene();
@@ -356,18 +358,18 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
-    for(GlMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        if(!mesh.Initialise())
+        if(!mesh->Initialise())
         {
             Logger::LogError("OpenGL: Failed to re-initialise mesh");
             return false;
         }
     }
 
-    for(GlTexture& texture : m_data->textures)
+    for(auto& texture : m_data->textures)
     {
-        if(!texture.Initialise())
+        if(!texture->Initialise())
         {
             Logger::LogError("OpenGL: Failed to re-initialise texture");
             return false;
@@ -400,15 +402,15 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
     // Render the scene
     m_data->sceneTarget.SetActive();
-    for(GlMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh.GetShaderID(), lights);
-        SetTextures(mesh.GetTextureIDs());
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        UpdateShader(mesh->GetShaderID(), lights);
+        SetTextures(mesh->GetTextureIDs());
+        SetBackfaceCull(mesh->ShouldBackfaceCull());
     
-        mesh.PreRender();
-        m_data->shaders[m_data->selectedShader].EnableAttributes();
-        mesh.Render();
+        mesh->PreRender();
+        m_data->shaders[m_data->selectedShader]->EnableAttributes();
+        mesh->Render();
     }
 
     // Render the normal/depth map
@@ -416,13 +418,13 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     m_data->normalShader.SetActive();
     m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
     m_data->normalShader.SendUniformFloat("frustum", &m_data->frustum.x, 2);
-    for(GlMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        SetBackfaceCull(mesh->ShouldBackfaceCull());
     
-        mesh.PreRender();
+        mesh->PreRender();
         m_data->normalShader.EnableAttributes();
-        mesh.Render();
+        mesh->Render();
     }
 
     // Render the scene as a texture to the backbuffer
@@ -443,16 +445,16 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
 {
-    GlShader& shader = m_data->shaders[m_data->selectedShader];
+    auto& shader = m_data->shaders[m_data->selectedShader];
 
     int slot = 0;
     for(int id : textureIDs)
     {
         if(id != NO_INDEX)
         {
-            if(shader.HasTextureSlot(slot))
+            if(shader->HasTextureSlot(slot))
             {
-                m_data->textures[id].SendTexture(slot++);
+                m_data->textures[id]->SendTexture(slot++);
             }
             else
             {
@@ -467,11 +469,11 @@ void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
     if(index != m_data->selectedShader)
     {
         m_data->selectedShader = index;
-        GlShader& shader = m_data->shaders[index];
-        shader.SetActive();
+        auto& shader = m_data->shaders[index];
+        shader->SetActive();
 
-        shader.SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader.SendUniformFloat("lightPosition", &lights[0].position.x, 3);
+        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+        shader->SendUniformFloat("lightPosition", &lights[0].position.x, 3);
     }
 }
 
@@ -520,10 +522,10 @@ void OpenglEngine::SetBackfaceCull(bool shouldCull)
 
 std::string OpenglEngine::GetShaderText(int index) const
 {
-    return m_data->shaders[index].GetText();
+    return m_data->shaders[index]->GetText();
 }
 
 std::string OpenglEngine::GetShaderAssembly(int index) const
 {
-    return m_data->shaders[index].GetAssembly();
+    return m_data->shaders[index]->GetAssembly();
 }

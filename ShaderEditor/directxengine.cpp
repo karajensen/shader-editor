@@ -29,31 +29,30 @@ struct DirectxData
     */
     void Release();
 
-    ID3D11RasterizerState* cullState;     ///< Normal state of the rasterizer
-    ID3D11RasterizerState* nocullState;   ///< No face culling state of the rasterizer
-    IDXGISwapChain* swapchain;            ///< Collection of buffers for displaying frames
-    ID3D11Device* device;                 ///< Direct3D device interface
-    ID3D11DeviceContext* context;         ///< Direct3D device context
-    ID3D11Debug* debug;                   ///< Direct3D debug interface, only created in debug
+    ID3D11RasterizerState* cullState;   ///< Normal state of the rasterizer
+    ID3D11RasterizerState* nocullState; ///< No face culling state of the rasterizer
+    IDXGISwapChain* swapchain;          ///< Collection of buffers for displaying frames
+    ID3D11Device* device;               ///< Direct3D device interface
+    ID3D11DeviceContext* context;       ///< Direct3D device context
+    ID3D11Debug* debug;                 ///< Direct3D debug interface, only created in debug
+    DxShader normalShader;              ///< Shader for rendering normals/depth for the scene
+    DxShader postShader;                ///< Post processing shader
+    DxMesh quad;                        ///< Quad to render the final post processed scene onto
+    DxRenderTarget backBuffer;          ///< Render target for the back buffer
+    DxRenderTarget sceneTarget;         ///< Render target for the main scene
+    DxRenderTarget normalTarget;        ///< Render target for the scene normal/depth map
+    D3DXMATRIX view;                    ///< View matrix
+    D3DXMATRIX projection;              ///< Projection matrix
+    D3DXMATRIX viewProjection;          ///< View projection matrix
+    D3DXVECTOR3 camera;                 ///< Position of the camera
+    D3DXVECTOR2 frustum;                ///< Camera near and far values
+    bool isBackfaceCull;                ///< Whether the culling rasterize state is active
+    int selectedShader;                 ///< currently selected shader for rendering the scene
+    float fadeAmount;                   ///< the amount to fade the scene by
 
-    DxShader normalShader;                ///< Shader for rendering normals/depth for the scene
-    DxShader postShader;                  ///< Post processing shader
-    DxMesh quad;                          ///< Quad to render the final post processed scene onto
-    DxRenderTarget backBuffer;            ///< Render target for the back buffer
-    DxRenderTarget sceneTarget;           ///< Render target for the main scene
-    DxRenderTarget normalTarget;          ///< Render target for the scene normal/depth map
-
-    std::vector<DxTexture> textures;      ///< Textures shared by all meshes
-    std::vector<DxMesh> meshes;           ///< Each mesh in the scene
-    std::vector<DxShader> shaders;        ///< Shaders shared by all meshes
-    D3DXMATRIX view;                      ///< View matrix
-    D3DXMATRIX projection;                ///< Projection matrix
-    D3DXMATRIX viewProjection;            ///< View projection matrix
-    D3DXVECTOR3 camera;                   ///< Position of the camera
-    D3DXVECTOR2 frustum;                  ///< Camera near and far values
-    bool isBackfaceCull;                  ///< Whether the culling rasterize state is active
-    int selectedShader;                   ///< currently selected shader for rendering the scene
-    float fadeAmount;                     ///< the amount to fade the scene by
+    std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
+    std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
+    std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
 };
 
 DirectxData::DirectxData() :
@@ -69,8 +68,8 @@ DirectxData::DirectxData() :
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(NO_INDEX, POST_PATH),
-    normalShader(NO_INDEX, NORM_PATH),
+    postShader(NO_INDEX, "Post", POST_PATH),
+    normalShader(NO_INDEX, "Normal", NORM_PATH),
     quad("SceneQuad"),
     fadeAmount(0.0f)
 {
@@ -87,19 +86,19 @@ void DirectxData::Release()
     isBackfaceCull = true;
     fadeAmount = 0.0f;
 
-    for(DxTexture& texture : textures)
+    for(auto& texture : textures)
     {
-        texture.Release();
+        texture->Release();
     }
 
-    for(DxMesh& mesh : meshes)
+    for(auto& mesh : meshes)
     {
-        mesh.Release();
+        mesh->Release();
     }
 
-    for(DxShader& shader : shaders)
+    for(auto& shader : shaders)
     {
-        shader.Release();
+        shader->Release();
     }
 
     normalShader.Release();
@@ -285,7 +284,7 @@ void DirectxEngine::InitialiseDebugging()
 
 std::string DirectxEngine::CompileShader(int index)
 {
-    const std::string errors = m_data->shaders[index].CompileShader(m_data->device);
+    const std::string errors = m_data->shaders[index]->CompileShader(m_data->device);
     return errors.empty() ? "" : "\n\n" + errors;
 }
 
@@ -297,20 +296,22 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     m_data->textures.reserve(textures.size());
     for(const Texture& texture : textures)
     {
-        m_data->textures.push_back(DxTexture(texture.path));
+        m_data->textures.push_back(std::unique_ptr<DxTexture>(
+            new DxTexture(texture.path)));
     }
 
     m_data->shaders.reserve(shaders.size());
     for(const Shader& shader : shaders)
     {
-        m_data->shaders.push_back(DxShader(
-            shader.index, shader.hlslShaderFile));
+        m_data->shaders.push_back(std::unique_ptr<DxShader>(
+            new DxShader(shader.index, shader.name, shader.hlslShaderFile)));
     }
 
     m_data->meshes.reserve(meshes.size());
     for(const Mesh& mesh : meshes)
     {
-        m_data->meshes.push_back(DxMesh(&mesh));
+        m_data->meshes.push_back(std::unique_ptr<DxMesh>(
+            new DxMesh(&mesh)));
     }
 
     return ReInitialiseScene();
@@ -328,14 +329,14 @@ bool DirectxEngine::ReInitialiseScene()
         }
     }
 
-    for(DxMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        mesh.Initialise(m_data->device, m_data->context);
+        mesh->Initialise(m_data->device, m_data->context);
     }
 
-    for(DxTexture& texture : m_data->textures)
+    for(auto& texture : m_data->textures)
     {
-        texture.Initialise(m_data->device);
+        texture->Initialise(m_data->device);
     }
 
     return true;
@@ -364,15 +365,15 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
 
     // Render the scene
     m_data->sceneTarget.SetActive(m_data->context);
-    for(DxMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        const int shaderID = mesh.GetShaderID();;
+        const int shaderID = mesh->GetShaderID();;
         UpdateShader(shaderID, lights);
 
-        SetTextures(mesh.GetTextureIDs());
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        SetTextures(mesh->GetTextureIDs());
+        SetBackfaceCull(mesh->ShouldBackfaceCull());
         
-        mesh.Render(m_data->context);
+        mesh->Render(m_data->context);
     }
 
     // Render the normal/depth map
@@ -381,10 +382,10 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
     m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
     m_data->normalShader.SendConstants(m_data->context);
-    for(DxMesh& mesh : m_data->meshes)
+    for(auto& mesh : m_data->meshes)
     {
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
-        mesh.Render(m_data->context);
+        SetBackfaceCull(mesh->ShouldBackfaceCull());
+        mesh->Render(m_data->context);
     }
 
     // Render the scene as a texture to the backbuffer
@@ -403,16 +404,16 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
 {
-    DxShader& shader = m_data->shaders[m_data->selectedShader];
+    auto& shader = m_data->shaders[m_data->selectedShader];
 
     int slot = 0;
     for(int id : textureIDs)
     {
         if(id != NO_INDEX)
         {
-            if(shader.HasTextureSlot(slot))
+            if(shader->HasTextureSlot(slot))
             {
-                m_data->textures[id].SendTexture(m_data->context, slot++);
+                m_data->textures[id]->SendTexture(m_data->context, slot++);
             }
             else
             {
@@ -424,25 +425,25 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
 
 void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
 {
-    DxShader& shader = m_data->shaders[index];
+    auto& shader = m_data->shaders[index];
 
     if(index != m_data->selectedShader)
     {
         m_data->selectedShader = index;
-        shader.SetActive(m_data->context);
+        shader->SetActive(m_data->context);
         
-        shader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader.UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
-        shader.UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
+        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        shader->UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
+        shader->UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
     }
 
     float ambience = 1.0f;
     float specularity = 1.0f;
 
-    shader.UpdateConstantFloat("meshAmbience", &ambience, 1);
-    shader.UpdateConstantFloat("meshSpecularity", &specularity, 1);
+    shader->UpdateConstantFloat("meshAmbience", &ambience, 1);
+    shader->UpdateConstantFloat("meshSpecularity", &specularity, 1);
 
-    shader.SendConstants(m_data->context);
+    shader->SendConstants(m_data->context);
 }
 
 ID3D11Device* DirectxEngine::GetDevice() const
@@ -496,10 +497,10 @@ void DirectxEngine::SetBackfaceCull(bool shouldCull)
 
 std::string DirectxEngine::GetShaderText(int index) const
 {
-    return m_data->shaders[index].GetText();
+    return m_data->shaders[index]->GetText();
 }
 
 std::string DirectxEngine::GetShaderAssembly(int index) const
 {
-    return m_data->shaders[index].GetAssembly();
+    return m_data->shaders[index]->GetAssembly();
 }

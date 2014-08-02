@@ -11,7 +11,7 @@ struct Mesh;
 /**
 * DirectX Individual mesh
 */
-class DxMesh
+class DxMesh : boost::noncopyable
 {
 public:
 

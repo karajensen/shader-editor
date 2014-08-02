@@ -2,7 +2,7 @@
 // Kara Jensen - mail@karajensen.com - shader_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
-cbuffer VertexBuffer
+cbuffer VertexBuffer : register(b0)
 {
     float4x4 viewProjection;
     ifndefined: FLAT
@@ -13,7 +13,7 @@ cbuffer VertexBuffer
     endif
 };
 
-cbuffer PixelBuffer 
+cbuffer PixelBuffer : register(b1)
 {
     float meshAmbience;
     ifdefined: SPECULAR
@@ -89,6 +89,5 @@ float4 PShader(Attributes input) : SV_TARGET
         endif
     endif
 
-    finalColour.a = meshAmbience;
-    return finalColour;
+    return finalColour * meshAmbience;
 }

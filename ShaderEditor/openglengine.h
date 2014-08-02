@@ -12,7 +12,7 @@ struct OpenglData;
 /**
 * OpenGL Graphics engine
 */
-class OpenglEngine : public RenderEngine
+class OpenglEngine : public RenderEngine, boost::noncopyable
 {
 public:
 

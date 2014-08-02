@@ -10,7 +10,7 @@ struct Mesh;
 /**
 * OpenGL Individual mesh or quad
 */
-class GlMesh
+class GlMesh : boost::noncopyable
 {
 public:
 

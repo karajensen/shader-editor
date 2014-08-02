@@ -9,7 +9,7 @@
 /**
 * Holds an individual opengl texture
 */
-class GlTexture
+class GlTexture : boost::noncopyable
 {
 public:
 

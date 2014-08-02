@@ -13,7 +13,7 @@ struct ID3D11Device;
 /**
 * DirectX Graphics engine
 */
-class DirectxEngine : public RenderEngine
+class DirectxEngine : public RenderEngine, boost::noncopyable
 {
 public:
 
