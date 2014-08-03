@@ -1,7 +1,5 @@
 
-- Switch shader loading to reflection
 - Send light data and multiple lights
-
 - Rendering: specular, attenuation, bump
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Post tweak page fill in

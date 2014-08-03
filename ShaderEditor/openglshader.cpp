@@ -351,45 +351,61 @@ std::string GlShader::BindShaderAttributes()
 
 std::string GlShader::BindVertexAttributes()
 {
-    int maxLength;
-    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-
-    int attributeCount;
-    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-
-    if(HasCallFailed())
-    {
-        return "Could not get attribute count for shader " + m_name;
-    }
+    // GLSL will optimise out any unused attributes which reflection
+    // cannot obtain. Need to read the shader code to retrieve these
+    // as the vertex stride of the buffers cannot be changed.
 
     m_stride = 0;
-    for (int i = 0; i < attributeCount; ++i)
+    int index = 0;
+    int location = 0;
+
+    // Split the shader text into words
+    auto deliminator = boost::is_any_of(";\n\r\t ");
+    std::vector<std::string> text;
+    boost::split(text, m_vertexText, deliminator, boost::token_compress_on);
+
+    // Ordering of input attributes is assumed to be: 'in type name'
+    while(text[index] != MAIN_ENTRY)
     {
-        int size;
-        GLenum type;
-        std::string name(maxLength,'\0');
-        glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
-        name = std::string(name.begin(), name.begin() + name.find('\0'));
-        if(HasCallFailed())
+        if(text[index] == GLSL_IN)
         {
-            return "Could not get attribute " + boost::lexical_cast<std::string>(i);
+            AttributeData data;
+            data.name = text[index+2];
+            const std::string type = text[index+1];
+
+            // Pass position as a vec3 into a vec4 slot to use the optimization 
+            // where the 'w' component is automatically set as 1.0
+            if(type == GLSL_VEC3 || data.name == GLSL_IN_POSITION)
+            {
+                data.components = 3;
+            }
+            else if(type == GLSL_VEC2)
+            {
+                data.components = 2;
+            }
+            else if(type == GLSL_VEC4)
+            {
+                data.components = 4;
+            }
+            else
+            {
+                return "Unknown attribute type for " + data.name;
+            }
+
+            data.location = location++;
+            m_stride += data.components;
+            index += 2;
+
+            m_attributes.push_back(data);
+            glBindAttribLocation(m_program, data.location, data.name.c_str());
+            if(HasCallFailed())
+            {
+                return "Failed to bind attribute " + data.name;
+            }
         }
-
-        m_attributes.push_back(AttributeData());
-        m_attributes[i].location = i;
-        m_attributes[i].name = name;
-
-        // Pass position as a vec3 into a vec4 slot to use the optimization
-        // where the 'w' component is automatically set as 1.0
-        const bool isPosition = boost::iequals(m_attributes[i].name, GLSL_IN_POSITION);
-        const int components = isPosition ? 3 : GetComponentsFromType(type);
-        m_attributes[i].components = components;
-        m_stride += components;
-
-        glBindAttribLocation(m_program, i, name.c_str());
-        if(HasCallFailed())
+        else
         {
-            return "Failed to bind attribute " + name;
+            ++index;
         }
     }
 
@@ -437,6 +453,7 @@ std::string GlShader::FindShaderUniforms()
             m_uniforms[name].type = type;
         }
     }
+
     return std::string();
 }
 
