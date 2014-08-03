@@ -61,8 +61,8 @@ OpenglData::OpenglData() :
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(NO_INDEX, POST_VERT_PATH, POST_FRAG_PATH),
-    normalShader(NO_INDEX, NORM_VERT_PATH, NORM_FRAG_PATH),
+    postShader(NO_INDEX, POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
+    normalShader(NO_INDEX, NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH),
     fadeAmount(0.0f)
 {
 }
@@ -333,7 +333,8 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         m_data->shaders.push_back(std::unique_ptr<GlShader>(
-            new GlShader(shader.index, shader.glslVertexFile, shader.glslFragmentFile)));
+            new GlShader(shader.index, shader.name,
+            shader.glslVertexFile, shader.glslFragmentFile)));
     }
 
     m_data->meshes.reserve(meshes.size());
@@ -376,6 +377,7 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
+    Logger::LogInfo("OpenGL: Re-Initialised");
     return true;
 }
 
@@ -404,12 +406,12 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     m_data->sceneTarget.SetActive();
     for(auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetShaderID(), lights);
+        UpdateShader(mesh->GetMesh(), lights);
         SetTextures(mesh->GetTextureIDs());
         SetBackfaceCull(mesh->ShouldBackfaceCull());
     
         mesh->PreRender();
-        m_data->shaders[m_data->selectedShader]->EnableAttributes();
+        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
         mesh->Render();
     }
 
@@ -464,17 +466,23 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
     }
 }
 
-void OpenglEngine::UpdateShader(int index, const std::vector<Light>& lights)
+void OpenglEngine::UpdateShader(const Mesh& mesh, 
+                                const std::vector<Light>& lights)
 {
+    const int index = mesh.shaderIndex;
+    auto& shader = m_data->shaders[index];
+
     if(index != m_data->selectedShader)
     {
         m_data->selectedShader = index;
-        auto& shader = m_data->shaders[index];
         shader->SetActive();
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("lightPosition", &lights[0].position.x, 3);
     }
+
+    shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
+    shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
 }
 
 std::string OpenglEngine::GetName() const
@@ -522,10 +530,26 @@ void OpenglEngine::SetBackfaceCull(bool shouldCull)
 
 std::string OpenglEngine::GetShaderText(int index) const
 {
+    if(index == m_data->shaders.size())
+    {
+        return m_data->postShader.GetText();
+    }
+    else if(index == m_data->shaders.size() + 1)
+    {
+        return m_data->normalShader.GetText();
+    }
     return m_data->shaders[index]->GetText();
 }
 
-std::string OpenglEngine::GetShaderAssembly(int index) const
+std::string OpenglEngine::GetShaderAssembly(int index)
 {
+    if(index == m_data->shaders.size())
+    {
+        return m_data->postShader.GetAssembly();
+    }
+    else if(index == m_data->shaders.size() + 1)
+    {
+        return m_data->normalShader.GetAssembly();
+    }
     return m_data->shaders[index]->GetAssembly();
 }

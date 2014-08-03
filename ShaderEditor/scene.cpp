@@ -433,6 +433,8 @@ std::vector<std::string> Scene::GetShaderNames() const
     {
         shaders.push_back(shader.name);
     }
+    shaders.push_back(POST_NAME);
+    shaders.push_back(NORMAL_NAME);
     return shaders;
 }
 

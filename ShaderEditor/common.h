@@ -4,6 +4,15 @@
 
 #pragma once
 
+#ifdef _DEBUG
+#include "vld/include/vld.h"
+#endif
+
+#define USE_CONSOLE
+#ifndef USE_CONSOLE
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <Windows.h>
@@ -48,6 +57,8 @@ const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
+const std::string POST_NAME("PostShader");
+const std::string NORMAL_NAME("NormalShader");
 
 /**
 * GUI pages available

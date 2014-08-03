@@ -60,3 +60,8 @@ int Timer::GetFPS() const
 {
     return static_cast<int>(m_fps);
 }
+
+int Timer::GetCappedFPS() const
+{
+    return min(static_cast<int>(m_fps), 60);
+}

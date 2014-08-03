@@ -70,6 +70,11 @@ public:
     */
     int GetMaxTextures() const;
 
+    /**
+    * @return the mesh element
+    */
+    const Mesh& GetMesh() const;
+
 private:
 
     UINT m_indexCount;              ///< Number of indices for the mesh

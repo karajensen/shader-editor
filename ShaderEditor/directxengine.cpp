@@ -68,8 +68,8 @@ DirectxData::DirectxData() :
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(NO_INDEX, "Post", POST_PATH),
-    normalShader(NO_INDEX, "Normal", NORM_PATH),
+    postShader(NO_INDEX, POST_NAME, POST_PATH),
+    normalShader(NO_INDEX, NORMAL_NAME, NORM_PATH),
     quad("SceneQuad"),
     fadeAmount(0.0f)
 {
@@ -339,6 +339,7 @@ bool DirectxEngine::ReInitialiseScene()
         texture->Initialise(m_data->device);
     }
 
+    Logger::LogInfo("DirectX: Re-Initialised");
     return true;
 }
 
@@ -367,8 +368,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->sceneTarget.SetActive(m_data->context);
     for(auto& mesh : m_data->meshes)
     {
-        const int shaderID = mesh->GetShaderID();;
-        UpdateShader(shaderID, lights);
+        UpdateShader(mesh->GetMesh(), lights);
 
         SetTextures(mesh->GetTextureIDs());
         SetBackfaceCull(mesh->ShouldBackfaceCull());
@@ -423,8 +423,10 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
     }
 }
 
-void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
+void DirectxEngine::UpdateShader(const Mesh& mesh, 
+                                 const std::vector<Light>& lights)
 {
+    const int index = mesh.shaderIndex;
     auto& shader = m_data->shaders[index];
 
     if(index != m_data->selectedShader)
@@ -437,12 +439,8 @@ void DirectxEngine::UpdateShader(int index, const std::vector<Light>& lights)
         shader->UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
     }
 
-    float ambience = 1.0f;
-    float specularity = 1.0f;
-
-    shader->UpdateConstantFloat("meshAmbience", &ambience, 1);
-    shader->UpdateConstantFloat("meshSpecularity", &specularity, 1);
-
+    shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
+    shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
     shader->SendConstants(m_data->context);
 }
 
@@ -497,10 +495,26 @@ void DirectxEngine::SetBackfaceCull(bool shouldCull)
 
 std::string DirectxEngine::GetShaderText(int index) const
 {
+    if(index == m_data->shaders.size())
+    {
+        return m_data->postShader.GetText();
+    }
+    else if(index == m_data->shaders.size() + 1)
+    {
+        return m_data->normalShader.GetText();
+    }
     return m_data->shaders[index]->GetText();
 }
 
-std::string DirectxEngine::GetShaderAssembly(int index) const
+std::string DirectxEngine::GetShaderAssembly(int index)
 {
+    if(index == m_data->shaders.size())
+    {
+        return m_data->postShader.GetAssembly();
+    }
+    else if(index == m_data->shaders.size() + 1)
+    {
+        return m_data->normalShader.GetAssembly();
+    }
     return m_data->shaders[index]->GetAssembly();
 }

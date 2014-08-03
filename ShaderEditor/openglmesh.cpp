@@ -137,3 +137,9 @@ int GlMesh::GetShaderID() const
     assert(m_mesh);
     return m_mesh->shaderIndex;
 }
+
+const Mesh& GlMesh::GetMesh() const
+{
+    assert(m_mesh);
+    return *m_mesh;
+}

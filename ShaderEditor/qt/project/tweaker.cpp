@@ -57,7 +57,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_lightSpecularity.Initialise(0.1, m_ui.lightSpecularity_value,
         m_ui.lightSpecularity_dial, m_callbacks.SetLightSpecularity);
 
-    m_meshSpecularity.Initialise(0.1, m_ui.meshSpecularity_value,
+    m_meshSpecularity.Initialise(0.01, m_ui.meshSpecularity_value,
         m_ui.meshSpecularity_dial, m_callbacks.SetMeshSpecularity);
 
     m_meshAmbience.Initialise(0.01, m_ui.meshAmbience_value,

@@ -91,7 +91,7 @@ public:
     * Gets the assembly for the shader
     * @return the assembly for the shader
     */
-    std::string GetAssembly() const;
+    std::string GetAssembly();
 
 private:
 
@@ -121,74 +121,69 @@ private:
     std::string CompileShader(ID3D10Blob** shader, bool isVertex);
 
     /**
-    * Generates the assembly instructions for the shader
-    * @param vertexAsm The text container to fill the vertex assembly with
-    * @param pixelAsm The text container to fill the fragment assembly with
+    * Generates the assembly instructions for the shader if needed
     * @return Error message if failed or empty if succeeded
     */
-    std::string GenerateAssembly(std::string& vertexAsm, std::string& pixelAsm);
+    std::string GenerateAssembly();
 
     /**
-    * Loads the vertex and pixel shaders into strings
-    * @param vertexText Container to fill with the text for the vertex shader
-    * @param fragmentText Container to fill with the text for the fragment shader
-    * @param sharedText Container to fill with the text for shared components
+    * Loads the vertex and pixel shaders into cached strings
     * @return Error message if failed or empty if succeeded
     */
-    std::string LoadShaderText(std::string& vertexText, 
-        std::string& pixelText, std::string& sharedText);
-
-    /**
-    * @return the vertex shader input attributes where the 
-    * type, name and semantic are seperated as components
-    */
-    std::vector<std::string> GetVertexAttributes(const std::string& text) const;
+    std::string LoadShaderText();
 
     /**
     * Determines the vertex shader input attributes and caches them
     * @param device The DirectX device interface
-    * @param text The text for the vertex shader
     * @return Error message if failed or empty if succeeded
     */
-    std::string BindVertexAttributes(ID3D11Device* device, const std::string& text);
+    std::string BindVertexAttributes(ID3D11Device* device);
+
+    /**
+    * Gets the format of the vertex shader input attribute
+    * @param description The description of the input attribute
+    * @return The format of the input attribute
+    */
+    DXGI_FORMAT GetAttributeFormat(D3D11_SIGNATURE_PARAMETER_DESC& description) const;
+
+    /**
+    * Gets how many bytes the attribute uses from the format
+    * @param description The description of the input attribute
+    * @return the number of bytes used
+    */
+    int GetAttributeBytes(D3D11_SIGNATURE_PARAMETER_DESC& description) const;
+
+    /**
+    * Gets how many components are used by the vertex shader input attribute
+    * @param description The description of the input attribute
+    * @return how many components 
+    */
+    int GetAttributeCompononts(D3D11_SIGNATURE_PARAMETER_DESC& description) const;
 
     /**
     * Creates the state of the sampler
     * @param device The DirectX device interface
-    * @param text The shared components of the shader
     * @return Error message if failed or empty if succeeded
     */
-    std::string CreateSamplerState(ID3D11Device* device, const std::string& text);
+    std::string CreateSamplerState(ID3D11Device* device);
 
     /**
     * Generates the constant buffer which holds all non-attribute uniforms
     * @param device The DirectX device interface
     * @param index The index that the constant buffer is stored in for the shader
-    * @param text The shared text that contains the constant buffer
     * @param isVertexBuffer Whether this buffer is read by the vertex or pixel shader
     * @return Error message if failed or empty if succeeded
     */
     std::string CreateConstantBuffer(ID3D11Device* device, 
-        const std::string& text, int index, bool isVertexBuffer);
+        int index, bool isVertexBuffer);
 
     /**
-    * Generates the constant bufers for the shader
+    * Generates the constant buffers which holds all non-attribute uniforms
     * @param device The DirectX device interface
-    * @param text The text for the shared shader components
-    * @return Error message if failed or empty if succeeded
-    */
-    std::string CreateConstantBuffers(ID3D11Device* device, 
-        const std::string& text);
-
-    /**
-    * Generates the constant buffers for the shader
-    * @param device The DirectX device interface
-    * @param text The text for the shared shader components
     * @param isVertex Whether currently creating for the vertex or pixel shader
     * @return Error message if failed or empty if succeeded
     */
-    std::string CreateConstantBuffers(ID3D11Device* device, 
-        const std::string& text, bool isVertexShader);
+    std::string CreateConstantBuffers(ID3D11Device* device, bool isVertexShader);
 
     /**
     * Validates the non-attribute constant that is requesting to be sent
@@ -204,18 +199,7 @@ private:
     /**
     * Sets the internal debug names for the shader objects
     */
-    void SetDebugNames();
-
-    /**
-    * Information for each vertex input attribute
-    */
-    struct AttributeData
-    {
-        int byteOffset;       ///< Offset between current and previous attribute
-        std::string semantic; ///< The HLSL description of the attribute
-        DXGI_FORMAT format;   ///< Layout of the attribute
-        int slot;             ///< Slot for the attribute semantic
-    };                       
+    void SetDebugNames();                  
 
     /**
     * Information for a shader (non-attribute uniform) constant
@@ -254,7 +238,6 @@ private:
 
     D3D11_SHADER_DESC m_vertexDesc;            ///< Internal description of the vertex shader
     D3D11_SHADER_DESC m_pixelDesc;             ///< Internal description of the pixel shader
-    std::vector<AttributeData> m_attributes;   ///< Vertex shader input attributes
     std::string m_filepath;                    ///< Path to the shader file
     std::string m_name;                        ///< Name of the shader
     std::string m_asmpath;                     ///< Path to the generated assembly file

@@ -77,9 +77,15 @@ bool FragmentLinker::GenerateFromFile(const std::string& directory,
         return false;
     }
 
+    std::string previousLine = "No Line";
     while(!baseFile.eof())
     {
-        generatedFile << GetNextLine(baseFile) << std::endl;
+        const std::string line = GetNextLine(baseFile);
+        if(!line.empty() || !previousLine.empty())
+        {
+            generatedFile << line << std::endl;
+        }
+        previousLine = line;
 
         if(baseFile.fail() || baseFile.bad())
         {

@@ -14,23 +14,26 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
 
+//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE OPENGL
+
 namespace
 {
-    const float CAMERA_MOVE_SPEED = 40.0f; ///< Speed the camera will translate
+    const float CAMERA_MOVE_SPEED = 50.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
-    const float CAMERA_SIDE_SPEED = 20.0f; ///< Speed the camera will strafe
-    const float FADE_AMOUNT = 0.01f;       ///< Speed to fade the engine in/out
+    const float CAMERA_SIDE_SPEED = 30.0f; ///< Speed the camera will strafe
+    const float FADE_AMOUNT = 0.02f;       ///< Speed to fade the engine in/out
 }
 
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_mousePressed(false),
     m_cache(cache),
+    m_selectedEngine(SELECTED_ENGINE),
     m_fadeState(FADE_IN),
     m_selectedLight(NO_INDEX),
     m_selectedMesh(NO_INDEX),
-    m_selectedShader(NO_INDEX),
-    m_selectedEngine(DIRECTX)
+    m_selectedShader(NO_INDEX)
 {
 }
 
@@ -258,6 +261,7 @@ void Application::UpdateMesh()
     {
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
         mesh.specularity = m_cache->MeshSpecularity.Get();
+        mesh.ambience = m_cache->MeshAmbience.Get();
     }
 }
 

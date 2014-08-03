@@ -80,7 +80,7 @@ public:
     * @param index The shader index
     * @return the assembly for the shader
     */
-    virtual std::string GetShaderAssembly(int index) const = 0;
+    virtual std::string GetShaderAssembly(int index) = 0;
 
     /**
     * Updates the engine's cached view matrix

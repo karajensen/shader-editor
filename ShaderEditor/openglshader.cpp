@@ -4,6 +4,8 @@
 
 #include "openglshader.h"
 #include "boost/algorithm/string.hpp"
+#include "boost/bimap.hpp"
+#include "boost/assign.hpp"
 #include <iomanip>
 #include <assert.h>
 #include <fstream>
@@ -28,12 +30,19 @@ namespace
     const std::string GLSL_IN_POSITION("in_Position");
     const std::string GLSL_OUT_COLOR("outColor");
     const std::string GLSL_IN("in");
-    const std::string GLSL_UNIFORM("uniform");
-    const std::string GLSL_SAMPLER2D("sampler2D");
-    const std::string GLSL_SAMPLER2DMS("sampler2DMS");
+
+    // How many float components to the GLSL float structure
+    boost::bimap<int, GLenum> FLOAT_COMPONENTS = 
+        boost::assign::list_of<boost::bimap<int, GLenum>::relation>
+        (1, GL_FLOAT)
+        (2, GL_FLOAT_VEC2)
+        (3, GL_FLOAT_VEC3)
+        (4, GL_FLOAT_VEC4)
+        (16, GL_FLOAT_MAT4);
 }
 
 GlShader::GlShader(int index, 
+                   const std::string& name,
                    const std::string& vs, 
                    const std::string& fs) :
 
@@ -43,7 +52,8 @@ GlShader::GlShader(int index,
     m_vs(NO_INDEX),
     m_fs(NO_INDEX),
     m_index(index),
-    m_stride(0)
+    m_stride(0),
+    m_name(name)
 {
     m_vaFilepath = boost::ireplace_last_copy(
         m_vsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
@@ -62,6 +72,8 @@ void GlShader::Release()
     m_uniforms.clear();
     m_attributes.clear();
     m_samplers.clear();
+    m_vertexAsm.clear();
+    m_fragmentAsm.clear();
 
     if(m_program != NO_INDEX)
     {
@@ -90,11 +102,8 @@ void GlShader::Release()
 
 std::string GlShader::CompileShader()
 {
-    std::string errorBuffer;
-
-    // Load the vertex and fragment shader files
     std::string vertexText;
-    errorBuffer = LoadShaderText(m_vsFilepath, vertexText);
+    std::string errorBuffer = LoadShaderText(m_vsFilepath, vertexText);
     if(!errorBuffer.empty())
     {
         return VS + errorBuffer;
@@ -107,16 +116,14 @@ std::string GlShader::CompileShader()
         return FS + errorBuffer;
     }
 
-    // Test on the scratch shaders to give an overview of any compilation errors
     GLint vertex = glCreateShader(GL_VERTEX_SHADER);
-    GLint fragment = glCreateShader(GL_FRAGMENT_SHADER);
-
     std::string vertexErrors = CompileShader(vertex, vertexText);
     if(!vertexErrors.empty())
     {
         vertexErrors = VS + vertexErrors;
     }
 
+    GLint fragment = glCreateShader(GL_FRAGMENT_SHADER);
     std::string fragmentErrors = CompileShader(fragment, fragmentText);
     if(!fragmentErrors.empty())
     {
@@ -132,23 +139,12 @@ std::string GlShader::CompileShader()
             vertexErrors + (fragmentErrors.empty() ? "" : "\n"+fragmentErrors);
     }
 
-    // Only update the shader once compilation errors have been checked
     Release();
     m_program = glCreateProgram();
     m_vs = vertex;
     m_fs = fragment;
-
-    // Split the shader text into wordss
-    auto deliminator = boost::is_any_of(";\n\r ");
-    std::vector<std::string> vertexWords, fragmentWords;
-    boost::split(vertexWords, vertexText, deliminator, boost::token_compress_on);
-    boost::split(fragmentWords, fragmentText, deliminator, boost::token_compress_on);
-
-    errorBuffer = BindVertexAttributes(vertexWords);
-    if(!errorBuffer.empty())
-    {
-        return errorBuffer;
-    }
+    m_vertexText = vertexText;
+    m_fragmentText = fragmentText;
 
     glAttachShader(m_program, m_vs);
     if(HasCallFailed())
@@ -162,41 +158,23 @@ std::string GlShader::CompileShader()
         return FS + "Failed to attach";
     }
 
-    glBindFragDataLocation(m_program, 0, GLSL_OUT_COLOR.c_str());
-    if(HasCallFailed())
-    {
-        return FS + "Failed to bind " + GLSL_OUT_COLOR;
-    }
-
     errorBuffer = LinkShaderProgram();
-    if(!errorBuffer.empty())
-    {
-        return "Failed to link program: " + errorBuffer;
-    }
-
-    errorBuffer = FindShaderUniforms(vertexWords);
-    if(!errorBuffer.empty())
-    {
-        return VS + errorBuffer;
-    }
-
-    errorBuffer = FindShaderUniforms(fragmentWords);
-    if(!errorBuffer.empty())
-    {
-        return FS + errorBuffer;
-    }
-
-    std::string vertexAsm, fragmentAsm;
-    errorBuffer = GenerateAssembly(vertexAsm, fragmentAsm);
     if(!errorBuffer.empty())
     {
         return errorBuffer;
     }
 
-    m_vertexText = vertexText;
-    m_vertexAsm = vertexAsm;
-    m_fragmentText = fragmentText;
-    m_fragmentAsm = fragmentAsm;
+    errorBuffer = BindShaderAttributes();
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
+
+    errorBuffer = FindShaderUniforms();
+    if(!errorBuffer.empty())
+    {
+        return errorBuffer;
+    }
 
     return std::string();
 }
@@ -284,18 +262,23 @@ std::string GlShader::LoadAssemblyText(const std::string& path, std::string& tex
     {
         return "Generated assembly file is empty";
     }
-    
+
+    // Shader Analyzer outputs file with multiple \0 at the end
+    text = std::string(text.begin(), text.begin() + text.find('\0'));
+
     // Any error output from the analyzer will be in the generated file
-    const int linesForError = 3;
-    if(std::count(text.begin(), text.end(), '\n') <= linesForError)
-    {
-        return text;
-    }
-    return std::string();
+    const int minimumLines = 3;
+    return std::count(text.begin(), text.end(), '\n')
+        <= minimumLines ? text : std::string();
 }
 
-std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& fragmentAsm)
+std::string GlShader::GenerateAssembly()
 {
+    if(!m_vertexAsm.empty() && !m_fragmentAsm.empty())
+    {
+        return std::string();
+    }
+
     // Opengl 3.0 currently has no output of shader asm 
     // Use cmd.exe to chain both calls to ShaderAnalyzer in one process
     // GPUShaderAnalyzer.exe Diffuse_glsl_vert.fx -I Diffuse_glsl_vert.asm -ASIC IL -profile glsl_vs -function main
@@ -334,13 +317,13 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
         return "Process failed: " + command;
     }
 
-    std::string errorBuffer = LoadAssemblyText(m_vaFilepath, vertexAsm);
+    std::string errorBuffer = LoadAssemblyText(m_vaFilepath, m_vertexAsm);
     if(!errorBuffer.empty())
     {
         return VS + "ShaderAnalyzer: " + errorBuffer;
     }
 
-    errorBuffer = LoadAssemblyText(m_faFilepath, fragmentAsm);
+    errorBuffer = LoadAssemblyText(m_faFilepath, m_fragmentAsm);
     if(!errorBuffer.empty())
     {
         return FS + "ShaderAnalyzer: " + errorBuffer;
@@ -349,110 +332,118 @@ std::string GlShader::GenerateAssembly(std::string& vertexAsm, std::string& frag
     return std::string();
 }
 
-std::string GlShader::BindVertexAttributes(const std::vector<std::string>& text)
+std::string GlShader::BindShaderAttributes()
 {
+    std::string errorBuffer = BindVertexAttributes();
+    if(!errorBuffer.empty())
+    {
+        return VS + errorBuffer;
+    }
+
+    glBindFragDataLocation(m_program, 0, GLSL_OUT_COLOR.c_str());
+    if(HasCallFailed())
+    {
+        return FS + "Failed to bind " + GLSL_OUT_COLOR;
+    }
+
+    return errorBuffer;
+}
+
+std::string GlShader::BindVertexAttributes()
+{
+    int maxLength;
+    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+
+    int attributeCount;
+    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
+
+    if(HasCallFailed())
+    {
+        return "Could not get attribute count for shader " + m_name;
+    }
+
     m_stride = 0;
-    int currentIndex = 0;
-    int currentLocation = 0;
-
-    // Ordering of input attributes is assumed to be: 'in type name'
-    while(text[currentIndex] != MAIN_ENTRY)
+    for (int i = 0; i < attributeCount; ++i)
     {
-        if(text[currentIndex] == GLSL_IN)
-        {
-            AttributeData data;
-            data.name = text[currentIndex+2];
-            const std::string type = text[currentIndex+1];
-
-            // Pass position as a vec3 into a vec4 slot to use the optimization 
-            // where the 'w' component is automatically set as 1.0
-            if(type == GLSL_VEC3 || data.name == GLSL_IN_POSITION)
-            {
-                data.components = 3;
-            }
-            else if(type == GLSL_VEC2)
-            {
-                data.components = 2;
-            }
-            else if(type == GLSL_VEC4)
-            {
-                data.components = 4;
-            }
-            else
-            {
-                return "Unknown attribute type for " + data.name;
-            }
-
-            m_stride += data.components;
-            data.location = currentLocation;
-            m_attributes.push_back(data);
-            currentIndex += 2;
-            ++currentLocation;
-        }
-        else
-        {
-            ++currentIndex;
-        }
-    }
-
-    if(m_attributes.empty())
-    {
-        return "Failed to find any attributes";
-    }
-
-    for(const auto& attribute : m_attributes)
-    {
-        glBindAttribLocation(m_program, attribute.location, attribute.name.c_str());
+        int size;
+        GLenum type;
+        std::string name(maxLength,'\0');
+        glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
+        name = std::string(name.begin(), name.begin() + name.find('\0'));
         if(HasCallFailed())
         {
-            return "Failed to bind attribute " + attribute.name;
+            return "Could not get attribute " + boost::lexical_cast<std::string>(i);
+        }
+
+        m_attributes.push_back(AttributeData());
+        m_attributes[i].location = i;
+        m_attributes[i].name = name;
+
+        // Pass position as a vec3 into a vec4 slot to use the optimization
+        // where the 'w' component is automatically set as 1.0
+        const bool isPosition = boost::iequals(m_attributes[i].name, GLSL_IN_POSITION);
+        const int components = isPosition ? 3 : GetComponentsFromType(type);
+        m_attributes[i].components = components;
+        m_stride += components;
+
+        glBindAttribLocation(m_program, i, name.c_str());
+        if(HasCallFailed())
+        {
+            return "Failed to bind attribute " + name;
         }
     }
+
     return std::string();
 }
 
-std::string GlShader::FindShaderUniforms(const std::vector<std::string>& text)
+std::string GlShader::FindShaderUniforms()
 {
-    // Find the vertex shader uniforms
-    int currentIndex = 0;
-    while(text[currentIndex] != MAIN_ENTRY)
+    int maxLength;
+    glGetProgramiv(m_program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+
+    int uniformCount;
+    glGetProgramiv(m_program, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+    if(HasCallFailed())
     {
-        if(text[currentIndex] == GLSL_UNIFORM)
+        return "Could not get uniform count for shader " + m_name;
+    }
+
+    for (int i = 0; i < uniformCount; ++i)
+    {
+        int size;
+        GLenum type;
+        std::string name(maxLength,'\0');
+        glGetActiveUniform(m_program, i, maxLength, 0, &size, &type, &name[0]);
+        name = std::string(name.begin(), name.begin() + name.find('\0'));
+        if(HasCallFailed())
         {
-            const std::string& name = text[currentIndex+2];
-            const std::string& type = text[currentIndex+1];
-            GLint location = glGetUniformLocation(m_program, name.c_str());
+            return "Could not get uniform " + boost::lexical_cast<std::string>(i);
+        }
 
-            if(HasCallFailed() || location == NO_INDEX)
-            {
-                return "Could not find uniform " + name;
-            }
-
-            if(type == GLSL_SAMPLER2D || type == GLSL_SAMPLER2DMS)
-            {
-                m_samplers.push_back(location);
-            }
-            else
-            {
-                m_uniforms[name].location = location;
-                m_uniforms[name].type = type;
-            }
-
-            currentIndex += 2;
+        GLint location = glGetUniformLocation(m_program, name.c_str());
+        if(HasCallFailed() || location == NO_INDEX)
+        {
+            return "Could not find uniform " + name + " for shader " + m_name;
+        }
+        
+        if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE)
+        {
+            m_samplers.push_back(location);
         }
         else
         {
-            ++currentIndex;
+            m_uniforms[name].location = location;
+            m_uniforms[name].type = type;
         }
     }
-
     return std::string();
 }
 
 void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matrix)
 {
     auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform(GLSL_MAT4, itr->second.type, name))
+    if(itr != m_uniforms.end() && CanSendUniform(GL_FLOAT_MAT4, itr->second.type, name))
     {
         glUniformMatrix4fv(itr->second.location, 1, GL_FALSE, &matrix[0][0]);
         if(HasCallFailed())
@@ -464,37 +455,26 @@ void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matri
 
 void GlShader::SendUniformFloat(const std::string& name, const float* value, int size)
 {
-    std::string floatType;
-    if(size == 1)
-    {
-        floatType = GLSL_FLT;
-    }
-    else
-    {
-        floatType = GLSL_VEC_PREFIX + boost::lexical_cast<std::string>(size);
-    }
-    
+    const GLenum type = GetTypeFromComponents(size);
+
     auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform(floatType, itr->second.type, name))
+    if(itr != m_uniforms.end() && CanSendUniform(type, itr->second.type, name))
     {
-        if(size == 1)
+        switch(size)
         {
+        case 1:
             glUniform1f(itr->second.location, value[0]);
-        }
-        else if(size == 2)
-        {
+            break;
+        case 2:
             glUniform2f(itr->second.location, value[0], value[1]);
-        }
-        else if(size == 3)
-        {
+            break;
+        case 3:
             glUniform3f(itr->second.location, value[0], value[1], value[2]);
-        }
-        else if(size == 4)
-        {
+            break;
+        case 4:
             glUniform4f(itr->second.location, value[0], value[1], value[2], value[3]);
-        }
-        else
-        {
+            break;
+        default:
             Logger::LogError("Size too large for uniform " + name);
         }
 
@@ -505,14 +485,37 @@ void GlShader::SendUniformFloat(const std::string& name, const float* value, int
     }
 }
 
-bool GlShader::CanSendUniform(const std::string& expectedType, 
-                              const std::string& actualType, 
+GLenum GlShader::GetTypeFromComponents(int components) const
+{
+    auto itr = FLOAT_COMPONENTS.left.find(components);
+    if(itr != FLOAT_COMPONENTS.left.end())
+    {
+        return itr->second;
+    }
+    Logger::LogError("Could not find type in list");
+    return 0;
+}
+
+int GlShader::GetComponentsFromType(GLenum type) const
+{
+    auto itr = FLOAT_COMPONENTS.right.find(type);
+    if(itr != FLOAT_COMPONENTS.right.end())
+    {
+        return itr->second;
+    }
+    Logger::LogError("Could not components in list");
+    return 0;
+}
+
+bool GlShader::CanSendUniform(GLenum expectedType, 
+                              GLenum actualType, 
                               const std::string& name) const
 {
     if(actualType != expectedType)
     {
         Logger::LogError(name + " type mismatch. Attempting to send " + 
-            actualType + " as a " + expectedType);
+            boost::lexical_cast<std::string>(GetComponentsFromType(actualType)) + " as type " + 
+            boost::lexical_cast<std::string>(GetComponentsFromType(expectedType)));
         return false;
     }
     return true;
@@ -567,7 +570,14 @@ std::string GlShader::GetText() const
     return m_vertexText + "\n" + m_fragmentText;
 }
 
-std::string GlShader::GetAssembly() const
+std::string GlShader::GetAssembly()
 {
+    // Generating the assembly is a bottleneck for OpenGL
+    // as requires ShaderAnalyzer. Only generate when requested.
+    const std::string errors = GenerateAssembly();
+    if(!errors.empty())
+    {
+        Logger::LogError("OpenGL: " + m_name + " " + errors);
+    }
     return m_vertexAsm + "\n" + m_fragmentAsm;
 }

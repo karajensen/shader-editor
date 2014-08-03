@@ -95,7 +95,7 @@ public:
     * @param index The shader index
     * @return the assembly for the shader
     */
-    virtual std::string GetShaderAssembly(int index) const override;
+    virtual std::string GetShaderAssembly(int index) override;
 
     /**
     * Fades the screen in or out to black by the given amount
@@ -114,11 +114,11 @@ private:
     void SetBackfaceCull(bool shouldCull);
 
     /**
-    * Updates and switches to the given shader index if necessary
-    * @param index The shader to switch to
+    * Updates and switches to shader the mesh requires
+    * @param mesh The mesh currently rendering
     * @param lights All lighting in the scene
     */
-    void UpdateShader(int index, const std::vector<Light>& lights);
+    void UpdateShader(const Mesh& mesh, const std::vector<Light>& lights);
 
     /**
     * Sends the textures to the selected shader

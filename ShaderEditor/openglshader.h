@@ -17,10 +17,12 @@ public:
     /**
     * Constructor
     * @param index The unique index of the shader
+    * @param name The name of the shader
     * @param vs The filepath for the vertex shader
     * @param fs The filepath for the fragment shader
     */
-    GlShader(int index, const std::string& vs, const std::string& fs);
+    GlShader(int index, const std::string& name,
+        const std::string& vs, const std::string& fs);
 
     /**
     * Destructor
@@ -86,17 +88,15 @@ public:
     * Gets the assembly for the shader
     * @return the assembly for the shader
     */
-    std::string GetAssembly() const;
+    std::string GetAssembly();
 
 private:
 
     /**
-    * Generates the assembly instructions for the shader
-    * @param vertexAsm The text container to fill the vertex assembly with
-    * @param fragmentAsm The text container to fill the fragment assembly with
+    * Generates the assembly instructions for the shader if needed
     * @return Error message if failed or empty if succeeded
     */
-    std::string GenerateAssembly(std::string& vertexAsm, std::string& fragmentAsm);
+    std::string GenerateAssembly();
 
     /**
     * Retrieves the generated assembly text from a file
@@ -115,21 +115,22 @@ private:
     std::string LoadShaderText(const std::string& path, std::string& text);
 
     /**
-    * Determines the vertex shader input attributes and caches them
-    * @param text Vertex shader text split into word components
+    * Determines the input/output attributes and binds them
     * @return Error message if failed or empty if succeeded
-    * @note should only be called on the vertex shader
     */
-    std::string BindVertexAttributes(const std::vector<std::string>& text);
+    std::string BindShaderAttributes();
 
     /**
-    * Determines the shader non-attribute uniform variables
-    * @note OpenGL will sometimes remove uniforms when compiling 
-    * if they are not used within the body of the shader.
-    * @param text Vertex or fragment text split into word components
+    * Determines the input vertex attributes and binds them
     * @return Error message if failed or empty if succeeded
     */
-    std::string FindShaderUniforms(const std::vector<std::string>& text);
+    std::string BindVertexAttributes();
+
+    /**
+    * Determines the shader non-attribute uniform variables and samplers
+    * @return Error message if failed or empty if succeeded
+    */
+    std::string FindShaderUniforms();
 
     /**
     * Generates the shader for the engine
@@ -151,8 +152,22 @@ private:
     * @param actualType Actual type of uniform in the shader
     * @param name Name of the uniform to send
     */
-    bool CanSendUniform(const std::string& expectedType, 
-        const std::string& actualType, const std::string& name) const;
+    bool CanSendUniform(GLenum expectedType,
+        GLenum actualType, const std::string& name) const;
+
+    /**
+    * Finds the float type from the number of components used
+    * @param components The number of components used
+    * @return the type of float structure in GLSL
+    */
+    GLenum GetTypeFromComponents(int components) const;
+
+    /**
+    * Finds the number of components used from the float type
+    * @param type The type of float structure in GLSL
+    * @return the number of components used
+    */
+    int GetComponentsFromType(GLenum type) const;
 
     /**
     * Information for each vertex input attribute
@@ -169,8 +184,8 @@ private:
     */
     struct UniformData
     {
-        std::string type;    ///< Type of data stored in the location
-        int location;        ///< Unique location within the shader
+        GLenum type;    ///< Type of data stored in the location
+        int location;   ///< Unique location within the shader
     };
 
     typedef std::unordered_map<std::string, UniformData> UniformMap;
@@ -186,6 +201,7 @@ private:
     std::string m_fragmentText;               ///< Text for the fragment shader
     std::string m_vertexAsm;                  ///< Assembly for the vertex shader
     std::string m_fragmentAsm;                ///< Assembly for the fragment shader
+    std::string m_name;                       ///< The name of the shader
     GLint m_program;                          ///< Shader program
     GLint m_vs;                               ///< GLSL Vertex Shader
     GLint m_fs;                               ///< GLSL Fragment Shader

@@ -38,6 +38,11 @@ public:
     */
     int GetFPS() const;
 
+    /**
+    * @return the capped frames per second
+    */
+    int GetCappedFPS() const;
+
 private:
 
     double m_frequency;         ///< The frequency of the high-resolution performance counter

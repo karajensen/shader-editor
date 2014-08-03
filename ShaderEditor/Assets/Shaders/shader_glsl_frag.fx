@@ -12,6 +12,11 @@ endif
 
 out vec4 out_Color;
 
+uniform float meshAmbience;
+ifdefined: SPECULAR
+    uniform float meshSpecular;
+endif
+
 uniform sampler2D DiffuseSampler;
 ifndefined: FLAT
     ifdefined: SPECULAR
@@ -38,11 +43,11 @@ void main(void)
                 
         ifdefined: SPECULAR
             // Specular Blinn-Phong
-            float specularity = 5.0;
+            float specularity = 5.0 * meshSpecular;
             vec4 specularTex = texture(SpecularSampler, ex_UVs);
             finalColour.a = specularTex.a;
         endif
     endif   
 
-    out_Color = finalColour;
+    out_Color = finalColour * meshAmbience;
 }

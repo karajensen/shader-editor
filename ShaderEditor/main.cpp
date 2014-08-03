@@ -2,12 +2,7 @@
 // Kara Jensen - mail@karajensen.com - main.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _DEBUG
-#include "vld/include/vld.h"
-#else
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#endif
-
+#include "common.h"
 #include "application.h"
 #include "gui.h"
 #include "cache.h"
@@ -75,17 +70,17 @@ int main(int argc, char *argv[])
     if(game->Initialise(hWnd, hInstance))
     {
         std::thread thread(&qtmain, argc, argv, cache);
-
+    
         ShowWindow(hWnd, SW_SHOWDEFAULT);
     
         game->Run();
-
+    
         thread.join();
-
+    
         return EXIT_SUCCESS;
     }
-
-    #ifdef _DEBUG
+    
+    #ifdef USE_CONSOLE
     std::cin.get(); // pause the console
     #endif
 

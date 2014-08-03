@@ -67,6 +67,11 @@ public:
     */
     int GetShaderID() const;
 
+    /**
+    * @return the mesh element
+    */
+    const Mesh& GetMesh() const;
+
 private:
 
     GLsizei m_vertexCount;          ///< Number of vertices for the mesh

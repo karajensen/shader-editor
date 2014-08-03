@@ -1,10 +1,7 @@
 
-- Post/normal shaders send to qt
-- Add F12 engine toggle without fade
-- OpenGL Intialisation time profile and reduce
-
-- Send Ambience and specularity for meshes
+- Switch shader loading to reflection
 - Send light data and multiple lights
+
 - Rendering: specular, attenuation, bump
 - Post effects: fog, dof, glow, SSAO, Color correction
 - Post tweak page fill in
@@ -17,6 +14,7 @@ TO DETERMINE:
 - Shadows
 - Transparency
 - Particle effects
+- OpenGL fps
 
 =================================================================
 SHADER EDITOR

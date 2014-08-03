@@ -144,3 +144,9 @@ int DxMesh::GetMaxTextures() const
     assert(m_mesh);
     return m_mesh->maxTextures; 
 }
+
+const Mesh& DxMesh::GetMesh() const
+{
+    assert(m_mesh);
+    return *m_mesh;
+}
