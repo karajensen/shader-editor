@@ -12,11 +12,17 @@ out vec2 ex_UVs;
 ifndefined: FLAT
     out vec3 ex_VertToLight;
     out vec3 ex_Normal;
+    ifdefined: SPECULAR
+        out vec3 ex_VertToCamera;
+    endif
 endif
 
 uniform mat4 viewProjection;
 ifndefined: FLAT
     uniform vec3 lightPosition;
+    ifdefined: SPECULAR
+        uniform vec3 cameraPosition;
+    endif
 endif
  
 void main(void)

@@ -1,11 +1,13 @@
 
-- Send light data and multiple lights
-- Rendering: specular, attenuation, bump
-- Post effects: fog, dof, glow, SSAO, Color correction
-- Post tweak page fill in
+- Basic scene lighting:
+	- Rendering light color, specular and attenuation
+	- Sending multiple lights
+
+- Adding bump as mesh paramter and rendering
+- Post effects: fog, dof, glow, SSAO, Color correction with tweaker
 - Optimise shaders
 
-- Add mesh specularity/ambience to python script
+- Add mesh specularity/ambience/bump to python script
 - Create 3D scene with baked shadows
 
 TO DETERMINE:

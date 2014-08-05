@@ -2,7 +2,7 @@
 // Kara Jensen - mail@karajensen.com - shader_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
-cbuffer VertexBuffer : register(b0)
+cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
     ifndefined: FLAT
@@ -13,10 +13,22 @@ cbuffer VertexBuffer : register(b0)
     endif
 };
 
-cbuffer PixelBuffer : register(b1)
+cbuffer ScenePixelBuffer : register(b1)
+{
+    ifndefined: FLAT
+        float3 lightAttenuation;
+        float3 lightDiffuse;
+        ifdefined: SPECULAR
+            float lightSpecularity;
+            float3 lightSpecular;
+        endif
+    endif
+};
+
+cbuffer MeshPixelBuffer : register(b2)
 {
     float meshAmbience;
-    ifdefined: SPECULAR
+    ifdefined: !FLAT|SPECULAR
         float meshSpecularity;
     endif
 };

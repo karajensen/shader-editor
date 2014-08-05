@@ -125,6 +125,22 @@ private:
     */
     std::string GetNextLine(std::ifstream& file) const;
 
+    /**
+    * Gets the conditional keyword from the line or empty if none
+    * @param line The line to find the conditional keyword in
+    * @return the conditional keyword or empty
+    */
+    std::string GetConditionalKeyword(const std::string& line) const;
+
+    /**
+    * Determines whether the conditional if-else block should be included
+    * @param conditional The conditional keyword of the block
+    * @param line The line with the conditional keyword
+    * @return whether the block should be included in the generated shader or not
+    */
+    bool ShouldSkipConditionalBlock(
+        const std::string& conditional, std::string line) const;
+
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
     std::vector<std::string> m_shaderComponents; ///< components of currently linked shader
 };

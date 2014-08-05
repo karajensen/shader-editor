@@ -4,17 +4,26 @@
 
 #version 150
 
+out vec4 out_Color;
+
 in vec2 ex_UVs;
 ifndefined: FLAT
     in vec3 ex_VertToLight;
     in vec3 ex_Normal;
+    ifdefined: SPECULAR
+        in vec3 ex_VertToCamera;
+    endif
 endif
 
-out vec4 out_Color;
-
 uniform float meshAmbience;
-ifdefined: SPECULAR
-    uniform float meshSpecular;
+ifndefined: FLAT
+    uniform vec3 lightDiffuse;
+    uniform vec3 lightAttenuation;
+    ifdefined: SPECULAR
+        uniform vec3 lightSpecular;
+        uniform float lightSpecularity;
+        uniform float meshSpecularity;
+    endif
 endif
 
 uniform sampler2D DiffuseSampler;

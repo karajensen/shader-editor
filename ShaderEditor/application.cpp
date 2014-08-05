@@ -14,8 +14,8 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
 
-//#define SELECTED_ENGINE DIRECTX
-#define SELECTED_ENGINE OPENGL
+#define SELECTED_ENGINE DIRECTX
+//#define SELECTED_ENGINE OPENGL
 
 namespace
 {

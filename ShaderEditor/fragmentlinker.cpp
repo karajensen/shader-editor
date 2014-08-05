@@ -238,6 +238,51 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
     return END_OF_FILE;
 }
 
+std::string FragmentLinker::GetConditionalKeyword(const std::string& line) const
+{
+    std::string conditional;
+    if(boost::algorithm::icontains(line, IFDEF))
+    {
+        conditional = IFDEF;
+    }
+    else if(boost::algorithm::icontains(line, IFNDEF))
+    {
+        conditional = IFNDEF;
+    }
+    return conditional;
+}
+
+bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional, 
+                                                std::string line) const
+{
+    std::vector<std::string> components;
+    boost::algorithm::trim(line);
+    boost::erase_head(line, conditional.size());
+    boost::split(components, line, boost::is_any_of("|"));
+
+    auto isComponentSuccessful = [&](const std::string& component)
+    {
+        const bool required = !boost::icontains(component, "!");
+        const bool found = std::find(m_shaderComponents.begin(), 
+            m_shaderComponents.end(), component) != m_shaderComponents.end();
+
+        return (found && required) || (!found && !required);
+    };
+
+    if(conditional == IFDEF || conditional == ELSEIF)
+    {
+        return std::find_if_not(components.begin(), components.end(),
+            isComponentSuccessful) != components.end();
+    }
+    else if(conditional == IFNDEF)
+    {
+        return std::find_if(components.begin(), components.end(),
+            isComponentSuccessful) != components.end();
+    }
+
+    return false;
+}
+
 bool FragmentLinker::SolveConditionalLine(int level, 
                                           std::string line,
                                           std::string& previousLine,
@@ -245,89 +290,51 @@ bool FragmentLinker::SolveConditionalLine(int level,
                                           std::ofstream& generatedFile, 
                                           bool skiplines)
 {
-    std::string conditional;
-    std::vector<std::string> components;
-    std::function<bool(void)> skipBlockFn = nullptr;
-
-    auto isComponentDefined = [&](const std::string& component)
+    std::string conditional = GetConditionalKeyword(line);
+    if(conditional.empty())
     {
-        return std::find(m_shaderComponents.begin(), m_shaderComponents.end(), 
-            component) != m_shaderComponents.end();
-    };
-
-    if(boost::algorithm::icontains(line, IFDEF))
-    {
-        conditional = IFDEF;
-        skipBlockFn = [&]()
-        {
-            // if one of given components is not defined, skip to the next block
-            return std::find_if_not(components.begin(), components.end(),
-                isComponentDefined) != components.end();
-        };
-    }
-    else if(boost::algorithm::icontains(line, IFNDEF))
-    {
-        conditional = IFNDEF;
-        skipBlockFn = [&]()
-        {
-            // if one of given components is defined, skip to the next block
-            return std::find_if(components.begin(), components.end(),
-                isComponentDefined) != components.end();
-        };
+        return false;
     }
 
-    if(!conditional.empty())
+    if(skiplines)
     {
-        if(skiplines)
-        {
-            ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ENDIF), previousLine,
-                skiplines, level+1);
-        }
-        else
-        {
-            auto shouldSkipBlock = [&](const std::string& key) -> bool
-            {
-                boost::algorithm::trim(line);
-                boost::erase_head(line, key.size());
-                boost::split(components, line, boost::is_any_of("|"));
-                return skipBlockFn();
-            };
-
-            bool solvedConditional = false;
-
-            // Solve ifdefined/ifndefined blocks
-            bool skipConditionalBlock = shouldSkipBlock(conditional);
-
-            line = ReadBaseShader(baseFile, generatedFile, 
-                boost::assign::list_of(ELSE)(ENDIF)(ELSEIF), 
-                previousLine, skipConditionalBlock, level+1);
-
-            solvedConditional = !skipConditionalBlock;
-
-            // Solve elseif blocks
-            while(boost::algorithm::icontains(line, ELSEIF))
-            {
-                skipConditionalBlock = solvedConditional ? true : shouldSkipBlock(ELSEIF);
-                solvedConditional = !skipConditionalBlock ? true : solvedConditional;
-
-                line = ReadBaseShader(baseFile, generatedFile, 
-                    boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
-                    previousLine, skipConditionalBlock, level+1);
-            }
-
-            // Solve else blocks
-            if(boost::algorithm::icontains(line, ELSE))
-            {
-                ReadBaseShader(baseFile, generatedFile, 
-                    boost::assign::list_of(ENDIF), 
-                    previousLine, solvedConditional, level+1);
-            }
-
-        }
+        ReadBaseShader(baseFile, generatedFile, 
+            boost::assign::list_of(ENDIF), previousLine,
+            skiplines, level+1);
         return true;
     }
-    return false;
+
+    // Recursively solve ifdefined/ifndefined blocks
+    bool skipConditionalBlock = ShouldSkipConditionalBlock(conditional, line);
+    bool solvedConditional = !skipConditionalBlock;
+
+    line = ReadBaseShader(baseFile, generatedFile, 
+        boost::assign::list_of(ELSE)(ENDIF)(ELSEIF), 
+        previousLine, skipConditionalBlock, level+1);
+
+    // Solve elseif blocks
+    while(boost::algorithm::icontains(line, ELSEIF))
+    {
+        skipConditionalBlock = solvedConditional 
+            ? true : ShouldSkipConditionalBlock(ELSEIF, line);
+
+        solvedConditional = !skipConditionalBlock
+            ? true : solvedConditional;
+
+        line = ReadBaseShader(baseFile, generatedFile, 
+            boost::assign::list_of(ELSE)(ENDIF)(ELSEIF),
+            previousLine, skipConditionalBlock, level+1);
+    }
+
+    // Solve else blocks
+    if(boost::algorithm::icontains(line, ELSE))
+    {
+        ReadBaseShader(baseFile, generatedFile, 
+            boost::assign::list_of(ENDIF), 
+            previousLine, solvedConditional, level+1);
+    }
+
+    return true;
 }
 
 bool FragmentLinker::CreateGeneratedFolder()

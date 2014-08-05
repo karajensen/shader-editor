@@ -436,7 +436,12 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
         
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
+
+        shader->UpdateConstantFloat("lightSpecularity", &lights[0].specularity, 1);
+        shader->UpdateConstantFloat("lightAttenuation", &lights[0].attenuation.x, 3);
         shader->UpdateConstantFloat("lightPosition", &lights[0].position.x, 3);
+        shader->UpdateConstantFloat("lightDiffuse", &lights[0].diffuse.r, 3);
+        shader->UpdateConstantFloat("lightSpecular", &lights[0].specular.r, 3);
     }
 
     shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
