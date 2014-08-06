@@ -324,7 +324,8 @@ bool DirectxEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("DirectX:" + result);
+            Logger::LogError("DirectX: " + 
+                m_data->shaders[i]->GetName() + ": " + result);
             return false;
         }
     }
@@ -522,4 +523,9 @@ std::string DirectxEngine::GetShaderAssembly(int index)
         return m_data->normalShader.GetAssembly();
     }
     return m_data->shaders[index]->GetAssembly();
+}
+
+void DirectxEngine::SetFade(float value)
+{
+    m_data->fadeAmount = value;
 }

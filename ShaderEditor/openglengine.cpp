@@ -354,7 +354,8 @@ bool OpenglEngine::ReInitialiseScene()
         const std::string result = CompileShader(i);
         if(!result.empty())
         {
-            Logger::LogError("OpenGL:" + result);
+            Logger::LogError("OpenGL: " + 
+                m_data->shaders[i]->GetName() + ": " + result);
             return false;
         }
     }
@@ -558,4 +559,9 @@ std::string OpenglEngine::GetShaderAssembly(int index)
         return m_data->normalShader.GetAssembly();
     }
     return m_data->shaders[index]->GetAssembly();
+}
+
+void OpenglEngine::SetFade(float value)
+{
+    m_data->fadeAmount = value;
 }

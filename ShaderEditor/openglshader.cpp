@@ -199,11 +199,9 @@ std::string GlShader::CompileShader(GLint index, const std::string& text)
         }
         else
         {
-            int actualLength = 0;
-            std::string errorBuffer(errorLength, ' ');
-            glGetShaderInfoLog(index, errorLength, &actualLength, &errorBuffer[0]);
-            errorBuffer.resize(actualLength);
-            return errorBuffer;
+            std::string errors(errorLength, '\0');
+            glGetShaderInfoLog(index, errorLength, 0, &errors[0]);
+            return std::string(errors.begin(), errors.begin() + errors.find('\0'));
         }
     }
     return std::string();
@@ -237,9 +235,9 @@ std::string GlShader::LinkShaderProgram()
     if(linkSuccess == GL_FALSE)
     {
         const int bufferSize = 1024;
-        std::string errorBuffer(bufferSize, ' ');
-        glGetProgramInfoLog(m_program, bufferSize, 0, &errorBuffer[0]);
-        return errorBuffer;
+        std::string errors(bufferSize, '\0');
+        glGetProgramInfoLog(m_program, bufferSize, 0, &errors[0]);
+        return std::string(errors.begin(), errors.begin() + errors.find('\0'));
     }
     return std::string();
 }
@@ -597,4 +595,9 @@ std::string GlShader::GetAssembly()
         Logger::LogError("OpenGL: " + m_name + " " + errors);
     }
     return m_vertexAsm + "\n" + m_fragmentAsm;
+}
+
+const std::string& GlShader::GetName() const
+{
+    return m_name;
 }

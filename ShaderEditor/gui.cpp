@@ -135,6 +135,10 @@ void Gui::UpdateScene(Tweaker& tweaker)
         tweaker.InitialiseEngines(
             m_cache->EngineSelected.Get(), m_cache->Engines.Get());
     }
+    else if(m_cache->EngineSelected.RequiresUpdate())
+    {
+        tweaker.SetSelectedEngine(m_cache->EngineSelected.Get());
+    }
 
     const Float2 mousePosition = m_cache->MousePosition.Get();
     const Float2 mouseDirection = m_cache->MouseDirection.Get();

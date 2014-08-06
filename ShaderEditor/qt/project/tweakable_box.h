@@ -42,6 +42,12 @@ public:
     */
     bool IsInitialised() const;
 
+    /**
+    * Sets the currently selected index
+    * @param selected The index to select
+    */
+    void SetSelected(int selected);
+
 private slots:
 
     /**

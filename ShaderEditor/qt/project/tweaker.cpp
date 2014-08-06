@@ -192,6 +192,11 @@ void Tweaker::SetMeshAmbience(float value)
     m_meshAmbience.Set(value);
 }
 
+void Tweaker::SetSelectedEngine(int selected)
+{
+    m_renderEngine.SetSelected(selected);
+}
+
 void Tweaker::InitialiseEngines(int selected,
                                 const std::vector<std::string>& engines)
 {

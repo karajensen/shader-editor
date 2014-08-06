@@ -68,10 +68,16 @@ private:
 
     /**
     * Handles any custom input events
-    * @param keydown The current key being pressed
+    * @param keydown The current key being held
     * @param msg The windows event message
     */
     void HandleInputEvents(WPARAM& keydown, const MSG& msg);
+
+    /**
+    * Handles any key presses
+    * @param keypress The current key being pressed
+    */
+    void HandleKeyPress(const WPARAM& keypress);
 
     /**
     * Determines the direction and position of movement for the mouse

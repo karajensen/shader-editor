@@ -1,6 +1,6 @@
 
 - Basic scene lighting:
-	- Rendering light color, specular and attenuation
+	- Specular and attenuation same on both
 	- Sending multiple lights
 
 - Adding bump as mesh paramter and rendering

@@ -164,6 +164,12 @@ public:
     void SetMeshAmbience(float value);
 
     /**
+    * Sets the selected engine
+    * @param selected The selected engine
+    */
+    void SetSelectedEngine(int selected);
+
+    /**
     * Sets the available render engines for the combo box
     * @param selected The initially selected engine
     * @param engines The render engine names to set

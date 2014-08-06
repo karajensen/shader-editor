@@ -126,13 +126,6 @@ private:
     std::string GetNextLine(std::ifstream& file) const;
 
     /**
-    * Gets the conditional keyword from the line or empty if none
-    * @param line The line to find the conditional keyword in
-    * @return the conditional keyword or empty
-    */
-    std::string GetConditionalKeyword(const std::string& line) const;
-
-    /**
     * Determines whether the conditional if-else block should be included
     * @param conditional The conditional keyword of the block
     * @param line The line with the conditional keyword

@@ -95,4 +95,10 @@ public:
     * @return whether the fade has reached the capped target of [0,1]
     */
     virtual bool FadeView(bool in, float amount) = 0;
+
+    /**
+    * Explicitly sets the current amount of fade
+    * @param value The amount of fade between [0,1]
+    */
+    virtual void SetFade(float value) = 0;
 };

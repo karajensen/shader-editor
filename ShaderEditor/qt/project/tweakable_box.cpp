@@ -39,3 +39,8 @@ void TweakableBox::UpdateSelected(int index)
 {
     m_signalCallback(index);
 }
+
+void TweakableBox::SetSelected(int selected)
+{
+    m_comboBox->setCurrentIndex(selected);
+}

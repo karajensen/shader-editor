@@ -110,6 +110,12 @@ public:
     */
     virtual bool FadeView(bool in, float amount) override;
 
+    /**
+    * Explicitly sets the current amount of fade
+    * @param value The amount of fade between [0,1]
+    */
+    virtual void SetFade(float value) override;
+
 private:
 
     /**

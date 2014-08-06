@@ -7,19 +7,19 @@
 out vec4 out_Color;
 
 in vec2 ex_UVs;
-ifndefined: FLAT
+ifdef: !FLAT
     in vec3 ex_VertToLight;
     in vec3 ex_Normal;
-    ifdefined: SPECULAR
+    ifdef: SPECULAR
         in vec3 ex_VertToCamera;
     endif
 endif
 
 uniform float meshAmbience;
-ifndefined: FLAT
+ifdef: !FLAT
     uniform vec3 lightDiffuse;
     uniform vec3 lightAttenuation;
-    ifdefined: SPECULAR
+    ifdef: SPECULAR
         uniform vec3 lightSpecular;
         uniform float lightSpecularity;
         uniform float meshSpecularity;
@@ -27,11 +27,11 @@ ifndefined: FLAT
 endif
 
 uniform sampler2D DiffuseSampler;
-ifndefined: FLAT
-    ifdefined: SPECULAR
+ifdef: !FLAT
+    ifdef: SPECULAR
         uniform sampler2D SpecularSampler;
     endif
-    ifdefined: BUMP
+    ifdef: BUMP
         uniform sampler2D NormalSampler;
     endif
 endif
@@ -40,21 +40,22 @@ void main(void)
 {
     vec4 finalColour = texture(DiffuseSampler, ex_UVs);
     
-    ifndefined: FLAT
-        normalize(ex_Normal);
+    ifdef: !FLAT
+        vec3 normal = normalize(ex_Normal);
 
-        ifdefined: BUMP
+        ifdef: BUMP
             vec4 normalTex = texture(NormalSampler, ex_UVs);
             finalColour.a = normalTex.a;
         endif       
         
-        finalColour.rgb *= (dot(ex_VertToLight, ex_Normal) + 1.0) * 0.5;
+        finalColour.rgb *= lightDiffuse * ((dot(ex_VertToLight, normal) + 1.0) * 0.5);
                 
-        ifdefined: SPECULAR
-            // Specular Blinn-Phong
-            float specularity = 5.0 * meshSpecular;
+        ifdef: SPECULAR
+            float specularity = lightSpecularity * meshSpecularity;
             vec4 specularTex = texture(SpecularSampler, ex_UVs);
-            finalColour.a = specularTex.a;
+            vec3 halfVector = normalize(ex_VertToLight + ex_VertToCamera);
+            float specular = pow(max(dot(normal, halfVector), 0.0), specularity); 
+            finalColour.rgb += specular * specularTex.rgb * lightSpecular;
         endif
     endif   
 

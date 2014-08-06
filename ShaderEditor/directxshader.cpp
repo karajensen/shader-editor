@@ -688,3 +688,8 @@ std::string DxShader::GetAssembly()
     }
     return m_vertexAsm + "\n" + m_pixelAsm;
 }
+
+const std::string& DxShader::GetName() const
+{
+    return m_name;
+}

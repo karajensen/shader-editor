@@ -74,6 +74,22 @@ bool Application::IsKeyDown(unsigned int key) const
     return (GetAsyncKeyState(key) & 0x8000) ? true : false;
 }
 
+void Application::HandleKeyPress(const WPARAM& keypress)
+{
+    if(keypress == VK_F2)
+    {
+        int index = m_selectedEngine + 1;
+        if(index >= static_cast<int>(m_engines.size()))
+        {
+            index = 0;
+        }
+
+        m_cache->EngineSelected.SetUpdated(index);
+        SwitchRenderEngine(index);
+        m_engines[index]->SetFade(1.0f);
+    }
+}
+
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
 {
     switch(msg.message)
@@ -81,6 +97,10 @@ void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
         keydown = msg.wParam;
+        break;
+    case WM_SYSKEYUP:
+    case WM_KEYUP:
+        HandleKeyPress(keydown);
         break;
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
@@ -390,4 +410,5 @@ void Application::SwitchRenderEngine(int index)
     }
 
      m_engines[m_selectedEngine]->UpdateView(m_camera->GetWorld());
+     m_engines[m_selectedEngine]->SetFade(0.0f);
 }

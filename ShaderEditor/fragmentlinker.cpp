@@ -15,8 +15,7 @@ namespace
 {
     const std::string END_OF_FILE("End-of-file");
     const std::string FAILURE("Failure");
-    const std::string IFDEF("ifdefined: ");
-    const std::string IFNDEF("ifndefined: ");
+    const std::string IF("ifdef: ");
     const std::string ELSE("else:");
     const std::string ELSEIF("elseif: ");
     const std::string ENDIF("endif");
@@ -238,23 +237,14 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
     return END_OF_FILE;
 }
 
-std::string FragmentLinker::GetConditionalKeyword(const std::string& line) const
-{
-    std::string conditional;
-    if(boost::algorithm::icontains(line, IFDEF))
-    {
-        conditional = IFDEF;
-    }
-    else if(boost::algorithm::icontains(line, IFNDEF))
-    {
-        conditional = IFNDEF;
-    }
-    return conditional;
-}
-
 bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional, 
                                                 std::string line) const
 {
+    if(conditional != IF && conditional != ELSEIF)
+    {
+        return false;
+    }
+
     std::vector<std::string> components;
     boost::algorithm::trim(line);
     boost::erase_head(line, conditional.size());
@@ -269,18 +259,8 @@ bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional,
         return (found && required) || (!found && !required);
     };
 
-    if(conditional == IFDEF || conditional == ELSEIF)
-    {
-        return std::find_if_not(components.begin(), components.end(),
-            isComponentSuccessful) != components.end();
-    }
-    else if(conditional == IFNDEF)
-    {
-        return std::find_if(components.begin(), components.end(),
-            isComponentSuccessful) != components.end();
-    }
-
-    return false;
+    return std::find_if_not(components.begin(), components.end(),
+        isComponentSuccessful) != components.end();
 }
 
 bool FragmentLinker::SolveConditionalLine(int level, 
@@ -290,8 +270,7 @@ bool FragmentLinker::SolveConditionalLine(int level,
                                           std::ofstream& generatedFile, 
                                           bool skiplines)
 {
-    std::string conditional = GetConditionalKeyword(line);
-    if(conditional.empty())
+    if(!boost::algorithm::icontains(line, IF))
     {
         return false;
     }
@@ -305,7 +284,7 @@ bool FragmentLinker::SolveConditionalLine(int level,
     }
 
     // Recursively solve ifdefined/ifndefined blocks
-    bool skipConditionalBlock = ShouldSkipConditionalBlock(conditional, line);
+    bool skipConditionalBlock = ShouldSkipConditionalBlock(IF, line);
     bool solvedConditional = !skipConditionalBlock;
 
     line = ReadBaseShader(baseFile, generatedFile, 
