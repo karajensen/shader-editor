@@ -32,9 +32,9 @@ void main(void)
     
     ifdef: !FLAT
         ex_Normal = in_Normal;
-        ex_VertToLight = normalize(lightPosition - in_Position.xyz);
+        ex_VertToLight = lightPosition - in_Position.xyz;
         ifdef: SPECULAR
-            ex_VertToCamera = normalize(cameraPosition - in_Position.xyz);
+            ex_VertToCamera = cameraPosition - in_Position.xyz;
         endif
     endif
 }

@@ -70,9 +70,9 @@ Attributes VShader(float4 position    : POSITION,
     
     ifdef: !FLAT
         output.normal = normal;
-        output.vertToLight = normalize(lightPosition - position.xyz);
+        output.vertToLight = lightPosition - position.xyz;
         ifdef: SPECULAR
-            output.vertToCamera = normalize(cameraPosition - position.xyz);
+            output.vertToCamera = cameraPosition - position.xyz;
         endif
     endif
 
@@ -84,22 +84,32 @@ float4 PShader(Attributes input) : SV_TARGET
     float4 finalColour = DiffuseTexture.Sample(Sampler, input.uvs);
     
     ifdef: !FLAT
+        float lightLen = length(input.vertToLight);
+        float attenuation = 1.0 / (lightAttenuation.x 
+            + lightAttenuation.y * lightLen 
+            + lightAttenuation.z * lightLen * lightLen);
+
         float3 normal = normalize(input.normal);
+        float3 vertToLight = input.vertToLight / lightLen;
 
         ifdef: BUMP
             float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
         endif
         
-        finalColour.rgb *= lightDiffuse * ((dot(input.vertToLight, normal) + 1.0) * 0.5);
+        finalColour.rgb *= lightDiffuse * ((dot(vertToLight, normal) + 1.0) * 0.5);
                 
         ifdef: SPECULAR
             float specularity = lightSpecularity * meshSpecularity;
             float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
-            float3 halfVector = normalize(input.vertToLight + input.vertToCamera);
+            float3 halfVector = normalize(vertToLight + normalize(input.vertToCamera));
             float specular = pow(max(dot(normal, halfVector), 0.0), specularity); 
             finalColour.rgb += specular * specularTex.rgb * lightSpecular;
         endif
     endif
 
-    return finalColour * meshAmbience;
+    finalColour *= meshAmbience;
+    ifdef: !FLAT
+        finalColour *= attenuation;
+    endif
+    return finalColour;
 }

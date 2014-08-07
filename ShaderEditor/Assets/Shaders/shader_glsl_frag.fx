@@ -28,36 +28,55 @@ endif
 
 uniform sampler2D DiffuseSampler;
 ifdef: !FLAT
-    ifdef: SPECULAR
+    ifdef: SPECULAR|BUMP
+        uniform sampler2D NormalSampler;
         uniform sampler2D SpecularSampler;
-    endif
-    ifdef: BUMP
+    elseif: SPECULAR
+        uniform sampler2D SpecularSampler;
+    elseif: BUMP
         uniform sampler2D NormalSampler;
     endif
 endif
  
 void main(void)
 {
-    vec4 finalColour = texture(DiffuseSampler, ex_UVs);
+    out_Color = texture(DiffuseSampler, ex_UVs);
     
     ifdef: !FLAT
+        float lightLen = length(ex_VertToLight);
+        float attenuation = 1.0 / (lightAttenuation.x 
+            + lightAttenuation.y * lightLen 
+            + lightAttenuation.z * lightLen * lightLen);
+
         vec3 normal = normalize(ex_Normal);
+        vec3 vertToLight = ex_VertToLight / lightLen;
 
         ifdef: BUMP
             vec4 normalTex = texture(NormalSampler, ex_UVs);
-            finalColour.a = normalTex.a;
+            out_Color.a = normalTex.a;
         endif       
         
-        finalColour.rgb *= lightDiffuse * ((dot(ex_VertToLight, normal) + 1.0) * 0.5);
+        out_Color.rgb *= lightDiffuse * ((dot(vertToLight, normal) + 1.0) * 0.5);
                 
         ifdef: SPECULAR
             float specularity = lightSpecularity * meshSpecularity;
             vec4 specularTex = texture(SpecularSampler, ex_UVs);
-            vec3 halfVector = normalize(ex_VertToLight + ex_VertToCamera);
+            vec3 halfVector = normalize(vertToLight + normalize(ex_VertToCamera));
             float specular = pow(max(dot(normal, halfVector), 0.0), specularity); 
-            finalColour.rgb += specular * specularTex.rgb * lightSpecular;
+            out_Color.rgb += specular * specularTex.rgb * lightSpecular;
         endif
     endif   
 
-    out_Color = finalColour * meshAmbience;
+    // TEMP FOR FIXING MULTIPLE TEXTURES
+    ifdef: SPECULAR|BUMP
+    out_Color = specularTex;
+    out_Color.a = normalTex.a;
+    else:
+
+    out_Color *= meshAmbience;
+    ifdef: !FLAT
+        out_Color *= attenuation;
+    endif
+
+    endif
 }

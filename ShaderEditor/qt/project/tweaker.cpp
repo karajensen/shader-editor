@@ -27,13 +27,13 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_lightPositionZ.Initialise(1.0, m_ui.positionZ_value,
         m_ui.positionZ_dial, m_callbacks.SetLightPositionZ);
 
-    m_lightAttenuationX.Initialise(0.1, m_ui.attenuationX_value,
+    m_lightAttenuationX.Initialise(0.01, m_ui.attenuationX_value,
         m_ui.attenuationX_dial, m_callbacks.SetLightAttX);
 
-    m_lightAttenuationY.Initialise(0.01, m_ui.attenuationY_value,
+    m_lightAttenuationY.Initialise(0.001, m_ui.attenuationY_value,
         m_ui.attenuationY_dial, m_callbacks.SetLightAttY);
 
-    m_lightAttenuationZ.Initialise(0.001, m_ui.attenuationZ_value,
+    m_lightAttenuationZ.Initialise(0.0001, m_ui.attenuationZ_value,
         m_ui.attenuationZ_dial, m_callbacks.SetLightAttZ);
 
     m_lightDiffuseR.Initialise(0.01, m_ui.diffuseRed_value,

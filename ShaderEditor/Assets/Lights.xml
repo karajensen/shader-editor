@@ -12,7 +12,7 @@
     <SB>1</SB>
     <SG>1</SG>
     <AttX>0</AttX>
-    <AttY>0</AttY>
+    <AttY>0.015</AttY>
     <AttZ>0</AttZ>
     <Specularity>5.0</Specularity>
   </Light>
@@ -28,8 +28,8 @@
     <SB>1</SB>
     <SG>1</SG>
     <AttX>0</AttX>
-    <AttY>0.01</AttY>
-    <AttZ>0.005</AttZ>
+    <AttY>0.015</AttY>
+    <AttZ>0</AttZ>
     <Specularity>5.0</Specularity>
     </Light>
 </Lights>

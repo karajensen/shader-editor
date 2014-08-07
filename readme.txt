@@ -1,6 +1,8 @@
 
 - Basic scene lighting:
-	- Specular and attenuation same on both
+	- Fix flat if: !FLAT 
+	- Fix opengl multiple textures
+	- Specular highlights should move with camera direction
 	- Sending multiple lights
 
 - Adding bump as mesh paramter and rendering
