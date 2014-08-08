@@ -250,9 +250,10 @@ bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional,
     boost::erase_head(line, conditional.size());
     boost::split(components, line, boost::is_any_of("|"));
 
-    auto isComponentSuccessful = [&](const std::string& component)
+    auto isComponentSuccessful = [&](std::string component)
     {
         const bool required = !boost::icontains(component, "!");
+        boost::ireplace_first(component, "!", "");
         const bool found = std::find(m_shaderComponents.begin(), 
             m_shaderComponents.end(), component) != m_shaderComponents.end();
 

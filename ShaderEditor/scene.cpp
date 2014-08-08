@@ -233,7 +233,6 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
     }
 
     const Shader& shader = m_shaders[mesh.shaderIndex];
-    const bool usesFlatShader = shader.HasComponent(Shader::FLAT);
     const bool usesNormalMapping = shader.HasComponent(Shader::BUMP);
 
     unsigned int numMeshes = scene->mNumMeshes;

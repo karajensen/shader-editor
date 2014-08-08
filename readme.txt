@@ -1,6 +1,5 @@
 
 - Basic scene lighting:
-	- Fix flat if: !FLAT 
 	- Fix opengl multiple textures
 	- Specular highlights should move with camera direction
 	- Sending multiple lights

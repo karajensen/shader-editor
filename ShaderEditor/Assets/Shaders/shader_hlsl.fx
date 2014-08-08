@@ -5,23 +5,19 @@
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
-    ifdef: !FLAT
-        float3 lightPosition;
-        ifdef: SPECULAR
-            float3 cameraPosition;
-        endif
+    float3 lightPosition;
+    ifdef: !FLAT|SPECULAR
+        float3 cameraPosition;
     endif
 };
 
 cbuffer ScenePixelBuffer : register(b1)
 {
-    ifdef: !FLAT
-        float3 lightAttenuation;
-        float3 lightDiffuse;
-        ifdef: SPECULAR
-            float lightSpecularity;
-            float3 lightSpecular;
-        endif
+    float3 lightAttenuation;
+    float3 lightDiffuse;
+    ifdef: !FLAT|SPECULAR
+        float lightSpecularity;
+        float3 lightSpecular;
     endif
 };
 
@@ -48,29 +44,29 @@ endif
 
 struct Attributes
 {
-    float4 position               : SV_POSITION;
-    float2 uvs                    : TEXCOORD0;
-    ifdef: !FLAT               
-        float3 normal             : NORMAL;
-        float3 vertToLight        : TEXCOORD1;
-        ifdef: SPECULAR       
-            float3 vertToCamera   : TEXCOORD2;
+    float4 position                 : SV_POSITION;
+    float2 uvs                      : TEXCOORD0;
+    float3 vertToLight              : TEXCOORD1;
+    ifdef: !FLAT                    
+        float3 normal               : NORMAL;
+        ifdef: SPECULAR             
+            float3 vertToCamera     : TEXCOORD2;
         endif
     endif
 };
 
-Attributes VShader(float4 position    : POSITION,    
-                   float2 uvs         : TEXCOORD0,
-                   float3 normal      : NORMAL)
+Attributes VShader(float4 position  : POSITION,    
+                   float2 uvs       : TEXCOORD0,
+                   float3 normal    : NORMAL)
 {
     Attributes output;
 
     output.position = mul(viewProjection, position);
     output.uvs = uvs;
+    output.vertToLight = lightPosition - position.xyz;
     
     ifdef: !FLAT
         output.normal = normal;
-        output.vertToLight = lightPosition - position.xyz;
         ifdef: SPECULAR
             output.vertToCamera = cameraPosition - position.xyz;
         endif
@@ -82,21 +78,22 @@ Attributes VShader(float4 position    : POSITION,
 float4 PShader(Attributes input) : SV_TARGET
 {
     float4 finalColour = DiffuseTexture.Sample(Sampler, input.uvs);
+    finalColour.rgb *= lightDiffuse;
     
-    ifdef: !FLAT
-        float lightLen = length(input.vertToLight);
-        float attenuation = 1.0 / (lightAttenuation.x 
-            + lightAttenuation.y * lightLen 
-            + lightAttenuation.z * lightLen * lightLen);
+    float lightLen = length(input.vertToLight);
+    float attenuation = 1.0 / (lightAttenuation.x 
+        + lightAttenuation.y * lightLen 
+        + lightAttenuation.z * lightLen * lightLen);
+    float3 vertToLight = input.vertToLight / lightLen;
 
+    ifdef: !FLAT
         float3 normal = normalize(input.normal);
-        float3 vertToLight = input.vertToLight / lightLen;
 
         ifdef: BUMP
             float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
         endif
         
-        finalColour.rgb *= lightDiffuse * ((dot(vertToLight, normal) + 1.0) * 0.5);
+        finalColour.rgb *= ((dot(vertToLight, normal) + 1.0) * 0.5);
                 
         ifdef: SPECULAR
             float specularity = lightSpecularity * meshSpecularity;
@@ -107,9 +104,5 @@ float4 PShader(Attributes input) : SV_TARGET
         endif
     endif
 
-    finalColour *= meshAmbience;
-    ifdef: !FLAT
-        finalColour *= attenuation;
-    endif
-    return finalColour;
+    return finalColour * meshAmbience * attenuation;
 }

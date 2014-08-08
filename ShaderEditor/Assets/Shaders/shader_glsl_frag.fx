@@ -7,8 +7,8 @@
 out vec4 out_Color;
 
 in vec2 ex_UVs;
+in vec3 ex_VertToLight;
 ifdef: !FLAT
-    in vec3 ex_VertToLight;
     in vec3 ex_Normal;
     ifdef: SPECULAR
         in vec3 ex_VertToCamera;
@@ -16,14 +16,12 @@ ifdef: !FLAT
 endif
 
 uniform float meshAmbience;
-ifdef: !FLAT
-    uniform vec3 lightDiffuse;
-    uniform vec3 lightAttenuation;
-    ifdef: SPECULAR
-        uniform vec3 lightSpecular;
-        uniform float lightSpecularity;
-        uniform float meshSpecularity;
-    endif
+uniform vec3 lightDiffuse;
+uniform vec3 lightAttenuation;
+ifdef: !FLAT|SPECULAR
+    uniform vec3 lightSpecular;
+    uniform float lightSpecularity;
+    uniform float meshSpecularity;
 endif
 
 uniform sampler2D DiffuseSampler;
@@ -41,22 +39,23 @@ endif
 void main(void)
 {
     out_Color = texture(DiffuseSampler, ex_UVs);
-    
-    ifdef: !FLAT
-        float lightLen = length(ex_VertToLight);
-        float attenuation = 1.0 / (lightAttenuation.x 
-            + lightAttenuation.y * lightLen 
-            + lightAttenuation.z * lightLen * lightLen);
+    out_Color.rgb *= lightDiffuse;
 
+    float lightLen = length(ex_VertToLight);
+    float attenuation = 1.0 / (lightAttenuation.x 
+        + lightAttenuation.y * lightLen 
+        + lightAttenuation.z * lightLen * lightLen);
+    vec3 vertToLight = ex_VertToLight / lightLen;
+
+    ifdef: !FLAT
         vec3 normal = normalize(ex_Normal);
-        vec3 vertToLight = ex_VertToLight / lightLen;
 
         ifdef: BUMP
             vec4 normalTex = texture(NormalSampler, ex_UVs);
             out_Color.a = normalTex.a;
         endif       
         
-        out_Color.rgb *= lightDiffuse * ((dot(vertToLight, normal) + 1.0) * 0.5);
+        out_Color.rgb *= ((dot(vertToLight, normal) + 1.0) * 0.5);
                 
         ifdef: SPECULAR
             float specularity = lightSpecularity * meshSpecularity;
@@ -72,11 +71,6 @@ void main(void)
     out_Color = specularTex;
     out_Color.a = normalTex.a;
     else:
-
-    out_Color *= meshAmbience;
-    ifdef: !FLAT
-        out_Color *= attenuation;
-    endif
-
+    out_Color *= meshAmbience * attenuation;
     endif
 }

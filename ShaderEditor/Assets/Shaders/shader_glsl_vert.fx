@@ -9,8 +9,8 @@ in vec2 in_UVs;
 in vec3 in_Normal;
 
 out vec2 ex_UVs;
+out vec3 ex_VertToLight;
 ifdef: !FLAT
-    out vec3 ex_VertToLight;
     out vec3 ex_Normal;
     ifdef: SPECULAR
         out vec3 ex_VertToCamera;
@@ -18,21 +18,19 @@ ifdef: !FLAT
 endif
 
 uniform mat4 viewProjection;
-ifdef: !FLAT
-    uniform vec3 lightPosition;
-    ifdef: SPECULAR
-        uniform vec3 cameraPosition;
-    endif
+uniform vec3 lightPosition;
+ifdef: !FLAT|SPECULAR
+    uniform vec3 cameraPosition;
 endif
  
 void main(void)
 {
     gl_Position = viewProjection * in_Position;
     ex_UVs = in_UVs;
+    ex_VertToLight = lightPosition - in_Position.xyz;
     
     ifdef: !FLAT
         ex_Normal = in_Normal;
-        ex_VertToLight = lightPosition - in_Position.xyz;
         ifdef: SPECULAR
             ex_VertToCamera = cameraPosition - in_Position.xyz;
         endif
