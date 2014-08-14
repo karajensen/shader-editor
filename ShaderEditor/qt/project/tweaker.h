@@ -164,6 +164,12 @@ public:
     void SetMeshAmbience(float value);
 
     /**
+    * Sets the mesh bump saturation
+    * @param value The bump value of the mesh
+    */
+    void SetMeshBump(float value);
+
+    /**
     * Sets the selected engine
     * @param selected The selected engine
     */
@@ -227,6 +233,7 @@ private:
     TweakableValue m_lightSpecularity;   ///< Tweakable specular size of the light
     TweakableValue m_meshSpecularity;    ///< Tweakable specular size of the mesh
     TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
+    TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
 
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
     TweakableBox m_light;                ///< Combo box for selecting the light

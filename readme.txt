@@ -1,21 +1,22 @@
 
-- Basic scene lighting:
-	- Fix opengl multiple textures
-	- Specular highlights should move with camera direction
-	- Sending multiple lights
+- Fix opengl multiple textures
+- Sending multiple lights
+- Outputting light and mesh xml
+- Uncombine Vertex buffers 
+	- #def with shader attributes
+	- add bitangent and tangent in scene
+	- Opengl attribute reflection
 
-- Adding bump as mesh paramter and rendering
 - Post effects: fog, dof, glow, SSAO, Color correction with tweaker
+
+- Particle effects
+
 - Optimise shaders
 
 - Add mesh specularity/ambience/bump to python script
+
 - Create 3D scene with baked shadows
 
-TO DETERMINE:
-- Shadows
-- Transparency
-- Particle effects
-- OpenGL fps
 
 =================================================================
 SHADER EDITOR

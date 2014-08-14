@@ -67,6 +67,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.name = it->second.get_child("Name").data();
         mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
         mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
+        mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 
         // Ordering of textures needs to be in same order of shader samplers

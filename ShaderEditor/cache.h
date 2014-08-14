@@ -237,6 +237,7 @@ struct Cache
         MeshSelected(0),
         MeshSpecularity(0.0f),
         MeshAmbience(1.0f),
+        MeshBump(1.0f),
         MeshBackFaceCull(false),
         MeshTransparency(false)
     {
@@ -266,7 +267,8 @@ struct Cache
 
     Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
     Lockable<float> MeshSpecularity;    ///< Specularity of the selected mesh
-    Lockable<float> MeshAmbience;       ///< Specularity of the selected mesh
+    Lockable<float> MeshAmbience;       ///< Ambience of the selected mesh
+    Lockable<float> MeshBump;           ///< Bump saturation of the selected mesh
     Lockable<bool> MeshBackFaceCull;    ///< Whether selected mesh is culling backfaces
     Lockable<bool> MeshTransparency;    ///< Whether selected mesh has transparency
     LockableString MeshShader;          ///< Shader used for the selected mesh

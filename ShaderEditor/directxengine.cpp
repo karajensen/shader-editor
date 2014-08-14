@@ -446,6 +446,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
     }
 
     shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
+    shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
     shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
     shader->SendConstants(m_data->context);
 }

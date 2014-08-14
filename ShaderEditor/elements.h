@@ -130,6 +130,7 @@ struct Mesh
     int shaderIndex;              ///< Unique Index of the mesh shader
     float specularity;            ///< Brightness of the specular highlights
     float ambience;               ///< Ambient light multiplier
+    float bump;                   ///< Saturation of bump
     std::string name;             ///< Name of the mesh
     std::vector<float> vertices;  ///< Mesh Vertex information
     std::vector<DWORD> indices;   ///< Mesh Index information

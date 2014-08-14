@@ -139,6 +139,10 @@ public:
     QLabel *meshAmbience_lbl;
     QDoubleSpinBox *meshAmbience_value;
     QDial *meshAmbience_dial;
+    QFrame *meshBump;
+    QLabel *meshBump_lbl;
+    QDoubleSpinBox *meshBump_value;
+    QDial *meshBump_dial;
     QFrame *backfaceCull;
     QLabel *backfaceCull_lbl;
     QLabel *backfaceCull_text;
@@ -1450,6 +1454,58 @@ public:
 
         meshLayout->addWidget(meshAmbience);
 
+        meshBump = new QFrame(layoutWidget2);
+        meshBump->setObjectName(QStringLiteral("meshBump"));
+        meshBump->setMinimumSize(QSize(225, 35));
+        meshBump->setMaximumSize(QSize(225, 35));
+        meshBump->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        meshBump->setFrameShape(QFrame::NoFrame);
+        meshBump->setFrameShadow(QFrame::Plain);
+        meshBump->setLineWidth(0);
+        meshBump_lbl = new QLabel(meshBump);
+        meshBump_lbl->setObjectName(QStringLiteral("meshBump_lbl"));
+        meshBump_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(meshBump_lbl->sizePolicy().hasHeightForWidth());
+        meshBump_lbl->setSizePolicy(sizePolicy);
+        meshBump_lbl->setMinimumSize(QSize(100, 30));
+        meshBump_lbl->setMaximumSize(QSize(100, 30));
+        meshBump_lbl->setFont(font);
+        meshBump_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        meshBump_lbl->setMargin(1);
+        meshBump_value = new QDoubleSpinBox(meshBump);
+        meshBump_value->setObjectName(QStringLiteral("meshBump_value"));
+        meshBump_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(meshBump_value->sizePolicy().hasHeightForWidth());
+        meshBump_value->setSizePolicy(sizePolicy);
+        meshBump_value->setMinimumSize(QSize(86, 25));
+        meshBump_value->setMaximumSize(QSize(86, 25));
+        meshBump_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        meshBump_value->setFrame(false);
+        meshBump_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        meshBump_value->setDecimals(3);
+        meshBump_value->setMinimum(-9999);
+        meshBump_value->setMaximum(9999);
+        meshBump_value->setSingleStep(0.05);
+        meshBump_dial = new QDial(meshBump);
+        meshBump_dial->setObjectName(QStringLiteral("meshBump_dial"));
+        meshBump_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(meshBump_dial->sizePolicy().hasHeightForWidth());
+        meshBump_dial->setSizePolicy(sizePolicy);
+        meshBump_dial->setMinimumSize(QSize(30, 30));
+        meshBump_dial->setMaximumSize(QSize(30, 30));
+        meshBump_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        meshBump_dial->setMinimum(-10000);
+        meshBump_dial->setMaximum(10000);
+
+        meshLayout->addWidget(meshBump);
+
         backfaceCull = new QFrame(layoutWidget2);
         backfaceCull->setObjectName(QStringLiteral("backfaceCull"));
         sizePolicy.setHeightForWidth(backfaceCull->sizePolicy().hasHeightForWidth());
@@ -1754,7 +1810,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(2);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -1802,6 +1858,7 @@ public:
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Selected Mesh", 0));
         meshSpecularity_lbl->setText(QApplication::translate("Tweaker", "Specularity", 0));
         meshAmbience_lbl->setText(QApplication::translate("Tweaker", "Ambience", 0));
+        meshBump_lbl->setText(QApplication::translate("Tweaker", "Bump", 0));
         backfaceCull_lbl->setText(QApplication::translate("Tweaker", "Backface Cull", 0));
         backfaceCull_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         transparency_lbl->setText(QApplication::translate("Tweaker", "Transparency", 0));

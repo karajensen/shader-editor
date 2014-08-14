@@ -38,6 +38,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
     callbacks.SetMeshAmbience =     [&](float value){ m_cache->MeshAmbience.Set(value); };
+    callbacks.SetMeshBump =         [&](float value){ m_cache->MeshBump.Set(value); };
     callbacks.SetSelectedEngine =   [&](int index){ m_cache->EngineSelected.Set(index); };
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
@@ -221,6 +222,11 @@ void Gui::UpdateMesh(Tweaker& tweaker)
     if(initialisedMeshes || m_cache->MeshAmbience.RequiresUpdate())
     {
         tweaker.SetMeshAmbience(m_cache->MeshAmbience.GetUpdated());
+    }
+
+    if(initialisedMeshes || m_cache->MeshBump.RequiresUpdate())
+    {
+        tweaker.SetMeshBump(m_cache->MeshBump.GetUpdated());
     }
 
     if(initialisedMeshes || m_cache->MeshBackFaceCull.RequiresUpdate())

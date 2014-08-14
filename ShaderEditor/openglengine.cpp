@@ -489,6 +489,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     }
 
     shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
+    shader->SendUniformFloat("meshBump", &mesh.bump, 1);
     shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
 }
 
