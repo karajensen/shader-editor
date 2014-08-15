@@ -88,6 +88,14 @@ void Application::HandleKeyPress(const WPARAM& keypress)
         SwitchRenderEngine(index);
         m_engines[index]->SetFade(1.0f);
     }
+    else if(keypress == VK_F3)
+    {
+        m_scene->SaveLightsToFile();
+    }
+    else if(keypress == VK_F4)
+    {
+        m_scene->SaveMeshesToFile();
+    }
 }
 
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)

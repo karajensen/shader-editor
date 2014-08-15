@@ -1,7 +1,6 @@
 
 - Fix opengl multiple textures
 - Sending multiple lights
-- Outputting light and mesh xml
 - Uncombine Vertex buffers 
 	- #def with shader attributes
 	- add bitangent and tangent in scene

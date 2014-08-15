@@ -130,6 +130,16 @@ public:
         const std::string& text, 
         const std::string& extension);
 
+    /**
+    * Outputs the meshes to an xml file
+    */
+    void SaveMeshesToFile();
+
+    /**
+    * Outputs the mlightseshes to an xml file
+    */
+    void SaveLightsToFile();
+
 private:
 
     /**

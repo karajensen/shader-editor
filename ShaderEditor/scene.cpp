@@ -455,3 +455,76 @@ void Scene::WriteToShader(const std::string& name,
         file.close();
     }
 }
+
+void Scene::SaveMeshesToFile()
+{
+    using namespace boost;
+    property_tree::ptree root, tree;
+    std::vector<property_tree::ptree> entries;
+
+    for(const Mesh& mesh : m_meshes)
+    {
+        property_tree::ptree entry;
+        entry.add("Name", mesh.name.c_str());
+        entry.add("Bump", mesh.bump);
+        entry.add("Ambience", mesh.ambience);
+        entry.add("Specularity", mesh.specularity);
+        entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
+        entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
+
+        auto AddTexture = [&](const std::string& name, Texture::Type type)
+        {
+            if(mesh.textureIDs[type] != NO_INDEX)
+            {
+                entry.add(name, m_textures[type].name);
+            }
+        };
+        AddTexture("Diffuse", Texture::DIFFUSE);
+        AddTexture("Specular", Texture::SPECULAR);
+        AddTexture("Normal", Texture::NORMAL);
+
+        entries.emplace_back(entry);
+        tree.add_child("Mesh", entries[entries.size()-1]);
+    }
+    root.add_child("Meshes", tree);
+
+    // Writing property tree to xml
+    filesystem::path filePath(ASSETS_PATH + "Meshes_saved.xml");
+    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
+    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+void Scene::SaveLightsToFile()
+{
+    using namespace boost;
+    property_tree::ptree root, tree;
+    std::vector<property_tree::ptree> entries;
+
+    for(const Light& light : m_lights)
+    {
+        property_tree::ptree entry;
+        entry.add("Name", light.name.c_str());
+        entry.add("X", light.position.x);
+        entry.add("Y", light.position.y);
+        entry.add("Z", light.position.z);
+        entry.add("R", light.diffuse.r);
+        entry.add("G", light.diffuse.g);
+        entry.add("B", light.diffuse.b);
+        entry.add("SR", light.specular.r);
+        entry.add("SG", light.specular.g);
+        entry.add("SB", light.specular.b);
+        entry.add("AttX", light.attenuation.x);
+        entry.add("AttY", light.attenuation.y);
+        entry.add("AttZ", light.attenuation.z);
+        entry.add("Specularity", light.specularity);
+        
+        entries.emplace_back(entry);
+        tree.add_child("Light", entries[entries.size()-1]);
+    }
+    root.add_child("Lights", tree);
+
+    // Writing property tree to xml
+    filesystem::path filePath(ASSETS_PATH + "Lights_saved.xml");
+    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
+    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
