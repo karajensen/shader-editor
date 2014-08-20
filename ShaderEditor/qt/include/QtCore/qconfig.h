@@ -117,6 +117,18 @@
 # define QT_NO_STYLE_WINDOWSMOBILE
 #endif
 
+#if defined(QT_OPENGL_ES) && defined(QT_NO_OPENGL_ES)
+# undef QT_OPENGL_ES
+#elif !defined(QT_OPENGL_ES)
+# define QT_OPENGL_ES
+#endif
+
+#if defined(QT_OPENGL_ES_2) && defined(QT_NO_OPENGL_ES_2)
+# undef QT_OPENGL_ES_2
+#elif !defined(QT_OPENGL_ES_2)
+# define QT_OPENGL_ES_2
+#endif
+
 #if defined(QT_POINTER_SIZE) && defined(QT_NO_POINTER_SIZE)
 # undef QT_POINTER_SIZE
 #elif !defined(QT_POINTER_SIZE)

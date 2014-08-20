@@ -51,15 +51,15 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
     {
         return false;
     }
-
+	
     boost::property_tree::ptree meshes;
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
         meshes, boost::property_tree::xml_parser::trim_whitespace);
     boost::property_tree::ptree& tree = meshes.get_child("Meshes");
-
+	
     m_alpha.reserve(tree.size());
     m_meshes.reserve(tree.size());
-
+	
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
@@ -69,17 +69,17 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
         mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
-
+	
         // Ordering of textures needs to be in same order of shader samplers
         std::string str;
         mesh.textureIDs[Texture::DIFFUSE] = AddTexture(GetPtreeValue(it, str, "Diffuse"));
         mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));
         mesh.textureIDs[Texture::NORMAL] = AddTexture(GetPtreeValue(it, str, "Normal"));
-
+	
         const int unusedTextures = std::count(
             mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
         mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
-
+	
         // Copy each component featured in the given shader name to a set order
         std::string shadername = it->second.get_child("Shader").data();
         std::string newShaderName;
@@ -93,7 +93,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
                 boost::algorithm::ireplace_all(shadername, component, "");
             }
         }
-
+	
         // Add any non-component text to the ordered components
         shadername += boost::algorithm::to_lower_copy(newShaderName);
         
@@ -115,14 +115,14 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             shader.index = m_shaders.size();
             mesh.shaderIndex = shader.index;
             m_shaders.push_back(shader);
-
+	
             Logger::LogInfo("Shader: " + shader.name + " created");
         }
         else
         {
             mesh.shaderIndex = shaderItr->index;
         }
-
+	
         // Create the mesh. Requires mesh shader to be known before creation.
         std::string errorBuffer;
         const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
@@ -131,7 +131,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             Logger::LogError(path + ": " + errorBuffer);
             return false;
         }
-
+	
         // Store the mesh in the correct container
         const std::string alpha = Shader::GetComponentDescription(Shader::ALPHA);
         boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
@@ -152,32 +152,32 @@ bool Scene::InitialiseLighting()
             property_tree::xml_parser::read_xml(filePath.generic_string(), 
                 root, property_tree::xml_parser::trim_whitespace);
             property_tree::ptree& tree = root.get_child("Lights");
-
+	
             boost::property_tree::ptree::iterator it;
             for(it = tree.begin(); it != tree.end(); ++it)
             {
                 Light light;
                 light.name = GetPtreeValue(it, std::string("UNNAMED"), "Name");
-
+	
                 light.diffuse.a = 1.0f;
                 light.diffuse.r = GetPtreeValue(it,1.0f,"R");
                 light.diffuse.b = GetPtreeValue(it,1.0f,"B");
                 light.diffuse.g = GetPtreeValue(it,1.0f,"G");
-
+	
                 light.specular.a = 1.0f;
                 light.specular.r = GetPtreeValue(it,1.0f,"SR");
                 light.specular.b = GetPtreeValue(it,1.0f,"SB");
                 light.specular.g = GetPtreeValue(it,1.0f,"SG");
-
+	
                 light.position.x = GetPtreeValue(it,0.0f,"X");
                 light.position.y = GetPtreeValue(it,0.0f,"Y");
                 light.position.z = GetPtreeValue(it,0.0f,"Z");
-
+	
                 light.specularity = GetPtreeValue(it,5.0f,"Specularity");
                 light.attenuation.x = GetPtreeValue(it,0.0f,"AttX");
                 light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
                 light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
-
+	
                 m_lights.push_back(light);
             }
         }
@@ -192,7 +192,7 @@ bool Scene::InitialiseLighting()
         Logger::LogError("Lighting: Could not find file");
         return false;
     }    
-
+	
     Logger::LogInfo("Lighting: Initialised successfully");
     return true;
 }
@@ -461,7 +461,7 @@ void Scene::SaveMeshesToFile()
     using namespace boost;
     property_tree::ptree root, tree;
     std::vector<property_tree::ptree> entries;
-
+	
     for(const Mesh& mesh : m_meshes)
     {
         property_tree::ptree entry;
@@ -471,7 +471,7 @@ void Scene::SaveMeshesToFile()
         entry.add("Specularity", mesh.specularity);
         entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
         entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
-
+	
         auto AddTexture = [&](const std::string& name, Texture::Type type)
         {
             if(mesh.textureIDs[type] != NO_INDEX)
@@ -482,12 +482,12 @@ void Scene::SaveMeshesToFile()
         AddTexture("Diffuse", Texture::DIFFUSE);
         AddTexture("Specular", Texture::SPECULAR);
         AddTexture("Normal", Texture::NORMAL);
-
+	
         entries.emplace_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
     }
     root.add_child("Meshes", tree);
-
+	
     // Writing property tree to xml
     filesystem::path filePath(ASSETS_PATH + "Meshes_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
@@ -499,7 +499,7 @@ void Scene::SaveLightsToFile()
     using namespace boost;
     property_tree::ptree root, tree;
     std::vector<property_tree::ptree> entries;
-
+	
     for(const Light& light : m_lights)
     {
         property_tree::ptree entry;
@@ -522,7 +522,7 @@ void Scene::SaveLightsToFile()
         tree.add_child("Light", entries[entries.size()-1]);
     }
     root.add_child("Lights", tree);
-
+	
     // Writing property tree to xml
     filesystem::path filePath(ASSETS_PATH + "Lights_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);

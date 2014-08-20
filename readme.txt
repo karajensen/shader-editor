@@ -1,6 +1,10 @@
 
+- assimp, vld sort
+
 - Fix opengl multiple textures
+
 - Sending multiple lights
+
 - Uncombine Vertex buffers 
 	- #def with shader attributes
 	- add bitangent and tangent in scene

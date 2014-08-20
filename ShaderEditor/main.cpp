@@ -7,6 +7,7 @@
 #include "gui.h"
 #include "cache.h"
 #include <thread>
+#include <iostream>
 
 /**
 * Main application window message handler
