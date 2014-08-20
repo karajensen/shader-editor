@@ -1,6 +1,4 @@
 
-- assimp, vld sort
-
 - Fix opengl multiple textures
 
 - Sending multiple lights

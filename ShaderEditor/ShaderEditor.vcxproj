@@ -30,7 +30,6 @@
     <ClCompile Include="directxshader.cpp" />
     <ClCompile Include="directxtarget.cpp" />
     <ClCompile Include="directxtexture.cpp" />
-    <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />

@@ -31,11 +31,6 @@ struct Texture
         MAX_TYPES
     };
 
-    /**
-    * Constructor
-    */
-    Texture();
-
     std::string name; ///< Name of the texture
     std::string path; ///< Path to the texture
 };
@@ -45,11 +40,6 @@ struct Texture
 */
 struct Shader
 {
-    /**
-    * Constructor
-    */
-    Shader();
-
     /**
     * All shader components
     */
@@ -81,16 +71,37 @@ struct Shader
     * @param component The component to query for text
     * @return the text description of the component
     */
-    static std::string GetComponentDescription(unsigned int component);
+    static std::string GetComponentDescription(unsigned int component)
+    {
+        switch (component)
+        {
+        case FLAT:
+            return "FLAT";
+        case BUMP:
+            return "BUMP";
+        case SPECULAR:
+            return "SPECULAR";
+        case ALPHA:
+            return "ALPHA";
+        case PARALLAX:
+            return "PARALLAX";
+        default:
+            return "NONE";
+        };
+    }
 
     /**
     * Determines whether the shader has the component
     * @param component The component to query for text
     * @return whether the shader has the component
     */
-    bool HasComponent(unsigned int component) const;
+    bool HasComponent(unsigned int component) const
+    {
+        return std::find(components.begin(), components.end(),
+            Component(component)) != components.end();
+    }
 
-    int index;                         ///< Unique index of the shader
+    int index = NO_INDEX;              ///< Unique index of the shader
     std::string name;                  ///< name of the shader
     std::string glslVertexFile;        ///< filename of the glsl shader
     std::string glslFragmentFile;      ///< filename of the glsl shader
@@ -103,17 +114,12 @@ struct Shader
 */
 struct Light
 {
-    /**
-    * Constructor
-    */
-    Light();
-
-    std::string name;    ///< Name of the light
-    Colour diffuse;      ///< Colour of the light
-    Colour specular;     ///< Specular highlights the light will cast
-    Float3 attenuation;  ///< How much the light will fade in distance
-    Float3 position;     ///< World coordinates of the light
-    float specularity;   ///< Brightness of the specular highlights
+    std::string name;          ///< Name of the light
+    Colour diffuse;            ///< Colour of the light
+    Colour specular;           ///< Specular highlights the light will cast
+    Float3 attenuation;        ///< How much the light will fade in distance
+    Float3 position;           ///< World coordinates of the light
+	float specularity = 0.0f;  ///< Brightness of the specular highlights
 };
 
 /**
@@ -124,20 +130,25 @@ struct Mesh
     /**
     * Constructor
     */
-    Mesh();
+    Mesh()
+    {
+        textureIDs.resize(Texture::MAX_TYPES);
+        textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
+    }
 
-    bool backfacecull;            ///< Whether back facing polygons are culled
-    int shaderIndex;              ///< Unique Index of the mesh shader
-    float specularity;            ///< Brightness of the specular highlights
-    float ambience;               ///< Ambient light multiplier
-    float bump;                   ///< Saturation of bump
-    std::string name;             ///< Name of the mesh
-    std::vector<float> vertices;  ///< Mesh Vertex information
-    std::vector<DWORD> indices;   ///< Mesh Index information
-    std::vector<int> textureIDs;  ///< IDs for each texture used
-    int vertexComponentCount;     ///< Number of components that make up a vertex
-    int vertexCount;              ///< Number of vertices in the mesh
-    int faceCount;                ///< Number of faces in the mesh
-    int indexCount;               ///< Number of indicies in the mesh
-    int maxTextures;              ///< Maximum textures used for this mesh
+
+    bool backfacecull = true;      ///< Whether back facing polygons are culled
+    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader
+    float specularity = 0.0f;      ///< Brightness of the specular highlights
+    float ambience = 1.0f;         ///< Ambient light multiplier
+    float bump = 1.0f;             ///< Saturation of bump
+    std::string name;              ///< Name of the mesh
+    std::vector<float> vertices;   ///< Mesh Vertex information
+    std::vector<DWORD> indices;    ///< Mesh Index information
+    std::vector<int> textureIDs;   ///< IDs for each texture used
+    int vertexComponentCount = 0;  ///< Number of components that make up a vertex
+    int vertexCount = 0;           ///< Number of vertices in the mesh
+    int faceCount = 0;             ///< Number of faces in the mesh
+    int indexCount = 0;            ///< Number of indicies in the mesh
+    int maxTextures = 0;           ///< Maximum textures used for this mesh
 };
