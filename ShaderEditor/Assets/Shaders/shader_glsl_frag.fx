@@ -24,6 +24,7 @@ ifdef: !FLAT|SPECULAR
     uniform float meshSpecularity;
 endif
 
+// Required in order of usage in shader body
 uniform sampler2D DiffuseSampler;
 ifdef: !FLAT
     ifdef: SPECULAR|BUMP
@@ -66,11 +67,5 @@ void main(void)
         endif
     endif   
 
-    // TEMP FOR FIXING MULTIPLE TEXTURES
-    ifdef: SPECULAR|BUMP
-    out_Color = specularTex;
-    out_Color.a = normalTex.a;
-    else:
     out_Color *= meshAmbience * attenuation;
-    endif
 }

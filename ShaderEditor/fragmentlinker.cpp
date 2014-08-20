@@ -21,14 +21,6 @@ namespace
     const std::string ENDIF("endif");
 }
 
-FragmentLinker::FragmentLinker()
-{
-}
-
-FragmentLinker::~FragmentLinker()
-{
-}
-
 bool FragmentLinker::Initialise(unsigned int maxLights)
 {
     m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);

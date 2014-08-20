@@ -28,9 +28,8 @@ struct OpenglData
     */
     void Release();
 
-    HGLRC hrc;                       ///< Rendering context  
-    HDC hdc;                         ///< Device context  
-                                     
+    HGLRC hrc = nullptr;             ///< Rendering context  
+    HDC hdc = nullptr;               ///< Device context                            
     GlRenderTarget backBuffer;       ///< Render target for the back buffer
     GlRenderTarget sceneTarget;      ///< Render target for the main scene
     GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
@@ -42,9 +41,9 @@ struct OpenglData
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
     glm::mat4 viewProjection;        ///< View projection matrix
-    bool isBackfaceCull;             ///< Whether backface culling is currently active
-    int selectedShader;              ///< Currently active shader for rendering
-    float fadeAmount;                ///< the amount to fade the scene by
+    bool isBackfaceCull = true;      ///< Whether backface culling is currently active
+    int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
+    float fadeAmount = 0.0f;         ///< the amount to fade the scene by
 
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
@@ -52,18 +51,13 @@ struct OpenglData
 };
 
 OpenglData::OpenglData() :
-    hdc(nullptr),
-    hrc(nullptr),
-    isBackfaceCull(true),
-    selectedShader(NO_INDEX),
     quad("ScreenQuad"),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(NO_INDEX, POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
-    normalShader(NO_INDEX, NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH),
-    fadeAmount(0.0f)
+    normalShader(NO_INDEX, NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH)
 {
 }
 
@@ -457,7 +451,8 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
         {
             if(shader->HasTextureSlot(slot))
             {
-                m_data->textures[id]->SendTexture(slot++);
+                shader->SendTexture(slot, m_data->textures[id]->GetID());
+                ++slot;
             }
             else
             {

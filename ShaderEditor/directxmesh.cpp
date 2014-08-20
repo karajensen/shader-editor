@@ -6,8 +6,6 @@
 #include "elements.h"
 
 DxMesh::DxMesh(const Mesh* mesh) :
-    m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr),
     m_vertexStride(sizeof(float) * mesh->vertexComponentCount),
     m_vertexCount(mesh->vertexCount),
     m_indexCount(mesh->indexCount),

@@ -1,6 +1,4 @@
 
-- Fix opengl multiple textures
-
 - Sending multiple lights
 
 - Uncombine Vertex buffers 

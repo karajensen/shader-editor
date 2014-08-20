@@ -6,11 +6,7 @@
 
 GlRenderTarget::GlRenderTarget(const std::string& name, bool isBackBuffer) :
     m_isBackBuffer(isBackBuffer),
-    m_name(name),
-    m_colorTexture(0),
-    m_renderBuffer(0),
-    m_frameBuffer(0),
-    m_initialised(false)
+    m_name(name)
 {
 }
 

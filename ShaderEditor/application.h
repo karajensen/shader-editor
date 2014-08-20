@@ -150,14 +150,15 @@ private:
         MAX_ENGINES
     };
 
-    FadeState m_fadeState;            ///< Current state of fading in/out the selected engine
-    bool m_mousePressed;              ///< Whether the mouse is held down or not
+    FadeState m_fadeState = FADE_IN;  ///< Current state of fading in/out the selected engine
+    int m_selectedLight = NO_INDEX;   ///< Current light selected
+    int m_selectedMesh = NO_INDEX;    ///< Current mesh selected
+    int m_selectedEngine = NO_INDEX;  ///< Current render engine selected
+    int m_selectedShader = NO_INDEX;  ///< Current shader selected
     Float2 m_mouseDirection;          ///< Direction of movement for the mouse
     Float2 m_mousePosition;           ///< 2D coordinates of the mouse
-    int m_selectedLight;              ///< Current light selected
-    int m_selectedMesh;               ///< Current mesh selected
-    int m_selectedEngine;             ///< Current render engine selected
-    int m_selectedShader;             ///< Current shader selected
+    bool m_mousePressed = false;      ///< Whether the mouse is held down or not
+
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
     std::unique_ptr<Camera> m_camera; ///< Scene camera for generating view matrix
     std::unique_ptr<Scene> m_scene;   ///< Holds meshes, lighting and shader data

@@ -79,6 +79,13 @@ public:
     bool HasTextureSlot(int slot);
 
     /**
+    * Sends a texture to the shader
+    * @param slot The slot to put the texture in
+    * @param id The unique id for the opengl texture
+    */
+    void SendTexture(int slot, GLuint id);
+
+    /**
     * @return the text for the shader
     */
     std::string GetText() const;
@@ -205,9 +212,9 @@ private:
     std::string m_vertexAsm;                  ///< Assembly for the vertex shader
     std::string m_fragmentAsm;                ///< Assembly for the fragment shader
     std::string m_name;                       ///< The name of the shader
-    GLint m_program;                          ///< Shader program
-    GLint m_vs;                               ///< GLSL Vertex Shader
-    GLint m_fs;                               ///< GLSL Fragment Shader
-    GLsizei m_stride;                         ///< Stride required for vertex attributes
+    GLint m_program = NO_INDEX;               ///< Shader program
+    GLint m_vs = NO_INDEX;                    ///< GLSL Vertex Shader
+    GLint m_fs = NO_INDEX;                    ///< GLSL Fragment Shader
+    GLsizei m_stride = 0;                     ///< Stride required for vertex attributes
     int m_index;                              ///< Unique index of the shader
 };

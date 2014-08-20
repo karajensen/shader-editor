@@ -29,12 +29,13 @@ cbuffer MeshPixelBuffer : register(b2)
     endif
 };
 
+// Required in order of usage in shader body
 SamplerState Sampler;
 Texture2D DiffuseTexture          : register(t0);
 ifdef: !FLAT
     ifdef: SPECULAR|BUMP
-        Texture2D SpecularTexture : register(t1);
-        Texture2D NormalTexture   : register(t2);
+        Texture2D NormalTexture   : register(t1);
+        Texture2D SpecularTexture : register(t2);
     elseif: SPECULAR
         Texture2D SpecularTexture : register(t1);
     elseif: BUMP

@@ -6,9 +6,7 @@
 #include "opengl/soil/SOIL.h"
 
 GlTexture::GlTexture(const std::string& filepath) :
-    m_filepath(filepath),
-    m_id(0),
-    m_initialised(false)
+    m_filepath(filepath)
 {
 }
 
@@ -51,9 +49,8 @@ bool GlTexture::Initialise()
     return true;
 }
 
-void GlTexture::SendTexture(int slot)
+GLuint GlTexture::GetID() const
 {
     assert(m_initialised);
-    glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    return m_id;
 }

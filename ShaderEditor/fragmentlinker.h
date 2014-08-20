@@ -19,16 +19,6 @@ class FragmentLinker : boost::noncopyable
 public:
 
     /**
-    * Constructor
-    */
-    FragmentLinker();
-
-    /**
-    * Destructor
-    */
-    ~FragmentLinker();
-
-    /**
     * Initialises the fragment linker
     * @param maxLights The amount of lights the shader will consider
     * @return Whether initialisation was successful

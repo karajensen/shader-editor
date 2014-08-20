@@ -29,12 +29,13 @@ struct DirectxData
     */
     void Release();
 
-    ID3D11RasterizerState* cullState;   ///< Normal state of the rasterizer
-    ID3D11RasterizerState* nocullState; ///< No face culling state of the rasterizer
-    IDXGISwapChain* swapchain;          ///< Collection of buffers for displaying frames
-    ID3D11Device* device;               ///< Direct3D device interface
-    ID3D11DeviceContext* context;       ///< Direct3D device context
-    ID3D11Debug* debug;                 ///< Direct3D debug interface, only created in debug
+    ID3D11RasterizerState* cullState = nullptr;   ///< Normal state of the rasterizer
+    ID3D11RasterizerState* nocullState = nullptr; ///< No face culling state of the rasterizer
+    IDXGISwapChain* swapchain = nullptr;          ///< Collection of buffers for displaying frames
+    ID3D11Device* device = nullptr;               ///< Direct3D device interface
+    ID3D11DeviceContext* context = nullptr;       ///< Direct3D device context
+    ID3D11Debug* debug = nullptr;                 ///< Direct3D debug interface, only created in debug
+
     DxShader normalShader;              ///< Shader for rendering normals/depth for the scene
     DxShader postShader;                ///< Post processing shader
     DxMesh quad;                        ///< Quad to render the final post processed scene onto
@@ -46,9 +47,9 @@ struct DirectxData
     D3DXMATRIX viewProjection;          ///< View projection matrix
     D3DXVECTOR3 camera;                 ///< Position of the camera
     D3DXVECTOR2 frustum;                ///< Camera near and far values
-    bool isBackfaceCull;                ///< Whether the culling rasterize state is active
-    int selectedShader;                 ///< currently selected shader for rendering the scene
-    float fadeAmount;                   ///< the amount to fade the scene by
+    bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
+    int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
+    float fadeAmount = 0.0f;            ///< the amount to fade the scene by
 
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
@@ -56,22 +57,13 @@ struct DirectxData
 };
 
 DirectxData::DirectxData() :
-    swapchain(nullptr),
-    device(nullptr),
-    context(nullptr),
-    debug(nullptr),
-    cullState(nullptr),
-    nocullState(nullptr),
-    isBackfaceCull(true),
-    selectedShader(NO_INDEX),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
     frustum(CAMERA_NEAR, CAMERA_FAR),
     postShader(NO_INDEX, POST_NAME, POST_PATH),
     normalShader(NO_INDEX, NORMAL_NAME, NORM_PATH),
-    quad("SceneQuad"),
-    fadeAmount(0.0f)
+    quad("SceneQuad")
 {
 }
 

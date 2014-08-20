@@ -132,7 +132,7 @@ private:
     */
     void SetTextures(const std::vector<int>& textureIDs);
 
-    HWND m_hwnd;                         ///< handle to the window
-    HWND m_temporaryHwnd;                ///< Handle to the temporary window used for glew
+    HWND m_hwnd = nullptr;               ///< handle to the window
+    HWND m_temporaryHwnd = nullptr;      ///< Handle to the temporary window used for glew
     std::unique_ptr<OpenglData> m_data;  ///< member data of opengl
 };                     

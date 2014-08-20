@@ -15,6 +15,11 @@ class RenderEngine
 public:
 
     /**
+    * Destructor
+    */
+    virtual ~RenderEngine() {}
+
+    /**
     * Sets up the graphics engine for rendering
     * @return whether initialization succeeded
     */
@@ -24,11 +29,6 @@ public:
     * Explicity releases resources for the engine
     */
     virtual void Release() = 0;
-
-    /**
-    * Destructor
-    */
-    virtual ~RenderEngine(){}
 
     /**
     * Renders the 3D scene

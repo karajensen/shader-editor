@@ -48,11 +48,7 @@ GlShader::GlShader(int index,
 
     m_vsFilepath(vs),
     m_fsFilepath(fs),
-    m_program(NO_INDEX),
-    m_vs(NO_INDEX),
-    m_fs(NO_INDEX),
     m_index(index),
-    m_stride(0),
     m_name(name)
 {
     m_vaFilepath = boost::ireplace_last_copy(
@@ -558,16 +554,16 @@ void GlShader::EnableAttributes()
     }
 }
 
+void GlShader::SendTexture(int slot, GLuint id)
+{
+    glActiveTexture(GetTexture(slot));
+    glBindTexture(GL_TEXTURE_2D, id);
+    glUniform1i(m_samplers[slot], slot);
+}
+
 void GlShader::SetActive()
 {
     glUseProgram(m_program);
-
-    // Enable the texture samplers once per activation
-    int slot = 0;
-    for(int location : m_samplers)
-    {
-        glUniform1i(location, slot++);
-    }
 }
 
 int GlShader::GetIndex() const

@@ -27,13 +27,8 @@ namespace
 
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
-    m_mousePressed(false),
     m_cache(cache),
-    m_selectedEngine(SELECTED_ENGINE),
-    m_fadeState(FADE_IN),
-    m_selectedLight(NO_INDEX),
-    m_selectedMesh(NO_INDEX),
-    m_selectedShader(NO_INDEX)
+    m_selectedEngine(SELECTED_ENGINE)
 {
 }
 
@@ -175,7 +170,6 @@ void Application::TickApplication()
     }
 
     FadeRenderEngine();
-    m_scene->Update();
     GetEngine()->Render(m_scene->GetLights());
 
     UpdateShader();

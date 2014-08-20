@@ -13,18 +13,6 @@
 #include "assimp/include/postprocess.h"
 #include "fragmentlinker.h"
 
-Scene::Scene()
-{
-}
-
-Scene::~Scene()
-{
-}
-
-void Scene::Update()
-{
-}
-
 bool Scene::Initialise()
 {
     bool success = true;
@@ -70,7 +58,6 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 	
-        // Ordering of textures needs to be in same order of shader samplers
         std::string str;
         mesh.textureIDs[Texture::DIFFUSE] = AddTexture(GetPtreeValue(it, str, "Diffuse"));
         mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));

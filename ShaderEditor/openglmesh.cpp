@@ -8,10 +8,6 @@
 GlMesh::GlMesh(const Mesh* mesh) :
     m_vertexCount(mesh->vertexCount),
     m_indexCount(mesh->indexCount),
-    m_vaoID(0),
-    m_vboID(0),
-    m_iboID(0),
-    m_initialised(false),
     m_mesh(mesh),
     m_vertices(mesh->vertices),
     m_indices(mesh->indices),
@@ -20,11 +16,6 @@ GlMesh::GlMesh(const Mesh* mesh) :
 }
 
 GlMesh::GlMesh(const std::string& name) :
-    m_vaoID(0),
-    m_vboID(0),
-    m_iboID(0),
-    m_initialised(false),
-    m_mesh(nullptr),
     m_name(name)
 {
     // Top left corner

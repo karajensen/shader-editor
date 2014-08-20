@@ -18,24 +18,9 @@ public:
 
     /**
     * Constructor
-    */
-    Scene();
-
-    /**
-    * Destructor
-    */
-    ~Scene();
-
-    /**
-    * Constructor
     * @return Whether the initialization was successful
     */
     bool Initialise();
-
-    /**
-    * Updates the scene
-    */
-    void Update();
 
     /**
     * @return the meshes in the scene

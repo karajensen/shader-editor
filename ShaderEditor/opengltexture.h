@@ -36,14 +36,13 @@ public:
     bool Initialise();
 
     /**
-    * Sends the texture to the currently active shader
-    * @param slot The slot to put the texture into
+    * @return the unique ID for the texture
     */
-    void SendTexture(int slot);
+    GLuint GetID() const;
 
 private:
 
-    bool m_initialised;           ///< Whether this texture is initialised
-    GLuint m_id;                  ///< Unique id for the texture
+    bool m_initialised = false;   ///< Whether this texture is initialised
+    GLuint m_id = 0;              ///< Unique id for the texture
     const std::string m_filepath; ///< The path for the texture
 };

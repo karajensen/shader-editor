@@ -70,12 +70,11 @@ private:
     */
     bool InitialiseDepthBuffer(ID3D11Device* device);
 
-    bool m_isBackBuffer;                        ///< Whether this render target is the back buffer
-    const std::string m_name;                   ///< Name of the render target
-	ID3D11Texture2D* m_texture;                 ///< Texture ofthe render target
-	ID3D11RenderTargetView* m_renderTarget;     ///< Render target buffer
-	ID3D11ShaderResourceView* m_textureView;    ///< Shader view of the texture
-
-    static D3D11_TEXTURE2D_DESC sm_textureDesc;       ///< Base description of the render target textures
-    static ID3D11DepthStencilView* sm_depthBuffer;    ///< Depth buffer shared between render targets
+    bool m_isBackBuffer = false;                       ///< Whether this render target is the back buffer
+    const std::string m_name;                          ///< Name of the render target
+    ID3D11Texture2D* m_texture = nullptr;              ///< Texture ofthe render target
+    ID3D11RenderTargetView* m_renderTarget = nullptr;  ///< Render target buffer
+	ID3D11ShaderResourceView* m_textureView = nullptr; ///< Shader view of the texture
+    static D3D11_TEXTURE2D_DESC sm_textureDesc;        ///< Base description of the render target textures
+    static ID3D11DepthStencilView* sm_depthBuffer;     ///< Depth buffer shared between render targets
 };

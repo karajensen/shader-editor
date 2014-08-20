@@ -239,26 +239,26 @@ private:
         bool updated;                ///< Whether this buffer was updated last tick
     };
 
-    D3D11_SHADER_DESC m_vertexDesc;            ///< Internal description of the vertex shader
-    D3D11_SHADER_DESC m_pixelDesc;             ///< Internal description of the pixel shader
-    std::string m_filepath;                    ///< Path to the shader file
-    std::string m_name;                        ///< Name of the shader
-    std::string m_asmpath;                     ///< Path to the generated assembly file
-    std::string m_sharedText;                  ///< Text to the shared shader components
-    std::string m_vertexText;                  ///< Text for the vertex shader
-    std::string m_pixelText;                   ///< Text for the pixel shader
-    std::string m_vertexAsm;                   ///< Assembly for the vertex shader
-    std::string m_pixelAsm;                    ///< Assembly for the pixel shader
-    ID3D11InputLayout* m_layout;               ///< Shader input layout
-    ID3D11VertexShader* m_vs;                  ///< Vertex shader interface
-    ID3D11PixelShader* m_ps;                   ///< Pixel shader interface
-    ID3D11ShaderReflection* m_vsReflection;    ///< Interface for obtaining vertex shader details
-    ID3D11ShaderReflection* m_psReflection;    ///< Interface for obtaining pixel shader details
-    ID3D10Blob* m_vsBlob;                      ///< Vertex shader data
-    ID3D10Blob* m_psBlob;                      ///< Pixel shader data
-    ID3D11SamplerState* m_samplerState;        ///< Texture Sampler state
-    int m_index;                               ///< Unique index of the shader
-    int m_textureSlots;                        ///< Number of textures allowed for this mesh
+    D3D11_SHADER_DESC m_vertexDesc;                   ///< Internal description of the vertex shader
+    D3D11_SHADER_DESC m_pixelDesc;                    ///< Internal description of the pixel shader
+    std::string m_filepath;                           ///< Path to the shader file
+    std::string m_name;                               ///< Name of the shader
+    std::string m_asmpath;                            ///< Path to the generated assembly file
+    std::string m_sharedText;                         ///< Text to the shared shader components
+    std::string m_vertexText;                         ///< Text for the vertex shader
+    std::string m_pixelText;                          ///< Text for the pixel shader
+    std::string m_vertexAsm;                          ///< Assembly for the vertex shader
+    std::string m_pixelAsm;                           ///< Assembly for the pixel shader
+    ID3D11InputLayout* m_layout = nullptr;            ///< Shader input layout
+    ID3D11VertexShader* m_vs = nullptr;               ///< Vertex shader interface
+    ID3D11PixelShader* m_ps = nullptr;                ///< Pixel shader interface
+    ID3D11ShaderReflection* m_vsReflection = nullptr; ///< Interface for obtaining vertex shader details
+    ID3D11ShaderReflection* m_psReflection = nullptr; ///< Interface for obtaining pixel shader details
+    ID3D10Blob* m_vsBlob = nullptr;                   ///< Vertex shader data
+    ID3D10Blob* m_psBlob = nullptr;                   ///< Pixel shader data
+    ID3D11SamplerState* m_samplerState = nullptr;     ///< Texture Sampler state
+    int m_index = NO_INDEX;                           ///< Unique index of the shader
+    int m_textureSlots = 0;                           ///< Number of textures allowed for this mesh
 
     std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader
 };  

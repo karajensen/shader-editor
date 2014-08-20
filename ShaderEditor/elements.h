@@ -22,12 +22,13 @@ struct Texture
 {
     /**
     * Type of texture
+    * Required in order of usage in shader body for OpenGL
     */
     enum Type
     {
         DIFFUSE,
-        SPECULAR,
         NORMAL,
+        SPECULAR,
         MAX_TYPES
     };
 
@@ -119,7 +120,7 @@ struct Light
     Colour specular;           ///< Specular highlights the light will cast
     Float3 attenuation;        ///< How much the light will fade in distance
     Float3 position;           ///< World coordinates of the light
-	float specularity = 0.0f;  ///< Brightness of the specular highlights
+	float specularity = 1.0f;  ///< Brightness of the specular highlights
 };
 
 /**
@@ -136,17 +137,16 @@ struct Mesh
         textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
     }
 
-
     bool backfacecull = true;      ///< Whether back facing polygons are culled
     int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader
-    float specularity = 0.0f;      ///< Brightness of the specular highlights
+    float specularity = 1.0f;      ///< Brightness of the specular highlights
     float ambience = 1.0f;         ///< Ambient light multiplier
     float bump = 1.0f;             ///< Saturation of bump
     std::string name;              ///< Name of the mesh
     std::vector<float> vertices;   ///< Mesh Vertex information
     std::vector<DWORD> indices;    ///< Mesh Index information
     std::vector<int> textureIDs;   ///< IDs for each texture used
-    int vertexComponentCount = 0;  ///< Number of components that make up a vertex
+    int vertexComponentCount = 1;  ///< Number of components that make up a vertex
     int vertexCount = 0;           ///< Number of vertices in the mesh
     int faceCount = 0;             ///< Number of faces in the mesh
     int indexCount = 0;            ///< Number of indicies in the mesh

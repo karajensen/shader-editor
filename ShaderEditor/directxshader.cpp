@@ -44,16 +44,7 @@ namespace
 
 DxShader::DxShader(int index, const std::string& name, const std::string& filepath) :
     m_filepath(filepath),
-    m_layout(nullptr),
-    m_vs(nullptr),
-    m_ps(nullptr),
-    m_psBlob(nullptr),
-    m_vsBlob(nullptr),
-    m_vsReflection(nullptr),
-    m_psReflection(nullptr),
     m_index(index),
-    m_samplerState(nullptr),
-    m_textureSlots(0),
     m_name(name)
 {
     m_asmpath = boost::ireplace_last_copy(

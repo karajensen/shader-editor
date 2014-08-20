@@ -9,10 +9,7 @@ D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 
 DxRenderTarget::DxRenderTarget(const std::string& name, bool isBackBuffer) :
     m_isBackBuffer(isBackBuffer),
-    m_name(name),
-    m_texture(nullptr),
-    m_renderTarget(nullptr),
-    m_textureView(nullptr)
+    m_name(name)
 {
 }
 

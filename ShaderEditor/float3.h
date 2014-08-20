@@ -13,13 +13,20 @@ class Float3
 {
 public:
 
-    float x,y,z; ///< Vector components
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+
+    /**
+    * Constructor
+    */
+    Float3() = default;
 
     /**
     * Constructor
     * @param x/y/z The components of the Float3
     */
-    explicit Float3(float X = 0.0f, float Y = 0.0f, float Z = 0.0f) : 
+    Float3(float X, float Y, float Z) : 
         x(X), 
         y(Y),
         z(Z) 

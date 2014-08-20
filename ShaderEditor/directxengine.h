@@ -21,7 +21,7 @@ public:
     * Constructor
     * @param hwnd Handle to the window
     */
-    DirectxEngine(HWND hwnd);
+    explicit DirectxEngine(HWND hwnd);
 
     /**
     * Destructor
@@ -143,6 +143,6 @@ private:
     */
     void InitialiseDebugging();
 
-    HWND m_hwnd;                         ///< handle to the window
+    HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
 };                     

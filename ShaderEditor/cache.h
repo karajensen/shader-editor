@@ -22,8 +22,7 @@ public:
     * @param data The value to initialise with
     */
     Lockable(const T& data) :
-        m_data(data),
-        m_updated(false)
+        m_data(data)
     {
     }
 
@@ -31,8 +30,7 @@ public:
     * Constructor
     */
     Lockable() :
-        m_data(T()),
-        m_updated(false)
+        m_data(T())
     {
     }
 
@@ -106,7 +104,7 @@ public:
 
 protected:
 
-    bool m_updated;               ///< Flag for irregular updates by the getter thread
+    bool m_updated = false;       ///< Flag for irregular updates by the getter thread
     T m_data;                     ///< Internal data
     mutable std::mutex m_mutex;   ///< Mutex for access
 };

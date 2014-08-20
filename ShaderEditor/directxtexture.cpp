@@ -5,8 +5,7 @@
 #include "directxtexture.h"
 
 DxTexture::DxTexture(const std::string& filepath) :
-    m_filepath(filepath),
-    m_texture(nullptr)
+    m_filepath(filepath)
 {
 }
 

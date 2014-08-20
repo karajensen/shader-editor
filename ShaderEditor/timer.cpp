@@ -10,16 +10,6 @@ namespace
     const double DT_MINIMUM = 0.01;   ///< Minimum allowed deltatime
 }
 
-Timer::Timer() :
-    m_frequency(0.0),
-    m_previousTime(0.0),
-    m_deltaTime(0.0),
-    m_deltaTimeCounter(0.0),
-    m_fps(0),
-    m_fpsCounter(0)
-{
-}
-
 void Timer::StartTimer()
 {
     LARGE_INTEGER frequency;
