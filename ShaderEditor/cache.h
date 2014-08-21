@@ -230,6 +230,7 @@ struct Cache
         FramesPerSec(0),
         EngineSelected(0),
         ShaderSelected(0),
+        TextureSelected(0),
         LightSelected(0),
         LightSpecularity(0.0f),
         MeshSelected(0),
@@ -274,8 +275,11 @@ struct Cache
     LockableString MeshSpecular;        ///< Specular texture for the selected mesh
     LockableString MeshNormal;          ///< Normal texture for the selected mesh
 
-    Lockable<std::vector<std::string>> Shaders;  ///< Container of all shaders
-    Lockable<std::vector<std::string>> Engines;  ///< Container of all render engines
-    Lockable<std::vector<std::string>> Lights;   ///< Container of all lights
-    Lockable<std::vector<std::string>> Meshes;   ///< Container of all meshes
+    Lockable<int> TextureSelected;      ///< Index of the currently selected post texture
+
+    Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
+    Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
+    Lockable<std::vector<std::string>> Lights;    ///< Container of all lights
+    Lockable<std::vector<std::string>> Meshes;    ///< Container of all meshes
+    Lockable<std::vector<std::string>> Textures;  ///< Container of all post textures
 };

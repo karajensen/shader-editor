@@ -67,6 +67,12 @@ private:
     void UpdateMesh(Tweaker& tweaker);
 
     /**
+    * Updates the cache and gui for the post page
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdatePost(Tweaker& tweaker);
+
+    /**
     * Converts the string description to the page enum
     * @param page The string description of the page
     * @return the enum page id

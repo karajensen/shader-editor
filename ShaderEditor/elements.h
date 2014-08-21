@@ -6,18 +6,6 @@
 
 #include "common.h"
 
-/**
-* Post shader textures
-*/
-enum PostTexture
-{
-    SCENE_TEXTURE,
-    NORMAL_TEXTURE
-};
-
-/**
-* Individual texture object
-*/
 struct Texture
 {
     /**
@@ -32,13 +20,40 @@ struct Texture
         MAX_TYPES
     };
 
+    /**
+    * Post shader textures
+    */
+    enum Post
+    {
+        SCENE_TEXTURE,
+        NORMAL_TEXTURE,
+        DEPTH_TEXTURE,
+        MAX_POST
+    };
+
+    /**
+    * @param postTexture the texture type to convert
+    * @return the string name of the texture type
+    */
+    static std::string GetPostTextureName(Post postTexture)
+    {
+        switch (postTexture)
+        {
+        case SCENE_TEXTURE:
+            return "Scene";
+        case NORMAL_TEXTURE:
+            return "Normal Map";
+        case DEPTH_TEXTURE:
+            return "Depth Map";
+        default:
+            return "None";
+        }
+    }
+
     std::string name; ///< Name of the texture
     std::string path; ///< Path to the texture
 };
 
-/**
-* Individual shader object
-*/
 struct Shader
 {
     /**
@@ -110,9 +125,6 @@ struct Shader
     std::vector<Component> components; ///< Sections that make up this shader
 };
 
-/**
-* Individual light object
-*/
 struct Light
 {
     std::string name;          ///< Name of the light
@@ -123,9 +135,6 @@ struct Light
 	float specularity = 1.0f;  ///< Brightness of the specular highlights
 };
 
-/**
-* Inidividual mesh object
-*/
 struct Mesh
 {
     /**

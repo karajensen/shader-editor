@@ -200,6 +200,16 @@ void Tweaker::SetMeshBump(float value)
     m_meshBump.Set(value);
 }
 
+void Tweaker::InitialiseTextures(int selected,
+                                 const std::vector<std::string>& textures)
+{
+    if (!textures.empty())
+    {
+        m_postTexture.Initialise(m_ui.postImage_box,
+            selected, textures, m_callbacks.SetPostTexture);
+    }
+}
+
 void Tweaker::SetSelectedEngine(int selected)
 {
     m_renderEngine.SetSelected(selected);
@@ -233,6 +243,11 @@ void Tweaker::InitialiseLights(int selected,
         m_light.Initialise(m_ui.selectedLight_box, 
             selected, lights, m_callbacks.SetSelectedLight);
     }
+}
+
+bool Tweaker::HasPostTextures() const
+{
+    return m_postTexture.IsInitialised();
 }
 
 bool Tweaker::HasMeshes() const

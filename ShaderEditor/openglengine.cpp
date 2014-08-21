@@ -7,6 +7,7 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 #include "opengltarget.h"
+#include <array>
 
 /**
 * Internal data for the opengl rendering engine
@@ -45,6 +46,7 @@ struct OpenglData
     int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
     float fadeAmount = 0.0f;         ///< the amount to fade the scene by
 
+    std::array<float, Texture::MAX_POST> postAlpha;   ///< Visibility of post textures
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
@@ -276,8 +278,8 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
-       !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
+    if(!m_data->postShader.HasTextureSlot(Texture::SCENE_TEXTURE) ||
+       !m_data->postShader.HasTextureSlot(Texture::NORMAL_TEXTURE))
     {
         Logger::LogError("OpenGL: Post shader does not have required texture slots");
         return false;
@@ -290,6 +292,7 @@ bool OpenglEngine::Initialize()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
+    SetPostTexture(Texture::SCENE_TEXTURE);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -428,16 +431,34 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
-    m_data->postShader.SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
-    m_data->sceneTarget.SendTexture(SCENE_TEXTURE);
-    m_data->normalTarget.SendTexture(NORMAL_TEXTURE);
+    RenderPostProcessing();
+
+    SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::RenderPostProcessing()
+{
+    m_data->postShader.SendUniformFloat("fadeAmount", 
+        &m_data->fadeAmount, 1);
+
+    m_data->postShader.SendUniformFloat("sceneAlpha",
+        &m_data->postAlpha[Texture::SCENE_TEXTURE], 1);
+
+    m_data->postShader.SendUniformFloat("normalAlpha",
+        &m_data->postAlpha[Texture::NORMAL_TEXTURE], 1);
+
+    m_data->postShader.SendUniformFloat("depthAlpha",
+        &m_data->postAlpha[Texture::DEPTH_TEXTURE], 1);
+
+    m_data->sceneTarget.SendTexture(Texture::SCENE_TEXTURE);
+    m_data->normalTarget.SendTexture(Texture::NORMAL_TEXTURE);
+
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
-    m_data->sceneTarget.ClearTexture(SCENE_TEXTURE);
-    m_data->normalTarget.ClearTexture(NORMAL_TEXTURE);
 
-    SwapBuffers(m_data->hdc); 
+    m_data->sceneTarget.ClearTexture(Texture::SCENE_TEXTURE);
+    m_data->normalTarget.ClearTexture(Texture::NORMAL_TEXTURE);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -560,4 +581,10 @@ std::string OpenglEngine::GetShaderAssembly(int index)
 void OpenglEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
+}
+
+void OpenglEngine::SetPostTexture(Texture::Post post)
+{
+    m_data->postAlpha.assign(0.0f);
+    m_data->postAlpha[post] = 1.0f;
 }

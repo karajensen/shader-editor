@@ -184,6 +184,9 @@ void Application::TickApplication()
     case MESH:
         UpdateMesh();
         break;
+    case POST:
+        UpdatePost();
+        break;
     }
 
     m_mouseDirection.x = 0;
@@ -289,6 +292,16 @@ void Application::UpdateMesh()
     }
 }
 
+void Application::UpdatePost()
+{
+    const int selectedTexture = m_cache->TextureSelected.Get();
+    if (selectedTexture != m_selectedPost)
+    {
+        m_selectedPost = selectedTexture;
+        GetEngine()->SetPostTexture(static_cast<Texture::Post>(selectedTexture));
+    }
+}
+
 void Application::UpdateLight()
 {
     const int selectedLight = m_cache->LightSelected.Get();
@@ -355,6 +368,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     m_cache->Lights.Set(m_scene->GetLightNames());
     m_cache->Meshes.Set(m_scene->GetMeshNames());
     m_cache->Shaders.Set(m_scene->GetShaderNames());
+    m_cache->Textures.Set(m_scene->GetPostTextureNames());
 
     return true;
 }
@@ -406,13 +420,12 @@ void Application::SwitchRenderEngine(int index)
     m_selectedEngine = index;
     m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
 
-    if(!m_engines[m_selectedEngine]->Initialize() || 
-       !m_engines[m_selectedEngine]->ReInitialiseScene())
+    if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {
-        Logger::LogError(m_engines[m_selectedEngine]->GetName()
-            + ": Failed to reinitialise");
+        Logger::LogError(GetEngine()->GetName() + ": Failed to reinitialise");
     }
 
-     m_engines[m_selectedEngine]->UpdateView(m_camera->GetWorld());
-     m_engines[m_selectedEngine]->SetFade(0.0f);
+    GetEngine()->UpdateView(m_camera->GetWorld());
+    GetEngine()->SetFade(0.0f);
+    GetEngine()->SetPostTexture(static_cast<Texture::Post>(m_selectedPost));
 }

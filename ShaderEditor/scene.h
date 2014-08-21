@@ -48,19 +48,24 @@ public:
     const std::vector<Texture>& GetTextures() const;
 
     /**
-    * @return the name of the lights in the scene
+    * @return the names of the lights in the scene
     */
     std::vector<std::string> GetLightNames() const;
 
     /**
-    * @return the name of the meshes in the scene
+    * @return the namse of the meshes in the scene
     */
     std::vector<std::string> GetMeshNames() const;
 
     /**
-    * @return the name of the meshes in the scene
+    * @return the names of the shaders in the scene
     */
     std::vector<std::string> GetShaderNames() const;
+
+    /**
+    * @return the names of the post textures in the scene
+    */
+    std::vector<std::string> GetPostTextureNames() const;
 
     /**
     * @param index The index of the light to get

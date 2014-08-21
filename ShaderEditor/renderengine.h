@@ -101,4 +101,10 @@ public:
     * @param value The amount of fade between [0,1]
     */
     virtual void SetFade(float value) = 0;
+
+    /**
+    * Sets which post texture should be rendered
+    * @param post The post texture to render
+    */
+    virtual void SetPostTexture(Texture::Post post) = 0;
 };

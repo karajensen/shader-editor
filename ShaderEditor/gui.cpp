@@ -43,6 +43,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
     callbacks.SetSelectedShader =   [&](int index){ m_cache->ShaderSelected.Set(index); };
+    callbacks.SetPostTexture =      [&](int index){ m_cache->TextureSelected.Set(index); };
     callbacks.CompileShader =       [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
@@ -83,6 +84,9 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
         break;
     case MESH:
         UpdateMesh(tweaker);
+        break;
+    case POST:
+        UpdatePost(tweaker);
         break;
     }
 }
@@ -127,6 +131,15 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
         return LIGHT;
     }
     return NO_PAGE;
+}
+
+void Gui::UpdatePost(Tweaker& tweaker)
+{
+    if (!tweaker.HasPostTextures())
+    {
+        tweaker.InitialiseTextures(
+            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
+    }
 }
 
 void Gui::UpdateScene(Tweaker& tweaker)

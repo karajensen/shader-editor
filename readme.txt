@@ -1,20 +1,18 @@
 
+- Opengl post texture not switching
+- Setting frustum values
+- Colour correction
+
 - Sending multiple lights
 
-- Uncombine Vertex buffers 
-	- #def with shader attributes
-	- add bitangent and tangent in scene
-	- Opengl attribute reflection
+- Bump mapping
+- normal map needs bump map changes
 
-- Post effects: fog, dof, glow, SSAO, Color correction with tweaker
-
-- Particle effects
-
+- Post effects: fog, dof, glow
 - Optimise shaders
-
-- Add mesh specularity/ambience/bump to python script
-
+- Add mesh extras to python script
 - Create 3D scene with baked shadows
+- Particle effects or water
 
 
 =================================================================

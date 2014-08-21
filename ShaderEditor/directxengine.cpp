@@ -8,6 +8,7 @@
 #include "directxmesh.h"
 #include "directxtexture.h"
 #include "directxtarget.h"
+#include <array>
 
 /**
 * Internal data for the directx rendering engine
@@ -50,7 +51,8 @@ struct DirectxData
     bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
-
+    
+    std::array<float, Texture::MAX_POST> postAlpha;   ///< Visibility of post textures
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
@@ -182,14 +184,14 @@ bool DirectxEngine::Initialize()
     // Create the post processing quad and shader
     m_data->quad.Initialise(m_data->device, m_data->context);
     errorBuffer = m_data->postShader.CompileShader(m_data->device);
-    if(!errorBuffer.empty())
+    if (!errorBuffer.empty())
     {
         Logger::LogError("DirectX: Post shader failed: " + errorBuffer);
         return false;
     }
 
-    if(!m_data->postShader.HasTextureSlot(SCENE_TEXTURE) ||
-       !m_data->postShader.HasTextureSlot(NORMAL_TEXTURE))
+    if (!m_data->postShader.HasTextureSlot(Texture::SCENE_TEXTURE) ||
+        !m_data->postShader.HasTextureSlot(Texture::NORMAL_TEXTURE))
     {
         Logger::LogError("DirectX: Post shader does not have required texture slots");
         return false;
@@ -242,6 +244,8 @@ bool DirectxEngine::Initialize()
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
     SetDebugName(m_data->swapchain, "SwapChain");
+
+    SetPostTexture(Texture::SCENE_TEXTURE);
 
     Logger::LogInfo("DirectX: D3D11 sucessful");
     return true;
@@ -382,17 +386,37 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     }
 
     // Render the scene as a texture to the backbuffer
+    SetBackfaceCull(false);
     m_data->backBuffer.SetActive(m_data->context);
     m_data->postShader.SetActive(m_data->context);
-    m_data->sceneTarget.SendTexture(m_data->context, SCENE_TEXTURE);
-    m_data->normalTarget.SendTexture(m_data->context, NORMAL_TEXTURE);
-    m_data->postShader.UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
-    m_data->postShader.SendConstants(m_data->context);
-    m_data->quad.Render(m_data->context);
-    m_data->sceneTarget.ClearTexture(m_data->context, SCENE_TEXTURE);
-    m_data->normalTarget.ClearTexture(m_data->context, NORMAL_TEXTURE);
+    RenderPostProcessing();
 
     m_data->swapchain->Present(0, 0);
+}
+
+void DirectxEngine::RenderPostProcessing()
+{
+    m_data->sceneTarget.SendTexture(m_data->context, Texture::SCENE_TEXTURE);
+    m_data->normalTarget.SendTexture(m_data->context, Texture::NORMAL_TEXTURE);
+
+    m_data->postShader.UpdateConstantFloat("fadeAmount",
+        &m_data->fadeAmount, 1);
+
+    m_data->postShader.UpdateConstantFloat("sceneAlpha",
+        &m_data->postAlpha[Texture::SCENE_TEXTURE], 1);
+
+    m_data->postShader.UpdateConstantFloat("normalAlpha",
+        &m_data->postAlpha[Texture::NORMAL_TEXTURE], 1);
+
+    m_data->postShader.UpdateConstantFloat("depthAlpha",
+        &m_data->postAlpha[Texture::DEPTH_TEXTURE], 1);
+
+    m_data->postShader.SendConstants(m_data->context);
+
+    m_data->quad.Render(m_data->context);
+
+    m_data->sceneTarget.ClearTexture(m_data->context, Texture::SCENE_TEXTURE);
+    m_data->normalTarget.ClearTexture(m_data->context, Texture::NORMAL_TEXTURE);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -521,4 +545,10 @@ std::string DirectxEngine::GetShaderAssembly(int index)
 void DirectxEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
+}
+
+void DirectxEngine::SetPostTexture(Texture::Post post)
+{
+    m_data->postAlpha.assign(0.0f);
+    m_data->postAlpha[post] = 1.0f;
 }

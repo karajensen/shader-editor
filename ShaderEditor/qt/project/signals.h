@@ -28,8 +28,9 @@ struct SignalCallbacks
     std::function<void(float)> SetMeshSpecularity;  ///< Sets the selected mesh specular size
     std::function<void(float)> SetMeshAmbience;     ///< Sets the selected mesh ambience
     std::function<void(float)> SetMeshBump;         ///< Sets the selected mesh bump saturation
-    std::function<void(int)>   SetSelectedEngine;   ///< Sets the selected engine to render
-    std::function<void(int)>   SetSelectedLight;    ///< Sets the selected light to display
-    std::function<void(int)>   SetSelectedMesh;     ///< Sets the selected mesh to display
-    std::function<void(int)>   SetSelectedShader;   ///< Sets the selected shader to edit
+    std::function<void(int)> SetSelectedEngine;     ///< Sets the selected engine to render
+    std::function<void(int)> SetSelectedLight;      ///< Sets the selected light to display
+    std::function<void(int)> SetSelectedMesh;       ///< Sets the selected mesh to display
+    std::function<void(int)> SetSelectedShader;     ///< Sets the selected shader to edit
+    std::function<void(int)> SetPostTexture;        ///< Sets the selected post texture to display
 };

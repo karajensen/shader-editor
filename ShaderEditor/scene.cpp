@@ -413,6 +413,17 @@ std::vector<std::string> Scene::GetMeshNames() const
     return meshes;
 }
 
+std::vector<std::string> Scene::GetPostTextureNames() const
+{
+    std::vector<std::string> textures;
+    for (int i = 0; i < Texture::MAX_POST; ++i)
+    {
+        textures.push_back(Texture::GetPostTextureName(
+            static_cast<Texture::Post>(i)));
+    }
+    return textures;
+}
+
 std::vector<std::string> Scene::GetShaderNames() const
 {
     std::vector<std::string> shaders;

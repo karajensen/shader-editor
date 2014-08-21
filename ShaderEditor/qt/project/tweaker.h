@@ -176,6 +176,13 @@ public:
     void SetSelectedEngine(int selected);
 
     /**
+    * Sets the available post textures for the combo box
+    * @param selected The initially selected post texture
+    * @param engines The post texture names to set
+    */
+    void InitialiseTextures(int selected, const std::vector<std::string>& textures);
+
+    /**
     * Sets the available render engines for the combo box
     * @param selected The initially selected engine
     * @param engines The render engine names to set
@@ -200,6 +207,11 @@ public:
     * @return whether the render engine combo box is filled int
     */
     bool HasEngines() const;
+
+    /**
+    * @return whether the post texture combo box is filled int
+    */
+    bool HasPostTextures() const;
 
     /**
     * @return whether the mesh combo box is filled int
@@ -235,6 +247,7 @@ private:
     TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
     TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
 
+    TweakableBox m_postTexture;          ///< Combo box for selecting the post texture
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
     TweakableBox m_light;                ///< Combo box for selecting the light
     TweakableBox m_mesh;                 ///< Combo box for selecting the mesh

@@ -116,6 +116,12 @@ public:
     */
     virtual void SetFade(float value) override;
 
+    /**
+    * Sets which post texture should be rendered
+    * @param post The post texture to render
+    */
+    virtual void SetPostTexture(Texture::Post post) override;
+
 private:
 
     /**
@@ -142,6 +148,11 @@ private:
     * @note only for _DEBUG
     */
     void InitialiseDebugging();
+
+    /**
+    * Renders the scene with post processing
+    */
+    void RenderPostProcessing();
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX

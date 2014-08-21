@@ -5,6 +5,9 @@
 cbuffer PixelBuffer : register(b0)
 {
     float fadeAmount;
+    float sceneAlpha;
+    float normalAlpha;
+    float depthAlpha;
 };
 
 struct Attributes
@@ -25,16 +28,30 @@ Attributes VShader(float4 position  : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+float4 GetColour(Texture2DMS<float4, SAMPLES> texSampler, int3 uvs)
 {
-    float4 finalColor = float4(0.0, 0.0, 0.0, 0.0);
-    int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-
+    float4 color = float4(0.0, 0.0, 0.0, 0.0);
     for (int i = 0; i < SAMPLES; ++i)
     {
-        finalColor += SceneTexture.Load(uvs, i);
+        color += texSampler.Load(uvs, i);
     }
-    finalColor *= 1.0 / SAMPLES;
+    return color * (1.0 / SAMPLES);
+}
+
+float4 PShader(Attributes input) : SV_TARGET
+{
+    float4 finalColor;
+    int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
+
+    if (sceneAlpha == 1.0)
+    {
+        finalColor = GetColour(SceneTexture, uvs);
+    }
+    else
+    {
+        finalColor = GetColour(NormalTexture, uvs);
+        finalColor = (finalColor * normalAlpha) + (finalColor.aaaa * depthAlpha);
+    }
 
     return finalColor * fadeAmount;
 }
