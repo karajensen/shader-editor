@@ -12,7 +12,8 @@ out vec3 ex_Normal;
 out float ex_Depth;
 
 uniform mat4 viewProjection;
-uniform vec2 cameraDepth;
+uniform float depthNear;
+uniform float depthFar;
  
 void main(void)
 {
@@ -20,6 +21,6 @@ void main(void)
     ex_Normal = in_Normal;
 
     vec2 depthBounds = vec2(0.0, 1.0);
-    ex_Depth = ((gl_Position.z - cameraDepth.x) *
-        ((depthBounds.x - depthBounds.y) / (cameraDepth.y - cameraDepth.x))) + depthBounds.y;
+    ex_Depth = ((gl_Position.z - depthNear) *
+        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
 }

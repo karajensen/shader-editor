@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <Windows.h>
+#include "elements.h"
 #include "common.h"
 
 class OpenglEngine;
@@ -161,6 +162,7 @@ private:
         MAX_ENGINES
     };
 
+    PostProcessing m_postProcessing;  ///< Post processing for the final image
     FadeState m_fadeState = FADE_IN;  ///< Current state of fading in/out the selected engine
     int m_selectedLight = NO_INDEX;   ///< Current light selected
     int m_selectedMesh = NO_INDEX;    ///< Current mesh selected

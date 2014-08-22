@@ -47,12 +47,10 @@ struct DirectxData
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix
     D3DXVECTOR3 cameraPosition;         ///< Position of the camera
-    D3DXVECTOR2 cameraDepth;            ///< Camera near and far values
     bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
     
-    std::array<float, Texture::MAX_POST> postAlpha;   ///< Visibility of post textures
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
@@ -62,7 +60,6 @@ DirectxData::DirectxData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    cameraDepth(DEPTH_NEAR, DEPTH_FAR),
     postShader(POST_NAME, POST_PATH),
     normalShader(NORMAL_NAME, NORM_PATH),
     quad("SceneQuad")
@@ -190,8 +187,8 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    if (!m_data->postShader.HasTextureSlot(Texture::SCENE_TEXTURE) ||
-        !m_data->postShader.HasTextureSlot(Texture::NORMAL_TEXTURE))
+    if (!m_data->postShader.HasTextureSlot(PostProcessing::SCENE_MAP) ||
+        !m_data->postShader.HasTextureSlot(PostProcessing::NORMAL_MAP))
     {
         Logger::LogError("DirectX: Post shader does not have required texture slots");
         return false;
@@ -244,8 +241,6 @@ bool DirectxEngine::Initialize()
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
     SetDebugName(m_data->swapchain, "SwapChain");
-
-    SetPostTexture(Texture::SCENE_TEXTURE);
 
     Logger::LogInfo("DirectX: D3D11 sucessful");
     return true;
@@ -357,7 +352,8 @@ bool DirectxEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void DirectxEngine::Render(const std::vector<Light>& lights)
+void DirectxEngine::Render(const std::vector<Light>& lights,
+                           const PostProcessing& post)
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
 
@@ -377,7 +373,8 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->normalTarget.SetActive(m_data->context);
     m_data->normalShader.SetActive(m_data->context);
     m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.UpdateConstantFloat("cameraDepth", &m_data->cameraDepth.x, 2);
+    m_data->normalShader.UpdateConstantFloat("depthNear", &post.depthNear, 1);
+    m_data->normalShader.UpdateConstantFloat("depthFar", &post.depthFar, 1);
     m_data->normalShader.SendConstants(m_data->context);
     for(auto& mesh : m_data->meshes)
     {
@@ -389,34 +386,34 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive(m_data->context);
     m_data->postShader.SetActive(m_data->context);
-    RenderPostProcessing();
+    RenderPostProcessing(post);
 
     m_data->swapchain->Present(0, 0);
 }
 
-void DirectxEngine::RenderPostProcessing()
+void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    m_data->sceneTarget.SendTexture(m_data->context, Texture::SCENE_TEXTURE);
-    m_data->normalTarget.SendTexture(m_data->context, Texture::NORMAL_TEXTURE);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE_MAP);
+    m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL_MAP);
 
     m_data->postShader.UpdateConstantFloat("fadeAmount",
         &m_data->fadeAmount, 1);
 
     m_data->postShader.UpdateConstantFloat("sceneAlpha",
-        &m_data->postAlpha[Texture::SCENE_TEXTURE], 1);
+        &post.alpha[PostProcessing::SCENE_MAP], 1);
 
     m_data->postShader.UpdateConstantFloat("normalAlpha",
-        &m_data->postAlpha[Texture::NORMAL_TEXTURE], 1);
+        &post.alpha[PostProcessing::NORMAL_MAP], 1);
 
     m_data->postShader.UpdateConstantFloat("depthAlpha",
-        &m_data->postAlpha[Texture::DEPTH_TEXTURE], 1);
+        &post.alpha[PostProcessing::DEPTH_MAP], 1);
 
     m_data->postShader.SendConstants(m_data->context);
 
     m_data->quad.Render(m_data->context);
 
-    m_data->sceneTarget.ClearTexture(m_data->context, Texture::SCENE_TEXTURE);
-    m_data->normalTarget.ClearTexture(m_data->context, Texture::NORMAL_TEXTURE);
+    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE_MAP);
+    m_data->normalTarget.ClearTexture(m_data->context, PostProcessing::NORMAL_MAP);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -545,20 +542,4 @@ std::string DirectxEngine::GetShaderAssembly(int index)
 void DirectxEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
-}
-
-void DirectxEngine::SetPostTexture(Texture::Post post)
-{
-    m_data->postAlpha.assign(0.0f);
-    m_data->postAlpha[post] = 1.0f;
-}
-
-void DirectxEngine::SetDepthNear(float value)
-{
-    m_data->cameraDepth.x = value;
-}
-
-void DirectxEngine::SetDepthFar(float value)
-{
-    m_data->cameraDepth.y = value;
 }

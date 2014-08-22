@@ -30,6 +30,14 @@ struct SignalCallbacks
     std::function<void(float)> SetMeshSpecularity;  ///< Sets the selected mesh specular size
     std::function<void(float)> SetMeshAmbience;     ///< Sets the selected mesh ambience
     std::function<void(float)> SetMeshBump;         ///< Sets the selected mesh bump saturation
+    std::function<void(float)> SetMinRed;           ///< Sets the minimum value for red in post
+    std::function<void(float)> SetMinGreen;         ///< Sets the minimum value for green in post
+    std::function<void(float)> SetMinBlue;          ///< Sets the minimum value for blue in post
+    std::function<void(float)> SetMinColour;        ///< Sets the minimum value for colour in post
+    std::function<void(float)> SetMaxRed;           ///< Sets the maximum value for red in post
+    std::function<void(float)> SetMaxGreen;         ///< Sets the maximum value for green in post
+    std::function<void(float)> SetMaxBlue;          ///< Sets the maximum value for blue in post
+    std::function<void(float)> SetMaxColour;        ///< Sets the maximum value for colour in post
     std::function<void(int)> SetSelectedEngine;     ///< Sets the selected engine to render
     std::function<void(int)> SetSelectedLight;      ///< Sets the selected light to display
     std::function<void(int)> SetSelectedMesh;       ///< Sets the selected mesh to display

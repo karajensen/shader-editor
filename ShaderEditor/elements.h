@@ -6,6 +6,63 @@
 
 #include "common.h"
 
+struct PostProcessing
+{
+    /**
+    * Post shader textures
+    */
+    enum Map
+    {
+        SCENE_MAP,
+        NORMAL_MAP,
+        DEPTH_MAP,
+        MAX_MAPS
+    };
+
+    /**
+    * Constructor
+    */
+    PostProcessing()
+    {
+        SetPostTexture(SCENE_MAP);
+    }
+
+    /**
+    * Sets which post texture should be rendered
+    * @param map The post texture to render
+    */
+    void SetPostTexture(Map map)
+    {
+        alpha.assign(0.0f);
+        alpha[map] = 1.0f;
+    }
+
+    /**
+    * @param map the texture type to convert
+    * @return the string name of the texture type
+    */
+    static std::string GetMapName(Map map)
+    {
+        switch (map)
+        {
+        case SCENE_MAP:
+            return "Scene";
+        case NORMAL_MAP:
+            return "Normal Map";
+        case DEPTH_MAP:
+            return "Depth Map";
+        default:
+            return "None";
+        }
+    }
+
+    float depthNear = 50.0f;            ///< Value where depth colour is min
+    float depthFar = 400.0f;            ///< Value where depth colour is max
+    Colour minimumColour;               ///< Colour ranges for RGB where A is the overall range
+    Colour maximumColour;               ///< Colour ranges for RGB where A is the overall range
+    std::array<float, MAX_MAPS> alpha;  ///< Visibility of post textures
+};
+
 struct Texture
 {
     /**
@@ -19,36 +76,6 @@ struct Texture
         SPECULAR,
         MAX_TYPES
     };
-
-    /**
-    * Post shader textures
-    */
-    enum Post
-    {
-        SCENE_TEXTURE,
-        NORMAL_TEXTURE,
-        DEPTH_TEXTURE,
-        MAX_POST
-    };
-
-    /**
-    * @param postTexture the texture type to convert
-    * @return the string name of the texture type
-    */
-    static std::string GetPostTextureName(Post postTexture)
-    {
-        switch (postTexture)
-        {
-        case SCENE_TEXTURE:
-            return "Scene";
-        case NORMAL_TEXTURE:
-            return "Normal Map";
-        case DEPTH_TEXTURE:
-            return "Depth Map";
-        default:
-            return "None";
-        }
-    }
 
     std::string name; ///< Name of the texture
     std::string path; ///< Path to the texture

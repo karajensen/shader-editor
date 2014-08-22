@@ -1,8 +1,7 @@
 
 - Fix Opengl post texture not switching
-- Fix Opengl near/far depth not updating
-
 - Colour correction
+
 - Bump mapping + normal map needs bump map changes
 - Sending multiple lights
 - Post effects: fog, dof, glow

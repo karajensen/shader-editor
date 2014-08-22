@@ -33,8 +33,10 @@ public:
     /**
     * Renders the 3D scene
     * @param lights All lighting in the scene
+    * @param postProcessing values for the final image
     */
-    virtual void Render(const std::vector<Light>& lights) = 0;
+    virtual void Render(const std::vector<Light>& lights,
+                        const PostProcessing& post) = 0;
 
     /**
     * Generates the shader for the engine
@@ -101,20 +103,4 @@ public:
     * @param value The amount of fade between [0,1]
     */
     virtual void SetFade(float value) = 0;
-
-    /**
-    * Sets which post texture should be rendered
-    * @param post The post texture to render
-    */
-    virtual void SetPostTexture(Texture::Post post) = 0;
-
-    /**
-    * @param value The near depth value to set
-    */
-    virtual void SetDepthNear(float value) = 0;
-
-    /**
-    * @param value The far depth value to set
-    */
-    virtual void SetDepthFar(float value) = 0;
 };

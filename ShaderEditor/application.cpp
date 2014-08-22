@@ -28,7 +28,7 @@ namespace
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_cache(cache),
-    m_selectedPost(Texture::SCENE_TEXTURE),
+    m_selectedPost(PostProcessing::SCENE_MAP),
     m_selectedEngine(SELECTED_ENGINE)
 {
 }
@@ -171,7 +171,7 @@ void Application::TickApplication()
     }
 
     FadeRenderEngine();
-    GetEngine()->Render(m_scene->GetLights());
+    GetEngine()->Render(m_scene->GetLights(), m_postProcessing);
 
     UpdateShader();
     switch(m_cache->PageSelected.Get())
@@ -299,11 +299,13 @@ void Application::UpdatePost()
     if (selectedTexture != m_selectedPost)
     {
         m_selectedPost = selectedTexture;
-        GetEngine()->SetPostTexture(static_cast<Texture::Post>(selectedTexture));
+        m_postProcessing.SetPostTexture(static_cast<PostProcessing::Map>(selectedTexture));
     }
 
-    GetEngine()->SetDepthNear(m_cache->DepthNear.Get());
-    GetEngine()->SetDepthFar(m_cache->DepthFar.Get());
+    m_postProcessing.depthFar = m_cache->DepthFar.Get();
+    m_postProcessing.depthNear = m_cache->DepthNear.Get();
+    m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
+    m_postProcessing.maximumColour = m_cache->MaximumColour.Get();
 }
 
 void Application::UpdateLight()
@@ -382,8 +384,10 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->Textures.Set(m_scene->GetPostTextureNames());
 
-    m_cache->DepthNear.SetUpdated(DEPTH_NEAR);
-    m_cache->DepthFar.SetUpdated(DEPTH_FAR);
+    m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
+    m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
+    m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
+    m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);
 }
 
 RenderEngine* Application::GetEngine() const
@@ -441,5 +445,4 @@ void Application::SwitchRenderEngine(int index)
 
     GetEngine()->UpdateView(m_camera->GetWorld());
     GetEngine()->SetFade(0.0f);
-    UpdatePost();
 }

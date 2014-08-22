@@ -280,6 +280,8 @@ struct Cache
     Lockable<int> TextureSelected;      ///< Index of the currently selected post texture
     Lockable<float> DepthNear;          ///< The near value for the depth
     Lockable<float> DepthFar;           ///< The far value for the depth
+    LockableColour MinimumColour;       ///< Colour ranges for RGB where A is the overall range
+    LockableColour MaximumColour;       ///< Colour ranges for RGB where A is the overall range
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

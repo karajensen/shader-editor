@@ -37,7 +37,6 @@ struct OpenglData
     GlShader postShader;             ///< Shader for post processing the scene
     GlShader normalShader;           ///< Shader for rendering normals/depth for the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
-    glm::vec2 cameraDepth;           ///< Camera near and far values
     glm::vec3 cameraPosition;        ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
@@ -46,7 +45,6 @@ struct OpenglData
     int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
     float fadeAmount = 0.0f;         ///< the amount to fade the scene by
 
-    std::array<float, Texture::MAX_POST> postAlpha;   ///< Visibility of post textures
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
@@ -57,7 +55,6 @@ OpenglData::OpenglData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    cameraDepth(DEPTH_NEAR, DEPTH_FAR),
     postShader(POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
     normalShader(NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH)
 {
@@ -278,8 +275,8 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    if(!m_data->postShader.HasTextureSlot(Texture::SCENE_TEXTURE) ||
-       !m_data->postShader.HasTextureSlot(Texture::NORMAL_TEXTURE))
+    if(!m_data->postShader.HasTextureSlot(PostProcessing::SCENE_MAP) ||
+       !m_data->postShader.HasTextureSlot(PostProcessing::NORMAL_MAP))
     {
         Logger::LogError("OpenGL: Post shader does not have required texture slots");
         return false;
@@ -292,7 +289,6 @@ bool OpenglEngine::Initialize()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
-    SetPostTexture(Texture::SCENE_TEXTURE);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -396,7 +392,8 @@ bool OpenglEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void OpenglEngine::Render(const std::vector<Light>& lights)
+void OpenglEngine::Render(const std::vector<Light>& lights,
+                          const PostProcessing& post)
 {
     m_data->selectedShader = NO_INDEX; // always reset due to post shader
 
@@ -417,7 +414,8 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     m_data->normalTarget.SetActive();
     m_data->normalShader.SetActive();
     m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.SendUniformFloat("cameraDepth", &m_data->cameraDepth.x, 2);
+    m_data->normalShader.SendUniformFloat("depthNear", &post.depthNear, 1);
+    m_data->normalShader.SendUniformFloat("depthFar", &post.depthFar, 1);
     for(auto& mesh : m_data->meshes)
     {
         SetBackfaceCull(mesh->ShouldBackfaceCull());
@@ -431,34 +429,34 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive();
     m_data->postShader.SetActive();
-    RenderPostProcessing();
+    RenderPostProcessing(post);
 
     SwapBuffers(m_data->hdc); 
 }
 
-void OpenglEngine::RenderPostProcessing()
+void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
     m_data->postShader.SendUniformFloat("fadeAmount", 
         &m_data->fadeAmount, 1);
 
     m_data->postShader.SendUniformFloat("sceneAlpha",
-        &m_data->postAlpha[Texture::SCENE_TEXTURE], 1);
+        &post.alpha[PostProcessing::SCENE_MAP], 1);
 
     m_data->postShader.SendUniformFloat("normalAlpha",
-        &m_data->postAlpha[Texture::NORMAL_TEXTURE], 1);
+        &post.alpha[PostProcessing::NORMAL_MAP], 1);
 
     m_data->postShader.SendUniformFloat("depthAlpha",
-        &m_data->postAlpha[Texture::DEPTH_TEXTURE], 1);
+        &post.alpha[PostProcessing::DEPTH_MAP], 1);
 
-    m_data->sceneTarget.SendTexture(Texture::SCENE_TEXTURE);
-    m_data->normalTarget.SendTexture(Texture::NORMAL_TEXTURE);
+    m_data->sceneTarget.SendTexture(PostProcessing::SCENE_MAP);
+    m_data->normalTarget.SendTexture(PostProcessing::NORMAL_MAP);
 
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
 
-    m_data->sceneTarget.ClearTexture(Texture::SCENE_TEXTURE);
-    m_data->normalTarget.ClearTexture(Texture::NORMAL_TEXTURE);
+    m_data->sceneTarget.ClearTexture(PostProcessing::SCENE_MAP);
+    m_data->normalTarget.ClearTexture(PostProcessing::NORMAL_MAP);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -581,20 +579,4 @@ std::string OpenglEngine::GetShaderAssembly(int index)
 void OpenglEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
-}
-
-void OpenglEngine::SetPostTexture(Texture::Post post)
-{
-    m_data->postAlpha.assign(0.0f);
-    m_data->postAlpha[post] = 1.0f;
-}
-
-void OpenglEngine::SetDepthNear(float value)
-{
-    m_data->cameraDepth[0] = value;
-}
-
-void OpenglEngine::SetDepthFar(float value)
-{
-    m_data->cameraDepth[1] = value;
 }

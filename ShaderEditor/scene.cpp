@@ -416,10 +416,10 @@ std::vector<std::string> Scene::GetMeshNames() const
 std::vector<std::string> Scene::GetPostTextureNames() const
 {
     std::vector<std::string> textures;
-    for (int i = 0; i < Texture::MAX_POST; ++i)
+    for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
     {
-        textures.push_back(Texture::GetPostTextureName(
-            static_cast<Texture::Post>(i)));
+        textures.push_back(PostProcessing::GetMapName(
+            static_cast<PostProcessing::Map>(i)));
     }
     return textures;
 }

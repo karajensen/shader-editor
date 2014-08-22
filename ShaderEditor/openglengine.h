@@ -42,8 +42,10 @@ public:
     /**
     * Renders the 3D scene
     * @param lights All lighting in the scene
+    * @param postProcessing values for the final image
     */
-    virtual void Render(const std::vector<Light>& lights) override;
+    virtual void Render(const std::vector<Light>& lights,
+                        const PostProcessing& post) override;
 
     /**
     * Initialises the scene for openGL
@@ -111,22 +113,6 @@ public:
     */
     virtual void SetFade(float value) override;
 
-    /**
-    * Sets which post texture should be rendered
-    * @param post The post texture to render
-    */
-    virtual void SetPostTexture(Texture::Post post) override;
-
-    /**
-    * @param value The near depth value to set
-    */
-    virtual void SetDepthNear(float value) override;
-
-    /**
-    * @param value The far depth value to set
-    */
-    virtual void SetDepthFar(float value) override;
-
 private:
 
     /**
@@ -150,8 +136,9 @@ private:
 
     /**
     * Renders the scene with post processing
+    * @param postProcessing values for the final image
     */
-    void RenderPostProcessing();
+    void RenderPostProcessing(const PostProcessing& post);
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     HWND m_temporaryHwnd = nullptr;      ///< Handle to the temporary window used for glew
