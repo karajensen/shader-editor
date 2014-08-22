@@ -12,6 +12,8 @@
 struct SignalCallbacks
 {
     std::function<void(const std::string&)> CompileShader; ///< Sends a compile request
+    std::function<void(float)> SetDepthNear;        ///< Sets the depth near value
+    std::function<void(float)> SetDepthFar;         ///< Sets the depth far value
     std::function<void(float)> SetLightPositionX;   ///< Sets the selected light position
     std::function<void(float)> SetLightPositionY;   ///< Sets the selected light position
     std::function<void(float)> SetLightPositionZ;   ///< Sets the selected light position

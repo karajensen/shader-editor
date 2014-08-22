@@ -85,6 +85,8 @@ public:
     /**
     * Updates the engine's cached view matrix
     * @param world The world matrix of the camera
+    * @param depthNear The near cutoff value for the depth
+    * @param depthFar The far cutoff value for the depth
     */
     virtual void UpdateView(const Matrix& world) override;
 
@@ -121,6 +123,16 @@ public:
     * @param post The post texture to render
     */
     virtual void SetPostTexture(Texture::Post post) override;
+
+    /**
+    * @param value The near depth value to set
+    */
+    virtual void SetDepthNear(float value) override;
+
+    /**
+    * @param value The far depth value to set
+    */
+    virtual void SetDepthFar(float value) override;
 
 private:
 

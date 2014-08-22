@@ -46,8 +46,8 @@ struct DirectxData
     D3DXMATRIX view;                    ///< View matrix
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix
-    D3DXVECTOR3 camera;                 ///< Position of the camera
-    D3DXVECTOR2 frustum;                ///< Camera near and far values
+    D3DXVECTOR3 cameraPosition;         ///< Position of the camera
+    D3DXVECTOR2 cameraDepth;            ///< Camera near and far values
     bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
@@ -62,9 +62,9 @@ DirectxData::DirectxData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(NO_INDEX, POST_NAME, POST_PATH),
-    normalShader(NO_INDEX, NORMAL_NAME, NORM_PATH),
+    cameraDepth(DEPTH_NEAR, DEPTH_FAR),
+    postShader(POST_NAME, POST_PATH),
+    normalShader(NORMAL_NAME, NORM_PATH),
     quad("SceneQuad")
 {
 }
@@ -237,7 +237,7 @@ bool DirectxEngine::Initialize()
     D3DXMatrixPerspectiveFovLH(&m_data->projection,
         (FLOAT)D3DXToRadian(FIELD_OF_VIEW),
         (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
-        CAMERA_NEAR, CAMERA_FAR);
+        FRUSTRUM_NEAR, FRUSTRUM_FAR);
 
     SetDebugName(m_data->cullState, "CullState");
     SetDebugName(m_data->nocullState, "NoCullState");
@@ -300,7 +300,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         m_data->shaders.push_back(std::unique_ptr<DxShader>(
-            new DxShader(shader.index, shader.name, shader.hlslShaderFile)));
+            new DxShader(shader.name, shader.hlslShaderFile, shader.index)));
     }
 
     m_data->meshes.reserve(meshes.size());
@@ -377,7 +377,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights)
     m_data->normalTarget.SetActive(m_data->context);
     m_data->normalShader.SetActive(m_data->context);
     m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.UpdateConstantFloat("frustum", &m_data->frustum.x, 2);
+    m_data->normalShader.UpdateConstantFloat("cameraDepth", &m_data->cameraDepth.x, 2);
     m_data->normalShader.SendConstants(m_data->context);
     for(auto& mesh : m_data->meshes)
     {
@@ -452,7 +452,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
         shader->SetActive(m_data->context);
         
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->UpdateConstantFloat("cameraPosition", &m_data->camera.x, 3);
+        shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
 
         shader->UpdateConstantFloat("lightSpecularity", &lights[0].specularity, 1);
         shader->UpdateConstantFloat("lightAttenuation", &lights[0].attenuation.x, 3);
@@ -497,9 +497,9 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._42 = world.m24;
     m_data->view._43 = world.m34;
 
-    m_data->camera.x = world.m14;
-    m_data->camera.y = world.m24;
-    m_data->camera.z = world.m34;
+    m_data->cameraPosition.x = world.m14;
+    m_data->cameraPosition.y = world.m24;
+    m_data->cameraPosition.z = world.m34;
 
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
 
@@ -551,4 +551,14 @@ void DirectxEngine::SetPostTexture(Texture::Post post)
 {
     m_data->postAlpha.assign(0.0f);
     m_data->postAlpha[post] = 1.0f;
+}
+
+void DirectxEngine::SetDepthNear(float value)
+{
+    m_data->cameraDepth.x = value;
+}
+
+void DirectxEngine::SetDepthFar(float value)
+{
+    m_data->cameraDepth.y = value;
 }

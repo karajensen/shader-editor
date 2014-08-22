@@ -64,14 +64,6 @@ public:
     QFrame *cameraZ;
     QLabel *cameraZ_lbl;
     QLabel *cameraZ_text;
-    QFrame *cameraNear;
-    QLabel *cameraNear_lbl;
-    QDoubleSpinBox *cameraNear_value;
-    QDial *cameraNear_dial;
-    QFrame *cameraFar;
-    QLabel *cameraFar_lbl;
-    QDoubleSpinBox *cameraFar_value;
-    QDial *cameraFar_dial;
     QSpacerItem *_sceneSpacer;
     QWidget *Light;
     QWidget *layoutWidget1;
@@ -191,14 +183,14 @@ public:
     QLabel *brightness_lbl;
     QDoubleSpinBox *brightness_value;
     QDial *brightness_dial;
-    QFrame *fogAmount;
-    QLabel *fogAmount_lbl;
-    QDoubleSpinBox *fogAmount_value;
-    QDial *fogAmount_dial;
-    QFrame *fogDistance;
-    QLabel *fogDistance_lbl;
-    QDoubleSpinBox *fogDistance_value;
-    QDial *fogDistance_dial;
+    QFrame *depthNear;
+    QLabel *depthNear_lbl;
+    QDoubleSpinBox *depthNear_value;
+    QDial *depthNear_dial;
+    QFrame *depthFar;
+    QLabel *depthFar_lbl;
+    QDoubleSpinBox *depthFar_value;
+    QDial *depthFar_dial;
     QFrame *glowIntensity;
     QLabel *glowIntensity_lbl;
     QDoubleSpinBox *glowIntensity_value;
@@ -608,110 +600,6 @@ public:
         cameraZ_text->setMargin(3);
 
         sceneLayout->addWidget(cameraZ);
-
-        cameraNear = new QFrame(layoutWidget);
-        cameraNear->setObjectName(QStringLiteral("cameraNear"));
-        cameraNear->setMinimumSize(QSize(225, 35));
-        cameraNear->setMaximumSize(QSize(225, 35));
-        cameraNear->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        cameraNear->setFrameShape(QFrame::NoFrame);
-        cameraNear->setFrameShadow(QFrame::Plain);
-        cameraNear->setLineWidth(0);
-        cameraNear_lbl = new QLabel(cameraNear);
-        cameraNear_lbl->setObjectName(QStringLiteral("cameraNear_lbl"));
-        cameraNear_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(cameraNear_lbl->sizePolicy().hasHeightForWidth());
-        cameraNear_lbl->setSizePolicy(sizePolicy);
-        cameraNear_lbl->setMinimumSize(QSize(100, 30));
-        cameraNear_lbl->setMaximumSize(QSize(100, 30));
-        cameraNear_lbl->setFont(font);
-        cameraNear_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraNear_lbl->setMargin(1);
-        cameraNear_value = new QDoubleSpinBox(cameraNear);
-        cameraNear_value->setObjectName(QStringLiteral("cameraNear_value"));
-        cameraNear_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(cameraNear_value->sizePolicy().hasHeightForWidth());
-        cameraNear_value->setSizePolicy(sizePolicy);
-        cameraNear_value->setMinimumSize(QSize(86, 25));
-        cameraNear_value->setMaximumSize(QSize(86, 25));
-        cameraNear_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        cameraNear_value->setFrame(false);
-        cameraNear_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        cameraNear_value->setDecimals(3);
-        cameraNear_value->setMinimum(-9999);
-        cameraNear_value->setMaximum(9999);
-        cameraNear_value->setSingleStep(0.05);
-        cameraNear_dial = new QDial(cameraNear);
-        cameraNear_dial->setObjectName(QStringLiteral("cameraNear_dial"));
-        cameraNear_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraNear_dial->sizePolicy().hasHeightForWidth());
-        cameraNear_dial->setSizePolicy(sizePolicy);
-        cameraNear_dial->setMinimumSize(QSize(30, 30));
-        cameraNear_dial->setMaximumSize(QSize(30, 30));
-        cameraNear_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraNear_dial->setMinimum(-10000);
-        cameraNear_dial->setMaximum(10000);
-
-        sceneLayout->addWidget(cameraNear);
-
-        cameraFar = new QFrame(layoutWidget);
-        cameraFar->setObjectName(QStringLiteral("cameraFar"));
-        cameraFar->setMinimumSize(QSize(225, 35));
-        cameraFar->setMaximumSize(QSize(225, 35));
-        cameraFar->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        cameraFar->setFrameShape(QFrame::NoFrame);
-        cameraFar->setFrameShadow(QFrame::Plain);
-        cameraFar->setLineWidth(0);
-        cameraFar_lbl = new QLabel(cameraFar);
-        cameraFar_lbl->setObjectName(QStringLiteral("cameraFar_lbl"));
-        cameraFar_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(cameraFar_lbl->sizePolicy().hasHeightForWidth());
-        cameraFar_lbl->setSizePolicy(sizePolicy);
-        cameraFar_lbl->setMinimumSize(QSize(100, 30));
-        cameraFar_lbl->setMaximumSize(QSize(100, 30));
-        cameraFar_lbl->setFont(font);
-        cameraFar_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraFar_lbl->setMargin(1);
-        cameraFar_value = new QDoubleSpinBox(cameraFar);
-        cameraFar_value->setObjectName(QStringLiteral("cameraFar_value"));
-        cameraFar_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(cameraFar_value->sizePolicy().hasHeightForWidth());
-        cameraFar_value->setSizePolicy(sizePolicy);
-        cameraFar_value->setMinimumSize(QSize(86, 25));
-        cameraFar_value->setMaximumSize(QSize(86, 25));
-        cameraFar_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        cameraFar_value->setFrame(false);
-        cameraFar_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        cameraFar_value->setDecimals(3);
-        cameraFar_value->setMinimum(-9999);
-        cameraFar_value->setMaximum(9999);
-        cameraFar_value->setSingleStep(0.05);
-        cameraFar_dial = new QDial(cameraFar);
-        cameraFar_dial->setObjectName(QStringLiteral("cameraFar_dial"));
-        cameraFar_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraFar_dial->sizePolicy().hasHeightForWidth());
-        cameraFar_dial->setSizePolicy(sizePolicy);
-        cameraFar_dial->setMinimumSize(QSize(30, 30));
-        cameraFar_dial->setMaximumSize(QSize(30, 30));
-        cameraFar_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraFar_dial->setMinimum(-10000);
-        cameraFar_dial->setMaximum(10000);
-
-        sceneLayout->addWidget(cameraFar);
 
         _sceneSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2137,109 +2025,109 @@ public:
 
         postLayout->addWidget(brightness);
 
-        fogAmount = new QFrame(layoutWidget3);
-        fogAmount->setObjectName(QStringLiteral("fogAmount"));
-        fogAmount->setMinimumSize(QSize(225, 35));
-        fogAmount->setMaximumSize(QSize(225, 35));
-        fogAmount->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        depthNear = new QFrame(layoutWidget3);
+        depthNear->setObjectName(QStringLiteral("depthNear"));
+        depthNear->setMinimumSize(QSize(225, 35));
+        depthNear->setMaximumSize(QSize(225, 35));
+        depthNear->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        fogAmount->setFrameShape(QFrame::NoFrame);
-        fogAmount->setFrameShadow(QFrame::Plain);
-        fogAmount->setLineWidth(0);
-        fogAmount_lbl = new QLabel(fogAmount);
-        fogAmount_lbl->setObjectName(QStringLiteral("fogAmount_lbl"));
-        fogAmount_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(fogAmount_lbl->sizePolicy().hasHeightForWidth());
-        fogAmount_lbl->setSizePolicy(sizePolicy);
-        fogAmount_lbl->setMinimumSize(QSize(100, 30));
-        fogAmount_lbl->setMaximumSize(QSize(100, 30));
-        fogAmount_lbl->setFont(font);
-        fogAmount_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        fogAmount_lbl->setMargin(1);
-        fogAmount_value = new QDoubleSpinBox(fogAmount);
-        fogAmount_value->setObjectName(QStringLiteral("fogAmount_value"));
-        fogAmount_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(fogAmount_value->sizePolicy().hasHeightForWidth());
-        fogAmount_value->setSizePolicy(sizePolicy);
-        fogAmount_value->setMinimumSize(QSize(86, 25));
-        fogAmount_value->setMaximumSize(QSize(86, 25));
-        fogAmount_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        depthNear->setFrameShape(QFrame::NoFrame);
+        depthNear->setFrameShadow(QFrame::Plain);
+        depthNear->setLineWidth(0);
+        depthNear_lbl = new QLabel(depthNear);
+        depthNear_lbl->setObjectName(QStringLiteral("depthNear_lbl"));
+        depthNear_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(depthNear_lbl->sizePolicy().hasHeightForWidth());
+        depthNear_lbl->setSizePolicy(sizePolicy);
+        depthNear_lbl->setMinimumSize(QSize(100, 30));
+        depthNear_lbl->setMaximumSize(QSize(100, 30));
+        depthNear_lbl->setFont(font);
+        depthNear_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        depthNear_lbl->setMargin(1);
+        depthNear_value = new QDoubleSpinBox(depthNear);
+        depthNear_value->setObjectName(QStringLiteral("depthNear_value"));
+        depthNear_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(depthNear_value->sizePolicy().hasHeightForWidth());
+        depthNear_value->setSizePolicy(sizePolicy);
+        depthNear_value->setMinimumSize(QSize(86, 25));
+        depthNear_value->setMaximumSize(QSize(86, 25));
+        depthNear_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        fogAmount_value->setFrame(false);
-        fogAmount_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        fogAmount_value->setDecimals(3);
-        fogAmount_value->setMinimum(-9999);
-        fogAmount_value->setMaximum(9999);
-        fogAmount_value->setSingleStep(0.05);
-        fogAmount_dial = new QDial(fogAmount);
-        fogAmount_dial->setObjectName(QStringLiteral("fogAmount_dial"));
-        fogAmount_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(fogAmount_dial->sizePolicy().hasHeightForWidth());
-        fogAmount_dial->setSizePolicy(sizePolicy);
-        fogAmount_dial->setMinimumSize(QSize(30, 30));
-        fogAmount_dial->setMaximumSize(QSize(30, 30));
-        fogAmount_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        fogAmount_dial->setMinimum(-10000);
-        fogAmount_dial->setMaximum(10000);
+        depthNear_value->setFrame(false);
+        depthNear_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        depthNear_value->setDecimals(3);
+        depthNear_value->setMinimum(-9999);
+        depthNear_value->setMaximum(9999);
+        depthNear_value->setSingleStep(0.05);
+        depthNear_dial = new QDial(depthNear);
+        depthNear_dial->setObjectName(QStringLiteral("depthNear_dial"));
+        depthNear_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(depthNear_dial->sizePolicy().hasHeightForWidth());
+        depthNear_dial->setSizePolicy(sizePolicy);
+        depthNear_dial->setMinimumSize(QSize(30, 30));
+        depthNear_dial->setMaximumSize(QSize(30, 30));
+        depthNear_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        depthNear_dial->setMinimum(-10000);
+        depthNear_dial->setMaximum(10000);
 
-        postLayout->addWidget(fogAmount);
+        postLayout->addWidget(depthNear);
 
-        fogDistance = new QFrame(layoutWidget3);
-        fogDistance->setObjectName(QStringLiteral("fogDistance"));
-        fogDistance->setMinimumSize(QSize(225, 35));
-        fogDistance->setMaximumSize(QSize(225, 35));
-        fogDistance->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        depthFar = new QFrame(layoutWidget3);
+        depthFar->setObjectName(QStringLiteral("depthFar"));
+        depthFar->setMinimumSize(QSize(225, 35));
+        depthFar->setMaximumSize(QSize(225, 35));
+        depthFar->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        fogDistance->setFrameShape(QFrame::NoFrame);
-        fogDistance->setFrameShadow(QFrame::Plain);
-        fogDistance->setLineWidth(0);
-        fogDistance_lbl = new QLabel(fogDistance);
-        fogDistance_lbl->setObjectName(QStringLiteral("fogDistance_lbl"));
-        fogDistance_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(fogDistance_lbl->sizePolicy().hasHeightForWidth());
-        fogDistance_lbl->setSizePolicy(sizePolicy);
-        fogDistance_lbl->setMinimumSize(QSize(100, 30));
-        fogDistance_lbl->setMaximumSize(QSize(100, 30));
-        fogDistance_lbl->setFont(font);
-        fogDistance_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        fogDistance_lbl->setMargin(1);
-        fogDistance_value = new QDoubleSpinBox(fogDistance);
-        fogDistance_value->setObjectName(QStringLiteral("fogDistance_value"));
-        fogDistance_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(fogDistance_value->sizePolicy().hasHeightForWidth());
-        fogDistance_value->setSizePolicy(sizePolicy);
-        fogDistance_value->setMinimumSize(QSize(86, 25));
-        fogDistance_value->setMaximumSize(QSize(86, 25));
-        fogDistance_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        depthFar->setFrameShape(QFrame::NoFrame);
+        depthFar->setFrameShadow(QFrame::Plain);
+        depthFar->setLineWidth(0);
+        depthFar_lbl = new QLabel(depthFar);
+        depthFar_lbl->setObjectName(QStringLiteral("depthFar_lbl"));
+        depthFar_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(depthFar_lbl->sizePolicy().hasHeightForWidth());
+        depthFar_lbl->setSizePolicy(sizePolicy);
+        depthFar_lbl->setMinimumSize(QSize(100, 30));
+        depthFar_lbl->setMaximumSize(QSize(100, 30));
+        depthFar_lbl->setFont(font);
+        depthFar_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        depthFar_lbl->setMargin(1);
+        depthFar_value = new QDoubleSpinBox(depthFar);
+        depthFar_value->setObjectName(QStringLiteral("depthFar_value"));
+        depthFar_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(depthFar_value->sizePolicy().hasHeightForWidth());
+        depthFar_value->setSizePolicy(sizePolicy);
+        depthFar_value->setMinimumSize(QSize(86, 25));
+        depthFar_value->setMaximumSize(QSize(86, 25));
+        depthFar_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        fogDistance_value->setFrame(false);
-        fogDistance_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        fogDistance_value->setDecimals(3);
-        fogDistance_value->setMinimum(-9999);
-        fogDistance_value->setMaximum(9999);
-        fogDistance_value->setSingleStep(0.05);
-        fogDistance_dial = new QDial(fogDistance);
-        fogDistance_dial->setObjectName(QStringLiteral("fogDistance_dial"));
-        fogDistance_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(fogDistance_dial->sizePolicy().hasHeightForWidth());
-        fogDistance_dial->setSizePolicy(sizePolicy);
-        fogDistance_dial->setMinimumSize(QSize(30, 30));
-        fogDistance_dial->setMaximumSize(QSize(30, 30));
-        fogDistance_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        fogDistance_dial->setMinimum(-10000);
-        fogDistance_dial->setMaximum(10000);
+        depthFar_value->setFrame(false);
+        depthFar_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        depthFar_value->setDecimals(3);
+        depthFar_value->setMinimum(-9999);
+        depthFar_value->setMaximum(9999);
+        depthFar_value->setSingleStep(0.05);
+        depthFar_dial = new QDial(depthFar);
+        depthFar_dial->setObjectName(QStringLiteral("depthFar_dial"));
+        depthFar_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(depthFar_dial->sizePolicy().hasHeightForWidth());
+        depthFar_dial->setSizePolicy(sizePolicy);
+        depthFar_dial->setMinimumSize(QSize(30, 30));
+        depthFar_dial->setMaximumSize(QSize(30, 30));
+        depthFar_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        depthFar_dial->setMinimum(-10000);
+        depthFar_dial->setMaximum(10000);
 
-        postLayout->addWidget(fogDistance);
+        postLayout->addWidget(depthFar);
 
         glowIntensity = new QFrame(layoutWidget3);
         glowIntensity->setObjectName(QStringLiteral("glowIntensity"));
@@ -2460,7 +2348,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(3);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2489,8 +2377,6 @@ public:
         cameraY_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         cameraZ_lbl->setText(QApplication::translate("Tweaker", "Camera Pos Z", 0));
         cameraZ_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        cameraNear_lbl->setText(QApplication::translate("Tweaker", "Camera Near", 0));
-        cameraFar_lbl->setText(QApplication::translate("Tweaker", "Camera Far", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         selectedLight_lbl->setText(QApplication::translate("Tweaker", "Selected Light", 0));
         positionX_lbl->setText(QApplication::translate("Tweaker", "Position X", 0));
@@ -2527,8 +2413,8 @@ public:
         postImage_lbl->setText(QApplication::translate("Tweaker", "Post Texture", 0));
         contrast_lbl->setText(QApplication::translate("Tweaker", "Contrast", 0));
         brightness_lbl->setText(QApplication::translate("Tweaker", "Brightness", 0));
-        fogAmount_lbl->setText(QApplication::translate("Tweaker", "Fog Amount", 0));
-        fogDistance_lbl->setText(QApplication::translate("Tweaker", "Fog Distance", 0));
+        depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));
+        depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));
         glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
         glowSpread_lbl->setText(QApplication::translate("Tweaker", "Glow Spread", 0));
         dofDistance_lbl->setText(QApplication::translate("Tweaker", "DOF Distance", 0));

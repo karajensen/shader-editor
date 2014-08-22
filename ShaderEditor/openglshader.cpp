@@ -41,10 +41,10 @@ namespace
         (16, GL_FLOAT_MAT4);
 }
 
-GlShader::GlShader(int index, 
-                   const std::string& name,
+GlShader::GlShader(const std::string& name,
                    const std::string& vs, 
-                   const std::string& fs) :
+                   const std::string& fs,
+                   int index) :
 
     m_vsFilepath(vs),
     m_fsFilepath(fs),

@@ -121,6 +121,9 @@
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_value.cpp">
       <Filter>Qt\generated</Filter>
     </ClCompile>
+    <ClCompile Include="qt\project\tweakable_boxed_value.cpp">
+      <Filter>Qt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -217,6 +220,9 @@
       <Filter>Qt</Filter>
     </ClInclude>
     <ClInclude Include="qt\project\tweakable_value.h">
+      <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\tweakable_boxed_value.h">
       <Filter>Qt</Filter>
     </ClInclude>
   </ItemGroup>

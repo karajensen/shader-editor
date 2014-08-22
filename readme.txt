@@ -1,18 +1,17 @@
 
-- Opengl post texture not switching
-- Setting frustum values
+- Fix Opengl post texture not switching
+- Fix Opengl near/far depth not updating
+
 - Colour correction
-
+- Bump mapping + normal map needs bump map changes
 - Sending multiple lights
-
-- Bump mapping
-- normal map needs bump map changes
-
 - Post effects: fog, dof, glow
+- Water shader
+- Particles
 - Optimise shaders
+
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
-- Particle effects or water
 
 
 =================================================================

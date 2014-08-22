@@ -124,6 +124,12 @@ private:
     bool InitialiseEngine(RenderEngine* engine);
 
     /**
+    * Initialises the cache shared between the application and gui
+    * @param engineNames The names of all engines supported
+    */
+    void InitialiseCache(const std::vector<std::string>& engineNames);
+
+    /**
     * Recompiles the currently selected shader
     * @param text The new text to recompile with
     * @return whether recompilation was successful

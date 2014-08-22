@@ -99,12 +99,12 @@ private:
     */
     void Up(float val);
 
-    Matrix m_world;            ///< World Matrix for the camera
-    bool m_cameraNeedsUpdate;  ///< Whether the camera requires updating or not
-    Float3 m_initialPos;       ///< Camera initial position in world space
-    Float3 m_pos;              ///< Camera position in world space
-    Float3 m_target;           ///< Camera Look target
-    float m_yaw;               ///< Radian amount of yaw
-    float m_pitch;             ///< Radian amount of pitch
-    float m_roll;              ///< Radian amount of roll
+    Matrix m_world;                     ///< World Matrix for the camera
+    Float3 m_initialPos;                ///< Camera initial position in world space
+    Float3 m_pos;                       ///< Camera position in world space
+    Float3 m_target;                    ///< Camera Look target
+    float m_yaw = 0.0f;                 ///< Radian amount of yaw
+    float m_pitch = 0.0f;               ///< Radian amount of pitch
+    float m_roll = 0.0f;                ///< Radian amount of roll
+    bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
 };

@@ -36,6 +36,8 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
+    callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
+    callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
     callbacks.SetMeshAmbience =     [&](float value){ m_cache->MeshAmbience.Set(value); };
     callbacks.SetMeshBump =         [&](float value){ m_cache->MeshBump.Set(value); };
@@ -140,18 +142,30 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.InitialiseTextures(
             m_cache->TextureSelected.Get(), m_cache->Textures.Get());
     }
+
+    if (m_cache->DepthFar.RequiresUpdate())
+    {
+        tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
+    }
+
+    if (m_cache->DepthNear.RequiresUpdate())
+    {
+        tweaker.SetDepthNear(m_cache->DepthNear.GetUpdated());
+    }
 }
 
 void Gui::UpdateScene(Tweaker& tweaker)
 {
+    bool initialisedEngine = false;
     if(!tweaker.HasEngines())
     {
+        initialisedEngine = true;
         tweaker.InitialiseEngines(
             m_cache->EngineSelected.Get(), m_cache->Engines.Get());
     }
     else if(m_cache->EngineSelected.RequiresUpdate())
     {
-        tweaker.SetSelectedEngine(m_cache->EngineSelected.Get());
+        tweaker.SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
     }
 
     const Float2 mousePosition = m_cache->MousePosition.Get();

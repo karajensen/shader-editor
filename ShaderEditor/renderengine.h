@@ -107,4 +107,14 @@ public:
     * @param post The post texture to render
     */
     virtual void SetPostTexture(Texture::Post post) = 0;
+
+    /**
+    * @param value The near depth value to set
+    */
+    virtual void SetDepthNear(float value) = 0;
+
+    /**
+    * @param value The far depth value to set
+    */
+    virtual void SetDepthFar(float value) = 0;
 };

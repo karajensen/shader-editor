@@ -78,6 +78,18 @@ public:
                            const std::string& z);
 
     /**
+    * Sets the near value for the camera
+    * @param value The near value for the camera
+    */
+    void SetDepthNear(float value);
+
+    /**
+    * Sets the far value for the camera
+    * @param value The far value for the camera
+    */
+    void SetDepthFar(float value);
+
+    /**
     * Sets the readonly selected mesh back face culling
     * @param enable Whether the mesh uses back face culling
     */
@@ -230,6 +242,8 @@ public:
 
 private:
 
+    TweakableValue m_depthNear;          ///< Tweakable depth near value
+    TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_lightPositionX;     ///< Tweakable x of the light position
     TweakableValue m_lightPositionY;     ///< Tweakable y of the light position
     TweakableValue m_lightPositionZ;     ///< Tweakable z of the light position

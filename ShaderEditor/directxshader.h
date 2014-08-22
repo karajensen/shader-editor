@@ -17,11 +17,11 @@ public:
 
     /**
     * Constructor
-    * @param index The unique index of the shader
     * @param name The name of the shader
     * @param filepath The path for the shader
+    * @param index The unique index of the shader
     */
-    DxShader(int index, const std::string& name, const std::string& filepath);
+    DxShader(const std::string& name, const std::string& filepath, int index = NO_INDEX);
 
     /**
     * Destructor

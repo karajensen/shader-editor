@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -1278,334 +1278,6 @@ border-radius: 4px;</string>
            </property>
            <property name="margin">
             <number>3</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="cameraNear">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QLabel" name="cameraNear_lbl">
-           <property name="geometry">
-            <rect>
-             <x>2</x>
-             <y>2</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="text">
-            <string>Camera Near</string>
-           </property>
-           <property name="margin">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="cameraNear_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraNear_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="cameraFar">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QLabel" name="cameraFar_lbl">
-           <property name="geometry">
-            <rect>
-             <x>2</x>
-             <y>2</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="text">
-            <string>Camera Far</string>
-           </property>
-           <property name="margin">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="cameraFar_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraFar_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -6106,7 +5778,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="fogAmount">
+         <widget class="QFrame" name="depthNear">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -6132,7 +5804,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QLabel" name="fogAmount_lbl">
+          <widget class="QLabel" name="depthNear_lbl">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -6169,13 +5841,13 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>Fog Amount</string>
+            <string>Depth Near</string>
            </property>
            <property name="margin">
             <number>1</number>
            </property>
           </widget>
-          <widget class="QDoubleSpinBox" name="fogAmount_value">
+          <widget class="QDoubleSpinBox" name="depthNear_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -6230,7 +5902,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="fogAmount_dial">
+          <widget class="QDial" name="depthNear_dial">
            <property name="geometry">
             <rect>
              <x>192</x>
@@ -6270,7 +5942,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="fogDistance">
+         <widget class="QFrame" name="depthFar">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -6296,7 +5968,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QLabel" name="fogDistance_lbl">
+          <widget class="QLabel" name="depthFar_lbl">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -6333,13 +6005,13 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>Fog Distance</string>
+            <string>Depth Far</string>
            </property>
            <property name="margin">
             <number>1</number>
            </property>
           </widget>
-          <widget class="QDoubleSpinBox" name="fogDistance_value">
+          <widget class="QDoubleSpinBox" name="depthFar_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -6394,7 +6066,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="fogDistance_dial">
+          <widget class="QDial" name="depthFar_dial">
            <property name="geometry">
             <rect>
              <x>192</x>

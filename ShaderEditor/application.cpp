@@ -28,6 +28,7 @@ namespace
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_cache(cache),
+    m_selectedPost(Texture::SCENE_TEXTURE),
     m_selectedEngine(SELECTED_ENGINE)
 {
 }
@@ -300,6 +301,9 @@ void Application::UpdatePost()
         m_selectedPost = selectedTexture;
         GetEngine()->SetPostTexture(static_cast<Texture::Post>(selectedTexture));
     }
+
+    GetEngine()->SetDepthNear(m_cache->DepthNear.Get());
+    GetEngine()->SetDepthFar(m_cache->DepthFar.Get());
 }
 
 void Application::UpdateLight()
@@ -363,14 +367,23 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         return false;
     }
 
+    InitialiseCache(engineNames);
+    return true;
+}
+
+void Application::InitialiseCache(const std::vector<std::string>& engineNames)
+{
+    m_cache->TextureSelected.Set(m_selectedPost);
     m_cache->EngineSelected.Set(m_selectedEngine);
+
     m_cache->Engines.Set(engineNames);
     m_cache->Lights.Set(m_scene->GetLightNames());
     m_cache->Meshes.Set(m_scene->GetMeshNames());
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->Textures.Set(m_scene->GetPostTextureNames());
 
-    return true;
+    m_cache->DepthNear.SetUpdated(DEPTH_NEAR);
+    m_cache->DepthFar.SetUpdated(DEPTH_FAR);
 }
 
 RenderEngine* Application::GetEngine() const
@@ -419,6 +432,7 @@ void Application::SwitchRenderEngine(int index)
 
     m_selectedEngine = index;
     m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
+    m_selectedPost = NO_INDEX;   // allows post values to be sent
 
     if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {
@@ -427,5 +441,5 @@ void Application::SwitchRenderEngine(int index)
 
     GetEngine()->UpdateView(m_camera->GetWorld());
     GetEngine()->SetFade(0.0f);
-    GetEngine()->SetPostTexture(static_cast<Texture::Post>(m_selectedPost));
+    UpdatePost();
 }

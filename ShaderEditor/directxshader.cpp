@@ -42,7 +42,10 @@ namespace
         (16, HLSL_MAT4);
 }
 
-DxShader::DxShader(int index, const std::string& name, const std::string& filepath) :
+DxShader::DxShader(const std::string& name, 
+                   const std::string& filepath, 
+                   int index) :
+
     m_filepath(filepath),
     m_index(index),
     m_name(name)

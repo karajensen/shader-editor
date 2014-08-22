@@ -16,13 +16,13 @@ public:
 
     /**
     * Constructor
-    * @param index The unique index of the shader
     * @param name The name of the shader
     * @param vs The filepath for the vertex shader
     * @param fs The filepath for the fragment shader
+    * @param index The unique index of the shader
     */
-    GlShader(int index, const std::string& name,
-        const std::string& vs, const std::string& fs);
+    GlShader(const std::string& name, const std::string& vs, 
+        const std::string& fs, int index = NO_INDEX);
 
     /**
     * Destructor

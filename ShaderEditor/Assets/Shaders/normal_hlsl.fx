@@ -5,7 +5,7 @@
 cbuffer VertexBuffer : register(b0)
 {
     float4x4 viewProjection;
-    float2 frustum;
+    float2 cameraDepth;
 };
 
 struct Attributes
@@ -24,8 +24,8 @@ Attributes VShader(float4 position    : POSITION,
     output.normal = normal;
 
     float2 depthBounds = float2(0.0, 1.0);
-    output.depth = ((output.position.z-frustum.x)*
-        ((depthBounds.x-depthBounds.y)/(frustum.y-frustum.x)))+depthBounds.y;
+    output.depth = ((output.position.z - cameraDepth.x) *
+        ((depthBounds.x - depthBounds.y) / (cameraDepth.y - cameraDepth.x))) + depthBounds.y;
 
     return output;
 }

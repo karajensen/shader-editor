@@ -37,8 +37,8 @@ struct OpenglData
     GlShader postShader;             ///< Shader for post processing the scene
     GlShader normalShader;           ///< Shader for rendering normals/depth for the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
-    glm::vec2 frustum;               ///< Camera near and far values
-    glm::vec3 camera;                ///< Position of the camera
+    glm::vec2 cameraDepth;           ///< Camera near and far values
+    glm::vec3 cameraPosition;        ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
     glm::mat4 viewProjection;        ///< View projection matrix
@@ -57,9 +57,9 @@ OpenglData::OpenglData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    frustum(CAMERA_NEAR, CAMERA_FAR),
-    postShader(NO_INDEX, POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
-    normalShader(NO_INDEX, NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH)
+    cameraDepth(DEPTH_NEAR, DEPTH_FAR),
+    postShader(POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
+    normalShader(NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH)
 {
 }
 
@@ -296,7 +296,7 @@ bool OpenglEngine::Initialize()
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
-        CAMERA_NEAR, CAMERA_FAR);
+        FRUSTRUM_NEAR, FRUSTRUM_FAR);
 
     if(!HasCallFailed())
     {
@@ -330,8 +330,8 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         m_data->shaders.push_back(std::unique_ptr<GlShader>(
-            new GlShader(shader.index, shader.name,
-            shader.glslVertexFile, shader.glslFragmentFile)));
+            new GlShader(shader.name, shader.glslVertexFile, 
+                shader.glslFragmentFile, shader.index)));
     }
 
     m_data->meshes.reserve(meshes.size());
@@ -417,7 +417,7 @@ void OpenglEngine::Render(const std::vector<Light>& lights)
     m_data->normalTarget.SetActive();
     m_data->normalShader.SetActive();
     m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.SendUniformFloat("frustum", &m_data->frustum.x, 2);
+    m_data->normalShader.SendUniformFloat("cameraDepth", &m_data->cameraDepth.x, 2);
     for(auto& mesh : m_data->meshes)
     {
         SetBackfaceCull(mesh->ShouldBackfaceCull());
@@ -495,7 +495,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
         shader->SetActive();
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader->SendUniformFloat("cameraPosition", &m_data->camera.x, 3);
+        shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
 
         shader->SendUniformFloat("lightSpecularity", &lights[0].specularity, 1);
         shader->SendUniformFloat("lightAttenuation", &lights[0].attenuation.x, 3);
@@ -533,9 +533,9 @@ void OpenglEngine::UpdateView(const Matrix& world)
     view[2][2] = world.m33;
     view[3][2] = world.m34;
 
-    m_data->camera.x = world.m14;
-    m_data->camera.y = world.m24;
-    m_data->camera.z = world.m34;
+    m_data->cameraPosition.x = world.m14;
+    m_data->cameraPosition.y = world.m24;
+    m_data->cameraPosition.z = world.m34;
 
     m_data->view = glm::inverse(view);
 
@@ -587,4 +587,14 @@ void OpenglEngine::SetPostTexture(Texture::Post post)
 {
     m_data->postAlpha.assign(0.0f);
     m_data->postAlpha[post] = 1.0f;
+}
+
+void OpenglEngine::SetDepthNear(float value)
+{
+    m_data->cameraDepth[0] = value;
+}
+
+void OpenglEngine::SetDepthFar(float value)
+{
+    m_data->cameraDepth[1] = value;
 }

@@ -238,7 +238,9 @@ struct Cache
         MeshAmbience(1.0f),
         MeshBump(1.0f),
         MeshBackFaceCull(false),
-        MeshTransparency(false)
+        MeshTransparency(false),
+        DepthNear(0.0f),
+        DepthFar(0.0f)
     {
     }
 
@@ -276,6 +278,8 @@ struct Cache
     LockableString MeshNormal;          ///< Normal texture for the selected mesh
 
     Lockable<int> TextureSelected;      ///< Index of the currently selected post texture
+    Lockable<float> DepthNear;          ///< The near value for the depth
+    Lockable<float> DepthFar;           ///< The far value for the depth
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

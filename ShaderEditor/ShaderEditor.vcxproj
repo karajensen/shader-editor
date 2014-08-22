@@ -43,6 +43,7 @@
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_value.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp" />
     <ClCompile Include="qt\project\tweakable_box.cpp" />
+    <ClCompile Include="qt\project\tweakable_boxed_value.cpp" />
     <ClCompile Include="qt\project\tweakable_value.cpp" />
     <ClCompile Include="qt\project\tweaker.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="qt\project\generated\ui_tweaker.h" />
     <ClInclude Include="qt\project\signals.h" />
     <ClInclude Include="qt\project\tweakable_box.h" />
+    <ClInclude Include="qt\project\tweakable_boxed_value.h" />
     <ClInclude Include="qt\project\tweakable_value.h" />
     <ClInclude Include="qt\project\tweaker.h" />
     <ClInclude Include="scene.h" />

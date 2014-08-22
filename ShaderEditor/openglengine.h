@@ -117,6 +117,16 @@ public:
     */
     virtual void SetPostTexture(Texture::Post post) override;
 
+    /**
+    * @param value The near depth value to set
+    */
+    virtual void SetDepthNear(float value) override;
+
+    /**
+    * @param value The far depth value to set
+    */
+    virtual void SetDepthFar(float value) override;
+
 private:
 
     /**

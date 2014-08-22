@@ -18,6 +18,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
 
+    m_depthNear.Initialise(1.0, m_ui.depthNear_value,
+        m_ui.depthNear_dial, m_callbacks.SetDepthNear);
+
+    m_depthFar.Initialise(10.0, m_ui.depthFar_value,
+        m_ui.depthFar_dial, m_callbacks.SetDepthFar);
+
     m_lightPositionX.Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLightPositionX);
 
@@ -198,6 +204,16 @@ void Tweaker::SetMeshAmbience(float value)
 void Tweaker::SetMeshBump(float value)
 {
     m_meshBump.Set(value);
+}
+
+void Tweaker::SetDepthNear(float value)
+{
+    m_depthNear.Set(value);
+}
+
+void Tweaker::SetDepthFar(float value)
+{
+    m_depthFar.Set(value);
 }
 
 void Tweaker::InitialiseTextures(int selected,
