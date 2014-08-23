@@ -56,11 +56,11 @@ struct PostProcessing
         }
     }
 
-    float depthNear = 50.0f;            ///< Value where depth colour is min
-    float depthFar = 400.0f;            ///< Value where depth colour is max
-    Colour minimumColour;               ///< Colour ranges for RGB where A is the overall range
-    Colour maximumColour;               ///< Colour ranges for RGB where A is the overall range
-    std::array<float, MAX_MAPS> alpha;  ///< Visibility of post textures
+    float depthNear = 50.0f;             ///< Value where depth colour is min
+    float depthFar = 400.0f;             ///< Value where depth colour is max
+    Colour minimumColour = Colour(0.0f); ///< Colour ranges for RGB where A is the overall range
+    Colour maximumColour = Colour(1.0f); ///< Colour ranges for RGB where A is the overall range
+    std::array<float, MAX_MAPS> alpha;   ///< Visibility of post textures
 };
 
 struct Texture

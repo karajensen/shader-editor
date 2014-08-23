@@ -93,7 +93,11 @@ struct Float2
 */
 struct Colour
 {
-    Colour() : r(0), g(0), b(0), a(0) 
+    explicit Colour(float value = 0.0f) : 
+        r(value), 
+        g(value),
+        b(value),
+        a(value)
     {
     }
 

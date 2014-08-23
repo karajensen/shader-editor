@@ -160,6 +160,18 @@ void Gui::UpdatePost(Tweaker& tweaker)
     {
         tweaker.SetDepthNear(m_cache->DepthNear.GetUpdated());
     }
+
+    if (m_cache->MinimumColour.RequiresUpdate())
+    {
+        const Colour colour = m_cache->MinimumColour.GetUpdated();
+        tweaker.SetMinimumColour(colour.r, colour.g, colour.b, colour.a);
+    }
+
+    if (m_cache->MaximumColour.RequiresUpdate())
+    {
+        const Colour colour = m_cache->MaximumColour.GetUpdated();
+        tweaker.SetMaximumColour(colour.r, colour.g, colour.b, colour.a);
+    }
 }
 
 void Gui::UpdateScene(Tweaker& tweaker)

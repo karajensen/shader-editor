@@ -1,6 +1,8 @@
 
+- Reference images for scene
+
 - Fix Opengl post texture not switching
-- Colour correction
+- Colour correction algorithm in post shader
 
 - Bump mapping + normal map needs bump map changes
 - Sending multiple lights

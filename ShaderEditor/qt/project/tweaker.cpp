@@ -71,6 +71,24 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_meshBump.Initialise(0.01, m_ui.meshBump_value,
         m_ui.meshBump_dial, m_callbacks.SetMeshBump);
+
+    std::vector<ComboEntry> minimumColour;
+    minimumColour.push_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
+    minimumColour.push_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
+    minimumColour.push_back(ComboEntry("Min Blue", 0.01, m_callbacks.SetMinBlue));
+    minimumColour.push_back(ComboEntry("Min Color", 0.01, m_callbacks.SetMinColour));
+
+    m_minColour.Initialise(m_ui.minRange_box,
+        m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
+
+    std::vector<ComboEntry> maximumColour;
+    maximumColour.push_back(ComboEntry("Max Red", 0.01, m_callbacks.SetMaxRed));
+    maximumColour.push_back(ComboEntry("Max Green", 0.01, m_callbacks.SetMaxGreen));
+    maximumColour.push_back(ComboEntry("Max Blue", 0.01, m_callbacks.SetMaxBlue));
+    maximumColour.push_back(ComboEntry("Max Color", 0.01, m_callbacks.SetMaxColour));
+
+    m_maxColour.Initialise(m_ui.maxRange_box,
+        m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
 }
 
 std::string Tweaker::GetSelectedPage() const
@@ -279,4 +297,20 @@ bool Tweaker::HasLights() const
 bool Tweaker::HasEngines() const
 {
     return m_renderEngine.IsInitialised();
+}
+
+void Tweaker::SetMinimumColour(float r, float g, float b, float colour)
+{
+    m_minColour.SetValue(0, r);
+    m_minColour.SetValue(1, g);
+    m_minColour.SetValue(2, b);
+    m_minColour.SetValue(3, colour);
+}
+
+void Tweaker::SetMaximumColour(float r, float g, float b, float colour)
+{
+    m_maxColour.SetValue(0, r);
+    m_maxColour.SetValue(1, g);
+    m_maxColour.SetValue(2, b);
+    m_maxColour.SetValue(3, colour);
 }

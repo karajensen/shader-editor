@@ -40,6 +40,7 @@
     <ClCompile Include="qt\project\editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_box.cpp" />
+    <ClCompile Include="qt\project\generated\moc\moc_tweakable_boxed_value.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_value.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp" />
     <ClCompile Include="qt\project\tweakable_box.cpp" />

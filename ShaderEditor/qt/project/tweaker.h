@@ -8,6 +8,7 @@
 #include "signals.h"
 #include "tweakable_value.h"
 #include "tweakable_box.h"
+#include "tweakable_boxed_value.h"
 
 #ifdef _VS
 #include "generated/ui_tweaker.h"
@@ -143,17 +144,17 @@ public:
 
     /**
     * Sets the light diffuse color
-    * @param x The x component of the light diffuse colour
-    * @param y The y component of the light diffuse colour
-    * @param z The z component of the light diffuse colour
+    * @param r The r component of the light diffuse colour
+    * @param g The g component of the light diffuse colour
+    * @param b The b component of the light diffuse colour
     */
     void SetLightDiffuse(float r, float g, float b);
 
     /**
     * Sets the light specular color
-    * @param x The x component of the light specular colour
-    * @param y The y component of the light specular colour
-    * @param z The z component of the light specular colour
+    * @param r The r component of the light specular colour
+    * @param g The g component of the light specular colour
+    * @param b The b component of the light specular colour
     */
     void SetLightSpecular(float r, float g, float b);
 
@@ -186,6 +187,20 @@ public:
     * @param selected The selected engine
     */
     void SetSelectedEngine(int selected);
+
+    /**
+    * Sets the values used for the minimum colour range
+    * @param rgb The red, green and blue mininum colour range
+    * @param colour The overall minimum colour range
+    */
+    void SetMinimumColour(float r, float g, float b, float colour);
+
+    /**
+    * Sets the values used for the maximum colour range
+    * @param rgb The red, green and blue maximum colour range
+    * @param colour The overall maximum colour range
+    */
+    void SetMaximumColour(float r, float g, float b, float colour);
 
     /**
     * Sets the available post textures for the combo box
@@ -265,6 +280,9 @@ private:
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
     TweakableBox m_light;                ///< Combo box for selecting the light
     TweakableBox m_mesh;                 ///< Combo box for selecting the mesh
+
+    TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB where A is the overall range
+    TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB where A is the overall range
 
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache
