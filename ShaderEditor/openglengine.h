@@ -5,7 +5,6 @@
 #pragma once
 
 #include "renderengine.h"
-#include <memory>
 
 struct OpenglData;
 
@@ -112,6 +111,14 @@ public:
     * @param value The amount of fade between [0,1]
     */
     virtual void SetFade(float value) override;
+
+    /**
+    * Writes the shader text file
+    * @param name The name of the shader to write over
+    * @param text The new text for the shader
+    */
+    virtual void WriteToShader(const std::string& name,
+                               const std::string& text) override;
 
 private:
 

@@ -44,11 +44,9 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetMaxRed =           [&](float value){ m_cache->MaximumColour.SetR(value); };
     callbacks.SetMaxGreen =         [&](float value){ m_cache->MaximumColour.SetG(value); };
     callbacks.SetMaxBlue =          [&](float value){ m_cache->MaximumColour.SetB(value); };
-    callbacks.SetMaxColour =        [&](float value){ m_cache->MaximumColour.SetA(value); };
     callbacks.SetMinRed =           [&](float value){ m_cache->MinimumColour.SetR(value); };
     callbacks.SetMinGreen =         [&](float value){ m_cache->MinimumColour.SetG(value); };
     callbacks.SetMinBlue =          [&](float value){ m_cache->MinimumColour.SetB(value); };
-    callbacks.SetMinColour =        [&](float value){ m_cache->MinimumColour.SetA(value); };
     callbacks.SetSelectedEngine =   [&](int index){ m_cache->EngineSelected.Set(index); };
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };

@@ -9,6 +9,7 @@
 #include "directxtexture.h"
 #include "directxtarget.h"
 #include <array>
+#include <fstream>
 
 /**
 * Internal data for the directx rendering engine
@@ -396,8 +397,9 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE_MAP);
     m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL_MAP);
 
-    m_data->postShader.UpdateConstantFloat("fadeAmount",
-        &m_data->fadeAmount, 1);
+    m_data->postShader.UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
+    m_data->postShader.UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
+    m_data->postShader.UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
 
     m_data->postShader.UpdateConstantFloat("sceneAlpha",
         &post.alpha[PostProcessing::SCENE_MAP], 1);
@@ -542,4 +544,21 @@ std::string DirectxEngine::GetShaderAssembly(int index)
 void DirectxEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
+}
+
+void DirectxEngine::WriteToShader(const std::string& name,
+                                  const std::string& text)
+{
+    const std::string filepath = GENERATED_PATH + name + HLSL_SHADER_EXTENSION;
+    std::ofstream file(filepath.c_str(), std::ios_base::out | std::ios_base::trunc);
+
+    if (!file.is_open())
+    {
+        Logger::LogError("Could not open " + filepath);
+    }
+    else
+    {
+        file << text << std::endl;
+        file.close();
+    }
 }

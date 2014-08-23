@@ -110,17 +110,6 @@ public:
     int GetLightCount() const;
 
     /**
-    * Writes the shader text file
-    * @param name The name of the shader to write over
-    * @param text The new text for the shader
-    * @param extension The file extension to open
-    */
-    void WriteToShader(
-        const std::string& name, 
-        const std::string& text, 
-        const std::string& extension);
-
-    /**
     * Outputs the meshes to an xml file
     */
     void SaveMeshesToFile();

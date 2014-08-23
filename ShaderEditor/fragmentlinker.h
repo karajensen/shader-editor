@@ -4,10 +4,8 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
 #include <unordered_map>
-#include <boost/noncopyable.hpp>
+#include "common.h"
 
 struct Shader;
 

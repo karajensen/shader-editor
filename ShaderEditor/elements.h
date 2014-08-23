@@ -4,7 +4,41 @@
 
 #pragma once
 
-#include "common.h"
+#include "float3.h"
+#include "matrix.h"
+#include <array>
+#include <vector>
+
+static const int NO_INDEX = -1;
+
+struct Float2
+{
+    Float2() : x(0), y(0)
+    {
+    }
+
+    Float2(float X, float Y) : x(X), y(Y)
+    {
+    }
+
+    float x, y;
+};
+
+struct Colour
+{
+    enum Component
+    {
+        RED,
+        GREEN,
+        BLUE,
+        ALPHA
+    };
+
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    float a = 0.0f;
+};
 
 struct PostProcessing
 {
@@ -25,6 +59,9 @@ struct PostProcessing
     PostProcessing()
     {
         SetPostTexture(SCENE_MAP);
+        maximumColour.r = 1.0f;
+        maximumColour.g = 1.0f;
+        maximumColour.b = 1.0f;
     }
 
     /**
@@ -58,8 +95,8 @@ struct PostProcessing
 
     float depthNear = 50.0f;             ///< Value where depth colour is min
     float depthFar = 400.0f;             ///< Value where depth colour is max
-    Colour minimumColour = Colour(0.0f); ///< Colour ranges for RGB where A is the overall range
-    Colour maximumColour = Colour(1.0f); ///< Colour ranges for RGB where A is the overall range
+    Colour minimumColour;                ///< Colour ranges for RGB
+    Colour maximumColour;                ///< Colour ranges for RGB
     std::array<float, MAX_MAPS> alpha;   ///< Visibility of post textures
 };
 

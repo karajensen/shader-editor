@@ -1,9 +1,6 @@
 
-- Reference images for scene
-
 - Fix Opengl post texture not switching
-- Colour correction algorithm in post shader
-
+- Colour correction: levels
 - Bump mapping + normal map needs bump map changes
 - Sending multiple lights
 - Post effects: fog, dof, glow
@@ -11,6 +8,7 @@
 - Particles
 - Optimise shaders
 
+- Reference images for scene
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
 

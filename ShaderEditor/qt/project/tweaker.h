@@ -281,8 +281,8 @@ private:
     TweakableBox m_light;                ///< Combo box for selecting the light
     TweakableBox m_mesh;                 ///< Combo box for selecting the mesh
 
-    TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB where A is the overall range
-    TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB where A is the overall range
+    TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
+    TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
 
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache

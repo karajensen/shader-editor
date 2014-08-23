@@ -28,8 +28,7 @@
 #include "boost/lexical_cast.hpp"
 
 #include "logger.h"
-#include "float3.h"
-#include "matrix.h"
+#include "elements.h"
 
 typedef std::ostringstream sstream;
 
@@ -41,7 +40,6 @@ static const int MULTISAMPLING_COUNT = 4;
 static const float FRUSTRUM_NEAR = 1.0f;
 static const float FRUSTRUM_FAR = 1000.0f;
 static const float FIELD_OF_VIEW = 60.0f;
-static const int NO_INDEX = -1;
 
 const std::string SHADER_EXTENSION(".fx");
 const std::string ASM_EXTENSION(".as");
@@ -70,38 +68,6 @@ enum GuiPage
     MESH,
     POST,
     NO_PAGE
-};
-
-/**
-* Simple 2D point
-*/
-struct Float2
-{
-    Float2() : x(0), y(0)
-    {
-    }
-
-    Float2(float X, float Y) : x(X), y(Y)
-    {
-    }
-
-    float x, y;
-};
-
-/**
-* Colour avaliable in the application
-*/
-struct Colour
-{
-    explicit Colour(float value = 0.0f) : 
-        r(value), 
-        g(value),
-        b(value),
-        a(value)
-    {
-    }
-
-    float r, g, b, a;
 };
 
 /**

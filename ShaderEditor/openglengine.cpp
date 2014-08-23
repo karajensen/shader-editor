@@ -7,7 +7,10 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 #include "opengltarget.h"
+#include "boost/algorithm/string.hpp"
+#include "boost/algorithm/string/regex.hpp"
 #include <array>
+#include <fstream>
 
 /**
 * Internal data for the opengl rendering engine
@@ -436,8 +439,9 @@ void OpenglEngine::Render(const std::vector<Light>& lights,
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    m_data->postShader.SendUniformFloat("fadeAmount", 
-        &m_data->fadeAmount, 1);
+    m_data->postShader.SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
+    m_data->postShader.SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
+    m_data->postShader.SendUniformFloat("maximumColor", &post.maximumColour.r, 3);
 
     m_data->postShader.SendUniformFloat("sceneAlpha",
         &post.alpha[PostProcessing::SCENE_MAP], 1);
@@ -579,4 +583,34 @@ std::string OpenglEngine::GetShaderAssembly(int index)
 void OpenglEngine::SetFade(float value)
 {
     m_data->fadeAmount = value;
+}
+
+void OpenglEngine::WriteToShader(const std::string& name,
+                                 const std::string& text)
+{
+    auto WriteToFile = [&](const std::string& contents, const std::string& filepath)
+    {
+        std::ofstream file(filepath.c_str(), std::ios_base::out | std::ios_base::trunc);
+        if (!file.is_open())
+        {
+            Logger::LogError("Could not open " + filepath);
+        }
+        else
+        {
+            file << contents << std::endl;
+            file.close();
+        }
+    };
+
+    // GLSL uses two files that both must start with GLSL_HEADER
+    // Note first component in split regex vector is whitespace or empty
+
+    std::vector<std::string> components;
+    boost::algorithm::split_regex(components, text, boost::regex(GLSL_HEADER));
+
+    WriteToFile(GLSL_HEADER + components[1], 
+        GENERATED_PATH + name + GLSL_VERTEX_EXTENSION);
+
+    WriteToFile(GLSL_HEADER + components[2], 
+        GENERATED_PATH + name + GLSL_FRAGMENT_EXTENSION);
 }

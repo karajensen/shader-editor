@@ -5,6 +5,16 @@
 #include <QtGui>
 #include "tweaker.h"
 
+namespace
+{
+    enum Colour
+    {
+        RED,
+        GREEN,
+        BLUE
+    };
+}
+
 Tweaker::Tweaker(QWidget* parent) :
     QWidget(parent)
 {
@@ -76,7 +86,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     minimumColour.push_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
     minimumColour.push_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
     minimumColour.push_back(ComboEntry("Min Blue", 0.01, m_callbacks.SetMinBlue));
-    minimumColour.push_back(ComboEntry("Min Color", 0.01, m_callbacks.SetMinColour));
 
     m_minColour.Initialise(m_ui.minRange_box,
         m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
@@ -85,7 +94,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     maximumColour.push_back(ComboEntry("Max Red", 0.01, m_callbacks.SetMaxRed));
     maximumColour.push_back(ComboEntry("Max Green", 0.01, m_callbacks.SetMaxGreen));
     maximumColour.push_back(ComboEntry("Max Blue", 0.01, m_callbacks.SetMaxBlue));
-    maximumColour.push_back(ComboEntry("Max Color", 0.01, m_callbacks.SetMaxColour));
 
     m_maxColour.Initialise(m_ui.maxRange_box,
         m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
@@ -301,16 +309,14 @@ bool Tweaker::HasEngines() const
 
 void Tweaker::SetMinimumColour(float r, float g, float b, float colour)
 {
-    m_minColour.SetValue(0, r);
-    m_minColour.SetValue(1, g);
-    m_minColour.SetValue(2, b);
-    m_minColour.SetValue(3, colour);
+    m_minColour.SetValue(RED, r);
+    m_minColour.SetValue(GREEN, g);
+    m_minColour.SetValue(BLUE, b);
 }
 
 void Tweaker::SetMaximumColour(float r, float g, float b, float colour)
 {
-    m_maxColour.SetValue(0, r);
-    m_maxColour.SetValue(1, g);
-    m_maxColour.SetValue(2, b);
-    m_maxColour.SetValue(3, colour);
+    m_maxColour.SetValue(RED, r);
+    m_maxColour.SetValue(GREEN, g);
+    m_maxColour.SetValue(BLUE, b);
 }

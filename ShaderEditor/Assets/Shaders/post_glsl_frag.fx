@@ -14,6 +14,8 @@ uniform float fadeAmount;
 uniform float sceneAlpha;
 uniform float normalAlpha;
 uniform float depthAlpha;
+uniform vec3 minimumColor;
+uniform vec3 maximumColor;
 
 vec4 GetColour(sampler2DMS texSampler, ivec2 uvs)
 {
@@ -33,6 +35,8 @@ void main(void)
     if (sceneAlpha == 1.0)
     {
         finalColor = GetColour(SceneTexture, uvs);
+        finalColor.rgb *= maximumColor - minimumColor;
+        finalColor.rgb += minimumColor;
     }
     else
     {

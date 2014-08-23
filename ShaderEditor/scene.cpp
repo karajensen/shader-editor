@@ -436,24 +436,6 @@ std::vector<std::string> Scene::GetShaderNames() const
     return shaders;
 }
 
-void Scene::WriteToShader(const std::string& name, 
-                          const std::string& text, 
-                          const std::string& extension)
-{
-    const std::string filepath = GENERATED_PATH + name + extension;
-    std::ofstream file(filepath.c_str(), std::ios_base::out|std::ios_base::trunc);
-    
-    if(!file.is_open())
-    {
-        Logger::LogError("Could not open " + filepath);
-    }
-    else
-    {
-        file << text << std::endl;
-        file.close();
-    }
-}
-
 void Scene::SaveMeshesToFile()
 {
     using namespace boost;

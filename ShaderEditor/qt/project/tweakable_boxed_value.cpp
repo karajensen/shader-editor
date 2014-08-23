@@ -69,14 +69,13 @@ void TweakableBoxedValue::DialValue(int value)
 void TweakableBoxedValue::UpdateSelected(int index)
 {
     m_entries[m_selectedIndex].value = m_box->value();
+    m_selectedIndex = index;
 
     m_box->setValue(m_entries[index].value);
     m_box->setSingleStep(m_entries[index].step);
 
     m_box->update();
     m_dial->update();
-
-    m_selectedIndex = index;
 }
 
 void TweakableBoxedValue::SetValue(int index, double value)

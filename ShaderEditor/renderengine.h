@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Windows.h>
-#include "elements.h"
+#include "common.h"
 
 /**
 * Base graphics API interface
@@ -103,4 +103,12 @@ public:
     * @param value The amount of fade between [0,1]
     */
     virtual void SetFade(float value) = 0;
+
+    /**
+    * Writes the shader text file
+    * @param name The name of the shader to write over
+    * @param text The new text for the shader
+    */
+    virtual void WriteToShader(const std::string& name, 
+                               const std::string& text) = 0;
 };

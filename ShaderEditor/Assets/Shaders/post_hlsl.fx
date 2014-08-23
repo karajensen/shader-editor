@@ -8,6 +8,8 @@ cbuffer PixelBuffer : register(b0)
     float sceneAlpha;
     float normalAlpha;
     float depthAlpha;
+    float3 minimumColor;
+    float3 maximumColor;
 };
 
 struct Attributes
@@ -46,6 +48,8 @@ float4 PShader(Attributes input) : SV_TARGET
     if (sceneAlpha == 1.0)
     {
         finalColor = GetColour(SceneTexture, uvs);
+        finalColor.rgb *= maximumColor - minimumColor;
+        finalColor.rgb += minimumColor;
     }
     else
     {

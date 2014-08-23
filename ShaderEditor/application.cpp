@@ -11,11 +11,9 @@
 #include "camera.h"
 #include "cache.h"
 #include <windowsx.h>
-#include "boost/algorithm/string.hpp"
-#include "boost/algorithm/string/regex.hpp"
 
-//#define SELECTED_ENGINE DIRECTX
-#define SELECTED_ENGINE OPENGL
+#define SELECTED_ENGINE DIRECTX
+//#define SELECTED_ENGINE OPENGL
 
 namespace
 {
@@ -198,20 +196,7 @@ bool Application::ReCompileShader(const std::string& text)
 {
     const std::string& name = m_scene->GetShader(m_selectedShader).name;
     m_cache->CompileShader.Clear();
-
-    if(m_selectedEngine == OPENGL)
-    {
-        // GLSL uses two files that both must start with GLSL_HEADER
-        // Note first component in split regex vector is whitespace or empty
-        std::vector<std::string> components;
-        boost::algorithm::split_regex(components, text, boost::regex(GLSL_HEADER));
-        m_scene->WriteToShader(name, GLSL_HEADER + components[1], GLSL_VERTEX_EXTENSION);
-        m_scene->WriteToShader(name, GLSL_HEADER + components[2], GLSL_FRAGMENT_EXTENSION);
-    }
-    else if(m_selectedEngine == DIRECTX)
-    {
-        m_scene->WriteToShader(name, text, HLSL_SHADER_EXTENSION);
-    }
+    GetEngine()->WriteToShader(name, text);
 
     std::string errors = GetEngine()->CompileShader(m_selectedShader);
     if(errors.empty())
