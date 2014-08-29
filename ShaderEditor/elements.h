@@ -11,6 +11,9 @@
 
 static const int NO_INDEX = -1;
 
+/**
+* Vector with two floats
+*/
 struct Float2
 {
     Float2() : x(0), y(0)
@@ -24,6 +27,9 @@ struct Float2
     float x, y;
 };
 
+/**
+* Colour with red, green, blue and alpha components
+*/
 struct Colour
 {
     enum Component
@@ -40,6 +46,21 @@ struct Colour
     float a = 0.0f;
 };
 
+/**
+* GUI pages available
+*/
+enum GuiPage
+{
+    SCENE,
+    LIGHT,
+    MESH,
+    POST,
+    NO_PAGE
+};
+
+/**
+* Holds data for post processing the final image
+*/
 struct PostProcessing
 {
     /**
@@ -100,6 +121,9 @@ struct PostProcessing
     std::array<float, MAX_MAPS> alpha;   ///< Visibility of post textures
 };
 
+/**
+* Texture rendered on a mesh
+*/
 struct Texture
 {
     /**
@@ -114,10 +138,33 @@ struct Texture
         MAX_TYPES
     };
 
+    /**
+    * Gets a text description of the texture type
+    * @param type The type to query for text
+    * @return the text description of the type
+    */
+    static std::string GetTypeDescription(unsigned int type)
+    {
+        switch (type)
+        {
+        case DIFFUSE:
+            return "Diffuse";
+        case NORMAL:
+            return "Normal";
+        case SPECULAR:
+            return "Specular";
+        default:
+            return "None";
+        };
+    }
+
     std::string name; ///< Name of the texture
     std::string path; ///< Path to the texture
 };
 
+/**
+* Shader for a mesh generated from components
+*/
 struct Shader
 {
     /**
@@ -189,6 +236,9 @@ struct Shader
     std::vector<Component> components; ///< Sections that make up this shader
 };
 
+/**
+* Single light to provide illumination in the scene
+*/
 struct Light
 {
     std::string name;          ///< Name of the light
@@ -199,6 +249,9 @@ struct Light
 	float specularity = 1.0f;  ///< Brightness of the specular highlights
 };
 
+/**
+* Mesh object rendered in the scene
+*/
 struct Mesh
 {
     /**

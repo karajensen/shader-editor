@@ -42,19 +42,9 @@ public:
     void SetActive();
 
     /**
-    * Sends the texture to the currently active shader
-    * @param slot The slot to put the texture into
-    * @note requires clearing before render target can use again
+    * @return the ID of the target texture
     */
-    void SendTexture(int slot);
-
-    /**
-    * Clears the texture sent to the currently active shader
-    * @param slot The slot the texture exists in
-    * @note Required as texture needs to be unbound from the 
-    *       shader before render target is activated
-    */
-    void ClearTexture(int slot);
+    GLuint GetTextureID() const { return m_colorTexture; }
 
 private:
 

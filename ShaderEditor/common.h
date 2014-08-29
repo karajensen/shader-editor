@@ -59,18 +59,6 @@ const std::string POST_NAME("PostShader");
 const std::string NORMAL_NAME("NormalShader");
 
 /**
-* GUI pages available
-*/
-enum GuiPage
-{
-    SCENE,
-    LIGHT,
-    MESH,
-    POST,
-    NO_PAGE
-};
-
-/**
 * Converts degrees to radians
 */
 template<typename T> T DegToRad(T degrees)
@@ -93,13 +81,15 @@ template<typename T> T RadToDeg(T radians)
 * @param node The name of the node to search
 * @return the chosen value from either the tree or defaultValue
 */
-template<typename T>
-T GetPtreeValue(boost::property_tree::ptree::iterator& itr, T defaultValue, char* node)
+template<typename T> T GetPtreeValue(boost::property_tree::ptree::iterator& itr, 
+                                     T defaultValue, 
+                                     const char* node)
 {
     int count = itr->second.count(node);
     if(count > 0)
     {
-        return boost::lexical_cast<T>(itr->second.get_child(node).data());
+        return boost::lexical_cast<T>(
+            itr->second.get_child(node).data());
     }
     return defaultValue;
 }

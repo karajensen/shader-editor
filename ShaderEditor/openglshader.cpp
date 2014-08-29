@@ -554,11 +554,32 @@ void GlShader::EnableAttributes()
     }
 }
 
-void GlShader::SendTexture(int slot, GLuint id)
+void GlShader::ClearTexture(int slot, bool multisample)
 {
     glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D, id);
+
+    glBindTexture(!multisample ? GL_TEXTURE_2D :
+        GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not clear texture");
+    }
+}
+
+void GlShader::SendTexture(int slot, GLuint id, bool multisample)
+{
+    glActiveTexture(GetTexture(slot));
+
+    glBindTexture(!multisample ? GL_TEXTURE_2D :
+        GL_TEXTURE_2D_MULTISAMPLE, id);
+
     glUniform1i(m_samplers[slot], slot);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not send texture");
+    }
 }
 
 void GlShader::SetActive()

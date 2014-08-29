@@ -1,13 +1,18 @@
 
-- Fix Opengl post texture not switching
+- Bump mapping:
+    - OpenGL normals not passing in to shaders
+    - Multiple buffers if needed for a mesh
+    - #defines for attributes in shader
+    - #defines in normal shader
+    - Pass in tangent/bitangent
+    - Bump mapping shader effect
+
 - Colour correction: levels
-- Bump mapping + normal map needs bump map changes
 - Sending multiple lights
 - Post effects: fog, dof, glow
 - Water shader
 - Particles
 - Optimise shaders
-
 - Reference images for scene
 - Add mesh extras to python script
 - Create 3D scene with baked shadows

@@ -58,11 +58,13 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 	
-        std::string str;
-        mesh.textureIDs[Texture::DIFFUSE] = AddTexture(GetPtreeValue(it, str, "Diffuse"));
-        mesh.textureIDs[Texture::SPECULAR] = AddTexture(GetPtreeValue(it, str, "Specular"));
-        mesh.textureIDs[Texture::NORMAL] = AddTexture(GetPtreeValue(it, str, "Normal"));
-	
+        assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
+        for (int i = 0; i < Texture::MAX_TYPES; ++i)
+        {
+            mesh.textureIDs[i] = AddTexture(GetPtreeValue(
+                it, std::string(), Texture::GetTypeDescription(i).c_str()));
+        }
+
         const int unusedTextures = std::count(
             mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
         mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;

@@ -452,15 +452,18 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->postShader.SendUniformFloat("depthAlpha",
         &post.alpha[PostProcessing::DEPTH_MAP], 1);
 
-    m_data->sceneTarget.SendTexture(PostProcessing::SCENE_MAP);
-    m_data->normalTarget.SendTexture(PostProcessing::NORMAL_MAP);
+    m_data->postShader.SendTexture(PostProcessing::SCENE_MAP, 
+        m_data->sceneTarget.GetTextureID(), true);
+
+    m_data->postShader.SendTexture(PostProcessing::NORMAL_MAP, 
+        m_data->normalTarget.GetTextureID(), true);
 
     m_data->quad.PreRender();
     m_data->postShader.EnableAttributes();
     m_data->quad.Render();
 
-    m_data->sceneTarget.ClearTexture(PostProcessing::SCENE_MAP);
-    m_data->normalTarget.ClearTexture(PostProcessing::NORMAL_MAP);
+    m_data->postShader.ClearTexture(PostProcessing::SCENE_MAP, true);
+    m_data->postShader.ClearTexture(PostProcessing::NORMAL_MAP, true);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)

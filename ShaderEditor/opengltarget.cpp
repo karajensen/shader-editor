@@ -108,25 +108,3 @@ void GlRenderTarget::SetActive()
         Logger::LogError("Could not set " + m_name + " as active");
     }
 }
-
-void GlRenderTarget::SendTexture(int slot)
-{
-    glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture);
-
-    if(HasCallFailed())
-    {
-        Logger::LogError("Could not send texture of " + m_name);
-    }
-}
-
-void GlRenderTarget::ClearTexture(int slot)
-{
-    glActiveTexture(GetTexture(slot));
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
-    if(HasCallFailed())
-    {
-        Logger::LogError("Could not clear texture of " + m_name);
-    }
-}
