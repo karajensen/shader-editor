@@ -10,6 +10,10 @@ in vec2 ex_UVs;
 in vec3 ex_VertToLight;
 ifdef: !FLAT
     in vec3 ex_Normal;
+    ifdef: BUMP
+        in vec3 ex_Tangent;
+        in vec3 ex_Bitangent;
+    endif
     ifdef: SPECULAR
         in vec3 ex_VertToCamera;
     endif
@@ -18,13 +22,15 @@ endif
 uniform float meshAmbience;
 uniform vec3 lightDiffuse;
 uniform vec3 lightAttenuation;
+ifdef: !FLAT|BUMP
+    uniform float meshBump;
+endif
 ifdef: !FLAT|SPECULAR
     uniform vec3 lightSpecular;
     uniform float lightSpecularity;
     uniform float meshSpecularity;
 endif
 
-// Required in order of usage in shader body
 uniform sampler2D DiffuseSampler;
 ifdef: !FLAT
     ifdef: SPECULAR|BUMP
@@ -49,13 +55,14 @@ void main(void)
     vec3 vertToLight = ex_VertToLight / lightLen;
 
     ifdef: !FLAT
-        vec3 normal = normalize(ex_Normal);
 
+        vec3 normal = normalize(ex_Normal);
         ifdef: BUMP
             vec4 normalTex = texture(NormalSampler, ex_UVs);
-            out_Color.a = normalTex.a;
-        endif       
-        
+            vec2 bump = meshBump * (normalTex.rg - 0.5);
+            normal = normalize(normal + bump.x * normalize(ex_Tangent) + bump.y * normalize(ex_Bitangent));
+        endif
+
         out_Color.rgb *= ((dot(vertToLight, normal) + 1.0) * 0.5);
                 
         ifdef: SPECULAR
@@ -65,6 +72,7 @@ void main(void)
             float specular = pow(max(dot(normal, halfVector), 0.0), specularity); 
             out_Color.rgb += specular * specularTex.rgb * lightSpecular;
         endif
+
     endif   
 
     out_Color *= meshAmbience * attenuation;

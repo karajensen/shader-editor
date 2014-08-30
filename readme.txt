@@ -1,11 +1,5 @@
 
-- Bump mapping:
-    - Multiple buffers if needed for a mesh
-    - #defines for attributes in shader
-    - #defines in normal shader
-    - Pass in tangent/bitangent
-    - Bump mapping shader effect
-
+- #defines in normal shader and fix
 - Colour correction: levels
 - Sending multiple lights
 - Post effects: fog, dof, glow

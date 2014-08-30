@@ -24,6 +24,9 @@ cbuffer ScenePixelBuffer : register(b1)
 cbuffer MeshPixelBuffer : register(b2)
 {
     float meshAmbience;
+    ifdef: !FLAT|BUMP
+        float meshBump;
+    endif
     ifdef: !FLAT|SPECULAR
         float meshSpecularity;
     endif
@@ -50,15 +53,27 @@ struct Attributes
     float3 vertToLight              : TEXCOORD1;
     ifdef: !FLAT                    
         float3 normal               : NORMAL;
-        ifdef: SPECULAR             
+        ifdef: BUMP
+            float3 tangent          : TEXCOORD2;
+            float3 bitangent        : TEXCOORD3;
+        endif
+        ifdef: SPECULAR|BUMP             
+            float3 vertToCamera     : TEXCOORD4;
+        elseif: SPECULAR
             float3 vertToCamera     : TEXCOORD2;
         endif
     endif
 };
 
-Attributes VShader(float4 position  : POSITION,    
-                   float2 uvs       : TEXCOORD0,
-                   float3 normal    : NORMAL)
+Attributes VShader(float4 position      : POSITION,    
+                   float2 uvs           : TEXCOORD0,
+                   ifdef: BUMP
+                       float3 normal    : NORMAL,
+                       float3 tangent   : TEXCOORD1,
+                       float3 bitangent : TEXCOORD2)
+                   else:
+                       float3 normal    : NORMAL)
+                   endif
 {
     Attributes output;
 
@@ -68,6 +83,12 @@ Attributes VShader(float4 position  : POSITION,
     
     ifdef: !FLAT
         output.normal = normal;
+
+        ifdef: BUMP
+            output.tangent = tangent;
+            output.bitangent = bitangent;
+        endif
+
         ifdef: SPECULAR
             output.vertToCamera = cameraPosition - position.xyz;
         endif
@@ -88,10 +109,12 @@ float4 PShader(Attributes input) : SV_TARGET
     float3 vertToLight = input.vertToLight / lightLen;
 
     ifdef: !FLAT
-        float3 normal = normalize(input.normal);
 
+        float3 normal = normalize(input.normal);
         ifdef: BUMP
             float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
+            float2 bump = meshBump * (normalTex.rg - 0.5);
+            normal = normalize(normal + bump.x * normalize(input.tangent) + bump.y * normalize(input.bitangent));
         endif
         
         finalColour.rgb *= ((dot(vertToLight, normal) + 1.0) * 0.5);
@@ -103,6 +126,7 @@ float4 PShader(Attributes input) : SV_TARGET
             float specular = pow(max(dot(normal, halfVector), 0.0), specularity); 
             finalColour.rgb += specular * specularTex.rgb * lightSpecular;
         endif
+
     endif
 
     return finalColour * meshAmbience * attenuation;
