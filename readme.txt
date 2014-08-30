@@ -1,6 +1,5 @@
 
 - Bump mapping:
-    - OpenGL normals not passing in to shaders
     - Multiple buffers if needed for a mesh
     - #defines for attributes in shader
     - #defines in normal shader
