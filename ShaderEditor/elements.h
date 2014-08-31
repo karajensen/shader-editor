@@ -198,7 +198,7 @@ struct Shader
     * @param component The component to query for text
     * @return the text description of the component
     */
-    static std::string GetComponentDescription(unsigned int component)
+    static std::string ComponentAsString(unsigned int component)
     {
         switch (component)
         {
@@ -264,7 +264,8 @@ struct Mesh
     }
 
     bool backfacecull = true;      ///< Whether back facing polygons are culled
-    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader
+    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader to use
+    int normalIndex = NO_INDEX;    ///< Unique Index of the normal shader to use
     float specularity = 1.0f;      ///< Brightness of the specular highlights
     float ambience = 1.0f;         ///< Ambient light multiplier
     float bump = 1.0f;             ///< Saturation of bump

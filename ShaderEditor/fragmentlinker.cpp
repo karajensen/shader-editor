@@ -36,7 +36,7 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
     m_shaderComponents.clear();
     for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
     {
-        const std::string component = Shader::GetComponentDescription(i);
+        const std::string component = Shader::ComponentAsString(i);
         if(boost::algorithm::icontains(shader.name, component))
         {
             m_shaderComponents.push_back(component);
@@ -138,7 +138,8 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
         return false;
     }
 
-    const std::string basepath = SHADER_PATH + "shader" + extension;
+    const std::string baseName = boost::icontains(name, NORMAL_SHADER) ? NORMAL_SHADER : BASE_SHADER;
+    const std::string basepath = SHADER_PATH + baseName + extension;
     std::ifstream baseFile(basepath.c_str(), std::ios_base::in|std::ios_base::_Nocreate);
 
     if(!baseFile.is_open())

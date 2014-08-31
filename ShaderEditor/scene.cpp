@@ -20,9 +20,7 @@ bool Scene::Initialise()
 
     success = success ? InitialiseLighting() : false;
     success = success ? InitialiseMeshes(linker) : false;
-
     success = success ? linker.GenerateFromFile(SHADER_PATH, "post") : false;
-    success = success ? linker.GenerateFromFile(SHADER_PATH, "normal") : false;
 
     // To prevent unnecessary shader switching, sort by shader used
     std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
@@ -75,7 +73,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         std::string component;
         for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
         {
-            component = Shader::GetComponentDescription(i);
+            component = Shader::ComponentAsString(i);
             if(boost::algorithm::icontains(shadername, component))
             {
                 newShaderName += component;
@@ -85,32 +83,8 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
 	
         // Add any non-component text to the ordered components
         shadername += boost::algorithm::to_lower_copy(newShaderName);
-        
-        // Determine if shader with those components already exists and reuse if so
-        auto shaderItr = std::find_if(m_shaders.begin(), m_shaders.end(), 
-            [&](const Shader& shader){ return shader.name == shadername; });
-        
-        if(shaderItr == m_shaders.end())
-        {
-            // Shader does not exist, create from fragments
-            Shader shader;
-            shader.name = shadername;
-            if(!linker.GenerateWithFragments(shader))
-            {
-                Logger::LogError("Shader name " + shadername +
-                    " for " + mesh.name + " is an invalid combination");
-                return false;
-            }
-            shader.index = m_shaders.size();
-            mesh.shaderIndex = shader.index;
-            m_shaders.push_back(shader);
-	
-            Logger::LogInfo("Shader: " + shader.name + " created");
-        }
-        else
-        {
-            mesh.shaderIndex = shaderItr->index;
-        }
+        mesh.shaderIndex = GetShaderIndex(linker, shadername, mesh.name);
+        mesh.normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shadername, mesh.name);
 	
         // Create the mesh. Requires mesh shader to be known before creation.
         std::string errorBuffer;
@@ -122,11 +96,50 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         }
 	
         // Store the mesh in the correct container
-        const std::string alpha = Shader::GetComponentDescription(Shader::ALPHA);
+        const std::string alpha = Shader::ComponentAsString(Shader::ALPHA);
         boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
     }
 
     return true;
+}
+
+int Scene::GetShaderIndex(FragmentLinker& linker, 
+                          const std::string& shaderName, 
+                          const std::string& meshName)
+{
+    // Optimization for needing only two types of normal shader (bump/non-bump)
+    std::string name = shaderName;
+    if (boost::icontains(name, NORMAL_SHADER))
+    {
+        std::string bump = Shader::ComponentAsString(Shader::BUMP);
+        name = NORMAL_SHADER + (boost::icontains(name, bump) ? bump : "");
+        boost::to_lower(name);
+    }
+
+    // Determine if shader with those components already exists and reuse if so
+    auto shaderItr = std::find_if(m_shaders.begin(), m_shaders.end(), 
+        [&](const Shader& shader){ return shader.name == name; });
+        
+    if(shaderItr == m_shaders.end())
+    {
+        // Shader does not exist, create from fragments
+        Shader shader;
+        shader.name = name;
+        if(!linker.GenerateWithFragments(shader))
+        {
+            Logger::LogError("Shader name " + shader.name +
+                " for " + meshName + " is an invalid combination");
+        }
+
+        shader.index = m_shaders.size();
+        m_shaders.push_back(shader);
+        Logger::LogInfo("Shader: " + shader.name + " created");
+        return shader.index;
+    }
+    else
+    {
+        return shaderItr->index;
+    }
 }
 
 bool Scene::InitialiseLighting()
@@ -433,7 +446,6 @@ std::vector<std::string> Scene::GetShaderNames() const
         shaders.push_back(shader.name);
     }
     shaders.push_back(POST_NAME);
-    shaders.push_back(NORMAL_NAME);
     return shaders;
 }
 

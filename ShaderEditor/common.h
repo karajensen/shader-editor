@@ -4,9 +4,9 @@
 
 #pragma once
 
-#ifdef _DEBUG
-#include "vld/include/vld.h"
-#endif
+//#ifdef _DEBUG
+//#include "vld/include/vld.h"
+//#endif
 
 #define USE_CONSOLE
 #ifndef USE_CONSOLE
@@ -57,6 +57,8 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
 const std::string POST_NAME("PostShader");
 const std::string NORMAL_NAME("NormalShader");
+const std::string NORMAL_SHADER("normal");
+const std::string BASE_SHADER("shader");
 
 /**
 * Converts degrees to radians

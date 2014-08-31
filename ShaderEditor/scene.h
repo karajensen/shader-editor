@@ -148,8 +148,21 @@ private:
     * @param mesh The mesh object to load
     * @return whether creation was successful
     */
-    bool CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& mesh);
+    bool CreateMesh(const std::string& path, 
+                    std::string& errorBuffer,  
+                    Mesh& mesh);
 
+    /**
+    * Gets the index for the shader
+    * @param linker The fragment linker
+    * @param shaderName The name of the shader to get the index for
+    * @param meshName The name ofthe mesh the shader will be used for
+    * @return the index for the shader
+    */
+    int GetShaderIndex(FragmentLinker& linker, 
+                       const std::string& shadername, 
+                       const std::string& meshName);
+                            
     std::vector<Texture> m_textures;  ///< All textures in the scene
     std::vector<Shader> m_shaders;    ///< All shaders in the scene
     std::vector<Mesh> m_alpha;        ///< All translucent meshes in the scene
