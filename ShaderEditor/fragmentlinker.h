@@ -32,23 +32,20 @@ public:
 
     /**
     * Generates a shader from file
-    * @param directory The absolute directory of the shader
-    * @param name The name of the shader
+    * @param shader The shader object to fill in
     * @return Whether generation was successful
     */
-    bool GenerateFromFile(const std::string& directory, const std::string& name);
+    bool GenerateFromFile(Shader& shader);
 
 private:
 
     /**
     * Initialises a shader from file
-    * @param directory The absolute directory of the shader
     * @param name The name of the shader
     * @param extension The extension for a hlsl or glsl shader
     * @return Whether generation was successful
     */
-    bool GenerateFromFile(const std::string& directory, 
-        const std::string& name, const std::string& extension);
+    bool GenerateFromFile(const std::string& name, const std::string& extension);
 
     /**
     * Creates the folder to hold all generated shaders

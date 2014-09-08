@@ -122,6 +122,13 @@ public:
 private:
 
     /**
+    * Initiliases any stand-alone and shared shaders explicitly
+    * @param linker The fragment linker used to generate shaders
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseShaders(FragmentLinker& linker);
+
+    /**
     * Initialises the lighting for the scene
     * @return Whether the initialization was successful
     */

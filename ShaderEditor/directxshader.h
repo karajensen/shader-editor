@@ -8,6 +8,8 @@
 #include "directx/include/D3D11Shader.h"
 #include <unordered_map>
 
+struct Shader;
+
 /**
 * Holds information for a directx shader
 */
@@ -17,11 +19,9 @@ public:
 
     /**
     * Constructor
-    * @param name The name of the shader
-    * @param filepath The path for the shader
-    * @param index The unique index of the shader
+    * @param shader The shader data to create
     */
-    DxShader(const std::string& name, const std::string& filepath, int index = NO_INDEX);
+    DxShader(const Shader& shader);
 
     /**
     * Destructor
@@ -239,10 +239,10 @@ private:
         bool updated;                ///< Whether this buffer was updated last tick
     };
 
+    const Shader& m_shader;                           ///< Shader data and paths
     D3D11_SHADER_DESC m_vertexDesc;                   ///< Internal description of the vertex shader
     D3D11_SHADER_DESC m_pixelDesc;                    ///< Internal description of the pixel shader
     std::string m_filepath;                           ///< Path to the shader file
-    std::string m_name;                               ///< Name of the shader
     std::string m_asmpath;                            ///< Path to the generated assembly file
     std::string m_sharedText;                         ///< Text to the shared shader components
     std::string m_vertexText;                         ///< Text for the vertex shader
@@ -257,7 +257,6 @@ private:
     ID3D10Blob* m_vsBlob = nullptr;                   ///< Vertex shader data
     ID3D10Blob* m_psBlob = nullptr;                   ///< Pixel shader data
     ID3D11SamplerState* m_samplerState = nullptr;     ///< Texture Sampler state
-    int m_index = NO_INDEX;                           ///< Unique index of the shader
     int m_textureSlots = 0;                           ///< Number of textures allowed for this mesh
 
     std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader

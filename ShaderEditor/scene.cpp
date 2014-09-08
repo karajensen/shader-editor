@@ -15,12 +15,21 @@
 
 bool Scene::Initialise()
 {
-    bool success = true;
-    FragmentLinker linker;
+    if (!InitialiseLighting())
+    {
+        return false;
+    }
 
-    success = success ? InitialiseLighting() : false;
-    success = success ? InitialiseMeshes(linker) : false;
-    success = success ? linker.GenerateFromFile(SHADER_PATH, "post") : false;
+    FragmentLinker linker;
+    if(!linker.Initialise(m_lights.size()))
+    {
+        return false;
+    }
+
+    if (!InitialiseShaders(linker) || !InitialiseMeshes(linker))
+    {
+        return false;
+    }
 
     // To prevent unnecessary shader switching, sort by shader used
     std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
@@ -28,16 +37,29 @@ bool Scene::Initialise()
         return m1.shaderIndex < m2.shaderIndex;
     });
 
-    return success;
+    return true;
+}
+
+bool Scene::InitialiseShaders(FragmentLinker& linker)
+{
+    const int postIndex = m_shaders.size();
+    assert(POST_SHADER_INDEX == postIndex);
+    Shader postShader;
+    postShader.index = postIndex;
+    postShader.name = POST_SHADER;
+
+    if (!linker.GenerateFromFile(postShader))
+    {
+        Logger::LogError("Could not generate post shader");
+        return false;
+    }
+
+    m_shaders.push_back(postShader);
+    return true;
 }
 
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
-{
-    if(!linker.Initialise(m_lights.size()))
-    {
-        return false;
-    }
-	
+{	
     boost::property_tree::ptree meshes;
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
         meshes, boost::property_tree::xml_parser::trim_whitespace);
@@ -445,7 +467,6 @@ std::vector<std::string> Scene::GetShaderNames() const
     {
         shaders.push_back(shader.name);
     }
-    shaders.push_back(POST_NAME);
     return shaders;
 }
 

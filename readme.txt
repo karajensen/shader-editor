@@ -1,8 +1,4 @@
 
-- Fix UVs being optimized out of opengl normal shader
-- Swap normal shader usage with generated normal shaders
-
-- Fix VLD
 - Colour correction: levels
 - Sending multiple lights
 - Post effects: fog, dof, glow

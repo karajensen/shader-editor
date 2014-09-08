@@ -45,8 +45,7 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
     }
 }
 
-bool FragmentLinker::GenerateFromFile(const std::string& directory, 
-                                      const std::string& name, 
+bool FragmentLinker::GenerateFromFile(const std::string& name, 
                                       const std::string& extension)
 {
     const std::string filepath = GENERATED_PATH + name + extension;
@@ -58,7 +57,7 @@ bool FragmentLinker::GenerateFromFile(const std::string& directory,
         return false;
     }
 
-    const std::string basepath = directory + name + extension;
+    const std::string basepath = SHADER_PATH + name + extension;
     std::ifstream baseFile(basepath.c_str(), std::ios_base::in|std::ios_base::_Nocreate);
 
     if(!baseFile.is_open())
@@ -90,11 +89,15 @@ bool FragmentLinker::GenerateFromFile(const std::string& directory,
     return true;
 }
 
-bool FragmentLinker::GenerateFromFile(const std::string& directory, const std::string& name)
+bool FragmentLinker::GenerateFromFile(Shader& shader)
 {
-    return GenerateFromFile(directory, name, HLSL_SHADER_EXTENSION) &&
-        GenerateFromFile(directory, name, GLSL_VERTEX_EXTENSION) &&
-        GenerateFromFile(directory, name, GLSL_FRAGMENT_EXTENSION);
+    shader.glslFragmentFile = GENERATED_PATH + shader.name + GLSL_FRAGMENT_EXTENSION;
+    shader.glslVertexFile = GENERATED_PATH + shader.name + GLSL_VERTEX_EXTENSION;
+    shader.hlslShaderFile = GENERATED_PATH + shader.name + HLSL_SHADER_EXTENSION;
+
+    return GenerateFromFile(shader.name, GLSL_FRAGMENT_EXTENSION) &&
+        GenerateFromFile(shader.name, GLSL_VERTEX_EXTENSION) &&
+        GenerateFromFile(shader.name, HLSL_SHADER_EXTENSION);
 }
 
 bool FragmentLinker::GenerateWithFragments(Shader& shader)

@@ -7,6 +7,8 @@
 #include "openglcommon.h"
 #include <unordered_map>
 
+struct Shader;
+
 /**
 * Holds information for an opengl shader
 */
@@ -16,13 +18,9 @@ public:
 
     /**
     * Constructor
-    * @param name The name of the shader
-    * @param vs The filepath for the vertex shader
-    * @param fs The filepath for the fragment shader
-    * @param index The unique index of the shader
+    * @param shader The shader data to create
     */
-    GlShader(const std::string& name, const std::string& vs, 
-        const std::string& fs, int index = NO_INDEX);
+    GlShader(const Shader& shader);
 
     /**
     * Destructor
@@ -208,6 +206,7 @@ private:
 
     typedef std::unordered_map<std::string, UniformData> UniformMap;
 
+    const Shader& m_shader;                   ///< Shader data and paths
     UniformMap m_uniforms;                    ///< Vertex and fragment non-attribute uniform data
     std::vector<int> m_samplers;              ///< Fragment shader sampler locations
     std::vector<AttributeData> m_attributes;  ///< Vertex shader input attributes
@@ -219,10 +218,8 @@ private:
     std::string m_fragmentText;               ///< Text for the fragment shader
     std::string m_vertexAsm;                  ///< Assembly for the vertex shader
     std::string m_fragmentAsm;                ///< Assembly for the fragment shader
-    std::string m_name;                       ///< The name of the shader
     GLint m_program = NO_INDEX;               ///< Shader program
     GLint m_vs = NO_INDEX;                    ///< GLSL Vertex Shader
     GLint m_fs = NO_INDEX;                    ///< GLSL Fragment Shader
     GLsizei m_stride = 0;                     ///< Stride required for vertex attributes
-    int m_index;                              ///< Unique index of the shader
 };

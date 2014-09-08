@@ -136,11 +136,18 @@ private:
     void SetBackfaceCull(bool shouldCull);
 
     /**
-    * Updates and switches to shader the mesh requires
+    * Updates and switches to the main shader the mesh requires
     * @param mesh The mesh currently rendering
     * @param lights All lighting in the scene
     */
     void UpdateShader(const Mesh& mesh, const std::vector<Light>& lights);
+
+    /**
+    * Updates and switches to the normal shader the mesh requires
+    * @param mesh The mesh currently rendering
+    * @param post Data for post processing
+    */
+    void UpdateShader(const Mesh& mesh, const PostProcessing& post);
 
     /**
     * Sends the textures to the selected shader

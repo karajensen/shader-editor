@@ -12,15 +12,6 @@
 #include "opengl/glm/glm.hpp"
 #include "opengl/glm/gtc/matrix_transform.hpp"
 
-const std::string POST_VERT("post" + GLSL_VERTEX + SHADER_EXTENSION);
-const std::string POST_FRAG("post" + GLSL_FRAGMENT + SHADER_EXTENSION);
-const std::string NORM_VERT("normal" + GLSL_VERTEX + SHADER_EXTENSION);
-const std::string NORM_FRAG("normal" + GLSL_FRAGMENT + SHADER_EXTENSION);
-const std::string POST_VERT_PATH(GENERATED_PATH + POST_VERT);
-const std::string POST_FRAG_PATH(GENERATED_PATH + POST_FRAG);
-const std::string NORM_VERT_PATH(GENERATED_PATH + NORM_VERT);
-const std::string NORM_FRAG_PATH(GENERATED_PATH + NORM_FRAG);
-
 /**
 * OpenGL call checking
 * @return whether the last call to OpenGL has failed

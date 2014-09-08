@@ -37,8 +37,6 @@ struct OpenglData
     GlRenderTarget backBuffer;       ///< Render target for the back buffer
     GlRenderTarget sceneTarget;      ///< Render target for the main scene
     GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
-    GlShader postShader;             ///< Shader for post processing the scene
-    GlShader normalShader;           ///< Shader for rendering normals/depth for the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
     glm::vec3 cameraPosition;        ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
@@ -57,9 +55,7 @@ OpenglData::OpenglData() :
     quad("ScreenQuad"),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
-    backBuffer("BackBuffer", true),
-    postShader(POST_NAME, POST_VERT_PATH, POST_FRAG_PATH),
-    normalShader(NORMAL_NAME, NORM_VERT_PATH, NORM_FRAG_PATH)
+    backBuffer("BackBuffer", true)
 {
 }
 
@@ -92,8 +88,6 @@ void OpenglData::Release()
     backBuffer.Release();
     sceneTarget.Release();
     normalTarget.Release();
-    postShader.Release();
-    normalShader.Release();
     quad.Release();
 
     wglMakeCurrent(nullptr, nullptr);
@@ -256,32 +250,10 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    // Create the normal/depth shader
-    std::string errorBuffer = m_data->normalShader.CompileShader();
-    if(!errorBuffer.empty())
-    {
-        Logger::LogError("OpenGL: Normal shader failed: " + errorBuffer);
-        return false;
-    }
-
-    // Create the post processing quad and shader
+    // Create the post processing quad
     if(!m_data->quad.Initialise())
     {
         Logger::LogError("OpenGL: Scene quad failed to initialise");
-        return false;
-    }
-
-    errorBuffer = m_data->postShader.CompileShader();
-    if(!errorBuffer.empty())
-    {
-        Logger::LogError("OpenGL: Post shader failed: " + errorBuffer);
-        return false;
-    }
-
-    if(!m_data->postShader.HasTextureSlot(PostProcessing::SCENE_MAP) ||
-       !m_data->postShader.HasTextureSlot(PostProcessing::NORMAL_MAP))
-    {
-        Logger::LogError("OpenGL: Post shader does not have required texture slots");
         return false;
     }
 
@@ -329,8 +301,7 @@ bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         m_data->shaders.push_back(std::unique_ptr<GlShader>(
-            new GlShader(shader.name, shader.glslVertexFile, 
-                shader.glslFragmentFile, shader.index)));
+            new GlShader(shader)));
     }
 
     m_data->meshes.reserve(meshes.size());
@@ -398,40 +369,35 @@ bool OpenglEngine::FadeView(bool in, float amount)
 void OpenglEngine::Render(const std::vector<Light>& lights,
                           const PostProcessing& post)
 {
-    m_data->selectedShader = NO_INDEX; // always reset due to post shader
-
-    // Render the scene
-    m_data->sceneTarget.SetActive();
-    for(auto& mesh : m_data->meshes)
+    auto renderScene = [&](std::unique_ptr<GlMesh>& mesh)
     {
-        UpdateShader(mesh->GetMesh(), lights);
         SetTextures(mesh->GetTextureIDs());
         SetBackfaceCull(mesh->ShouldBackfaceCull());
-    
+
         mesh->PreRender();
         m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
         mesh->Render();
+    };
+
+    // Render the scene
+    m_data->sceneTarget.SetActive();
+    for (auto& mesh : m_data->meshes)
+    {
+        UpdateShader(mesh->GetMesh(), lights);
+        renderScene(mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive();
-    m_data->normalShader.SetActive();
-    m_data->normalShader.SendUniformMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.SendUniformFloat("depthNear", &post.depthNear, 1);
-    m_data->normalShader.SendUniformFloat("depthFar", &post.depthFar, 1);
-    for(auto& mesh : m_data->meshes)
+    for (auto& mesh : m_data->meshes)
     {
-        SetBackfaceCull(mesh->ShouldBackfaceCull());
-    
-        mesh->PreRender();
-        m_data->normalShader.EnableAttributes();
-        mesh->Render();
+        UpdateShader(mesh->GetMesh(), post);
+        renderScene(mesh);
     }
 
     // Render the scene as a texture to the backbuffer
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive();
-    m_data->postShader.SetActive();
     RenderPostProcessing(post);
 
     SwapBuffers(m_data->hdc); 
@@ -439,31 +405,26 @@ void OpenglEngine::Render(const std::vector<Light>& lights,
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    m_data->postShader.SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
-    m_data->postShader.SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
-    m_data->postShader.SendUniformFloat("maximumColor", &post.maximumColour.r, 3);
+    auto& postShader = m_data->shaders[POST_SHADER_INDEX];
+    postShader->SetActive();
 
-    m_data->postShader.SendUniformFloat("sceneAlpha",
-        &post.alpha[PostProcessing::SCENE_MAP], 1);
+    postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
+    postShader->SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
+    postShader->SendUniformFloat("maximumColor", &post.maximumColour.r, 3);
 
-    m_data->postShader.SendUniformFloat("normalAlpha",
-        &post.alpha[PostProcessing::NORMAL_MAP], 1);
+    postShader->SendUniformFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
+    postShader->SendUniformFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
+    postShader->SendUniformFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
 
-    m_data->postShader.SendUniformFloat("depthAlpha",
-        &post.alpha[PostProcessing::DEPTH_MAP], 1);
-
-    m_data->postShader.SendTexture(PostProcessing::SCENE_MAP, 
-        m_data->sceneTarget.GetTextureID(), true);
-
-    m_data->postShader.SendTexture(PostProcessing::NORMAL_MAP, 
-        m_data->normalTarget.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::SCENE_MAP, m_data->sceneTarget.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::NORMAL_MAP, m_data->normalTarget.GetTextureID(), true);
 
     m_data->quad.PreRender();
-    m_data->postShader.EnableAttributes();
+    postShader->EnableAttributes();
     m_data->quad.Render();
 
-    m_data->postShader.ClearTexture(PostProcessing::SCENE_MAP, true);
-    m_data->postShader.ClearTexture(PostProcessing::NORMAL_MAP, true);
+   postShader->ClearTexture(PostProcessing::SCENE_MAP, true);
+   postShader->ClearTexture(PostProcessing::NORMAL_MAP, true);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -473,19 +434,31 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
     int slot = 0;
     for(int id : textureIDs)
     {
-        if(id != NO_INDEX)
+        if(id != NO_INDEX && shader->HasTextureSlot(slot))
         {
-            if(shader->HasTextureSlot(slot))
-            {
-                shader->SendTexture(slot, m_data->textures[id]->GetID());
-                ++slot;
-            }
-            else
-            {
-                Logger::LogError("Shader and mesh texture count does not match");
-            }
+            shader->SendTexture(slot, m_data->textures[id]->GetID());
+            ++slot;
         }
     }
+}
+
+void OpenglEngine::UpdateShader(const Mesh& mesh, 
+                                const PostProcessing& post)
+{
+    const int index = mesh.normalIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        m_data->selectedShader = index;
+        shader->SetActive();
+
+        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+        shader->SendUniformFloat("depthNear", &post.depthNear, 1);
+        shader->SendUniformFloat("depthFar", &post.depthFar, 1);
+    }
+
+    shader->SendUniformFloat("meshBump", &mesh.bump, 1);
 }
 
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
@@ -559,27 +532,11 @@ void OpenglEngine::SetBackfaceCull(bool shouldCull)
 
 std::string OpenglEngine::GetShaderText(int index) const
 {
-    if(index == m_data->shaders.size())
-    {
-        return m_data->postShader.GetText();
-    }
-    else if(index == m_data->shaders.size() + 1)
-    {
-        return m_data->normalShader.GetText();
-    }
     return m_data->shaders[index]->GetText();
 }
 
 std::string OpenglEngine::GetShaderAssembly(int index)
 {
-    if(index == m_data->shaders.size())
-    {
-        return m_data->postShader.GetAssembly();
-    }
-    else if(index == m_data->shaders.size() + 1)
-    {
-        return m_data->normalShader.GetAssembly();
-    }
     return m_data->shaders[index]->GetAssembly();
 }
 

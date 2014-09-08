@@ -10,11 +10,6 @@
 #include "directx/include/d3dx10.h"
 #include "common.h"
 
-const std::string POST_SHADER("post" + HLSL_SHADER + SHADER_EXTENSION);
-const std::string NORM_SHADER("normal" + HLSL_SHADER + SHADER_EXTENSION);
-const std::string POST_PATH(GENERATED_PATH + POST_SHADER);
-const std::string NORM_PATH(GENERATED_PATH + NORM_SHADER);
-
 /**
 * Sets the name of the directx object for debugging
 * @param object The object to set

@@ -55,10 +55,11 @@ const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
-const std::string POST_NAME("PostShader");
-const std::string NORMAL_NAME("NormalShader");
+
+const std::string POST_SHADER("post");
 const std::string NORMAL_SHADER("normal");
 const std::string BASE_SHADER("shader");
+const int POST_SHADER_INDEX = 0;
 
 /**
 * Converts degrees to radians

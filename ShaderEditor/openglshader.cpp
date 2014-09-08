@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <assert.h>
 #include <fstream>
+#include "elements.h"
 
 namespace
 {
@@ -41,15 +42,10 @@ namespace
         (16, GL_FLOAT_MAT4);
 }
 
-GlShader::GlShader(const std::string& name,
-                   const std::string& vs, 
-                   const std::string& fs,
-                   int index) :
-
-    m_vsFilepath(vs),
-    m_fsFilepath(fs),
-    m_index(index),
-    m_name(name)
+GlShader::GlShader(const Shader& shader) :
+    m_shader(shader),
+    m_vsFilepath(shader.glslVertexFile),
+    m_fsFilepath(shader.glslFragmentFile)
 {
     m_vaFilepath = boost::ireplace_last_copy(
         m_vsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
@@ -416,7 +412,7 @@ std::string GlShader::FindShaderUniforms()
 
     if(HasCallFailed())
     {
-        return "Could not get uniform count for shader " + m_name;
+        return "Could not get uniform count for shader " + m_shader.name;
     }
 
     for (int i = 0; i < uniformCount; ++i)
@@ -434,7 +430,7 @@ std::string GlShader::FindShaderUniforms()
         GLint location = glGetUniformLocation(m_program, name.c_str());
         if(HasCallFailed() || location == NO_INDEX)
         {
-            return "Could not find uniform " + name + " for shader " + m_name;
+            return "Could not find uniform " + name + " for shader " + m_shader.name;
         }
         
         if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE)
@@ -589,7 +585,7 @@ void GlShader::SetActive()
 
 int GlShader::GetIndex() const
 {
-    return m_index;
+    return m_shader.index;
 }
 
 bool GlShader::HasTextureSlot(int slot)
@@ -609,12 +605,12 @@ std::string GlShader::GetAssembly()
     const std::string errors = GenerateAssembly();
     if(!errors.empty())
     {
-        Logger::LogError("OpenGL: " + m_name + " " + errors);
+        Logger::LogError("OpenGL: " + m_shader.name + " " + errors);
     }
     return m_vertexAsm + "\n" + m_fragmentAsm;
 }
 
 const std::string& GlShader::GetName() const
 {
-    return m_name;
+    return m_shader.name;
 }

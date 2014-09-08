@@ -38,8 +38,6 @@ struct DirectxData
     ID3D11DeviceContext* context = nullptr;       ///< Direct3D device context
     ID3D11Debug* debug = nullptr;                 ///< Direct3D debug interface, only created in debug
 
-    DxShader normalShader;              ///< Shader for rendering normals/depth for the scene
-    DxShader postShader;                ///< Post processing shader
     DxMesh quad;                        ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
     DxRenderTarget sceneTarget;         ///< Render target for the main scene
@@ -61,8 +59,6 @@ DirectxData::DirectxData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
     backBuffer("BackBuffer", true),
-    postShader(POST_NAME, POST_PATH),
-    normalShader(NORMAL_NAME, NORM_PATH),
     quad("SceneQuad")
 {
 }
@@ -93,8 +89,6 @@ void DirectxData::Release()
         shader->Release();
     }
 
-    normalShader.Release();
-    postShader.Release();
     quad.Release();
     sceneTarget.Release();
     normalTarget.Release();
@@ -171,29 +165,8 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    // Create the normal/depth shader
-    std::string errorBuffer = m_data->normalShader.CompileShader(m_data->device);
-    if(!errorBuffer.empty())
-    {
-        Logger::LogError("DirectX: Normal shader failed: " + errorBuffer);
-        return false;
-    }
-
-    // Create the post processing quad and shader
+    // Create the post processing quad
     m_data->quad.Initialise(m_data->device, m_data->context);
-    errorBuffer = m_data->postShader.CompileShader(m_data->device);
-    if (!errorBuffer.empty())
-    {
-        Logger::LogError("DirectX: Post shader failed: " + errorBuffer);
-        return false;
-    }
-
-    if (!m_data->postShader.HasTextureSlot(PostProcessing::SCENE_MAP) ||
-        !m_data->postShader.HasTextureSlot(PostProcessing::NORMAL_MAP))
-    {
-        Logger::LogError("DirectX: Post shader does not have required texture slots");
-        return false;
-    }
 
     // Setup the directX environment
     D3D11_RASTERIZER_DESC rasterDesc;
@@ -296,7 +269,7 @@ bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes,
     for(const Shader& shader : shaders)
     {
         m_data->shaders.push_back(std::unique_ptr<DxShader>(
-            new DxShader(shader.name, shader.hlslShaderFile, shader.index)));
+            new DxShader(shader)));
     }
 
     m_data->meshes.reserve(meshes.size());
@@ -356,37 +329,32 @@ bool DirectxEngine::FadeView(bool in, float amount)
 void DirectxEngine::Render(const std::vector<Light>& lights,
                            const PostProcessing& post)
 {
-    m_data->selectedShader = NO_INDEX; // always reset due to post shader
+    auto renderScene = [&](std::unique_ptr<DxMesh>& mesh)
+    {
+        SetTextures(mesh->GetTextureIDs());
+        SetBackfaceCull(mesh->ShouldBackfaceCull());
+        mesh->Render(m_data->context);
+    };
 
     // Render the scene
     m_data->sceneTarget.SetActive(m_data->context);
-    for(auto& mesh : m_data->meshes)
+    for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), lights);
-
-        SetTextures(mesh->GetTextureIDs());
-        SetBackfaceCull(mesh->ShouldBackfaceCull());
-        
-        mesh->Render(m_data->context);
+        renderScene(mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context);
-    m_data->normalShader.SetActive(m_data->context);
-    m_data->normalShader.UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-    m_data->normalShader.UpdateConstantFloat("depthNear", &post.depthNear, 1);
-    m_data->normalShader.UpdateConstantFloat("depthFar", &post.depthFar, 1);
-    m_data->normalShader.SendConstants(m_data->context);
-    for(auto& mesh : m_data->meshes)
+    for (auto& mesh : m_data->meshes)
     {
-        SetBackfaceCull(mesh->ShouldBackfaceCull());
-        mesh->Render(m_data->context);
+        UpdateShader(mesh->GetMesh(), post);
+        renderScene(mesh);
     }
-
+    
     // Render the scene as a texture to the backbuffer
     SetBackfaceCull(false);
     m_data->backBuffer.SetActive(m_data->context);
-    m_data->postShader.SetActive(m_data->context);
     RenderPostProcessing(post);
 
     m_data->swapchain->Present(0, 0);
@@ -394,23 +362,21 @@ void DirectxEngine::Render(const std::vector<Light>& lights,
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
+    auto& postShader = m_data->shaders[POST_SHADER_INDEX];
+    postShader->SetActive(m_data->context);
+
     m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE_MAP);
     m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL_MAP);
 
-    m_data->postShader.UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
-    m_data->postShader.UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
-    m_data->postShader.UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
+    postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
+    postShader->UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
+    postShader->UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
+              
+    postShader->UpdateConstantFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
+    postShader->UpdateConstantFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
+    postShader->UpdateConstantFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
 
-    m_data->postShader.UpdateConstantFloat("sceneAlpha",
-        &post.alpha[PostProcessing::SCENE_MAP], 1);
-
-    m_data->postShader.UpdateConstantFloat("normalAlpha",
-        &post.alpha[PostProcessing::NORMAL_MAP], 1);
-
-    m_data->postShader.UpdateConstantFloat("depthAlpha",
-        &post.alpha[PostProcessing::DEPTH_MAP], 1);
-
-    m_data->postShader.SendConstants(m_data->context);
+    postShader->SendConstants(m_data->context);
 
     m_data->quad.Render(m_data->context);
 
@@ -425,18 +391,31 @@ void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
     int slot = 0;
     for(int id : textureIDs)
     {
-        if(id != NO_INDEX)
+        if(id != NO_INDEX && shader->HasTextureSlot(slot))
         {
-            if(shader->HasTextureSlot(slot))
-            {
-                m_data->textures[id]->SendTexture(m_data->context, slot++);
-            }
-            else
-            {
-                Logger::LogError("Shader and mesh texture count does not match");
-            }
+            m_data->textures[id]->SendTexture(m_data->context, slot++);
         }
     }
+}
+
+void DirectxEngine::UpdateShader(const Mesh& mesh, 
+                                const PostProcessing& post)
+{
+    const int index = mesh.normalIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        m_data->selectedShader = index;
+        shader->SetActive(m_data->context);
+
+        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
+        shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+    }
+
+    shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+    shader->SendConstants(m_data->context);
 }
 
 void DirectxEngine::UpdateShader(const Mesh& mesh, 
@@ -517,27 +496,11 @@ void DirectxEngine::SetBackfaceCull(bool shouldCull)
 
 std::string DirectxEngine::GetShaderText(int index) const
 {
-    if(index == m_data->shaders.size())
-    {
-        return m_data->postShader.GetText();
-    }
-    else if(index == m_data->shaders.size() + 1)
-    {
-        return m_data->normalShader.GetText();
-    }
     return m_data->shaders[index]->GetText();
 }
 
 std::string DirectxEngine::GetShaderAssembly(int index)
 {
-    if(index == m_data->shaders.size())
-    {
-        return m_data->postShader.GetAssembly();
-    }
-    else if(index == m_data->shaders.size() + 1)
-    {
-        return m_data->normalShader.GetAssembly();
-    }
     return m_data->shaders[index]->GetAssembly();
 }
 
