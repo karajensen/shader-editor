@@ -46,13 +46,14 @@ endif
 void main(void)
 {
     out_Color = texture(DiffuseSampler, ex_UVs);
-    out_Color.rgb *= lightDiffuse;
 
-    float lightLen = length(ex_VertToLight);
+    float lightLength = length(ex_VertToLight);
     float attenuation = 1.0 / (lightAttenuation.x 
-        + lightAttenuation.y * lightLen 
-        + lightAttenuation.z * lightLen * lightLen);
-    vec3 vertToLight = ex_VertToLight / lightLen;
+        + lightAttenuation.y * lightLength 
+        + lightAttenuation.z * lightLength * lightLength);
+    vec3 vertToLight = ex_VertToLight / lightLength;
+
+    out_Color.rgb *= lightDiffuse;
 
     ifdef: !FLAT
 

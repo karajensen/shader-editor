@@ -27,20 +27,6 @@ namespace
     const std::string VERTEX_MODEL("vs_5_0");
     const std::string PIXEL_MODEL("ps_5_0");
     const std::string HLSL_IN_POSITION("POSITION");
-    const std::string HLSL_FLT("float");
-    const std::string HLSL_FLT2(HLSL_FLT + "2");
-    const std::string HLSL_FLT3(HLSL_FLT + "3");
-    const std::string HLSL_FLT4(HLSL_FLT + "4");
-    const std::string HLSL_MAT4("float4x4");
-
-    // How many float components to the HLSL float structure
-    boost::bimap<int, std::string> FLOAT_COMPONENTS = 
-        boost::assign::list_of<boost::bimap<int, std::string>::relation>
-        (1, HLSL_FLT)
-        (2, HLSL_FLT2)
-        (3, HLSL_FLT3)
-        (4, HLSL_FLT4)
-        (16, HLSL_MAT4);
 }
 
 DxShader::DxShader(const Shader& shader) :
@@ -480,16 +466,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
                 boost::lexical_cast<std::string>(i) + " description";
         }
 
-        const int count = valueDesc.Size/sizeof(float);
-        auto itr = FLOAT_COMPONENTS.left.find(count);
-        if(itr == FLOAT_COMPONENTS.left.end())
-        {
-            return "Buffer " + buffer.name + " variable " + valueDesc.Name + 
-                " has float components (" + boost::lexical_cast<std::string>(count) + 
-                ") that does not match up to known structure ";
-        }
-
-        buffer.constants[valueDesc.Name].type = itr->second;
+        buffer.constants[valueDesc.Name].size = valueDesc.Size/sizeof(float);
         buffer.constants[valueDesc.Name].index = valueDesc.StartOffset / sizeof(float);
     }
 
@@ -583,27 +560,26 @@ void DxShader::SetActive(ID3D11DeviceContext* context)
     }
 }
 
-void DxShader::UpdateConstantFloat(const std::string& name, const float* value, int size)
+void DxShader::UpdateConstantFloat(const std::string& name, const float* value, int size, int offset)
 {
-    std::string floatType = HLSL_FLT;
-    if(size > 1)
-    {
-        floatType += boost::lexical_cast<std::string>(size);
-    }
-
     for(auto& buffer : m_cbuffers)
     {
         auto itr = buffer->constants.find(name);
-        if(itr != buffer->constants.end() && 
-            CanSendConstant(floatType, itr->second.type, name))
+        if(itr != buffer->constants.end())
         {
-            for(int i = 0; i < size; ++i)
+            if (offset == NO_INDEX ? itr->second.size != size : itr->second.size < size)
+            {
+                Logger::LogError("Size for constant " + name + " doesn't match");
+                return;
+            }
+
+            offset = max(offset, 0);
+            for(int i = offset; i < offset + size; ++i)
             {
                 buffer->scratch[itr->second.index + i] = value[i];
             }
 
             buffer->updated = true;
-            return;
         }
     }
 }
@@ -613,9 +589,15 @@ void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& m
     for(auto& buffer : m_cbuffers)
     {
         auto itr = buffer->constants.find(name);
-        if(itr != buffer->constants.end() && 
-            CanSendConstant(HLSL_MAT4, itr->second.type, name))
+        if(itr != buffer->constants.end())
         {
+            const int matrixSize = 16;
+            if (itr->second.size != matrixSize)
+            {
+                Logger::LogError("Size for constant " + name + " doesn't match");
+                return;
+            }
+
             const int scratchIndex = itr->second.index;
             const FLOAT* matArray = matrix;
             for(int i = 0; i < 16; ++i) // 16 floats in a directx matrix
@@ -624,22 +606,8 @@ void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& m
             }
 
             buffer->updated = true;
-            return;
         }
     }
-}
-
-bool DxShader::CanSendConstant(const std::string& expectedType, 
-                               const std::string& actualType, 
-                               const std::string& name) const
-{
-    if(actualType != expectedType)
-    {
-        Logger::LogError(name + " type mismatch. Attempting to send " + 
-            actualType + " as a " + expectedType);
-        return false;
-    }
-    return true;
 }
 
 void DxShader::SendConstants(ID3D11DeviceContext* context)

@@ -13,6 +13,12 @@
 #include "assimp/include/postprocess.h"
 #include "fragmentlinker.h"
 
+namespace
+{
+    const bool OVERRIDE_SHADERS = false; ///< Whether to do a global override of shader names
+    const std::string GLOBAL_SHADER("Bump"); ///< Shader to override all meshes
+}
+
 bool Scene::Initialise()
 {
     if (!InitialiseLighting())
@@ -78,6 +84,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 	
+        // Get the textures used by the mesh
         assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
         for (int i = 0; i < Texture::MAX_TYPES; ++i)
         {
@@ -89,8 +96,11 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
         mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
 	
+        // Get the shader used by the mesh
+        std::string shadername = OVERRIDE_SHADERS ? GLOBAL_SHADER :
+            it->second.get_child("Shader").data();
+
         // Copy each component featured in the given shader name to a set order
-        std::string shadername = it->second.get_child("Shader").data();
         std::string newShaderName;
         std::string component;
         for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)

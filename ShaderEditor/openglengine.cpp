@@ -475,11 +475,12 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
 
-        shader->SendUniformFloat("lightSpecularity", &lights[0].specularity, 1);
-        shader->SendUniformFloat("lightAttenuation", &lights[0].attenuation.x, 3);
-        shader->SendUniformFloat("lightPosition", &lights[0].position.x, 3);
-        shader->SendUniformFloat("lightDiffuse", &lights[0].diffuse.r, 3);
-        shader->SendUniformFloat("lightSpecular", &lights[0].specular.r, 3);
+        int i = 1;
+        shader->SendUniformFloat("lightSpecularity", &lights[i].specularity, 1);
+        shader->SendUniformFloat("lightAttenuation", &lights[i].attenuation.x, 3);
+        shader->SendUniformFloat("lightPosition", &lights[i].position.x, 3);
+        shader->SendUniformFloat("lightDiffuse", &lights[i].diffuse.r, 3);
+        shader->SendUniformFloat("lightSpecular", &lights[i].specular.r, 3);
     }
 
     shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);

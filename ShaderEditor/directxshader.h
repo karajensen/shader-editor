@@ -58,8 +58,10 @@ public:
     * @param name Name of the float to send. This must match on the shader to be successful
     * @param value Pointer to the float array to send
     * @param size The size of the float array
+    * @param offset The amount of floats to offset when writing
     */
-    void UpdateConstantFloat(const std::string& name, const float* value, int size);
+    void UpdateConstantFloat(const std::string& name, 
+        const float* value, int size, int offset = NO_INDEX);
 
     /**
     * Bulk-sends all constant data saved in the constant scratch buffer to the shader
@@ -189,17 +191,6 @@ private:
     std::string CreateConstantBuffers(ID3D11Device* device, bool isVertexShader);
 
     /**
-    * Validates the non-attribute constant that is requesting to be sent
-    * @param expectedType Current type of constant wanting to send
-    * @param actualType Actual type of constant in the shader
-    * @param name Name of the constant
-    */
-    bool CanSendConstant(
-        const std::string& expectedType, 
-        const std::string& actualType, 
-        const std::string& name) const;
-
-    /**
     * Sets the internal debug names for the shader objects
     */
     void SetDebugNames();                  
@@ -209,8 +200,8 @@ private:
     */
     struct ConstantData
     {
-        std::string type;    ///< Type of data stored in the location
-        int index;           ///< Offset from beginning of scratch buffer
+        int size = 0;    ///< How many floats are apart of this data
+        int index = 0;   ///< Offset from beginning of scratch buffer
     };
 
     /**
