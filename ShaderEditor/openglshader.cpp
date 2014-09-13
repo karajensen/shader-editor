@@ -31,15 +31,6 @@ namespace
     const std::string GLSL_IN_POSITION("in_Position");
     const std::string GLSL_OUT_COLOR("outColor");
     const std::string GLSL_IN("in");
-
-    // How many float components to the GLSL float structure
-    boost::bimap<int, GLenum> FLOAT_COMPONENTS = 
-        boost::assign::list_of<boost::bimap<int, GLenum>::relation>
-        (1, GL_FLOAT)
-        (2, GL_FLOAT_VEC2)
-        (3, GL_FLOAT_VEC3)
-        (4, GL_FLOAT_VEC4)
-        (16, GL_FLOAT_MAT4);
 }
 
 GlShader::GlShader(const Shader& shader) :
@@ -438,9 +429,35 @@ std::string GlShader::FindShaderUniforms()
             m_samplers.push_back(location);
         }
         else
-        {
+        {   
+            int floatsUsed = 0;
+            switch(type)
+            {
+            case GL_FLOAT_MAT4:
+                floatsUsed = 0;
+                break;
+            case GL_FLOAT:
+                floatsUsed = 1;
+                break;
+            case GL_FLOAT_VEC2:
+                floatsUsed = 2;
+                break;
+            case GL_FLOAT_VEC3:
+                floatsUsed = 3;
+                break;
+            case GL_FLOAT_VEC4:
+                floatsUsed = 4;
+                break;
+            default:
+                Logger::LogError("Unknown uniform type " + name);
+            }
+
+            floatsUsed *= size;
+            m_uniforms[name].scratch.resize(floatsUsed);
+            m_uniforms[name].scratch.assign(floatsUsed, 0.0f);
             m_uniforms[name].location = location;
             m_uniforms[name].type = type;
+            m_uniforms[name].size = size;
         }
     }
 
@@ -450,9 +467,15 @@ std::string GlShader::FindShaderUniforms()
 void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matrix)
 {
     auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform(GL_FLOAT_MAT4, itr->second.type, name))
+    if(itr != m_uniforms.end())
     {
         glUniformMatrix4fv(itr->second.location, 1, GL_FALSE, &matrix[0][0]);
+
+        if (itr->second.type != GL_FLOAT_MAT4)
+        {
+            Logger::LogError("Uniform " + name + " isn't a matrix");
+        }
+
         if(HasCallFailed())
         {
             Logger::LogError("Could not send uniform " + name);
@@ -460,72 +483,80 @@ void GlShader::SendUniformMatrix(const std::string& name, const glm::mat4& matri
     }
 }
 
-void GlShader::SendUniformFloat(const std::string& name, const float* value, int size)
+void GlShader::UpdateUniformArray(const std::string& name, const float* value, int count, int offset)
 {
-    const GLenum type = GetTypeFromComponents(size);
-
     auto itr = m_uniforms.find(name);
-    if(itr != m_uniforms.end() && CanSendUniform(type, itr->second.type, name))
+    if (itr != m_uniforms.end())
     {
-        switch(size)
+        for(int i = offset, j = 0; j < count; ++i, ++j)
         {
-        case 1:
-            glUniform1f(itr->second.location, value[0]);
-            break;
-        case 2:
-            glUniform2f(itr->second.location, value[0], value[1]);
-            break;
-        case 3:
-            glUniform3f(itr->second.location, value[0], value[1], value[2]);
-            break;
-        case 4:
-            glUniform4f(itr->second.location, value[0], value[1], value[2], value[3]);
-            break;
-        default:
-            Logger::LogError("Size too large for uniform " + name);
+            itr->second.scratch[i] = value[j];
         }
 
-        if(HasCallFailed())
+        itr->second.updated = true;
+    }
+}
+
+void GlShader::SendUniformArrays()
+{
+    for (auto& uniform : m_uniforms)
+    {
+        if (uniform.second.updated)
         {
-            Logger::LogError("Could not send uniform " + name);
+            uniform.second.updated = false;
+            SendUniformFloat(
+                uniform.first, 
+                &uniform.second.scratch[0],
+                uniform.second.location,
+                uniform.second.size,
+                uniform.second.type);
         }
     }
 }
 
-GLenum GlShader::GetTypeFromComponents(int components) const
+void GlShader::SendUniformFloat(const std::string& name, 
+                                const float* value, 
+                                int location, 
+                                int size, 
+                                GLenum type)
 {
-    auto itr = FLOAT_COMPONENTS.left.find(components);
-    if(itr != FLOAT_COMPONENTS.left.end())
+    switch(type)
     {
-        return itr->second;
+    case GL_FLOAT:
+        glUniform1fv(location, size, value);
+        break;
+    case GL_FLOAT_VEC2:
+        glUniform2fv(location, size, value);
+        break;
+    case GL_FLOAT_VEC3:
+        glUniform3fv(location, size, value);
+        break;
+    case GL_FLOAT_VEC4:
+        glUniform4fv(location, size, value);
+        break;
+    default:
+        Logger::LogError("Unknown uniform type " + name);
     }
-    Logger::LogError("Could not find type in list");
-    return 0;
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("Could not send uniform " + name);
+    }
 }
 
-int GlShader::GetComponentsFromType(GLenum type) const
+void GlShader::SendUniformFloat(const std::string& name, const float* value, int count)
 {
-    auto itr = FLOAT_COMPONENTS.right.find(type);
-    if(itr != FLOAT_COMPONENTS.right.end())
+    auto itr = m_uniforms.find(name);
+    if(itr != m_uniforms.end())
     {
-        return itr->second;
-    }
-    Logger::LogError("Could not components in list");
-    return 0;
-}
+        if (itr->second.scratch.size() != count)
+        {
+            Logger::LogError("Size for uniform " + name + " doesn't match");
+        }
 
-bool GlShader::CanSendUniform(GLenum expectedType, 
-                              GLenum actualType, 
-                              const std::string& name) const
-{
-    if(actualType != expectedType)
-    {
-        Logger::LogError(name + " type mismatch. Attempting to send " + 
-            boost::lexical_cast<std::string>(GetComponentsFromType(actualType)) + " as type " + 
-            boost::lexical_cast<std::string>(GetComponentsFromType(expectedType)));
-        return false;
+        SendUniformFloat(name, value, itr->second.location, 
+            itr->second.size, itr->second.type);
     }
-    return true;
 }
 
 void GlShader::EnableAttributes()

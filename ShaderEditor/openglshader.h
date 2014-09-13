@@ -52,11 +52,25 @@ public:
 
     /**
     * Sends the float to the shader
-    * @param name Name of the float to send. This must match on the shader to be successful
+    * @param name Name of the uniform to send. This must match on the shader to be successful
     * @param value The pointer to the float array to send
-    * @param size The number of floats to send
+    * @param count The number of floats to send
     */
-    void SendUniformFloat(const std::string& name, const float* value, int size);
+    void SendUniformFloat(const std::string& name, const float* value, int count);
+
+    /**
+    * Updates the cached array scratch buffer
+    * @param name Name of the uniform to send. This must match on the shader to be successful
+    * @param value The pointer to the float array to send
+    * @param count The number of floats to send
+    * @param offset The index offset into the array
+    */
+    void UpdateUniformArray(const std::string& name, const float* value, int count, int offset);
+
+    /**
+    * Sends the array buffers to the shader if they have been updated
+    */
+    void SendUniformArrays();
 
     /**
     * @return the unique index of the shader
@@ -163,45 +177,37 @@ private:
     std::string LinkShaderProgram();
 
     /**
-    * Validates the uniform that is requesting to be sent matches the cached type
-    * @param expectedType Current type of uniform wanting to send
-    * @param actualType Actual type of uniform in the shader
-    * @param name Name of the uniform to send
+    * Sends the float to the shader
+    * @param name Name of the uniform to send. This must match on the shader to be successful
+    * @param value The pointer to the float array to send
+    * @param location Unique location within the shader
+    * @param size The number of elements in the array (1 if not an array)
+    * @param type Whether a float, vec2, vec3, vec4 
     */
-    bool CanSendUniform(GLenum expectedType,
-        GLenum actualType, const std::string& name) const;
-
-    /**
-    * Finds the float type from the number of components used
-    * @param components The number of components used
-    * @return the type of float structure in GLSL
-    */
-    GLenum GetTypeFromComponents(int components) const;
-
-    /**
-    * Finds the number of components used from the float type
-    * @param type The type of float structure in GLSL
-    * @return the number of components used
-    */
-    int GetComponentsFromType(GLenum type) const;
+    void SendUniformFloat(const std::string& name, const float* value, 
+        int location, int size, GLenum type);
 
     /**
     * Information for each vertex input attribute
     */
     struct AttributeData
     {
-        int components;      ///< Number of float components in the type
-        int location;        ///< The index location of the attribute
+        int components = 0;  ///< Number of float components in the type
+        int location = 0;    ///< The index location of the attribute
         std::string name;    ///< The name of the attribute
     };
 
     /**
     * Information for a non-attribute shader uniform
+    * @note scratch is not allocated for matrices
     */
     struct UniformData
     {
-        GLenum type;    ///< Type of data stored in the location
-        int location;   ///< Unique location within the shader
+        GLenum type = 0;            ///< Whether a float, vec2, vec3, vec4
+        int location = 0;           ///< Unique location within the shader
+        int size = 0;               ///< The number of elements in the array (1 if not an array)
+        std::vector<float> scratch; ///< Buffer allocated with the total floats used
+        bool updated = false;       ///< Whether the scratch buffer has been updated
     };
 
     typedef std::unordered_map<std::string, UniformData> UniformMap;

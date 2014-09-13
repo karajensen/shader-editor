@@ -117,8 +117,7 @@ float4 PShader(Attributes input) : SV_TARGET
         float3 specular = float3(0.0, 0.0, 0.0);
     endif
 
-    //for (int i = 0; i < MAX_LIGHTS; ++i)
-    int i = 1;
+    for (int i = 0; i < MAX_LIGHTS; ++i)
     {
         float3 lightColour = lightDiffuse[i];
         float3 vertToLight = lightPosition[i] - input.positionWorld;
@@ -143,9 +142,9 @@ float4 PShader(Attributes input) : SV_TARGET
         diffuse += lightColour * attenuation;
     }
 
-    float3 finalColour = diffuseTex * diffuse;
+    float3 finalColour = diffuseTex.rgb * diffuse;
     ifdef: !FLAT|SPECULAR
-        finalColour += specularTex * specular;
+        finalColour += specularTex.rgb * specular;
     endif
     return float4(finalColour * meshAmbience, 1.0);
 }

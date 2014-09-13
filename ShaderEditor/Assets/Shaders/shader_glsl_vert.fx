@@ -13,7 +13,7 @@ ifdef: !FLAT|BUMP
 endif
 
 out vec2 ex_UVs;
-out vec3 ex_VertToLight;
+out vec3 ex_PositionWorld;
 ifdef: !FLAT
     out vec3 ex_Normal;
     ifdef: BUMP
@@ -35,11 +35,10 @@ void main(void)
 {
     gl_Position = viewProjection * in_Position;
     ex_UVs = in_UVs;
-    ex_VertToLight = lightPosition - in_Position.xyz;
+    ex_PositionWorld = in_Position.xyz;
     
     ifdef: !FLAT
         ex_Normal = in_Normal;
-
         ifdef: BUMP
             ex_Tangent = in_Tangent;
             ex_Bitangent = in_Bitangent;

@@ -574,12 +574,13 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
             }
 
             offset = max(offset, 0);
-            for(int i = offset; i < offset + size; ++i)
+            for(int i = offset, j = 0; j < size; ++i, ++j)
             {
-                buffer->scratch[itr->second.index + i] = value[i];
+                buffer->scratch[itr->second.index + i] = value[j];
             }
 
             buffer->updated = true;
+            return;
         }
     }
 }
@@ -606,6 +607,7 @@ void DxShader::UpdateConstantMatrix(const std::string& name, const D3DXMATRIX& m
             }
 
             buffer->updated = true;
+            return;
         }
     }
 }

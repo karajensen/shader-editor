@@ -434,8 +434,8 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
         for (unsigned int i = 0; i < lights.size(); ++i)
         {
-            const int offset = i*3;
-            shader->UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, i);
+            const int offset = i*4; // Arrays pack in buffer of float4
+            shader->UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, offset);
             shader->UpdateConstantFloat("lightAttenuation", &lights[i].attenuation.x, 3, offset);
             shader->UpdateConstantFloat("lightPosition", &lights[i].position.x, 3, offset);
             shader->UpdateConstantFloat("lightDiffuse", &lights[i].diffuse.r, 3, offset);
