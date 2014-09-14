@@ -1,13 +1,13 @@
 
-- Colour correction: levels
+- Add glow spread tweakable
+- Post step: blurred scene/alpha texture
+- Colour correction: levels, contrast, brightness
 - Post effects: fog, dof, glow
 - Water shader
 - Particles
 - Optimise shaders
-- Reference images for scene
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
-
 
 =================================================================
 SHADER EDITOR

@@ -91,36 +91,6 @@ public:
     void SetDepthFar(float value);
 
     /**
-    * Sets the readonly selected mesh back face culling
-    * @param enable Whether the mesh uses back face culling
-    */
-    void SetMeshBackFaceCull(bool enable);
-
-    /**
-    * Sets the readonly selected mesh transparency
-    * @param enable Whether the mesh uses transparency
-    */
-    void SetMeshTransparency(bool enable);
-
-    /**
-    * Sets the readonly selected mesh diffuse texture
-    * @param name The name of the diffuse texture
-    */
-    void SetMeshDiffuseTexture(const std::string& name);
-
-    /**
-    * Sets the readonly selected mesh specular texture
-    * @param name The name of the specular texture
-    */
-    void SetMeshSpecularTexture(const std::string& name);
-
-    /**
-    * Sets the readonly selected mesh normal texture
-    * @param name The name of the normal texture
-    */
-    void SetMeshNormalTexture(const std::string& name);
-
-    /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
@@ -183,6 +153,12 @@ public:
     void SetMeshBump(float value);
 
     /**
+    * Sets the mesh glow intensity
+    * @param value The intensity of the glow of the mesh
+    */
+    void SetMeshGlow(float value);
+
+    /**
     * Sets the selected engine
     * @param selected The selected engine
     */
@@ -191,16 +167,14 @@ public:
     /**
     * Sets the values used for the minimum colour range
     * @param rgb The red, green and blue mininum colour range
-    * @param colour The overall minimum colour range
     */
-    void SetMinimumColour(float r, float g, float b, float colour);
+    void SetMinimumColour(float r, float g, float b);
 
     /**
     * Sets the values used for the maximum colour range
     * @param rgb The red, green and blue maximum colour range
-    * @param colour The overall maximum colour range
     */
-    void SetMaximumColour(float r, float g, float b, float colour);
+    void SetMaximumColour(float r, float g, float b);
 
     /**
     * Sets the available post textures for the combo box
@@ -275,6 +249,7 @@ private:
     TweakableValue m_meshSpecularity;    ///< Tweakable specular size of the mesh
     TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
     TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
+    TweakableValue m_meshGlow;           ///< Tweakable glow intensity of the mesh
 
     TweakableBox m_postTexture;          ///< Combo box for selecting the post texture
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine

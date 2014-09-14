@@ -82,6 +82,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_meshBump.Initialise(0.01, m_ui.meshBump_value,
         m_ui.meshBump_dial, m_callbacks.SetMeshBump);
 
+    m_meshGlow.Initialise(0.05, m_ui.meshGlow_value,
+        m_ui.meshGlow_dial, m_callbacks.SetMeshGlow);
+
     std::vector<ComboEntry> minimumColour;
     minimumColour.push_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
     minimumColour.push_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
@@ -148,36 +151,6 @@ void Tweaker::SetCameraPosition(const std::string& x,
     m_ui.cameraZ_text->update();
 }
 
-void Tweaker::SetMeshBackFaceCull(bool enable)
-{
-    m_ui.backfaceCull_text->setText(enable ? "True" : "False");
-    m_ui.backfaceCull_text->update();
-}
-
-void Tweaker::SetMeshTransparency(bool enable)
-{
-    m_ui.transparency_text->setText(enable ? "True" : "False");
-    m_ui.transparency_text->update();
-}
-
-void Tweaker::SetMeshDiffuseTexture(const std::string& name)
-{
-    m_ui.diffuseMap_text->setText(QString(name.c_str()));
-    m_ui.diffuseMap_text->update();
-}
-
-void Tweaker::SetMeshSpecularTexture(const std::string& name)
-{
-    m_ui.specularMap_text->setText(QString(name.c_str()));
-    m_ui.specularMap_text->update();
-}
-
-void Tweaker::SetMeshNormalTexture(const std::string& name)
-{
-    m_ui.normalMap_text->setText(QString(name.c_str()));
-    m_ui.normalMap_text->update();
-}
-
 void Tweaker::SetMeshShaderName(const std::string& name)
 {
     m_ui.shader_text->setText(QString(name.c_str()));
@@ -225,6 +198,11 @@ void Tweaker::SetMeshSpecularity(float size)
 void Tweaker::SetMeshAmbience(float value)
 {
     m_meshAmbience.Set(value);
+}
+
+void Tweaker::SetMeshGlow(float value)
+{
+    m_meshGlow.Set(value);
 }
 
 void Tweaker::SetMeshBump(float value)
@@ -307,14 +285,14 @@ bool Tweaker::HasEngines() const
     return m_renderEngine.IsInitialised();
 }
 
-void Tweaker::SetMinimumColour(float r, float g, float b, float colour)
+void Tweaker::SetMinimumColour(float r, float g, float b)
 {
     m_minColour.SetValue(RED, r);
     m_minColour.SetValue(GREEN, g);
     m_minColour.SetValue(BLUE, b);
 }
 
-void Tweaker::SetMaximumColour(float r, float g, float b, float colour)
+void Tweaker::SetMaximumColour(float r, float g, float b)
 {
     m_maxColour.SetValue(RED, r);
     m_maxColour.SetValue(GREEN, g);

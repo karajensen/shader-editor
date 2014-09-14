@@ -254,7 +254,6 @@ std::string DirectxEngine::CompileShader(int index)
 }
 
 bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
-                                    const std::vector<Mesh>& alpha, 
                                     const std::vector<Shader>& shaders,
                                     const std::vector<Texture>& textures)
 {
@@ -375,6 +374,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
     postShader->UpdateConstantFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
     postShader->UpdateConstantFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
+    postShader->UpdateConstantFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
 
     postShader->SendConstants(m_data->context);
 
@@ -445,6 +445,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
     shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
     shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+    shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
     shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
     shader->SendConstants(m_data->context);
 }

@@ -71,6 +71,9 @@ struct PostProcessing
         SCENE_MAP,
         NORMAL_MAP,
         DEPTH_MAP,
+        GLOW_MAP,
+        BLUR_SCENE_MAP,
+        BLUR_GLOW_MAP,
         MAX_MAPS
     };
 
@@ -109,6 +112,12 @@ struct PostProcessing
             return "Normal Map";
         case DEPTH_MAP:
             return "Depth Map";
+        case GLOW_MAP:
+            return "Glow Map";
+        case BLUR_GLOW_MAP:
+            return "Blur-Glow Map";
+        case BLUR_SCENE_MAP:
+            return "Blur-Scene Map";
         default:
             return "None";
         }
@@ -135,6 +144,7 @@ struct Texture
         DIFFUSE,
         NORMAL,
         SPECULAR,
+        GLOW,
         MAX_TYPES
     };
 
@@ -153,6 +163,8 @@ struct Texture
             return "Normal";
         case SPECULAR:
             return "Specular";
+        case GLOW:
+            return "Glow";
         default:
             return "None";
         };
@@ -175,8 +187,7 @@ struct Shader
         FLAT,
         BUMP,
         SPECULAR,
-        ALPHA,
-        PARALLAX,
+        GLOW,
         MAX_COMPONENTS
     };
 
@@ -208,10 +219,8 @@ struct Shader
             return "BUMP";
         case SPECULAR:
             return "SPECULAR";
-        case ALPHA:
-            return "ALPHA";
-        case PARALLAX:
-            return "PARALLAX";
+        case GLOW:
+            return "GLOW";
         default:
             return "NONE";
         };
@@ -269,6 +278,7 @@ struct Mesh
     float specularity = 1.0f;      ///< Brightness of the specular highlights
     float ambience = 1.0f;         ///< Ambient light multiplier
     float bump = 1.0f;             ///< Saturation of bump
+    float glow = 1.0f;             ///< Intensity glow multiplier
     std::string name;              ///< Name of the mesh
     std::vector<float> vertices;   ///< Mesh Vertex information
     std::vector<DWORD> indices;    ///< Mesh Index information

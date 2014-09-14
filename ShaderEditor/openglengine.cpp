@@ -286,7 +286,6 @@ std::string OpenglEngine::CompileShader(int index)
 }
 
 bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
-                                   const std::vector<Mesh>& alpha, 
                                    const std::vector<Shader>& shaders,
                                    const std::vector<Texture>& textures)
 {
@@ -415,6 +414,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
     postShader->SendUniformFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
     postShader->SendUniformFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
+    postShader->SendUniformFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
 
     postShader->SendTexture(PostProcessing::SCENE_MAP, m_data->sceneTarget.GetTextureID(), true);
     postShader->SendTexture(PostProcessing::NORMAL_MAP, m_data->normalTarget.GetTextureID(), true);
@@ -490,6 +490,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
     shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
     shader->SendUniformFloat("meshBump", &mesh.bump, 1);
+    shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
     shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
 }
 

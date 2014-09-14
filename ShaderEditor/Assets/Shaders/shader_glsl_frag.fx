@@ -32,23 +32,19 @@ uniform float meshAmbience;
 ifdef: !FLAT|BUMP
     uniform float meshBump;
 endif
+ifdef: GLOW
+    uniform float meshGlow;
+endif
 
 uniform sampler2D DiffuseSampler;
-ifdef: !FLAT
-    ifdef: SPECULAR|BUMP
-        uniform sampler2D NormalSampler;
-        uniform sampler2D SpecularSampler;
-    elseif: SPECULAR
-        uniform sampler2D SpecularSampler;
-    elseif: BUMP
-        uniform sampler2D NormalSampler;
-    endif
-endif
- 
+uniform sampler2D NormalSampler;
+uniform sampler2D SpecularSampler;
+uniform sampler2D GlowSampler;
+
 void main(void)
 {
     vec4 diffuseTex = texture(DiffuseSampler, ex_UVs);
-    vec3 diffuse = vec3(0.0, 0.0, 0.0);
+    vec4 diffuse = vec4(0.0, 0.0, 0.0, 0.0);
 
     ifdef: !FLAT
         vec3 normal = normalize(ex_Normal);
@@ -63,7 +59,7 @@ void main(void)
     ifdef: !FLAT|SPECULAR
         vec3 vertToCamera = normalize(ex_VertToCamera);
         vec4 specularTex = texture(SpecularSampler, ex_UVs);
-        vec3 specular = vec3(0.0, 0.0, 0.0);
+        vec4 specular = vec4(0.0, 0.0, 0.0, 0.0);
     endif
 
     for (int i = 0; i < MAX_LIGHTS; ++i)
@@ -84,16 +80,20 @@ void main(void)
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 vec3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular += specularFactor * lightSpecular[i] * attenuation;
+                specular.rgb += specularFactor * lightSpecular[i] * attenuation;
             endif
         endif
 
-        diffuse += lightColour * attenuation;
+        diffuse.rgb += lightColour * attenuation;
     }
 
-    vec3 finalColour = diffuseTex.rgb * diffuse;
+    out_Color = diffuseTex * diffuse;
     ifdef: !FLAT|SPECULAR
-        finalColour += specularTex.rgb * specular;
+        out_Color += specularTex * specular;
     endif
-    out_Color.rgb = finalColour * meshAmbience;
+    out_Color.rgb *= meshAmbience;
+
+    ifdef: GLOW
+        out_Color.a = texture(GlowSampler, ex_UVs).r * meshGlow;
+    endif
 }

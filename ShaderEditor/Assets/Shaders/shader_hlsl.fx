@@ -24,6 +24,9 @@ cbuffer ScenePixelBuffer : register(b1)
 cbuffer MeshPixelBuffer : register(b2)
 {
     float meshAmbience;
+    ifdef: GLOW
+        float meshGlow;
+    endif
     ifdef: !FLAT|BUMP
         float meshBump;
     endif
@@ -32,19 +35,11 @@ cbuffer MeshPixelBuffer : register(b2)
     endif
 };
 
-// Required in order of usage in shader body
 SamplerState Sampler;
-Texture2D DiffuseTexture          : register(t0);
-ifdef: !FLAT
-    ifdef: SPECULAR|BUMP
-        Texture2D NormalTexture   : register(t1);
-        Texture2D SpecularTexture : register(t2);
-    elseif: SPECULAR
-        Texture2D SpecularTexture : register(t1);
-    elseif: BUMP
-        Texture2D NormalTexture   : register(t1);
-    endif
-endif
+Texture2D DiffuseTexture;
+Texture2D NormalTexture;
+Texture2D SpecularTexture;
+Texture2D GlowTexture;
 
 struct Attributes
 {
@@ -99,7 +94,7 @@ Attributes VShader(float4 position      : POSITION,
 float4 PShader(Attributes input) : SV_TARGET
 {
     float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
-    float3 diffuse = float3(0.0, 0.0, 0.0);
+    float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
 
     ifdef: !FLAT
         float3 normal = normalize(input.normal);
@@ -114,7 +109,7 @@ float4 PShader(Attributes input) : SV_TARGET
     ifdef: !FLAT|SPECULAR
         float3 vertToCamera = normalize(input.vertToCamera);
         float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
-        float3 specular = float3(0.0, 0.0, 0.0);
+        float4 specular = float4(0.0, 0.0, 0.0, 0.0);
     endif
 
     for (int i = 0; i < MAX_LIGHTS; ++i)
@@ -135,16 +130,22 @@ float4 PShader(Attributes input) : SV_TARGET
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 float3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular += specularFactor * lightSpecular[i] * attenuation;
+                specular.rgb += specularFactor * lightSpecular[i] * attenuation;
             endif
         endif
 
-        diffuse += lightColour * attenuation;
+        diffuse.rgb += lightColour * attenuation;
     }
 
-    float3 finalColour = diffuseTex.rgb * diffuse;
+    float4 finalColour = diffuseTex * diffuse;
     ifdef: !FLAT|SPECULAR
-        finalColour += specularTex.rgb * specular;
+        finalColour += specularTex * specular;
     endif
-    return float4(finalColour * meshAmbience, 1.0);
+    finalColour *= meshAmbience;
+    
+    ifdef: GLOW
+        finalColour.a = GlowTexture.Sample(Sampler, input.uvs).r * meshGlow;
+    endif
+
+    return finalColour;
 }

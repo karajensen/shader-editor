@@ -71,7 +71,6 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         meshes, boost::property_tree::xml_parser::trim_whitespace);
     boost::property_tree::ptree& tree = meshes.get_child("Meshes");
 	
-    m_alpha.reserve(tree.size());
     m_meshes.reserve(tree.size());
 	
     boost::property_tree::ptree::iterator it;
@@ -82,6 +81,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
         mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
         mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
+        mesh.glow = GetPtreeValue(it, 1.0f, "Intensity");
         mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
 	
         // Get the textures used by the mesh
@@ -127,9 +127,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             return false;
         }
 	
-        // Store the mesh in the correct container
-        const std::string alpha = Shader::ComponentAsString(Shader::ALPHA);
-        boost::icontains(shadername, alpha) ? m_alpha.push_back(mesh) : m_meshes.push_back(mesh);
+        m_meshes.push_back(mesh);
     }
 
     return true;
@@ -378,11 +376,6 @@ const std::vector<Mesh>& Scene::GetMeshes() const
     return m_meshes;
 }
 
-const std::vector<Mesh>& Scene::GetAlpha() const
-{
-    return m_alpha;
-}
-
 const std::vector<Shader>& Scene::GetShaders() const
 {
     return m_shaders;
@@ -415,9 +408,7 @@ bool Scene::HasTransparency(int index)
 
 Mesh& Scene::GetMesh(int index)
 {
-    return HasTransparency(index) ? 
-        m_alpha[index - static_cast<int>(m_meshes.size())] : 
-        m_meshes[index];
+    return m_meshes[index];
 }
 
 Shader& Scene::GetShader(int index)
@@ -427,7 +418,7 @@ Shader& Scene::GetShader(int index)
 
 int Scene::GetMeshCount() const
 {
-    return static_cast<int>(m_meshes.size() + m_alpha.size());
+    return static_cast<int>(m_meshes.size());
 }
 
 int Scene::GetLightCount() const
@@ -451,10 +442,6 @@ std::vector<std::string> Scene::GetMeshNames() const
     for(const Mesh& mesh : m_meshes)
     {
         meshes.push_back(mesh.name);
-    }
-    for(const Mesh& alpha : m_alpha)
-    {
-        meshes.push_back(alpha.name);
     }
     return meshes;
 }
@@ -491,21 +478,19 @@ void Scene::SaveMeshesToFile()
         property_tree::ptree entry;
         entry.add("Name", mesh.name.c_str());
         entry.add("Bump", mesh.bump);
+        entry.add("Intensity", mesh.glow);
         entry.add("Ambience", mesh.ambience);
         entry.add("Specularity", mesh.specularity);
         entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
         entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
 	
-        auto AddTexture = [&](const std::string& name, Texture::Type type)
+        for (int i = 0; i < Texture::MAX_TYPES; ++i)
         {
-            if(mesh.textureIDs[type] != NO_INDEX)
+            if(mesh.textureIDs[i] != NO_INDEX)
             {
-                entry.add(name, m_textures[type].name);
+                entry.add(Texture::GetTypeDescription(i), m_textures[i].name);
             }
         };
-        AddTexture("Diffuse", Texture::DIFFUSE);
-        AddTexture("Specular", Texture::SPECULAR);
-        AddTexture("Normal", Texture::NORMAL);
 	
         entries.emplace_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);

@@ -240,6 +240,14 @@ void Application::UpdateScene()
         m_fadeState = FADE_OUT;
     }
 
+    const int selectedTexture = m_cache->TextureSelected.Get();
+    if (selectedTexture != m_selectedPost)
+    {
+        m_selectedPost = selectedTexture;
+        m_postProcessing.SetPostTexture(
+            static_cast<PostProcessing::Map>(selectedTexture));
+    }
+
     m_cache->FramesPerSec.Set(m_timer->GetFPS());
     m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
     m_cache->MousePosition.Set(m_mousePosition);
@@ -253,21 +261,13 @@ void Application::UpdateMesh()
     if(selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
-
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
-        const int diffuse = mesh.textureIDs[Texture::DIFFUSE];
-        const int normal = mesh.textureIDs[Texture::NORMAL];
-        const int specular = mesh.textureIDs[Texture::SPECULAR];
 
-        m_cache->MeshBackFaceCull.SetUpdated(mesh.backfacecull);
         m_cache->MeshSpecularity.SetUpdated(mesh.specularity);
         m_cache->MeshAmbience.SetUpdated(mesh.ambience);
+        m_cache->MeshGlow.SetUpdated(mesh.glow);
         m_cache->MeshBump.SetUpdated(mesh.bump);
-        m_cache->MeshTransparency.SetUpdated(m_scene->HasTransparency(m_selectedMesh));
         m_cache->MeshShader.SetUpdated(m_scene->GetShader(mesh.shaderIndex).name);
-        m_cache->MeshDiffuse.SetUpdated(m_scene->GetTexture(diffuse));
-        m_cache->MeshNormal.SetUpdated(m_scene->GetTexture(normal));        
-        m_cache->MeshSpecular.SetUpdated(m_scene->GetTexture(specular));
     }
     else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene->GetMeshCount())
     {
@@ -275,18 +275,12 @@ void Application::UpdateMesh()
         mesh.specularity = m_cache->MeshSpecularity.Get();
         mesh.ambience = m_cache->MeshAmbience.Get();
         mesh.bump = m_cache->MeshBump.Get();
+        mesh.glow = m_cache->MeshGlow.Get();
     }
 }
 
 void Application::UpdatePost()
 {
-    const int selectedTexture = m_cache->TextureSelected.Get();
-    if (selectedTexture != m_selectedPost)
-    {
-        m_selectedPost = selectedTexture;
-        m_postProcessing.SetPostTexture(static_cast<PostProcessing::Map>(selectedTexture));
-    }
-
     m_postProcessing.depthFar = m_cache->DepthFar.Get();
     m_postProcessing.depthNear = m_cache->DepthNear.Get();
     m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
@@ -389,7 +383,7 @@ bool Application::InitialiseEngine(RenderEngine* engine)
     }
 
     if(!engine->InitialiseScene(m_scene->GetMeshes(), 
-        m_scene->GetAlpha(), m_scene->GetShaders(), m_scene->GetTextures()))
+        m_scene->GetShaders(), m_scene->GetTextures()))
     {
         Logger::LogError(engine->GetName() + ": Scene failed to initialise");
         return false;
@@ -421,7 +415,7 @@ void Application::SwitchRenderEngine(int index)
 
     m_selectedEngine = index;
     m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
-    m_selectedPost = NO_INDEX;   // allows post values to be sent
+    m_selectedPost = NO_INDEX;   // allows post values to be re-cached
 
     if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {

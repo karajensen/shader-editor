@@ -14,6 +14,7 @@ uniform float fadeAmount;
 uniform float sceneAlpha;
 uniform float normalAlpha;
 uniform float depthAlpha;
+uniform float glowAlpha;
 uniform vec3 minimumColor;
 uniform vec3 maximumColor;
 
@@ -38,10 +39,14 @@ void main(void)
         finalColor.rgb *= maximumColor - minimumColor;
         finalColor.rgb += minimumColor;
     }
+    else if (glowAlpha == 1.0)
+    {
+        finalColor.rgb = GetColour(SceneTexture, uvs).aaa;
+    }
     else
     {
         finalColor = GetColour(NormalTexture, uvs);
-        finalColor = (finalColor * normalAlpha) + (finalColor.aaaa * depthAlpha);
+        finalColor.rgb = (finalColor.rgb * normalAlpha) + (finalColor.aaa * depthAlpha);
     }
 
     out_Color = finalColor * fadeAmount;

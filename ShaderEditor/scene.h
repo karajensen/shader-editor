@@ -28,11 +28,6 @@ public:
     const std::vector<Mesh>& GetMeshes() const;
 
     /**
-    * @return the translucent meshes in the scene
-    */
-    const std::vector<Mesh>& GetAlpha() const;
-
-    /**
     * @return the shaders in the scene
     */
     const std::vector<Shader>& GetShaders() const;
@@ -172,7 +167,6 @@ private:
                             
     std::vector<Texture> m_textures;  ///< All textures in the scene
     std::vector<Shader> m_shaders;    ///< All shaders in the scene
-    std::vector<Mesh> m_alpha;        ///< All translucent meshes in the scene
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene
     std::vector<Light> m_lights;      ///< All lights in the scene
 };                     

@@ -41,6 +41,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
     callbacks.SetMeshAmbience =     [&](float value){ m_cache->MeshAmbience.Set(value); };
     callbacks.SetMeshBump =         [&](float value){ m_cache->MeshBump.Set(value); };
+    callbacks.SetMeshGlow =         [&](float value){ m_cache->MeshGlow.Set(value); };
     callbacks.SetMaxRed =           [&](float value){ m_cache->MaximumColour.SetR(value); };
     callbacks.SetMaxGreen =         [&](float value){ m_cache->MaximumColour.SetG(value); };
     callbacks.SetMaxBlue =          [&](float value){ m_cache->MaximumColour.SetB(value); };
@@ -143,12 +144,6 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
 
 void Gui::UpdatePost(Tweaker& tweaker)
 {
-    if (!tweaker.HasPostTextures())
-    {
-        tweaker.InitialiseTextures(
-            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
-    }
-
     if (m_cache->DepthFar.RequiresUpdate())
     {
         tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
@@ -162,13 +157,13 @@ void Gui::UpdatePost(Tweaker& tweaker)
     if (m_cache->MinimumColour.RequiresUpdate())
     {
         const Colour colour = m_cache->MinimumColour.GetUpdated();
-        tweaker.SetMinimumColour(colour.r, colour.g, colour.b, colour.a);
+        tweaker.SetMinimumColour(colour.r, colour.g, colour.b);
     }
 
     if (m_cache->MaximumColour.RequiresUpdate())
     {
         const Colour colour = m_cache->MaximumColour.GetUpdated();
-        tweaker.SetMaximumColour(colour.r, colour.g, colour.b, colour.a);
+        tweaker.SetMaximumColour(colour.r, colour.g, colour.b);
     }
 }
 
@@ -184,6 +179,12 @@ void Gui::UpdateScene(Tweaker& tweaker)
     else if(m_cache->EngineSelected.RequiresUpdate())
     {
         tweaker.SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
+    }
+
+    if (!tweaker.HasPostTextures())
+    {
+        tweaker.InitialiseTextures(
+            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
     }
 
     const Float2 mousePosition = m_cache->MousePosition.Get();
@@ -274,29 +275,9 @@ void Gui::UpdateMesh(Tweaker& tweaker)
         tweaker.SetMeshBump(m_cache->MeshBump.GetUpdated());
     }
 
-    if(initialisedMeshes || m_cache->MeshBackFaceCull.RequiresUpdate())
+    if(initialisedMeshes || m_cache->MeshGlow.RequiresUpdate())
     {
-        tweaker.SetMeshBackFaceCull(m_cache->MeshBackFaceCull.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshTransparency.RequiresUpdate())
-    {
-        tweaker.SetMeshTransparency(m_cache->MeshTransparency.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshDiffuse.RequiresUpdate())
-    {
-        tweaker.SetMeshDiffuseTexture(m_cache->MeshDiffuse.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshSpecular.RequiresUpdate())
-    {
-        tweaker.SetMeshSpecularTexture(m_cache->MeshSpecular.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshNormal.RequiresUpdate())
-    {
-        tweaker.SetMeshNormalTexture(m_cache->MeshNormal.GetUpdated());
+        tweaker.SetMeshGlow(m_cache->MeshGlow.GetUpdated());
     }
 
     if(initialisedMeshes || m_cache->MeshShader.RequiresUpdate())

@@ -8,6 +8,7 @@ cbuffer PixelBuffer : register(b0)
     float sceneAlpha;
     float normalAlpha;
     float depthAlpha;
+    float glowAlpha;
     float3 minimumColor;
     float3 maximumColor;
 };
@@ -51,10 +52,14 @@ float4 PShader(Attributes input) : SV_TARGET
         finalColor.rgb *= maximumColor - minimumColor;
         finalColor.rgb += minimumColor;
     }
+    else if (glowAlpha == 1.0)
+    {
+        finalColor.rgb = GetColour(SceneTexture, uvs).aaa;
+    }
     else
     {
         finalColor = GetColour(NormalTexture, uvs);
-        finalColor = (finalColor * normalAlpha) + (finalColor.aaaa * depthAlpha);
+        finalColor.rgb = (finalColor.rgb * normalAlpha) + (finalColor.aaa * depthAlpha);
     }
 
     return finalColor * fadeAmount;
