@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -6850,7 +6850,7 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>DOF Distance</string>
+            <string>Depth of Field</string>
            </property>
            <property name="margin">
             <number>1</number>

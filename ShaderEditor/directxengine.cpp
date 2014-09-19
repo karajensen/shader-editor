@@ -42,6 +42,7 @@ struct DirectxData
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
     DxRenderTarget sceneTarget;         ///< Render target for the main scene
     DxRenderTarget normalTarget;        ///< Render target for the scene normal/depth map
+    DxRenderTarget blurTarget;          ///< Render target for blurring the main scene
     D3DXMATRIX view;                    ///< View matrix
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix
@@ -58,6 +59,7 @@ struct DirectxData
 DirectxData::DirectxData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
+    blurTarget("BlurTarget"),
     backBuffer("BackBuffer", true),
     quad("SceneQuad")
 {
@@ -92,6 +94,7 @@ void DirectxData::Release()
     quad.Release();
     sceneTarget.Release();
     normalTarget.Release();
+    blurTarget.Release();
     backBuffer.Release();
 
     SafeRelease(&cullState);
@@ -159,7 +162,8 @@ bool DirectxEngine::Initialize()
     // Create the render targets. Back buffer must be initialised first.
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
        !m_data->sceneTarget.Initialise(m_data->device) ||
-       !m_data->normalTarget.Initialise(m_data->device))
+       !m_data->normalTarget.Initialise(m_data->device) ||
+       !m_data->blurTarget.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
@@ -350,38 +354,57 @@ void DirectxEngine::Render(const std::vector<Light>& lights,
         UpdateShader(mesh->GetMesh(), post);
         renderScene(mesh);
     }
-    
-    // Render the scene as a texture to the backbuffer
+   
     SetBackfaceCull(false);
-    m_data->backBuffer.SetActive(m_data->context);
+    RenderSceneBlur(post);
     RenderPostProcessing(post);
-
     m_data->swapchain->Present(0, 0);
+}
+
+void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
+{
+    auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
+    blurShader->SetActive(m_data->context);
+    m_data->blurTarget.SetActive(m_data->context);
+
+    blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
+
+    blurShader->SendConstants(m_data->context);
+
+    m_data->quad.Render(m_data->context);
+
+    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive(m_data->context);
+    m_data->backBuffer.SetActive(m_data->context);
 
-    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE_MAP);
-    m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL_MAP);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
+    m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL);
+    m_data->blurTarget.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
     postShader->UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
-              
+
     postShader->UpdateConstantFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
     postShader->UpdateConstantFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
     postShader->UpdateConstantFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
     postShader->UpdateConstantFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
+    postShader->UpdateConstantFloat("blurGlowAlpha", &post.alpha[PostProcessing::BLUR_GLOW_MAP], 1);
+    postShader->UpdateConstantFloat("blurSceneAlpha", &post.alpha[PostProcessing::BLUR_SCENE_MAP], 1);
 
     postShader->SendConstants(m_data->context);
 
     m_data->quad.Render(m_data->context);
 
-    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE_MAP);
-    m_data->normalTarget.ClearTexture(m_data->context, PostProcessing::NORMAL_MAP);
+    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
+    m_data->normalTarget.ClearTexture(m_data->context, PostProcessing::NORMAL);
+    m_data->blurTarget.ClearTexture(m_data->context, PostProcessing::BLUR);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)

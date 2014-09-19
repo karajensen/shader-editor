@@ -12,8 +12,8 @@
 #include "cache.h"
 #include <windowsx.h>
 
-//#define SELECTED_ENGINE DIRECTX
-#define SELECTED_ENGINE OPENGL
+#define SELECTED_ENGINE DIRECTX
+//#define SELECTED_ENGINE OPENGL
 
 namespace
 {
@@ -26,7 +26,7 @@ namespace
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_cache(cache),
-    m_selectedPost(PostProcessing::SCENE_MAP),
+    m_selectedMap(PostProcessing::SCENE_MAP),
     m_selectedEngine(SELECTED_ENGINE)
 {
 }
@@ -240,12 +240,12 @@ void Application::UpdateScene()
         m_fadeState = FADE_OUT;
     }
 
-    const int selectedTexture = m_cache->TextureSelected.Get();
-    if (selectedTexture != m_selectedPost)
+    const int selectedMap = m_cache->PostMapSelected.Get();
+    if (selectedMap != m_selectedMap)
     {
-        m_selectedPost = selectedTexture;
-        m_postProcessing.SetPostTexture(
-            static_cast<PostProcessing::Map>(selectedTexture));
+        m_selectedMap = selectedMap;
+        m_postProcessing.SetPostMap(
+            static_cast<PostProcessing::Map>(selectedMap));
     }
 
     m_cache->FramesPerSec.Set(m_timer->GetFPS());
@@ -281,6 +281,7 @@ void Application::UpdateMesh()
 
 void Application::UpdatePost()
 {
+    m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
     m_postProcessing.depthFar = m_cache->DepthFar.Get();
     m_postProcessing.depthNear = m_cache->DepthNear.Get();
     m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
@@ -354,17 +355,18 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
 
 void Application::InitialiseCache(const std::vector<std::string>& engineNames)
 {
-    m_cache->TextureSelected.Set(m_selectedPost);
+    m_cache->PostMapSelected.Set(m_selectedMap);
     m_cache->EngineSelected.Set(m_selectedEngine);
 
     m_cache->Engines.Set(engineNames);
     m_cache->Lights.Set(m_scene->GetLightNames());
     m_cache->Meshes.Set(m_scene->GetMeshNames());
     m_cache->Shaders.Set(m_scene->GetShaderNames());
-    m_cache->Textures.Set(m_scene->GetPostTextureNames());
+    m_cache->PostMaps.Set(m_scene->GetPostMapNames());
 
     m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
     m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
+    m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
     m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
     m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);
 }
@@ -415,7 +417,7 @@ void Application::SwitchRenderEngine(int index)
 
     m_selectedEngine = index;
     m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
-    m_selectedPost = NO_INDEX;   // allows post values to be re-cached
+    m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 
     if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {

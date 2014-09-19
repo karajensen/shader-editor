@@ -152,6 +152,12 @@ private:
     */
     void RenderPostProcessing(const PostProcessing& post);
 
+    /**
+    * Renders the scene as blurred
+    * @param postProcessing values for the final image
+    */
+    void RenderSceneBlur(const PostProcessing& post);
+
     HWND m_hwnd = nullptr;               ///< handle to the window
     HWND m_temporaryHwnd = nullptr;      ///< Handle to the temporary window used for glew
     std::unique_ptr<OpenglData> m_data;  ///< member data of opengl

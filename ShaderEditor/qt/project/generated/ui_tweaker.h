@@ -2439,7 +2439,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(2);
+        TabMenu->setCurrentIndex(3);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2502,7 +2502,7 @@ public:
         depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));
         depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));
         glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
-        dofDistance_lbl->setText(QApplication::translate("Tweaker", "DOF Distance", 0));
+        dofDistance_lbl->setText(QApplication::translate("Tweaker", "Depth of Field", 0));
         TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", 0));
     } // retranslateUi
 

@@ -230,7 +230,7 @@ struct Cache
         FramesPerSec(0),
         EngineSelected(0),
         ShaderSelected(0),
-        TextureSelected(0),
+        PostMapSelected(0),
         LightSelected(0),
         LightSpecularity(0.0f),
         MeshSelected(0),
@@ -239,7 +239,8 @@ struct Cache
         MeshBump(1.0f),
         MeshGlow(1.0f),
         DepthNear(0.0f),
-        DepthFar(0.0f)
+        DepthFar(0.0f),
+        BlurAmount(1.0f)
     {
     }
 
@@ -268,11 +269,12 @@ struct Cache
     Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
     Lockable<float> MeshSpecularity;    ///< Specularity of the selected mesh
     Lockable<float> MeshAmbience;       ///< Ambience of the selected mesh
-    Lockable<float> MeshGlow;           ///< Spread multiplier for mesh glow
+    Lockable<float> MeshGlow;           ///< Intensity multiplier for mesh glow
     Lockable<float> MeshBump;           ///< Bump saturation of the selected mesh
     LockableString MeshShader;          ///< Shader used for the selected mesh
 
-    Lockable<int> TextureSelected;      ///< Index of the currently selected post texture
+    Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
+    Lockable<float> BlurAmount;         ///< The amount to blur the scene by
     Lockable<float> DepthNear;          ///< The near value for the depth
     Lockable<float> DepthFar;           ///< The far value for the depth
     LockableColour MinimumColour;       ///< Colour ranges for RGB 
@@ -282,5 +284,5 @@ struct Cache
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
     Lockable<std::vector<std::string>> Lights;    ///< Container of all lights
     Lockable<std::vector<std::string>> Meshes;    ///< Container of all meshes
-    Lockable<std::vector<std::string>> Textures;  ///< Container of all post textures
+    Lockable<std::vector<std::string>> PostMaps;  ///< Container of all post maps
 };

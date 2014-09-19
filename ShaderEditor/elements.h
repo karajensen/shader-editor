@@ -66,6 +66,16 @@ struct PostProcessing
     /**
     * Post shader textures
     */
+    enum Texture
+    {
+        SCENE,
+        NORMAL,
+        BLUR
+    };
+
+    /**
+    * Post Shader maps
+    */
     enum Map
     {
         SCENE_MAP,
@@ -82,25 +92,25 @@ struct PostProcessing
     */
     PostProcessing()
     {
-        SetPostTexture(SCENE_MAP);
+        SetPostMap(SCENE_MAP);
         maximumColour.r = 1.0f;
         maximumColour.g = 1.0f;
         maximumColour.b = 1.0f;
     }
 
     /**
-    * Sets which post texture should be rendered
-    * @param map The post texture to render
+    * Sets which post map should be rendered
+    * @param map The post map to render
     */
-    void SetPostTexture(Map map)
+    void SetPostMap(Map map)
     {
         alpha.assign(0.0f);
         alpha[map] = 1.0f;
     }
 
     /**
-    * @param map the texture type to convert
-    * @return the string name of the texture type
+    * @param map the map type to convert
+    * @return the string name of the map type
     */
     static std::string GetMapName(Map map)
     {
@@ -123,11 +133,12 @@ struct PostProcessing
         }
     }
 
+    float blurAmount = 1.0f;             ///< Amount to blur the scene by
     float depthNear = 50.0f;             ///< Value where depth colour is min
     float depthFar = 400.0f;             ///< Value where depth colour is max
     Colour minimumColour;                ///< Colour ranges for RGB
     Colour maximumColour;                ///< Colour ranges for RGB
-    std::array<float, MAX_MAPS> alpha;   ///< Visibility of post textures
+    std::array<float, MAX_MAPS> alpha;   ///< Visibility of post maps
 };
 
 /**

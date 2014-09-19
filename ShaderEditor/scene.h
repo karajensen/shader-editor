@@ -58,9 +58,9 @@ public:
     std::vector<std::string> GetShaderNames() const;
 
     /**
-    * @return the names of the post textures in the scene
+    * @return the names of the post maps in the scene
     */
-    std::vector<std::string> GetPostTextureNames() const;
+    std::vector<std::string> GetPostMapNames() const;
 
     /**
     * @param index The index of the light to get

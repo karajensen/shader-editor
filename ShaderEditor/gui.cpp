@@ -36,6 +36,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
+    callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
     callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
     callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
@@ -52,7 +53,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
     callbacks.SetSelectedShader =   [&](int index){ m_cache->ShaderSelected.Set(index); };
-    callbacks.SetPostTexture =      [&](int index){ m_cache->TextureSelected.Set(index); };
+    callbacks.SetPostMap =          [&](int index){ m_cache->PostMapSelected.Set(index); };
     callbacks.CompileShader =       [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
@@ -144,6 +145,11 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
 
 void Gui::UpdatePost(Tweaker& tweaker)
 {
+    if (m_cache->BlurAmount.RequiresUpdate())
+    {
+        tweaker.SetBlurAmount(m_cache->BlurAmount.GetUpdated());
+    }
+
     if (m_cache->DepthFar.RequiresUpdate())
     {
         tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
@@ -181,10 +187,10 @@ void Gui::UpdateScene(Tweaker& tweaker)
         tweaker.SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
     }
 
-    if (!tweaker.HasPostTextures())
+    if (!tweaker.HasPostMaps())
     {
-        tweaker.InitialiseTextures(
-            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
+        tweaker.InitialisePostMaps(
+            m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
     }
 
     const Float2 mousePosition = m_cache->MousePosition.Get();

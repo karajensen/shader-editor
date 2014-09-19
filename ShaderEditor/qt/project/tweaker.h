@@ -91,6 +91,12 @@ public:
     void SetDepthFar(float value);
 
     /**
+    * Sets the amount of blurring on the scene
+    * @param value The amount of blurring on the scene
+    */
+    void SetBlurAmount(float value);
+
+    /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
@@ -177,11 +183,11 @@ public:
     void SetMaximumColour(float r, float g, float b);
 
     /**
-    * Sets the available post textures for the combo box
-    * @param selected The initially selected post texture
-    * @param engines The post texture names to set
+    * Sets the available post maps for the combo box
+    * @param selected The initially selected post map
+    * @param engines The post map names to set
     */
-    void InitialiseTextures(int selected, const std::vector<std::string>& textures);
+    void InitialisePostMaps(int selected, const std::vector<std::string>& maps);
 
     /**
     * Sets the available render engines for the combo box
@@ -210,9 +216,9 @@ public:
     bool HasEngines() const;
 
     /**
-    * @return whether the post texture combo box is filled int
+    * @return whether the post map combo box is filled int
     */
-    bool HasPostTextures() const;
+    bool HasPostMaps() const;
 
     /**
     * @return whether the mesh combo box is filled int
@@ -231,6 +237,7 @@ public:
 
 private:
 
+    TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_lightPositionX;     ///< Tweakable x of the light position
@@ -251,7 +258,7 @@ private:
     TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
     TweakableValue m_meshGlow;           ///< Tweakable glow intensity of the mesh
 
-    TweakableBox m_postTexture;          ///< Combo box for selecting the post texture
+    TweakableBox m_postMap;              ///< Combo box for selecting the post map
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
     TweakableBox m_light;                ///< Combo box for selecting the light
     TweakableBox m_mesh;                 ///< Combo box for selecting the mesh

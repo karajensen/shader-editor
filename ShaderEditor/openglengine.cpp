@@ -37,6 +37,7 @@ struct OpenglData
     GlRenderTarget backBuffer;       ///< Render target for the back buffer
     GlRenderTarget sceneTarget;      ///< Render target for the main scene
     GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
+    GlRenderTarget blurTarget;       ///< Render target for blurring the scene
     GlMesh quad;                     ///< Quad to render the final post processed scene onto
     glm::vec3 cameraPosition;        ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
@@ -55,6 +56,7 @@ OpenglData::OpenglData() :
     quad("ScreenQuad"),
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
+    blurTarget("BlurTarget"),
     backBuffer("BackBuffer", true)
 {
 }
@@ -87,6 +89,7 @@ void OpenglData::Release()
 
     backBuffer.Release();
     sceneTarget.Release();
+    blurTarget.Release();
     normalTarget.Release();
     quad.Release();
 
@@ -244,6 +247,7 @@ bool OpenglEngine::Initialize()
     // Create the render targets
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
+       !m_data->blurTarget.Initialise() ||
        !m_data->normalTarget.Initialise())
     {
         Logger::LogError("OpenGL: Could not create render targets");
@@ -396,16 +400,32 @@ void OpenglEngine::Render(const std::vector<Light>& lights,
 
     // Render the scene as a texture to the backbuffer
     SetBackfaceCull(false);
-    m_data->backBuffer.SetActive();
+    RenderSceneBlur(post);
     RenderPostProcessing(post);
-
     SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
+{
+    auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
+    blurShader->SetActive();
+    m_data->blurTarget.SetActive();
+
+    blurShader->SendUniformFloat("blurAmount", &post.blurAmount, 1);
+    blurShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
+
+    m_data->quad.PreRender();
+    blurShader->EnableAttributes();
+    m_data->quad.Render();
+
+    blurShader->ClearTexture(PostProcessing::SCENE, true);
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive();
+    m_data->backBuffer.SetActive();
 
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
@@ -415,16 +435,20 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
     postShader->SendUniformFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
     postShader->SendUniformFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
+    postShader->SendUniformFloat("blurGlowAlpha", &post.alpha[PostProcessing::BLUR_GLOW_MAP], 1);
+    postShader->SendUniformFloat("blurSceneAlpha", &post.alpha[PostProcessing::BLUR_SCENE_MAP], 1);
 
-    postShader->SendTexture(PostProcessing::SCENE_MAP, m_data->sceneTarget.GetTextureID(), true);
-    postShader->SendTexture(PostProcessing::NORMAL_MAP, m_data->normalTarget.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTarget.GetTextureID(), false);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-   postShader->ClearTexture(PostProcessing::SCENE_MAP, true);
-   postShader->ClearTexture(PostProcessing::NORMAL_MAP, true);
+    postShader->ClearTexture(PostProcessing::SCENE, true);
+    postShader->ClearTexture(PostProcessing::NORMAL, true);
+    postShader->ClearTexture(PostProcessing::BLUR, false);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)

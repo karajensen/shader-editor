@@ -48,20 +48,26 @@ bool Scene::Initialise()
 
 bool Scene::InitialiseShaders(FragmentLinker& linker)
 {
-    const int postIndex = m_shaders.size();
-    assert(POST_SHADER_INDEX == postIndex);
-    Shader postShader;
-    postShader.index = postIndex;
-    postShader.name = POST_SHADER;
+    bool success = true;
 
-    if (!linker.GenerateFromFile(postShader))
+    auto CreateShader = [&](const std::string& name, int index)
     {
-        Logger::LogError("Could not generate post shader");
-        return false;
-    }
+        assert(index == m_shaders.size());
+        Shader shader;
+        shader.index = index;
+        shader.name = name;
+        if (!linker.GenerateFromFile(shader))
+        {
+            Logger::LogError("Could not generate shader " + name);
+            success = false;
+        }
+        m_shaders.emplace_back(shader);
+    };
 
-    m_shaders.push_back(postShader);
-    return true;
+    CreateShader(POST_SHADER, POST_SHADER_INDEX);
+    CreateShader(BLUR_SHADER, BLUR_SHADER_INDEX);
+
+    return success;
 }
 
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
@@ -446,15 +452,15 @@ std::vector<std::string> Scene::GetMeshNames() const
     return meshes;
 }
 
-std::vector<std::string> Scene::GetPostTextureNames() const
+std::vector<std::string> Scene::GetPostMapNames() const
 {
-    std::vector<std::string> textures;
+    std::vector<std::string> maps;
     for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
     {
-        textures.push_back(PostProcessing::GetMapName(
+        maps.push_back(PostProcessing::GetMapName(
             static_cast<PostProcessing::Map>(i)));
     }
-    return textures;
+    return maps;
 }
 
 std::vector<std::string> Scene::GetShaderNames() const

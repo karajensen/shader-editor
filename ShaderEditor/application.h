@@ -168,7 +168,7 @@ private:
     int m_selectedMesh = NO_INDEX;    ///< Current mesh selected
     int m_selectedEngine = NO_INDEX;  ///< Current render engine selected
     int m_selectedShader = NO_INDEX;  ///< Current shader selected
-    int m_selectedPost = NO_INDEX;    ///< Current post texture selected
+    int m_selectedMap = NO_INDEX;     ///< Current post map selected
     Float2 m_mouseDirection;          ///< Direction of movement for the mouse
     Float2 m_mousePosition;           ///< 2D coordinates of the mouse
     bool m_mousePressed = false;      ///< Whether the mouse is held down or not

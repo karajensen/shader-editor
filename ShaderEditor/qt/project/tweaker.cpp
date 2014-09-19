@@ -28,6 +28,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
 
+    m_blurAmount.Initialise(0.1, m_ui.blurring_value,
+        m_ui.blurring_dial, m_callbacks.SetBlurAmount);
+
     m_depthNear.Initialise(1.0, m_ui.depthNear_value,
         m_ui.depthNear_dial, m_callbacks.SetDepthNear);
 
@@ -210,6 +213,11 @@ void Tweaker::SetMeshBump(float value)
     m_meshBump.Set(value);
 }
 
+void Tweaker::SetBlurAmount(float value)
+{
+    m_blurAmount.Set(value);
+}
+
 void Tweaker::SetDepthNear(float value)
 {
     m_depthNear.Set(value);
@@ -220,13 +228,13 @@ void Tweaker::SetDepthFar(float value)
     m_depthFar.Set(value);
 }
 
-void Tweaker::InitialiseTextures(int selected,
-                                 const std::vector<std::string>& textures)
+void Tweaker::InitialisePostMaps(int selected,
+                                 const std::vector<std::string>& maps)
 {
-    if (!textures.empty())
+    if (!maps.empty())
     {
-        m_postTexture.Initialise(m_ui.postImage_box,
-            selected, textures, m_callbacks.SetPostTexture);
+        m_postMap.Initialise(m_ui.postImage_box,
+            selected, maps, m_callbacks.SetPostMap);
     }
 }
 
@@ -265,9 +273,9 @@ void Tweaker::InitialiseLights(int selected,
     }
 }
 
-bool Tweaker::HasPostTextures() const
+bool Tweaker::HasPostMaps() const
 {
-    return m_postTexture.IsInitialised();
+    return m_postMap.IsInitialised();
 }
 
 bool Tweaker::HasMeshes() const

@@ -165,6 +165,12 @@ private:
     */
     void RenderPostProcessing(const PostProcessing& post);
 
+    /**
+    * Renders the scene as blurred
+    * @param postProcessing values for the final image
+    */
+    void RenderSceneBlur(const PostProcessing& post);
+
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
 };                     
