@@ -240,7 +240,8 @@ struct Cache
         MeshGlow(1.0f),
         DepthNear(0.0f),
         DepthFar(0.0f),
-        BlurAmount(1.0f)
+        BlurAmount(1.0f),
+        GlowAmount(1.0f)
     {
     }
 
@@ -275,6 +276,7 @@ struct Cache
 
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
     Lockable<float> BlurAmount;         ///< The amount to blur the scene by
+    Lockable<float> GlowAmount;         ///< The amount to glow the scene by
     Lockable<float> DepthNear;          ///< The near value for the depth
     Lockable<float> DepthFar;           ///< The far value for the depth
     LockableColour MinimumColour;       ///< Colour ranges for RGB 

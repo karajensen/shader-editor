@@ -428,19 +428,21 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->backBuffer.SetActive();
 
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
+    postShader->SendUniformFloat("glowAmount", &post.glowAmount, 1);
     postShader->SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
     postShader->SendUniformFloat("maximumColor", &post.maximumColour.r, 3);
 
-    postShader->SendUniformFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
-    postShader->SendUniformFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
-    postShader->SendUniformFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
-    postShader->SendUniformFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
-    postShader->SendUniformFloat("blurGlowAlpha", &post.alpha[PostProcessing::BLUR_GLOW_MAP], 1);
-    postShader->SendUniformFloat("blurSceneAlpha", &post.alpha[PostProcessing::BLUR_SCENE_MAP], 1);
+    postShader->SendUniformFloat("finalMask", &post.masks[PostProcessing::FINAL_MAP], 1);
+    postShader->SendUniformFloat("sceneMask", &post.masks[PostProcessing::SCENE_MAP], 1);
+    postShader->SendUniformFloat("normalMask", &post.masks[PostProcessing::NORMAL_MAP], 1);
+    postShader->SendUniformFloat("depthMask", &post.masks[PostProcessing::DEPTH_MAP], 1);
+    postShader->SendUniformFloat("glowMask", &post.masks[PostProcessing::GLOW_MAP], 1);
+    postShader->SendUniformFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
+    postShader->SendUniformFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
 
     postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
     postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), true);
-    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTarget.GetTextureID(), false);
+    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTarget.GetTextureID(), true);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -448,7 +450,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->ClearTexture(PostProcessing::SCENE, true);
     postShader->ClearTexture(PostProcessing::NORMAL, true);
-    postShader->ClearTexture(PostProcessing::BLUR, false);
+    postShader->ClearTexture(PostProcessing::BLUR, true);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)

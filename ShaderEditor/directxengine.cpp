@@ -388,15 +388,17 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->blurTarget.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
+    postShader->UpdateConstantFloat("glowAmount", &post.glowAmount, 1);
     postShader->UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
     postShader->UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
 
-    postShader->UpdateConstantFloat("sceneAlpha", &post.alpha[PostProcessing::SCENE_MAP], 1);
-    postShader->UpdateConstantFloat("normalAlpha", &post.alpha[PostProcessing::NORMAL_MAP], 1);
-    postShader->UpdateConstantFloat("depthAlpha", &post.alpha[PostProcessing::DEPTH_MAP], 1);
-    postShader->UpdateConstantFloat("glowAlpha", &post.alpha[PostProcessing::GLOW_MAP], 1);
-    postShader->UpdateConstantFloat("blurGlowAlpha", &post.alpha[PostProcessing::BLUR_GLOW_MAP], 1);
-    postShader->UpdateConstantFloat("blurSceneAlpha", &post.alpha[PostProcessing::BLUR_SCENE_MAP], 1);
+    postShader->UpdateConstantFloat("finalMask", &post.masks[PostProcessing::FINAL_MAP], 1);
+    postShader->UpdateConstantFloat("sceneMask", &post.masks[PostProcessing::SCENE_MAP], 1);
+    postShader->UpdateConstantFloat("normalMask", &post.masks[PostProcessing::NORMAL_MAP], 1);
+    postShader->UpdateConstantFloat("depthMask", &post.masks[PostProcessing::DEPTH_MAP], 1);
+    postShader->UpdateConstantFloat("glowMask", &post.masks[PostProcessing::GLOW_MAP], 1);
+    postShader->UpdateConstantFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
+    postShader->UpdateConstantFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
 
     postShader->SendConstants(m_data->context);
 

@@ -78,6 +78,7 @@ struct PostProcessing
     */
     enum Map
     {
+        FINAL_MAP,
         SCENE_MAP,
         NORMAL_MAP,
         DEPTH_MAP,
@@ -104,8 +105,8 @@ struct PostProcessing
     */
     void SetPostMap(Map map)
     {
-        alpha.assign(0.0f);
-        alpha[map] = 1.0f;
+        masks.assign(0.0f);
+        masks[map] = 1.0f;
     }
 
     /**
@@ -116,8 +117,10 @@ struct PostProcessing
     {
         switch (map)
         {
+        case FINAL_MAP:
+            return "Final Scene";
         case SCENE_MAP:
-            return "Scene";
+            return "Scene Map";
         case NORMAL_MAP:
             return "Normal Map";
         case DEPTH_MAP:
@@ -133,12 +136,14 @@ struct PostProcessing
         }
     }
 
+    float dofDistance = 0.0f;            ///< Distance the depth of field starts
+    float glowAmount = 100.0f;           ///< The overall glow multiplier
     float blurAmount = 1.0f;             ///< Amount to blur the scene by
     float depthNear = 50.0f;             ///< Value where depth colour is min
     float depthFar = 400.0f;             ///< Value where depth colour is max
     Colour minimumColour;                ///< Colour ranges for RGB
     Colour maximumColour;                ///< Colour ranges for RGB
-    std::array<float, MAX_MAPS> alpha;   ///< Visibility of post maps
+    std::array<float, MAX_MAPS> masks;   ///< Visibility of post maps
 };
 
 /**

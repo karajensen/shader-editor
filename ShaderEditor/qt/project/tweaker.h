@@ -97,6 +97,12 @@ public:
     void SetBlurAmount(float value);
 
     /**
+    * Sets the amount of overall glow for the scene
+    * @param value The amount of glow on the scene
+    */
+    void SetGlowAmount(float value);
+
+    /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
@@ -171,6 +177,12 @@ public:
     void SetSelectedEngine(int selected);
 
     /**
+    * Sets the selected post map
+    * @param selected The selected post map
+    */
+    void SetSelectedPostMap(int selected);
+
+    /**
     * Sets the values used for the minimum colour range
     * @param rgb The red, green and blue mininum colour range
     */
@@ -237,6 +249,7 @@ public:
 
 private:
 
+    TweakableValue m_glowAmount;         ///< Amount to glow the scene by
     TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value

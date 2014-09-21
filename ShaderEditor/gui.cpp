@@ -37,6 +37,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
     callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
+    callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
     callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
     callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
@@ -150,6 +151,11 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.SetBlurAmount(m_cache->BlurAmount.GetUpdated());
     }
 
+    if (m_cache->GlowAmount.RequiresUpdate())
+    {
+        tweaker.SetGlowAmount(m_cache->GlowAmount.GetUpdated());
+    }
+
     if (m_cache->DepthFar.RequiresUpdate())
     {
         tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
@@ -175,10 +181,8 @@ void Gui::UpdatePost(Tweaker& tweaker)
 
 void Gui::UpdateScene(Tweaker& tweaker)
 {
-    bool initialisedEngine = false;
     if(!tweaker.HasEngines())
     {
-        initialisedEngine = true;
         tweaker.InitialiseEngines(
             m_cache->EngineSelected.Get(), m_cache->Engines.Get());
     }
@@ -191,6 +195,10 @@ void Gui::UpdateScene(Tweaker& tweaker)
     {
         tweaker.InitialisePostMaps(
             m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
+    }
+    else if (m_cache->PostMapSelected.RequiresUpdate())
+    {
+        tweaker.SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
     }
 
     const Float2 mousePosition = m_cache->MousePosition.Get();

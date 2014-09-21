@@ -17,7 +17,7 @@
   <Mesh>
     <Name>Ref_Lside.obj</Name>
     <Specularity>1.0</Specularity>
-    <Intensity>1.0</Intensity>
+    <Intensity>0.45</Intensity>
     <Shader>SpecularGlow</Shader>
     <Diffuse>caustic.bmp</Diffuse>
     <Specular>specular.JPG</Specular>

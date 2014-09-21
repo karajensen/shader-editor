@@ -14,6 +14,8 @@
 
 #define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
+#define SELECTED_MAP PostProcessing::BLUR_SCENE_MAP
+
 
 namespace
 {
@@ -26,9 +28,10 @@ namespace
 Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_cache(cache),
-    m_selectedMap(PostProcessing::SCENE_MAP),
+    m_selectedMap(SELECTED_MAP),
     m_selectedEngine(SELECTED_ENGINE)
 {
+    m_postProcessing.SetPostMap(SELECTED_MAP);
 }
 
 Application::~Application()
@@ -282,6 +285,7 @@ void Application::UpdateMesh()
 void Application::UpdatePost()
 {
     m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
+    m_postProcessing.glowAmount = m_cache->GlowAmount.Get();
     m_postProcessing.depthFar = m_cache->DepthFar.Get();
     m_postProcessing.depthNear = m_cache->DepthNear.Get();
     m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
@@ -367,6 +371,7 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
     m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
     m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
+    m_cache->GlowAmount.SetUpdated(m_postProcessing.glowAmount);
     m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
     m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);
 }

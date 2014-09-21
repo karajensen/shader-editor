@@ -1,12 +1,8 @@
 
-- Fix broken DX rendering
-
-- scene blurring is determined by blur amount
-- mesh glow blurring is determined by intensity of alpha * blur amount
-- Post effect glow colour determined by scene colour
-
-- Post effects: fog and depth of field
+- Create blur shader
+- Post effects: glow, depth of field
 - Colour correction: levels, contrast, brightness
+- Fog
 - Water shader
 - Particles
 

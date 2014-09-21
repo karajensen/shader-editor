@@ -28,7 +28,10 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
 
-    m_blurAmount.Initialise(0.1, m_ui.blurring_value,
+    m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
+        m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
+
+    m_blurAmount.Initialise(0.5, m_ui.blurring_value,
         m_ui.blurring_dial, m_callbacks.SetBlurAmount);
 
     m_depthNear.Initialise(1.0, m_ui.depthNear_value,
@@ -85,7 +88,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_meshBump.Initialise(0.01, m_ui.meshBump_value,
         m_ui.meshBump_dial, m_callbacks.SetMeshBump);
 
-    m_meshGlow.Initialise(0.05, m_ui.meshGlow_value,
+    m_meshGlow.Initialise(0.01, m_ui.meshGlow_value,
         m_ui.meshGlow_dial, m_callbacks.SetMeshGlow);
 
     std::vector<ComboEntry> minimumColour;
@@ -218,6 +221,11 @@ void Tweaker::SetBlurAmount(float value)
     m_blurAmount.Set(value);
 }
 
+void Tweaker::SetGlowAmount(float value)
+{
+    m_glowAmount.Set(value);
+}
+
 void Tweaker::SetDepthNear(float value)
 {
     m_depthNear.Set(value);
@@ -236,6 +244,11 @@ void Tweaker::InitialisePostMaps(int selected,
         m_postMap.Initialise(m_ui.postImage_box,
             selected, maps, m_callbacks.SetPostMap);
     }
+}
+
+void Tweaker::SetSelectedPostMap(int selected)
+{
+    m_postMap.SetSelected(selected);
 }
 
 void Tweaker::SetSelectedEngine(int selected)
