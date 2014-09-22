@@ -411,7 +411,15 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SetActive();
     m_data->blurTarget.SetActive();
 
+    float verticalPass = 1.0f;
+    float horizontalPass = 0.0f;
+
+    blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
+    blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
     blurShader->SendUniformFloat("blurAmount", &post.blurAmount, 1);
+    blurShader->SendUniformFloat("weightMain", &post.weights[0], 1);
+    blurShader->SendUniformFloat("weightOffset", &post.weights[1], 4);
+
     blurShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
 
     m_data->quad.PreRender();

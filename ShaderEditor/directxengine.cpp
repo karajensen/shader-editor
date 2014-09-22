@@ -367,7 +367,15 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SetActive(m_data->context);
     m_data->blurTarget.SetActive(m_data->context);
 
+    float verticalPass = 1.0f;
+    float horizontalPass = 0.0f;
+
+    blurShader->UpdateConstantFloat("verticalPass", &verticalPass, 1);
+    blurShader->UpdateConstantFloat("horizontalPass", &horizontalPass, 1);
     blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
+    blurShader->UpdateConstantFloat("weightMain", &post.weights[0], 1);
+    blurShader->UpdateConstantFloat("weightOffset", &post.weights[1], 4);
+
     m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
 
     blurShader->SendConstants(m_data->context);

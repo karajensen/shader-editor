@@ -94,9 +94,32 @@ struct PostProcessing
     PostProcessing()
     {
         SetPostMap(SCENE_MAP);
+
         maximumColour.r = 1.0f;
         maximumColour.g = 1.0f;
         maximumColour.b = 1.0f;
+
+        weights[0] = 1.0f;
+        weights[1] = 0.9f;
+        weights[2] = 0.55f;
+        weights[3] = 0.18f;
+        weights[4] = 0.1f;
+        NormaliseWeights();
+    }
+
+    /**
+    * Normalises the blur weights
+    */
+    void NormaliseWeights()
+    {
+        const float overallWeight = weights[0] + 2.0f * 
+            (weights[1] + weights[2] + weights[3] + weights[4]);
+
+        weights[0] /= overallWeight;
+        weights[1] /= overallWeight;
+        weights[2] /= overallWeight;
+        weights[3] /= overallWeight;
+        weights[4] /= overallWeight;
     }
 
     /**
@@ -136,14 +159,15 @@ struct PostProcessing
         }
     }
 
-    float dofDistance = 0.0f;            ///< Distance the depth of field starts
-    float glowAmount = 100.0f;           ///< The overall glow multiplier
-    float blurAmount = 1.0f;             ///< Amount to blur the scene by
-    float depthNear = 50.0f;             ///< Value where depth colour is min
-    float depthFar = 400.0f;             ///< Value where depth colour is max
-    Colour minimumColour;                ///< Colour ranges for RGB
-    Colour maximumColour;                ///< Colour ranges for RGB
-    std::array<float, MAX_MAPS> masks;   ///< Visibility of post maps
+    float dofDistance = 0.0f;             ///< Distance the depth of field starts
+    float glowAmount = 100.0f;            ///< The overall glow multiplier
+    float blurAmount = 1.0f;              ///< Amount to blur the scene by
+    float depthNear = 50.0f;              ///< Value where depth colour is min
+    float depthFar = 400.0f;              ///< Value where depth colour is max
+    Colour minimumColour;                 ///< Colour ranges for RGB
+    Colour maximumColour;                 ///< Colour ranges for RGB
+    std::array<float, MAX_MAPS> masks;    ///< Visibility of post maps
+    std::array<float, 5> weights;         ///< Normalised pixel weights for blurring
 };
 
 /**

@@ -1,5 +1,5 @@
 
-- Create blur shader
+- Render targets to have multiple passes
 - Post effects: glow, depth of field
 - Colour correction: levels, contrast, brightness
 - Fog
