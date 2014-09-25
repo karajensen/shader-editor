@@ -14,7 +14,7 @@
 
 #define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::BLUR_SCENE_MAP
+#define SELECTED_MAP PostProcessing::FINAL_MAP
 
 
 namespace
@@ -255,7 +255,6 @@ void Application::UpdateScene()
     m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
     m_cache->MousePosition.Set(m_mousePosition);
     m_cache->MouseDirection.Set(m_mouseDirection);
-    m_cache->CameraPosition.Set(m_camera->GetWorld().Position());
 }
 
 void Application::UpdateMesh()
@@ -285,6 +284,7 @@ void Application::UpdateMesh()
 void Application::UpdatePost()
 {
     m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
+    m_postProcessing.blurStep = m_cache->BlurStep.Get();
     m_postProcessing.glowAmount = m_cache->GlowAmount.Get();
     m_postProcessing.depthFar = m_cache->DepthFar.Get();
     m_postProcessing.depthNear = m_cache->DepthNear.Get();
@@ -371,6 +371,7 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
     m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
     m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
+    m_cache->BlurStep.SetUpdated(m_postProcessing.blurStep);
     m_cache->GlowAmount.SetUpdated(m_postProcessing.glowAmount);
     m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
     m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);

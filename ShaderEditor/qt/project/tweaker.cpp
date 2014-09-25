@@ -31,8 +31,11 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
         m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
 
-    m_blurAmount.Initialise(0.5, m_ui.blurring_value,
+    m_blurAmount.Initialise(0.1, m_ui.blurring_value,
         m_ui.blurring_dial, m_callbacks.SetBlurAmount);
+
+    m_blurStep.Initialise(0.5, m_ui.blurStep_value,
+        m_ui.blurStep_dial, m_callbacks.SetBlurStep);
 
     m_depthNear.Initialise(1.0, m_ui.depthNear_value,
         m_ui.depthNear_dial, m_callbacks.SetDepthNear);
@@ -143,20 +146,6 @@ void Tweaker::SetMouseDirection(const std::string& x, const std::string& y)
     m_ui.mouseDirY_text->update();
 }
 
-void Tweaker::SetCameraPosition(const std::string& x, 
-                                const std::string& y, 
-                                const std::string& z)
-{
-    m_ui.cameraX_text->setText(QString(x.c_str()));
-    m_ui.cameraX_text->update();
-
-    m_ui.cameraY_text->setText(QString(y.c_str()));
-    m_ui.cameraY_text->update();
-
-    m_ui.cameraZ_text->setText(QString(z.c_str()));
-    m_ui.cameraZ_text->update();
-}
-
 void Tweaker::SetMeshShaderName(const std::string& name)
 {
     m_ui.shader_text->setText(QString(name.c_str()));
@@ -219,6 +208,11 @@ void Tweaker::SetMeshBump(float value)
 void Tweaker::SetBlurAmount(float value)
 {
     m_blurAmount.Set(value);
+}
+
+void Tweaker::SetBlurStep(float value)
+{
+    m_blurStep.Set(value);
 }
 
 void Tweaker::SetGlowAmount(float value)

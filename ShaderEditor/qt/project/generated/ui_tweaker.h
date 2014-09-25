@@ -58,15 +58,6 @@ public:
     QFrame *mouseDirY;
     QLabel *mouseDirY_lbl;
     QLabel *mouseDirY_text;
-    QFrame *cameraX;
-    QLabel *cameraX_lbl;
-    QLabel *cameraX_text;
-    QFrame *cameraY;
-    QLabel *cameraY_lbl;
-    QLabel *cameraY_text;
-    QFrame *cameraZ;
-    QLabel *cameraZ_lbl;
-    QLabel *cameraZ_text;
     QSpacerItem *_sceneSpacer;
     QWidget *Light;
     QWidget *layoutWidget1;
@@ -155,6 +146,9 @@ public:
     QFrame *selectedParticles;
     QLabel *selectedParticles_lbl;
     QComboBox *selectedParticles_box;
+    QFrame *particleCount;
+    QLabel *particleCount_lbl;
+    QLabel *particleCount_text;
     QFrame *particleSize;
     QLabel *particleSize_lbl;
     QDoubleSpinBox *particleSize_value;
@@ -195,6 +189,14 @@ public:
     QLabel *blurring_lbl;
     QDoubleSpinBox *blurring_value;
     QDial *blurring_dial;
+    QFrame *blurStep;
+    QLabel *blurStep_lbl;
+    QDoubleSpinBox *blurStep_value;
+    QDial *blurStep_dial;
+    QFrame *glowIntensity;
+    QLabel *glowIntensity_lbl;
+    QDoubleSpinBox *glowIntensity_value;
+    QDial *glowIntensity_dial;
     QFrame *depthNear;
     QLabel *depthNear_lbl;
     QDoubleSpinBox *depthNear_value;
@@ -203,10 +205,6 @@ public:
     QLabel *depthFar_lbl;
     QDoubleSpinBox *depthFar_value;
     QDial *depthFar_dial;
-    QFrame *glowIntensity;
-    QLabel *glowIntensity_lbl;
-    QDoubleSpinBox *glowIntensity_value;
-    QDial *glowIntensity_dial;
     QFrame *dofDistance;
     QLabel *dofDistance_lbl;
     QDoubleSpinBox *dofDistance_value;
@@ -541,111 +539,6 @@ public:
         mouseDirY_text->setMargin(3);
 
         sceneLayout->addWidget(mouseDirY);
-
-        cameraX = new QFrame(layoutWidget);
-        cameraX->setObjectName(QStringLiteral("cameraX"));
-        sizePolicy.setHeightForWidth(cameraX->sizePolicy().hasHeightForWidth());
-        cameraX->setSizePolicy(sizePolicy);
-        cameraX->setMinimumSize(QSize(225, 35));
-        cameraX->setMaximumSize(QSize(225, 35));
-        cameraX->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        cameraX->setFrameShape(QFrame::Panel);
-        cameraX->setFrameShadow(QFrame::Raised);
-        cameraX_lbl = new QLabel(cameraX);
-        cameraX_lbl->setObjectName(QStringLiteral("cameraX_lbl"));
-        cameraX_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(cameraX_lbl->sizePolicy().hasHeightForWidth());
-        cameraX_lbl->setSizePolicy(sizePolicy);
-        cameraX_lbl->setMinimumSize(QSize(100, 30));
-        cameraX_lbl->setMaximumSize(QSize(100, 30));
-        cameraX_lbl->setFont(font1);
-        cameraX_text = new QLabel(cameraX);
-        cameraX_text->setObjectName(QStringLiteral("cameraX_text"));
-        cameraX_text->setGeometry(QRect(106, 5, 115, 25));
-        sizePolicy1.setHeightForWidth(cameraX_text->sizePolicy().hasHeightForWidth());
-        cameraX_text->setSizePolicy(sizePolicy1);
-        cameraX_text->setMinimumSize(QSize(115, 25));
-        cameraX_text->setMaximumSize(QSize(115, 25));
-        cameraX_text->setAutoFillBackground(false);
-        cameraX_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-""));
-        cameraX_text->setFrameShape(QFrame::NoFrame);
-        cameraX_text->setFrameShadow(QFrame::Plain);
-        cameraX_text->setLineWidth(0);
-        cameraX_text->setMargin(3);
-
-        sceneLayout->addWidget(cameraX);
-
-        cameraY = new QFrame(layoutWidget);
-        cameraY->setObjectName(QStringLiteral("cameraY"));
-        sizePolicy.setHeightForWidth(cameraY->sizePolicy().hasHeightForWidth());
-        cameraY->setSizePolicy(sizePolicy);
-        cameraY->setMinimumSize(QSize(225, 35));
-        cameraY->setMaximumSize(QSize(225, 35));
-        cameraY->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        cameraY->setFrameShape(QFrame::Panel);
-        cameraY->setFrameShadow(QFrame::Raised);
-        cameraY_lbl = new QLabel(cameraY);
-        cameraY_lbl->setObjectName(QStringLiteral("cameraY_lbl"));
-        cameraY_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(cameraY_lbl->sizePolicy().hasHeightForWidth());
-        cameraY_lbl->setSizePolicy(sizePolicy);
-        cameraY_lbl->setMinimumSize(QSize(100, 30));
-        cameraY_lbl->setMaximumSize(QSize(100, 30));
-        cameraY_lbl->setFont(font1);
-        cameraY_text = new QLabel(cameraY);
-        cameraY_text->setObjectName(QStringLiteral("cameraY_text"));
-        cameraY_text->setGeometry(QRect(106, 5, 115, 25));
-        sizePolicy1.setHeightForWidth(cameraY_text->sizePolicy().hasHeightForWidth());
-        cameraY_text->setSizePolicy(sizePolicy1);
-        cameraY_text->setMinimumSize(QSize(115, 25));
-        cameraY_text->setMaximumSize(QSize(115, 25));
-        cameraY_text->setAutoFillBackground(false);
-        cameraY_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-""));
-        cameraY_text->setFrameShape(QFrame::NoFrame);
-        cameraY_text->setFrameShadow(QFrame::Plain);
-        cameraY_text->setLineWidth(0);
-        cameraY_text->setMargin(3);
-
-        sceneLayout->addWidget(cameraY);
-
-        cameraZ = new QFrame(layoutWidget);
-        cameraZ->setObjectName(QStringLiteral("cameraZ"));
-        sizePolicy.setHeightForWidth(cameraZ->sizePolicy().hasHeightForWidth());
-        cameraZ->setSizePolicy(sizePolicy);
-        cameraZ->setMinimumSize(QSize(225, 35));
-        cameraZ->setMaximumSize(QSize(225, 35));
-        cameraZ->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        cameraZ->setFrameShape(QFrame::Panel);
-        cameraZ->setFrameShadow(QFrame::Raised);
-        cameraZ_lbl = new QLabel(cameraZ);
-        cameraZ_lbl->setObjectName(QStringLiteral("cameraZ_lbl"));
-        cameraZ_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(cameraZ_lbl->sizePolicy().hasHeightForWidth());
-        cameraZ_lbl->setSizePolicy(sizePolicy);
-        cameraZ_lbl->setMinimumSize(QSize(100, 30));
-        cameraZ_lbl->setMaximumSize(QSize(100, 30));
-        cameraZ_lbl->setFont(font1);
-        cameraZ_text = new QLabel(cameraZ);
-        cameraZ_text->setObjectName(QStringLiteral("cameraZ_text"));
-        cameraZ_text->setGeometry(QRect(106, 5, 115, 25));
-        sizePolicy1.setHeightForWidth(cameraZ_text->sizePolicy().hasHeightForWidth());
-        cameraZ_text->setSizePolicy(sizePolicy1);
-        cameraZ_text->setMinimumSize(QSize(115, 25));
-        cameraZ_text->setMaximumSize(QSize(115, 25));
-        cameraZ_text->setAutoFillBackground(false);
-        cameraZ_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-""));
-        cameraZ_text->setFrameShape(QFrame::NoFrame);
-        cameraZ_text->setFrameShadow(QFrame::Plain);
-        cameraZ_text->setLineWidth(0);
-        cameraZ_text->setMargin(3);
-
-        sceneLayout->addWidget(cameraZ);
 
         _sceneSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -1713,6 +1606,41 @@ public:
 
         meshLayout->addWidget(selectedParticles);
 
+        particleCount = new QFrame(layoutWidget2);
+        particleCount->setObjectName(QStringLiteral("particleCount"));
+        sizePolicy.setHeightForWidth(particleCount->sizePolicy().hasHeightForWidth());
+        particleCount->setSizePolicy(sizePolicy);
+        particleCount->setMinimumSize(QSize(225, 35));
+        particleCount->setMaximumSize(QSize(225, 35));
+        particleCount->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        particleCount->setFrameShape(QFrame::Panel);
+        particleCount->setFrameShadow(QFrame::Raised);
+        particleCount_lbl = new QLabel(particleCount);
+        particleCount_lbl->setObjectName(QStringLiteral("particleCount_lbl"));
+        particleCount_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(particleCount_lbl->sizePolicy().hasHeightForWidth());
+        particleCount_lbl->setSizePolicy(sizePolicy);
+        particleCount_lbl->setMinimumSize(QSize(100, 30));
+        particleCount_lbl->setMaximumSize(QSize(100, 30));
+        particleCount_lbl->setFont(font1);
+        particleCount_text = new QLabel(particleCount);
+        particleCount_text->setObjectName(QStringLiteral("particleCount_text"));
+        particleCount_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(particleCount_text->sizePolicy().hasHeightForWidth());
+        particleCount_text->setSizePolicy(sizePolicy1);
+        particleCount_text->setMinimumSize(QSize(115, 25));
+        particleCount_text->setMaximumSize(QSize(115, 25));
+        particleCount_text->setAutoFillBackground(false);
+        particleCount_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        particleCount_text->setFrameShape(QFrame::NoFrame);
+        particleCount_text->setFrameShadow(QFrame::Plain);
+        particleCount_text->setLineWidth(0);
+        particleCount_text->setMargin(3);
+
+        meshLayout->addWidget(particleCount);
+
         particleSize = new QFrame(layoutWidget2);
         particleSize->setObjectName(QStringLiteral("particleSize"));
         particleSize->setMinimumSize(QSize(225, 35));
@@ -2220,6 +2148,110 @@ public:
 
         postLayout->addWidget(blurring);
 
+        blurStep = new QFrame(layoutWidget3);
+        blurStep->setObjectName(QStringLiteral("blurStep"));
+        blurStep->setMinimumSize(QSize(225, 35));
+        blurStep->setMaximumSize(QSize(225, 35));
+        blurStep->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        blurStep->setFrameShape(QFrame::NoFrame);
+        blurStep->setFrameShadow(QFrame::Plain);
+        blurStep->setLineWidth(0);
+        blurStep_lbl = new QLabel(blurStep);
+        blurStep_lbl->setObjectName(QStringLiteral("blurStep_lbl"));
+        blurStep_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(blurStep_lbl->sizePolicy().hasHeightForWidth());
+        blurStep_lbl->setSizePolicy(sizePolicy);
+        blurStep_lbl->setMinimumSize(QSize(100, 30));
+        blurStep_lbl->setMaximumSize(QSize(100, 30));
+        blurStep_lbl->setFont(font1);
+        blurStep_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        blurStep_lbl->setMargin(1);
+        blurStep_value = new QDoubleSpinBox(blurStep);
+        blurStep_value->setObjectName(QStringLiteral("blurStep_value"));
+        blurStep_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(blurStep_value->sizePolicy().hasHeightForWidth());
+        blurStep_value->setSizePolicy(sizePolicy);
+        blurStep_value->setMinimumSize(QSize(86, 25));
+        blurStep_value->setMaximumSize(QSize(86, 25));
+        blurStep_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        blurStep_value->setFrame(false);
+        blurStep_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        blurStep_value->setDecimals(3);
+        blurStep_value->setMinimum(-9999);
+        blurStep_value->setMaximum(9999);
+        blurStep_value->setSingleStep(0.05);
+        blurStep_dial = new QDial(blurStep);
+        blurStep_dial->setObjectName(QStringLiteral("blurStep_dial"));
+        blurStep_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(blurStep_dial->sizePolicy().hasHeightForWidth());
+        blurStep_dial->setSizePolicy(sizePolicy);
+        blurStep_dial->setMinimumSize(QSize(30, 30));
+        blurStep_dial->setMaximumSize(QSize(30, 30));
+        blurStep_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        blurStep_dial->setMinimum(-10000);
+        blurStep_dial->setMaximum(10000);
+
+        postLayout->addWidget(blurStep);
+
+        glowIntensity = new QFrame(layoutWidget3);
+        glowIntensity->setObjectName(QStringLiteral("glowIntensity"));
+        glowIntensity->setMinimumSize(QSize(225, 35));
+        glowIntensity->setMaximumSize(QSize(225, 35));
+        glowIntensity->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        glowIntensity->setFrameShape(QFrame::NoFrame);
+        glowIntensity->setFrameShadow(QFrame::Plain);
+        glowIntensity->setLineWidth(0);
+        glowIntensity_lbl = new QLabel(glowIntensity);
+        glowIntensity_lbl->setObjectName(QStringLiteral("glowIntensity_lbl"));
+        glowIntensity_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(glowIntensity_lbl->sizePolicy().hasHeightForWidth());
+        glowIntensity_lbl->setSizePolicy(sizePolicy);
+        glowIntensity_lbl->setMinimumSize(QSize(100, 30));
+        glowIntensity_lbl->setMaximumSize(QSize(100, 30));
+        glowIntensity_lbl->setFont(font1);
+        glowIntensity_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        glowIntensity_lbl->setMargin(1);
+        glowIntensity_value = new QDoubleSpinBox(glowIntensity);
+        glowIntensity_value->setObjectName(QStringLiteral("glowIntensity_value"));
+        glowIntensity_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(glowIntensity_value->sizePolicy().hasHeightForWidth());
+        glowIntensity_value->setSizePolicy(sizePolicy);
+        glowIntensity_value->setMinimumSize(QSize(86, 25));
+        glowIntensity_value->setMaximumSize(QSize(86, 25));
+        glowIntensity_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        glowIntensity_value->setFrame(false);
+        glowIntensity_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        glowIntensity_value->setDecimals(3);
+        glowIntensity_value->setMinimum(-9999);
+        glowIntensity_value->setMaximum(9999);
+        glowIntensity_value->setSingleStep(0.05);
+        glowIntensity_dial = new QDial(glowIntensity);
+        glowIntensity_dial->setObjectName(QStringLiteral("glowIntensity_dial"));
+        glowIntensity_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(glowIntensity_dial->sizePolicy().hasHeightForWidth());
+        glowIntensity_dial->setSizePolicy(sizePolicy);
+        glowIntensity_dial->setMinimumSize(QSize(30, 30));
+        glowIntensity_dial->setMaximumSize(QSize(30, 30));
+        glowIntensity_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        glowIntensity_dial->setMinimum(-10000);
+        glowIntensity_dial->setMaximum(10000);
+
+        postLayout->addWidget(glowIntensity);
+
         depthNear = new QFrame(layoutWidget3);
         depthNear->setObjectName(QStringLiteral("depthNear"));
         depthNear->setMinimumSize(QSize(225, 35));
@@ -2324,58 +2356,6 @@ public:
 
         postLayout->addWidget(depthFar);
 
-        glowIntensity = new QFrame(layoutWidget3);
-        glowIntensity->setObjectName(QStringLiteral("glowIntensity"));
-        glowIntensity->setMinimumSize(QSize(225, 35));
-        glowIntensity->setMaximumSize(QSize(225, 35));
-        glowIntensity->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        glowIntensity->setFrameShape(QFrame::NoFrame);
-        glowIntensity->setFrameShadow(QFrame::Plain);
-        glowIntensity->setLineWidth(0);
-        glowIntensity_lbl = new QLabel(glowIntensity);
-        glowIntensity_lbl->setObjectName(QStringLiteral("glowIntensity_lbl"));
-        glowIntensity_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(glowIntensity_lbl->sizePolicy().hasHeightForWidth());
-        glowIntensity_lbl->setSizePolicy(sizePolicy);
-        glowIntensity_lbl->setMinimumSize(QSize(100, 30));
-        glowIntensity_lbl->setMaximumSize(QSize(100, 30));
-        glowIntensity_lbl->setFont(font1);
-        glowIntensity_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        glowIntensity_lbl->setMargin(1);
-        glowIntensity_value = new QDoubleSpinBox(glowIntensity);
-        glowIntensity_value->setObjectName(QStringLiteral("glowIntensity_value"));
-        glowIntensity_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(glowIntensity_value->sizePolicy().hasHeightForWidth());
-        glowIntensity_value->setSizePolicy(sizePolicy);
-        glowIntensity_value->setMinimumSize(QSize(86, 25));
-        glowIntensity_value->setMaximumSize(QSize(86, 25));
-        glowIntensity_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        glowIntensity_value->setFrame(false);
-        glowIntensity_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        glowIntensity_value->setDecimals(3);
-        glowIntensity_value->setMinimum(-9999);
-        glowIntensity_value->setMaximum(9999);
-        glowIntensity_value->setSingleStep(0.05);
-        glowIntensity_dial = new QDial(glowIntensity);
-        glowIntensity_dial->setObjectName(QStringLiteral("glowIntensity_dial"));
-        glowIntensity_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(glowIntensity_dial->sizePolicy().hasHeightForWidth());
-        glowIntensity_dial->setSizePolicy(sizePolicy);
-        glowIntensity_dial->setMinimumSize(QSize(30, 30));
-        glowIntensity_dial->setMaximumSize(QSize(30, 30));
-        glowIntensity_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        glowIntensity_dial->setMinimum(-10000);
-        glowIntensity_dial->setMaximum(10000);
-
-        postLayout->addWidget(glowIntensity);
-
         dofDistance = new QFrame(layoutWidget3);
         dofDistance->setObjectName(QStringLiteral("dofDistance"));
         dofDistance->setMinimumSize(QSize(225, 35));
@@ -2463,12 +2443,6 @@ public:
         mouseDirX_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         mouseDirY_lbl->setText(QApplication::translate("Tweaker", "Mouse Dir Y", 0));
         mouseDirY_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        cameraX_lbl->setText(QApplication::translate("Tweaker", "Camera Pos X", 0));
-        cameraX_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        cameraY_lbl->setText(QApplication::translate("Tweaker", "Camera Pos Y", 0));
-        cameraY_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        cameraZ_lbl->setText(QApplication::translate("Tweaker", "Camera Pos Z", 0));
-        cameraZ_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         selectedLight_lbl->setText(QApplication::translate("Tweaker", "Light", 0));
         positionX_lbl->setText(QApplication::translate("Tweaker", "Position X", 0));
@@ -2493,15 +2467,18 @@ public:
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
+        particleCount_lbl->setText(QApplication::translate("Tweaker", "Count", 0));
+        particleCount_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         particleSize_lbl->setText(QApplication::translate("Tweaker", "Size", 0));
         particleSpeed_lbl->setText(QApplication::translate("Tweaker", "Speed", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         contrast_lbl->setText(QApplication::translate("Tweaker", "Contrast", 0));
         brightness_lbl->setText(QApplication::translate("Tweaker", "Brightness", 0));
-        blurring_lbl->setText(QApplication::translate("Tweaker", "Blurring", 0));
+        blurring_lbl->setText(QApplication::translate("Tweaker", "Blur Amount", 0));
+        blurStep_lbl->setText(QApplication::translate("Tweaker", "Blur Step", 0));
+        glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
         depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));
         depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));
-        glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
         dofDistance_lbl->setText(QApplication::translate("Tweaker", "Depth of Field", 0));
         TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", 0));
     } // retranslateUi

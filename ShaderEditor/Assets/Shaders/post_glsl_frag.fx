@@ -43,11 +43,14 @@ void main(void)
     float depth = normal.a;
     vec3 postScene = scene.rgb;
 
-    // Adding glow
+    // Adding Depth of Field
+
+    // Adding Glow
     vec3 postGlow = blur.a * glowAmount * blur.rgb * depth;
     postScene.rgb += postGlow;
 
-    // Colour correction
+    // Colour Correction
+    min(max(postScene, 0.0), 1.0);
     postScene.rgb *= maximumColor - minimumColor;
     postScene.rgb += minimumColor;
 

@@ -69,16 +69,6 @@ public:
     void SetMouseDirection(const std::string& x, const std::string& y);
 
     /**
-    * Sets the position for the camera
-    * @param x The x world position of the camera
-    * @param y The y world position of the camera
-    * @param z The z world position of the camera
-    */
-    void SetCameraPosition(const std::string& x, 
-                           const std::string& y, 
-                           const std::string& z);
-
-    /**
     * Sets the near value for the camera
     * @param value The near value for the camera
     */
@@ -95,6 +85,12 @@ public:
     * @param value The amount of blurring on the scene
     */
     void SetBlurAmount(float value);
+
+    /**
+    * Sets the step between samples for blurring
+    * @param value The amount of step between samples
+    */
+    void SetBlurStep(float value);
 
     /**
     * Sets the amount of overall glow for the scene
@@ -251,6 +247,7 @@ private:
 
     TweakableValue m_glowAmount;         ///< Amount to glow the scene by
     TweakableValue m_blurAmount;         ///< Amount to blur the scene by
+    TweakableValue m_blurStep;           ///< Step between samples for blurring
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_lightPositionX;     ///< Tweakable x of the light position

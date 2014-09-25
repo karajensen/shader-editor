@@ -27,6 +27,7 @@
     <Name>Ref_middle.obj</Name>
     <Specularity>1.0</Specularity>
     <Shader>SpecularBump</Shader>
+    <Bump>5.0</Bump>
     <Diffuse>caustic.bmp</Diffuse>
     <Specular>specular.JPG</Specular>
     <Normal>normal.png</Normal>

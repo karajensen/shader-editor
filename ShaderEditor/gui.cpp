@@ -37,6 +37,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
     callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
+    callbacks.SetBlurStep =         [&](float value){ m_cache->BlurStep.Set(value); };
     callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
     callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
     callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
@@ -151,6 +152,11 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.SetBlurAmount(m_cache->BlurAmount.GetUpdated());
     }
 
+    if (m_cache->BlurStep.RequiresUpdate())
+    {
+        tweaker.SetBlurStep(m_cache->BlurStep.GetUpdated());
+    }
+
     if (m_cache->GlowAmount.RequiresUpdate())
     {
         tweaker.SetGlowAmount(m_cache->GlowAmount.GetUpdated());
@@ -203,7 +209,6 @@ void Gui::UpdateScene(Tweaker& tweaker)
 
     const Float2 mousePosition = m_cache->MousePosition.Get();
     const Float2 mouseDirection = m_cache->MouseDirection.Get();
-    const Float3 cameraPosition = m_cache->CameraPosition.Get();
     const float deltaTime = m_cache->DeltaTime.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
@@ -214,11 +219,6 @@ void Gui::UpdateScene(Tweaker& tweaker)
     tweaker.SetMouseDirection(
         boost::lexical_cast<std::string>(mouseDirection.x),
         boost::lexical_cast<std::string>(mouseDirection.y));
-
-    tweaker.SetCameraPosition(
-        boost::lexical_cast<std::string>(cameraPosition.x),
-        boost::lexical_cast<std::string>(cameraPosition.y),
-        boost::lexical_cast<std::string>(cameraPosition.z));
 
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
     tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));

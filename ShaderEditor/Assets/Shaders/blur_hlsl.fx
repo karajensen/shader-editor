@@ -7,6 +7,7 @@ cbuffer PixelBuffer : register(b0)
     float horizontalPass;
     float verticalPass;
     float blurAmount;
+    float blurStep;
     float weightMain;
     float4 weightOffset;
 };
@@ -31,19 +32,20 @@ Attributes VShader(float4 position  : POSITION,
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    float4 blur = float4(blurAmount, blurAmount * 2.0, blurAmount * 3.0, blurAmount * 4.0);
-    float4 blurHorizontal = blur * horizontalPass;
-    float4 blurVertical = blur * verticalPass;
+    float4 uvSteps = float4(blurStep, blurStep * 2.0, blurStep * 3.0, blurStep * 4.0);
+    float4 horizontalStep = uvSteps * horizontalPass;
+    float4 verticalStep = uvSteps * verticalPass;
+    float blurring = max(1.0, blurAmount * verticalPass);
 
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-    int3 uvs1p = int3(uvs.x + blurHorizontal.x, uvs.y + blurVertical.x, 0);
-    int3 uvs1n = int3(uvs.x - blurHorizontal.x, uvs.y - blurVertical.x, 0);
-    int3 uvs2p = int3(uvs.x + blurHorizontal.y, uvs.y + blurVertical.y, 0);
-    int3 uvs2n = int3(uvs.x - blurHorizontal.y, uvs.y - blurVertical.y, 0);
-    int3 uvs3p = int3(uvs.x + blurHorizontal.z, uvs.y + blurVertical.z, 0);
-    int3 uvs3n = int3(uvs.x - blurHorizontal.z, uvs.y - blurVertical.z, 0);
-    int3 uvs4p = int3(uvs.x + blurHorizontal.w, uvs.y + blurVertical.w, 0);
-    int3 uvs4n = int3(uvs.x - blurHorizontal.w, uvs.y - blurVertical.w, 0);
+    int3 uvs1p = int3(uvs.x + horizontalStep.x, uvs.y + verticalStep.x, 0);
+    int3 uvs1n = int3(uvs.x - horizontalStep.x, uvs.y - verticalStep.x, 0);
+    int3 uvs2p = int3(uvs.x + horizontalStep.y, uvs.y + verticalStep.y, 0);
+    int3 uvs2n = int3(uvs.x - horizontalStep.y, uvs.y - verticalStep.y, 0);
+    int3 uvs3p = int3(uvs.x + horizontalStep.z, uvs.y + verticalStep.z, 0);
+    int3 uvs3n = int3(uvs.x - horizontalStep.z, uvs.y - verticalStep.z, 0);
+    int3 uvs4p = int3(uvs.x + horizontalStep.w, uvs.y + verticalStep.w, 0);
+    int3 uvs4n = int3(uvs.x - horizontalStep.w, uvs.y - verticalStep.w, 0);
 
     float4 finalColor = SceneSampler.Load(uvs, 0) * weightMain;
     finalColor += SceneSampler.Load(uvs1p, 0) * weightOffset.x;
@@ -54,5 +56,6 @@ float4 PShader(Attributes input) : SV_TARGET
     finalColor += SceneSampler.Load(uvs3n, 0) * weightOffset.z;
     finalColor += SceneSampler.Load(uvs4p, 0) * weightOffset.w;
     finalColor += SceneSampler.Load(uvs4n, 0) * weightOffset.w;
-    return finalColor;
+
+    return finalColor * blurring;
 }

@@ -85,6 +85,7 @@ struct PostProcessing
         GLOW_MAP,
         BLUR_SCENE_MAP,
         BLUR_GLOW_MAP,
+        DOF_MAP,
         MAX_MAPS
     };
 
@@ -154,6 +155,8 @@ struct PostProcessing
             return "Blur-Glow Map";
         case BLUR_SCENE_MAP:
             return "Blur-Scene Map";
+        case DOF_MAP:
+            return "DOF Map";
         default:
             return "None";
         }
@@ -161,8 +164,9 @@ struct PostProcessing
 
     float dofDistance = 0.0f;             ///< Distance the depth of field starts
     float glowAmount = 100.0f;            ///< The overall glow multiplier
+    float blurStep = 2.0f;                ///< Sampling step for blurring
     float blurAmount = 1.0f;              ///< Amount to blur the scene by
-    float depthNear = 50.0f;              ///< Value where depth colour is min
+    float depthNear = 30.0f;              ///< Value where depth colour is min
     float depthFar = 400.0f;              ///< Value where depth colour is max
     Colour minimumColour;                 ///< Colour ranges for RGB
     Colour maximumColour;                 ///< Colour ranges for RGB

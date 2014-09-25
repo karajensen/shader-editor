@@ -258,7 +258,6 @@ struct Cache
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse
     Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
-    LockableVector CameraPosition;      ///< Position of the camera in world coordindates
 
     Lockable<int> LightSelected;        ///< Index of the currently selected light
     Lockable<float> LightSpecularity;   ///< Specularity of the selected light
@@ -276,11 +275,12 @@ struct Cache
 
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
     Lockable<float> BlurAmount;         ///< The amount to blur the scene by
+    Lockable<float> BlurStep;           ///< The sample step of the blur
     Lockable<float> GlowAmount;         ///< The amount to glow the scene by
-    Lockable<float> DepthNear;          ///< The near value for the depth
-    Lockable<float> DepthFar;           ///< The far value for the depth
     LockableColour MinimumColour;       ///< Colour ranges for RGB 
     LockableColour MaximumColour;       ///< Colour ranges for RGB 
+    Lockable<float> DepthNear;          ///< The near value for the depth
+    Lockable<float> DepthFar;           ///< The far value for the depth
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

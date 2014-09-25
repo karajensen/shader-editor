@@ -1,14 +1,17 @@
 
-- Render targets to have multiple passes
-- Post effects: glow, depth of field
+- Profile DirectX to find why fps so low
+- Post effects Depth of field
+
+- Post effect Fog
 - Colour correction: levels, contrast, brightness
-- Fog
 - Water shader
 - Particles
 
-- Optimise shaders
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
+
+OPTIMIZATIONS:
+- Optimise shaders
 
 =================================================================
 SHADER EDITOR

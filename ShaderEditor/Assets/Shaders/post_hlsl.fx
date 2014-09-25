@@ -13,6 +13,7 @@ cbuffer PixelBuffer : register(b0)
     float glowMask;
     float blurGlowMask;
     float blurSceneMask;
+    float depthOfFieldMask;
     float3 minimumColor;
     float3 maximumColor;
 };
@@ -55,11 +56,24 @@ float4 PShader(Attributes input) : SV_TARGET
     float depth = normal.a;
     float3 postScene = scene.rgb;
 
-    // Adding glow
+    // Adding Depth of Field
+    float3 depthOfField = float3(0,0,0);
+    float dofStart = 0.94;
+    float dofEnd = 90;
+    if (depth >= dofEnd)
+    {
+        float weight = saturate((depth-dofEnd)*(1.0/(dofStart-dofEnd)));
+        depthOfField = blur.rgb * weight;
+        postScene.rgb *= (1.0 - weight);
+        postScene.rgb += depthOfField;
+    }
+
+    // Adding Glow
     float3 postGlow = blur.a * glowAmount * blur.rgb * depth;
     postScene.rgb += postGlow;
 
-    // Colour correction
+    // Colour Correction
+    saturate(postScene);
     postScene.rgb *= maximumColor - minimumColor;
     postScene.rgb += minimumColor;
 
@@ -72,6 +86,7 @@ float4 PShader(Attributes input) : SV_TARGET
     finalColor.rgb += scene.aaa * glowMask;
     finalColor.rgb += postGlow * blurGlowMask;
     finalColor.rgb += blur.rgb * blurSceneMask;
+    finalColor.rgb += depthOfField * depthOfFieldMask;
 
-    return finalColor * fadeAmount;
+    return saturate(finalColor) * fadeAmount;
 }

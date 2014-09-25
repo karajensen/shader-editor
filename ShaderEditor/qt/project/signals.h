@@ -15,6 +15,7 @@ struct SignalCallbacks
     std::function<void(float)> SetDepthNear;        ///< Sets the depth near value
     std::function<void(float)> SetDepthFar;         ///< Sets the depth far value
     std::function<void(float)> SetBlurAmount;       ///< Sets the amount of blurring on the scene
+    std::function<void(float)> SetBlurStep;         ///< Sets the amount of step between samples for blurring
     std::function<void(float)> SetGlowAmount;       ///< Sets the amount of glow on the scene
     std::function<void(float)> SetLightPositionX;   ///< Sets the selected light position
     std::function<void(float)> SetLightPositionY;   ///< Sets the selected light position

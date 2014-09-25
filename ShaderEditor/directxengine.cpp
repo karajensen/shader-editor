@@ -42,7 +42,8 @@ struct DirectxData
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
     DxRenderTarget sceneTarget;         ///< Render target for the main scene
     DxRenderTarget normalTarget;        ///< Render target for the scene normal/depth map
-    DxRenderTarget blurTarget;          ///< Render target for blurring the main scene
+    DxRenderTarget blurTargetP1;          ///< Render target for blurring the main scene pass1
+    DxRenderTarget blurTargetP2;          ///< Render target for blurring the main scene pass2
     D3DXMATRIX view;                    ///< View matrix
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix
@@ -59,7 +60,8 @@ struct DirectxData
 DirectxData::DirectxData() :
     sceneTarget("SceneTarget"),
     normalTarget("NormalTarget"),
-    blurTarget("BlurTarget"),
+    blurTargetP1("BlurTargetP1"),
+    blurTargetP2("BlurTargetP2"),
     backBuffer("BackBuffer", true),
     quad("SceneQuad")
 {
@@ -94,7 +96,8 @@ void DirectxData::Release()
     quad.Release();
     sceneTarget.Release();
     normalTarget.Release();
-    blurTarget.Release();
+    blurTargetP1.Release();
+    blurTargetP2.Release();
     backBuffer.Release();
 
     SafeRelease(&cullState);
@@ -163,7 +166,8 @@ bool DirectxEngine::Initialize()
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
        !m_data->sceneTarget.Initialise(m_data->device) ||
        !m_data->normalTarget.Initialise(m_data->device) ||
-       !m_data->blurTarget.Initialise(m_data->device))
+       !m_data->blurTargetP1.Initialise(m_data->device) ||
+       !m_data->blurTargetP2.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
@@ -339,7 +343,7 @@ void DirectxEngine::Render(const std::vector<Light>& lights,
         mesh->Render(m_data->context);
     };
 
-    // Render the scene
+    // Render the scene/glow map
     m_data->sceneTarget.SetActive(m_data->context);
     for (auto& mesh : m_data->meshes)
     {
@@ -365,24 +369,35 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 {
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive(m_data->context);
-    m_data->blurTarget.SetActive(m_data->context);
 
-    float verticalPass = 1.0f;
-    float horizontalPass = 0.0f;
-
-    blurShader->UpdateConstantFloat("verticalPass", &verticalPass, 1);
-    blurShader->UpdateConstantFloat("horizontalPass", &horizontalPass, 1);
+    blurShader->UpdateConstantFloat("blurStep", &post.blurStep, 1);
     blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
     blurShader->UpdateConstantFloat("weightMain", &post.weights[0], 1);
     blurShader->UpdateConstantFloat("weightOffset", &post.weights[1], 4);
 
-    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
-
+    // Render first horizontal blur pass
+    m_data->blurTargetP1.SetActive(m_data->context);
+    float horizontalPass = 1.0f;
+    float verticalPass = 0.0f;
+    blurShader->UpdateConstantFloat("verticalPass", &verticalPass, 1);
+    blurShader->UpdateConstantFloat("horizontalPass", &horizontalPass, 1);
     blurShader->SendConstants(m_data->context);
 
+    m_data->sceneTarget.SendTexture(m_data->context, 0);
     m_data->quad.Render(m_data->context);
+    m_data->sceneTarget.ClearTexture(m_data->context, 0);
 
-    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
+    // Render second vertical blur pass
+    m_data->blurTargetP2.SetActive(m_data->context);
+    horizontalPass = 0.0f;
+    verticalPass = 1.0f;
+    blurShader->UpdateConstantFloat("verticalPass", &verticalPass, 1);
+    blurShader->UpdateConstantFloat("horizontalPass", &horizontalPass, 1);
+    blurShader->SendConstants(m_data->context);
+    
+    m_data->blurTargetP1.SendTexture(m_data->context, 0);
+    m_data->quad.Render(m_data->context);
+    m_data->blurTargetP1.ClearTexture(m_data->context, 0);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -393,7 +408,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
     m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL);
-    m_data->blurTarget.SendTexture(m_data->context, PostProcessing::BLUR);
+    m_data->blurTargetP2.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("glowAmount", &post.glowAmount, 1);
@@ -407,6 +422,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("glowMask", &post.masks[PostProcessing::GLOW_MAP], 1);
     postShader->UpdateConstantFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
     postShader->UpdateConstantFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
+    postShader->UpdateConstantFloat("depthOfFieldMask", &post.masks[PostProcessing::DOF_MAP], 1);
 
     postShader->SendConstants(m_data->context);
 
@@ -414,7 +430,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
     m_data->normalTarget.ClearTexture(m_data->context, PostProcessing::NORMAL);
-    m_data->blurTarget.ClearTexture(m_data->context, PostProcessing::BLUR);
+    m_data->blurTargetP2.ClearTexture(m_data->context, PostProcessing::BLUR);
 }
 
 void DirectxEngine::SetTextures(const std::vector<int>& textureIDs)
