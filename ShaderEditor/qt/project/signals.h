@@ -14,6 +14,8 @@ struct SignalCallbacks
     std::function<void(const std::string&)> CompileShader; ///< Sends a compile request
     std::function<void(float)> SetDepthNear;        ///< Sets the depth near value
     std::function<void(float)> SetDepthFar;         ///< Sets the depth far value
+    std::function<void(float)> SetDOFDistance;      ///< Sets when depth of field kicks in
+    std::function<void(float)> SetDOFFade;          ///< Sets how quickly depth of field fades to the scene
     std::function<void(float)> SetBlurAmount;       ///< Sets the amount of blurring on the scene
     std::function<void(float)> SetBlurStep;         ///< Sets the amount of step between samples for blurring
     std::function<void(float)> SetGlowAmount;       ///< Sets the amount of glow on the scene

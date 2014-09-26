@@ -81,6 +81,18 @@ public:
     void SetDepthFar(float value);
 
     /**
+    * Sets the distance depth of field will be active
+    * @param value The distance depth of field will be active
+    */
+    void SetDOFDistance(float value);
+
+    /**
+    * Sets how quickly depth of field blends into the scene
+    * @param value How quickly depth of field blends into the scene
+    */
+    void SetDOFFade(float value);
+
+    /**
     * Sets the amount of blurring on the scene
     * @param value The amount of blurring on the scene
     */
@@ -245,6 +257,8 @@ public:
 
 private:
 
+    TweakableValue m_DOFFade;            ///< How quickly depth of field blurs into scene
+    TweakableValue m_DOFDistance;        ///< Distance depth of field will start
     TweakableValue m_glowAmount;         ///< Amount to glow the scene by
     TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_blurStep;           ///< Step between samples for blurring

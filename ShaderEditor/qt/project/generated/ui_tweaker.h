@@ -209,6 +209,10 @@ public:
     QLabel *dofDistance_lbl;
     QDoubleSpinBox *dofDistance_value;
     QDial *dofDistance_dial;
+    QFrame *dofFade;
+    QLabel *dofFade_lbl;
+    QDoubleSpinBox *dofFade_value;
+    QDial *dofFade_dial;
     QSpacerItem *_postSpacer;
 
     void setupUi(QWidget *Tweaker)
@@ -2408,6 +2412,58 @@ public:
 
         postLayout->addWidget(dofDistance);
 
+        dofFade = new QFrame(layoutWidget3);
+        dofFade->setObjectName(QStringLiteral("dofFade"));
+        dofFade->setMinimumSize(QSize(225, 35));
+        dofFade->setMaximumSize(QSize(225, 35));
+        dofFade->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        dofFade->setFrameShape(QFrame::NoFrame);
+        dofFade->setFrameShadow(QFrame::Plain);
+        dofFade->setLineWidth(0);
+        dofFade_lbl = new QLabel(dofFade);
+        dofFade_lbl->setObjectName(QStringLiteral("dofFade_lbl"));
+        dofFade_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(dofFade_lbl->sizePolicy().hasHeightForWidth());
+        dofFade_lbl->setSizePolicy(sizePolicy);
+        dofFade_lbl->setMinimumSize(QSize(100, 30));
+        dofFade_lbl->setMaximumSize(QSize(100, 30));
+        dofFade_lbl->setFont(font1);
+        dofFade_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        dofFade_lbl->setMargin(1);
+        dofFade_value = new QDoubleSpinBox(dofFade);
+        dofFade_value->setObjectName(QStringLiteral("dofFade_value"));
+        dofFade_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(dofFade_value->sizePolicy().hasHeightForWidth());
+        dofFade_value->setSizePolicy(sizePolicy);
+        dofFade_value->setMinimumSize(QSize(86, 25));
+        dofFade_value->setMaximumSize(QSize(86, 25));
+        dofFade_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        dofFade_value->setFrame(false);
+        dofFade_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        dofFade_value->setDecimals(3);
+        dofFade_value->setMinimum(-9999);
+        dofFade_value->setMaximum(9999);
+        dofFade_value->setSingleStep(0.05);
+        dofFade_dial = new QDial(dofFade);
+        dofFade_dial->setObjectName(QStringLiteral("dofFade_dial"));
+        dofFade_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(dofFade_dial->sizePolicy().hasHeightForWidth());
+        dofFade_dial->setSizePolicy(sizePolicy);
+        dofFade_dial->setMinimumSize(QSize(30, 30));
+        dofFade_dial->setMaximumSize(QSize(30, 30));
+        dofFade_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        dofFade_dial->setMinimum(-10000);
+        dofFade_dial->setMaximum(10000);
+
+        postLayout->addWidget(dofFade);
+
         _postSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         postLayout->addItem(_postSpacer);
@@ -2479,7 +2535,8 @@ public:
         glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
         depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));
         depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));
-        dofDistance_lbl->setText(QApplication::translate("Tweaker", "Depth of Field", 0));
+        dofDistance_lbl->setText(QApplication::translate("Tweaker", "DOF Distance", 0));
+        dofFade_lbl->setText(QApplication::translate("Tweaker", "DOF Fade", 0));
         TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", 0));
     } // retranslateUi
 

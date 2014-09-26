@@ -241,7 +241,9 @@ struct Cache
         DepthNear(0.0f),
         DepthFar(0.0f),
         BlurAmount(1.0f),
-        GlowAmount(1.0f)
+        GlowAmount(1.0f),
+        DOFDistance(1.0f),
+        DOFFade(0.0f)
     {
     }
 
@@ -281,6 +283,8 @@ struct Cache
     LockableColour MaximumColour;       ///< Colour ranges for RGB 
     Lockable<float> DepthNear;          ///< The near value for the depth
     Lockable<float> DepthFar;           ///< The far value for the depth
+    Lockable<float> DOFDistance;        ///< Distance DOF is active
+    Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

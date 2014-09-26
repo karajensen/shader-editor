@@ -36,6 +36,8 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
     callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
+    callbacks.SetDOFDistance =      [&](float value){ m_cache->DOFDistance.Set(value); };
+    callbacks.SetDOFFade =          [&](float value){ m_cache->DOFFade.Set(value); };
     callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
     callbacks.SetBlurStep =         [&](float value){ m_cache->BlurStep.Set(value); };
     callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
@@ -147,6 +149,16 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
 
 void Gui::UpdatePost(Tweaker& tweaker)
 {
+    if (m_cache->DOFDistance.RequiresUpdate())
+    {
+        tweaker.SetDOFDistance(m_cache->DOFDistance.GetUpdated());
+    }
+
+    if (m_cache->DOFFade.RequiresUpdate())
+    {
+        tweaker.SetDOFFade(m_cache->DOFFade.GetUpdated());
+    }
+
     if (m_cache->BlurAmount.RequiresUpdate())
     {
         tweaker.SetBlurAmount(m_cache->BlurAmount.GetUpdated());

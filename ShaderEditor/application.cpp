@@ -283,6 +283,8 @@ void Application::UpdateMesh()
 
 void Application::UpdatePost()
 {
+    m_postProcessing.dofDistance = m_cache->DOFDistance.Get();
+    m_postProcessing.dofFade = m_cache->DOFFade.Get();
     m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
     m_postProcessing.blurStep = m_cache->BlurStep.Get();
     m_postProcessing.glowAmount = m_cache->GlowAmount.Get();
@@ -370,6 +372,8 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
 
     m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
     m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
+    m_cache->DOFDistance.SetUpdated(m_postProcessing.dofDistance);
+    m_cache->DOFFade.SetUpdated(m_postProcessing.dofFade);
     m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
     m_cache->BlurStep.SetUpdated(m_postProcessing.blurStep);
     m_cache->GlowAmount.SetUpdated(m_postProcessing.glowAmount);

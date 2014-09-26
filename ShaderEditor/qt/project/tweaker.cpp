@@ -34,6 +34,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_blurAmount.Initialise(0.1, m_ui.blurring_value,
         m_ui.blurring_dial, m_callbacks.SetBlurAmount);
 
+    m_DOFDistance.Initialise(0.01, m_ui.dofDistance_value,
+        m_ui.dofDistance_dial, m_callbacks.SetDOFDistance);
+
+    m_DOFFade.Initialise(0.01, m_ui.dofFade_value,
+        m_ui.dofFade_dial, m_callbacks.SetDOFFade);
+
     m_blurStep.Initialise(0.5, m_ui.blurStep_value,
         m_ui.blurStep_dial, m_callbacks.SetBlurStep);
 
@@ -203,6 +209,16 @@ void Tweaker::SetMeshGlow(float value)
 void Tweaker::SetMeshBump(float value)
 {
     m_meshBump.Set(value);
+}
+
+void Tweaker::SetDOFFade(float value)
+{
+    m_DOFFade.Set(value);
+}
+
+void Tweaker::SetDOFDistance(float value)
+{
+    m_DOFDistance.Set(value);
 }
 
 void Tweaker::SetBlurAmount(float value)

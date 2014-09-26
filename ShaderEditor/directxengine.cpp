@@ -372,6 +372,8 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 
     blurShader->UpdateConstantFloat("blurStep", &post.blurStep, 1);
     blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
+    blurShader->UpdateConstantFloat("dofDistance", &post.dofDistance, 1);
+    blurShader->UpdateConstantFloat("dofFade", &post.dofFade, 1);
     blurShader->UpdateConstantFloat("weightMain", &post.weights[0], 1);
     blurShader->UpdateConstantFloat("weightOffset", &post.weights[1], 4);
 

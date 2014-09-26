@@ -414,6 +414,8 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SetActive();
     blurShader->SendUniformFloat("blurStep", &post.blurStep, 1);
     blurShader->SendUniformFloat("blurAmount", &post.blurAmount, 1);
+    blurShader->SendUniformFloat("dofDistance", &post.dofDistance, 1);
+    blurShader->SendUniformFloat("dofFade", &post.dofFade, 1);
     blurShader->SendUniformFloat("weightMain", &post.weights[0], 1);
     blurShader->SendUniformFloat("weightOffset", &post.weights[1], 4);
 
