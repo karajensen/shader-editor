@@ -12,9 +12,9 @@
 #include "cache.h"
 #include <windowsx.h>
 
-#define SELECTED_ENGINE DIRECTX
-//#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::FINAL_MAP
+//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE OPENGL
+#define SELECTED_MAP PostProcessing::DOF_MAP
 
 
 namespace
@@ -288,6 +288,9 @@ void Application::UpdatePost()
     m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
     m_postProcessing.blurStep = m_cache->BlurStep.Get();
     m_postProcessing.glowAmount = m_cache->GlowAmount.Get();
+    m_postProcessing.fogColour = m_cache->FogColour.Get();
+    m_postProcessing.fogDistance = m_cache->FogDistance.Get();
+    m_postProcessing.fogFade = m_cache->FogFade.Get();
     m_postProcessing.depthFar = m_cache->DepthFar.Get();
     m_postProcessing.depthNear = m_cache->DepthNear.Get();
     m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
@@ -377,6 +380,9 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
     m_cache->BlurStep.SetUpdated(m_postProcessing.blurStep);
     m_cache->GlowAmount.SetUpdated(m_postProcessing.glowAmount);
+    m_cache->FogFade.SetUpdated(m_postProcessing.fogFade);
+    m_cache->FogDistance.SetUpdated(m_postProcessing.fogDistance);
+    m_cache->FogColour.SetUpdated(m_postProcessing.fogColour);
     m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
     m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);
 }

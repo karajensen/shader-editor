@@ -111,6 +111,24 @@ public:
     void SetGlowAmount(float value);
 
     /**
+    * Sets the distance the fog starts
+    * @param value The distance the fog starts
+    */
+    void SetFogDistance(float value);
+
+    /**
+    * Sets how much the fog will fade to the scene
+    * @param value How much the fog will fade to the scene
+    */
+    void SetFogFade(float value);
+
+    /**
+    * Sets the colour of the fog
+    * @param rgb The red, green and blue components of the colour
+    */
+    void SetFogColour(float r, float g, float b);
+
+    /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
@@ -289,6 +307,7 @@ private:
 
     TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
+    TweakableBoxedValue m_fog;           ///< Tweakable values for fog
 
     Ui::Tweaker m_ui;               ///< User interface object
     SignalCallbacks m_callbacks;    ///< Callbacks to update the cache

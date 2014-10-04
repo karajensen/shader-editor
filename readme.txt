@@ -1,17 +1,16 @@
 
+- Fix DOF glsl banding
 - Profile DirectX to find why fps so low
-- Post effects Depth of field
 
-- Post effect Fog
-- Colour correction: levels, contrast, brightness
+- Tweakable_button with changing stylesheet for saving
+- Move post to xml with save option
+- Contrast and saturation
 - Water shader
 - Particles
 
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
-
-OPTIMIZATIONS:
-- Optimise shaders
+- Optimise shaders and get code ready for folios
 
 =================================================================
 SHADER EDITOR

@@ -13,6 +13,15 @@ namespace
         GREEN,
         BLUE
     };
+
+    enum Fog
+    {
+        FOG_DISTANCE,
+        FOG_FADE,
+        FOG_RED,
+        FOG_GREEN,
+        FOG_BLUE
+    };
 }
 
 Tweaker::Tweaker(QWidget* parent) :
@@ -101,20 +110,24 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
         m_ui.meshGlow_dial, m_callbacks.SetMeshGlow);
 
     std::vector<ComboEntry> minimumColour;
-    minimumColour.push_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
-    minimumColour.push_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
-    minimumColour.push_back(ComboEntry("Min Blue", 0.01, m_callbacks.SetMinBlue));
-
-    m_minColour.Initialise(m_ui.minRange_box,
-        m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
+    minimumColour.emplace_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
+    minimumColour.emplace_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
+    minimumColour.emplace_back(ComboEntry("Min Blue", 0.01, m_callbacks.SetMinBlue));
+    m_minColour.Initialise(m_ui.minRange_box, m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
 
     std::vector<ComboEntry> maximumColour;
-    maximumColour.push_back(ComboEntry("Max Red", 0.01, m_callbacks.SetMaxRed));
-    maximumColour.push_back(ComboEntry("Max Green", 0.01, m_callbacks.SetMaxGreen));
-    maximumColour.push_back(ComboEntry("Max Blue", 0.01, m_callbacks.SetMaxBlue));
+    maximumColour.emplace_back(ComboEntry("Max Red", 0.01, m_callbacks.SetMaxRed));
+    maximumColour.emplace_back(ComboEntry("Max Green", 0.01, m_callbacks.SetMaxGreen));
+    maximumColour.emplace_back(ComboEntry("Max Blue", 0.01, m_callbacks.SetMaxBlue));
+    m_maxColour.Initialise(m_ui.maxRange_box, m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
 
-    m_maxColour.Initialise(m_ui.maxRange_box,
-        m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
+    std::vector<ComboEntry> fog;
+    fog.emplace_back(ComboEntry("Fog Start", 0.01, m_callbacks.SetFogDistance));
+    fog.emplace_back(ComboEntry("Fog Fade", 0.01, m_callbacks.SetFogFade));
+    fog.emplace_back(ComboEntry("Fog Red", 0.01, m_callbacks.SetFogColourR));
+    fog.emplace_back(ComboEntry("Fog Green", 0.01, m_callbacks.SetFogColourG));
+    fog.emplace_back(ComboEntry("Fog Blue", 0.01, m_callbacks.SetFogColourB));
+    m_fog.Initialise(m_ui.fog_box, m_ui.fog_value, m_ui.fog_dial, fog);
 }
 
 std::string Tweaker::GetSelectedPage() const
@@ -329,3 +342,21 @@ void Tweaker::SetMaximumColour(float r, float g, float b)
     m_maxColour.SetValue(GREEN, g);
     m_maxColour.SetValue(BLUE, b);
 }
+
+void Tweaker::SetFogColour(float r, float g, float b)
+{
+    m_fog.SetValue(FOG_RED, r);
+    m_fog.SetValue(FOG_GREEN, g);
+    m_fog.SetValue(FOG_BLUE, b);
+}
+
+void Tweaker::SetFogDistance(float value)
+{
+    m_fog.SetValue(FOG_DISTANCE, value);
+}
+
+void Tweaker::SetFogFade(float value)
+{
+    m_fog.SetValue(FOG_FADE, value);
+}
+

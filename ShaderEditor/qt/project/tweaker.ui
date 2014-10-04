@@ -1045,6 +1045,171 @@ border-radius: 4px;</string>
          </widget>
         </item>
         <item>
+         <widget class="QFrame" name="saveMeshes">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QPushButton" name="saveMeshes_btn">
+           <property name="geometry">
+            <rect>
+             <x>5</x>
+             <y>4</y>
+             <width>216</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(255, 255, 255);
+border-left-color: rgb(255, 255, 255);
+border-bottom-color: rgb(180, 180, 180);
+border-right-color: rgb(180, 180, 180);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="text">
+            <string>Save Meshes to File</string>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="saveLights">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QPushButton" name="saveLights_btn">
+           <property name="geometry">
+            <rect>
+             <x>5</x>
+             <y>4</y>
+             <width>216</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(255, 255, 255);
+border-left-color: rgb(255, 255, 255);
+border-bottom-color: rgb(180, 180, 180);
+border-right-color: rgb(180, 180, 180);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="text">
+            <string>Save Lights to File</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="savePost">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QPushButton" name="savePost_btn">
+           <property name="geometry">
+            <rect>
+             <x>5</x>
+             <y>4</y>
+             <width>216</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(255, 255, 255);
+border-left-color: rgb(255, 255, 255);
+border-bottom-color: rgb(180, 180, 180);
+border-right-color: rgb(180, 180, 180);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="text">
+            <string>Save Post Processing to File</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
          <spacer name="_sceneSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -4408,125 +4573,6 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="particleCount">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QLabel" name="particleCount_lbl">
-           <property name="geometry">
-            <rect>
-             <x>3</x>
-             <y>2</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Count</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="particleCount_text">
-           <property name="geometry">
-            <rect>
-             <x>106</x>
-             <y>5</y>
-             <width>115</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>115</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>115</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-</string>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-           <property name="margin">
-            <number>3</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
          <widget class="QFrame" name="particleSize">
           <property name="minimumSize">
            <size>
@@ -4691,7 +4737,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="particleSpeed">
+         <widget class="QFrame" name="particleAmount">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -4717,7 +4763,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QLabel" name="particleSpeed_lbl">
+          <widget class="QLabel" name="particleAmount_lbl">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -4754,13 +4800,13 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>Speed</string>
+            <string>Amount</string>
            </property>
            <property name="margin">
             <number>1</number>
            </property>
           </widget>
-          <widget class="QDoubleSpinBox" name="particleSpeed_value">
+          <widget class="QDoubleSpinBox" name="particleAmount_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -4815,7 +4861,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="particleSpeed_dial">
+          <widget class="QDial" name="particleAmount_dial">
            <property name="geometry">
             <rect>
              <x>192</x>
@@ -4850,6 +4896,173 @@ border-width: 2px;</string>
            </property>
            <property name="maximum">
             <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="emitterLocation">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QDoubleSpinBox" name="emitterLocation_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="emitterLocation_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="emitterLocation_box">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>6</y>
+             <width>95</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>95</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>90</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
            </property>
           </widget>
          </widget>
@@ -5022,7 +5235,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="particleDirection">
+         <widget class="QFrame" name="particleMovement">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -5048,7 +5261,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QDoubleSpinBox" name="particleDirection_value">
+          <widget class="QDoubleSpinBox" name="particleMovement_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -5103,7 +5316,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="particleDirection_dial">
+          <widget class="QDial" name="particleMovement_dial">
            <property name="geometry">
             <rect>
              <x>192</x>
@@ -5140,7 +5353,7 @@ border-width: 2px;</string>
             <number>10000</number>
            </property>
           </widget>
-          <widget class="QComboBox" name="particleDirection_box">
+          <widget class="QComboBox" name="particleMovement_box">
            <property name="geometry">
             <rect>
              <x>3</x>
@@ -5231,7 +5444,7 @@ border-width: 2px;</string>
          <number>4</number>
         </property>
         <item>
-         <widget class="QFrame" name="minRange">
+         <widget class="QFrame" name="depthNear">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -5257,341 +5470,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QDoubleSpinBox" name="minRange_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="minRange_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="minRange_box">
-           <property name="geometry">
-            <rect>
-             <x>3</x>
-             <y>6</y>
-             <width>95</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>95</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>90</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="maxRange">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QDoubleSpinBox" name="maxRange_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="maxRange_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-          <widget class="QComboBox" name="maxRange_box">
-           <property name="geometry">
-            <rect>
-             <x>3</x>
-             <y>6</y>
-             <width>95</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>95</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>22</height>
-            </size>
-           </property>
-           <property name="baseSize">
-            <size>
-             <width>90</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="contrast">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QLabel" name="contrast_lbl">
+          <widget class="QLabel" name="depthNear_lbl">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -5628,13 +5507,13 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>Contrast</string>
+            <string>Depth Near</string>
            </property>
            <property name="margin">
             <number>1</number>
            </property>
           </widget>
-          <widget class="QDoubleSpinBox" name="contrast_value">
+          <widget class="QDoubleSpinBox" name="depthNear_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -5689,7 +5568,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="contrast_dial">
+          <widget class="QDial" name="depthNear_dial">
            <property name="geometry">
             <rect>
              <x>192</x>
@@ -5729,7 +5608,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="brightness">
+         <widget class="QFrame" name="depthFar">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -5755,7 +5634,7 @@ border-radius: 4px;</string>
           <property name="lineWidth">
            <number>0</number>
           </property>
-          <widget class="QLabel" name="brightness_lbl">
+          <widget class="QLabel" name="depthFar_lbl">
            <property name="geometry">
             <rect>
              <x>2</x>
@@ -5792,13 +5671,13 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>Brightness</string>
+            <string>Depth Far</string>
            </property>
            <property name="margin">
             <number>1</number>
            </property>
           </widget>
-          <widget class="QDoubleSpinBox" name="brightness_value">
+          <widget class="QDoubleSpinBox" name="depthFar_value">
            <property name="geometry">
             <rect>
              <x>104</x>
@@ -5853,7 +5732,7 @@ border-width: 2px;</string>
             <double>0.050000000000000</double>
            </property>
           </widget>
-          <widget class="QDial" name="brightness_dial">
+          <widget class="QDial" name="depthFar_dial">
            <property name="geometry">
             <rect>
              <x>192</x>
@@ -6385,334 +6264,6 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="depthNear">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QLabel" name="depthNear_lbl">
-           <property name="geometry">
-            <rect>
-             <x>2</x>
-             <y>2</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="text">
-            <string>Depth Near</string>
-           </property>
-           <property name="margin">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="depthNear_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="depthNear_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="depthFar">
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <widget class="QLabel" name="depthFar_lbl">
-           <property name="geometry">
-            <rect>
-             <x>2</x>
-             <y>2</y>
-             <width>100</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="text">
-            <string>Depth Far</string>
-           </property>
-           <property name="margin">
-            <number>1</number>
-           </property>
-          </widget>
-          <widget class="QDoubleSpinBox" name="depthFar_value">
-           <property name="geometry">
-            <rect>
-             <x>104</x>
-             <y>5</y>
-             <width>86</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>86</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-9999.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>9999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="depthFar_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
          <widget class="QFrame" name="dofDistance">
           <property name="minimumSize">
            <size>
@@ -6776,7 +6327,7 @@ border-radius: 4px;</string>
             <string notr="true">border-width: 0px;</string>
            </property>
            <property name="text">
-            <string>DOF Distance</string>
+            <string>DOF Start</string>
            </property>
            <property name="margin">
             <number>1</number>
@@ -7036,6 +6587,1002 @@ border-width: 2px;</string>
            </property>
            <property name="maximum">
             <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="contrast">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="contrast_lbl">
+           <property name="geometry">
+            <rect>
+             <x>2</x>
+             <y>2</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="text">
+            <string>Contrast</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="contrast_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="contrast_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="saturation">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="saturation_lbl">
+           <property name="geometry">
+            <rect>
+             <x>2</x>
+             <y>2</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="text">
+            <string>Saturation</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="saturation_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="saturation_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="maxRange">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QDoubleSpinBox" name="maxRange_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="maxRange_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="maxRange_box">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>6</y>
+             <width>95</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>95</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>90</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="minRange">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QDoubleSpinBox" name="minRange_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="minRange_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="minRange_box">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>6</y>
+             <width>95</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>95</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>90</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="fog">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QDoubleSpinBox" name="fog_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="fog_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="fog_box">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>6</y>
+             <width>95</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>95</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>90</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="water">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QDoubleSpinBox" name="water_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="water_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="water_box">
+           <property name="geometry">
+            <rect>
+             <x>3</x>
+             <y>6</y>
+             <width>95</width>
+             <height>22</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>95</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>90</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
            </property>
           </widget>
          </widget>

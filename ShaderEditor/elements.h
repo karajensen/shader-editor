@@ -86,6 +86,7 @@ struct PostProcessing
         BLUR_SCENE_MAP,
         BLUR_GLOW_MAP,
         DOF_MAP,
+        FOG_MAP,
         MAX_MAPS
     };
 
@@ -99,6 +100,7 @@ struct PostProcessing
         maximumColour.r = 1.0f;
         maximumColour.g = 1.0f;
         maximumColour.b = 1.0f;
+        fogColour.b = 1.0f;
 
         weights[0] = 1.0f;
         weights[1] = 0.9f;
@@ -157,18 +159,23 @@ struct PostProcessing
             return "Blur-Scene Map";
         case DOF_MAP:
             return "DOF Map";
+        case FOG_MAP:
+            return "Fog Map";
         default:
             return "None";
         }
     }
 
-    float dofDistance = 0.92f;            ///< Distance the depth of field starts
+    float dofDistance = 0.95f;            ///< Distance the depth of field starts
     float dofFade = 0.04f;                ///< How quick depth of field fades to the scene
     float glowAmount = 100.0f;            ///< The overall glow multiplier
     float blurStep = 2.0f;                ///< Sampling step for blurring
     float blurAmount = 1.0f;              ///< Amount to blur the scene by
     float depthNear = 30.0f;              ///< Value where depth colour is min
     float depthFar = 400.0f;              ///< Value where depth colour is max
+    float fogDistance = 0.27f;            ///< Distance the fog starts
+    float fogFade = 0.4f;                 ///< How quick fog fades to the scene
+    Colour fogColour;                     ///< Colour for the fog
     Colour minimumColour;                 ///< Colour ranges for RGB
     Colour maximumColour;                 ///< Colour ranges for RGB
     std::array<float, MAX_MAPS> masks;    ///< Visibility of post maps

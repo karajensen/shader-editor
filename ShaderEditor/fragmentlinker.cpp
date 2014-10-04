@@ -70,11 +70,12 @@ bool FragmentLinker::GenerateFromFile(const std::string& name,
     while(!baseFile.eof())
     {
         const std::string line = GetNextLine(baseFile);
-        if(!line.empty() || !previousLine.empty())
+        const std::string trimmedLine = boost::trim_copy(line);
+        if(!trimmedLine.empty() || !previousLine.empty())
         {
             generatedFile << line << std::endl;
         }
-        previousLine = line;
+        previousLine = trimmedLine;
 
         if(baseFile.fail() || baseFile.bad())
         {

@@ -23,24 +23,29 @@ void Gui::Run(int argc, char *argv[])
     QApplication app(argc, argv);
 
     SignalCallbacks callbacks;
-    callbacks.SetLightPositionX =   [&](float x){ m_cache->LightPosition.SetX(x); };
-    callbacks.SetLightPositionY =   [&](float y){ m_cache->LightPosition.SetY(y); };
-    callbacks.SetLightPositionZ =   [&](float z){ m_cache->LightPosition.SetZ(z); };
-    callbacks.SetLightAttX =        [&](float x){ m_cache->LightAttenuation.SetX(x); };
-    callbacks.SetLightAttY =        [&](float y){ m_cache->LightAttenuation.SetY(y); };
-    callbacks.SetLightAttZ =        [&](float z){ m_cache->LightAttenuation.SetZ(z); };
-    callbacks.SetLightDiffuseR =    [&](float r){ m_cache->LightDiffuse.SetR(r); };
-    callbacks.SetLightDiffuseG =    [&](float g){ m_cache->LightDiffuse.SetG(g); };
-    callbacks.SetLightDiffuseB =    [&](float b){ m_cache->LightDiffuse.SetB(b); };
-    callbacks.SetLightSpecularR =   [&](float r){ m_cache->LightSpecular.SetR(r); };
-    callbacks.SetLightSpecularG =   [&](float g){ m_cache->LightSpecular.SetG(g); };
-    callbacks.SetLightSpecularB =   [&](float b){ m_cache->LightSpecular.SetB(b); };    
+    callbacks.SetLightPositionX =   [&](float value){ m_cache->LightPosition.SetX(value); };
+    callbacks.SetLightPositionY =   [&](float value){ m_cache->LightPosition.SetY(value); };
+    callbacks.SetLightPositionZ =   [&](float value){ m_cache->LightPosition.SetZ(value); };
+    callbacks.SetLightAttX =        [&](float value){ m_cache->LightAttenuation.SetX(value); };
+    callbacks.SetLightAttY =        [&](float value){ m_cache->LightAttenuation.SetY(value); };
+    callbacks.SetLightAttZ =        [&](float value){ m_cache->LightAttenuation.SetZ(value); };
+    callbacks.SetLightDiffuseR =    [&](float value){ m_cache->LightDiffuse.SetR(value); };
+    callbacks.SetLightDiffuseG =    [&](float value){ m_cache->LightDiffuse.SetG(value); };
+    callbacks.SetLightDiffuseB =    [&](float value){ m_cache->LightDiffuse.SetB(value); };
+    callbacks.SetLightSpecularR =   [&](float value){ m_cache->LightSpecular.SetR(value); };
+    callbacks.SetLightSpecularG =   [&](float value){ m_cache->LightSpecular.SetG(value); };
+    callbacks.SetLightSpecularB =   [&](float value){ m_cache->LightSpecular.SetB(value); };    
     callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
     callbacks.SetDOFDistance =      [&](float value){ m_cache->DOFDistance.Set(value); };
     callbacks.SetDOFFade =          [&](float value){ m_cache->DOFFade.Set(value); };
     callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
     callbacks.SetBlurStep =         [&](float value){ m_cache->BlurStep.Set(value); };
     callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
+    callbacks.SetFogDistance =      [&](float value){ m_cache->FogDistance.Set(value); };
+    callbacks.SetFogFade =          [&](float value){ m_cache->FogFade.Set(value); };
+    callbacks.SetFogColourR =       [&](float value){ m_cache->FogColour.SetR(value); };
+    callbacks.SetFogColourG =       [&](float value){ m_cache->FogColour.SetG(value); };
+    callbacks.SetFogColourB =       [&](float value){ m_cache->FogColour.SetB(value); };
     callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
     callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
     callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
@@ -172,6 +177,22 @@ void Gui::UpdatePost(Tweaker& tweaker)
     if (m_cache->GlowAmount.RequiresUpdate())
     {
         tweaker.SetGlowAmount(m_cache->GlowAmount.GetUpdated());
+    }
+
+    if (m_cache->FogDistance.RequiresUpdate())
+    {
+        tweaker.SetFogDistance(m_cache->FogDistance.GetUpdated());
+    }
+
+    if (m_cache->FogFade.RequiresUpdate())
+    {
+        tweaker.SetFogFade(m_cache->FogFade.GetUpdated());
+    }
+
+    if (m_cache->FogColour.RequiresUpdate())
+    {
+        const Colour colour = m_cache->FogColour.GetUpdated();
+        tweaker.SetFogColour(colour.r, colour.g, colour.b);
     }
 
     if (m_cache->DepthFar.RequiresUpdate())

@@ -19,11 +19,15 @@ uniform float glowMask;
 uniform float blurGlowMask;
 uniform float blurSceneMask;
 uniform float depthOfFieldMask;
+uniform float fogMask;
 
 uniform float dofDistance;
 uniform float dofFade;
 uniform float glowAmount;
 uniform float fadeAmount;
+uniform float fogDistance;
+uniform float fogFade;
+uniform vec3 fogColor;
 uniform vec3 minimumColor;
 uniform vec3 maximumColor;
 
@@ -42,27 +46,30 @@ void main(void)
     ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
     vec4 scene = GetMultisampledColour(SceneSampler, uvs);
     vec4 normal = GetMultisampledColour(NormalSampler, uvs);
-    vec4 blur = GetMultisampledColour(BlurSampler, uvs);
+    vec4 blur = texelFetch(BlurSampler, uvs, 0);
     vec3 postScene = scene.rgb;
     float depth = normal.a;
 
-    // Adding Depth of Field
-    vec3 depthOfField = vec3(0,0,0);
-    if (depth >= dofEnd)
-    {
-        float dofEnd = dofDistance - dofFade;
-        float weight = saturate((depth-dofEnd)*(1.0/(dofDistance-dofEnd)));
-        depthOfField = blur.rgb * weight;
-        postScene *= (1.0 - weight);
-        postScene += depthOfField;
-    }
+    // Depth of Field
+    float dofEnd = dofDistance - dofFade;
+    float dofWeight = min(max(((depth-dofEnd)*(1.0/(dofDistance-dofEnd))), 0.0), 1.0);
+    vec3 depthOfField = blur.rgb * dofWeight;
+    postScene *= (1.0 - dofWeight);
+    postScene += depthOfField;
 
-    // Adding Glow
+    // Glow
     vec3 postGlow = blur.a * glowAmount * blur.rgb * depth;
     postScene += postGlow;
 
+    // Fog
+    float fogEnd = fogDistance + fogFade;
+    float fogWeight = min(max(((depth-fogEnd)*(1.0/(fogDistance-fogEnd))), 0.0), 1.0);
+    vec3 fog = fogColor * fogWeight;
+    postScene *= (1.0 - fogWeight);
+    postScene += fog;
+
     // Colour Correction
-    min(max(postScene, 0.0), 1.0);
+    postScene = min(max(postScene, 0.0), 1.0);
     postScene *= maximumColor - minimumColor;
     postScene += minimumColor;
 
@@ -75,5 +82,6 @@ void main(void)
     out_Color.rgb += postGlow * blurGlowMask;
     out_Color.rgb += blur.rgb * blurSceneMask;
     out_Color.rgb += depthOfField * depthOfFieldMask;
+    out_Color.rgb += fog * fogMask;
     out_Color.rgb *= fadeAmount;
 }

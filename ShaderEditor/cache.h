@@ -243,7 +243,9 @@ struct Cache
         BlurAmount(1.0f),
         GlowAmount(1.0f),
         DOFDistance(1.0f),
-        DOFFade(0.0f)
+        DOFFade(0.0f),
+        FogDistance(0.0f),
+        FogFade(0.0f)
     {
     }
 
@@ -279,6 +281,9 @@ struct Cache
     Lockable<float> BlurAmount;         ///< The amount to blur the scene by
     Lockable<float> BlurStep;           ///< The sample step of the blur
     Lockable<float> GlowAmount;         ///< The amount to glow the scene by
+    Lockable<float> FogDistance;        ///< Distance the fog starts
+    Lockable<float> FogFade;            ///< How quick the fog fades to the scene
+    LockableColour FogColour;           ///< Colour of the fog
     LockableColour MinimumColour;       ///< Colour ranges for RGB 
     LockableColour MaximumColour;       ///< Colour ranges for RGB 
     Lockable<float> DepthNear;          ///< The near value for the depth

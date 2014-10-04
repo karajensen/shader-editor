@@ -372,8 +372,6 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 
     blurShader->UpdateConstantFloat("blurStep", &post.blurStep, 1);
     blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
-    blurShader->UpdateConstantFloat("dofDistance", &post.dofDistance, 1);
-    blurShader->UpdateConstantFloat("dofFade", &post.dofFade, 1);
     blurShader->UpdateConstantFloat("weightMain", &post.weights[0], 1);
     blurShader->UpdateConstantFloat("weightOffset", &post.weights[1], 4);
 
@@ -414,6 +412,11 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("glowAmount", &post.glowAmount, 1);
+    postShader->UpdateConstantFloat("dofDistance", &post.dofDistance, 1);
+    postShader->UpdateConstantFloat("dofFade", &post.dofFade, 1);
+    postShader->UpdateConstantFloat("fogDistance", &post.fogDistance, 1);
+    postShader->UpdateConstantFloat("fogFade", &post.fogFade, 1);
+    postShader->UpdateConstantFloat("fogColor", &post.fogColour.r, 3);
     postShader->UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
     postShader->UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
 
@@ -425,6 +428,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
     postShader->UpdateConstantFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.masks[PostProcessing::DOF_MAP], 1);
+    postShader->UpdateConstantFloat("fogMask", &post.masks[PostProcessing::FOG_MAP], 1);
 
     postShader->SendConstants(m_data->context);
 

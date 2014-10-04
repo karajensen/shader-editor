@@ -414,8 +414,6 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SetActive();
     blurShader->SendUniformFloat("blurStep", &post.blurStep, 1);
     blurShader->SendUniformFloat("blurAmount", &post.blurAmount, 1);
-    blurShader->SendUniformFloat("dofDistance", &post.dofDistance, 1);
-    blurShader->SendUniformFloat("dofFade", &post.dofFade, 1);
     blurShader->SendUniformFloat("weightMain", &post.weights[0], 1);
     blurShader->SendUniformFloat("weightOffset", &post.weights[1], 4);
 
@@ -454,6 +452,11 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->SendUniformFloat("glowAmount", &post.glowAmount, 1);
+    postShader->SendUniformFloat("dofDistance", &post.dofDistance, 1);
+    postShader->SendUniformFloat("dofFade", &post.dofFade, 1);
+    postShader->SendUniformFloat("fogDistance", &post.fogDistance, 1);
+    postShader->SendUniformFloat("fogFade", &post.fogFade, 1);
+    postShader->SendUniformFloat("fogColor", &post.fogColour.r, 3);
     postShader->SendUniformFloat("minimumColor", &post.minimumColour.r, 3);
     postShader->SendUniformFloat("maximumColor", &post.maximumColour.r, 3);
 
@@ -465,6 +468,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
     postShader->SendUniformFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
     postShader->SendUniformFloat("depthOfFieldMask", &post.masks[PostProcessing::DOF_MAP], 1);
+    postShader->SendUniformFloat("fogMask", &post.masks[PostProcessing::FOG_MAP], 1);
 
     postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
     postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), true);
