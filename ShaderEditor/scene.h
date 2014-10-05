@@ -105,14 +105,19 @@ public:
     int GetLightCount() const;
 
     /**
-    * Outputs the meshes to an xml file
+    * Outputs the meshes and emitters to an xml file
     */
     void SaveMeshesToFile();
 
     /**
-    * Outputs the mlightseshes to an xml file
+    * Outputs the lights to an xml file
     */
     void SaveLightsToFile();
+
+    /**
+    * Outputs post processing to an xml file
+    */
+    void SavePostProcessingtoFile();
 
 private:
 

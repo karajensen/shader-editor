@@ -52,4 +52,7 @@ struct SignalCallbacks
     std::function<void(int)> SetSelectedMesh;       ///< Sets the selected mesh to display
     std::function<void(int)> SetSelectedShader;     ///< Sets the selected shader to edit
     std::function<void(int)> SetPostMap;            ///< Sets the selected post map to display
+    std::function<void(void)> SaveLights;           ///< Sends a request to save the lights to xml
+    std::function<void(void)> SaveMeshes;           ///< Sends a request to save the meshes to xml
+    std::function<void(void)> SavePost;             ///< Sends a request to save post processing to xml
 };

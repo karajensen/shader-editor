@@ -15,6 +15,7 @@ files = ["moc_editor.cpp",
          "moc_tweaker.cpp", 
 		 "moc_tweakable_box.cpp", 
 		 "moc_tweakable_value.cpp",
+		 "moc_tweakable_button.cpp",
 		 "moc_tweakable_boxed_value.cpp",
 		 "ui_editor.h", 
 		 "ui_tweaker.h"]

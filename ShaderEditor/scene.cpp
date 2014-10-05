@@ -494,7 +494,8 @@ void Scene::SaveMeshesToFile()
         {
             if(mesh.textureIDs[i] != NO_INDEX)
             {
-                entry.add(Texture::GetTypeDescription(i), m_textures[i].name);
+                entry.add(Texture::GetTypeDescription(i), 
+                    m_textures[mesh.textureIDs[i]].name);
             }
         };
 	
@@ -542,4 +543,10 @@ void Scene::SaveLightsToFile()
     filesystem::path filePath(ASSETS_PATH + "Lights_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
     property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+void Scene::SavePostProcessingtoFile()
+{
+
+
 }

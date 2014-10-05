@@ -44,7 +44,7 @@ bool GlRenderTarget::Initialise()
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture);
 
         glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 
-            MULTISAMPLING_COUNT, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
+            MULTISAMPLING_COUNT, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, 
             GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture, 0);

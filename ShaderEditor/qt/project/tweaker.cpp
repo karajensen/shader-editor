@@ -22,6 +22,35 @@ namespace
         FOG_GREEN,
         FOG_BLUE
     };
+
+    enum Particle
+    {
+        PARTICLE_SPEED,
+        PARTICLE_DIRECTION_X,
+        PARTICLE_DIRECTION_Y,
+        PARTICLE_DIRECTION_Z,
+        PARTICLE_RANDOM_X,
+        PARTICLE_RANDOM_Y,
+        PARTICLE_RANDOM_Z
+    };
+
+    enum Emitter
+    {
+        EMITTER_X,
+        EMITTER_Y,
+        EMITTER_Z,
+        EMITTER_AREA_U,
+        EMITTER_AREA_V
+    };
+
+    enum Water
+    {
+        WATER_SPEED,
+        WATER_HEIGHT,
+        WATER_DIRECTION_X,
+        WATER_DIRECTION_Y,
+        WATER_DIRECTION_Z
+    };
 }
 
 Tweaker::Tweaker(QWidget* parent) :
@@ -36,6 +65,10 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 {
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
+
+    m_saveLights.Initialise(m_ui.saveLights_btn, m_callbacks.SaveLights);
+    m_saveMeshes.Initialise(m_ui.saveMeshes_btn, m_callbacks.SaveMeshes);
+    m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
         m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);

@@ -225,6 +225,9 @@ struct Cache
     */
     Cache() :
         ApplicationRunning(true),
+        SaveLights(false),
+        SaveMeshes(false),
+        SavePost(false),
         PageSelected(NO_PAGE),
         DeltaTime(0.0f),
         FramesPerSec(0),
@@ -251,6 +254,10 @@ struct Cache
 
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running
     Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui
+
+    Lockable<bool> SaveLights;          ///< Request to save the lights to xml
+    Lockable<bool> SaveMeshes;          ///< Request to save the meshes to xml
+    Lockable<bool> SavePost;            ///< Request to save post processing to xml
 
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
     LockableString ShaderText;          ///< Text for the selected shader

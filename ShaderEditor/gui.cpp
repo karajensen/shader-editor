@@ -63,6 +63,9 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
     callbacks.SetSelectedShader =   [&](int index){ m_cache->ShaderSelected.Set(index); };
     callbacks.SetPostMap =          [&](int index){ m_cache->PostMapSelected.Set(index); };
+    callbacks.SaveLights =          [&](){ m_cache->SaveLights.Set(true); };
+    callbacks.SaveMeshes =          [&](){ m_cache->SaveMeshes.Set(true); };
+    callbacks.SavePost =            [&](){ m_cache->SavePost.Set(true); };
     callbacks.CompileShader =       [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);

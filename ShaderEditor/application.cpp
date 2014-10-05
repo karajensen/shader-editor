@@ -85,14 +85,6 @@ void Application::HandleKeyPress(const WPARAM& keypress)
         SwitchRenderEngine(index);
         m_engines[index]->SetFade(1.0f);
     }
-    else if(keypress == VK_F3)
-    {
-        m_scene->SaveLightsToFile();
-    }
-    else if(keypress == VK_F4)
-    {
-        m_scene->SaveMeshesToFile();
-    }
 }
 
 void Application::HandleInputEvents(WPARAM& keydown, const MSG& msg)
@@ -249,6 +241,24 @@ void Application::UpdateScene()
         m_selectedMap = selectedMap;
         m_postProcessing.SetPostMap(
             static_cast<PostProcessing::Map>(selectedMap));
+    }
+
+    if (m_cache->SaveLights.Get())
+    {
+        m_scene->SaveLightsToFile();
+        m_cache->SaveLights.Set(false);
+    }
+
+    if (m_cache->SaveMeshes.Get())
+    {
+        m_scene->SaveMeshesToFile();
+        m_cache->SaveMeshes.Set(false);
+    }
+
+    if (m_cache->SavePost.Get())
+    {
+        m_scene->SavePostProcessingtoFile();
+        m_cache->SavePost.Set(false);
     }
 
     m_cache->FramesPerSec.Set(m_timer->GetFPS());

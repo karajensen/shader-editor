@@ -8,6 +8,7 @@
 #include "signals.h"
 #include "tweakable_value.h"
 #include "tweakable_box.h"
+#include "tweakable_button.h"
 #include "tweakable_boxed_value.h"
 
 #ifdef _VS
@@ -299,6 +300,10 @@ private:
     TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
     TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
     TweakableValue m_meshGlow;           ///< Tweakable glow intensity of the mesh
+    
+    TweakableButton m_saveMeshes;        ///< Button to save all meshes to xml
+    TweakableButton m_saveLights;        ///< Button to save all lights to xml
+    TweakableButton m_savePost;          ///< Button to save all post processing to xml
 
     TweakableBox m_postMap;              ///< Combo box for selecting the post map
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
