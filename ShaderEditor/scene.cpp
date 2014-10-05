@@ -21,6 +21,11 @@ namespace
 
 bool Scene::Initialise()
 {
+    if (!InitialisePost())
+    {
+        return false;
+    }
+
     if (!InitialiseLighting())
     {
         return false;
@@ -42,6 +47,40 @@ bool Scene::Initialise()
     {
         return m1.shaderIndex < m2.shaderIndex;
     });
+
+    return true;
+}
+
+bool Scene::InitialisePost()
+{
+    boost::property_tree::ptree post;
+    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Post.xml", 
+        post, boost::property_tree::xml_parser::trim_whitespace);
+    boost::property_tree::ptree& tree = post.get_child("PostProcessing");
+
+    auto getValue = [&](const std::string& name)
+    {
+        return boost::lexical_cast<float>(tree.get_child(name).data());
+    };
+
+    m_postProcessing.blurAmount = getValue("BlurAmount");
+    m_postProcessing.blurStep = getValue("BlurStep");
+    m_postProcessing.depthFar = getValue("DepthFar");
+    m_postProcessing.depthNear = getValue("DepthNear");
+    m_postProcessing.dofDistance = getValue("DOFDistance");
+    m_postProcessing.dofFade = getValue("DOFFade");
+    m_postProcessing.fogColour.r = getValue("FogColourR");
+    m_postProcessing.fogColour.g = getValue("FogColourG");
+    m_postProcessing.fogColour.b = getValue("FogColourB");
+    m_postProcessing.fogDistance = getValue("FogDistance");
+    m_postProcessing.fogFade = getValue("FogFade");
+    m_postProcessing.glowAmount = getValue("GlowAmount");
+    m_postProcessing.maximumColour.r = getValue("MaximumColourR");
+    m_postProcessing.maximumColour.g = getValue("MaximumColourG");
+    m_postProcessing.maximumColour.b = getValue("MaximumColourB");
+    m_postProcessing.minimumColour.r = getValue("MinimumColourR");
+    m_postProcessing.minimumColour.g = getValue("MinimumColourG");
+    m_postProcessing.minimumColour.b = getValue("MinimumColourB");
 
     return true;
 }
@@ -407,11 +446,6 @@ std::string Scene::GetTexture(int index)
     return index == NO_INDEX ? "None" : m_textures[index].name;
 }
 
-bool Scene::HasTransparency(int index)
-{
-    return index >= static_cast<int>(m_meshes.size());
-}
-
 Mesh& Scene::GetMesh(int index)
 {
     return m_meshes[index];
@@ -420,6 +454,16 @@ Mesh& Scene::GetMesh(int index)
 Shader& Scene::GetShader(int index)
 {
     return m_shaders[index];
+}
+
+PostProcessing& Scene::GetPost()
+{
+    return m_postProcessing;
+}
+
+void Scene::SetPostMap(int index)
+{
+    m_postProcessing.SetPostMap(static_cast<PostProcessing::Map>(index));
 }
 
 int Scene::GetMeshCount() const
@@ -547,6 +591,30 @@ void Scene::SaveLightsToFile()
 
 void Scene::SavePostProcessingtoFile()
 {
+    using namespace boost;
+    property_tree::ptree root, tree;
 
+    tree.add("BlurAmount", m_postProcessing.blurAmount);
+    tree.add("BlurStep", m_postProcessing.blurStep);
+    tree.add("DepthFar", m_postProcessing.depthFar);
+    tree.add("DepthNear", m_postProcessing.depthNear);
+    tree.add("DOFDistance", m_postProcessing.dofDistance);
+    tree.add("DOFFade", m_postProcessing.dofFade);
+    tree.add("FogColourR", m_postProcessing.fogColour.r);
+    tree.add("FogColourG", m_postProcessing.fogColour.g);
+    tree.add("FogColourB", m_postProcessing.fogColour.b);
+    tree.add("FogDistance", m_postProcessing.fogDistance);
+    tree.add("FogFade", m_postProcessing.fogFade);
+    tree.add("GlowAmount", m_postProcessing.glowAmount);
+    tree.add("MaximumColourR", m_postProcessing.maximumColour.r);
+    tree.add("MaximumColourG", m_postProcessing.maximumColour.g);
+    tree.add("MaximumColourB", m_postProcessing.maximumColour.b);
+    tree.add("MinimumColourR", m_postProcessing.minimumColour.r);
+    tree.add("MinimumColourG", m_postProcessing.minimumColour.g);
+    tree.add("MinimumColourB", m_postProcessing.minimumColour.b);
+    root.add_child("PostProcessing", tree);
 
+    filesystem::path filePath(ASSETS_PATH + "Post_saved.xml");
+    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
+    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
 }

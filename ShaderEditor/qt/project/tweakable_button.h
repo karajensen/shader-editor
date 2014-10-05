@@ -36,11 +36,17 @@ public:
 private slots:
 
     /**
-    * Sends an update for the tweakable value
+    * Called on press of the button
     */
     void OnButtonPress();
 
+    /**
+    * Called on release of the button
+    */
+    void OnButtonRelease();
+
 private:
 
+    QPushButton* m_button; ///< Qt button object
     std::function<void(void)> m_signalCallback; ///< Function to call when button is pressed
 };

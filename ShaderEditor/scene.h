@@ -81,18 +81,22 @@ public:
     Shader& GetShader(int index);
 
     /**
+    * @return the post processing for the final image
+    */
+    PostProcessing& GetPost();
+
+    /**
+    * Sets which post map will currently be rendered
+    * @param index The index for the map to render
+    */
+    void SetPostMap(int index);
+
+    /**
     * Gets the name of the texture
     * @param index The index of the texture
     * @return the name of the texture
     */
     std::string GetTexture(int index);
-
-    /**
-    * Determines whether the mesh has transparency
-    * @param index The unique index of the mesh
-    * @return whether the mesh has transparency
-    */
-    bool HasTransparency(int index);
 
     /**
     * @return the number of meshes available
@@ -127,6 +131,11 @@ private:
     * @return Whether the initialization was successful
     */
     bool InitialiseShaders(FragmentLinker& linker);
+
+    /**
+    * Initialises the post processing for the final image
+    */
+    bool InitialisePost();
 
     /**
     * Initialises the lighting for the scene
@@ -170,6 +179,7 @@ private:
                        const std::string& shadername, 
                        const std::string& meshName);
                             
+    PostProcessing m_postProcessing;  ///< Post processing for the final image
     std::vector<Texture> m_textures;  ///< All textures in the scene
     std::vector<Shader> m_shaders;    ///< All shaders in the scene
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene

@@ -31,7 +31,6 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_selectedMap(SELECTED_MAP),
     m_selectedEngine(SELECTED_ENGINE)
 {
-    m_postProcessing.SetPostMap(SELECTED_MAP);
 }
 
 Application::~Application()
@@ -164,7 +163,7 @@ void Application::TickApplication()
     }
 
     FadeRenderEngine();
-    GetEngine()->Render(m_scene->GetLights(), m_postProcessing);
+    GetEngine()->Render(m_scene->GetLights(), m_scene->GetPost());
 
     UpdateShader();
     switch(m_cache->PageSelected.Get())
@@ -239,8 +238,7 @@ void Application::UpdateScene()
     if (selectedMap != m_selectedMap)
     {
         m_selectedMap = selectedMap;
-        m_postProcessing.SetPostMap(
-            static_cast<PostProcessing::Map>(selectedMap));
+        m_scene->SetPostMap(selectedMap);
     }
 
     if (m_cache->SaveLights.Get())
@@ -293,18 +291,19 @@ void Application::UpdateMesh()
 
 void Application::UpdatePost()
 {
-    m_postProcessing.dofDistance = m_cache->DOFDistance.Get();
-    m_postProcessing.dofFade = m_cache->DOFFade.Get();
-    m_postProcessing.blurAmount = m_cache->BlurAmount.Get();
-    m_postProcessing.blurStep = m_cache->BlurStep.Get();
-    m_postProcessing.glowAmount = m_cache->GlowAmount.Get();
-    m_postProcessing.fogColour = m_cache->FogColour.Get();
-    m_postProcessing.fogDistance = m_cache->FogDistance.Get();
-    m_postProcessing.fogFade = m_cache->FogFade.Get();
-    m_postProcessing.depthFar = m_cache->DepthFar.Get();
-    m_postProcessing.depthNear = m_cache->DepthNear.Get();
-    m_postProcessing.minimumColour = m_cache->MinimumColour.Get();
-    m_postProcessing.maximumColour = m_cache->MaximumColour.Get();
+    PostProcessing& post = m_scene->GetPost();
+    post.dofDistance = m_cache->DOFDistance.Get();
+    post.dofFade = m_cache->DOFFade.Get();
+    post.blurAmount = m_cache->BlurAmount.Get();
+    post.blurStep = m_cache->BlurStep.Get();
+    post.glowAmount = m_cache->GlowAmount.Get();
+    post.fogColour = m_cache->FogColour.Get();
+    post.fogDistance = m_cache->FogDistance.Get();
+    post.fogFade = m_cache->FogFade.Get();
+    post.depthFar = m_cache->DepthFar.Get();
+    post.depthNear = m_cache->DepthNear.Get();
+    post.minimumColour = m_cache->MinimumColour.Get();
+    post.maximumColour = m_cache->MaximumColour.Get();
 }
 
 void Application::UpdateLight()
@@ -337,6 +336,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     m_timer.reset(new Timer());
 
     m_scene.reset(new Scene());
+    m_scene->SetPostMap(m_selectedMap);
     if(!m_scene->Initialise())
     {
         Logger::LogError("Scene: Failed to initialise");
@@ -383,18 +383,19 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->PostMaps.Set(m_scene->GetPostMapNames());
 
-    m_cache->DepthNear.SetUpdated(m_postProcessing.depthNear);
-    m_cache->DepthFar.SetUpdated(m_postProcessing.depthFar);
-    m_cache->DOFDistance.SetUpdated(m_postProcessing.dofDistance);
-    m_cache->DOFFade.SetUpdated(m_postProcessing.dofFade);
-    m_cache->BlurAmount.SetUpdated(m_postProcessing.blurAmount);
-    m_cache->BlurStep.SetUpdated(m_postProcessing.blurStep);
-    m_cache->GlowAmount.SetUpdated(m_postProcessing.glowAmount);
-    m_cache->FogFade.SetUpdated(m_postProcessing.fogFade);
-    m_cache->FogDistance.SetUpdated(m_postProcessing.fogDistance);
-    m_cache->FogColour.SetUpdated(m_postProcessing.fogColour);
-    m_cache->MinimumColour.SetUpdated(m_postProcessing.minimumColour);
-    m_cache->MaximumColour.SetUpdated(m_postProcessing.maximumColour);
+    const PostProcessing& post = m_scene->GetPost();
+    m_cache->DepthNear.SetUpdated(post.depthNear);
+    m_cache->DepthFar.SetUpdated(post.depthFar);
+    m_cache->DOFDistance.SetUpdated(post.dofDistance);
+    m_cache->DOFFade.SetUpdated(post.dofFade);
+    m_cache->BlurAmount.SetUpdated(post.blurAmount);
+    m_cache->BlurStep.SetUpdated(post.blurStep);
+    m_cache->GlowAmount.SetUpdated(post.glowAmount);
+    m_cache->FogFade.SetUpdated(post.fogFade);
+    m_cache->FogDistance.SetUpdated(post.fogDistance);
+    m_cache->FogColour.SetUpdated(post.fogColour);
+    m_cache->MinimumColour.SetUpdated(post.minimumColour);
+    m_cache->MaximumColour.SetUpdated(post.maximumColour);
 }
 
 RenderEngine* Application::GetEngine() const

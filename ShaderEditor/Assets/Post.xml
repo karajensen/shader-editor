@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PostProcessing>
+	<BlurAmount>1</BlurAmount>
+	<BlurStep>2</BlurStep>
+	<DepthFar>400</DepthFar>
+	<DepthNear>30</DepthNear>
+	<DOFDistance>0.95</DOFDistance>
+	<DOFFade>0.04</DOFFade>
+	<FogColourR>0</FogColourR>
+	<FogColourG>0</FogColourG>
+	<FogColourB>1</FogColourB>
+	<FogDistance>0.27</FogDistance>
+	<FogFade>0.4</FogFade>
+	<GlowAmount>100</GlowAmount>
+	<MaximumColourR>1</MaximumColourR>
+	<MaximumColourG>1</MaximumColourG>
+	<MaximumColourB>1</MaximumColourB>
+	<MinimumColourR>0</MinimumColourR>
+	<MinimumColourG>0</MinimumColourG>
+	<MinimumColourB>0</MinimumColourB>
+</PostProcessing>

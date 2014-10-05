@@ -97,11 +97,6 @@ struct PostProcessing
     {
         SetPostMap(SCENE_MAP);
 
-        maximumColour.r = 1.0f;
-        maximumColour.g = 1.0f;
-        maximumColour.b = 1.0f;
-        fogColour.b = 1.0f;
-
         weights[0] = 1.0f;
         weights[1] = 0.9f;
         weights[2] = 0.55f;
@@ -166,20 +161,20 @@ struct PostProcessing
         }
     }
 
-    float dofDistance = 0.95f;            ///< Distance the depth of field starts
-    float dofFade = 0.04f;                ///< How quick depth of field fades to the scene
-    float glowAmount = 100.0f;            ///< The overall glow multiplier
-    float blurStep = 2.0f;                ///< Sampling step for blurring
-    float blurAmount = 1.0f;              ///< Amount to blur the scene by
-    float depthNear = 30.0f;              ///< Value where depth colour is min
-    float depthFar = 400.0f;              ///< Value where depth colour is max
-    float fogDistance = 0.27f;            ///< Distance the fog starts
-    float fogFade = 0.4f;                 ///< How quick fog fades to the scene
-    Colour fogColour;                     ///< Colour for the fog
-    Colour minimumColour;                 ///< Colour ranges for RGB
-    Colour maximumColour;                 ///< Colour ranges for RGB
-    std::array<float, MAX_MAPS> masks;    ///< Visibility of post maps
-    std::array<float, 5> weights;         ///< Normalised pixel weights for blurring
+    float dofDistance = 0.0f;            ///< Distance the depth of field starts
+    float dofFade = 0.0f;                ///< How quick depth of field fades to the scene
+    float glowAmount = 0.0f;             ///< The overall glow multiplier
+    float blurStep = 0.0f;               ///< Sampling step for blurring
+    float blurAmount = 0.0f;             ///< Amount to blur the scene by
+    float depthNear = 0.0f;              ///< Value where depth colour is min
+    float depthFar = 0.0f;               ///< Value where depth colour is max
+    float fogDistance = 0.0f;            ///< Distance the fog starts
+    float fogFade = 0.0f;                ///< How quick fog fades to the scene
+    Colour fogColour;                    ///< Colour for the fog
+    Colour minimumColour;                ///< Colour ranges for RGB
+    Colour maximumColour;                ///< Colour ranges for RGB
+    std::array<float, MAX_MAPS> masks;   ///< Visibility of post maps
+    std::array<float, 5> weights;        ///< Normalised pixel weights for blurring
 };
 
 /**

@@ -1,7 +1,4 @@
 
-- Move post to xml with save option
-- Tweakable button changing stylesheet when pressed
-
 - Profile DirectX to find why fps so low
 - Contrast and saturation
 - Water shader
