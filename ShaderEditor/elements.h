@@ -164,6 +164,8 @@ struct PostProcessing
     float dofDistance = 0.0f;            ///< Distance the depth of field starts
     float dofFade = 0.0f;                ///< How quick depth of field fades to the scene
     float glowAmount = 0.0f;             ///< The overall glow multiplier
+    float contrast = 0.0f;               ///< Contrast controller of the final scene
+    float saturation = 0.0f;             ///< Saturation controller of the final scene
     float blurStep = 0.0f;               ///< Sampling step for blurring
     float blurAmount = 0.0f;             ///< Amount to blur the scene by
     float depthNear = 0.0f;              ///< Value where depth colour is min

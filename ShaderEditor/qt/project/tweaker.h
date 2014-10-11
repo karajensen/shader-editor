@@ -112,6 +112,18 @@ public:
     void SetGlowAmount(float value);
 
     /**
+    * Sets the amount contrast in the final scene
+    * @param value The amount contrast in the final scene
+    */
+    void SetContrast(float value);
+
+    /**
+    * Sets the amount saturation in the final scene
+    * @param value The amount saturation in the final scene
+    */
+    void SetSaturation(float value);
+
+    /**
     * Sets the distance the fog starts
     * @param value The distance the fog starts
     */
@@ -278,6 +290,8 @@ private:
 
     TweakableValue m_DOFFade;            ///< How quickly depth of field blurs into scene
     TweakableValue m_DOFDistance;        ///< Distance depth of field will start
+    TweakableValue m_contrast;           ///< Contrast controller for the final scene
+    TweakableValue m_saturation;         ///< Saturation controller for the final scene
     TweakableValue m_glowAmount;         ///< Amount to glow the scene by
     TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_blurStep;           ///< Step between samples for blurring

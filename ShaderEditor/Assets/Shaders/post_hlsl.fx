@@ -14,6 +14,8 @@ cbuffer PixelBuffer : register(b0)
     float depthOfFieldMask;
     float fogMask;
 
+    float contrast;
+    float saturation;
     float fadeAmount;
     float glowAmount;
     float dofDistance;
@@ -85,6 +87,12 @@ float4 PShader(Attributes input) : SV_TARGET
     postScene = saturate(postScene);
     postScene *= maximumColor - minimumColor;
     postScene += minimumColor;
+
+    // Contrast and saturation
+    // Reference: Programming vertex, geometry and pixel shaders p378-379
+    float luminance = dot(postScene.rgb, float3(0.2126, 0.7152, 0.0722));
+    postScene.rgb = lerp(float3(luminance, luminance, luminance), postScene.rgb, saturation);
+    postScene -= contrast * (postScene - 1.0) * postScene * (postScene - 0.5);
 
     // Masking the selected texture
     float4 out_Color;

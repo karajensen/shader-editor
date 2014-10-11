@@ -452,6 +452,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->SendUniformFloat("glowAmount", &post.glowAmount, 1);
+    postShader->SendUniformFloat("contrast", &post.contrast, 1);
+    postShader->SendUniformFloat("saturation", &post.saturation, 1);
     postShader->SendUniformFloat("dofDistance", &post.dofDistance, 1);
     postShader->SendUniformFloat("dofFade", &post.dofFade, 1);
     postShader->SendUniformFloat("fogDistance", &post.fogDistance, 1);

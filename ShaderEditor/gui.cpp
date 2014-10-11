@@ -41,6 +41,8 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
     callbacks.SetBlurStep =         [&](float value){ m_cache->BlurStep.Set(value); };
     callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
+    callbacks.SetContrast =         [&](float value){ m_cache->Contrast.Set(value); };
+    callbacks.SetSaturation =       [&](float value){ m_cache->Saturation.Set(value); };
     callbacks.SetFogDistance =      [&](float value){ m_cache->FogDistance.Set(value); };
     callbacks.SetFogFade =          [&](float value){ m_cache->FogFade.Set(value); };
     callbacks.SetFogColourR =       [&](float value){ m_cache->FogColour.SetR(value); };
@@ -180,6 +182,16 @@ void Gui::UpdatePost(Tweaker& tweaker)
     if (m_cache->GlowAmount.RequiresUpdate())
     {
         tweaker.SetGlowAmount(m_cache->GlowAmount.GetUpdated());
+    }
+
+    if (m_cache->Saturation.RequiresUpdate())
+    {
+        tweaker.SetSaturation(m_cache->Saturation.GetUpdated());
+    }
+
+    if (m_cache->Contrast.RequiresUpdate())
+    {
+        tweaker.SetContrast(m_cache->Contrast.GetUpdated());
     }
 
     if (m_cache->FogDistance.RequiresUpdate())

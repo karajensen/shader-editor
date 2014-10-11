@@ -1,8 +1,7 @@
 
 - Profile DirectX to find why fps so low
-- Contrast and saturation
-- Water shader
 - Particles
+- Water shader
 
 - Add mesh extras to python script
 - Create 3D scene with baked shadows

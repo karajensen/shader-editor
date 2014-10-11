@@ -73,6 +73,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
         m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
 
+    m_contrast.Initialise(0.01, m_ui.contrast_value,
+        m_ui.contrast_dial, m_callbacks.SetContrast);
+
+    m_saturation.Initialise(0.01, m_ui.saturation_value,
+        m_ui.saturation_dial, m_callbacks.SetSaturation);
+
     m_blurAmount.Initialise(0.1, m_ui.blurring_value,
         m_ui.blurring_dial, m_callbacks.SetBlurAmount);
 
@@ -280,6 +286,16 @@ void Tweaker::SetBlurStep(float value)
 void Tweaker::SetGlowAmount(float value)
 {
     m_glowAmount.Set(value);
+}
+
+void Tweaker::SetContrast(float value)
+{
+    m_contrast.Set(value);
+}
+
+void Tweaker::SetSaturation(float value)
+{
+    m_saturation.Set(value);
 }
 
 void Tweaker::SetDepthNear(float value)

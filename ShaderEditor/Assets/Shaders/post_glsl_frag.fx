@@ -21,6 +21,8 @@ uniform float blurSceneMask;
 uniform float depthOfFieldMask;
 uniform float fogMask;
 
+uniform float contrast;
+uniform float saturation;
 uniform float dofDistance;
 uniform float dofFade;
 uniform float glowAmount;
@@ -52,7 +54,7 @@ void main(void)
 
     // Depth of Field
     float dofEnd = dofDistance - dofFade;
-    float dofWeight = min(max(((depth-dofEnd)*(1.0/(dofDistance-dofEnd))), 0.0), 1.0);
+    float dofWeight = clamp(((depth-dofEnd)*(1.0/(dofDistance-dofEnd))), 0.0, 1.0);
     vec3 depthOfField = blur.rgb * dofWeight;
     postScene *= (1.0 - dofWeight);
     postScene += depthOfField;
@@ -63,7 +65,7 @@ void main(void)
 
     // Fog
     float fogEnd = fogDistance + fogFade;
-    float fogWeight = min(max(((depth-fogEnd)*(1.0/(fogDistance-fogEnd))), 0.0), 1.0);
+    float fogWeight = clamp(((depth-fogEnd)*(1.0/(fogDistance-fogEnd))), 0.0, 1.0);
     vec3 fog = fogColor * fogWeight;
     postScene *= (1.0 - fogWeight);
     postScene += fog;
@@ -72,6 +74,12 @@ void main(void)
     postScene = min(max(postScene, 0.0), 1.0);
     postScene *= maximumColor - minimumColor;
     postScene += minimumColor;
+
+    // Contrast and saturation
+    // Reference: Programming vertex, geometry and pixel shaders p378-379
+    float luminance = dot(postScene.rgb, vec3(0.2126, 0.7152, 0.0722));
+    postScene.rgb = mix(vec3(luminance, luminance, luminance), postScene.rgb, saturation);
+    postScene -= contrast * (postScene - 1.0) * postScene * (postScene - 0.5);
 
     // Masking the selected texture
     out_Color.rgb = postScene * finalMask;

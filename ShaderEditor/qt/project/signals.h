@@ -19,6 +19,8 @@ struct SignalCallbacks
     std::function<void(float)> SetBlurAmount;       ///< Sets the amount of blurring on the scene
     std::function<void(float)> SetBlurStep;         ///< Sets the amount of step between samples for blurring
     std::function<void(float)> SetGlowAmount;       ///< Sets the amount of glow on the scene
+    std::function<void(float)> SetContrast;         ///< Sets the contrast of the final scene
+    std::function<void(float)> SetSaturation;       ///< Sets the saturation of the final scene
     std::function<void(float)> SetFogDistance;      ///< Sets when fog kicks in
     std::function<void(float)> SetFogFade;          ///< Sets how quickly fog fades to the scene
     std::function<void(float)> SetFogColourR;       ///< Sets the colour of the fog

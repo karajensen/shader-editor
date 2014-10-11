@@ -75,6 +75,8 @@ bool Scene::InitialisePost()
     m_postProcessing.fogDistance = getValue("FogDistance");
     m_postProcessing.fogFade = getValue("FogFade");
     m_postProcessing.glowAmount = getValue("GlowAmount");
+    m_postProcessing.contrast = getValue("Contrast");
+    m_postProcessing.saturation = getValue("Saturation");
     m_postProcessing.maximumColour.r = getValue("MaximumColourR");
     m_postProcessing.maximumColour.g = getValue("MaximumColourG");
     m_postProcessing.maximumColour.b = getValue("MaximumColourB");
@@ -606,6 +608,8 @@ void Scene::SavePostProcessingtoFile()
     tree.add("FogDistance", m_postProcessing.fogDistance);
     tree.add("FogFade", m_postProcessing.fogFade);
     tree.add("GlowAmount", m_postProcessing.glowAmount);
+    tree.add("Contrast", m_postProcessing.contrast);
+    tree.add("Saturation", m_postProcessing.saturation);
     tree.add("MaximumColourR", m_postProcessing.maximumColour.r);
     tree.add("MaximumColourG", m_postProcessing.maximumColour.g);
     tree.add("MaximumColourB", m_postProcessing.maximumColour.b);

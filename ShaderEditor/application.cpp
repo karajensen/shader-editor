@@ -12,9 +12,9 @@
 #include "cache.h"
 #include <windowsx.h>
 
-//#define SELECTED_ENGINE DIRECTX
-#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::DOF_MAP
+#define SELECTED_ENGINE DIRECTX
+//#define SELECTED_ENGINE OPENGL
+#define SELECTED_MAP PostProcessing::FINAL_MAP
 
 
 namespace
@@ -297,6 +297,8 @@ void Application::UpdatePost()
     post.blurAmount = m_cache->BlurAmount.Get();
     post.blurStep = m_cache->BlurStep.Get();
     post.glowAmount = m_cache->GlowAmount.Get();
+    post.contrast = m_cache->Contrast.Get();
+    post.saturation = m_cache->Saturation.Get();
     post.fogColour = m_cache->FogColour.Get();
     post.fogDistance = m_cache->FogDistance.Get();
     post.fogFade = m_cache->FogFade.Get();
@@ -391,6 +393,8 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->BlurAmount.SetUpdated(post.blurAmount);
     m_cache->BlurStep.SetUpdated(post.blurStep);
     m_cache->GlowAmount.SetUpdated(post.glowAmount);
+    m_cache->Contrast.SetUpdated(post.contrast);
+    m_cache->Saturation.SetUpdated(post.saturation);
     m_cache->FogFade.SetUpdated(post.fogFade);
     m_cache->FogDistance.SetUpdated(post.fogDistance);
     m_cache->FogColour.SetUpdated(post.fogColour);

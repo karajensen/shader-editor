@@ -412,6 +412,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("glowAmount", &post.glowAmount, 1);
+    postShader->UpdateConstantFloat("contrast", &post.contrast, 1);
+    postShader->UpdateConstantFloat("saturation", &post.saturation, 1);
     postShader->UpdateConstantFloat("dofDistance", &post.dofDistance, 1);
     postShader->UpdateConstantFloat("dofFade", &post.dofFade, 1);
     postShader->UpdateConstantFloat("fogDistance", &post.fogDistance, 1);
