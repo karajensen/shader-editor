@@ -237,6 +237,9 @@
     <ClInclude Include="qt\project\tweakable_button.h">
       <Filter>Qt</Filter>
     </ClInclude>
+    <ClInclude Include="sceneElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_vert.fx">

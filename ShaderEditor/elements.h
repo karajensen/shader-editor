@@ -312,23 +312,23 @@ struct Light
 */
 struct Mesh
 {
-    /**
-    * Constructor
-    */
     Mesh()
     {
         textureIDs.resize(Texture::MAX_TYPES);
         textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
     }
 
-    bool backfacecull = true;      ///< Whether back facing polygons are culled
-    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader to use
-    int normalIndex = NO_INDEX;    ///< Unique Index of the normal shader to use
+    virtual ~Mesh() = default;
+
     float specularity = 1.0f;      ///< Brightness of the specular highlights
     float ambience = 1.0f;         ///< Ambient light multiplier
     float bump = 1.0f;             ///< Saturation of bump
     float glow = 1.0f;             ///< Intensity glow multiplier
+
     std::string name;              ///< Name of the mesh
+    bool backfacecull = true;      ///< Whether back facing polygons are culled
+    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader to use
+    int normalIndex = NO_INDEX;    ///< Unique Index of the normal shader to use
     std::vector<float> vertices;   ///< Mesh Vertex information
     std::vector<DWORD> indices;    ///< Mesh Index information
     std::vector<int> textureIDs;   ///< IDs for each texture used
@@ -337,4 +337,13 @@ struct Mesh
     int faceCount = 0;             ///< Number of faces in the mesh
     int indexCount = 0;            ///< Number of indicies in the mesh
     int maxTextures = 0;           ///< Maximum textures used for this mesh
+};
+
+/**
+* Data for a water-shaded mesh
+*/
+struct Water : public Mesh
+{
+    float height = 1.0f;            ///< Height multiplier of waves
+    Float3 direction;               ///< Direction of the waves
 };

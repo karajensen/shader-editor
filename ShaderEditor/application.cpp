@@ -163,7 +163,7 @@ void Application::TickApplication()
     }
 
     FadeRenderEngine();
-    GetEngine()->Render(m_scene->GetLights(), m_scene->GetPost());
+    GetEngine()->Render(*m_scene);
 
     UpdateShader();
     switch(m_cache->PageSelected.Get())
@@ -385,7 +385,7 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->PostMaps.Set(m_scene->GetPostMapNames());
 
-    const PostProcessing& post = m_scene->GetPost();
+    const PostProcessing& post = m_scene->Post();
     m_cache->DepthNear.SetUpdated(post.depthNear);
     m_cache->DepthFar.SetUpdated(post.depthFar);
     m_cache->DOFDistance.SetUpdated(post.dofDistance);
@@ -415,8 +415,7 @@ bool Application::InitialiseEngine(RenderEngine* engine)
         return false;
     }
 
-    if(!engine->InitialiseScene(m_scene->GetMeshes(), 
-        m_scene->GetShaders(), m_scene->GetTextures()))
+    if(!engine->InitialiseScene(*m_scene))
     {
         Logger::LogError(engine->GetName() + ": Scene failed to initialise");
         return false;

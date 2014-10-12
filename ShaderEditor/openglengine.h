@@ -40,23 +40,16 @@ public:
 
     /**
     * Renders the 3D scene
-    * @param lights All lighting in the scene
-    * @param postProcessing values for the final image
+    * @param scene The elements making up the scene
     */
-    virtual void Render(const std::vector<Light>& lights,
-                        const PostProcessing& post) override;
+    virtual void Render(const SceneElements& scene) override;
 
     /**
-    * Initialises the scene for openGL
-    * @param meshes All mesh data for the scene
-    * @param shaders All shader data for the scene
-    * @param textures All texture data for the scene
+    * Initialises the scene for the engine
+    * @param scene The elements making up the scene
     * @return whether initialisation was successful
     */
-    virtual bool InitialiseScene(
-        const std::vector<Mesh>& meshes, 
-        const std::vector<Shader>& shaders,
-        const std::vector<Texture>& textures) override;
+    virtual bool InitialiseScene(const SceneElements& scene) override;
 
     /**
     * ReInitialises the scene for openGL

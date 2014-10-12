@@ -4,15 +4,13 @@
 
 #pragma once
 
-#include "common.h"
-#include "elements.h"
-
+#include "sceneElements.h"
 class FragmentLinker;
 
 /**
 * Manager and owner of all objects and diagnostics
 */
-class Scene
+class Scene : public SceneElements
 {
 public:
 
@@ -25,22 +23,32 @@ public:
     /**
     * @return the meshes in the scene
     */
-    const std::vector<Mesh>& GetMeshes() const;
+    virtual const std::vector<Mesh>& Meshes() const override;
+
+    /**
+    * @return the water in the scene
+    */
+    virtual const std::vector<Water>& Waters() const override;
 
     /**
     * @return the shaders in the scene
     */
-    const std::vector<Shader>& GetShaders() const;
+    virtual const std::vector<Shader>& Shaders() const override;
 
     /**
     * @return the lights in the scene
     */
-    const std::vector<Light>& GetLights() const;
+    virtual const std::vector<Light>& Lights() const override;
 
     /**
     * @return the textures in the scene
     */
-    const std::vector<Texture>& GetTextures() const;
+    virtual const std::vector<Texture>& Textures() const override;
+
+    /**
+    * @return the post processing for the final image
+    */
+    virtual const PostProcessing& Post() const override;
 
     /**
     * @return the names of the lights in the scene
@@ -151,11 +159,42 @@ private:
     bool InitialiseMeshes(FragmentLinker& linker);
 
     /**
+    * Initialises a mesh shader for the scene
+    * @param mesh The mesh to initialise
+    * @param linker The fragment linker used to generate shaders
+    * @param it The iterator for the mesh config file
+    */
+    void InitialiseMeshShader(Mesh& mesh,
+                              FragmentLinker& linker,
+                              boost::property_tree::ptree::iterator& it);
+
+    /**
+    * Initialises a mesh for the scene
+    * @param mesh The mesh to initialise
+    * @param it The iterator for the mesh config file
+    */
+    void InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it);
+
+    /**
+    * Initialises a water mesh for the scene
+    * @param water The water to initialise
+    * @param it The iterator for the mesh config file
+    */
+    void InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it);
+
+    /**
     * Adds a texture from a mesh if it doesn't already exist
     * @param name The name of the texture to add
     * @return The unique id of the texture added
     */
     int AddTexture(const std::string& name);
+
+    /**
+    * Fills in mesh data
+    * @param mesh The mesh object to load
+    * @return whether creation was successful
+    */
+    bool CreateMesh(Mesh& mesh);
 
     /**
     * Fills in mesh data from the given file
@@ -178,10 +217,18 @@ private:
     int GetShaderIndex(FragmentLinker& linker, 
                        const std::string& shadername, 
                        const std::string& meshName);
+
+    /**
+    * Adds the give mesh to the given tree
+    * @param mesh The mesh data to add
+    * @param entry The tree to add to
+    */
+    void AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry);
                             
     PostProcessing m_postProcessing;  ///< Post processing for the final image
     std::vector<Texture> m_textures;  ///< All textures in the scene
     std::vector<Shader> m_shaders;    ///< All shaders in the scene
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene
     std::vector<Light> m_lights;      ///< All lights in the scene
+    std::vector<Water> m_water;       ///< All water in the scene
 };                     

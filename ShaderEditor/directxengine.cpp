@@ -8,6 +8,7 @@
 #include "directxmesh.h"
 #include "directxtexture.h"
 #include "directxtarget.h"
+#include "sceneElements.h"
 #include <array>
 #include <fstream>
 
@@ -261,26 +262,24 @@ std::string DirectxEngine::CompileShader(int index)
     return errors.empty() ? "" : "\n\n" + errors;
 }
 
-bool DirectxEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
-                                    const std::vector<Shader>& shaders,
-                                    const std::vector<Texture>& textures)
+bool DirectxEngine::InitialiseScene(const SceneElements& scene)
 {
-    m_data->textures.reserve(textures.size());
-    for(const Texture& texture : textures)
+    m_data->textures.reserve(scene.Textures().size());
+    for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<DxTexture>(
             new DxTexture(texture.path)));
     }
 
-    m_data->shaders.reserve(shaders.size());
-    for(const Shader& shader : shaders)
+    m_data->shaders.reserve(scene.Shaders().size());
+    for(const Shader& shader : scene.Shaders())
     {
         m_data->shaders.push_back(std::unique_ptr<DxShader>(
             new DxShader(shader)));
     }
 
-    m_data->meshes.reserve(meshes.size());
-    for(const Mesh& mesh : meshes)
+    m_data->meshes.reserve(scene.Meshes().size());
+    for(const Mesh& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<DxMesh>(
             new DxMesh(&mesh)));
@@ -333,10 +332,9 @@ bool DirectxEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void DirectxEngine::Render(const std::vector<Light>& lights,
-                           const PostProcessing& post)
+void DirectxEngine::Render(const SceneElements& scene)
 {
-    auto renderScene = [&](std::unique_ptr<DxMesh>& mesh)
+    auto renderMesh = [&](std::unique_ptr<DxMesh>& mesh)
     {
         SetTextures(mesh->GetTextureIDs());
         SetBackfaceCull(mesh->ShouldBackfaceCull());
@@ -347,21 +345,21 @@ void DirectxEngine::Render(const std::vector<Light>& lights,
     m_data->sceneTarget.SetActive(m_data->context);
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), lights);
-        renderScene(mesh);
+        UpdateShader(mesh->GetMesh(), scene.Lights());
+        renderMesh(mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context);
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), post);
-        renderScene(mesh);
+        UpdateShader(mesh->GetMesh(), scene.Post());
+        renderMesh(mesh);
     }
    
     SetBackfaceCull(false);
-    RenderSceneBlur(post);
-    RenderPostProcessing(post);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
     m_data->swapchain->Present(0, 0);
 }
 

@@ -46,10 +46,10 @@
     <Diffuse>caustic.bmp</Diffuse>
     <Specular>specular.JPG</Specular>
   </Mesh>
-  <Mesh>
+  <Water>
     <Name>Ref_water.obj</Name>
     <Specularity>1.0</Specularity>
     <Shader>Diffuse</Shader>
     <Diffuse>caustic.bmp</Diffuse>
-  </Mesh>
+  </Water>
 </Meshes>

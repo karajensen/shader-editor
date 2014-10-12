@@ -32,14 +32,14 @@
 
 typedef std::ostringstream sstream;
 
-static const int WINDOW_WIDTH = 800;
-static const int WINDOW_HEIGHT = 600;
-static const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
-static const int WINDOW_Y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
-static const int MULTISAMPLING_COUNT = 4;
-static const float FRUSTRUM_NEAR = 1.0f;
-static const float FRUSTRUM_FAR = 1000.0f;
-static const float FIELD_OF_VIEW = 60.0f;
+const int WINDOW_WIDTH = 800;
+const int WINDOW_HEIGHT = 600;
+const int WINDOW_X = (GetSystemMetrics(SM_CXSCREEN)/2)-(WINDOW_WIDTH/2); 
+const int WINDOW_Y = (GetSystemMetrics(SM_CYSCREEN)/2)-(WINDOW_HEIGHT/2);
+const int MULTISAMPLING_COUNT = 4;
+const float FRUSTRUM_NEAR = 1.0f;
+const float FRUSTRUM_FAR = 1000.0f;
+const float FIELD_OF_VIEW = 60.0f;
 
 const std::string SHADER_EXTENSION(".fx");
 const std::string ASM_EXTENSION(".as");

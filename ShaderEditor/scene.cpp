@@ -51,42 +51,6 @@ bool Scene::Initialise()
     return true;
 }
 
-bool Scene::InitialisePost()
-{
-    boost::property_tree::ptree post;
-    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Post.xml", 
-        post, boost::property_tree::xml_parser::trim_whitespace);
-    boost::property_tree::ptree& tree = post.get_child("PostProcessing");
-
-    auto getValue = [&](const std::string& name)
-    {
-        return boost::lexical_cast<float>(tree.get_child(name).data());
-    };
-
-    m_postProcessing.blurAmount = getValue("BlurAmount");
-    m_postProcessing.blurStep = getValue("BlurStep");
-    m_postProcessing.depthFar = getValue("DepthFar");
-    m_postProcessing.depthNear = getValue("DepthNear");
-    m_postProcessing.dofDistance = getValue("DOFDistance");
-    m_postProcessing.dofFade = getValue("DOFFade");
-    m_postProcessing.fogColour.r = getValue("FogColourR");
-    m_postProcessing.fogColour.g = getValue("FogColourG");
-    m_postProcessing.fogColour.b = getValue("FogColourB");
-    m_postProcessing.fogDistance = getValue("FogDistance");
-    m_postProcessing.fogFade = getValue("FogFade");
-    m_postProcessing.glowAmount = getValue("GlowAmount");
-    m_postProcessing.contrast = getValue("Contrast");
-    m_postProcessing.saturation = getValue("Saturation");
-    m_postProcessing.maximumColour.r = getValue("MaximumColourR");
-    m_postProcessing.maximumColour.g = getValue("MaximumColourG");
-    m_postProcessing.maximumColour.b = getValue("MaximumColourB");
-    m_postProcessing.minimumColour.r = getValue("MinimumColourR");
-    m_postProcessing.minimumColour.g = getValue("MinimumColourG");
-    m_postProcessing.minimumColour.b = getValue("MinimumColourB");
-
-    return true;
-}
-
 bool Scene::InitialiseShaders(FragmentLinker& linker)
 {
     bool success = true;
@@ -117,67 +81,90 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
     boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
         meshes, boost::property_tree::xml_parser::trim_whitespace);
     boost::property_tree::ptree& tree = meshes.get_child("Meshes");
-	
-    m_meshes.reserve(tree.size());
-	
+
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
-        Mesh mesh;
-        mesh.name = it->second.get_child("Name").data();
-        mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
-        mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
-        mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
-        mesh.glow = GetPtreeValue(it, 1.0f, "Intensity");
-        mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
-	
-        // Get the textures used by the mesh
-        assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
-        for (int i = 0; i < Texture::MAX_TYPES; ++i)
+        if (it->first == "Water")
         {
-            mesh.textureIDs[i] = AddTexture(GetPtreeValue(
-                it, std::string(), Texture::GetTypeDescription(i).c_str()));
+            Water water;
+            InitialiseMesh(water, it);
+            InitialiseWater(water, it);
+            CreateMesh(water);
+            m_water.emplace_back(water);
         }
-
-        const int unusedTextures = std::count(
-            mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
-        mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
-	
-        // Get the shader used by the mesh
-        std::string shadername = OVERRIDE_SHADERS ? GLOBAL_SHADER :
-            it->second.get_child("Shader").data();
-
-        // Copy each component featured in the given shader name to a set order
-        std::string newShaderName;
-        std::string component;
-        for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
+        else if (it->first == "Mesh")
         {
-            component = Shader::ComponentAsString(i);
-            if(boost::algorithm::icontains(shadername, component))
-            {
-                newShaderName += component;
-                boost::algorithm::ireplace_all(shadername, component, "");
-            }
+            Mesh mesh;
+            InitialiseMesh(mesh, it);
+            InitialiseMeshShader(mesh, linker, it);
+            CreateMesh(mesh);
+            m_meshes.emplace_back(mesh);
         }
-	
-        // Add any non-component text to the ordered components
-        shadername += boost::algorithm::to_lower_copy(newShaderName);
-        mesh.shaderIndex = GetShaderIndex(linker, shadername, mesh.name);
-        mesh.normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shadername, mesh.name);
-	
-        // Create the mesh. Requires mesh shader to be known before creation.
-        std::string errorBuffer;
-        const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
-        if(!CreateMesh(path, errorBuffer, mesh))
-        {
-            Logger::LogError(path + ": " + errorBuffer);
-            return false;
-        }
-	
-        m_meshes.push_back(mesh);
     }
 
     return true;
+}
+
+void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
+{
+    // Get the shader used by the mesh
+    std::string shader = OVERRIDE_SHADERS ? GLOBAL_SHADER : 
+        it->second.get_child("Shader").data();    
+
+
+
+
+
+}
+
+void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
+{
+    mesh.name = it->second.get_child("Name").data();
+    mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
+    mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
+    mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
+    mesh.glow = GetPtreeValue(it, 1.0f, "Intensity");
+    mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
+	
+    // Get the textures used by the mesh
+    assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
+    for (int i = 0; i < Texture::MAX_TYPES; ++i)
+    {
+        mesh.textureIDs[i] = AddTexture(GetPtreeValue(
+            it, std::string(), Texture::GetTypeDescription(i).c_str()));
+    }
+
+    const int unusedTextures = std::count(
+        mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
+    mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
+}
+
+void Scene::InitialiseMeshShader(Mesh& mesh, 
+                                 FragmentLinker& linker,
+                                 boost::property_tree::ptree::iterator& it)
+{
+    // Get the shader used by the mesh
+    std::string shader = OVERRIDE_SHADERS ? GLOBAL_SHADER : 
+        it->second.get_child("Shader").data();
+
+    // Copy each component featured in the given shader name to a set order
+    std::string newShaderName;
+    std::string component;
+    for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
+    {
+        component = Shader::ComponentAsString(i);
+        if(boost::algorithm::icontains(shader, component))
+        {
+            newShaderName += component;
+            boost::algorithm::ireplace_all(shader, component, "");
+        }
+    }
+	
+    // Add any non-component text to the ordered components
+    shader += boost::algorithm::to_lower_copy(newShaderName);
+    mesh.shaderIndex = GetShaderIndex(linker, shader, mesh.name);
+    mesh.normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shader, mesh.name);
 }
 
 int Scene::GetShaderIndex(FragmentLinker& linker, 
@@ -219,63 +206,6 @@ int Scene::GetShaderIndex(FragmentLinker& linker,
     }
 }
 
-bool Scene::InitialiseLighting()
-{
-    using namespace boost;
-    filesystem::path filePath(ASSETS_PATH + "Lights.xml");
-    if(filesystem::exists(filePath))
-    {
-        try
-        {
-            property_tree::ptree root;
-            property_tree::xml_parser::read_xml(filePath.generic_string(), 
-                root, property_tree::xml_parser::trim_whitespace);
-            property_tree::ptree& tree = root.get_child("Lights");
-	
-            boost::property_tree::ptree::iterator it;
-            for(it = tree.begin(); it != tree.end(); ++it)
-            {
-                Light light;
-                light.name = GetPtreeValue(it, std::string("UNNAMED"), "Name");
-	
-                light.diffuse.a = 1.0f;
-                light.diffuse.r = GetPtreeValue(it,1.0f,"R");
-                light.diffuse.b = GetPtreeValue(it,1.0f,"B");
-                light.diffuse.g = GetPtreeValue(it,1.0f,"G");
-	
-                light.specular.a = 1.0f;
-                light.specular.r = GetPtreeValue(it,1.0f,"SR");
-                light.specular.b = GetPtreeValue(it,1.0f,"SB");
-                light.specular.g = GetPtreeValue(it,1.0f,"SG");
-	
-                light.position.x = GetPtreeValue(it,0.0f,"X");
-                light.position.y = GetPtreeValue(it,0.0f,"Y");
-                light.position.z = GetPtreeValue(it,0.0f,"Z");
-	
-                light.specularity = GetPtreeValue(it,5.0f,"Specularity");
-                light.attenuation.x = GetPtreeValue(it,0.0f,"AttX");
-                light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
-                light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
-	
-                m_lights.push_back(light);
-            }
-        }
-        catch(const filesystem::filesystem_error& e)
-        {
-            Logger::LogError(std::string("Lighting: ") + e.what());
-            return false;
-        }
-    }
-    else
-    {
-        Logger::LogError("Lighting: Could not find file");
-        return false;
-    }    
-	
-    Logger::LogInfo("Lighting: Initialised successfully");
-    return true;
-}
-
 int Scene::AddTexture(const std::string& name)
 {
     if(name.empty())
@@ -296,6 +226,18 @@ int Scene::AddTexture(const std::string& name)
     texture.path = TEXTURE_PATH + name;
     m_textures.push_back(texture);
     return m_textures.size()-1;
+}
+
+bool Scene::CreateMesh(Mesh& mesh)
+{
+    std::string errorBuffer;
+    const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
+    if (!CreateMesh(path, errorBuffer, mesh))
+    {
+        Logger::LogError(path + ": " + errorBuffer);
+        return false;
+    }
+    return true;
 }
 
 bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& mesh)
@@ -417,25 +359,34 @@ bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& 
     return true;
 }
 
+const std::vector<Water>& Scene::Waters() const
+{
+    return m_water;
+}
 
-const std::vector<Mesh>& Scene::GetMeshes() const
+const std::vector<Mesh>& Scene::Meshes() const
 {
     return m_meshes;
 }
 
-const std::vector<Shader>& Scene::GetShaders() const
+const std::vector<Shader>& Scene::Shaders() const
 {
     return m_shaders;
 }
 
-const std::vector<Light>& Scene::GetLights() const
+const std::vector<Light>& Scene::Lights() const
 {
     return m_lights;
 }
 
-const std::vector<Texture>& Scene::GetTextures() const
+const std::vector<Texture>& Scene::Textures() const
 {
     return m_textures;
+}
+
+const PostProcessing& Scene::Post() const
+{
+    return m_postProcessing;
 }
 
 Light& Scene::GetLight(int index)
@@ -528,32 +479,100 @@ void Scene::SaveMeshesToFile()
     for(const Mesh& mesh : m_meshes)
     {
         property_tree::ptree entry;
-        entry.add("Name", mesh.name.c_str());
-        entry.add("Bump", mesh.bump);
-        entry.add("Intensity", mesh.glow);
-        entry.add("Ambience", mesh.ambience);
-        entry.add("Specularity", mesh.specularity);
-        entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
-        entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
-	
-        for (int i = 0; i < Texture::MAX_TYPES; ++i)
-        {
-            if(mesh.textureIDs[i] != NO_INDEX)
-            {
-                entry.add(Texture::GetTypeDescription(i), 
-                    m_textures[mesh.textureIDs[i]].name);
-            }
-        };
-	
+        AddMeshToTree(mesh, entry);
         entries.emplace_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
     }
+
+    for(const Water& water : m_water)
+    {
+        property_tree::ptree entry;
+        AddMeshToTree(water, entry);
+        entries.emplace_back(entry);
+        tree.add_child("Water", entries[entries.size()-1]);
+    }
+
     root.add_child("Meshes", tree);
-	
-    // Writing property tree to xml
     filesystem::path filePath(ASSETS_PATH + "Meshes_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
     property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
+{
+    entry.add("Name", mesh.name.c_str());
+    entry.add("Bump", mesh.bump);
+    entry.add("Intensity", mesh.glow);
+    entry.add("Ambience", mesh.ambience);
+    entry.add("Specularity", mesh.specularity);
+    entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
+    entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
+	
+    for (int i = 0; i < Texture::MAX_TYPES; ++i)
+    {
+        if(mesh.textureIDs[i] != NO_INDEX)
+        {
+            entry.add(Texture::GetTypeDescription(i), 
+                m_textures[mesh.textureIDs[i]].name);
+        }
+    };
+}
+
+bool Scene::InitialiseLighting()
+{
+    using namespace boost;
+    filesystem::path filePath(ASSETS_PATH + "Lights.xml");
+    if(filesystem::exists(filePath))
+    {
+        try
+        {
+            property_tree::ptree root;
+            property_tree::xml_parser::read_xml(filePath.generic_string(), 
+                root, property_tree::xml_parser::trim_whitespace);
+            property_tree::ptree& tree = root.get_child("Lights");
+	
+            boost::property_tree::ptree::iterator it;
+            for(it = tree.begin(); it != tree.end(); ++it)
+            {
+                Light light;
+                light.name = GetPtreeValue(it, std::string("UNNAMED"), "Name");
+	
+                light.diffuse.a = 1.0f;
+                light.diffuse.r = GetPtreeValue(it,1.0f,"R");
+                light.diffuse.b = GetPtreeValue(it,1.0f,"B");
+                light.diffuse.g = GetPtreeValue(it,1.0f,"G");
+	
+                light.specular.a = 1.0f;
+                light.specular.r = GetPtreeValue(it,1.0f,"SR");
+                light.specular.b = GetPtreeValue(it,1.0f,"SB");
+                light.specular.g = GetPtreeValue(it,1.0f,"SG");
+	
+                light.position.x = GetPtreeValue(it,0.0f,"X");
+                light.position.y = GetPtreeValue(it,0.0f,"Y");
+                light.position.z = GetPtreeValue(it,0.0f,"Z");
+	
+                light.specularity = GetPtreeValue(it,5.0f,"Specularity");
+                light.attenuation.x = GetPtreeValue(it,0.0f,"AttX");
+                light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
+                light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
+	
+                m_lights.push_back(light);
+            }
+        }
+        catch(const filesystem::filesystem_error& e)
+        {
+            Logger::LogError(std::string("Lighting: ") + e.what());
+            return false;
+        }
+    }
+    else
+    {
+        Logger::LogError("Lighting: Could not find file");
+        return false;
+    }    
+	
+    Logger::LogInfo("Lighting: Initialised successfully");
+    return true;
 }
 
 void Scene::SaveLightsToFile()
@@ -589,6 +608,42 @@ void Scene::SaveLightsToFile()
     filesystem::path filePath(ASSETS_PATH + "Lights_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
     property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+bool Scene::InitialisePost()
+{
+    boost::property_tree::ptree post;
+    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Post.xml", 
+        post, boost::property_tree::xml_parser::trim_whitespace);
+    boost::property_tree::ptree& tree = post.get_child("PostProcessing");
+
+    auto getValue = [&](const std::string& name)
+    {
+        return boost::lexical_cast<float>(tree.get_child(name).data());
+    };
+
+    m_postProcessing.blurAmount = getValue("BlurAmount");
+    m_postProcessing.blurStep = getValue("BlurStep");
+    m_postProcessing.depthFar = getValue("DepthFar");
+    m_postProcessing.depthNear = getValue("DepthNear");
+    m_postProcessing.dofDistance = getValue("DOFDistance");
+    m_postProcessing.dofFade = getValue("DOFFade");
+    m_postProcessing.fogColour.r = getValue("FogColourR");
+    m_postProcessing.fogColour.g = getValue("FogColourG");
+    m_postProcessing.fogColour.b = getValue("FogColourB");
+    m_postProcessing.fogDistance = getValue("FogDistance");
+    m_postProcessing.fogFade = getValue("FogFade");
+    m_postProcessing.glowAmount = getValue("GlowAmount");
+    m_postProcessing.contrast = getValue("Contrast");
+    m_postProcessing.saturation = getValue("Saturation");
+    m_postProcessing.maximumColour.r = getValue("MaximumColourR");
+    m_postProcessing.maximumColour.g = getValue("MaximumColourG");
+    m_postProcessing.maximumColour.b = getValue("MaximumColourB");
+    m_postProcessing.minimumColour.r = getValue("MinimumColourR");
+    m_postProcessing.minimumColour.g = getValue("MinimumColourG");
+    m_postProcessing.minimumColour.b = getValue("MinimumColourB");
+
+    return true;
 }
 
 void Scene::SavePostProcessingtoFile()

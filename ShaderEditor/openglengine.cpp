@@ -7,6 +7,7 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 #include "opengltarget.h"
+#include "sceneElements.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
 #include <array>
@@ -293,26 +294,24 @@ std::string OpenglEngine::CompileShader(int index)
     return m_data->shaders[index]->CompileShader();
 }
 
-bool OpenglEngine::InitialiseScene(const std::vector<Mesh>& meshes, 
-                                   const std::vector<Shader>& shaders,
-                                   const std::vector<Texture>& textures)
+bool OpenglEngine::InitialiseScene(const SceneElements& scene)
 {
-    m_data->textures.reserve(textures.size());
-    for(const Texture& texture : textures)
+    m_data->textures.reserve(scene.Textures().size());
+    for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<GlTexture>(
             new GlTexture(texture.path)));
     }
 
-    m_data->shaders.reserve(shaders.size());
-    for(const Shader& shader : shaders)
+    m_data->shaders.reserve(scene.Shaders().size());
+    for(const Shader& shader : scene.Shaders())
     {
         m_data->shaders.push_back(std::unique_ptr<GlShader>(
             new GlShader(shader)));
     }
 
-    m_data->meshes.reserve(meshes.size());
-    for(const Mesh& mesh : meshes)
+    m_data->meshes.reserve(scene.Meshes().size());
+    for(const Mesh& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<GlMesh>(
             new GlMesh(&mesh)));
@@ -373,10 +372,9 @@ bool OpenglEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void OpenglEngine::Render(const std::vector<Light>& lights,
-                          const PostProcessing& post)
+void OpenglEngine::Render(const SceneElements& scene)
 {
-    auto renderScene = [&](std::unique_ptr<GlMesh>& mesh)
+    auto renderMesh = [&](std::unique_ptr<GlMesh>& mesh)
     {
         SetTextures(mesh->GetTextureIDs());
         SetBackfaceCull(mesh->ShouldBackfaceCull());
@@ -390,21 +388,21 @@ void OpenglEngine::Render(const std::vector<Light>& lights,
     m_data->sceneTarget.SetActive();
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), lights);
-        renderScene(mesh);
+        UpdateShader(mesh->GetMesh(), scene.Lights());
+        renderMesh(mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive();
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), post);
-        renderScene(mesh);
+        UpdateShader(mesh->GetMesh(), scene.Post());
+        renderMesh(mesh);
     }
 
     SetBackfaceCull(false);
-    RenderSceneBlur(post);
-    RenderPostProcessing(post);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
     SwapBuffers(m_data->hdc); 
 }
 

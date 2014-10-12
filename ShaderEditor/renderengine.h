@@ -7,6 +7,8 @@
 #include <Windows.h>
 #include "common.h"
 
+class SceneElements;
+
 /**
 * Base graphics API interface
 */
@@ -32,11 +34,9 @@ public:
 
     /**
     * Renders the 3D scene
-    * @param lights All lighting in the scene
-    * @param postProcessing values for the final image
+    * @param scene The elements making up the scene
     */
-    virtual void Render(const std::vector<Light>& lights,
-                        const PostProcessing& post) = 0;
+    virtual void Render(const SceneElements& scene) = 0;
 
     /**
     * Generates the shader for the engine
@@ -46,19 +46,14 @@ public:
     virtual std::string CompileShader(int index) = 0;
 
     /**
-    * Initialises the scene for openGL
-    * @param meshes All mesh data for the scene
-    * @param shaders All shader data for the scene
-    * @param textuers All texture data for the scene
+    * Initialises the scene for the engine
+    * @param scene The elements making up the scene
     * @return whether initialisation was successful
     */
-    virtual bool InitialiseScene(
-        const std::vector<Mesh>& meshes, 
-        const std::vector<Shader>& shaders,
-        const std::vector<Texture>& textures) = 0;
+    virtual bool InitialiseScene(const SceneElements& scene) = 0;
 
     /**
-    * ReInitialises the scene for openGL
+    * ReInitialises the scene for the ending
     * @return whether initialisation was successful
     */
     virtual bool ReInitialiseScene() = 0;

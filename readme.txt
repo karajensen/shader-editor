@@ -1,8 +1,14 @@
 
 - Profile DirectX to find why fps so low
-- Particles
-- Water shader
+- Fix VLD
 
+- Water shader
+    - Create base shader 
+    - Load/compile in base shader
+    - Load as rendering engine meshes
+    - Create render call for water meshes
+
+- Particles
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
 - Optimise shaders and get code ready for folios

@@ -87,6 +87,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="openglengine.h" />
     <ClInclude Include="renderengine.h" />
+    <ClInclude Include="sceneElements.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
   </ItemGroup>
