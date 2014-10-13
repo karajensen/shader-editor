@@ -21,34 +21,21 @@ namespace
 
 bool Scene::Initialise()
 {
-    if (!InitialisePost())
-    {
-        return false;
-    }
-
-    if (!InitialiseLighting())
-    {
-        return false;
-    }
-
     FragmentLinker linker;
-    if(!linker.Initialise(m_lights.size()))
+    if (InitialisePost() &&
+        InitialiseLighting() &&
+        linker.Initialise(m_lights.size()) &&
+        InitialiseShaders(linker) &&
+        InitialiseMeshes(linker))
     {
-        return false;
+        // To prevent unnecessary shader switching, sort by shader used
+        std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
+        {
+            return m1.shaderIndex < m2.shaderIndex;
+        });
+        return true;
     }
-
-    if (!InitialiseShaders(linker) || !InitialiseMeshes(linker))
-    {
-        return false;
-    }
-
-    // To prevent unnecessary shader switching, sort by shader used
-    std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
-    {
-        return m1.shaderIndex < m2.shaderIndex;
-    });
-
-    return true;
+    return false;
 }
 
 bool Scene::InitialiseShaders(FragmentLinker& linker)
@@ -66,11 +53,16 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
             Logger::LogError("Could not generate shader " + name);
             success = false;
         }
-        m_shaders.emplace_back(shader);
+        else
+        {
+            Logger::LogInfo("Shader: " + name + " loaded");
+            m_shaders.emplace_back(shader);
+        }
     };
 
     CreateShader(POST_SHADER, POST_SHADER_INDEX);
     CreateShader(BLUR_SHADER, BLUR_SHADER_INDEX);
+    CreateShader(WATER_SHADER, WATER_SHADER_INDEX);
 
     return success;
 }
@@ -108,14 +100,8 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
 {
-    // Get the shader used by the mesh
-    std::string shader = OVERRIDE_SHADERS ? GLOBAL_SHADER : 
-        it->second.get_child("Shader").data();    
-
-
-
-
-
+    water.shaderIndex = WATER_SHADER_INDEX;
+    water.normalIndex = WATER_SHADER_INDEX;
 }
 
 void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)

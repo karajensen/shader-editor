@@ -3,15 +3,14 @@
 - Fix VLD
 
 - Water shader
-    - Create base shader 
-    - Load/compile in base shader
-    - Load as rendering engine meshes
-    - Create render call for water meshes
+    - Get basic shaders working and same for Dx/Gl
+    - Pass/Save water data from scene to shader
+    - Water data tweak bar
 
 - Particles
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
-- Optimise shaders and get code ready for folios
+- Optimise shaders
 
 =================================================================
 SHADER EDITOR

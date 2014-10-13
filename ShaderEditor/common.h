@@ -58,10 +58,16 @@ const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT))
 
 const std::string BLUR_SHADER("blur");
 const std::string POST_SHADER("post");
+const std::string WATER_SHADER("water");
 const std::string NORMAL_SHADER("normal");
 const std::string BASE_SHADER("shader");
-const int POST_SHADER_INDEX = 0;
-const int BLUR_SHADER_INDEX = 1;
+
+enum ShaderIndex
+{
+    POST_SHADER_INDEX,
+    BLUR_SHADER_INDEX,
+    WATER_SHADER_INDEX
+};
 
 /**
 * Converts degrees to radians

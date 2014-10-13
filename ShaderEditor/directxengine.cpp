@@ -55,6 +55,7 @@ struct DirectxData
     
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
+    std::vector<std::unique_ptr<DxWater>> waters;     ///< Each water in the scene
     std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
 };
 
@@ -87,6 +88,11 @@ void DirectxData::Release()
     for(auto& mesh : meshes)
     {
         mesh->Release();
+    }
+
+    for(auto& water : waters)
+    {
+        water->Release();
     }
 
     for(auto& shader : shaders)
@@ -285,6 +291,13 @@ bool DirectxEngine::InitialiseScene(const SceneElements& scene)
             new DxMesh(&mesh)));
     }
 
+    m_data->waters.reserve(scene.Waters().size());
+    for(const Water& water : scene.Waters())
+    {
+        m_data->waters.push_back(std::unique_ptr<DxWater>(
+            new DxWater(&water)));
+    }
+
     return ReInitialiseScene();
 }
 
@@ -304,6 +317,11 @@ bool DirectxEngine::ReInitialiseScene()
     for(auto& mesh : m_data->meshes)
     {
         mesh->Initialise(m_data->device, m_data->context);
+    }
+
+    for(auto& water : m_data->waters)
+    {
+        water->Initialise(m_data->device, m_data->context);
     }
 
     for(auto& texture : m_data->textures)
@@ -334,29 +352,40 @@ bool DirectxEngine::FadeView(bool in, float amount)
 
 void DirectxEngine::Render(const SceneElements& scene)
 {
-    auto renderMesh = [&](std::unique_ptr<DxMesh>& mesh)
+    auto renderMesh = [&](DxMesh& mesh)
     {
-        SetTextures(mesh->GetTextureIDs());
-        SetBackfaceCull(mesh->ShouldBackfaceCull());
-        mesh->Render(m_data->context);
+        SetTextures(mesh.GetTextureIDs());
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.Render(m_data->context);
     };
 
     // Render the scene/glow map
     m_data->sceneTarget.SetActive(m_data->context);
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Lights());
+        renderMesh(*water);
+    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Lights());
-        renderMesh(mesh);
+        renderMesh(*mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context);
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Post());
+        renderMesh(*water);
+    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Post());
-        renderMesh(mesh);
+        renderMesh(*mesh);
     }
-   
+
+    // Render the post processing
     SetBackfaceCull(false);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
@@ -461,8 +490,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
     if(index != m_data->selectedShader)
     {
-        m_data->selectedShader = index;
-        shader->SetActive(m_data->context);
+        SetSelectedShader(index);
 
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
@@ -481,8 +509,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
     if(index != m_data->selectedShader)
     {
-        m_data->selectedShader = index;
-        shader->SetActive(m_data->context);
+        SetSelectedShader(index);
         
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
@@ -503,6 +530,43 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
     shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
     shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
     shader->SendConstants(m_data->context);
+}
+
+
+void DirectxEngine::UpdateShader(const Water& water, 
+                                 const PostProcessing& post)
+{
+    const int index = water.normalIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        SetSelectedShader(index);
+
+        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        shader->SendConstants(m_data->context);
+    }
+}
+
+void DirectxEngine::UpdateShader(const Water& water, 
+                                 const std::vector<Light>& lights)
+{
+    const int index = water.shaderIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        SetSelectedShader(index);
+        
+        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        shader->SendConstants(m_data->context);
+    }
+}
+
+void DirectxEngine::SetSelectedShader(int index)
+{
+    m_data->selectedShader = index;
+    m_data->shaders[index]->SetActive(m_data->context);
 }
 
 ID3D11Device* DirectxEngine::GetDevice() const

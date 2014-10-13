@@ -30,7 +30,7 @@ public:
     /**
     * Destructor
     */
-    ~DxMesh();
+    virtual ~DxMesh();
 
     /**
     * Releases the directx mesh
@@ -87,3 +87,26 @@ private:
     const Mesh* m_mesh;                     ///< Mesh information or null if a quad
     std::string m_name;                     ///< Name of the mesh
 };                     
+
+/**
+* DirectX Water mesh
+*/
+class DxWater : public DxMesh
+{
+public:
+
+    /**
+    * Constructor for a complex mesh
+    * @param mesh The mesh to use as a template
+    */
+    DxWater(const Water* water);
+
+    /**
+    * @return the water information for the mesh
+    */
+    const Water& GetWater() const;
+
+private:
+
+    const Water* m_water; ///< Water information
+};

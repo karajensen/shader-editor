@@ -134,6 +134,25 @@ private:
     void UpdateShader(const Mesh& mesh, const PostProcessing& post);
 
     /**
+    * Updates and switches to main shader the water requires
+    * @param water The water currently rendering
+    * @param lights All lighting in the scene
+    */
+    void UpdateShader(const Water& water, const std::vector<Light>& lights);
+
+    /**
+    * Updates and switches to the normal shader the water requires
+    * @param water The mesh currently rendering
+    * @param post Data for post processing
+    */
+    void UpdateShader(const Water& water, const PostProcessing& post);
+
+    /**
+    * Sets the shader at the given index as selected
+    */
+    void SetSelectedShader(int index);
+
+    /**
     * Sends the textures to the selected shader
     * @param textureIDs the unique ids of the textures to send
     */

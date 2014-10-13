@@ -5,6 +5,13 @@
 #include "directxmesh.h"
 #include "elements.h"
 
+DxWater::DxWater(const Water* water) :
+    DxMesh(water),
+    m_water(water)
+{
+
+}
+
 DxMesh::DxMesh(const Mesh* mesh) :
     m_vertexStride(sizeof(float) * mesh->vertexComponentCount),
     m_vertexCount(mesh->vertexCount),
@@ -147,4 +154,10 @@ const Mesh& DxMesh::GetMesh() const
 {
     assert(m_mesh);
     return *m_mesh;
+}
+
+const Water& DxWater::GetWater() const
+{
+    assert(m_water);
+    return *m_water;
 }

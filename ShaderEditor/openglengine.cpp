@@ -51,6 +51,7 @@ struct OpenglData
 
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
+    std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
 };
 
@@ -83,6 +84,11 @@ void OpenglData::Release()
     for(auto& mesh : meshes)
     {
         mesh->Release();
+    }
+
+    for(auto& water : waters)
+    {
+        water->Release();
     }
 
     for(auto& shader : shaders)
@@ -317,6 +323,13 @@ bool OpenglEngine::InitialiseScene(const SceneElements& scene)
             new GlMesh(&mesh)));
     }
 
+    m_data->waters.reserve(scene.Waters().size());
+    for(const Water& water : scene.Waters())
+    {
+        m_data->waters.push_back(std::unique_ptr<GlWater>(
+            new GlWater(&water)));
+    }
+
     return ReInitialiseScene();
 }
 
@@ -338,6 +351,15 @@ bool OpenglEngine::ReInitialiseScene()
         if(!mesh->Initialise())
         {
             Logger::LogError("OpenGL: Failed to re-initialise mesh");
+            return false;
+        }
+    }
+
+    for(auto& water : m_data->waters)
+    {
+        if(!water->Initialise())
+        {
+            Logger::LogError("OpenGL: Failed to re-initialise water");
             return false;
         }
     }
@@ -374,32 +396,42 @@ bool OpenglEngine::FadeView(bool in, float amount)
 
 void OpenglEngine::Render(const SceneElements& scene)
 {
-    auto renderMesh = [&](std::unique_ptr<GlMesh>& mesh)
+    auto renderMesh = [&](GlMesh& mesh)
     {
-        SetTextures(mesh->GetTextureIDs());
-        SetBackfaceCull(mesh->ShouldBackfaceCull());
-
-        mesh->PreRender();
-        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
-        mesh->Render();
+        SetTextures(mesh.GetTextureIDs());
+        SetBackfaceCull(mesh.ShouldBackfaceCull());
+        mesh.PreRender();
+        m_data->shaders[mesh.GetShaderID()]->EnableAttributes();
+        mesh.Render();
     };
 
     // Render the scene/glow map
     m_data->sceneTarget.SetActive();
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Lights());
+        renderMesh(*water);
+    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Lights());
-        renderMesh(mesh);
+        renderMesh(*mesh);
     }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive();
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Post());
+        renderMesh(*water);
+    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Post());
-        renderMesh(mesh);
+        renderMesh(*mesh);
     }
 
+    // Render the post processing
     SetBackfaceCull(false);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
@@ -498,6 +530,12 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
     }
 }
 
+void OpenglEngine::SetSelectedShader(int index)
+{
+    m_data->selectedShader = index;
+    m_data->shaders[index]->SetActive();
+}
+
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
                                 const PostProcessing& post)
 {
@@ -506,8 +544,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
     if(index != m_data->selectedShader)
     {
-        m_data->selectedShader = index;
-        shader->SetActive();
+        SetSelectedShader(index);
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("depthNear", &post.depthNear, 1);
@@ -525,8 +562,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
     if(index != m_data->selectedShader)
     {
-        m_data->selectedShader = index;
-        shader->SetActive();
+        SetSelectedShader(index);
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
@@ -548,6 +584,34 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     shader->SendUniformFloat("meshBump", &mesh.bump, 1);
     shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
     shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
+}
+
+void OpenglEngine::UpdateShader(const Water& water, 
+                                const PostProcessing& post)
+{
+    const int index = water.normalIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        SetSelectedShader(index);
+
+        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+    }
+}
+
+void OpenglEngine::UpdateShader(const Water& water, 
+                                const std::vector<Light>& lights)
+{
+    const int index = water.shaderIndex;
+    auto& shader = m_data->shaders[index];
+
+    if(index != m_data->selectedShader)
+    {
+        SetSelectedShader(index);
+
+        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+    }
 }
 
 std::string OpenglEngine::GetName() const

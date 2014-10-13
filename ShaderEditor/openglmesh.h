@@ -29,7 +29,7 @@ public:
     /**
     * Destructor
     */
-    ~GlMesh();
+    virtual ~GlMesh();
 
     /**
     * Releases the opengl mesh
@@ -85,3 +85,26 @@ private:
     const Mesh* m_mesh = nullptr;   ///< Mesh information or null if a quad
     const std::string m_name;       ///< Name of the mesh
 };                     
+
+/**
+* OpenGL Water mesh
+*/
+class GlWater : public GlMesh
+{
+public:
+
+    /**
+    * Constructor for a complex mesh
+    * @param mesh The mesh to use as a template
+    */
+    GlWater(const Water* water);
+
+    /**
+    * @return the water information for the mesh
+    */
+    const Water& GetWater() const;
+
+private:
+
+    const Water* m_water; ///< Water information
+};

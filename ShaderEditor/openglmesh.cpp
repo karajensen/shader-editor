@@ -5,6 +5,12 @@
 #include "openglmesh.h"
 #include "elements.h"
 
+GlWater::GlWater(const Water* water) :
+    GlMesh(water),
+    m_water(water)
+{
+}
+
 GlMesh::GlMesh(const Mesh* mesh) :
     m_vertexCount(mesh->vertexCount),
     m_indexCount(mesh->indexCount),
@@ -133,4 +139,10 @@ const Mesh& GlMesh::GetMesh() const
 {
     assert(m_mesh);
     return *m_mesh;
+}
+
+const Water& GlWater::GetWater() const
+{
+    assert(m_water);
+    return *m_water;
 }
