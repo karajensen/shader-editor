@@ -3,7 +3,7 @@
 - Fix VLD
 
 - Water shader
-    - Get basic shaders working and same for Dx/Gl
+    - Basic water shader
     - Pass/Save water data from scene to shader
     - Water data tweak bar
 
