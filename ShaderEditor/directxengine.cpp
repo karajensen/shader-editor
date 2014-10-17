@@ -376,8 +376,8 @@ void DirectxEngine::Render(const SceneElements& scene)
     m_data->normalTarget.SetActive(m_data->context);
     for (auto& water : m_data->waters)
     {
-        //UpdateShader(water->GetWater(), scene.Post());
-        //renderMesh(*water);
+        UpdateShader(water->GetWater(), scene.Post());
+        renderMesh(*water);
     }
     for (auto& mesh : m_data->meshes)
     {
@@ -544,6 +544,8 @@ void DirectxEngine::UpdateShader(const Water& water,
         SetSelectedShader(index);
 
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
+        shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
         shader->SendConstants(m_data->context);
     }
 }

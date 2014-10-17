@@ -422,8 +422,8 @@ void OpenglEngine::Render(const SceneElements& scene)
     m_data->normalTarget.SetActive();
     for (auto& water : m_data->waters)
     {
-        //UpdateShader(water->GetWater(), scene.Post());
-        //renderMesh(*water);
+        UpdateShader(water->GetWater(), scene.Post());
+        renderMesh(*water);
     }
     for (auto& mesh : m_data->meshes)
     {
@@ -597,6 +597,8 @@ void OpenglEngine::UpdateShader(const Water& water,
         SetSelectedShader(index);
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+        shader->SendUniformFloat("depthNear", &post.depthNear, 1);
+        shader->SendUniformFloat("depthFar", &post.depthFar, 1);
     }
 }
 

@@ -46,6 +46,11 @@ public:
     virtual const std::vector<Texture>& Textures() const override;
 
     /**
+    * @return the emitters in the scene
+    */
+    virtual const std::vector<Emitter>& Emitters() const override;
+
+    /**
     * @return the post processing for the final image
     */
     virtual const PostProcessing& Post() const override;
@@ -231,4 +236,5 @@ private:
     std::vector<Mesh> m_meshes;       ///< All meshes in the scene
     std::vector<Light> m_lights;      ///< All lights in the scene
     std::vector<Water> m_water;       ///< All water in the scene
+    std::vector<Emitter> m_emitters;  ///< All particle emitters in the scene
 };                     

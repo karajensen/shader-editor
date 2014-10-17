@@ -25,6 +25,9 @@
     <Filter Include="Qt\generated">
       <UniqueIdentifier>{0c916700-ed1e-4905-9f7b-56acf5767a31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{bf83199f-cb5f-4230-bd48-2e7734160676}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Lights.xml">
@@ -242,52 +245,79 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Assets\Shaders\shader_glsl_vert.fx">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="Assets\Shaders\shader_glsl_frag.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="Assets\Shaders\shader_glsl_vert.fx">
+      <Filter>Shaders</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\Shaders\shader_hlsl.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\post_hlsl.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\post_glsl_frag.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\post_glsl_vert.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\normal_glsl_frag.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\normal_glsl_vert.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\normal_hlsl.fx">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="Assets\Shaders\blur_glsl_frag.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\blur_glsl_vert.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\blur_hlsl.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\normal_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_normal_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_normal_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\particle_normal_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\post_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\post_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\post_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\shader_hlsl.fx">
+      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_glsl_frag.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_glsl_vert.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_hlsl.fx">
-      <Filter>Resource Files</Filter>
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\water_normal_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\water_normal_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\water_normal_hlsl.fx">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

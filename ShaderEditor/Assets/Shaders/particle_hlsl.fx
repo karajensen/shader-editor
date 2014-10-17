@@ -5,7 +5,6 @@
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
-    float timer;
 };
 
 SamplerState Sampler;

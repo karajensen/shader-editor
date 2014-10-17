@@ -44,4 +44,9 @@ public:
     * @return the post processing for the final image
     */
     virtual const PostProcessing& Post() const = 0;
+
+    /**
+    * @return the emitters in the scene
+    */
+    virtual const std::vector<Emitter>& Emitters() const = 0;
 };                     

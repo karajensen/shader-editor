@@ -347,3 +347,33 @@ struct Water : public Mesh
     float height = 1.0f;            ///< Height multiplier of waves
     Float3 direction;               ///< Direction of the waves
 };
+
+/**
+* Data for a single particle
+*/
+struct Particle
+{
+    Float3 direction;        ///< The direction of the particle
+    Float3 position;         ///< The position of the particle
+    float speed = 0.0f;      ///< The speed of the particle
+    int texture = NO_INDEX;  ///< The texture to render the particle with
+    bool alive = false;      ///< Whether this particle should be rendered
+};
+
+/**
+* Data for a particle emitter
+*/
+struct Emitter
+{
+    float amount = 0.0f;             ///< The amount of particles to spawn at any one time
+    float width = 0.0f;              ///< The width of the emitter
+    float length = 0.0f;             ///< The length of the emitter
+    float speed = 0.0f;              ///< The speed of the particles
+    float speedVariation = 0.0f;     ///< The variation in speed of the particles
+    float deathDistance = 0.0f;      ///< The distance travelled before dying
+    Float3 position;                 ///< The position of the emitter
+    Float3 direction;                ///< The direction the particles will spawn 
+    std::vector<int> textures;       ///< Indexes for the particle textures to use
+    std::vector<Particle> particles; ///< Particles this emitter can spawn
+    int shader = NO_INDEX;           ///< Shader to render the particles in
+};

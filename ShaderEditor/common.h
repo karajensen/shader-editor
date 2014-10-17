@@ -59,6 +59,9 @@ const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT))
 const std::string BLUR_SHADER("blur");
 const std::string POST_SHADER("post");
 const std::string WATER_SHADER("water");
+const std::string WATER_NORMAL_SHADER("water_normal");
+const std::string PARTICLE_SHADER("particle");
+const std::string PARTICLE_NORMAL_SHADER("particle_normal");
 const std::string NORMAL_SHADER("normal");
 const std::string BASE_SHADER("shader");
 
@@ -66,7 +69,10 @@ enum ShaderIndex
 {
     POST_SHADER_INDEX,
     BLUR_SHADER_INDEX,
-    WATER_SHADER_INDEX
+    WATER_SHADER_INDEX,
+    WATER_NORMAL_SHADER_INDEX,
+    PARTICLE_SHADER_INDEX,
+    PARTICLE_NORMAL_SHADER_INDEX
 };
 
 /**

@@ -63,6 +63,9 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
     CreateShader(POST_SHADER, POST_SHADER_INDEX);
     CreateShader(BLUR_SHADER, BLUR_SHADER_INDEX);
     CreateShader(WATER_SHADER, WATER_SHADER_INDEX);
+    CreateShader(WATER_NORMAL_SHADER, WATER_NORMAL_SHADER_INDEX);
+    CreateShader(PARTICLE_SHADER, PARTICLE_SHADER_INDEX);
+    CreateShader(PARTICLE_NORMAL_SHADER, PARTICLE_NORMAL_SHADER_INDEX);
 
     return success;
 }
@@ -101,7 +104,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
 {
     water.shaderIndex = WATER_SHADER_INDEX;
-    water.normalIndex = WATER_SHADER_INDEX;
+    water.normalIndex = WATER_NORMAL_SHADER_INDEX;
 }
 
 void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
@@ -368,6 +371,11 @@ const std::vector<Light>& Scene::Lights() const
 const std::vector<Texture>& Scene::Textures() const
 {
     return m_textures;
+}
+
+const std::vector<Emitter>& Scene::Emitters() const
+{
+    return m_emitters;
 }
 
 const PostProcessing& Scene::Post() const
