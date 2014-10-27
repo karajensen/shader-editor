@@ -76,6 +76,7 @@
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
     <ClInclude Include="opengltexture.h" />
+    <ClInclude Include="ptree_utilities.h" />
     <ClInclude Include="qt\project\editor.h" />
     <ClInclude Include="qt\project\generated\ui_editor.h" />
     <ClInclude Include="qt\project\generated\ui_tweaker.h" />

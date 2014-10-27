@@ -43,8 +43,8 @@ struct DirectxData
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
     DxRenderTarget sceneTarget;         ///< Render target for the main scene
     DxRenderTarget normalTarget;        ///< Render target for the scene normal/depth map
-    DxRenderTarget blurTargetP1;          ///< Render target for blurring the main scene pass1
-    DxRenderTarget blurTargetP2;          ///< Render target for blurring the main scene pass2
+    DxRenderTarget blurTargetP1;        ///< Render target for blurring the main scene pass1
+    DxRenderTarget blurTargetP2;        ///< Render target for blurring the main scene pass2
     D3DXMATRIX view;                    ///< View matrix
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix

@@ -4,9 +4,10 @@
 
 #pragma once
 
-//#ifdef _DEBUG
-//#include "vld/include/vld.h"
-//#endif
+//#define TEST_LEAKS
+#ifdef TEST_LEAKS
+#include "vld/include/vld.h"
+#endif
 
 #define USE_CONSOLE
 #ifndef USE_CONSOLE
@@ -89,26 +90,6 @@ template<typename T> T DegToRad(T degrees)
 template<typename T> T RadToDeg(T radians)
 {
     return static_cast<T>(180.0/M_PI)*radians;
-}
-
-/**
-* Gets the value if it exists in the tree or returns defaultValue
-* @param itr Iteration from the tree to check 
-* @param defaultValue The default value to use if name is not found
-* @param node The name of the node to search
-* @return the chosen value from either the tree or defaultValue
-*/
-template<typename T> T GetPtreeValue(boost::property_tree::ptree::iterator& itr, 
-                                     T defaultValue, 
-                                     const char* node)
-{
-    int count = itr->second.count(node);
-    if(count > 0)
-    {
-        return boost::lexical_cast<T>(
-            itr->second.get_child(node).data());
-    }
-    return defaultValue;
 }
 
 /**

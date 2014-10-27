@@ -365,15 +365,16 @@ struct Particle
 */
 struct Emitter
 {
-    float amount = 0.0f;             ///< The amount of particles to spawn at any one time
     float width = 0.0f;              ///< The width of the emitter
     float length = 0.0f;             ///< The length of the emitter
     float speed = 0.0f;              ///< The speed of the particles
     float speedVariation = 0.0f;     ///< The variation in speed of the particles
-    float deathDistance = 0.0f;      ///< The distance travelled before dying
+    float lifeTime = 0.0f;           ///< Seconds the particle can live before dying
     Float3 position;                 ///< The position of the emitter
     Float3 direction;                ///< The direction the particles will spawn 
     std::vector<int> textures;       ///< Indexes for the particle textures to use
     std::vector<Particle> particles; ///< Particles this emitter can spawn
-    int shader = NO_INDEX;           ///< Shader to render the particles in
+    int shaderIndex = NO_INDEX;      ///< Unique Index of the mesh shader to use
+    int normalIndex = NO_INDEX;      ///< Unique Index of the normal shader to use
+    std::string name;                ///< Name of this emitter
 };

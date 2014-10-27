@@ -3,9 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include "ptree_utilities.h"
 #include <algorithm>
 #include "boost/filesystem.hpp"
-#include "boost/lexical_cast.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 #include "boost/algorithm/string.hpp"
 #include "assimp/include/scene.h"
@@ -96,9 +96,42 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             CreateMesh(mesh);
             m_meshes.emplace_back(mesh);
         }
+        else if (it->first == "Emitter")
+        {
+            Emitter emitter;
+            InitialiseEmitter(emitter, it);
+            m_emitters.emplace_back(emitter);
+        }
     }
 
     return true;
+}
+
+void Scene::InitialiseEmitter(Emitter& emitter, boost::property_tree::ptree::iterator& it)
+{
+    emitter.width = GetValue<float>(it, "Width");
+    emitter.length = GetValue<float>(it, "Length");
+    emitter.speed = GetValue<float>(it, "Speed");
+    emitter.lifeTime = GetValue<float>(it, "LifeTime");
+    emitter.speedVariation = GetValue<float>(it, "SpeedVariation");
+    emitter.name = GetValue<std::string>(it, "Name");
+    emitter.particles.resize(GetValue<int>(it, "Amount"));
+    emitter.position.x = GetAttribute<float>(it, "Position", "x");
+    emitter.position.y = GetAttribute<float>(it, "Position", "y");
+    emitter.position.z = GetAttribute<float>(it, "Position", "z");
+    emitter.direction.x = GetAttribute<float>(it, "Direction", "x");
+    emitter.direction.y = GetAttribute<float>(it, "Direction", "y");
+    emitter.direction.z = GetAttribute<float>(it, "Direction", "z");
+    emitter.shaderIndex = PARTICLE_SHADER_INDEX;
+    emitter.normalIndex = PARTICLE_NORMAL_SHADER_INDEX;
+
+    for (auto child = it->second.begin(); child != it->second.end(); ++child)
+    {
+        if (child->first == "Texture")
+        {
+            emitter.textures.push_back(AddTexture(child->second.data()));
+        }
+    }
 }
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
@@ -109,18 +142,18 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
 
 void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
 {
-    mesh.name = it->second.get_child("Name").data();
-    mesh.specularity = GetPtreeValue(it, 5.0f, "Specularity");
-    mesh.ambience = GetPtreeValue(it, 1.0f, "Ambience");
-    mesh.bump = GetPtreeValue(it, 1.0f, "Bump");
-    mesh.glow = GetPtreeValue(it, 1.0f, "Intensity");
-    mesh.backfacecull = GetPtreeValue(it, true, "BackfaceCulling");
+    mesh.name = GetValue<std::string>(it, "Name");
+    mesh.specularity = GetValueOptional(it, 5.0f, "Specularity");
+    mesh.ambience = GetValueOptional(it, 1.0f, "Ambience");
+    mesh.bump = GetValueOptional(it, 1.0f, "Bump");
+    mesh.glow = GetValueOptional(it, 1.0f, "Intensity");
+    mesh.backfacecull = GetValueOptional(it, true, "BackfaceCulling");
 	
     // Get the textures used by the mesh
     assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
-        mesh.textureIDs[i] = AddTexture(GetPtreeValue(
+        mesh.textureIDs[i] = AddTexture(GetValueOptional(
             it, std::string(), Texture::GetTypeDescription(i).c_str()));
     }
 
@@ -135,7 +168,7 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
 {
     // Get the shader used by the mesh
     std::string shader = OVERRIDE_SHADERS ? GLOBAL_SHADER : 
-        it->second.get_child("Shader").data();
+        GetValue<std::string>(it, "Shader");
 
     // Copy each component featured in the given shader name to a set order
     std::string newShaderName;
@@ -529,26 +562,26 @@ bool Scene::InitialiseLighting()
             for(it = tree.begin(); it != tree.end(); ++it)
             {
                 Light light;
-                light.name = GetPtreeValue(it, std::string("UNNAMED"), "Name");
+                light.name = GetValue<std::string>(it, "Name");
 	
                 light.diffuse.a = 1.0f;
-                light.diffuse.r = GetPtreeValue(it,1.0f,"R");
-                light.diffuse.b = GetPtreeValue(it,1.0f,"B");
-                light.diffuse.g = GetPtreeValue(it,1.0f,"G");
+                light.diffuse.r = GetValue<float>(it, "R");
+                light.diffuse.b = GetValue<float>(it, "B");
+                light.diffuse.g = GetValue<float>(it, "G");
 	
                 light.specular.a = 1.0f;
-                light.specular.r = GetPtreeValue(it,1.0f,"SR");
-                light.specular.b = GetPtreeValue(it,1.0f,"SB");
-                light.specular.g = GetPtreeValue(it,1.0f,"SG");
+                light.specular.r = GetValue<float>(it, "SR");
+                light.specular.b = GetValue<float>(it, "SB");
+                light.specular.g = GetValue<float>(it, "SG");
 	
-                light.position.x = GetPtreeValue(it,0.0f,"X");
-                light.position.y = GetPtreeValue(it,0.0f,"Y");
-                light.position.z = GetPtreeValue(it,0.0f,"Z");
+                light.position.x = GetValue<float>(it, "X");
+                light.position.y = GetValue<float>(it, "Y");
+                light.position.z = GetValue<float>(it, "Z");
 	
-                light.specularity = GetPtreeValue(it,5.0f,"Specularity");
-                light.attenuation.x = GetPtreeValue(it,0.0f,"AttX");
-                light.attenuation.y = GetPtreeValue(it,0.0f,"AttY");
-                light.attenuation.z = GetPtreeValue(it,0.0f,"AttZ");
+                light.specularity = GetValue<float>(it, "Specularity");
+                light.attenuation.x = GetValue<float>(it, "AttX");
+                light.attenuation.y = GetValue<float>(it, "AttY");
+                light.attenuation.z = GetValue<float>(it, "AttZ");
 	
                 m_lights.push_back(light);
             }
@@ -611,31 +644,26 @@ bool Scene::InitialisePost()
         post, boost::property_tree::xml_parser::trim_whitespace);
     boost::property_tree::ptree& tree = post.get_child("PostProcessing");
 
-    auto getValue = [&](const std::string& name)
-    {
-        return boost::lexical_cast<float>(tree.get_child(name).data());
-    };
-
-    m_postProcessing.blurAmount = getValue("BlurAmount");
-    m_postProcessing.blurStep = getValue("BlurStep");
-    m_postProcessing.depthFar = getValue("DepthFar");
-    m_postProcessing.depthNear = getValue("DepthNear");
-    m_postProcessing.dofDistance = getValue("DOFDistance");
-    m_postProcessing.dofFade = getValue("DOFFade");
-    m_postProcessing.fogColour.r = getValue("FogColourR");
-    m_postProcessing.fogColour.g = getValue("FogColourG");
-    m_postProcessing.fogColour.b = getValue("FogColourB");
-    m_postProcessing.fogDistance = getValue("FogDistance");
-    m_postProcessing.fogFade = getValue("FogFade");
-    m_postProcessing.glowAmount = getValue("GlowAmount");
-    m_postProcessing.contrast = getValue("Contrast");
-    m_postProcessing.saturation = getValue("Saturation");
-    m_postProcessing.maximumColour.r = getValue("MaximumColourR");
-    m_postProcessing.maximumColour.g = getValue("MaximumColourG");
-    m_postProcessing.maximumColour.b = getValue("MaximumColourB");
-    m_postProcessing.minimumColour.r = getValue("MinimumColourR");
-    m_postProcessing.minimumColour.g = getValue("MinimumColourG");
-    m_postProcessing.minimumColour.b = getValue("MinimumColourB");
+    m_postProcessing.blurAmount = GetValue<float>(tree, "BlurAmount");
+    m_postProcessing.blurStep = GetValue<float>(tree, "BlurStep");
+    m_postProcessing.depthFar = GetValue<float>(tree, "DepthFar");
+    m_postProcessing.depthNear = GetValue<float>(tree, "DepthNear");
+    m_postProcessing.dofDistance = GetValue<float>(tree, "DOFDistance");
+    m_postProcessing.dofFade = GetValue<float>(tree, "DOFFade");
+    m_postProcessing.fogColour.r = GetValue<float>(tree, "FogColourR");
+    m_postProcessing.fogColour.g = GetValue<float>(tree, "FogColourG");
+    m_postProcessing.fogColour.b = GetValue<float>(tree, "FogColourB");
+    m_postProcessing.fogDistance = GetValue<float>(tree, "FogDistance");
+    m_postProcessing.fogFade = GetValue<float>(tree, "FogFade");
+    m_postProcessing.glowAmount = GetValue<float>(tree, "GlowAmount");
+    m_postProcessing.contrast = GetValue<float>(tree, "Contrast");
+    m_postProcessing.saturation = GetValue<float>(tree, "Saturation");
+    m_postProcessing.maximumColour.r = GetValue<float>(tree, "MaximumColourR");
+    m_postProcessing.maximumColour.g = GetValue<float>(tree, "MaximumColourG");
+    m_postProcessing.maximumColour.b = GetValue<float>(tree, "MaximumColourB");
+    m_postProcessing.minimumColour.r = GetValue<float>(tree, "MinimumColourR");
+    m_postProcessing.minimumColour.g = GetValue<float>(tree, "MinimumColourG");
+    m_postProcessing.minimumColour.b = GetValue<float>(tree, "MinimumColourB");
 
     return true;
 }

@@ -188,6 +188,13 @@ private:
     void InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it);
 
     /**
+    * Initialises an emitter for the scene
+    * @param emitter The emitter to initialise
+    * @param it The iterator for the mesh config file
+    */
+    void InitialiseEmitter(Emitter& emitter, boost::property_tree::ptree::iterator& it);
+
+    /**
     * Adds a texture from a mesh if it doesn't already exist
     * @param name The name of the texture to add
     * @return The unique id of the texture added

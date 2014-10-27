@@ -1,7 +1,4 @@
 
-- Profile DirectX to find why fps so low
-- Fix VLD
-
 - Water shader
     - Basic water shader
     - Pass/Save water data from scene to shader

@@ -55,13 +55,12 @@
     <Name>TestEmitter</Name>
     <Position x="0.0" y="0.0" z="0.0"></Position>
     <Direction x="0.0" y="0.0" z="0.0"></Direction>
-    <Width></Width>
-    <Length></Length>
-    <Particle></Particle>
-    <Amount></Amount>
-    <Speed></Speed>
-    <DeathDistance></DeathDistance>
-    <SpeedVariation></SpeedVariation>
+    <Width>1.0</Width>
+    <Length>1.0</Length>
+    <Amount>30</Amount>
+    <Speed>1.0</Speed>
+    <LifeTime>1.0</LifeTime>
+    <SpeedVariation>1.0</SpeedVariation>
     <Texture>caustic.bmp</Texture>
     <Texture>specular.JPG</Texture>
   </Emitter>
