@@ -231,11 +231,20 @@ private:
                        const std::string& meshName);
 
     /**
-    * Adds the give mesh to the given tree
+    * Adds the given mesh to the given tree
     * @param mesh The mesh data to add
     * @param entry The tree to add to
     */
-    void AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry);
+    void AddMeshToTree(const Mesh& mesh, 
+                       boost::property_tree::ptree& entry);
+
+    /**
+    * Adds the given emitter to the given tree
+    * @param emitter The emitter data to add
+    * @param entry The tree to add to
+    */
+    void AddEmitterToTree(const Emitter& mesh, 
+                          boost::property_tree::ptree& entry);
                             
     PostProcessing m_postProcessing;  ///< Post processing for the final image
     std::vector<Texture> m_textures;  ///< All textures in the scene

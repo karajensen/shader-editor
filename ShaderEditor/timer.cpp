@@ -34,11 +34,17 @@ void Timer::UpdateTimer()
         m_fpsCounter = 0;
     }
 
+    m_totalTime += m_deltaTime;
     m_deltaTime = max(deltatime, DT_MINIMUM);
     m_deltaTime = min(m_deltaTime, DT_MAXIMUM);
     
-    ++m_fpsCounter; //increment frame counter
+    ++m_fpsCounter; 
     m_previousTime = currentTime;
+}
+
+double Timer::GetTotalTime() const
+{
+    return m_totalTime;
 }
 
 float Timer::GetDeltaTime() const 

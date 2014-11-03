@@ -67,6 +67,8 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
     CreateShader(PARTICLE_SHADER, PARTICLE_SHADER_INDEX);
     CreateShader(PARTICLE_NORMAL_SHADER, PARTICLE_NORMAL_SHADER_INDEX);
 
+    m_shaders[WATER_SHADER_INDEX].components.push_back(Shader::BUMP);
+
     return success;
 }
 
@@ -519,10 +521,40 @@ void Scene::SaveMeshesToFile()
         tree.add_child("Water", entries[entries.size()-1]);
     }
 
+    for (const Emitter& emitter : m_emitters)
+    {
+        property_tree::ptree entry;
+        AddEmitterToTree(emitter, entry);
+        entries.emplace_back(entry);
+        tree.add_child("Emitter", entries[entries.size()-1]);
+    }
+
     root.add_child("Meshes", tree);
     filesystem::path filePath(ASSETS_PATH + "Meshes_saved.xml");
     property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
     property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+void Scene::AddEmitterToTree(const Emitter& emitter, boost::property_tree::ptree& entry)
+{
+    entry.add("Name", emitter.name.c_str());
+    entry.add("Width", emitter.width);
+    entry.add("Length", emitter.length);
+    entry.add("Speed", emitter.speed);
+    entry.add("Amount", emitter.particles.size());
+    entry.add("LifeTime", emitter.lifeTime);
+    entry.add("SpeedVariation", emitter.speedVariation);
+    entry.add("Position.<xmlattr>.x", emitter.position.x);
+    entry.add("Position.<xmlattr>.y", emitter.position.y);
+    entry.add("Position.<xmlattr>.z", emitter.position.z);
+    entry.add("Direction.<xmlattr>.x", emitter.direction.x);
+    entry.add("Direction.<xmlattr>.y", emitter.direction.y);
+    entry.add("Direction.<xmlattr>.z", emitter.direction.z);
+
+    for (int texture : emitter.textures)
+    {
+        entry.add("Texture", m_textures[texture].name);
+    }
 }
 
 void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)

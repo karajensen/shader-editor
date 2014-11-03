@@ -2,6 +2,8 @@
 // Kara Jensen - mail@karajensen.com - ptree_utilities.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include "boost/lexical_cast.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "logger.h"

@@ -194,6 +194,7 @@ struct Texture
         NORMAL,
         SPECULAR,
         GLOW,
+        ENVIRONMENT,
         MAX_TYPES
     };
 
@@ -214,6 +215,8 @@ struct Texture
             return "Specular";
         case GLOW:
             return "Glow";
+        case ENVIRONMENT:
+            return "Environment";
         default:
             return "None";
         };

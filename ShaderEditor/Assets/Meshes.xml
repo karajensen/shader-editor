@@ -48,8 +48,9 @@
   </Mesh>
   <Water>
     <Name>Ref_water.obj</Name>
-    <Specularity>1.0</Specularity>
     <Diffuse>caustic.bmp</Diffuse>
+    <Normal>water_normal.png</Normal>
+    <!--<Environment>water_environment.dds</Environment>-->
   </Water>
   <Emitter>
     <Name>TestEmitter</Name>

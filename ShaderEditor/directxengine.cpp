@@ -548,6 +548,9 @@ void DirectxEngine::UpdateShader(const Water& water,
         shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
         shader->SendConstants(m_data->context);
     }
+
+    shader->UpdateConstantFloat("meshBump", &water.bump, 1);
+    shader->SendConstants(m_data->context);
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
