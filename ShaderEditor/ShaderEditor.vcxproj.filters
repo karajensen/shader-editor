@@ -225,9 +225,6 @@
     <ClInclude Include="gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="qt\project\signals.h">
-      <Filter>Qt</Filter>
-    </ClInclude>
     <ClInclude Include="qt\project\tweakable_box.h">
       <Filter>Qt</Filter>
     </ClInclude>
@@ -245,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="ptree_utilities.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qt\project\tweakable.h">
+      <Filter>Qt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

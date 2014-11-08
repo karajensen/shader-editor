@@ -48,6 +48,15 @@
   </Mesh>
   <Water>
     <Name>Ref_water.obj</Name>
+    <Bump>1.0</Bump>
+    <BumpSpeed>1.0</BumpSpeed>
+    <Speed>1.0</Speed>
+    <FresnalFactor>1.5</FresnalFactor>
+    <ReflectionIntensity>1.5</ReflectionIntensity>
+    <ReflectionTint r="0.0" g="0.0" b="1.0"></ReflectionTint>
+    <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
+    <DeepColour r="0.0" g="0.0" b="1.0"></DeepColour>
+    <TextureOffset u="0.0" v="0.0"></TextureOffset>
     <Diffuse>caustic.bmp</Diffuse>
     <Normal>water_normal.png</Normal>
     <!--<Environment>water_environment.dds</Environment>-->

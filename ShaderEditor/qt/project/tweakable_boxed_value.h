@@ -18,18 +18,24 @@ struct ComboEntry
 {
     /**
     * Constructor
+    */
+    ComboEntry();
+
+    /**
+    * Sets the values for the entry
     * @param Name Name of the entry
     * @param Step How much to change the value by
-    * @param Signal The callback for when value changes
+    * @param Callback The callback for when value changes
     */
-    ComboEntry(const std::string& Name,
-               double Step,
-               std::function<void(float)> Signal);
+    void Set(const std::string& Name,
+             double Step,
+             std::function<void(float)> Callback);
 
-    std::string name;                  ///< Name of the entry
-    double step;                       ///< How much to change the value by
-    double value;                      ///< Current value of the entry
-    std::function<void(float)> signal; ///< callback for when the value is changed
+    std::string name; ///< Name of the entry
+    double step;      ///< How much to change the value by
+    double value;     ///< Current value of the entry
+
+    std::function<void(float)> callback; ///< Called when the value is changed
 };
 
 /**

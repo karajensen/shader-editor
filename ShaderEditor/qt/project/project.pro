@@ -29,7 +29,8 @@ HEADERS  += \
     tweaker.h \
     tweakable_box.h \
     tweakable_boxed_value.h \
-    tweakable_button.h
+    tweakable_button.h \
+    tweakable.h
 
 FORMS    += \
     editor.ui \

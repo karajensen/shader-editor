@@ -14,14 +14,20 @@ TweakableBoxedValue::TweakableBoxedValue() :
 {
 }
 
-ComboEntry::ComboEntry(const std::string& Name,
-                       double Step,
-                       std::function<void(float)> Signal) :
-    step(Step),
+ComboEntry::ComboEntry() :
+    step(0.0),
     value(0.0),
-    signal(Signal),
-    name(Name)
+    callback(nullptr)
 {
+}
+
+void ComboEntry::Set(const std::string& Name,
+                     double Step,
+                     std::function<void(float)> Callback)
+{
+    step = Step;
+    callback = Callback;
+    name = Name;
 }
 
 void TweakableBoxedValue::Initialise(QComboBox* comboBox,
@@ -54,7 +60,7 @@ void TweakableBoxedValue::Initialise(QComboBox* comboBox,
 
 void TweakableBoxedValue::UpdateValue(double value)
 {
-    m_entries[m_selectedIndex].signal(value);
+    m_entries[m_selectedIndex].callback(value);
 }
 
 void TweakableBoxedValue::DialValue(int value)

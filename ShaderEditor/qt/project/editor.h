@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "signals.h"
+#include "tweakable.h"
 #include "tweakable_box.h"
 
 #ifdef _VS

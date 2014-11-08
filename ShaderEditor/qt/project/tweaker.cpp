@@ -2,56 +2,9 @@
 // Kara Jensen - mail@karajensen.com - tweaker.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <QtGui>
 #include "tweaker.h"
-
-namespace
-{
-    enum Colour
-    {
-        RED,
-        GREEN,
-        BLUE
-    };
-
-    enum Fog
-    {
-        FOG_DISTANCE,
-        FOG_FADE,
-        FOG_RED,
-        FOG_GREEN,
-        FOG_BLUE
-    };
-
-    enum Particle
-    {
-        PARTICLE_SPEED,
-        PARTICLE_DIRECTION_X,
-        PARTICLE_DIRECTION_Y,
-        PARTICLE_DIRECTION_Z,
-        PARTICLE_RANDOM_X,
-        PARTICLE_RANDOM_Y,
-        PARTICLE_RANDOM_Z
-    };
-
-    enum Emitter
-    {
-        EMITTER_X,
-        EMITTER_Y,
-        EMITTER_Z,
-        EMITTER_AREA_U,
-        EMITTER_AREA_V
-    };
-
-    enum Water
-    {
-        WATER_SPEED,
-        WATER_HEIGHT,
-        WATER_DIRECTION_X,
-        WATER_DIRECTION_Y,
-        WATER_DIRECTION_Z
-    };
-}
+#include <QtGui>
+#include <algorithm>
 
 Tweaker::Tweaker(QWidget* parent) :
     QWidget(parent)
@@ -97,76 +50,93 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_depthFar.Initialise(10.0, m_ui.depthFar_value,
         m_ui.depthFar_dial, m_callbacks.SetDepthFar);
 
-    m_lightPositionX.Initialise(1.0, m_ui.positionX_value,
-        m_ui.positionX_dial, m_callbacks.SetLightPositionX);
+    m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
+        m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
 
-    m_lightPositionY.Initialise(1.0, m_ui.positionY_value,
-        m_ui.positionY_dial, m_callbacks.SetLightPositionY);
+    m_light[LIGHT_POSITION_Y].Initialise(1.0, m_ui.positionY_value,
+        m_ui.positionY_dial, m_callbacks.SetLight[LIGHT_POSITION_Y]);
 
-    m_lightPositionZ.Initialise(1.0, m_ui.positionZ_value,
-        m_ui.positionZ_dial, m_callbacks.SetLightPositionZ);
+    m_light[LIGHT_POSITION_Z].Initialise(1.0, m_ui.positionZ_value,
+        m_ui.positionZ_dial, m_callbacks.SetLight[LIGHT_POSITION_Z]);
 
-    m_lightAttenuationX.Initialise(0.01, m_ui.attenuationX_value,
-        m_ui.attenuationX_dial, m_callbacks.SetLightAttX);
+    m_light[LIGHT_ATTENUATION_X].Initialise(0.01, m_ui.attenuationX_value,
+        m_ui.attenuationX_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_X]);
 
-    m_lightAttenuationY.Initialise(0.001, m_ui.attenuationY_value,
-        m_ui.attenuationY_dial, m_callbacks.SetLightAttY);
+    m_light[LIGHT_ATTENUATION_Y].Initialise(0.001, m_ui.attenuationY_value,
+        m_ui.attenuationY_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Y]);
 
-    m_lightAttenuationZ.Initialise(0.0001, m_ui.attenuationZ_value,
-        m_ui.attenuationZ_dial, m_callbacks.SetLightAttZ);
+    m_light[LIGHT_ATTENUATION_Z].Initialise(0.0001, m_ui.attenuationZ_value,
+        m_ui.attenuationZ_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Z]);
 
-    m_lightDiffuseR.Initialise(0.01, m_ui.diffuseRed_value,
-        m_ui.diffuseRed_dial, m_callbacks.SetLightDiffuseR);
+    m_light[LIGHT_DIFFUSE_R].Initialise(0.01, m_ui.diffuseRed_value,
+        m_ui.diffuseRed_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_R]);
 
-    m_lightDiffuseG.Initialise(0.01, m_ui.diffuseGreen_value,
-        m_ui.diffuseGreen_dial, m_callbacks.SetLightDiffuseG);
+    m_light[LIGHT_DIFFUSE_G].Initialise(0.01, m_ui.diffuseGreen_value,
+        m_ui.diffuseGreen_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_G]);
 
-    m_lightDiffuseB.Initialise(0.01, m_ui.diffuseBlue_value,
-        m_ui.diffuseBlue_dial, m_callbacks.SetLightDiffuseB);
+    m_light[LIGHT_DIFFUSE_B].Initialise(0.01, m_ui.diffuseBlue_value,
+        m_ui.diffuseBlue_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_B]);
 
-    m_lightSpecularR.Initialise(0.01, m_ui.specularRed_value,
-        m_ui.specularRed_dial, m_callbacks.SetLightSpecularR);
+    m_light[LIGHT_SPECULAR_R].Initialise(0.01, m_ui.specularRed_value,
+        m_ui.specularRed_dial, m_callbacks.SetLight[LIGHT_SPECULAR_R]);
 
-    m_lightSpecularG.Initialise(0.01, m_ui.specularGreen_value,
-        m_ui.specularGreen_dial, m_callbacks.SetLightSpecularG);
+    m_light[LIGHT_SPECULAR_G].Initialise(0.01, m_ui.specularGreen_value,
+        m_ui.specularGreen_dial, m_callbacks.SetLight[LIGHT_SPECULAR_G]);
 
-    m_lightSpecularB.Initialise(0.01, m_ui.specularBlue_value,
-        m_ui.specularBlue_dial, m_callbacks.SetLightSpecularB);
+    m_light[LIGHT_SPECULAR_B].Initialise(0.01, m_ui.specularBlue_value,
+        m_ui.specularBlue_dial, m_callbacks.SetLight[LIGHT_SPECULAR_B]);
 
-    m_lightSpecularity.Initialise(0.1, m_ui.lightSpecularity_value,
-        m_ui.lightSpecularity_dial, m_callbacks.SetLightSpecularity);
+    m_light[LIGHT_SPECULARITY].Initialise(0.1, m_ui.lightSpecularity_value,
+        m_ui.lightSpecularity_dial, m_callbacks.SetLight[LIGHT_SPECULARITY]);
 
-    m_meshSpecularity.Initialise(0.01, m_ui.meshSpecularity_value,
-        m_ui.meshSpecularity_dial, m_callbacks.SetMeshSpecularity);
+    std::vector<ComboEntry> mesh(MESH_ATTRIBUTES);
+    mesh[MESH_AMBIENCE].Set("Ambience", 0.01, m_callbacks.SetMesh[MESH_AMBIENCE]);
+    mesh[MESH_BUMP].Set("Bump", 0.01, m_callbacks.SetMesh[MESH_BUMP]);
+    mesh[MESH_GLOW].Set("Glow", 0.01, m_callbacks.SetMesh[MESH_GLOW]);
+    mesh[MESH_SPECULARITY].Set("Specularity", 0.01, m_callbacks.SetMesh[MESH_SPECULARITY]);
+    m_mesh.Initialise(m_ui.meshAttributes_box,
+        m_ui.meshAttributes_value, m_ui.meshAttributes_dial, mesh);
 
-    m_meshAmbience.Initialise(0.01, m_ui.meshAmbience_value,
-        m_ui.meshAmbience_dial, m_callbacks.SetMeshAmbience);
+    std::vector<ComboEntry> minimumColour(COLOUR_ATTRIBUTES);
+    minimumColour[RED].Set("Min Red", 0.01, m_callbacks.SetMinColour[RED]);
+    minimumColour[GREEN].Set("Min Green", 0.01, m_callbacks.SetMinColour[GREEN]);
+    minimumColour[BLUE].Set("Min Blue", 0.01, m_callbacks.SetMinColour[BLUE]);
+    m_minColour.Initialise(m_ui.minRange_box,
+        m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
 
-    m_meshBump.Initialise(0.01, m_ui.meshBump_value,
-        m_ui.meshBump_dial, m_callbacks.SetMeshBump);
+    std::vector<ComboEntry> maximumColour(COLOUR_ATTRIBUTES);
+    maximumColour[RED].Set("Max Red", 0.01, m_callbacks.SetMaxColour[RED]);
+    maximumColour[GREEN].Set("Max Green", 0.01, m_callbacks.SetMaxColour[GREEN]);
+    maximumColour[BLUE].Set("Max Blue", 0.01, m_callbacks.SetMaxColour[BLUE]);
+    m_maxColour.Initialise(m_ui.maxRange_box,
+        m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
 
-    m_meshGlow.Initialise(0.01, m_ui.meshGlow_value,
-        m_ui.meshGlow_dial, m_callbacks.SetMeshGlow);
-
-    std::vector<ComboEntry> minimumColour;
-    minimumColour.emplace_back(ComboEntry("Min Red", 0.01, m_callbacks.SetMinRed));
-    minimumColour.emplace_back(ComboEntry("Min Green", 0.01, m_callbacks.SetMinGreen));
-    minimumColour.emplace_back(ComboEntry("Min Blue", 0.01, m_callbacks.SetMinBlue));
-    m_minColour.Initialise(m_ui.minRange_box, m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
-
-    std::vector<ComboEntry> maximumColour;
-    maximumColour.emplace_back(ComboEntry("Max Red", 0.01, m_callbacks.SetMaxRed));
-    maximumColour.emplace_back(ComboEntry("Max Green", 0.01, m_callbacks.SetMaxGreen));
-    maximumColour.emplace_back(ComboEntry("Max Blue", 0.01, m_callbacks.SetMaxBlue));
-    m_maxColour.Initialise(m_ui.maxRange_box, m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
-
-    std::vector<ComboEntry> fog;
-    fog.emplace_back(ComboEntry("Fog Start", 0.01, m_callbacks.SetFogDistance));
-    fog.emplace_back(ComboEntry("Fog Fade", 0.01, m_callbacks.SetFogFade));
-    fog.emplace_back(ComboEntry("Fog Red", 0.01, m_callbacks.SetFogColourR));
-    fog.emplace_back(ComboEntry("Fog Green", 0.01, m_callbacks.SetFogColourG));
-    fog.emplace_back(ComboEntry("Fog Blue", 0.01, m_callbacks.SetFogColourB));
+    std::vector<ComboEntry> fog(FOG_ATTRIBUTES);
+    fog[FOG_DISTANCE].Set("Fog Start", 0.01, m_callbacks.SetFog[FOG_DISTANCE]);
+    fog[FOG_FADE].Set("Fog Fade", 0.01, m_callbacks.SetFog[FOG_FADE]);
+    fog[FOG_RED].Set("Fog Red", 0.01, m_callbacks.SetFog[FOG_RED]);
+    fog[FOG_GREEN].Set("Fog Green", 0.01, m_callbacks.SetFog[FOG_GREEN]);
+    fog[FOG_BLUE].Set("Fog Blue", 0.01, m_callbacks.SetFog[FOG_BLUE]);
     m_fog.Initialise(m_ui.fog_box, m_ui.fog_value, m_ui.fog_dial, fog);
+
+    std::vector<ComboEntry> water(WATER_ATTRIBUTES);
+    water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
+    water[WATER_SHALLOW_G].Set("Shallow G", 0.01, m_callbacks.SetWater[WATER_SHALLOW_G]);
+    water[WATER_SHALLOW_B].Set("Shallow B", 0.01, m_callbacks.SetWater[WATER_SHALLOW_B]);
+    water[WATER_DEEP_R].Set("Deep R", 0.01, m_callbacks.SetWater[WATER_DEEP_R]);
+    water[WATER_DEEP_G].Set("Deep G", 0.01, m_callbacks.SetWater[WATER_DEEP_G]);
+    water[WATER_DEEP_B].Set("Deep B", 0.01, m_callbacks.SetWater[WATER_DEEP_B]);
+    water[WATER_REFLECTION_R].Set("Reflection R", 0.01, m_callbacks.SetWater[WATER_REFLECTION_R]);
+    water[WATER_REFLECTION_G].Set("Reflection G", 0.01, m_callbacks.SetWater[WATER_REFLECTION_G]);
+    water[WATER_REFLECTION_B].Set("Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);
+    water[WATER_REFLECTION].Set("Reflection", 0.01, m_callbacks.SetWater[WATER_REFLECTION]);
+    water[WATER_BUMP].Set("Bump", 0.01, m_callbacks.SetWater[WATER_BUMP]);
+    water[WATER_BUMP_SPEED].Set("Bump Speed", 0.01, m_callbacks.SetWater[WATER_BUMP_SPEED]);
+    water[WATER_SPEED].Set("Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
+    water[WATER_OFFSET_U].Set("Offset U", 0.01, m_callbacks.SetWater[WATER_OFFSET_U]);
+    water[WATER_OFFSET_V].Set("Offset V", 0.01, m_callbacks.SetWater[WATER_OFFSET_V]);
+    water[WATER_FRESNAL_FACTOR].Set("Fresnal", 0.01, m_callbacks.SetWater[WATER_FRESNAL_FACTOR]);
+    m_water.Initialise(m_ui.water_box, m_ui.water_value, m_ui.water_dial, water);
 }
 
 std::string Tweaker::GetSelectedPage() const
@@ -179,6 +149,12 @@ void Tweaker::SetDeltaTime(const std::string& dt)
     m_ui.deltaTime_text->setText(QString(dt.c_str()));
     m_ui.deltaTime_text->update();
 }
+
+void Tweaker::SetTimer(const std::string& timer)
+{
+    m_ui.timer_text->setText(QString(timer.c_str()));
+    m_ui.timer_text->update();
+}   
 
 void Tweaker::SetFramesPerSec(const std::string& fps)
 {
@@ -210,57 +186,34 @@ void Tweaker::SetMeshShaderName(const std::string& name)
     m_ui.shader_text->update();
 }
 
-void Tweaker::SetLightPosition(float x, float y, float z)
+void Tweaker::SetFog(FogAttribute attribute, float value)
 {
-    m_lightPositionX.Set(x);
-    m_lightPositionY.Set(y);
-    m_lightPositionZ.Set(z);
+    m_fog.SetValue(attribute, value);
 }
 
-void Tweaker::SetLightAttenuation(float x, float y, float z)
+void Tweaker::SetLight(LightAttribute attribute, float value)
 {
-    m_lightAttenuationX.Set(x);
-    m_lightAttenuationY.Set(y);
-    m_lightAttenuationZ.Set(z);
+    m_light[attribute].Set(value);
 }
 
-void Tweaker::SetLightDiffuse(float r, float g, float b)
+void Tweaker::SetMesh(MeshAttribute attribute, float value)
 {
-    m_lightDiffuseR.Set(r);
-    m_lightDiffuseG.Set(g);
-    m_lightDiffuseB.Set(b);
+    m_mesh.SetValue(attribute, value);
 }
 
-void Tweaker::SetLightSpecular(float r, float g, float b)
+void Tweaker::SetMaximumColour(ColourAttribute attribute, float value)
 {
-    m_lightSpecularR.Set(r);
-    m_lightSpecularG.Set(g);
-    m_lightSpecularB.Set(b);
+    m_maxColour.SetValue(attribute, value);
 }
 
-void Tweaker::SetLightSpecularity(float size)
+void Tweaker::SetMinimumColour(ColourAttribute attribute, float value)
 {
-    m_lightSpecularity.Set(size);
+    m_minColour.SetValue(attribute, value);
 }
 
-void Tweaker::SetMeshSpecularity(float size)
+void Tweaker::SetWater(WaterAttribute attribute, float value)
 {
-    m_meshSpecularity.Set(size);
-}
-
-void Tweaker::SetMeshAmbience(float value)
-{
-    m_meshAmbience.Set(value);
-}
-
-void Tweaker::SetMeshGlow(float value)
-{
-    m_meshGlow.Set(value);
-}
-
-void Tweaker::SetMeshBump(float value)
-{
-    m_meshBump.Set(value);
+    m_water.SetValue(attribute, value);
 }
 
 void Tweaker::SetDOFFade(float value)
@@ -308,16 +261,6 @@ void Tweaker::SetDepthFar(float value)
     m_depthFar.Set(value);
 }
 
-void Tweaker::InitialisePostMaps(int selected,
-                                 const std::vector<std::string>& maps)
-{
-    if (!maps.empty())
-    {
-        m_postMap.Initialise(m_ui.postImage_box,
-            selected, maps, m_callbacks.SetPostMap);
-    }
-}
-
 void Tweaker::SetSelectedPostMap(int selected)
 {
     m_postMap.SetSelected(selected);
@@ -326,6 +269,16 @@ void Tweaker::SetSelectedPostMap(int selected)
 void Tweaker::SetSelectedEngine(int selected)
 {
     m_renderEngine.SetSelected(selected);
+}
+
+void Tweaker::InitialisePostMaps(int selected,
+                                 const std::vector<std::string>& maps)
+{
+    if (!maps.empty())
+    {
+        m_postMap.Initialise(m_ui.postImage_box,
+            selected, maps, m_callbacks.SetPostMap);
+    }
 }
 
 void Tweaker::InitialiseEngines(int selected,
@@ -343,8 +296,18 @@ void Tweaker::InitialiseMeshes(int selected,
 {
     if(!meshes.empty())
     {
-        m_mesh.Initialise(m_ui.selectedMesh_box, 
+        m_selectedMesh.Initialise(m_ui.selectedMesh_box,
             selected, meshes, m_callbacks.SetSelectedMesh);
+    }
+}
+
+void Tweaker::InitialiseWater(int selected,
+                              const std::vector<std::string>& water)
+{
+    if(!water.empty())
+    {
+        m_selectedWater.Initialise(m_ui.selectedWater_box,
+            selected, water, m_callbacks.SetSelectedWater);
     }
 }
 
@@ -353,7 +316,7 @@ void Tweaker::InitialiseLights(int selected,
 {
     if(!lights.empty())
     {
-        m_light.Initialise(m_ui.selectedLight_box, 
+        m_selectedLight.Initialise(m_ui.selectedLight_box,
             selected, lights, m_callbacks.SetSelectedLight);
     }
 }
@@ -365,47 +328,20 @@ bool Tweaker::HasPostMaps() const
 
 bool Tweaker::HasMeshes() const
 {
-    return m_mesh.IsInitialised();
+    return m_selectedMesh.IsInitialised();
 }
 
 bool Tweaker::HasLights() const
 {
-    return m_light.IsInitialised();
+    return m_selectedLight.IsInitialised();
+}
+
+bool Tweaker::HasWater() const
+{
+    return m_selectedWater.IsInitialised();
 }
 
 bool Tweaker::HasEngines() const
 {
     return m_renderEngine.IsInitialised();
 }
-
-void Tweaker::SetMinimumColour(float r, float g, float b)
-{
-    m_minColour.SetValue(RED, r);
-    m_minColour.SetValue(GREEN, g);
-    m_minColour.SetValue(BLUE, b);
-}
-
-void Tweaker::SetMaximumColour(float r, float g, float b)
-{
-    m_maxColour.SetValue(RED, r);
-    m_maxColour.SetValue(GREEN, g);
-    m_maxColour.SetValue(BLUE, b);
-}
-
-void Tweaker::SetFogColour(float r, float g, float b)
-{
-    m_fog.SetValue(FOG_RED, r);
-    m_fog.SetValue(FOG_GREEN, g);
-    m_fog.SetValue(FOG_BLUE, b);
-}
-
-void Tweaker::SetFogDistance(float value)
-{
-    m_fog.SetValue(FOG_DISTANCE, value);
-}
-
-void Tweaker::SetFogFade(float value)
-{
-    m_fog.SetValue(FOG_FADE, value);
-}
-

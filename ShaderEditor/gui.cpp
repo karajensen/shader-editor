@@ -21,54 +21,60 @@ void Gui::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
     QApplication app(argc, argv);
-
     SignalCallbacks callbacks;
-    callbacks.SetLightPositionX =   [&](float value){ m_cache->LightPosition.SetX(value); };
-    callbacks.SetLightPositionY =   [&](float value){ m_cache->LightPosition.SetY(value); };
-    callbacks.SetLightPositionZ =   [&](float value){ m_cache->LightPosition.SetZ(value); };
-    callbacks.SetLightAttX =        [&](float value){ m_cache->LightAttenuation.SetX(value); };
-    callbacks.SetLightAttY =        [&](float value){ m_cache->LightAttenuation.SetY(value); };
-    callbacks.SetLightAttZ =        [&](float value){ m_cache->LightAttenuation.SetZ(value); };
-    callbacks.SetLightDiffuseR =    [&](float value){ m_cache->LightDiffuse.SetR(value); };
-    callbacks.SetLightDiffuseG =    [&](float value){ m_cache->LightDiffuse.SetG(value); };
-    callbacks.SetLightDiffuseB =    [&](float value){ m_cache->LightDiffuse.SetB(value); };
-    callbacks.SetLightSpecularR =   [&](float value){ m_cache->LightSpecular.SetR(value); };
-    callbacks.SetLightSpecularG =   [&](float value){ m_cache->LightSpecular.SetG(value); };
-    callbacks.SetLightSpecularB =   [&](float value){ m_cache->LightSpecular.SetB(value); };    
-    callbacks.SetLightSpecularity = [&](float value){ m_cache->LightSpecularity.Set(value); };  
-    callbacks.SetDOFDistance =      [&](float value){ m_cache->DOFDistance.Set(value); };
-    callbacks.SetDOFFade =          [&](float value){ m_cache->DOFFade.Set(value); };
-    callbacks.SetBlurAmount =       [&](float value){ m_cache->BlurAmount.Set(value); };
-    callbacks.SetBlurStep =         [&](float value){ m_cache->BlurStep.Set(value); };
-    callbacks.SetGlowAmount =       [&](float value){ m_cache->GlowAmount.Set(value); };
-    callbacks.SetContrast =         [&](float value){ m_cache->Contrast.Set(value); };
-    callbacks.SetSaturation =       [&](float value){ m_cache->Saturation.Set(value); };
-    callbacks.SetFogDistance =      [&](float value){ m_cache->FogDistance.Set(value); };
-    callbacks.SetFogFade =          [&](float value){ m_cache->FogFade.Set(value); };
-    callbacks.SetFogColourR =       [&](float value){ m_cache->FogColour.SetR(value); };
-    callbacks.SetFogColourG =       [&](float value){ m_cache->FogColour.SetG(value); };
-    callbacks.SetFogColourB =       [&](float value){ m_cache->FogColour.SetB(value); };
-    callbacks.SetDepthFar =         [&](float value){ m_cache->DepthFar.Set(value); };
-    callbacks.SetDepthNear =        [&](float value){ m_cache->DepthNear.Set(value); };
-    callbacks.SetMeshSpecularity =  [&](float value){ m_cache->MeshSpecularity.Set(value); };  
-    callbacks.SetMeshAmbience =     [&](float value){ m_cache->MeshAmbience.Set(value); };
-    callbacks.SetMeshBump =         [&](float value){ m_cache->MeshBump.Set(value); };
-    callbacks.SetMeshGlow =         [&](float value){ m_cache->MeshGlow.Set(value); };
-    callbacks.SetMaxRed =           [&](float value){ m_cache->MaximumColour.SetR(value); };
-    callbacks.SetMaxGreen =         [&](float value){ m_cache->MaximumColour.SetG(value); };
-    callbacks.SetMaxBlue =          [&](float value){ m_cache->MaximumColour.SetB(value); };
-    callbacks.SetMinRed =           [&](float value){ m_cache->MinimumColour.SetR(value); };
-    callbacks.SetMinGreen =         [&](float value){ m_cache->MinimumColour.SetG(value); };
-    callbacks.SetMinBlue =          [&](float value){ m_cache->MinimumColour.SetB(value); };
-    callbacks.SetSelectedEngine =   [&](int index){ m_cache->EngineSelected.Set(index); };
-    callbacks.SetSelectedMesh =     [&](int index){ m_cache->MeshSelected.Set(index); };
-    callbacks.SetSelectedLight =    [&](int index){ m_cache->LightSelected.Set(index); };
-    callbacks.SetSelectedShader =   [&](int index){ m_cache->ShaderSelected.Set(index); };
-    callbacks.SetPostMap =          [&](int index){ m_cache->PostMapSelected.Set(index); };
-    callbacks.SaveLights =          [&](){ m_cache->SaveLights.Set(true); };
-    callbacks.SaveMeshes =          [&](){ m_cache->SaveMeshes.Set(true); };
-    callbacks.SavePost =            [&](){ m_cache->SavePost.Set(true); };
-    callbacks.CompileShader =       [&](const std::string& text){ m_cache->CompileShader.Set(text); };
+
+    for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
+    {
+        callbacks.SetLight[i] = 
+            [this, i](float value){ m_cache->Light[i].Set(value); };
+    }
+
+    for (int i = 0; i < MESH_ATTRIBUTES; ++i)
+    {
+        callbacks.SetMesh[i] = 
+            [this, i](float value){ m_cache->Mesh[i].Set(value); };
+    }
+
+    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
+    {
+        callbacks.SetWater[i] = 
+            [this, i](float value){ m_cache->Water[i].Set(value); };
+    }
+
+    for (int i = 0; i < FOG_ATTRIBUTES; ++i)
+    {
+        callbacks.SetFog[i] = 
+            [this, i](float value){ m_cache->Fog[i].Set(value); };
+    }
+
+    for (int i = 0; i < COLOUR_ATTRIBUTES; ++i)
+    {
+        callbacks.SetMinColour[i] = 
+            [this, i](float value){ m_cache->MinColour[i].Set(value); };
+
+        callbacks.SetMaxColour[i] = 
+            [this, i](float value){ m_cache->MaxColour[i].Set(value); };
+    }
+
+    callbacks.SetDOFDistance =    [&](float value){ m_cache->DOFDistance.Set(value); };
+    callbacks.SetDOFFade =        [&](float value){ m_cache->DOFFade.Set(value); };
+    callbacks.SetBlurAmount =     [&](float value){ m_cache->BlurAmount.Set(value); };
+    callbacks.SetBlurStep =       [&](float value){ m_cache->BlurStep.Set(value); };
+    callbacks.SetGlowAmount =     [&](float value){ m_cache->GlowAmount.Set(value); };
+    callbacks.SetContrast =       [&](float value){ m_cache->Contrast.Set(value); };
+    callbacks.SetSaturation =     [&](float value){ m_cache->Saturation.Set(value); };
+    callbacks.SetDepthFar =       [&](float value){ m_cache->DepthFar.Set(value); };
+    callbacks.SetDepthNear =      [&](float value){ m_cache->DepthNear.Set(value); };
+    callbacks.SetSelectedEngine = [&](int index){ m_cache->EngineSelected.Set(index); };
+    callbacks.SetSelectedMesh =   [&](int index){ m_cache->MeshSelected.Set(index); };
+    callbacks.SetSelectedWater =  [&](int index){ m_cache->WaterSelected.Set(index); };
+    callbacks.SetSelectedLight =  [&](int index){ m_cache->LightSelected.Set(index); };
+    callbacks.SetSelectedShader = [&](int index){ m_cache->ShaderSelected.Set(index); };
+    callbacks.SetPostMap =        [&](int index){ m_cache->PostMapSelected.Set(index); };
+    callbacks.SaveLights =        [&](){ m_cache->SaveLights.Set(true); };
+    callbacks.SaveMeshes =        [&](){ m_cache->SaveMeshes.Set(true); };
+    callbacks.SavePost =          [&](){ m_cache->SavePost.Set(true); };
+    callbacks.CompileShader =     [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
     editor.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
@@ -194,22 +200,6 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.SetContrast(m_cache->Contrast.GetUpdated());
     }
 
-    if (m_cache->FogDistance.RequiresUpdate())
-    {
-        tweaker.SetFogDistance(m_cache->FogDistance.GetUpdated());
-    }
-
-    if (m_cache->FogFade.RequiresUpdate())
-    {
-        tweaker.SetFogFade(m_cache->FogFade.GetUpdated());
-    }
-
-    if (m_cache->FogColour.RequiresUpdate())
-    {
-        const Colour colour = m_cache->FogColour.GetUpdated();
-        tweaker.SetFogColour(colour.r, colour.g, colour.b);
-    }
-
     if (m_cache->DepthFar.RequiresUpdate())
     {
         tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
@@ -220,16 +210,27 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.SetDepthNear(m_cache->DepthNear.GetUpdated());
     }
 
-    if (m_cache->MinimumColour.RequiresUpdate())
+    for (int i = 0; i < FOG_ATTRIBUTES; ++i)
     {
-        const Colour colour = m_cache->MinimumColour.GetUpdated();
-        tweaker.SetMinimumColour(colour.r, colour.g, colour.b);
+        if (m_cache->Fog[i].RequiresUpdate())
+        {
+            tweaker.SetFog(static_cast<FogAttribute>(i), 
+                m_cache->Fog[i].GetUpdated());
+        }
     }
 
-    if (m_cache->MaximumColour.RequiresUpdate())
+    for (int i = 0; i < COLOUR_ATTRIBUTES; ++i)
     {
-        const Colour colour = m_cache->MaximumColour.GetUpdated();
-        tweaker.SetMaximumColour(colour.r, colour.g, colour.b);
+        if (m_cache->MinColour[i].RequiresUpdate())
+        {
+            tweaker.SetMinimumColour(static_cast<ColourAttribute>(i), 
+                m_cache->MinColour[i].GetUpdated());
+        }
+        if (m_cache->MaxColour[i].RequiresUpdate())
+        {
+            tweaker.SetMaximumColour(static_cast<ColourAttribute>(i),
+                m_cache->MaxColour[i].GetUpdated());
+        }
     }
 }
 
@@ -258,6 +259,7 @@ void Gui::UpdateScene(Tweaker& tweaker)
     const Float2 mousePosition = m_cache->MousePosition.Get();
     const Float2 mouseDirection = m_cache->MouseDirection.Get();
     const float deltaTime = m_cache->DeltaTime.Get();
+    const double timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
     tweaker.SetMousePosition(
@@ -269,6 +271,7 @@ void Gui::UpdateScene(Tweaker& tweaker)
         boost::lexical_cast<std::string>(mouseDirection.y));
 
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
+    tweaker.SetTimer(boost::lexical_cast<std::string>(timer));
     tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
 }
 
@@ -282,33 +285,13 @@ void Gui::UpdateLight(Tweaker& tweaker)
             m_cache->LightSelected.Get(), m_cache->Lights.Get());
     }
 
-    if(initialisedLights || m_cache->LightPosition.RequiresUpdate())
+    for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
     {
-        const Float3 position = m_cache->LightPosition.GetUpdated();
-        tweaker.SetLightPosition(position.x, position.y, position.z);
-    }
-
-    if(initialisedLights || m_cache->LightAttenuation.RequiresUpdate())
-    {
-        const Float3 attenuation = m_cache->LightAttenuation.GetUpdated();
-        tweaker.SetLightAttenuation(attenuation.x, attenuation.y, attenuation.z);
-    }
-
-    if(initialisedLights || m_cache->LightSpecular.RequiresUpdate())
-    {
-        const Colour specular = m_cache->LightSpecular.GetUpdated();
-        tweaker.SetLightSpecular(specular.r, specular.g, specular.b);
-    }
-
-    if(initialisedLights || m_cache->LightDiffuse.RequiresUpdate())
-    {
-        const Colour diffuse = m_cache->LightDiffuse.GetUpdated();
-        tweaker.SetLightDiffuse(diffuse.r, diffuse.g, diffuse.b);
-    }
-
-    if(initialisedLights || m_cache->LightSpecularity.RequiresUpdate())
-    {
-        tweaker.SetLightSpecularity(m_cache->LightSpecularity.GetUpdated());
+        if (initialisedLights || m_cache->Light[i].RequiresUpdate())
+        {
+            tweaker.SetLight(static_cast<LightAttribute>(i), 
+                m_cache->Light[i].GetUpdated());
+        }
     }
 }
 
@@ -322,28 +305,34 @@ void Gui::UpdateMesh(Tweaker& tweaker)
             m_cache->MeshSelected.Get(), m_cache->Meshes.Get());
     }
 
-    if(initialisedMeshes || m_cache->MeshSpecularity.RequiresUpdate())
+    for (int i = 0; i < MESH_ATTRIBUTES; ++i)
     {
-        tweaker.SetMeshSpecularity(m_cache->MeshSpecularity.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshAmbience.RequiresUpdate())
-    {
-        tweaker.SetMeshAmbience(m_cache->MeshAmbience.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshBump.RequiresUpdate())
-    {
-        tweaker.SetMeshBump(m_cache->MeshBump.GetUpdated());
-    }
-
-    if(initialisedMeshes || m_cache->MeshGlow.RequiresUpdate())
-    {
-        tweaker.SetMeshGlow(m_cache->MeshGlow.GetUpdated());
+        if (initialisedMeshes || m_cache->Mesh[i].RequiresUpdate())
+        {
+            tweaker.SetMesh(static_cast<MeshAttribute>(i), 
+                m_cache->Mesh[i].GetUpdated());
+        }
     }
 
     if(initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
     {
         tweaker.SetMeshShaderName(m_cache->MeshShader.GetUpdated());
+    }
+
+    bool initialisedWater = false;
+    if(!tweaker.HasWater())
+    {
+        initialisedWater = true;
+        tweaker.InitialiseWater(
+            m_cache->WaterSelected.Get(), m_cache->Waters.Get());
+    }
+
+    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
+    {
+        if (initialisedWater || m_cache->Water[i].RequiresUpdate())
+        {
+            tweaker.SetWater(static_cast<WaterAttribute>(i), 
+                m_cache->Water[i].GetUpdated());
+        }
     }
 }

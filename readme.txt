@@ -1,12 +1,10 @@
 
-- Water shader
-    - Basic water shader
-    - Pass/Save water data from scene to shader
-    - Water data tweak bar
 
+- Tweakable waves
+- Pass water data to shader
+- Basic water shader
 - Particles
  
-
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
 - Optimise shaders

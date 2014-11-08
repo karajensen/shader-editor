@@ -261,6 +261,7 @@ void Application::UpdateScene()
 
     m_cache->FramesPerSec.Set(m_timer->GetFPS());
     m_cache->DeltaTime.Set(m_timer->GetDeltaTime());
+    m_cache->Timer.Set(m_timer->GetTotalTime());
     m_cache->MousePosition.Set(m_mousePosition);
     m_cache->MouseDirection.Set(m_mouseDirection);
 }
@@ -273,19 +274,63 @@ void Application::UpdateMesh()
         m_selectedMesh = selectedMesh;
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
 
-        m_cache->MeshSpecularity.SetUpdated(mesh.specularity);
-        m_cache->MeshAmbience.SetUpdated(mesh.ambience);
-        m_cache->MeshGlow.SetUpdated(mesh.glow);
-        m_cache->MeshBump.SetUpdated(mesh.bump);
+        m_cache->Mesh[MESH_AMBIENCE].SetUpdated(mesh.ambience);
+        m_cache->Mesh[MESH_SPECULARITY].SetUpdated(mesh.specularity);
+        m_cache->Mesh[MESH_BUMP].SetUpdated(mesh.bump);
+        m_cache->Mesh[MESH_GLOW].SetUpdated(mesh.glow);
         m_cache->MeshShader.SetUpdated(m_scene->GetShader(mesh.shaderIndex).name);
     }
     else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene->GetMeshCount())
     {
         auto& mesh = m_scene->GetMesh(m_selectedMesh);
-        mesh.specularity = m_cache->MeshSpecularity.Get();
-        mesh.ambience = m_cache->MeshAmbience.Get();
-        mesh.bump = m_cache->MeshBump.Get();
-        mesh.glow = m_cache->MeshGlow.Get();
+        mesh.specularity = m_cache->Mesh[MESH_SPECULARITY].Get();
+        mesh.ambience = m_cache->Mesh[MESH_AMBIENCE].Get();
+        mesh.bump = m_cache->Mesh[MESH_BUMP].Get();
+        mesh.glow = m_cache->Mesh[MESH_GLOW].Get();
+    }
+
+    const int selectedWater = m_cache->WaterSelected.Get();
+    if(selectedWater != m_selectedWater)
+    {
+        m_selectedWater = selectedWater;
+        auto& water = m_scene->GetWater(m_selectedWater);
+
+        m_cache->Water[WATER_BUMP].SetUpdated(water.bump);
+        m_cache->Water[WATER_BUMP_SPEED].SetUpdated(water.bumpSpeed);
+        m_cache->Water[WATER_SPEED].SetUpdated(water.speed);
+        m_cache->Water[WATER_DEEP_R].SetUpdated(water.deepColour.r);
+        m_cache->Water[WATER_DEEP_G].SetUpdated(water.deepColour.g);
+        m_cache->Water[WATER_DEEP_B].SetUpdated(water.deepColour.b);
+        m_cache->Water[WATER_SHALLOW_R].SetUpdated(water.shallowColour.r);
+        m_cache->Water[WATER_SHALLOW_G].SetUpdated(water.shallowColour.g);
+        m_cache->Water[WATER_SHALLOW_B].SetUpdated(water.shallowColour.b);
+        m_cache->Water[WATER_REFLECTION_R].SetUpdated(water.reflectionTint.r);
+        m_cache->Water[WATER_REFLECTION_G].SetUpdated(water.reflectionTint.g);
+        m_cache->Water[WATER_REFLECTION_B].SetUpdated(water.reflectionTint.b);
+        m_cache->Water[WATER_REFLECTION].SetUpdated(water.reflection);
+        m_cache->Water[WATER_FRESNAL_FACTOR].SetUpdated(water.fresnalFactor);
+        m_cache->Water[WATER_OFFSET_U].SetUpdated(water.textureOffset.x);
+        m_cache->Water[WATER_OFFSET_V].SetUpdated(water.textureOffset.y);
+    }
+    else if(m_selectedWater >= 0 && m_selectedWater < m_scene->GetWaterCount())
+    {
+        auto& water = m_scene->GetWater(m_selectedWater);
+        water.bump = m_cache->Water[WATER_BUMP].Get();
+        water.bumpSpeed = m_cache->Water[WATER_BUMP_SPEED].Get();
+        water.speed = m_cache->Water[WATER_SPEED].Get();
+        water.deepColour.r = m_cache->Water[WATER_DEEP_R].Get();
+        water.deepColour.g = m_cache->Water[WATER_DEEP_G].Get();
+        water.deepColour.b = m_cache->Water[WATER_DEEP_B].Get();
+        water.shallowColour.r = m_cache->Water[WATER_SHALLOW_R].Get();
+        water.shallowColour.g = m_cache->Water[WATER_SHALLOW_G].Get();
+        water.shallowColour.b = m_cache->Water[WATER_SHALLOW_B].Get();
+        water.reflectionTint.r = m_cache->Water[WATER_REFLECTION_R].Get();
+        water.reflectionTint.g = m_cache->Water[WATER_REFLECTION_G].Get();
+        water.reflectionTint.b = m_cache->Water[WATER_REFLECTION_B].Get();
+        water.reflection = m_cache->Water[WATER_REFLECTION].Get();
+        water.fresnalFactor = m_cache->Water[WATER_FRESNAL_FACTOR].Get();
+        water.textureOffset.x = m_cache->Water[WATER_OFFSET_U].Get();
+        water.textureOffset.y = m_cache->Water[WATER_OFFSET_V].Get();
     }
 }
 
@@ -299,13 +344,19 @@ void Application::UpdatePost()
     post.glowAmount = m_cache->GlowAmount.Get();
     post.contrast = m_cache->Contrast.Get();
     post.saturation = m_cache->Saturation.Get();
-    post.fogColour = m_cache->FogColour.Get();
-    post.fogDistance = m_cache->FogDistance.Get();
-    post.fogFade = m_cache->FogFade.Get();
     post.depthFar = m_cache->DepthFar.Get();
     post.depthNear = m_cache->DepthNear.Get();
-    post.minimumColour = m_cache->MinimumColour.Get();
-    post.maximumColour = m_cache->MaximumColour.Get();
+    post.fogColour.r = m_cache->Fog[FOG_RED].Get();
+    post.fogColour.g = m_cache->Fog[FOG_GREEN].Get();
+    post.fogColour.b = m_cache->Fog[FOG_BLUE].Get();
+    post.fogDistance = m_cache->Fog[FOG_DISTANCE].Get();
+    post.fogFade = m_cache->Fog[FOG_FADE].Get();
+    post.minimumColour.r = m_cache->MinColour[RED].Get();
+    post.minimumColour.g = m_cache->MinColour[GREEN].Get();
+    post.minimumColour.b = m_cache->MinColour[BLUE].Get();
+    post.maximumColour.r = m_cache->MaxColour[RED].Get();
+    post.maximumColour.g = m_cache->MaxColour[GREEN].Get();
+    post.maximumColour.b = m_cache->MaxColour[BLUE].Get();
 }
 
 void Application::UpdateLight()
@@ -316,20 +367,36 @@ void Application::UpdateLight()
         m_selectedLight = selectedLight;
 
         auto& light = m_scene->GetLight(m_selectedLight);
-        m_cache->LightPosition.SetUpdated(light.position);
-        m_cache->LightAttenuation.SetUpdated(light.attenuation);
-        m_cache->LightDiffuse.SetUpdated(light.diffuse);
-        m_cache->LightSpecular.SetUpdated(light.specular);
-        m_cache->LightSpecularity.SetUpdated(light.specularity);
+        m_cache->Light[LIGHT_POSITION_X].SetUpdated(light.position.x);
+        m_cache->Light[LIGHT_POSITION_Y].SetUpdated(light.position.y);
+        m_cache->Light[LIGHT_POSITION_Z].SetUpdated(light.position.z);
+        m_cache->Light[LIGHT_ATTENUATION_X].SetUpdated(light.attenuation.x);
+        m_cache->Light[LIGHT_ATTENUATION_Y].SetUpdated(light.attenuation.y);
+        m_cache->Light[LIGHT_ATTENUATION_Z].SetUpdated(light.attenuation.z);
+        m_cache->Light[LIGHT_DIFFUSE_R].SetUpdated(light.diffuse.r);
+        m_cache->Light[LIGHT_DIFFUSE_G].SetUpdated(light.diffuse.g);
+        m_cache->Light[LIGHT_DIFFUSE_B].SetUpdated(light.diffuse.b);
+        m_cache->Light[LIGHT_SPECULAR_R].SetUpdated(light.specular.r);
+        m_cache->Light[LIGHT_SPECULAR_G].SetUpdated(light.specular.g);
+        m_cache->Light[LIGHT_SPECULAR_B].SetUpdated(light.specular.b);
+        m_cache->Light[LIGHT_SPECULARITY].SetUpdated(light.specularity);
     }
     else if(m_selectedLight >= 0 && m_selectedLight < m_scene->GetLightCount())
     {
         auto& light = m_scene->GetLight(m_selectedLight);
-        light.position = m_cache->LightPosition.Get();
-        light.attenuation = m_cache->LightAttenuation.Get();
-        light.diffuse = m_cache->LightDiffuse.Get();
-        light.specular = m_cache->LightSpecular.Get();
-        light.specularity = m_cache->LightSpecularity.Get();
+        light.position.x = m_cache->Light[LIGHT_POSITION_X].Get();
+        light.position.y = m_cache->Light[LIGHT_POSITION_Y].Get();
+        light.position.z = m_cache->Light[LIGHT_POSITION_Z].Get();
+        light.attenuation.x = m_cache->Light[LIGHT_ATTENUATION_X].Get();
+        light.attenuation.y = m_cache->Light[LIGHT_ATTENUATION_Y].Get();
+        light.attenuation.z = m_cache->Light[LIGHT_ATTENUATION_Z].Get();
+        light.diffuse.r = m_cache->Light[LIGHT_DIFFUSE_R].Get();
+        light.diffuse.g = m_cache->Light[LIGHT_DIFFUSE_G].Get();
+        light.diffuse.b = m_cache->Light[LIGHT_DIFFUSE_B].Get();
+        light.specular.r = m_cache->Light[LIGHT_SPECULAR_R].Get();
+        light.specular.g = m_cache->Light[LIGHT_SPECULAR_G].Get();
+        light.specular.b = m_cache->Light[LIGHT_SPECULAR_B].Get();
+        light.specularity = m_cache->Light[LIGHT_SPECULARITY].Get();
     }
 }
 
@@ -384,6 +451,7 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->Meshes.Set(m_scene->GetMeshNames());
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->PostMaps.Set(m_scene->GetPostMapNames());
+    m_cache->Waters.Set(m_scene->GetWaterNames());
 
     const PostProcessing& post = m_scene->Post();
     m_cache->DepthNear.SetUpdated(post.depthNear);
@@ -395,11 +463,17 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->GlowAmount.SetUpdated(post.glowAmount);
     m_cache->Contrast.SetUpdated(post.contrast);
     m_cache->Saturation.SetUpdated(post.saturation);
-    m_cache->FogFade.SetUpdated(post.fogFade);
-    m_cache->FogDistance.SetUpdated(post.fogDistance);
-    m_cache->FogColour.SetUpdated(post.fogColour);
-    m_cache->MinimumColour.SetUpdated(post.minimumColour);
-    m_cache->MaximumColour.SetUpdated(post.maximumColour);
+    m_cache->Fog[FOG_RED].SetUpdated(post.fogColour.r);
+    m_cache->Fog[FOG_GREEN].SetUpdated(post.fogColour.g);
+    m_cache->Fog[FOG_BLUE].SetUpdated(post.fogColour.b);
+    m_cache->Fog[FOG_DISTANCE].SetUpdated(post.fogDistance);
+    m_cache->Fog[FOG_FADE].SetUpdated(post.fogFade);
+    m_cache->MinColour[RED].SetUpdated(post.minimumColour.r);
+    m_cache->MinColour[GREEN].SetUpdated(post.minimumColour.g);
+    m_cache->MinColour[BLUE].SetUpdated(post.minimumColour.b);
+    m_cache->MaxColour[RED].SetUpdated(post.maximumColour.r);
+    m_cache->MaxColour[GREEN].SetUpdated(post.maximumColour.g);
+    m_cache->MaxColour[BLUE].SetUpdated(post.maximumColour.b);
 }
 
 RenderEngine* Application::GetEngine() const

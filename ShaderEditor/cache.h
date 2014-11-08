@@ -5,7 +5,9 @@
 #pragma once
 
 #include "common.h"
+#include "qt/project/tweakable.h"
 #include <thread>
+#include <array>
 
 /**
 * Dual-way Lockable data for the cache which allows a 'setter' thread
@@ -110,92 +112,6 @@ protected:
 };
 
 /**
-* Adds functions for setting individual components
-*/
-class LockableColour : public Lockable<Colour>
-{
-public:
-
-    /**
-    * Locks the thread to set the r component
-    * @param r The component to set
-    */
-    void SetR(float r)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.r = m_updated ? m_data.r : r;
-    }
-
-    /**
-    * Locks the thread to set the g component
-    * @param g The component to set
-    */
-    void SetG(float g)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.g = m_updated ? m_data.g : g;
-    }
-
-    /**
-    * Locks the thread to set the b component
-    * @param b The component to set
-    */
-    void SetB(float b)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.b = m_updated ? m_data.b : b;
-    }
-
-    /**
-    * Locks the thread to set the a component
-    * @param a The component to set
-    */
-    void SetA(float a)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.a = m_updated ? m_data.a : a;
-    }
-};
-
-/**
-* Adds functions for setting individual components
-*/
-class LockableVector : public Lockable<Float3>
-{
-public:
-
-    /**
-    * Locks the thread to set the x component
-    * @param x The component to set
-    */
-    void SetX(float x)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.x = m_updated ? m_data.x : x;
-    }
-
-    /**
-    * Locks the thread to set the y component
-    * @param y The component to set
-    */
-    void SetY(float y)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.y = m_updated ? m_data.y : y;
-    }
-
-    /**
-    * Locks the thread to set the z component
-    * @param y The component to set
-    */
-    void SetZ(float z)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_data.z = m_updated ? m_data.z : z;
-    }
-};
-
-/**
 * Adds functions for standard string
 */
 class LockableString : public Lockable<std::string>
@@ -220,91 +136,57 @@ public:
 */
 struct Cache
 {
-    /**
-    * Constructor
-    */
     Cache() :
         ApplicationRunning(true),
-        SaveLights(false),
-        SaveMeshes(false),
-        SavePost(false),
-        PageSelected(NO_PAGE),
-        DeltaTime(0.0f),
-        FramesPerSec(0),
-        EngineSelected(0),
-        ShaderSelected(0),
-        PostMapSelected(0),
-        LightSelected(0),
-        LightSpecularity(0.0f),
-        MeshSelected(0),
-        MeshSpecularity(0.0f),
-        MeshAmbience(1.0f),
-        MeshBump(1.0f),
-        MeshGlow(1.0f),
-        DepthNear(0.0f),
-        DepthFar(0.0f),
-        BlurAmount(1.0f),
-        GlowAmount(1.0f),
-        Contrast(0.0f),
-        Saturation(0.0f),
-        DOFDistance(1.0f),
-        DOFFade(0.0f),
-        FogDistance(0.0f),
-        FogFade(0.0f)
+        PageSelected(NO_PAGE)
     {
     }
 
-    Lockable<bool> ApplicationRunning;  ///< Whether the application is running
-    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui
+    Lockable<bool> ApplicationRunning;        ///< Whether the application is running
+    Lockable<GuiPage> PageSelected;           ///< Current page selected for the gui
+                                              
+    Lockable<bool> SaveLights;                ///< Request to save the lights to xml
+    Lockable<bool> SaveMeshes;                ///< Request to save the meshes to xml
+    Lockable<bool> SavePost;                  ///< Request to save post processing to xml
+                                              
+    Lockable<int> ShaderSelected;             ///< Index for the selected shader
+    LockableString ShaderText;                ///< Text for the selected shader
+    LockableString ShaderAsm;                 ///< Assembly for the selected shader
+    LockableString CompileShader;             ///< Text to request to be compiled
+                                              
+    Lockable<int> EngineSelected;             ///< The selected render engine to use
+    Lockable<float> DeltaTime;                ///< The time passed in seconds between ticks
+    Lockable<double> Timer;                   ///< The time passed in seconds from start
+    Lockable<int> FramesPerSec;               ///< The frames per second for the application
+    Lockable<Float2> MousePosition;           ///< The screen position of the mouse
+    Lockable<Float2> MouseDirection;          ///< The direction normalized of the mouse
+                                              
+    Lockable<int> LightSelected;              ///< Index of the currently selected light                                           
+    Lockable<int> MeshSelected;               ///< Index of the currently selected mesh
+    LockableString MeshShader;                ///< Shader used for the selected mesh
+    Lockable<int> WaterSelected;              ///< Index of the currently selected water                                              
+    Lockable<int> PostMapSelected;            ///< Index of the currently selected post map
+    Lockable<float> BlurAmount;               ///< The amount to blur the scene by
+    Lockable<float> BlurStep;                 ///< The sample step of the blur
+    Lockable<float> GlowAmount;               ///< The amount to glow the scene by
+    Lockable<float> Contrast;                 ///< Contrast controller of the final scene
+    Lockable<float> Saturation;               ///< Saturation controller of the final scene
+    Lockable<float> DepthNear;                ///< The near value for the depth
+    Lockable<float> DepthFar;                 ///< The far value for the depth
+    Lockable<float> DOFDistance;              ///< Distance DOF is active
+    Lockable<float> DOFFade;                  ///< How quick DOF merges into the scene
 
-    Lockable<bool> SaveLights;          ///< Request to save the lights to xml
-    Lockable<bool> SaveMeshes;          ///< Request to save the meshes to xml
-    Lockable<bool> SavePost;            ///< Request to save post processing to xml
-
-    Lockable<int> ShaderSelected;       ///< Index for the selected shader
-    LockableString ShaderText;          ///< Text for the selected shader
-    LockableString ShaderAsm;           ///< Assembly for the selected shader
-    LockableString CompileShader;       ///< Text to request to be compiled
-
-    Lockable<int> EngineSelected;       ///< The selected render engine to use
-    Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
-    Lockable<int> FramesPerSec;         ///< The frames per second for the application
-    Lockable<Float2> MousePosition;     ///< The screen position of the mouse
-    Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
-
-    Lockable<int> LightSelected;        ///< Index of the currently selected light
-    Lockable<float> LightSpecularity;   ///< Specularity of the selected light
-    LockableVector LightPosition;       ///< Position of the selected light
-    LockableVector LightAttenuation;    ///< Attenuation of the selected light
-    LockableColour LightDiffuse;        ///< Diffuse colour of the selected light
-    LockableColour LightSpecular;       ///< Specular colour of the selected light
-
-    Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
-    Lockable<float> MeshSpecularity;    ///< Specularity of the selected mesh
-    Lockable<float> MeshAmbience;       ///< Ambience of the selected mesh
-    Lockable<float> MeshGlow;           ///< Intensity multiplier for mesh glow
-    Lockable<float> MeshBump;           ///< Bump saturation of the selected mesh
-    LockableString MeshShader;          ///< Shader used for the selected mesh
-
-    Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
-    Lockable<float> BlurAmount;         ///< The amount to blur the scene by
-    Lockable<float> BlurStep;           ///< The sample step of the blur
-    Lockable<float> GlowAmount;         ///< The amount to glow the scene by
-    Lockable<float> Contrast;           ///< Contrast controller of the final scene
-    Lockable<float> Saturation;         ///< Saturation controller of the final scene
-    Lockable<float> FogDistance;        ///< Distance the fog starts
-    Lockable<float> FogFade;            ///< How quick the fog fades to the scene
-    LockableColour FogColour;           ///< Colour of the fog
-    LockableColour MinimumColour;       ///< Colour ranges for RGB 
-    LockableColour MaximumColour;       ///< Colour ranges for RGB 
-    Lockable<float> DepthNear;          ///< The near value for the depth
-    Lockable<float> DepthFar;           ///< The far value for the depth
-    Lockable<float> DOFDistance;        ///< Distance DOF is active
-    Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
+    std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;      ///< Selected light attributes
+    std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;        ///< Selected mesh attributes
+    std::array<Lockable<float>, WATER_ATTRIBUTES> Water;      ///< Selected water attributes
+    std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;          ///< Fog attributes
+    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour; ///< Min colour attributes
+    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour; ///< Max colour attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
     Lockable<std::vector<std::string>> Lights;    ///< Container of all lights
     Lockable<std::vector<std::string>> Meshes;    ///< Container of all meshes
+    Lockable<std::vector<std::string>> Waters;    ///< Container of all waters
     Lockable<std::vector<std::string>> PostMaps;  ///< Container of all post maps
 };

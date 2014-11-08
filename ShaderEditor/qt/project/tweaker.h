@@ -5,7 +5,8 @@
 #pragma once
 
 #include <memory>
-#include "signals.h"
+#include <array>
+#include "tweakable.h"
 #include "tweakable_value.h"
 #include "tweakable_box.h"
 #include "tweakable_button.h"
@@ -48,6 +49,12 @@ public:
     * @param dt The time passed in seconds between ticks
     */
     void SetDeltaTime(const std::string& dt);
+
+    /**
+    * Sets the readonly tweak entry
+    * @param timer The time passed in seconds from start
+    */
+    void SetTimer(const std::string& timer);
 
     /**
     * Sets the readonly tweak entry
@@ -124,90 +131,52 @@ public:
     void SetSaturation(float value);
 
     /**
-    * Sets the distance the fog starts
-    * @param value The distance the fog starts
+    * Sets the value for an attribute of fog
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
     */
-    void SetFogDistance(float value);
+    void SetFog(FogAttribute attribute, float value);
 
     /**
-    * Sets how much the fog will fade to the scene
-    * @param value How much the fog will fade to the scene
+    * Sets the value for an attribute of a light
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
     */
-    void SetFogFade(float value);
+    void SetLight(LightAttribute attribute, float value);
 
     /**
-    * Sets the colour of the fog
-    * @param rgb The red, green and blue components of the colour
+    * Sets the value for an attribute of a mesh
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
     */
-    void SetFogColour(float r, float g, float b);
+    void SetMesh(MeshAttribute attribute, float value);
+
+    /**
+    * Sets the value for an attribute of a the maximum colour rante
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetMaximumColour(ColourAttribute attribute, float value);
+
+    /**
+    * Sets the value for an attribute of a the minimum colour rante
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetMinimumColour(ColourAttribute attribute, float value);
+
+    /**
+    * Sets the value for an attribute of water
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetWater(WaterAttribute attribute, float value);
 
     /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
     void SetMeshShaderName(const std::string& name);
-
-    /**
-    * Sets the light position
-    * @param x The x component of the light position
-    * @param y The y component of the light position
-    * @param z The z component of the light position
-    */
-    void SetLightPosition(float x, float y, float z);
-
-    /**
-    * Sets the light attenuation
-    * @param x The x component of the light attenuation
-    * @param y The y component of the light attenuation
-    * @param z The z component of the light attenuation
-    */
-    void SetLightAttenuation(float x, float y, float z);
-
-    /**
-    * Sets the light diffuse color
-    * @param r The r component of the light diffuse colour
-    * @param g The g component of the light diffuse colour
-    * @param b The b component of the light diffuse colour
-    */
-    void SetLightDiffuse(float r, float g, float b);
-
-    /**
-    * Sets the light specular color
-    * @param r The r component of the light specular colour
-    * @param g The g component of the light specular colour
-    * @param b The b component of the light specular colour
-    */
-    void SetLightSpecular(float r, float g, float b);
-
-    /**
-    * Sets the light specular size
-    * @param size The size of the specular highlights
-    */
-    void SetLightSpecularity(float size);
-
-    /**
-    * Sets the mesh specular size
-    * @param size The size of the specular highlights
-    */
-    void SetMeshSpecularity(float size);
-
-    /**
-    * Sets the mesh ambience
-    * @param value The ambient value of the mesh
-    */
-    void SetMeshAmbience(float value);
-
-    /**
-    * Sets the mesh bump saturation
-    * @param value The bump value of the mesh
-    */
-    void SetMeshBump(float value);
-
-    /**
-    * Sets the mesh glow intensity
-    * @param value The intensity of the glow of the mesh
-    */
-    void SetMeshGlow(float value);
 
     /**
     * Sets the selected engine
@@ -220,18 +189,6 @@ public:
     * @param selected The selected post map
     */
     void SetSelectedPostMap(int selected);
-
-    /**
-    * Sets the values used for the minimum colour range
-    * @param rgb The red, green and blue mininum colour range
-    */
-    void SetMinimumColour(float r, float g, float b);
-
-    /**
-    * Sets the values used for the maximum colour range
-    * @param rgb The red, green and blue maximum colour range
-    */
-    void SetMaximumColour(float r, float g, float b);
 
     /**
     * Sets the available post maps for the combo box
@@ -255,6 +212,13 @@ public:
     void InitialiseMeshes(int selected, const std::vector<std::string>& meshes);
 
     /**
+    * Sets the available water meshes for the combo box
+    * @param selected The initially selected mesh
+    * @param meshes The mesh names to set
+    */
+    void InitialiseWater(int selected, const std::vector<std::string>& water);
+
+    /**
     * Sets the available lights for the combo box
     * @param selected The initially selected light
     * @param lights The light names to set
@@ -267,19 +231,24 @@ public:
     bool HasEngines() const;
 
     /**
-    * @return whether the post map combo box is filled int
+    * @return whether the post map combo box is filled in
     */
     bool HasPostMaps() const;
 
     /**
-    * @return whether the mesh combo box is filled int
+    * @return whether the mesh combo box is filled in
     */
     bool HasMeshes() const;
 
     /**
-    * @return whether the mesh combo box is filled int
+    * @return whether the lights combo box is filled in
     */
     bool HasLights() const;
+
+    /**
+    * @return whether the water combo box is filled in
+    */
+    bool HasWater() const;
 
     /**
     * @return the name of the selected tab page
@@ -297,37 +266,25 @@ private:
     TweakableValue m_blurStep;           ///< Step between samples for blurring
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value
-    TweakableValue m_lightPositionX;     ///< Tweakable x of the light position
-    TweakableValue m_lightPositionY;     ///< Tweakable y of the light position
-    TweakableValue m_lightPositionZ;     ///< Tweakable z of the light position
-    TweakableValue m_lightAttenuationX;  ///< Tweakable x of the light attenuation
-    TweakableValue m_lightAttenuationY;  ///< Tweakable y of the light attenuation
-    TweakableValue m_lightAttenuationZ;  ///< Tweakable z of the light attenuation
-    TweakableValue m_lightDiffuseR;      ///< Tweakable r of the light diffuse colour
-    TweakableValue m_lightDiffuseG;      ///< Tweakable g of the light diffuse colour
-    TweakableValue m_lightDiffuseB;      ///< Tweakable b of the light diffuse colour
-    TweakableValue m_lightSpecularR;     ///< Tweakable r of the light specular colour
-    TweakableValue m_lightSpecularG;     ///< Tweakable g of the light specular colour
-    TweakableValue m_lightSpecularB;     ///< Tweakable b of the light specular colour
-    TweakableValue m_lightSpecularity;   ///< Tweakable specular size of the light
-    TweakableValue m_meshSpecularity;    ///< Tweakable specular size of the mesh
-    TweakableValue m_meshAmbience;       ///< Tweakable ambience of the mesh
-    TweakableValue m_meshBump;           ///< Tweakable bump saturation of the mesh
-    TweakableValue m_meshGlow;           ///< Tweakable glow intensity of the mesh
-    
+
     TweakableButton m_saveMeshes;        ///< Button to save all meshes to xml
     TweakableButton m_saveLights;        ///< Button to save all lights to xml
     TweakableButton m_savePost;          ///< Button to save all post processing to xml
 
     TweakableBox m_postMap;              ///< Combo box for selecting the post map
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine
-    TweakableBox m_light;                ///< Combo box for selecting the light
-    TweakableBox m_mesh;                 ///< Combo box for selecting the mesh
+    TweakableBox m_selectedLight;        ///< Combo box for selecting the light
+    TweakableBox m_selectedMesh;         ///< Combo box for selecting the mesh
+    TweakableBox m_selectedWater;        ///< Combo box for selecting the water
 
     TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_fog;           ///< Tweakable values for fog
+    TweakableBoxedValue m_mesh;          ///< Tweakable values for mesh attributes
+    TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
 
-    Ui::Tweaker m_ui;               ///< User interface object
-    SignalCallbacks m_callbacks;    ///< Callbacks to update the cache
+    std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light
+
+    Ui::Tweaker m_ui;                    ///< User interface object
+    SignalCallbacks m_callbacks;         ///< Callbacks to update the cache
 };

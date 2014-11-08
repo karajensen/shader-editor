@@ -138,6 +138,22 @@ void Scene::InitialiseEmitter(Emitter& emitter, boost::property_tree::ptree::ite
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
 {
+    water.bumpSpeed = GetValue<float>(it, "BumpSpeed");
+    water.fresnalFactor = GetValue<float>(it, "FresnalFactor");
+    water.reflection = GetValue<float>(it, "ReflectionIntensity");
+    water.speed = GetValue<float>(it, "Speed");
+    water.textureOffset.x = GetAttribute<float>(it, "TextureOffset", "u");
+    water.textureOffset.y = GetAttribute<float>(it, "TextureOffset", "v");
+    water.deepColour.r = GetAttribute<float>(it, "DeepColour", "r");
+    water.deepColour.g = GetAttribute<float>(it, "DeepColour", "g");
+    water.deepColour.b = GetAttribute<float>(it, "DeepColour", "b");
+    water.shallowColour.r = GetAttribute<float>(it, "ShallowColour", "r");
+    water.shallowColour.g = GetAttribute<float>(it, "ShallowColour", "g");
+    water.shallowColour.b = GetAttribute<float>(it, "ShallowColour", "b");
+    water.reflectionTint.r = GetAttribute<float>(it, "ReflectionTint", "r");
+    water.reflectionTint.g = GetAttribute<float>(it, "ReflectionTint", "g");
+    water.reflectionTint.b = GetAttribute<float>(it, "ReflectionTint", "b");
+
     water.shaderIndex = WATER_SHADER_INDEX;
     water.normalIndex = WATER_NORMAL_SHADER_INDEX;
 }
@@ -433,6 +449,11 @@ Mesh& Scene::GetMesh(int index)
     return m_meshes[index];
 }
 
+Water& Scene::GetWater(int index)
+{
+    return m_water[index];
+}
+
 Shader& Scene::GetShader(int index)
 {
     return m_shaders[index];
@@ -451,6 +472,11 @@ void Scene::SetPostMap(int index)
 int Scene::GetMeshCount() const
 {
     return static_cast<int>(m_meshes.size());
+}
+
+int Scene::GetWaterCount() const
+{
+    return static_cast<int>(m_water.size());
 }
 
 int Scene::GetLightCount() const
@@ -476,6 +502,16 @@ std::vector<std::string> Scene::GetMeshNames() const
         meshes.push_back(mesh.name);
     }
     return meshes;
+}
+
+std::vector<std::string> Scene::GetWaterNames() const
+{
+    std::vector<std::string> waters;
+    for(const Water& water : m_water)
+    {
+        waters.push_back(water.name);
+    }
+    return waters;
 }
 
 std::vector<std::string> Scene::GetPostMapNames() const
@@ -516,7 +552,7 @@ void Scene::SaveMeshesToFile()
     for(const Water& water : m_water)
     {
         property_tree::ptree entry;
-        AddMeshToTree(water, entry);
+        AddWaterToTree(water, entry);
         entries.emplace_back(entry);
         tree.add_child("Water", entries[entries.size()-1]);
     }
@@ -555,6 +591,26 @@ void Scene::AddEmitterToTree(const Emitter& emitter, boost::property_tree::ptree
     {
         entry.add("Texture", m_textures[texture].name);
     }
+}
+
+void Scene::AddWaterToTree(const Water& water, boost::property_tree::ptree& entry)
+{
+    entry.add("Speed", water.speed);
+    entry.add("BumpSpeed", water.bumpSpeed);
+    entry.add("FresnalFactor", water.fresnalFactor);
+    entry.add("ReflectionIntensity", water.reflection);
+    entry.add("TextureOffset.<xmlattr>.u", water.textureOffset.x);
+    entry.add("TextureOffset.<xmlattr>.v", water.textureOffset.y);
+    entry.add("DeepColour.<xmlattr>.r", water.deepColour.r);
+    entry.add("DeepColour.<xmlattr>.g", water.deepColour.g);
+    entry.add("DeepColour.<xmlattr>.b", water.deepColour.b);
+    entry.add("ShallowColour.<xmlattr>.r", water.shallowColour.r);
+    entry.add("ShallowColour.<xmlattr>.g", water.shallowColour.g);
+    entry.add("ShallowColour.<xmlattr>.b", water.shallowColour.b);
+    entry.add("ReflectionTint.<xmlattr>.r", water.reflectionTint.r);
+    entry.add("ReflectionTint.<xmlattr>.g", water.reflectionTint.g);
+    entry.add("ReflectionTint.<xmlattr>.b", water.reflectionTint.b);
+    AddMeshToTree(water, entry);
 }
 
 void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)

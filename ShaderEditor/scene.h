@@ -61,9 +61,14 @@ public:
     std::vector<std::string> GetLightNames() const;
 
     /**
-    * @return the namse of the meshes in the scene
+    * @return the names of the meshes in the scene
     */
     std::vector<std::string> GetMeshNames() const;
+
+    /**
+    * @return the names of the waters in the scene
+    */
+    std::vector<std::string> GetWaterNames() const;
 
     /**
     * @return the names of the shaders in the scene
@@ -86,6 +91,12 @@ public:
     * @return the mesh 
     */
     Mesh& GetMesh(int index);
+
+    /**
+    * @param index The index of the water to get
+    * @return the water 
+    */
+    Water& GetWater(int index);
 
     /**
     * @param index The index of the shader to get
@@ -115,6 +126,11 @@ public:
     * @return the number of meshes available
     */
     int GetMeshCount() const;
+
+    /**
+    * @return the number of water available
+    */
+    int GetWaterCount() const;
 
     /**
     * @return the number of lights available
@@ -237,6 +253,14 @@ private:
     */
     void AddMeshToTree(const Mesh& mesh, 
                        boost::property_tree::ptree& entry);
+
+    /**
+    * Adds the given water to the given tree
+    * @param water The water data to add
+    * @param entry The tree to add to
+    */
+    void AddWaterToTree(const Water& water, 
+                        boost::property_tree::ptree& entry);
 
     /**
     * Adds the given emitter to the given tree
