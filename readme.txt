@@ -1,6 +1,6 @@
 
 
-- Tweakable waves
+- Tweakable waves/emitter
 - Pass water data to shader
 - Basic water shader
 - Particles

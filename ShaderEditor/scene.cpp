@@ -595,6 +595,7 @@ void Scene::AddEmitterToTree(const Emitter& emitter, boost::property_tree::ptree
 
 void Scene::AddWaterToTree(const Water& water, boost::property_tree::ptree& entry)
 {
+    AddMeshToTree(water, entry);
     entry.add("Speed", water.speed);
     entry.add("BumpSpeed", water.bumpSpeed);
     entry.add("FresnalFactor", water.fresnalFactor);
@@ -610,7 +611,11 @@ void Scene::AddWaterToTree(const Water& water, boost::property_tree::ptree& entr
     entry.add("ReflectionTint.<xmlattr>.r", water.reflectionTint.r);
     entry.add("ReflectionTint.<xmlattr>.g", water.reflectionTint.g);
     entry.add("ReflectionTint.<xmlattr>.b", water.reflectionTint.b);
-    AddMeshToTree(water, entry);
+
+    for (const Wave& wave : water.waves)
+    {
+        entry.add("Wave.<xmlattr>.freq", wave.frequency);
+    }
 }
 
 void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
@@ -621,7 +626,7 @@ void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
     entry.add("Ambience", mesh.ambience);
     entry.add("Specularity", mesh.specularity);
     entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
-    entry.add("Specularity", m_shaders[mesh.shaderIndex].name);
+    entry.add("Shader", m_shaders[mesh.shaderIndex].name);
 	
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
