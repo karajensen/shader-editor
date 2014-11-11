@@ -50,6 +50,10 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_depthFar.Initialise(10.0, m_ui.depthFar_value,
         m_ui.depthFar_dial, m_callbacks.SetDepthFar);
 
+    m_ui.waveNumber_value->setMinimum(0.0);
+    m_selectedWave.Initialise(1.0, m_ui.waveNumber_value,
+        m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
+
     m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
 
@@ -137,6 +141,14 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     water[WATER_OFFSET_V].Set("Offset V", 0.01, m_callbacks.SetWater[WATER_OFFSET_V]);
     water[WATER_FRESNAL_FACTOR].Set("Fresnal", 0.01, m_callbacks.SetWater[WATER_FRESNAL_FACTOR]);
     m_water.Initialise(m_ui.water_box, m_ui.water_value, m_ui.water_dial, water);
+
+    std::vector<ComboEntry> wave(WAVE_ATTRIBUTES);
+    wave[WAVE_AMPLITUDE].Set("Amplitude", 0.01, m_callbacks.SetWave[WAVE_AMPLITUDE]);
+    wave[WAVE_FREQUENCY].Set("Frequency", 0.01, m_callbacks.SetWave[WAVE_FREQUENCY]);
+    wave[WAVE_SPEED].Set("Speed", 0.01, m_callbacks.SetWave[WAVE_SPEED]);
+    wave[WAVE_DIRECTION_X].Set("Direction X", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_X]);
+    wave[WAVE_DIRECTION_Z].Set("Direction Z", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_Z]);
+    m_wave.Initialise(m_ui.wave_box, m_ui.wave_value, m_ui.wave_dial, wave);
 }
 
 std::string Tweaker::GetSelectedPage() const
@@ -199,6 +211,11 @@ void Tweaker::SetLight(LightAttribute attribute, float value)
 void Tweaker::SetMesh(MeshAttribute attribute, float value)
 {
     m_mesh.SetValue(attribute, value);
+}
+
+void Tweaker::SetWave(WaveAttribute attribute, float value)
+{
+    m_wave.SetValue(attribute, value);
 }
 
 void Tweaker::SetMaximumColour(ColourAttribute attribute, float value)
@@ -299,6 +316,18 @@ void Tweaker::InitialiseMeshes(int selected,
         m_selectedMesh.Initialise(m_ui.selectedMesh_box,
             selected, meshes, m_callbacks.SetSelectedMesh);
     }
+}
+
+void Tweaker::SetWaveAmount(int amount)
+{
+    const bool enabled = amount != 0;
+    m_ui.wave_box->setEnabled(enabled);
+    m_ui.wave_dial->setEnabled(enabled);
+    m_ui.wave_value->setEnabled(enabled);
+    m_ui.waveNumber_value->setEnabled(enabled);
+    m_ui.waveNumber_dial->setEnabled(enabled);
+    m_ui.particleAmount_value->setValue(0.0);
+    m_ui.waveNumber_value->setMaximum(std::max(0.0, static_cast<double>(amount-1.0)));
 }
 
 void Tweaker::InitialiseWater(int selected,

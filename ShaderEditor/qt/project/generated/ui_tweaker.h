@@ -145,14 +145,18 @@ public:
     QFrame *selectedWater;
     QLabel *selectedWater_lbl;
     QComboBox *selectedWater_box;
-    QFrame *water;
-    QDoubleSpinBox *water_value;
-    QDial *water_dial;
-    QComboBox *water_box;
+    QFrame *waveNumber;
+    QLabel *waveNumber_lbl;
+    QDoubleSpinBox *waveNumber_value;
+    QDial *waveNumber_dial;
     QFrame *wave;
     QDoubleSpinBox *wave_value;
     QDial *wave_dial;
     QComboBox *wave_box;
+    QFrame *water;
+    QDoubleSpinBox *water_value;
+    QDial *water_dial;
+    QComboBox *water_box;
     QSpacerItem *_meshSpacer_3;
     QFrame *selectedParticles;
     QLabel *selectedParticles_lbl;
@@ -1585,64 +1589,57 @@ public:
 
         meshLayout->addWidget(selectedWater);
 
-        water = new QFrame(layoutWidget2);
-        water->setObjectName(QStringLiteral("water"));
-        water->setMinimumSize(QSize(225, 35));
-        water->setMaximumSize(QSize(225, 35));
-        water->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        waveNumber = new QFrame(layoutWidget2);
+        waveNumber->setObjectName(QStringLiteral("waveNumber"));
+        waveNumber->setMinimumSize(QSize(225, 35));
+        waveNumber->setMaximumSize(QSize(225, 35));
+        waveNumber->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        water->setFrameShape(QFrame::NoFrame);
-        water->setFrameShadow(QFrame::Plain);
-        water->setLineWidth(0);
-        water_value = new QDoubleSpinBox(water);
-        water_value->setObjectName(QStringLiteral("water_value"));
-        water_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(water_value->sizePolicy().hasHeightForWidth());
-        water_value->setSizePolicy(sizePolicy);
-        water_value->setMinimumSize(QSize(86, 25));
-        water_value->setMaximumSize(QSize(86, 25));
-        water_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        waveNumber->setFrameShape(QFrame::NoFrame);
+        waveNumber->setFrameShadow(QFrame::Plain);
+        waveNumber->setLineWidth(0);
+        waveNumber_lbl = new QLabel(waveNumber);
+        waveNumber_lbl->setObjectName(QStringLiteral("waveNumber_lbl"));
+        waveNumber_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(waveNumber_lbl->sizePolicy().hasHeightForWidth());
+        waveNumber_lbl->setSizePolicy(sizePolicy);
+        waveNumber_lbl->setMinimumSize(QSize(100, 30));
+        waveNumber_lbl->setMaximumSize(QSize(100, 30));
+        waveNumber_lbl->setFont(font1);
+        waveNumber_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        waveNumber_lbl->setMargin(1);
+        waveNumber_value = new QDoubleSpinBox(waveNumber);
+        waveNumber_value->setObjectName(QStringLiteral("waveNumber_value"));
+        waveNumber_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(waveNumber_value->sizePolicy().hasHeightForWidth());
+        waveNumber_value->setSizePolicy(sizePolicy);
+        waveNumber_value->setMinimumSize(QSize(86, 25));
+        waveNumber_value->setMaximumSize(QSize(86, 25));
+        waveNumber_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        water_value->setFrame(false);
-        water_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        water_value->setDecimals(3);
-        water_value->setMinimum(-9999);
-        water_value->setMaximum(9999);
-        water_value->setSingleStep(0.05);
-        water_dial = new QDial(water);
-        water_dial->setObjectName(QStringLiteral("water_dial"));
-        water_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(water_dial->sizePolicy().hasHeightForWidth());
-        water_dial->setSizePolicy(sizePolicy);
-        water_dial->setMinimumSize(QSize(30, 30));
-        water_dial->setMaximumSize(QSize(30, 30));
-        water_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        water_dial->setMinimum(-10000);
-        water_dial->setMaximum(10000);
-        water_box = new QComboBox(water);
-        water_box->setObjectName(QStringLiteral("water_box"));
-        water_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(water_box->sizePolicy().hasHeightForWidth());
-        water_box->setSizePolicy(sizePolicy);
-        water_box->setMinimumSize(QSize(95, 22));
-        water_box->setMaximumSize(QSize(90, 22));
-        water_box->setBaseSize(QSize(90, 25));
-        water_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        water_box->setMaxVisibleItems(20);
-        water_box->setFrame(false);
+        waveNumber_value->setFrame(false);
+        waveNumber_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        waveNumber_value->setDecimals(0);
+        waveNumber_value->setMinimum(-9999);
+        waveNumber_value->setMaximum(9999);
+        waveNumber_value->setSingleStep(0.05);
+        waveNumber_dial = new QDial(waveNumber);
+        waveNumber_dial->setObjectName(QStringLiteral("waveNumber_dial"));
+        waveNumber_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(waveNumber_dial->sizePolicy().hasHeightForWidth());
+        waveNumber_dial->setSizePolicy(sizePolicy);
+        waveNumber_dial->setMinimumSize(QSize(30, 30));
+        waveNumber_dial->setMaximumSize(QSize(30, 30));
+        waveNumber_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        waveNumber_dial->setMinimum(-10000);
+        waveNumber_dial->setMaximum(10000);
 
-        meshLayout->addWidget(water);
+        meshLayout->addWidget(waveNumber);
 
         wave = new QFrame(layoutWidget2);
         wave->setObjectName(QStringLiteral("wave"));
@@ -1701,6 +1698,65 @@ public:
         wave_box->setFrame(false);
 
         meshLayout->addWidget(wave);
+
+        water = new QFrame(layoutWidget2);
+        water->setObjectName(QStringLiteral("water"));
+        water->setMinimumSize(QSize(225, 35));
+        water->setMaximumSize(QSize(225, 35));
+        water->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        water->setFrameShape(QFrame::NoFrame);
+        water->setFrameShadow(QFrame::Plain);
+        water->setLineWidth(0);
+        water_value = new QDoubleSpinBox(water);
+        water_value->setObjectName(QStringLiteral("water_value"));
+        water_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(water_value->sizePolicy().hasHeightForWidth());
+        water_value->setSizePolicy(sizePolicy);
+        water_value->setMinimumSize(QSize(86, 25));
+        water_value->setMaximumSize(QSize(86, 25));
+        water_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        water_value->setFrame(false);
+        water_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        water_value->setDecimals(3);
+        water_value->setMinimum(-9999);
+        water_value->setMaximum(9999);
+        water_value->setSingleStep(0.05);
+        water_dial = new QDial(water);
+        water_dial->setObjectName(QStringLiteral("water_dial"));
+        water_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(water_dial->sizePolicy().hasHeightForWidth());
+        water_dial->setSizePolicy(sizePolicy);
+        water_dial->setMinimumSize(QSize(30, 30));
+        water_dial->setMaximumSize(QSize(30, 30));
+        water_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        water_dial->setMinimum(-10000);
+        water_dial->setMaximum(10000);
+        water_box = new QComboBox(water);
+        water_box->setObjectName(QStringLiteral("water_box"));
+        water_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(water_box->sizePolicy().hasHeightForWidth());
+        water_box->setSizePolicy(sizePolicy);
+        water_box->setMinimumSize(QSize(95, 22));
+        water_box->setMaximumSize(QSize(90, 22));
+        water_box->setBaseSize(QSize(90, 25));
+        water_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        water_box->setMaxVisibleItems(20);
+        water_box->setFrame(false);
+
+        meshLayout->addWidget(water);
 
         _meshSpacer_3 = new QSpacerItem(20, 15, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
@@ -2739,6 +2795,7 @@ public:
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         selectedWater_lbl->setText(QApplication::translate("Tweaker", "Water", 0));
+        waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
         particleSize_lbl->setText(QApplication::translate("Tweaker", "Size", 0));
         particleAmount_lbl->setText(QApplication::translate("Tweaker", "Amount", 0));

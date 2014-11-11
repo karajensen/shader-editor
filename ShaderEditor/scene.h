@@ -257,9 +257,11 @@ private:
     /**
     * Adds the given water to the given tree
     * @param water The water data to add
+    * @param entries All entries for the tree
     * @param entry The tree to add to
     */
     void AddWaterToTree(const Water& water, 
+                        std::vector<boost::property_tree::ptree>& entries,
                         boost::property_tree::ptree& entry);
 
     /**

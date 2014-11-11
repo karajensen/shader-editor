@@ -60,6 +60,18 @@
     <Diffuse>caustic.bmp</Diffuse>
     <Normal>water_normal.png</Normal>
     <!--<Environment>water_environment.dds</Environment>-->
+    <Wave>
+      <Frequency>1.0</Frequency>
+      <Amplitude>1.0</Amplitude>
+      <Speed>1.0</Speed>
+      <Direction x="0.0" z="0.0"></Direction>
+    </Wave>
+    <Wave>
+      <Frequency>1.0</Frequency>
+      <Amplitude>1.0</Amplitude>
+      <Speed>1.0</Speed>
+      <Direction x="0.0" z="0.0"></Direction>
+    </Wave>
   </Water>
   <Emitter>
     <Name>TestEmitter</Name>

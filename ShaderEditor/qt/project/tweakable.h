@@ -128,8 +128,10 @@ struct SignalCallbacks
     FloatSignals SetFog;          ///< Sets the fog tweakable attributes
     FloatSignals SetMesh;         ///< Sets the mesh tweakable attributes
     FloatSignals SetWater;        ///< Sets the water tweakable attributes
+    FloatSignals SetWave;         ///< Sets the water wave tweakable attributes
     FloatSignals SetMinColour;    ///< Sets the minimum post colour range
     FloatSignals SetMaxColour;    ///< Sets the maximum post colour range
+    FloatSignal SetSelectedWave;  ///< Sets the selected wave to display
     IntSignal SetSelectedEngine;  ///< Sets the selected engine to render
     IntSignal SetSelectedLight;   ///< Sets the selected light to display
     IntSignal SetSelectedMesh;    ///< Sets the selected mesh to display
@@ -159,6 +161,7 @@ struct SignalCallbacks
         SetSelectedMesh(nullptr),
         SetSelectedWater(nullptr),
         SetSelectedShader(nullptr),
+        SetSelectedWave(nullptr),
         SetPostMap(nullptr),
         SaveLights(nullptr),
         SaveMeshes(nullptr),
@@ -182,5 +185,8 @@ struct SignalCallbacks
 
         SetMaxColour.resize(COLOUR_ATTRIBUTES);
         SetMaxColour.assign(COLOUR_ATTRIBUTES, nullptr);
+
+        SetWave.resize(WAVE_ATTRIBUTES);
+        SetWave.assign(WAVE_ATTRIBUTES, nullptr);
     }
 };

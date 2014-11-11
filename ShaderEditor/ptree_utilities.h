@@ -29,7 +29,7 @@ namespace
 
     /**
     * Gets the value of the node
-    * @param note Node from the tree to check 
+    * @param node Node from the tree to check 
     * @param name The name of the node to search
     * @return the value of the node
     */

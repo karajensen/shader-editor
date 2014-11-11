@@ -65,6 +65,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSaturation =     [&](float value){ m_cache->Saturation.Set(value); };
     callbacks.SetDepthFar =       [&](float value){ m_cache->DepthFar.Set(value); };
     callbacks.SetDepthNear =      [&](float value){ m_cache->DepthNear.Set(value); };
+    callbacks.SetSelectedWave =   [&](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
     callbacks.SetSelectedEngine = [&](int index){ m_cache->EngineSelected.Set(index); };
     callbacks.SetSelectedMesh =   [&](int index){ m_cache->MeshSelected.Set(index); };
     callbacks.SetSelectedWater =  [&](int index){ m_cache->WaterSelected.Set(index); };
@@ -333,6 +334,20 @@ void Gui::UpdateMesh(Tweaker& tweaker)
         {
             tweaker.SetWater(static_cast<WaterAttribute>(i), 
                 m_cache->Water[i].GetUpdated());
+        }
+    }
+
+    if(initialisedWater || m_cache->WaveAmount.RequiresUpdate())
+    {
+        tweaker.SetWaveAmount(m_cache->WaveAmount.GetUpdated());
+    }
+
+    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
+    {
+        if (initialisedWater || m_cache->Wave[i].RequiresUpdate())
+        {
+            tweaker.SetWave(static_cast<WaveAttribute>(i), 
+                m_cache->Wave[i].GetUpdated());
         }
     }
 }

@@ -1,6 +1,10 @@
 
 
-- Tweakable waves/emitter
+- Move code to SceneModifier class
+- Test tweakable wave
+- Test saving water/waves
+- Tweakable emitter
+
 - Pass water data to shader
 - Basic water shader
 - Particles

@@ -154,6 +154,20 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     water.reflectionTint.g = GetAttribute<float>(it, "ReflectionTint", "g");
     water.reflectionTint.b = GetAttribute<float>(it, "ReflectionTint", "b");
 
+    for (auto child = it->second.begin(); child != it->second.end(); ++child)
+    {
+        if (child->first == "Wave")
+        {
+            Wave wave;
+            wave.amplitude = GetValue<float>(child, "Amplitude");
+            wave.frequency = GetValue<float>(child, "Frequency");
+            wave.speed = GetValue<float>(child, "Speed");
+            wave.directionX = GetAttribute<float>(child, "Direction", "x");
+            wave.directionZ = GetAttribute<float>(child, "Direction", "z");
+            water.waves.emplace_back(wave);
+        }
+    }
+
     water.shaderIndex = WATER_SHADER_INDEX;
     water.normalIndex = WATER_NORMAL_SHADER_INDEX;
 }
@@ -552,7 +566,7 @@ void Scene::SaveMeshesToFile()
     for(const Water& water : m_water)
     {
         property_tree::ptree entry;
-        AddWaterToTree(water, entry);
+        AddWaterToTree(water, entries, entry);
         entries.emplace_back(entry);
         tree.add_child("Water", entries[entries.size()-1]);
     }
@@ -593,7 +607,9 @@ void Scene::AddEmitterToTree(const Emitter& emitter, boost::property_tree::ptree
     }
 }
 
-void Scene::AddWaterToTree(const Water& water, boost::property_tree::ptree& entry)
+void Scene::AddWaterToTree(const Water& water, 
+                           std::vector<boost::property_tree::ptree>& entries,
+                           boost::property_tree::ptree& entry)
 {
     AddMeshToTree(water, entry);
     entry.add("Speed", water.speed);
@@ -614,7 +630,14 @@ void Scene::AddWaterToTree(const Water& water, boost::property_tree::ptree& entr
 
     for (const Wave& wave : water.waves)
     {
-        entry.add("Wave.<xmlattr>.freq", wave.frequency);
+        boost::property_tree::ptree waveEntry;
+        waveEntry.add("Frequency", wave.frequency);
+        waveEntry.add("Amplitude", wave.amplitude);
+        waveEntry.add("Speed", wave.speed);
+        waveEntry.add("Direction.<xmlattr>.x", wave.directionX);
+        waveEntry.add("Direction.<xmlattr>.z", wave.directionZ);
+        entries.emplace_back(waveEntry);
+        entry.add_child("Wave", entries[entries.size()-1]);
     }
 }
 

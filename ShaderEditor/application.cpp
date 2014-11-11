@@ -311,6 +311,7 @@ void Application::UpdateMesh()
         m_cache->Water[WATER_FRESNAL_FACTOR].SetUpdated(water.fresnalFactor);
         m_cache->Water[WATER_OFFSET_U].SetUpdated(water.textureOffset.x);
         m_cache->Water[WATER_OFFSET_V].SetUpdated(water.textureOffset.y);
+        m_cache->WaveAmount.SetUpdated(static_cast<int>(water.waves.size()));
     }
     else if(m_selectedWater >= 0 && m_selectedWater < m_scene->GetWaterCount())
     {
@@ -331,6 +332,33 @@ void Application::UpdateMesh()
         water.fresnalFactor = m_cache->Water[WATER_FRESNAL_FACTOR].Get();
         water.textureOffset.x = m_cache->Water[WATER_OFFSET_U].Get();
         water.textureOffset.y = m_cache->Water[WATER_OFFSET_V].Get();
+    }
+
+    if (m_selectedWater != NO_INDEX)
+    {
+        auto& water = m_scene->GetWater(m_selectedWater);
+        const int selectedWave = m_cache->WaveSelected.Get();
+
+        if(selectedWave != m_selectedWave)
+        {
+            m_selectedWave = selectedWave;
+            auto& wave = water.waves[m_selectedWave];
+
+            m_cache->Wave[WAVE_AMPLITUDE].SetUpdated(wave.amplitude);
+            m_cache->Wave[WAVE_FREQUENCY].SetUpdated(wave.frequency);
+            m_cache->Wave[WAVE_SPEED].SetUpdated(wave.speed);
+            m_cache->Wave[WAVE_DIRECTION_X].SetUpdated(wave.directionX);
+            m_cache->Wave[WAVE_DIRECTION_Z].SetUpdated(wave.directionZ);
+        }
+        else if(m_selectedWave >= 0 && m_selectedWave < static_cast<int>(water.waves.size()))
+        {
+            auto& wave = water.waves[m_selectedWave];
+            wave.amplitude = m_cache->Wave[WAVE_AMPLITUDE].Get();
+            wave.frequency = m_cache->Wave[WAVE_FREQUENCY].Get();
+            wave.speed = m_cache->Wave[WAVE_SPEED].Get();
+            wave.directionX = m_cache->Wave[WAVE_DIRECTION_X].Get();
+            wave.directionZ = m_cache->Wave[WAVE_DIRECTION_Z].Get();
+        }
     }
 }
 
@@ -452,6 +480,9 @@ void Application::InitialiseCache(const std::vector<std::string>& engineNames)
     m_cache->Shaders.Set(m_scene->GetShaderNames());
     m_cache->PostMaps.Set(m_scene->GetPostMapNames());
     m_cache->Waters.Set(m_scene->GetWaterNames());
+
+    m_cache->WaveAmount.SetUpdated(m_scene->GetWaterCount() > 0 ? 
+        static_cast<int>(m_scene->GetWater(0).waves.size()) : 0);
 
     const PostProcessing& post = m_scene->Post();
     m_cache->DepthNear.SetUpdated(post.depthNear);

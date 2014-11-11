@@ -142,44 +142,47 @@ struct Cache
     {
     }
 
-    Lockable<bool> ApplicationRunning;        ///< Whether the application is running
-    Lockable<GuiPage> PageSelected;           ///< Current page selected for the gui
-                                              
-    Lockable<bool> SaveLights;                ///< Request to save the lights to xml
-    Lockable<bool> SaveMeshes;                ///< Request to save the meshes to xml
-    Lockable<bool> SavePost;                  ///< Request to save post processing to xml
-                                              
-    Lockable<int> ShaderSelected;             ///< Index for the selected shader
-    LockableString ShaderText;                ///< Text for the selected shader
-    LockableString ShaderAsm;                 ///< Assembly for the selected shader
-    LockableString CompileShader;             ///< Text to request to be compiled
-                                              
-    Lockable<int> EngineSelected;             ///< The selected render engine to use
-    Lockable<float> DeltaTime;                ///< The time passed in seconds between ticks
-    Lockable<double> Timer;                   ///< The time passed in seconds from start
-    Lockable<int> FramesPerSec;               ///< The frames per second for the application
-    Lockable<Float2> MousePosition;           ///< The screen position of the mouse
-    Lockable<Float2> MouseDirection;          ///< The direction normalized of the mouse
-                                              
-    Lockable<int> LightSelected;              ///< Index of the currently selected light                                           
-    Lockable<int> MeshSelected;               ///< Index of the currently selected mesh
-    LockableString MeshShader;                ///< Shader used for the selected mesh
-    Lockable<int> WaterSelected;              ///< Index of the currently selected water                                              
-    Lockable<int> PostMapSelected;            ///< Index of the currently selected post map
-    Lockable<float> BlurAmount;               ///< The amount to blur the scene by
-    Lockable<float> BlurStep;                 ///< The sample step of the blur
-    Lockable<float> GlowAmount;               ///< The amount to glow the scene by
-    Lockable<float> Contrast;                 ///< Contrast controller of the final scene
-    Lockable<float> Saturation;               ///< Saturation controller of the final scene
-    Lockable<float> DepthNear;                ///< The near value for the depth
-    Lockable<float> DepthFar;                 ///< The far value for the depth
-    Lockable<float> DOFDistance;              ///< Distance DOF is active
-    Lockable<float> DOFFade;                  ///< How quick DOF merges into the scene
+    Lockable<bool> ApplicationRunning;  ///< Whether the application is running
+    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui
+                                        
+    Lockable<bool> SaveLights;          ///< Request to save the lights to xml
+    Lockable<bool> SaveMeshes;          ///< Request to save the meshes to xml
+    Lockable<bool> SavePost;            ///< Request to save post processing to xml
+                                        
+    Lockable<int> ShaderSelected;       ///< Index for the selected shader
+    LockableString ShaderText;          ///< Text for the selected shader
+    LockableString ShaderAsm;           ///< Assembly for the selected shader
+    LockableString CompileShader;       ///< Text to request to be compiled
+                                        
+    Lockable<int> EngineSelected;       ///< The selected render engine to use
+    Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
+    Lockable<double> Timer;             ///< The time passed in seconds from start
+    Lockable<int> FramesPerSec;         ///< The frames per second for the application
+    Lockable<Float2> MousePosition;     ///< The screen position of the mouse
+    Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
+                                        
+    Lockable<int> LightSelected;        ///< Index of the currently selected light                                           
+    Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
+    LockableString MeshShader;          ///< Shader used for the selected mesh
+    Lockable<int> WaterSelected;        ///< Index of the currently selected water  
+    Lockable<int> WaveSelected;         ///< Index of the currently selected wave
+    Lockable<int> WaveAmount;           ///< The amount of waves for the selected water
+    Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
+    Lockable<float> BlurAmount;         ///< The amount to blur the scene by
+    Lockable<float> BlurStep;           ///< The sample step of the blur
+    Lockable<float> GlowAmount;         ///< The amount to glow the scene by
+    Lockable<float> Contrast;           ///< Contrast controller of the final scene
+    Lockable<float> Saturation;         ///< Saturation controller of the final scene
+    Lockable<float> DepthNear;          ///< The near value for the depth
+    Lockable<float> DepthFar;           ///< The far value for the depth
+    Lockable<float> DOFDistance;        ///< Distance DOF is active
+    Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
 
     std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;      ///< Selected light attributes
     std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;        ///< Selected mesh attributes
     std::array<Lockable<float>, WATER_ATTRIBUTES> Water;      ///< Selected water attributes
     std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;          ///< Fog attributes
+    std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;        ///< Wave attributes
     std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour; ///< Min colour attributes
     std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour; ///< Max colour attributes
 

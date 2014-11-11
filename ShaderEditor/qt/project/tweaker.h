@@ -152,6 +152,13 @@ public:
     void SetMesh(MeshAttribute attribute, float value);
 
     /**
+    * Sets the value for an attribute of a wave
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetWave(WaveAttribute attribute, float value);
+
+    /**
     * Sets the value for an attribute of a the maximum colour rante
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
@@ -226,6 +233,12 @@ public:
     void InitialiseLights(int selected, const std::vector<std::string>& lights);
 
     /**
+    * Sets the available waves to be tweaked
+    * @param amount The amount of waves to tweak
+    */
+    void SetWaveAmount(int amount);
+
+    /**
     * @return whether the render engine combo box is filled int
     */
     bool HasEngines() const;
@@ -276,12 +289,14 @@ private:
     TweakableBox m_selectedLight;        ///< Combo box for selecting the light
     TweakableBox m_selectedMesh;         ///< Combo box for selecting the mesh
     TweakableBox m_selectedWater;        ///< Combo box for selecting the water
+    TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
     TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_fog;           ///< Tweakable values for fog
     TweakableBoxedValue m_mesh;          ///< Tweakable values for mesh attributes
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
+    TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
 
     std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light
 

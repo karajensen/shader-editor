@@ -350,7 +350,8 @@ struct Wave
     float frequency = 0.0f;         ///< Frequency of the wave
     float amplitude = 0.0f;         ///< Amplitude of the wave
     float speed = 0.0f;             ///< Speed of the wave
-    Float2 direction;               ///< Direction the wave moves
+    float directionX = 0.0f;        ///< Direction the wave moves
+    float directionZ = 0.0f;        ///< Direction the wave moves
 };
 
 /**
