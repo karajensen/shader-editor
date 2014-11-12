@@ -136,6 +136,9 @@
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_button.cpp">
       <Filter>Qt\generated</Filter>
     </ClCompile>
+    <ClCompile Include="sceneModifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -245,6 +248,9 @@
     </ClInclude>
     <ClInclude Include="qt\project\tweakable.h">
       <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneModifier.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

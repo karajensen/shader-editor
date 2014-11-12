@@ -55,6 +55,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="openglengine.cpp" />
+    <ClCompile Include="sceneModifier.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +93,7 @@
     <ClInclude Include="openglengine.h" />
     <ClInclude Include="renderengine.h" />
     <ClInclude Include="sceneElements.h" />
+    <ClInclude Include="sceneModifier.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
   </ItemGroup>

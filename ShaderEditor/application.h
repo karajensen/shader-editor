@@ -14,6 +14,7 @@ class DirectxEngine;
 class RenderEngine;
 class Timer;
 class Scene;
+class SceneModifier;
 class Camera;
 struct Cache;
 
@@ -93,49 +94,11 @@ private:
     bool IsKeyDown(unsigned int key) const;
 
     /**
-    * Updates the shader shared cache between the gui and application
-    */
-    void UpdateShader();
-
-    /**
-    * Updates the scene shared cache between the gui and application
-    */
-    void UpdateScene();
-
-    /**
-    * Updates the light shared cache between the gui and application
-    */
-    void UpdateLight();
-
-    /**
-    * Updates the mesh shared cache between the gui and application
-    */
-    void UpdateMesh();
-
-    /**
-    * Updates the post shared cache between the gui and application
-    */
-    void UpdatePost();
-
-    /**
     * Initialises a render engine
     * @param engine the Engine to intialise
     * @return whether initialisation succeeded
     */
     bool InitialiseEngine(RenderEngine* engine);
-
-    /**
-    * Initialises the cache shared between the application and gui
-    * @param engineNames The names of all engines supported
-    */
-    void InitialiseCache(const std::vector<std::string>& engineNames);
-
-    /**
-    * Recompiles the currently selected shader
-    * @param text The new text to recompile with
-    * @return whether recompilation was successful
-    */
-    bool ReCompileShader(const std::string& text);
 
     /**
     * @return the currently selected render engine
@@ -162,22 +125,15 @@ private:
         MAX_ENGINES
     };
 
-    FadeState m_fadeState = FADE_IN;  ///< Current state of fading in/out the selected engine
-    int m_selectedLight = NO_INDEX;   ///< Current light selected
-    int m_selectedMesh = NO_INDEX;    ///< Current mesh selected
-    int m_selectedWater = NO_INDEX;   ///< Current water selected
-    int m_selectedWave = NO_INDEX;    ///< Current wave selected
-    int m_selectedEngine = NO_INDEX;  ///< Current render engine selected
-    int m_selectedShader = NO_INDEX;  ///< Current shader selected
-    int m_selectedMap = NO_INDEX;     ///< Current post map selected
-    Float2 m_mouseDirection;          ///< Direction of movement for the mouse
-    Float2 m_mousePosition;           ///< 2D coordinates of the mouse
-    bool m_mousePressed = false;      ///< Whether the mouse is held down or not
-
-    std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
-    std::unique_ptr<Camera> m_camera; ///< Scene camera for generating view matrix
-    std::unique_ptr<Scene> m_scene;   ///< Holds meshes, lighting and shader data
-    std::unique_ptr<Timer> m_timer;   ///< For measure change in frame time
+    FadeState m_fadeState = FADE_IN;             ///< Current state of fading in/out the selected engine
+    Float2 m_mouseDirection;                     ///< Direction of movement for the mouse
+    Float2 m_mousePosition;                      ///< 2D coordinates of the mouse
+    bool m_mousePressed = false;                 ///< Whether the mouse is held down or not
+    int m_selectedEngine = NO_INDEX;             ///< Currently selected engine
+    std::unique_ptr<Camera> m_camera;            ///< Scene camera for generating view matrix
+    std::unique_ptr<SceneModifier> m_modifier;   ///< Manipulates meshes, lighting and shader data
+    std::unique_ptr<Scene> m_scene;              ///< Holds meshes, lighting and shader data
+    std::unique_ptr<Timer> m_timer;              ///< For measure change in frame time
     
     std::vector<std::unique_ptr<RenderEngine>> m_engines; ///< Available render engines
 };
