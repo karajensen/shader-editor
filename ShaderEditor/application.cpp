@@ -232,12 +232,18 @@ bool Application::InitialiseEngine(RenderEngine* engine)
 
 void Application::FadeRenderEngine()
 {
+    const int selectedEngine = m_modifier->GetSelectedEngine();
+    if (selectedEngine != m_selectedEngine)
+    {
+        m_fadeState = FADE_OUT;
+    }
+
     if(m_fadeState != NO_FADE &&
        GetEngine()->FadeView(m_fadeState == FADE_IN, FADE_AMOUNT))
     {
         if(m_fadeState == FADE_OUT)
         {
-            SwitchRenderEngine(m_modifier->GetSelectedEngine());
+            SwitchRenderEngine(selectedEngine);
             m_fadeState = FADE_IN;
         }
         else
@@ -250,11 +256,7 @@ void Application::FadeRenderEngine()
 void Application::SwitchRenderEngine(int index)
 {
     m_engines[m_selectedEngine]->Release();
-
     m_selectedEngine = index;
-
-    m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
-    m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 
     if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
     {

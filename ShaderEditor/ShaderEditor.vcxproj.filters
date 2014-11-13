@@ -198,9 +198,6 @@
     <ClInclude Include="openglshader.h">
       <Filter>Render Engine Header</Filter>
     </ClInclude>
-    <ClInclude Include="elements.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -250,6 +247,9 @@
       <Filter>Qt</Filter>
     </ClInclude>
     <ClInclude Include="sceneModifier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="elements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 
 
-- Move code to SceneModifier class
+- Mesh tab broken
 - Test tweakable wave
 - Test saving water/waves
 - Tweakable emitter

@@ -98,6 +98,9 @@ int SceneModifier::GetSelectedEngine() const
 void SceneModifier::SetSelectedEngine(int engine)
 {
     m_cache->EngineSelected.SetUpdated(engine);
+
+    m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
+    m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 }
 
 void SceneModifier::UpdateScene(const Float2& mousePosition, 

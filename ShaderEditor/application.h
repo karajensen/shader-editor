@@ -131,9 +131,9 @@ private:
     bool m_mousePressed = false;                 ///< Whether the mouse is held down or not
     int m_selectedEngine = NO_INDEX;             ///< Currently selected engine
     std::unique_ptr<Camera> m_camera;            ///< Scene camera for generating view matrix
-    std::unique_ptr<SceneModifier> m_modifier;   ///< Manipulates meshes, lighting and shader data
     std::unique_ptr<Scene> m_scene;              ///< Holds meshes, lighting and shader data
     std::unique_ptr<Timer> m_timer;              ///< For measure change in frame time
+    std::unique_ptr<SceneModifier> m_modifier;   ///< Manipulates meshes, lighting and shader data
     
     std::vector<std::unique_ptr<RenderEngine>> m_engines; ///< Available render engines
 };
