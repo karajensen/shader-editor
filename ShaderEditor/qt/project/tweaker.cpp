@@ -21,6 +21,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_saveLights.Initialise(m_ui.saveLights_btn, m_callbacks.SaveLights);
     m_saveMeshes.Initialise(m_ui.saveMeshes_btn, m_callbacks.SaveMeshes);
+    m_saveParticles.Initialise(m_ui.saveParticles_btn, m_callbacks.SaveParticles);
     m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
@@ -49,6 +50,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_depthFar.Initialise(10.0, m_ui.depthFar_value,
         m_ui.depthFar_dial, m_callbacks.SetDepthFar);
+
+    m_ui.particleAmount_value->setMinimum(0.0);
+    m_ui.particleAmount_value->setMaximum(500.0);
+
+    m_particleAmount.Initialise(1.0, m_ui.particleAmount_value,
+        m_ui.particleAmount_dial, m_callbacks.SetParticleAmount);
 
     m_ui.waveNumber_value->setMinimum(0.0);
     m_selectedWave.Initialise(1.0, m_ui.waveNumber_value,
@@ -122,6 +129,28 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     fog[FOG_GREEN].Set("Fog Green", 0.01, m_callbacks.SetFog[FOG_GREEN]);
     fog[FOG_BLUE].Set("Fog Blue", 0.01, m_callbacks.SetFog[FOG_BLUE]);
     m_fog.Initialise(m_ui.fog_box, m_ui.fog_value, m_ui.fog_dial, fog);
+
+    std::vector<ComboEntry> emitter(EMITTER_ATTRIBUTES);
+    emitter[EMITTER_LENGTH].Set("Length", 0.01, m_callbacks.SetEmitter[EMITTER_LENGTH]);
+    emitter[EMITTER_WIDTH].Set("Width", 0.01, m_callbacks.SetEmitter[EMITTER_WIDTH]);
+    emitter[EMITTER_DIR_X].Set("Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
+    emitter[EMITTER_DIR_Y].Set("Direction Y", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Y]);
+    emitter[EMITTER_DIR_Z].Set("Direction Z", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Z]);
+    emitter[EMITTER_POS_X].Set("Position X", 0.01, m_callbacks.SetEmitter[EMITTER_POS_X]);
+    emitter[EMITTER_POS_Y].Set("Position Y", 0.01, m_callbacks.SetEmitter[EMITTER_POS_Y]);
+    emitter[EMITTER_POS_Z].Set("Position Z", 0.01, m_callbacks.SetEmitter[EMITTER_POS_Z]);
+    m_emitter.Initialise(m_ui.emitter_box, m_ui.emitter_value, m_ui.emitter_dial, emitter);
+
+    std::vector<ComboEntry> particle(PARTICLE_ATTRIBUTES);
+    particle[PARTICLE_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetParticles[PARTICLE_LIFETIME]);
+    particle[PARTICLE_SPEED].Set("Speed", 0.01, m_callbacks.SetParticles[PARTICLE_SPEED]);
+    particle[PARTICLE_SPEED_VAR].Set("Speed Var.", 0.01, m_callbacks.SetParticles[PARTICLE_SPEED_VAR]);
+    particle[PARTICLE_SIZE].Set("Size", 0.01, m_callbacks.SetParticles[PARTICLE_SIZE]);
+    particle[PARTICLE_SIZE_VAR].Set("Size Var.", 0.01, m_callbacks.SetParticles[PARTICLE_SIZE_VAR]);
+    particle[PARTICLE_TINT_R].Set("Tint R", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_R]);
+    particle[PARTICLE_TINT_G].Set("Tint G", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_G]);
+    particle[PARTICLE_TINT_B].Set("Tint B", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_B]);
+    m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, particle);
 
     std::vector<ComboEntry> water(WATER_ATTRIBUTES);
     water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
@@ -218,6 +247,16 @@ void Tweaker::SetWave(WaveAttribute attribute, float value)
     m_wave.SetValue(attribute, value);
 }
 
+void Tweaker::SetEmitter(EmitterAttribute attribute, float value)
+{
+    m_emitter.SetValue(attribute, value);
+}
+
+void Tweaker::SetParticles(ParticleAttribute attribute, float value)
+{
+    m_particles.SetValue(attribute, value);
+}
+
 void Tweaker::SetMaximumColour(ColourAttribute attribute, float value)
 {
     m_maxColour.SetValue(attribute, value);
@@ -288,6 +327,16 @@ void Tweaker::SetSelectedEngine(int selected)
     m_renderEngine.SetSelected(selected);
 }
 
+void Tweaker::InitialiseEmitters(int selected,
+                                 const std::vector<std::string>& emitters)
+{
+    if (!emitters.empty())
+    {
+        m_selectedEmitter.Initialise(m_ui.selectedParticles_box,
+            selected, emitters, m_callbacks.SetSelectedEmitter);
+    }
+}
+
 void Tweaker::InitialisePostMaps(int selected,
                                  const std::vector<std::string>& maps)
 {
@@ -318,6 +367,11 @@ void Tweaker::InitialiseMeshes(int selected,
     }
 }
 
+void Tweaker::SetParticleAmount(int amount)
+{
+    m_particleAmount.Set(static_cast<double>(amount));
+}
+
 void Tweaker::SetWaveAmount(int amount)
 {
     const bool enabled = amount != 0;
@@ -326,7 +380,6 @@ void Tweaker::SetWaveAmount(int amount)
     m_ui.wave_value->setEnabled(enabled);
     m_ui.waveNumber_value->setEnabled(enabled);
     m_ui.waveNumber_dial->setEnabled(enabled);
-    m_ui.particleAmount_value->setValue(0.0);
     m_ui.waveNumber_value->setMaximum(std::max(0.0, static_cast<double>(amount-1.0)));
 }
 
@@ -363,6 +416,11 @@ bool Tweaker::HasMeshes() const
 bool Tweaker::HasLights() const
 {
     return m_selectedLight.IsInitialised();
+}
+
+bool Tweaker::HasEmitters() const
+{
+    return m_selectedEmitter.IsInitialised();
 }
 
 bool Tweaker::HasWater() const

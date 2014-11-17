@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Emitters>
+	<Emitter>
+		<Name>TestEmitter</Name>
+		<Width>10</Width>
+		<Length>10</Length>
+		<Amount>30</Amount>
+		<LifeTime>5</LifeTime>
+		<Speed>1</Speed>
+		<SpeedVariation>0</SpeedVariation>
+		<Size>5.0</Size>
+		<SizeVariation>0</SizeVariation>
+		<Position x="0" y="0" z="0"/>
+		<Direction x="0" y="1" z="0"/>
+		<Tint r="0" g="0" b="0"/>
+		<Texture>caustic.bmp</Texture>
+		<Texture>specular.JPG</Texture>
+	</Emitter>
+</Emitters>

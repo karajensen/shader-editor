@@ -1,14 +1,9 @@
 
-
-- Mesh tab broken
-- Test tweakable wave
-- Test saving water/waves
-- Tweakable emitter
-
 - Pass water data to shader
 - Basic water shader
+- Loading environment map
 - Particles
- 
+
 - Add mesh extras to python script
 - Create 3D scene with baked shadows
 - Optimise shaders

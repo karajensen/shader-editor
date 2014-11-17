@@ -139,6 +139,9 @@
     <ClCompile Include="sceneModifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="elements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -330,7 +333,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="Assets\Post.xml">
+    <Xml Include="Assets\PostProcessing.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="Assets\Emitters.xml">
       <Filter>Resource Files</Filter>
     </Xml>
   </ItemGroup>

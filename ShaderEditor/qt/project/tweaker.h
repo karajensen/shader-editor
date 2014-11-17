@@ -159,6 +159,20 @@ public:
     void SetWave(WaveAttribute attribute, float value);
 
     /**
+    * Sets the value for an attribute of an emitter
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetEmitter(EmitterAttribute attribute, float value);
+
+    /**
+    * Sets the value for an attribute of the emitter particles
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetParticles(ParticleAttribute attribute, float value);
+
+    /**
     * Sets the value for an attribute of a the maximum colour rante
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
@@ -198,6 +212,12 @@ public:
     void SetSelectedPostMap(int selected);
 
     /**
+    * Sets the selected emitter
+    * @param selected The selected emitter
+    */
+    void SetSelectedEmitter(int selected);
+
+    /**
     * Sets the available post maps for the combo box
     * @param selected The initially selected post map
     * @param engines The post map names to set
@@ -233,10 +253,23 @@ public:
     void InitialiseLights(int selected, const std::vector<std::string>& lights);
 
     /**
+    * Sets the available emitters for the combo box
+    * @param selected The initially selected emitter
+    * @param emitters The emitter names to set
+    */
+    void InitialiseEmitters(int selected, const std::vector<std::string>& emitters);
+
+    /**
     * Sets the available waves to be tweaked
     * @param amount The amount of waves to tweak
     */
     void SetWaveAmount(int amount);
+
+    /**
+    * Sets how many particles will spawn on the selected emitter
+    * @param amount The amount of particles to spawn
+    */
+    void SetParticleAmount(int amount);
 
     /**
     * @return whether the render engine combo box is filled int
@@ -259,6 +292,11 @@ public:
     bool HasLights() const;
 
     /**
+    * @return whether the emitters combo box is filled in
+    */
+    bool HasEmitters() const;
+
+    /**
     * @return whether the water combo box is filled in
     */
     bool HasWater() const;
@@ -279,8 +317,10 @@ private:
     TweakableValue m_blurStep;           ///< Step between samples for blurring
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value
+    TweakableValue m_particleAmount;     ///< The amount of particles to spawn
 
     TweakableButton m_saveMeshes;        ///< Button to save all meshes to xml
+    TweakableButton m_saveParticles;     ///< Button to save all particles to xml
     TweakableButton m_saveLights;        ///< Button to save all lights to xml
     TweakableButton m_savePost;          ///< Button to save all post processing to xml
 
@@ -289,6 +329,7 @@ private:
     TweakableBox m_selectedLight;        ///< Combo box for selecting the light
     TweakableBox m_selectedMesh;         ///< Combo box for selecting the mesh
     TweakableBox m_selectedWater;        ///< Combo box for selecting the water
+    TweakableBox m_selectedEmitter;      ///< Combo box for selecting the emitter
     TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
     TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
@@ -297,6 +338,8 @@ private:
     TweakableBoxedValue m_mesh;          ///< Tweakable values for mesh attributes
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
+    TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
+    TweakableBoxedValue m_particles;     ///< Tweakable values for particle attributes
 
     std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light
 

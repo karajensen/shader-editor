@@ -38,6 +38,8 @@ void SceneModifier::Tick(RenderEngine& engine,
         break;
     case MESH:
         UpdateMesh();
+        UpdateWater();
+        UpdateEmitter();
         break;
     case POST:
         UpdatePost();
@@ -132,6 +134,12 @@ void SceneModifier::UpdateScene(const Float2& mousePosition,
         m_cache->SaveMeshes.Set(false);
     }
 
+    if (m_cache->SaveParticles.Get())
+    {
+        m_scene.SaveParticlesToFile();
+        m_cache->SaveParticles.Set(false);
+    }
+
     if (m_cache->SavePost.Get())
     {
         m_scene.SavePostProcessingtoFile();
@@ -142,7 +150,7 @@ void SceneModifier::UpdateScene(const Float2& mousePosition,
 void SceneModifier::UpdateMesh()
 {
     const int selectedMesh = m_cache->MeshSelected.Get();
-    if(selectedMesh != m_selectedMesh)
+    if (selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
         auto& mesh = m_scene.GetMesh(m_selectedMesh);
@@ -153,7 +161,7 @@ void SceneModifier::UpdateMesh()
         m_cache->Mesh[MESH_GLOW].SetUpdated(mesh.glow);
         m_cache->MeshShader.SetUpdated(m_scene.GetShader(mesh.shaderIndex).name);
     }
-    else if(m_selectedMesh >= 0 && m_selectedMesh < m_scene.GetMeshCount())
+    else if (m_selectedMesh >= 0 && m_selectedMesh < m_scene.GetMeshCount())
     {
         auto& mesh = m_scene.GetMesh(m_selectedMesh);
         mesh.specularity = m_cache->Mesh[MESH_SPECULARITY].Get();
@@ -161,7 +169,10 @@ void SceneModifier::UpdateMesh()
         mesh.bump = m_cache->Mesh[MESH_BUMP].Get();
         mesh.glow = m_cache->Mesh[MESH_GLOW].Get();
     }
+}
 
+void SceneModifier::UpdateWater()
+{
     const int selectedWater = m_cache->WaterSelected.Get();
     if(selectedWater != m_selectedWater)
     {
@@ -232,6 +243,55 @@ void SceneModifier::UpdateMesh()
             wave.directionX = m_cache->Wave[WAVE_DIRECTION_X].Get();
             wave.directionZ = m_cache->Wave[WAVE_DIRECTION_Z].Get();
         }
+    }
+}
+
+void SceneModifier::UpdateEmitter()
+{
+    const int selectedEmitter = m_cache->EmitterSelected.Get();
+    if(selectedEmitter != m_selectedEmitter)
+    {
+        m_selectedEmitter = selectedEmitter;
+        auto& emitter = m_scene.GetEmitter(m_selectedEmitter);
+
+        m_cache->Emitter[EMITTER_LENGTH].SetUpdated(emitter.length);
+        m_cache->Emitter[EMITTER_WIDTH].SetUpdated(emitter.width);
+        m_cache->Emitter[EMITTER_POS_X].SetUpdated(emitter.position.x);
+        m_cache->Emitter[EMITTER_POS_Y].SetUpdated(emitter.position.y);
+        m_cache->Emitter[EMITTER_POS_Z].SetUpdated(emitter.position.z);
+        m_cache->Emitter[EMITTER_DIR_X].SetUpdated(emitter.direction.x);
+        m_cache->Emitter[EMITTER_DIR_Y].SetUpdated(emitter.direction.y);
+        m_cache->Emitter[EMITTER_DIR_Z].SetUpdated(emitter.direction.z);
+        m_cache->Particles[PARTICLE_LIFETIME].SetUpdated(emitter.lifeTime);
+        m_cache->Particles[PARTICLE_SPEED].SetUpdated(emitter.speed);
+        m_cache->Particles[PARTICLE_SPEED_VAR].SetUpdated(emitter.speedVariation);
+        m_cache->Particles[PARTICLE_SIZE].SetUpdated(emitter.size);
+        m_cache->Particles[PARTICLE_SIZE_VAR].SetUpdated(emitter.sizeVariation);
+        m_cache->Particles[PARTICLE_TINT_R].SetUpdated(emitter.tint.r);
+        m_cache->Particles[PARTICLE_TINT_G].SetUpdated(emitter.tint.g);
+        m_cache->Particles[PARTICLE_TINT_B].SetUpdated(emitter.tint.b);
+        m_cache->ParticleAmount.SetUpdated(static_cast<int>(emitter.particles.size()));
+    }
+    else if(m_selectedEmitter >= 0 && m_selectedEmitter < m_scene.GetEmitterCount())
+    {
+        auto& emitter = m_scene.GetEmitter(m_selectedEmitter);
+        emitter.length = m_cache->Emitter[EMITTER_LENGTH].Get();
+        emitter.width = m_cache->Emitter[EMITTER_WIDTH].Get();
+        emitter.position.x = m_cache->Emitter[EMITTER_POS_X].Get();
+        emitter.position.y = m_cache->Emitter[EMITTER_POS_Y].Get();
+        emitter.position.z = m_cache->Emitter[EMITTER_POS_Z].Get();
+        emitter.direction.x = m_cache->Emitter[EMITTER_DIR_X].Get();
+        emitter.direction.y = m_cache->Emitter[EMITTER_DIR_Y].Get();
+        emitter.direction.z = m_cache->Emitter[EMITTER_DIR_Z].Get();
+        emitter.lifeTime = m_cache->Particles[PARTICLE_LIFETIME].Get();
+        emitter.speed = m_cache->Particles[PARTICLE_SPEED].Get();
+        emitter.speedVariation = m_cache->Particles[PARTICLE_SPEED_VAR].Get();
+        emitter.size = m_cache->Particles[PARTICLE_SIZE].Get();
+        emitter.sizeVariation = m_cache->Particles[PARTICLE_SIZE_VAR].Get();
+        emitter.tint.r = m_cache->Particles[PARTICLE_TINT_R].Get();
+        emitter.tint.g = m_cache->Particles[PARTICLE_TINT_G].Get();
+        emitter.tint.b = m_cache->Particles[PARTICLE_TINT_B].Get();
+        emitter.Resize(m_cache->ParticleAmount.Get());
     }
 }
 
@@ -316,6 +376,7 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
     m_cache->Shaders.Set(m_scene.GetShaderNames());
     m_cache->PostMaps.Set(m_scene.GetPostMapNames());
     m_cache->Waters.Set(m_scene.GetWaterNames());
+    m_cache->Emitters.Set(m_scene.GetEmitterNames());
 
     m_cache->WaveAmount.SetUpdated(m_scene.GetWaterCount() > 0 ? 
         static_cast<int>(m_scene.GetWater(0).waves.size()) : 0);

@@ -64,6 +64,8 @@ public:
     QLabel *mouseDirY_text;
     QFrame *saveMeshes;
     QPushButton *saveMeshes_btn;
+    QFrame *saveParticles;
+    QPushButton *saveParticles_btn;
     QFrame *saveLights;
     QPushButton *saveLights_btn;
     QFrame *savePost;
@@ -161,26 +163,18 @@ public:
     QFrame *selectedParticles;
     QLabel *selectedParticles_lbl;
     QComboBox *selectedParticles_box;
-    QFrame *particleSize;
-    QLabel *particleSize_lbl;
-    QDoubleSpinBox *particleSize_value;
-    QDial *particleSize_dial;
     QFrame *particleAmount;
     QLabel *particleAmount_lbl;
     QDoubleSpinBox *particleAmount_value;
     QDial *particleAmount_dial;
-    QFrame *emitterLocation;
-    QDoubleSpinBox *emitterLocation_value;
-    QDial *emitterLocation_dial;
-    QComboBox *emitterLocation_box;
-    QFrame *particleColor;
-    QDoubleSpinBox *particleColor_value;
-    QDial *particleColor_dial;
-    QComboBox *particleColor_box;
-    QFrame *particleMovement;
-    QDoubleSpinBox *particleMovement_value;
-    QDial *particleMovement_dial;
-    QComboBox *particleMovement_box;
+    QFrame *emitter;
+    QDoubleSpinBox *emitter_value;
+    QDial *emitter_dial;
+    QComboBox *emitter_box;
+    QFrame *particle;
+    QDoubleSpinBox *particle_value;
+    QDial *particle_dial;
+    QComboBox *particle_box;
     QSpacerItem *_meshSpacer;
     QWidget *Post;
     QWidget *layoutWidget3;
@@ -622,6 +616,30 @@ public:
         saveMeshes_btn->setDefault(false);
 
         sceneLayout->addWidget(saveMeshes);
+
+        saveParticles = new QFrame(layoutWidget);
+        saveParticles->setObjectName(QStringLiteral("saveParticles"));
+        sizePolicy.setHeightForWidth(saveParticles->sizePolicy().hasHeightForWidth());
+        saveParticles->setSizePolicy(sizePolicy);
+        saveParticles->setMinimumSize(QSize(225, 35));
+        saveParticles->setMaximumSize(QSize(225, 35));
+        saveParticles->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        saveParticles->setFrameShape(QFrame::Panel);
+        saveParticles->setFrameShadow(QFrame::Raised);
+        saveParticles_btn = new QPushButton(saveParticles);
+        saveParticles_btn->setObjectName(QStringLiteral("saveParticles_btn"));
+        saveParticles_btn->setGeometry(QRect(5, 4, 216, 25));
+        saveParticles_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        saveParticles_btn->setDefault(false);
+
+        sceneLayout->addWidget(saveParticles);
 
         saveLights = new QFrame(layoutWidget);
         saveLights->setObjectName(QStringLiteral("saveLights"));
@@ -1547,7 +1565,7 @@ public:
 
         meshLayout->addWidget(meshAttributes);
 
-        _meshSpacer_2 = new QSpacerItem(20, 15, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_2 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_2);
 
@@ -1758,7 +1776,7 @@ public:
 
         meshLayout->addWidget(water);
 
-        _meshSpacer_3 = new QSpacerItem(20, 15, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_3);
 
@@ -1800,58 +1818,6 @@ public:
 
         meshLayout->addWidget(selectedParticles);
 
-        particleSize = new QFrame(layoutWidget2);
-        particleSize->setObjectName(QStringLiteral("particleSize"));
-        particleSize->setMinimumSize(QSize(225, 35));
-        particleSize->setMaximumSize(QSize(225, 35));
-        particleSize->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        particleSize->setFrameShape(QFrame::NoFrame);
-        particleSize->setFrameShadow(QFrame::Plain);
-        particleSize->setLineWidth(0);
-        particleSize_lbl = new QLabel(particleSize);
-        particleSize_lbl->setObjectName(QStringLiteral("particleSize_lbl"));
-        particleSize_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(particleSize_lbl->sizePolicy().hasHeightForWidth());
-        particleSize_lbl->setSizePolicy(sizePolicy);
-        particleSize_lbl->setMinimumSize(QSize(100, 30));
-        particleSize_lbl->setMaximumSize(QSize(100, 30));
-        particleSize_lbl->setFont(font1);
-        particleSize_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleSize_lbl->setMargin(1);
-        particleSize_value = new QDoubleSpinBox(particleSize);
-        particleSize_value->setObjectName(QStringLiteral("particleSize_value"));
-        particleSize_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(particleSize_value->sizePolicy().hasHeightForWidth());
-        particleSize_value->setSizePolicy(sizePolicy);
-        particleSize_value->setMinimumSize(QSize(86, 25));
-        particleSize_value->setMaximumSize(QSize(86, 25));
-        particleSize_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        particleSize_value->setFrame(false);
-        particleSize_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        particleSize_value->setDecimals(3);
-        particleSize_value->setMinimum(-9999);
-        particleSize_value->setMaximum(9999);
-        particleSize_value->setSingleStep(0.05);
-        particleSize_dial = new QDial(particleSize);
-        particleSize_dial->setObjectName(QStringLiteral("particleSize_dial"));
-        particleSize_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(particleSize_dial->sizePolicy().hasHeightForWidth());
-        particleSize_dial->setSizePolicy(sizePolicy);
-        particleSize_dial->setMinimumSize(QSize(30, 30));
-        particleSize_dial->setMaximumSize(QSize(30, 30));
-        particleSize_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleSize_dial->setMinimum(-10000);
-        particleSize_dial->setMaximum(10000);
-
-        meshLayout->addWidget(particleSize);
-
         particleAmount = new QFrame(layoutWidget2);
         particleAmount->setObjectName(QStringLiteral("particleAmount"));
         particleAmount->setMinimumSize(QSize(225, 35));
@@ -1887,10 +1853,10 @@ public:
 "border-width: 2px;"));
         particleAmount_value->setFrame(false);
         particleAmount_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        particleAmount_value->setDecimals(3);
+        particleAmount_value->setDecimals(0);
         particleAmount_value->setMinimum(-9999);
         particleAmount_value->setMaximum(9999);
-        particleAmount_value->setSingleStep(0.05);
+        particleAmount_value->setSingleStep(1);
         particleAmount_dial = new QDial(particleAmount);
         particleAmount_dial->setObjectName(QStringLiteral("particleAmount_dial"));
         particleAmount_dial->setGeometry(QRect(192, 2, 30, 30));
@@ -1904,179 +1870,121 @@ public:
 
         meshLayout->addWidget(particleAmount);
 
-        emitterLocation = new QFrame(layoutWidget2);
-        emitterLocation->setObjectName(QStringLiteral("emitterLocation"));
-        emitterLocation->setMinimumSize(QSize(225, 35));
-        emitterLocation->setMaximumSize(QSize(225, 35));
-        emitterLocation->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        emitter = new QFrame(layoutWidget2);
+        emitter->setObjectName(QStringLiteral("emitter"));
+        emitter->setMinimumSize(QSize(225, 35));
+        emitter->setMaximumSize(QSize(225, 35));
+        emitter->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        emitterLocation->setFrameShape(QFrame::NoFrame);
-        emitterLocation->setFrameShadow(QFrame::Plain);
-        emitterLocation->setLineWidth(0);
-        emitterLocation_value = new QDoubleSpinBox(emitterLocation);
-        emitterLocation_value->setObjectName(QStringLiteral("emitterLocation_value"));
-        emitterLocation_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(emitterLocation_value->sizePolicy().hasHeightForWidth());
-        emitterLocation_value->setSizePolicy(sizePolicy);
-        emitterLocation_value->setMinimumSize(QSize(86, 25));
-        emitterLocation_value->setMaximumSize(QSize(86, 25));
-        emitterLocation_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        emitter->setFrameShape(QFrame::NoFrame);
+        emitter->setFrameShadow(QFrame::Plain);
+        emitter->setLineWidth(0);
+        emitter_value = new QDoubleSpinBox(emitter);
+        emitter_value->setObjectName(QStringLiteral("emitter_value"));
+        emitter_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(emitter_value->sizePolicy().hasHeightForWidth());
+        emitter_value->setSizePolicy(sizePolicy);
+        emitter_value->setMinimumSize(QSize(86, 25));
+        emitter_value->setMaximumSize(QSize(86, 25));
+        emitter_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        emitterLocation_value->setFrame(false);
-        emitterLocation_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        emitterLocation_value->setDecimals(3);
-        emitterLocation_value->setMinimum(-9999);
-        emitterLocation_value->setMaximum(9999);
-        emitterLocation_value->setSingleStep(0.05);
-        emitterLocation_dial = new QDial(emitterLocation);
-        emitterLocation_dial->setObjectName(QStringLiteral("emitterLocation_dial"));
-        emitterLocation_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(emitterLocation_dial->sizePolicy().hasHeightForWidth());
-        emitterLocation_dial->setSizePolicy(sizePolicy);
-        emitterLocation_dial->setMinimumSize(QSize(30, 30));
-        emitterLocation_dial->setMaximumSize(QSize(30, 30));
-        emitterLocation_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        emitterLocation_dial->setMinimum(-10000);
-        emitterLocation_dial->setMaximum(10000);
-        emitterLocation_box = new QComboBox(emitterLocation);
-        emitterLocation_box->setObjectName(QStringLiteral("emitterLocation_box"));
-        emitterLocation_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(emitterLocation_box->sizePolicy().hasHeightForWidth());
-        emitterLocation_box->setSizePolicy(sizePolicy);
-        emitterLocation_box->setMinimumSize(QSize(95, 22));
-        emitterLocation_box->setMaximumSize(QSize(90, 22));
-        emitterLocation_box->setBaseSize(QSize(90, 25));
-        emitterLocation_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        emitter_value->setFrame(false);
+        emitter_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        emitter_value->setDecimals(3);
+        emitter_value->setMinimum(-9999);
+        emitter_value->setMaximum(9999);
+        emitter_value->setSingleStep(0.05);
+        emitter_dial = new QDial(emitter);
+        emitter_dial->setObjectName(QStringLiteral("emitter_dial"));
+        emitter_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(emitter_dial->sizePolicy().hasHeightForWidth());
+        emitter_dial->setSizePolicy(sizePolicy);
+        emitter_dial->setMinimumSize(QSize(30, 30));
+        emitter_dial->setMaximumSize(QSize(30, 30));
+        emitter_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        emitter_dial->setMinimum(-10000);
+        emitter_dial->setMaximum(10000);
+        emitter_box = new QComboBox(emitter);
+        emitter_box->setObjectName(QStringLiteral("emitter_box"));
+        emitter_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(emitter_box->sizePolicy().hasHeightForWidth());
+        emitter_box->setSizePolicy(sizePolicy);
+        emitter_box->setMinimumSize(QSize(95, 22));
+        emitter_box->setMaximumSize(QSize(90, 22));
+        emitter_box->setBaseSize(QSize(90, 25));
+        emitter_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        emitterLocation_box->setFrame(false);
+        emitter_box->setFrame(false);
 
-        meshLayout->addWidget(emitterLocation);
+        meshLayout->addWidget(emitter);
 
-        particleColor = new QFrame(layoutWidget2);
-        particleColor->setObjectName(QStringLiteral("particleColor"));
-        particleColor->setMinimumSize(QSize(225, 35));
-        particleColor->setMaximumSize(QSize(225, 35));
-        particleColor->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        particle = new QFrame(layoutWidget2);
+        particle->setObjectName(QStringLiteral("particle"));
+        particle->setMinimumSize(QSize(225, 35));
+        particle->setMaximumSize(QSize(225, 35));
+        particle->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        particleColor->setFrameShape(QFrame::NoFrame);
-        particleColor->setFrameShadow(QFrame::Plain);
-        particleColor->setLineWidth(0);
-        particleColor_value = new QDoubleSpinBox(particleColor);
-        particleColor_value->setObjectName(QStringLiteral("particleColor_value"));
-        particleColor_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(particleColor_value->sizePolicy().hasHeightForWidth());
-        particleColor_value->setSizePolicy(sizePolicy);
-        particleColor_value->setMinimumSize(QSize(86, 25));
-        particleColor_value->setMaximumSize(QSize(86, 25));
-        particleColor_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        particle->setFrameShape(QFrame::NoFrame);
+        particle->setFrameShadow(QFrame::Plain);
+        particle->setLineWidth(0);
+        particle_value = new QDoubleSpinBox(particle);
+        particle_value->setObjectName(QStringLiteral("particle_value"));
+        particle_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(particle_value->sizePolicy().hasHeightForWidth());
+        particle_value->setSizePolicy(sizePolicy);
+        particle_value->setMinimumSize(QSize(86, 25));
+        particle_value->setMaximumSize(QSize(86, 25));
+        particle_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        particleColor_value->setFrame(false);
-        particleColor_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        particleColor_value->setDecimals(3);
-        particleColor_value->setMinimum(-9999);
-        particleColor_value->setMaximum(9999);
-        particleColor_value->setSingleStep(0.05);
-        particleColor_dial = new QDial(particleColor);
-        particleColor_dial->setObjectName(QStringLiteral("particleColor_dial"));
-        particleColor_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(particleColor_dial->sizePolicy().hasHeightForWidth());
-        particleColor_dial->setSizePolicy(sizePolicy);
-        particleColor_dial->setMinimumSize(QSize(30, 30));
-        particleColor_dial->setMaximumSize(QSize(30, 30));
-        particleColor_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleColor_dial->setMinimum(-10000);
-        particleColor_dial->setMaximum(10000);
-        particleColor_box = new QComboBox(particleColor);
-        particleColor_box->setObjectName(QStringLiteral("particleColor_box"));
-        particleColor_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(particleColor_box->sizePolicy().hasHeightForWidth());
-        particleColor_box->setSizePolicy(sizePolicy);
-        particleColor_box->setMinimumSize(QSize(95, 22));
-        particleColor_box->setMaximumSize(QSize(90, 22));
-        particleColor_box->setBaseSize(QSize(90, 25));
-        particleColor_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        particle_value->setFrame(false);
+        particle_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        particle_value->setDecimals(3);
+        particle_value->setMinimum(-9999);
+        particle_value->setMaximum(9999);
+        particle_value->setSingleStep(0.05);
+        particle_dial = new QDial(particle);
+        particle_dial->setObjectName(QStringLiteral("particle_dial"));
+        particle_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(particle_dial->sizePolicy().hasHeightForWidth());
+        particle_dial->setSizePolicy(sizePolicy);
+        particle_dial->setMinimumSize(QSize(30, 30));
+        particle_dial->setMaximumSize(QSize(30, 30));
+        particle_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        particle_dial->setMinimum(-10000);
+        particle_dial->setMaximum(10000);
+        particle_box = new QComboBox(particle);
+        particle_box->setObjectName(QStringLiteral("particle_box"));
+        particle_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(particle_box->sizePolicy().hasHeightForWidth());
+        particle_box->setSizePolicy(sizePolicy);
+        particle_box->setMinimumSize(QSize(95, 22));
+        particle_box->setMaximumSize(QSize(90, 22));
+        particle_box->setBaseSize(QSize(90, 25));
+        particle_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        particleColor_box->setFrame(false);
+        particle_box->setFrame(false);
 
-        meshLayout->addWidget(particleColor);
-
-        particleMovement = new QFrame(layoutWidget2);
-        particleMovement->setObjectName(QStringLiteral("particleMovement"));
-        particleMovement->setMinimumSize(QSize(225, 35));
-        particleMovement->setMaximumSize(QSize(225, 35));
-        particleMovement->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        particleMovement->setFrameShape(QFrame::NoFrame);
-        particleMovement->setFrameShadow(QFrame::Plain);
-        particleMovement->setLineWidth(0);
-        particleMovement_value = new QDoubleSpinBox(particleMovement);
-        particleMovement_value->setObjectName(QStringLiteral("particleMovement_value"));
-        particleMovement_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(particleMovement_value->sizePolicy().hasHeightForWidth());
-        particleMovement_value->setSizePolicy(sizePolicy);
-        particleMovement_value->setMinimumSize(QSize(86, 25));
-        particleMovement_value->setMaximumSize(QSize(86, 25));
-        particleMovement_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        particleMovement_value->setFrame(false);
-        particleMovement_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        particleMovement_value->setDecimals(3);
-        particleMovement_value->setMinimum(-9999);
-        particleMovement_value->setMaximum(9999);
-        particleMovement_value->setSingleStep(0.05);
-        particleMovement_dial = new QDial(particleMovement);
-        particleMovement_dial->setObjectName(QStringLiteral("particleMovement_dial"));
-        particleMovement_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(particleMovement_dial->sizePolicy().hasHeightForWidth());
-        particleMovement_dial->setSizePolicy(sizePolicy);
-        particleMovement_dial->setMinimumSize(QSize(30, 30));
-        particleMovement_dial->setMaximumSize(QSize(30, 30));
-        particleMovement_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleMovement_dial->setMinimum(-10000);
-        particleMovement_dial->setMaximum(10000);
-        particleMovement_box = new QComboBox(particleMovement);
-        particleMovement_box->setObjectName(QStringLiteral("particleMovement_box"));
-        particleMovement_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(particleMovement_box->sizePolicy().hasHeightForWidth());
-        particleMovement_box->setSizePolicy(sizePolicy);
-        particleMovement_box->setMinimumSize(QSize(95, 22));
-        particleMovement_box->setMaximumSize(QSize(90, 22));
-        particleMovement_box->setBaseSize(QSize(90, 25));
-        particleMovement_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        particleMovement_box->setFrame(false);
-
-        meshLayout->addWidget(particleMovement);
+        meshLayout->addWidget(particle);
 
         _meshSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2746,7 +2654,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(2);
+        TabMenu->setCurrentIndex(0);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2773,6 +2681,7 @@ public:
         mouseDirY_lbl->setText(QApplication::translate("Tweaker", "Mouse Dir Y", 0));
         mouseDirY_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         saveMeshes_btn->setText(QApplication::translate("Tweaker", "Save Meshes to File", 0));
+        saveParticles_btn->setText(QApplication::translate("Tweaker", "Save Particles To File", 0));
         saveLights_btn->setText(QApplication::translate("Tweaker", "Save Lights to File", 0));
         savePost_btn->setText(QApplication::translate("Tweaker", "Save Post Processing to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
@@ -2797,7 +2706,6 @@ public:
         selectedWater_lbl->setText(QApplication::translate("Tweaker", "Water", 0));
         waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
-        particleSize_lbl->setText(QApplication::translate("Tweaker", "Size", 0));
         particleAmount_lbl->setText(QApplication::translate("Tweaker", "Amount", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));

@@ -52,7 +52,7 @@
     <BumpSpeed>1.0</BumpSpeed>
     <Speed>1.0</Speed>
     <FresnalFactor>1.5</FresnalFactor>
-    <ReflectionIntensity>1.5</ReflectionIntensity>
+    <ReflectionIntensity>1.0</ReflectionIntensity>
     <ReflectionTint r="0.0" g="0.0" b="1.0"></ReflectionTint>
     <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
     <DeepColour r="0.0" g="0.0" b="1.0"></DeepColour>
@@ -64,26 +64,13 @@
       <Frequency>1.0</Frequency>
       <Amplitude>1.0</Amplitude>
       <Speed>1.0</Speed>
-      <Direction x="0.0" z="0.0"></Direction>
+      <Direction x="-1.0" z="0.0"></Direction>
     </Wave>
     <Wave>
-      <Frequency>1.0</Frequency>
-      <Amplitude>1.0</Amplitude>
+      <Frequency>2.0</Frequency>
+      <Amplitude>0.5</Amplitude>
       <Speed>1.0</Speed>
-      <Direction x="0.0" z="0.0"></Direction>
+      <Direction x="-0.7" z="0.7"></Direction>
     </Wave>
   </Water>
-  <Emitter>
-    <Name>TestEmitter</Name>
-    <Position x="0.0" y="0.0" z="0.0"></Position>
-    <Direction x="0.0" y="0.0" z="0.0"></Direction>
-    <Width>1.0</Width>
-    <Length>1.0</Length>
-    <Amount>30</Amount>
-    <Speed>1.0</Speed>
-    <LifeTime>1.0</LifeTime>
-    <SpeedVariation>1.0</SpeedVariation>
-    <Texture>caustic.bmp</Texture>
-    <Texture>specular.JPG</Texture>
-  </Emitter>
 </Meshes>

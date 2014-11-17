@@ -71,6 +71,11 @@ public:
     std::vector<std::string> GetWaterNames() const;
 
     /**
+    * @return the names of the emitters in the scene
+    */
+    std::vector<std::string> GetEmitterNames() const;
+
+    /**
     * @return the names of the shaders in the scene
     */
     std::vector<std::string> GetShaderNames() const;
@@ -97,6 +102,12 @@ public:
     * @return the water 
     */
     Water& GetWater(int index);
+
+    /**
+    * @param index The index of the emitter to get
+    * @return the emitter 
+    */
+    Emitter& GetEmitter(int index);
 
     /**
     * @param index The index of the shader to get
@@ -133,6 +144,11 @@ public:
     int GetWaterCount() const;
 
     /**
+    * @return the number of emitters available
+    */
+    int GetEmitterCount() const;
+
+    /**
     * @return the number of lights available
     */
     int GetLightCount() const;
@@ -152,7 +168,29 @@ public:
     */
     void SavePostProcessingtoFile();
 
+    /**
+    * Outputs particle emitters to an xml file
+    */
+    void SaveParticlesToFile();
+
 private:
+
+    /**
+    * Saves the tree to a file
+    * @param root The first entry
+    * @param tree The data to save
+    * @param name The name of the file to save
+    */
+    void SaveXMLFile(boost::property_tree::ptree& root,
+                    boost::property_tree::ptree& tree,
+                    const std::string& name);
+
+    /**
+    * Reads an xml file into a tree
+    * @param name The name of the file to read
+    * @return the tree generated
+    */
+    boost::property_tree::ptree ReadXMLFile(const std::string& name);
 
     /**
     * Initiliases any stand-alone and shared shaders explicitly
@@ -171,6 +209,12 @@ private:
     * @return Whether the initialization was successful
     */
     bool InitialiseLighting();
+
+    /**
+    * Initialises the emitters for the scene
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseEmitters();
 
     /**
     * Initialises the meshes for the scene
@@ -204,13 +248,6 @@ private:
     void InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it);
 
     /**
-    * Initialises an emitter for the scene
-    * @param emitter The emitter to initialise
-    * @param it The iterator for the mesh config file
-    */
-    void InitialiseEmitter(Emitter& emitter, boost::property_tree::ptree::iterator& it);
-
-    /**
     * Adds a texture from a mesh if it doesn't already exist
     * @param name The name of the texture to add
     * @return The unique id of the texture added
@@ -223,17 +260,6 @@ private:
     * @return whether creation was successful
     */
     bool CreateMesh(Mesh& mesh);
-
-    /**
-    * Fills in mesh data from the given file
-    * @param path The path for the mesh file
-    * @param errorBuffer A string which is filled in upon errors
-    * @param mesh The mesh object to load
-    * @return whether creation was successful
-    */
-    bool CreateMesh(const std::string& path, 
-                    std::string& errorBuffer,  
-                    Mesh& mesh);
 
     /**
     * Gets the index for the shader
@@ -263,14 +289,6 @@ private:
     void AddWaterToTree(const Water& water, 
                         std::vector<boost::property_tree::ptree>& entries,
                         boost::property_tree::ptree& entry);
-
-    /**
-    * Adds the given emitter to the given tree
-    * @param emitter The emitter data to add
-    * @param entry The tree to add to
-    */
-    void AddEmitterToTree(const Emitter& mesh, 
-                          boost::property_tree::ptree& entry);
                             
     PostProcessing m_postProcessing;  ///< Post processing for the final image
     std::vector<Texture> m_textures;  ///< All textures in the scene

@@ -16,15 +16,11 @@ static const int NO_INDEX = -1;
 */
 struct Float2
 {
-    Float2() : x(0), y(0)
-    {
-    }
+    Float2() = default;
+    Float2(float X, float Y);
 
-    Float2(float X, float Y) : x(X), y(Y)
-    {
-    }
-
-    float x, y;
+    float x = 0.0f;
+    float y = 0.0f;
 };
 
 /**
@@ -93,73 +89,24 @@ struct PostProcessing
     /**
     * Constructor
     */
-    PostProcessing()
-    {
-        SetPostMap(SCENE_MAP);
-
-        weights[0] = 1.0f;
-        weights[1] = 0.9f;
-        weights[2] = 0.55f;
-        weights[3] = 0.18f;
-        weights[4] = 0.1f;
-        NormaliseWeights();
-    }
+    PostProcessing();
 
     /**
     * Normalises the blur weights
     */
-    void NormaliseWeights()
-    {
-        const float overallWeight = weights[0] + 2.0f * 
-            (weights[1] + weights[2] + weights[3] + weights[4]);
-
-        weights[0] /= overallWeight;
-        weights[1] /= overallWeight;
-        weights[2] /= overallWeight;
-        weights[3] /= overallWeight;
-        weights[4] /= overallWeight;
-    }
+    void NormaliseWeights();
 
     /**
     * Sets which post map should be rendered
     * @param map The post map to render
     */
-    void SetPostMap(Map map)
-    {
-        masks.assign(0.0f);
-        masks[map] = 1.0f;
-    }
+    void SetPostMap(Map map);
 
     /**
     * @param map the map type to convert
     * @return the string name of the map type
     */
-    static std::string GetMapName(Map map)
-    {
-        switch (map)
-        {
-        case FINAL_MAP:
-            return "Final Scene";
-        case SCENE_MAP:
-            return "Scene Map";
-        case NORMAL_MAP:
-            return "Normal Map";
-        case DEPTH_MAP:
-            return "Depth Map";
-        case GLOW_MAP:
-            return "Glow Map";
-        case BLUR_GLOW_MAP:
-            return "Blur-Glow Map";
-        case BLUR_SCENE_MAP:
-            return "Blur-Scene Map";
-        case DOF_MAP:
-            return "DOF Map";
-        case FOG_MAP:
-            return "Fog Map";
-        default:
-            return "None";
-        }
-    }
+    static std::string GetMapName(Map map);
 
     float dofDistance = 0.0f;            ///< Distance the depth of field starts
     float dofFade = 0.0f;                ///< How quick depth of field fades to the scene
@@ -203,24 +150,7 @@ struct Texture
     * @param type The type to query for text
     * @return the text description of the type
     */
-    static std::string GetTypeDescription(unsigned int type)
-    {
-        switch (type)
-        {
-        case DIFFUSE:
-            return "Diffuse";
-        case NORMAL:
-            return "Normal";
-        case SPECULAR:
-            return "Specular";
-        case GLOW:
-            return "Glow";
-        case ENVIRONMENT:
-            return "Environment";
-        default:
-            return "None";
-        };
-    }
+    static std::string GetTypeDescription(unsigned int type);
 
     std::string name; ///< Name of the texture
     std::string path; ///< Path to the texture
@@ -261,33 +191,14 @@ struct Shader
     * @param component The component to query for text
     * @return the text description of the component
     */
-    static std::string ComponentAsString(unsigned int component)
-    {
-        switch (component)
-        {
-        case FLAT:
-            return "FLAT";
-        case BUMP:
-            return "BUMP";
-        case SPECULAR:
-            return "SPECULAR";
-        case GLOW:
-            return "GLOW";
-        default:
-            return "NONE";
-        };
-    }
+    static std::string ComponentAsString(unsigned int component);
 
     /**
     * Determines whether the shader has the component
     * @param component The component to query for text
     * @return whether the shader has the component
     */
-    bool HasComponent(unsigned int component) const
-    {
-        return std::find(components.begin(), components.end(),
-            Component(component)) != components.end();
-    }
+    bool HasComponent(unsigned int component) const;
 
     int index = NO_INDEX;              ///< Unique index of the shader
     std::string name;                  ///< name of the shader
@@ -315,31 +226,32 @@ struct Light
 */
 struct Mesh
 {
-    Mesh()
-    {
-        textureIDs.resize(Texture::MAX_TYPES);
-        textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
-    }
-
+    Mesh();
     virtual ~Mesh() = default;
 
-    float specularity = 1.0f;      ///< Brightness of the specular highlights
-    float ambience = 1.0f;         ///< Ambient light multiplier
-    float bump = 1.0f;             ///< Saturation of bump
-    float glow = 1.0f;             ///< Intensity glow multiplier
+    /**
+    * Fills in mesh data
+    * @param requiresNormals Whether this mesh requires normals
+    * @return whether creation was successful
+    */
+    bool Initialise(bool requiresNormals);
 
-    std::string name;              ///< Name of the mesh
-    bool backfacecull = true;      ///< Whether back facing polygons are culled
-    int shaderIndex = NO_INDEX;    ///< Unique Index of the mesh shader to use
-    int normalIndex = NO_INDEX;    ///< Unique Index of the normal shader to use
-    std::vector<float> vertices;   ///< Mesh Vertex information
-    std::vector<DWORD> indices;    ///< Mesh Index information
-    std::vector<int> textureIDs;   ///< IDs for each texture used
-    int vertexComponentCount = 1;  ///< Number of components that make up a vertex
-    int vertexCount = 0;           ///< Number of vertices in the mesh
-    int faceCount = 0;             ///< Number of faces in the mesh
-    int indexCount = 0;            ///< Number of indicies in the mesh
-    int maxTextures = 0;           ///< Maximum textures used for this mesh
+    float specularity = 1.0f;           ///< Brightness of the specular highlights
+    float ambience = 1.0f;              ///< Ambient light multiplier
+    float bump = 1.0f;                  ///< Saturation of bump
+    float glow = 1.0f;                  ///< Intensity glow multiplier
+    std::string name;                   ///< Name of the mesh
+    bool backfacecull = true;           ///< Whether back facing polygons are culled
+    int shaderIndex = NO_INDEX;         ///< Unique Index of the mesh shader to use
+    int normalIndex = NO_INDEX;         ///< Unique Index of the normal shader to use
+    std::vector<float> vertices;        ///< Mesh Vertex information
+    std::vector<unsigned long> indices; ///< Mesh Index information
+    std::vector<int> textureIDs;        ///< IDs for each texture used
+    int vertexComponentCount = 1;       ///< Number of components that make up a vertex
+    int vertexCount = 0;                ///< Number of vertices in the mesh
+    int faceCount = 0;                  ///< Number of faces in the mesh
+    int indexCount = 0;                 ///< Number of indicies in the mesh
+    int maxTextures = 0;                ///< Maximum textures used for this mesh
 };
 
 /**
@@ -347,11 +259,11 @@ struct Mesh
 */
 struct Wave
 {
-    float frequency = 0.0f;         ///< Frequency of the wave
-    float amplitude = 0.0f;         ///< Amplitude of the wave
-    float speed = 0.0f;             ///< Speed of the wave
-    float directionX = 0.0f;        ///< Direction the wave moves
-    float directionZ = 0.0f;        ///< Direction the wave moves
+    float frequency = 0.0f;   ///< Frequency of the wave
+    float amplitude = 0.0f;   ///< Amplitude of the wave
+    float speed = 0.0f;       ///< Speed of the wave
+    float directionX = 0.0f;  ///< Direction the wave moves
+    float directionZ = 0.0f;  ///< Direction the wave moves
 };
 
 /**
@@ -367,7 +279,7 @@ struct Water : public Mesh
     Colour deepColour;            ///< Colour of the deep water
     Colour reflectionTint;        ///< Colour of the reflection tint
     float reflection = 0.0f;      ///< Intensity of the reflections
-    std::vector<Wave> waves;       ///< Wave infomation
+    std::vector<Wave> waves;      ///< Wave infomation
 };
 
 /**
@@ -387,13 +299,22 @@ struct Particle
 */
 struct Emitter
 {
+    /**
+    * Resizes the emitter for a new amount of particles
+    * @param size The new size to make the particles
+    */
+    void Resize(int size);
+
     float width = 0.0f;              ///< The width of the emitter
     float length = 0.0f;             ///< The length of the emitter
     float speed = 0.0f;              ///< The speed of the particles
     float speedVariation = 0.0f;     ///< The variation in speed of the particles
+    float size = 1.0f;               ///< Size of the particles
+    float sizeVariation = 1.0f;      ///< Size variation of the particles
     float lifeTime = 0.0f;           ///< Seconds the particle can live before dying
     Float3 position;                 ///< The position of the emitter
     Float3 direction;                ///< The direction the particles will spawn 
+    Colour tint;                     ///< Colour to tint the particle texture
     std::vector<int> textures;       ///< Indexes for the particle textures to use
     std::vector<Particle> particles; ///< Particles this emitter can spawn
     int shaderIndex = NO_INDEX;      ///< Unique Index of the mesh shader to use

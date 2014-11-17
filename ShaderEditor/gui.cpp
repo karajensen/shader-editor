@@ -41,6 +41,24 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Water[i].Set(value); };
     }
 
+    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
+    {
+        callbacks.SetWave[i] = 
+            [this, i](float value){ m_cache->Wave[i].Set(value); };
+    }
+
+    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
+    {
+        callbacks.SetEmitter[i] = 
+            [this, i](float value){ m_cache->Emitter[i].Set(value); };
+    }
+
+    for (int i = 0; i < PARTICLE_ATTRIBUTES; ++i)
+    {
+        callbacks.SetParticles[i] = 
+            [this, i](float value){ m_cache->Particles[i].Set(value); };
+    }
+
     for (int i = 0; i < FOG_ATTRIBUTES; ++i)
     {
         callbacks.SetFog[i] = 
@@ -56,26 +74,29 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->MaxColour[i].Set(value); };
     }
 
-    callbacks.SetDOFDistance =    [&](float value){ m_cache->DOFDistance.Set(value); };
-    callbacks.SetDOFFade =        [&](float value){ m_cache->DOFFade.Set(value); };
-    callbacks.SetBlurAmount =     [&](float value){ m_cache->BlurAmount.Set(value); };
-    callbacks.SetBlurStep =       [&](float value){ m_cache->BlurStep.Set(value); };
-    callbacks.SetGlowAmount =     [&](float value){ m_cache->GlowAmount.Set(value); };
-    callbacks.SetContrast =       [&](float value){ m_cache->Contrast.Set(value); };
-    callbacks.SetSaturation =     [&](float value){ m_cache->Saturation.Set(value); };
-    callbacks.SetDepthFar =       [&](float value){ m_cache->DepthFar.Set(value); };
-    callbacks.SetDepthNear =      [&](float value){ m_cache->DepthNear.Set(value); };
-    callbacks.SetSelectedWave =   [&](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
-    callbacks.SetSelectedEngine = [&](int index){ m_cache->EngineSelected.Set(index); };
-    callbacks.SetSelectedMesh =   [&](int index){ m_cache->MeshSelected.Set(index); };
-    callbacks.SetSelectedWater =  [&](int index){ m_cache->WaterSelected.Set(index); };
-    callbacks.SetSelectedLight =  [&](int index){ m_cache->LightSelected.Set(index); };
-    callbacks.SetSelectedShader = [&](int index){ m_cache->ShaderSelected.Set(index); };
-    callbacks.SetPostMap =        [&](int index){ m_cache->PostMapSelected.Set(index); };
-    callbacks.SaveLights =        [&](){ m_cache->SaveLights.Set(true); };
-    callbacks.SaveMeshes =        [&](){ m_cache->SaveMeshes.Set(true); };
-    callbacks.SavePost =          [&](){ m_cache->SavePost.Set(true); };
-    callbacks.CompileShader =     [&](const std::string& text){ m_cache->CompileShader.Set(text); };
+    callbacks.SetDOFDistance =     [&](float value){ m_cache->DOFDistance.Set(value); };
+    callbacks.SetDOFFade =         [&](float value){ m_cache->DOFFade.Set(value); };
+    callbacks.SetBlurAmount =      [&](float value){ m_cache->BlurAmount.Set(value); };
+    callbacks.SetBlurStep =        [&](float value){ m_cache->BlurStep.Set(value); };
+    callbacks.SetGlowAmount =      [&](float value){ m_cache->GlowAmount.Set(value); };
+    callbacks.SetContrast =        [&](float value){ m_cache->Contrast.Set(value); };
+    callbacks.SetSaturation =      [&](float value){ m_cache->Saturation.Set(value); };
+    callbacks.SetDepthFar =        [&](float value){ m_cache->DepthFar.Set(value); };
+    callbacks.SetDepthNear =       [&](float value){ m_cache->DepthNear.Set(value); };
+    callbacks.SetParticleAmount =  [&](float index){ m_cache->ParticleAmount.Set(static_cast<int>(index)); };
+    callbacks.SetSelectedWave =    [&](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
+    callbacks.SetSelectedEngine =  [&](int index){ m_cache->EngineSelected.Set(index); };
+    callbacks.SetSelectedMesh =    [&](int index){ m_cache->MeshSelected.Set(index); };
+    callbacks.SetSelectedWater =   [&](int index){ m_cache->WaterSelected.Set(index); };
+    callbacks.SetSelectedLight =   [&](int index){ m_cache->LightSelected.Set(index); };
+    callbacks.SetSelectedShader =  [&](int index){ m_cache->ShaderSelected.Set(index); };
+    callbacks.SetSelectedEmitter = [&](int index){ m_cache->EmitterSelected.Set(index); };
+    callbacks.SetPostMap =         [&](int index){ m_cache->PostMapSelected.Set(index); };
+    callbacks.SaveLights =         [&](){ m_cache->SaveLights.Set(true); };
+    callbacks.SaveMeshes =         [&](){ m_cache->SaveMeshes.Set(true); };
+    callbacks.SaveParticles =      [&](){ m_cache->SaveParticles.Set(true); };
+    callbacks.SavePost =           [&](){ m_cache->SavePost.Set(true); };
+    callbacks.CompileShader =      [&](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
     editor.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
@@ -115,6 +136,8 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
         break;
     case MESH:
         UpdateMesh(tweaker);
+        UpdateWater(tweaker);
+        UpdateEmitter(tweaker);
         break;
     case POST:
         UpdatePost(tweaker);
@@ -299,7 +322,7 @@ void Gui::UpdateLight(Tweaker& tweaker)
 void Gui::UpdateMesh(Tweaker& tweaker)
 {
     bool initialisedMeshes = false;
-    if(!tweaker.HasMeshes())
+    if (!tweaker.HasMeshes())
     {
         initialisedMeshes = true;
         tweaker.InitialiseMeshes(
@@ -310,16 +333,53 @@ void Gui::UpdateMesh(Tweaker& tweaker)
     {
         if (initialisedMeshes || m_cache->Mesh[i].RequiresUpdate())
         {
-            tweaker.SetMesh(static_cast<MeshAttribute>(i), 
+            tweaker.SetMesh(static_cast<MeshAttribute>(i),
                 m_cache->Mesh[i].GetUpdated());
         }
     }
 
-    if(initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
+    if (initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
     {
         tweaker.SetMeshShaderName(m_cache->MeshShader.GetUpdated());
     }
+}
 
+void Gui::UpdateEmitter(Tweaker& tweaker)
+{
+    bool initialisedEmitter = false;
+    if(!tweaker.HasEmitters())
+    {
+        initialisedEmitter = true;
+        tweaker.InitialiseEmitters(
+            m_cache->EmitterSelected.Get(), m_cache->Emitters.Get());
+    }
+
+    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
+    {
+        if (initialisedEmitter || m_cache->Emitter[i].RequiresUpdate())
+        {
+            tweaker.SetEmitter(static_cast<EmitterAttribute>(i), 
+                m_cache->Emitter[i].GetUpdated());
+        }
+    }
+
+    if(initialisedEmitter || m_cache->ParticleAmount.RequiresUpdate())
+    {
+        tweaker.SetParticleAmount(m_cache->ParticleAmount.GetUpdated());
+    }
+
+    for (int i = 0; i < PARTICLE_ATTRIBUTES; ++i)
+    {
+        if (initialisedEmitter || m_cache->Particles[i].RequiresUpdate())
+        {
+            tweaker.SetParticles(static_cast<ParticleAttribute>(i), 
+                m_cache->Particles[i].GetUpdated());
+        }
+    }
+}
+
+void Gui::UpdateWater(Tweaker& tweaker)
+{
     bool initialisedWater = false;
     if(!tweaker.HasWater())
     {

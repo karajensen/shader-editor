@@ -138,15 +138,19 @@ struct Cache
 {
     Cache() :
         ApplicationRunning(true),
-        PageSelected(NO_PAGE)
+        PageSelected(NO_PAGE),
+        SaveLights(false),
+        SaveMeshes(false),
+        SaveParticles(false),
+        SavePost(false)
     {
     }
 
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running
-    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui
-                                        
+    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui            
     Lockable<bool> SaveLights;          ///< Request to save the lights to xml
     Lockable<bool> SaveMeshes;          ///< Request to save the meshes to xml
+    Lockable<bool> SaveParticles;       ///< Request to save the particles to xml
     Lockable<bool> SavePost;            ///< Request to save post processing to xml
                                         
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
@@ -167,6 +171,8 @@ struct Cache
     Lockable<int> WaterSelected;        ///< Index of the currently selected water  
     Lockable<int> WaveSelected;         ///< Index of the currently selected wave
     Lockable<int> WaveAmount;           ///< The amount of waves for the selected water
+    Lockable<int> EmitterSelected;      ///< Index of the currently selected emitter
+    Lockable<int> ParticleAmount;       ///< The amount of particles to spawn
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
     Lockable<float> BlurAmount;         ///< The amount to blur the scene by
     Lockable<float> BlurStep;           ///< The sample step of the blur
@@ -178,13 +184,15 @@ struct Cache
     Lockable<float> DOFDistance;        ///< Distance DOF is active
     Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
 
-    std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;      ///< Selected light attributes
-    std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;        ///< Selected mesh attributes
-    std::array<Lockable<float>, WATER_ATTRIBUTES> Water;      ///< Selected water attributes
-    std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;          ///< Fog attributes
-    std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;        ///< Wave attributes
-    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour; ///< Min colour attributes
-    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour; ///< Max colour attributes
+    std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;        ///< Selected light attributes
+    std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;          ///< Selected mesh attributes
+    std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes
+    std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;            ///< Fog attributes
+    std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
+    std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
+    std::array<Lockable<float>, PARTICLE_ATTRIBUTES> Particles; ///< Particle attributes
+    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour;   ///< Min colour attributes
+    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour;   ///< Max colour attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
@@ -192,4 +200,5 @@ struct Cache
     Lockable<std::vector<std::string>> Meshes;    ///< Container of all meshes
     Lockable<std::vector<std::string>> Waters;    ///< Container of all waters
     Lockable<std::vector<std::string>> PostMaps;  ///< Container of all post maps
+    Lockable<std::vector<std::string>> Emitters;  ///< Container of all emitters
 };

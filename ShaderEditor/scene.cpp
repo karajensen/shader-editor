@@ -8,9 +8,6 @@
 #include "boost/filesystem.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 #include "boost/algorithm/string.hpp"
-#include "assimp/include/scene.h"
-#include "assimp/include/Importer.hpp"
-#include "assimp/include/postprocess.h"
 #include "fragmentlinker.h"
 
 namespace
@@ -26,7 +23,8 @@ bool Scene::Initialise()
         InitialiseLighting() &&
         linker.Initialise(m_lights.size()) &&
         InitialiseShaders(linker) &&
-        InitialiseMeshes(linker))
+        InitialiseMeshes(linker) &&
+        InitialiseEmitters())
     {
         // To prevent unnecessary shader switching, sort by shader used
         std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
@@ -36,6 +34,24 @@ bool Scene::Initialise()
         return true;
     }
     return false;
+}
+
+void Scene::SaveXMLFile(boost::property_tree::ptree& root,
+                       boost::property_tree::ptree& tree,
+                       const std::string& name)
+{
+    root.add_child(name, tree);
+    boost::filesystem::path filePath(ASSETS_PATH + name + "_saved.xml");
+    boost::property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
+    boost::property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+}
+
+boost::property_tree::ptree Scene::ReadXMLFile(const std::string& name)
+{
+    boost::property_tree::ptree root;
+    boost::property_tree::xml_parser::read_xml(ASSETS_PATH + name + ".xml", 
+        root, boost::property_tree::xml_parser::trim_whitespace);
+    return root.get_child(name);
 }
 
 bool Scene::InitialiseShaders(FragmentLinker& linker)
@@ -72,13 +88,115 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
     return success;
 }
 
+bool Scene::InitialisePost()
+{
+    boost::property_tree::ptree tree = ReadXMLFile("PostProcessing");
+    m_postProcessing.blurAmount = GetValue<float>(tree, "BlurAmount");
+    m_postProcessing.blurStep = GetValue<float>(tree, "BlurStep");
+    m_postProcessing.depthFar = GetValue<float>(tree, "DepthFar");
+    m_postProcessing.depthNear = GetValue<float>(tree, "DepthNear");
+    m_postProcessing.dofDistance = GetValue<float>(tree, "DOFDistance");
+    m_postProcessing.dofFade = GetValue<float>(tree, "DOFFade");
+    m_postProcessing.fogColour.r = GetValue<float>(tree, "FogColourR");
+    m_postProcessing.fogColour.g = GetValue<float>(tree, "FogColourG");
+    m_postProcessing.fogColour.b = GetValue<float>(tree, "FogColourB");
+    m_postProcessing.fogDistance = GetValue<float>(tree, "FogDistance");
+    m_postProcessing.fogFade = GetValue<float>(tree, "FogFade");
+    m_postProcessing.glowAmount = GetValue<float>(tree, "GlowAmount");
+    m_postProcessing.contrast = GetValue<float>(tree, "Contrast");
+    m_postProcessing.saturation = GetValue<float>(tree, "Saturation");
+    m_postProcessing.maximumColour.r = GetValue<float>(tree, "MaximumColourR");
+    m_postProcessing.maximumColour.g = GetValue<float>(tree, "MaximumColourG");
+    m_postProcessing.maximumColour.b = GetValue<float>(tree, "MaximumColourB");
+    m_postProcessing.minimumColour.r = GetValue<float>(tree, "MinimumColourR");
+    m_postProcessing.minimumColour.g = GetValue<float>(tree, "MinimumColourG");
+    m_postProcessing.minimumColour.b = GetValue<float>(tree, "MinimumColourB");
+
+    Logger::LogInfo("PostProcessing: Successfully initialised");
+    return true;
+}
+
+bool Scene::InitialiseLighting()
+{
+    boost::property_tree::ptree tree = ReadXMLFile("Lights");
+    boost::property_tree::ptree::iterator it;
+    for (it = tree.begin(); it != tree.end(); ++it)
+    {
+        Light light;
+        light.name = GetValue<std::string>(it, "Name");
+
+        light.diffuse.a = 1.0f;
+        light.diffuse.r = GetValue<float>(it, "R");
+        light.diffuse.b = GetValue<float>(it, "B");
+        light.diffuse.g = GetValue<float>(it, "G");
+
+        light.specular.a = 1.0f;
+        light.specular.r = GetValue<float>(it, "SR");
+        light.specular.b = GetValue<float>(it, "SB");
+        light.specular.g = GetValue<float>(it, "SG");
+
+        light.position.x = GetValue<float>(it, "X");
+        light.position.y = GetValue<float>(it, "Y");
+        light.position.z = GetValue<float>(it, "Z");
+
+        light.specularity = GetValue<float>(it, "Specularity");
+        light.attenuation.x = GetValue<float>(it, "AttX");
+        light.attenuation.y = GetValue<float>(it, "AttY");
+        light.attenuation.z = GetValue<float>(it, "AttZ");
+
+        m_lights.push_back(light);
+    }
+
+    Logger::LogInfo("Lighting: Successfully initialised");
+    return true;
+}
+
+bool Scene::InitialiseEmitters()
+{
+    boost::property_tree::ptree tree = ReadXMLFile("Emitters");
+    boost::property_tree::ptree::iterator it;
+    for (it = tree.begin(); it != tree.end(); ++it)
+    {
+        Emitter emitter;
+        emitter.Resize(GetValue<int>(it, "Amount"));
+        emitter.width = GetValue<float>(it, "Width");
+        emitter.length = GetValue<float>(it, "Length");
+        emitter.lifeTime = GetValue<float>(it, "LifeTime");
+        emitter.speed = GetValue<float>(it, "Speed");
+        emitter.speedVariation = GetValue<float>(it, "SpeedVariation");
+        emitter.size = GetValue<float>(it, "Size");
+        emitter.sizeVariation = GetValue<float>(it, "SizeVariation");
+        emitter.name = GetValue<std::string>(it, "Name");
+        emitter.position.x = GetAttribute<float>(it, "Position", "x");
+        emitter.position.y = GetAttribute<float>(it, "Position", "y");
+        emitter.position.z = GetAttribute<float>(it, "Position", "z");
+        emitter.direction.x = GetAttribute<float>(it, "Direction", "x");
+        emitter.direction.y = GetAttribute<float>(it, "Direction", "y");
+        emitter.direction.z = GetAttribute<float>(it, "Direction", "z");
+        emitter.tint.r = GetAttribute<float>(it, "Tint", "r");
+        emitter.tint.g = GetAttribute<float>(it, "Tint", "g");
+        emitter.tint.b = GetAttribute<float>(it, "Tint", "b");
+        emitter.shaderIndex = PARTICLE_SHADER_INDEX;
+        emitter.normalIndex = PARTICLE_NORMAL_SHADER_INDEX;
+
+        for (auto child = it->second.begin(); child != it->second.end(); ++child)
+        {
+            if (child->first == "Texture")
+            {
+                emitter.textures.push_back(AddTexture(child->second.data()));
+            }
+        }
+
+        m_emitters.emplace_back(emitter);
+    }
+
+    Logger::LogInfo("Particles: Successfully initialised");
+    return true;
+}
+
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
 {	
-    boost::property_tree::ptree meshes;
-    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Meshes.xml", 
-        meshes, boost::property_tree::xml_parser::trim_whitespace);
-    boost::property_tree::ptree& tree = meshes.get_child("Meshes");
-
+    boost::property_tree::ptree tree = ReadXMLFile("Meshes");
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
@@ -87,53 +205,24 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             Water water;
             InitialiseMesh(water, it);
             InitialiseWater(water, it);
-            CreateMesh(water);
-            m_water.emplace_back(water);
+            if (CreateMesh(water))
+            {
+                m_water.emplace_back(water);
+            }
         }
         else if (it->first == "Mesh")
         {
             Mesh mesh;
             InitialiseMesh(mesh, it);
             InitialiseMeshShader(mesh, linker, it);
-            CreateMesh(mesh);
-            m_meshes.emplace_back(mesh);
-        }
-        else if (it->first == "Emitter")
-        {
-            Emitter emitter;
-            InitialiseEmitter(emitter, it);
-            m_emitters.emplace_back(emitter);
+            if (CreateMesh(mesh))
+            {
+                m_meshes.emplace_back(mesh);
+            }
         }
     }
 
     return true;
-}
-
-void Scene::InitialiseEmitter(Emitter& emitter, boost::property_tree::ptree::iterator& it)
-{
-    emitter.width = GetValue<float>(it, "Width");
-    emitter.length = GetValue<float>(it, "Length");
-    emitter.speed = GetValue<float>(it, "Speed");
-    emitter.lifeTime = GetValue<float>(it, "LifeTime");
-    emitter.speedVariation = GetValue<float>(it, "SpeedVariation");
-    emitter.name = GetValue<std::string>(it, "Name");
-    emitter.particles.resize(GetValue<int>(it, "Amount"));
-    emitter.position.x = GetAttribute<float>(it, "Position", "x");
-    emitter.position.y = GetAttribute<float>(it, "Position", "y");
-    emitter.position.z = GetAttribute<float>(it, "Position", "z");
-    emitter.direction.x = GetAttribute<float>(it, "Direction", "x");
-    emitter.direction.y = GetAttribute<float>(it, "Direction", "y");
-    emitter.direction.z = GetAttribute<float>(it, "Direction", "z");
-    emitter.shaderIndex = PARTICLE_SHADER_INDEX;
-    emitter.normalIndex = PARTICLE_NORMAL_SHADER_INDEX;
-
-    for (auto child = it->second.begin(); child != it->second.end(); ++child)
-    {
-        if (child->first == "Texture")
-        {
-            emitter.textures.push_back(AddTexture(child->second.data()));
-        }
-    }
 }
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
@@ -284,133 +373,8 @@ int Scene::AddTexture(const std::string& name)
 
 bool Scene::CreateMesh(Mesh& mesh)
 {
-    std::string errorBuffer;
-    const std::string path = ASSETS_PATH + "Meshes//" + mesh.name;
-    if (!CreateMesh(path, errorBuffer, mesh))
-    {
-        Logger::LogError(path + ": " + errorBuffer);
-        return false;
-    }
-    return true;
-}
-
-bool Scene::CreateMesh(const std::string& path, std::string& errorBuffer, Mesh& mesh)
-{
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
-        aiProcess_Triangulate|aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
-        aiProcess_CalcTangentSpace|aiProcess_JoinIdenticalVertices|aiProcess_GenSmoothNormals|
-        aiProcess_LimitBoneWeights|aiProcess_RemoveRedundantMaterials|aiProcess_OptimizeMeshes);
-
-    if(!scene)
-    {
-        errorBuffer = "Assimp import error for mesh " + path + ": " + importer.GetErrorString();
-        return false;
-    }
-
     const Shader& shader = m_shaders[mesh.shaderIndex];
-    const bool usesNormalMapping = shader.HasComponent(Shader::BUMP);
-
-    unsigned int numMeshes = scene->mNumMeshes;
-    aiMesh** meshes = scene->mMeshes;
-
-    // For each submesh
-    bool generatedComponentCount = false;
-    for(unsigned int i = 0; i < numMeshes; ++i)
-    {
-        aiMesh* pMesh = meshes[i];
-
-        unsigned int indexOffset = mesh.vertices.size() / mesh.vertexComponentCount;
-        mesh.vertexCount += pMesh->mNumVertices;
-        mesh.faceCount += pMesh->mNumFaces;
-
-        if(!pMesh->HasPositions())
-        {
-            errorBuffer = mesh.name + " requires positions for requested shader";
-            return false;
-        }
-        if(!pMesh->HasTextureCoords(0))
-        {
-            errorBuffer = mesh.name + " requires uvs for requested shader";
-            return false;
-        }
-        if(!pMesh->HasNormals())
-        {
-            errorBuffer = mesh.name + " requires normals for requested shader";
-            return false;
-        }
-
-        // For each vertex
-        int componentCount = 0;
-        for(unsigned int vert = 0; vert < pMesh->mNumVertices; ++vert)
-        {
-            mesh.vertices.push_back(pMesh->mVertices[vert].x);
-            mesh.vertices.push_back(pMesh->mVertices[vert].y);
-            mesh.vertices.push_back(pMesh->mVertices[vert].z);
-            mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].x);
-            mesh.vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-            mesh.vertices.push_back(pMesh->mNormals[vert].x);
-            mesh.vertices.push_back(pMesh->mNormals[vert].y);
-            mesh.vertices.push_back(pMesh->mNormals[vert].z);
-            componentCount = 8;
-
-            // Add any bitangents/tangents for the mesh
-            if(usesNormalMapping)
-            {
-                if(pMesh->HasTangentsAndBitangents())
-                {
-                    mesh.vertices.push_back(pMesh->mTangents[vert].x);
-                    mesh.vertices.push_back(pMesh->mTangents[vert].y);
-                    mesh.vertices.push_back(pMesh->mTangents[vert].z);
-                    mesh.vertices.push_back(pMesh->mBitangents[vert].x);
-                    mesh.vertices.push_back(pMesh->mBitangents[vert].y);
-                    mesh.vertices.push_back(pMesh->mBitangents[vert].z);
-                    componentCount += 6;
-                }
-                else
-                {
-                    errorBuffer = mesh.name + " requires tangents for requested shader";
-                    return false;
-                }
-            }
-        }
-
-        // Make sure vertex layout is consistant between submeshes
-        if(generatedComponentCount)
-        {
-            if(componentCount != mesh.vertexComponentCount)
-            {
-                errorBuffer = "Assimp error for mesh " + path + ": " + 
-                    boost::lexical_cast<std::string>(componentCount) + " does not match " +
-                    boost::lexical_cast<std::string>(mesh.vertexComponentCount);
-                return false;
-            }
-        }
-        else
-        {
-            mesh.vertexComponentCount = componentCount;
-            generatedComponentCount = true;
-        }
-
-        // For each face
-        for(unsigned int face = 0; face < pMesh->mNumFaces; ++face)
-        {
-            aiFace *pFace = &pMesh->mFaces[face];
-            if(pFace->mNumIndices != 3)
-            {
-                errorBuffer = "Assimp error for mesh " + path + ": not all faces are triangles";
-                return false;
-            }
-
-            mesh.indices.push_back(indexOffset + pFace->mIndices[0]);
-            mesh.indices.push_back(indexOffset + pFace->mIndices[1]);
-            mesh.indices.push_back(indexOffset + pFace->mIndices[2]);
-        }
-    }
-
-    mesh.indexCount = mesh.indices.size();
-    Logger::LogInfo("Mesh: " + path + " created");
-    return true;
+    return mesh.Initialise(shader.HasComponent(Shader::BUMP));
 }
 
 const std::vector<Water>& Scene::Waters() const
@@ -446,6 +410,11 @@ const std::vector<Emitter>& Scene::Emitters() const
 const PostProcessing& Scene::Post() const
 {
     return m_postProcessing;
+}
+
+Emitter& Scene::GetEmitter(int index)
+{
+    return m_emitters[index];
 }
 
 Light& Scene::GetLight(int index)
@@ -488,6 +457,11 @@ int Scene::GetMeshCount() const
     return static_cast<int>(m_meshes.size());
 }
 
+int Scene::GetEmitterCount() const
+{
+    return static_cast<int>(m_emitters.size());
+}
+
 int Scene::GetWaterCount() const
 {
     return static_cast<int>(m_water.size());
@@ -506,6 +480,16 @@ std::vector<std::string> Scene::GetLightNames() const
         lights.push_back(light.name);
     }
     return lights;
+}
+
+std::vector<std::string> Scene::GetEmitterNames() const
+{
+    std::vector<std::string> emitters;
+    for(const Emitter& emitter : m_emitters)
+    {
+        emitters.push_back(emitter.name);
+    }
+    return emitters;
 }
 
 std::vector<std::string> Scene::GetMeshNames() const
@@ -549,15 +533,53 @@ std::vector<std::string> Scene::GetShaderNames() const
     return shaders;
 }
 
+void Scene::SaveParticlesToFile()
+{
+    boost::property_tree::ptree root, tree;
+    std::vector<boost::property_tree::ptree> entries;
+	
+    for (const Emitter& emitter : m_emitters)
+    {
+        boost::property_tree::ptree entry;
+        entry.add("Name", emitter.name.c_str());
+        entry.add("Width", emitter.width);
+        entry.add("Length", emitter.length);
+        entry.add("Amount", emitter.particles.size());
+        entry.add("LifeTime", emitter.lifeTime);
+        entry.add("Speed", emitter.speed);
+        entry.add("SpeedVariation", emitter.speedVariation);
+        entry.add("Size", emitter.size);
+        entry.add("SizeVariation", emitter.sizeVariation);
+        entry.add("Position.<xmlattr>.x", emitter.position.x);
+        entry.add("Position.<xmlattr>.y", emitter.position.y);
+        entry.add("Position.<xmlattr>.z", emitter.position.z);
+        entry.add("Direction.<xmlattr>.x", emitter.direction.x);
+        entry.add("Direction.<xmlattr>.y", emitter.direction.y);
+        entry.add("Direction.<xmlattr>.z", emitter.direction.z);
+        entry.add("Tint.<xmlattr>.r", emitter.tint.r);
+        entry.add("Tint.<xmlattr>.g", emitter.tint.g);
+        entry.add("Tint.<xmlattr>.b", emitter.tint.b);
+
+        for (int texture : emitter.textures)
+        {
+            entry.add("Texture", m_textures[texture].name);
+        }
+
+        entries.emplace_back(entry);
+        tree.add_child("Emitter", entries[entries.size()-1]);
+    }
+
+    SaveXMLFile(root, tree, "Emitters");
+}
+
 void Scene::SaveMeshesToFile()
 {
-    using namespace boost;
-    property_tree::ptree root, tree;
-    std::vector<property_tree::ptree> entries;
+    boost::property_tree::ptree root, tree;
+    std::vector<boost::property_tree::ptree> entries;
 	
     for(const Mesh& mesh : m_meshes)
     {
-        property_tree::ptree entry;
+        boost::property_tree::ptree entry;
         AddMeshToTree(mesh, entry);
         entries.emplace_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
@@ -565,46 +587,13 @@ void Scene::SaveMeshesToFile()
 
     for(const Water& water : m_water)
     {
-        property_tree::ptree entry;
+        boost::property_tree::ptree entry;
         AddWaterToTree(water, entries, entry);
         entries.emplace_back(entry);
         tree.add_child("Water", entries[entries.size()-1]);
     }
 
-    for (const Emitter& emitter : m_emitters)
-    {
-        property_tree::ptree entry;
-        AddEmitterToTree(emitter, entry);
-        entries.emplace_back(entry);
-        tree.add_child("Emitter", entries[entries.size()-1]);
-    }
-
-    root.add_child("Meshes", tree);
-    filesystem::path filePath(ASSETS_PATH + "Meshes_saved.xml");
-    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
-    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
-}
-
-void Scene::AddEmitterToTree(const Emitter& emitter, boost::property_tree::ptree& entry)
-{
-    entry.add("Name", emitter.name.c_str());
-    entry.add("Width", emitter.width);
-    entry.add("Length", emitter.length);
-    entry.add("Speed", emitter.speed);
-    entry.add("Amount", emitter.particles.size());
-    entry.add("LifeTime", emitter.lifeTime);
-    entry.add("SpeedVariation", emitter.speedVariation);
-    entry.add("Position.<xmlattr>.x", emitter.position.x);
-    entry.add("Position.<xmlattr>.y", emitter.position.y);
-    entry.add("Position.<xmlattr>.z", emitter.position.z);
-    entry.add("Direction.<xmlattr>.x", emitter.direction.x);
-    entry.add("Direction.<xmlattr>.y", emitter.direction.y);
-    entry.add("Direction.<xmlattr>.z", emitter.direction.z);
-
-    for (int texture : emitter.textures)
-    {
-        entry.add("Texture", m_textures[texture].name);
-    }
+    SaveXMLFile(root, tree, "Meshes");
 }
 
 void Scene::AddWaterToTree(const Water& water, 
@@ -661,72 +650,14 @@ void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
     };
 }
 
-bool Scene::InitialiseLighting()
-{
-    using namespace boost;
-    filesystem::path filePath(ASSETS_PATH + "Lights.xml");
-    if(filesystem::exists(filePath))
-    {
-        try
-        {
-            property_tree::ptree root;
-            property_tree::xml_parser::read_xml(filePath.generic_string(), 
-                root, property_tree::xml_parser::trim_whitespace);
-            property_tree::ptree& tree = root.get_child("Lights");
-	
-            boost::property_tree::ptree::iterator it;
-            for(it = tree.begin(); it != tree.end(); ++it)
-            {
-                Light light;
-                light.name = GetValue<std::string>(it, "Name");
-	
-                light.diffuse.a = 1.0f;
-                light.diffuse.r = GetValue<float>(it, "R");
-                light.diffuse.b = GetValue<float>(it, "B");
-                light.diffuse.g = GetValue<float>(it, "G");
-	
-                light.specular.a = 1.0f;
-                light.specular.r = GetValue<float>(it, "SR");
-                light.specular.b = GetValue<float>(it, "SB");
-                light.specular.g = GetValue<float>(it, "SG");
-	
-                light.position.x = GetValue<float>(it, "X");
-                light.position.y = GetValue<float>(it, "Y");
-                light.position.z = GetValue<float>(it, "Z");
-	
-                light.specularity = GetValue<float>(it, "Specularity");
-                light.attenuation.x = GetValue<float>(it, "AttX");
-                light.attenuation.y = GetValue<float>(it, "AttY");
-                light.attenuation.z = GetValue<float>(it, "AttZ");
-	
-                m_lights.push_back(light);
-            }
-        }
-        catch(const filesystem::filesystem_error& e)
-        {
-            Logger::LogError(std::string("Lighting: ") + e.what());
-            return false;
-        }
-    }
-    else
-    {
-        Logger::LogError("Lighting: Could not find file");
-        return false;
-    }    
-	
-    Logger::LogInfo("Lighting: Initialised successfully");
-    return true;
-}
-
 void Scene::SaveLightsToFile()
 {
-    using namespace boost;
-    property_tree::ptree root, tree;
-    std::vector<property_tree::ptree> entries;
+    boost::property_tree::ptree root, tree;
+    std::vector<boost::property_tree::ptree> entries;
 	
     for(const Light& light : m_lights)
     {
-        property_tree::ptree entry;
+        boost::property_tree::ptree entry;
         entry.add("Name", light.name.c_str());
         entry.add("X", light.position.x);
         entry.add("Y", light.position.y);
@@ -745,50 +676,12 @@ void Scene::SaveLightsToFile()
         entries.emplace_back(entry);
         tree.add_child("Light", entries[entries.size()-1]);
     }
-    root.add_child("Lights", tree);
-	
-    // Writing property tree to xml
-    filesystem::path filePath(ASSETS_PATH + "Lights_saved.xml");
-    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
-    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
-}
-
-bool Scene::InitialisePost()
-{
-    boost::property_tree::ptree post;
-    boost::property_tree::xml_parser::read_xml(ASSETS_PATH+"Post.xml", 
-        post, boost::property_tree::xml_parser::trim_whitespace);
-    boost::property_tree::ptree& tree = post.get_child("PostProcessing");
-
-    m_postProcessing.blurAmount = GetValue<float>(tree, "BlurAmount");
-    m_postProcessing.blurStep = GetValue<float>(tree, "BlurStep");
-    m_postProcessing.depthFar = GetValue<float>(tree, "DepthFar");
-    m_postProcessing.depthNear = GetValue<float>(tree, "DepthNear");
-    m_postProcessing.dofDistance = GetValue<float>(tree, "DOFDistance");
-    m_postProcessing.dofFade = GetValue<float>(tree, "DOFFade");
-    m_postProcessing.fogColour.r = GetValue<float>(tree, "FogColourR");
-    m_postProcessing.fogColour.g = GetValue<float>(tree, "FogColourG");
-    m_postProcessing.fogColour.b = GetValue<float>(tree, "FogColourB");
-    m_postProcessing.fogDistance = GetValue<float>(tree, "FogDistance");
-    m_postProcessing.fogFade = GetValue<float>(tree, "FogFade");
-    m_postProcessing.glowAmount = GetValue<float>(tree, "GlowAmount");
-    m_postProcessing.contrast = GetValue<float>(tree, "Contrast");
-    m_postProcessing.saturation = GetValue<float>(tree, "Saturation");
-    m_postProcessing.maximumColour.r = GetValue<float>(tree, "MaximumColourR");
-    m_postProcessing.maximumColour.g = GetValue<float>(tree, "MaximumColourG");
-    m_postProcessing.maximumColour.b = GetValue<float>(tree, "MaximumColourB");
-    m_postProcessing.minimumColour.r = GetValue<float>(tree, "MinimumColourR");
-    m_postProcessing.minimumColour.g = GetValue<float>(tree, "MinimumColourG");
-    m_postProcessing.minimumColour.b = GetValue<float>(tree, "MinimumColourB");
-
-    return true;
+    SaveXMLFile(root, tree, "Lights");
 }
 
 void Scene::SavePostProcessingtoFile()
 {
-    using namespace boost;
-    property_tree::ptree root, tree;
-
+    boost::property_tree::ptree root, tree;
     tree.add("BlurAmount", m_postProcessing.blurAmount);
     tree.add("BlurStep", m_postProcessing.blurStep);
     tree.add("DepthFar", m_postProcessing.depthFar);
@@ -809,9 +702,5 @@ void Scene::SavePostProcessingtoFile()
     tree.add("MinimumColourR", m_postProcessing.minimumColour.r);
     tree.add("MinimumColourG", m_postProcessing.minimumColour.g);
     tree.add("MinimumColourB", m_postProcessing.minimumColour.b);
-    root.add_child("PostProcessing", tree);
-
-    filesystem::path filePath(ASSETS_PATH + "Post_saved.xml");
-    property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
-    property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
+    SaveXMLFile(root, tree, "PostProcessing");
 }

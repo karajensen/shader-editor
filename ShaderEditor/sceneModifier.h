@@ -89,6 +89,16 @@ private:
     void UpdateMesh();
 
     /**
+    * Updates the water shared cache between the gui and application
+    */
+    void UpdateWater();
+
+    /**
+    * Updates the emitter shared cache between the gui and application
+    */
+    void UpdateEmitter();
+
+    /**
     * Updates the post shared cache between the gui and application
     */
     void UpdatePost();
@@ -115,6 +125,7 @@ private:
     int m_selectedWave = NO_INDEX;    ///< Current wave selected
     int m_selectedMap = NO_INDEX;     ///< Current post map selected
     int m_selectedShader = NO_INDEX;  ///< Current shader selected
+    int m_selectedEmitter = NO_INDEX; ///< Current emitter selected
     int m_engineAmount = 0;           ///< Number of engines that can be selected
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
 };

@@ -67,6 +67,18 @@ private:
     void UpdateMesh(Tweaker& tweaker);
 
     /**
+    * Updates the water tweakable entries
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateWater(Tweaker& tweaker);
+
+    /**
+    * Updates the emitter tweakable entries
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateEmitter(Tweaker& tweaker);
+
+    /**
     * Updates the cache and gui for the post page
     * @param tweaker The gui for tweaking the application
     */

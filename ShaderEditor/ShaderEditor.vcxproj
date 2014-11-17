@@ -33,6 +33,7 @@
     <ClCompile Include="directxshader.cpp" />
     <ClCompile Include="directxtarget.cpp" />
     <ClCompile Include="directxtexture.cpp" />
+    <ClCompile Include="elements.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
@@ -183,7 +184,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="Assets\Post.xml">
+    <Xml Include="Assets\Emitters.xml">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </Xml>
+    <Xml Include="Assets\PostProcessing.xml">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Xml>
   </ItemGroup>

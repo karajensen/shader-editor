@@ -102,6 +102,38 @@ enum LightAttribute
 };
 
 /**
+* Attributes for the emitter
+*/
+enum EmitterAttribute
+{
+    EMITTER_WIDTH,
+    EMITTER_LENGTH,
+    EMITTER_POS_X,
+    EMITTER_POS_Y,
+    EMITTER_POS_Z,
+    EMITTER_DIR_X,
+    EMITTER_DIR_Y,
+    EMITTER_DIR_Z,
+    EMITTER_ATTRIBUTES
+};
+
+/**
+* Attributes for the particle
+*/
+enum ParticleAttribute
+{
+    PARTICLE_SPEED,
+    PARTICLE_SPEED_VAR,
+    PARTICLE_LIFETIME,
+    PARTICLE_SIZE,
+    PARTICLE_SIZE_VAR,
+    PARTICLE_TINT_R,
+    PARTICLE_TINT_G,
+    PARTICLE_TINT_B,
+    PARTICLE_ATTRIBUTES
+};
+
+/**
 * Supported callback types
 */
 typedef std::function<void(float)> FloatSignal;
@@ -115,33 +147,38 @@ typedef std::vector<FloatSignal> FloatSignals;
 */
 struct SignalCallbacks
 {
-    FloatSignal SetDepthNear;     ///< Sets the depth near value
-    FloatSignal SetDepthFar;      ///< Sets the depth far value
-    FloatSignal SetDOFDistance;   ///< Sets when depth of field kicks in
-    FloatSignal SetDOFFade;       ///< Sets how quickly depth of field fades to the scene
-    FloatSignal SetBlurAmount;    ///< Sets the amount of blurring on the scene
-    FloatSignal SetBlurStep;      ///< Sets the amount of step between samples for blurring
-    FloatSignal SetGlowAmount;    ///< Sets the amount of glow on the scene
-    FloatSignal SetContrast;      ///< Sets the contrast of the final scene
-    FloatSignal SetSaturation;    ///< Sets the saturation of the final scene
-    FloatSignals SetLight;        ///< Sets the light tweakable attributes
-    FloatSignals SetFog;          ///< Sets the fog tweakable attributes
-    FloatSignals SetMesh;         ///< Sets the mesh tweakable attributes
-    FloatSignals SetWater;        ///< Sets the water tweakable attributes
-    FloatSignals SetWave;         ///< Sets the water wave tweakable attributes
-    FloatSignals SetMinColour;    ///< Sets the minimum post colour range
-    FloatSignals SetMaxColour;    ///< Sets the maximum post colour range
-    FloatSignal SetSelectedWave;  ///< Sets the selected wave to display
-    IntSignal SetSelectedEngine;  ///< Sets the selected engine to render
-    IntSignal SetSelectedLight;   ///< Sets the selected light to display
-    IntSignal SetSelectedMesh;    ///< Sets the selected mesh to display
-    IntSignal SetSelectedWater;   ///< Sets the selected water to display
-    IntSignal SetSelectedShader;  ///< Sets the selected shader to edit
-    IntSignal SetPostMap;         ///< Sets the selected post map to display
-    VoidSignal SaveLights;        ///< Sends a request to save the lights to xml
-    VoidSignal SaveMeshes;        ///< Sends a request to save the meshes to xml
-    VoidSignal SavePost;          ///< Sends a request to save post processing to xml
-    StrSignal CompileShader;      ///< Sends a compile request
+    FloatSignal SetDepthNear;      ///< Sets the depth near value
+    FloatSignal SetDepthFar;       ///< Sets the depth far value
+    FloatSignal SetDOFDistance;    ///< Sets when depth of field kicks in
+    FloatSignal SetDOFFade;        ///< Sets how quickly depth of field fades to the scene
+    FloatSignal SetBlurAmount;     ///< Sets the amount of blurring on the scene
+    FloatSignal SetBlurStep;       ///< Sets the amount of step between samples for blurring
+    FloatSignal SetGlowAmount;     ///< Sets the amount of glow on the scene
+    FloatSignal SetContrast;       ///< Sets the contrast of the final scene
+    FloatSignal SetSaturation;     ///< Sets the saturation of the final scene
+    FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
+    FloatSignals SetLight;         ///< Sets the light tweakable attributes
+    FloatSignals SetFog;           ///< Sets the fog tweakable attributes
+    FloatSignals SetMesh;          ///< Sets the mesh tweakable attributes
+    FloatSignals SetWater;         ///< Sets the water tweakable attributes
+    FloatSignals SetWave;          ///< Sets the water wave tweakable attributes
+    FloatSignals SetMinColour;     ///< Sets the minimum post colour range
+    FloatSignals SetMaxColour;     ///< Sets the maximum post colour range
+    FloatSignals SetEmitter;       ///< Sets the emitter tweakable attributes
+    FloatSignals SetParticles;     ///< Sets the particles tweakable attributes
+    FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
+    IntSignal SetSelectedEngine;   ///< Sets the selected engine to render
+    IntSignal SetSelectedLight;    ///< Sets the selected light to display
+    IntSignal SetSelectedMesh;     ///< Sets the selected mesh to display
+    IntSignal SetSelectedWater;    ///< Sets the selected water to display
+    IntSignal SetSelectedShader;   ///< Sets the selected shader to edit
+    IntSignal SetSelectedEmitter;  ///< Sets the selected emitter to edit
+    IntSignal SetPostMap;          ///< Sets the selected post map to display
+    VoidSignal SaveLights;         ///< Sends a request to save the lights to xml
+    VoidSignal SaveMeshes;         ///< Sends a request to save the meshes to xml
+    VoidSignal SaveParticles;      ///< Sends a request to save the particles to xml
+    VoidSignal SavePost;           ///< Sends a request to save post processing to xml
+    StrSignal CompileShader;       ///< Sends a compile request
 
     /**
     * Constructor
@@ -156,16 +193,19 @@ struct SignalCallbacks
         SetGlowAmount(nullptr),
         SetContrast(nullptr),
         SetSaturation(nullptr),
+        SetParticleAmount(nullptr),
         SetSelectedEngine(nullptr),
         SetSelectedLight(nullptr),
         SetSelectedMesh(nullptr),
         SetSelectedWater(nullptr),
         SetSelectedShader(nullptr),
+        SetSelectedEmitter(nullptr),
         SetSelectedWave(nullptr),
         SetPostMap(nullptr),
         SaveLights(nullptr),
         SaveMeshes(nullptr),
         SavePost(nullptr),
+        SaveParticles(nullptr),
         CompileShader(nullptr)
     {
         SetLight.resize(LIGHT_ATTRIBUTES);
@@ -188,5 +228,11 @@ struct SignalCallbacks
 
         SetWave.resize(WAVE_ATTRIBUTES);
         SetWave.assign(WAVE_ATTRIBUTES, nullptr);
+
+        SetEmitter.resize(EMITTER_ATTRIBUTES);
+        SetEmitter.assign(EMITTER_ATTRIBUTES, nullptr);
+
+        SetParticles.resize(PARTICLE_ATTRIBUTES);
+        SetParticles.assign(PARTICLE_ATTRIBUTES, nullptr);
     }
 };
