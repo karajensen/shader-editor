@@ -49,7 +49,8 @@ enum MeshAttribute
 enum WaterAttribute
 {
     WATER_BUMP,
-    WATER_BUMP_SPEED,
+    WATER_BUMP_VELOCITY_X,
+    WATER_BUMP_VELOCITY_Y,
     WATER_SPEED,
     WATER_OFFSET_U,
     WATER_OFFSET_V,

@@ -227,7 +227,8 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
 {
-    water.bumpSpeed = GetValue<float>(it, "BumpSpeed");
+    water.bumpVelocity.x = GetAttribute<float>(it, "BumpVelocity", "x");
+    water.bumpVelocity.y = GetAttribute<float>(it, "BumpVelocity", "y");
     water.fresnalFactor = GetValue<float>(it, "FresnalFactor");
     water.reflection = GetValue<float>(it, "ReflectionIntensity");
     water.speed = GetValue<float>(it, "Speed");
@@ -242,6 +243,8 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     water.reflectionTint.r = GetAttribute<float>(it, "ReflectionTint", "r");
     water.reflectionTint.g = GetAttribute<float>(it, "ReflectionTint", "g");
     water.reflectionTint.b = GetAttribute<float>(it, "ReflectionTint", "b");
+    water.shaderIndex = WATER_SHADER_INDEX;
+    water.normalIndex = WATER_NORMAL_SHADER_INDEX;
 
     for (auto child = it->second.begin(); child != it->second.end(); ++child)
     {
@@ -257,8 +260,12 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
         }
     }
 
-    water.shaderIndex = WATER_SHADER_INDEX;
-    water.normalIndex = WATER_NORMAL_SHADER_INDEX;
+    // Currently don't support dynamic arrays in shaders
+    if (water.waves.size() != Water::MAX_WAVES)
+    {
+        Logger::LogError("Water: " + water.name + 
+            " Did not have required amount of waves");
+    }
 }
 
 void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
@@ -602,7 +609,8 @@ void Scene::AddWaterToTree(const Water& water,
 {
     AddMeshToTree(water, entry);
     entry.add("Speed", water.speed);
-    entry.add("BumpSpeed", water.bumpSpeed);
+    entry.add("BumpVelocity.<xmlattr>.x", water.bumpVelocity.x);
+    entry.add("BumpVelocity.<xmlattr>.y", water.bumpVelocity.y);
     entry.add("FresnalFactor", water.fresnalFactor);
     entry.add("ReflectionIntensity", water.reflection);
     entry.add("TextureOffset.<xmlattr>.u", water.textureOffset.x);

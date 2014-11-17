@@ -35,8 +35,10 @@ public:
     /**
     * Renders the 3D scene
     * @param scene The elements making up the scene
+    * @param timer The time passed since scene start
     */
-    virtual void Render(const SceneElements& scene) = 0;
+    virtual void Render(const SceneElements& scene,
+                        float timer) = 0;
 
     /**
     * Generates the shader for the engine

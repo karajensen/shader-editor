@@ -394,7 +394,7 @@ bool OpenglEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void OpenglEngine::Render(const SceneElements& scene)
+void OpenglEngine::Render(const SceneElements& scene, float timer)
 {
     auto renderMesh = [&](GlMesh& mesh)
     {

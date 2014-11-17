@@ -164,7 +164,7 @@ void Application::TickApplication()
     }
 
     FadeRenderEngine();
-    GetEngine()->Render(*m_scene);
+    GetEngine()->Render(*m_scene, m_timer->GetTotalTime());
     m_modifier->Tick(*GetEngine(), m_mousePosition, m_mouseDirection);
 
     m_mouseDirection.x = 0;

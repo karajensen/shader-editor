@@ -160,7 +160,7 @@ struct Cache
                                         
     Lockable<int> EngineSelected;       ///< The selected render engine to use
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
-    Lockable<double> Timer;             ///< The time passed in seconds from start
+    Lockable<float> Timer;              ///< The time passed in seconds from start
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<Float2> MousePosition;     ///< The screen position of the mouse
     Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse

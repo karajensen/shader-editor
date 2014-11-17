@@ -6,8 +6,8 @@
 
 namespace
 {
-    const double DT_MAXIMUM = 0.03;   ///< Maximum allowed deltatime
-    const double DT_MINIMUM = 0.01;   ///< Minimum allowed deltatime
+    const float DT_MAXIMUM = 0.03f;   ///< Maximum allowed deltatime
+    const float DT_MINIMUM = 0.01f;   ///< Minimum allowed deltatime
 }
 
 void Timer::StartTimer()
@@ -16,16 +16,16 @@ void Timer::StartTimer()
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&m_timer);
 
-    m_frequency = static_cast<double>(frequency.QuadPart);
-    m_previousTime = static_cast<double>(m_timer.QuadPart);
+    m_frequency = static_cast<float>(frequency.QuadPart);
+    m_previousTime = static_cast<float>(m_timer.QuadPart);
 }
 
 void Timer::UpdateTimer()
 {
     QueryPerformanceCounter(&m_timer);
-    double currentTime = static_cast<double>(m_timer.QuadPart);
+    float currentTime = static_cast<float>(m_timer.QuadPart);
 
-    double deltatime = (currentTime - m_previousTime) / m_frequency;
+    float deltatime = (currentTime - m_previousTime) / m_frequency;
     m_deltaTimeCounter += deltatime;
     if (m_deltaTimeCounter >= 1.0) //one second has passed
     {
@@ -35,6 +35,8 @@ void Timer::UpdateTimer()
     }
 
     m_totalTime += m_deltaTime;
+    m_totalTime = _finite(m_totalTime) ? 0.0f : m_totalTime;
+
     m_deltaTime = max(deltatime, DT_MINIMUM);
     m_deltaTime = min(m_deltaTime, DT_MAXIMUM);
     
@@ -42,14 +44,14 @@ void Timer::UpdateTimer()
     m_previousTime = currentTime;
 }
 
-double Timer::GetTotalTime() const
+float Timer::GetTotalTime() const
 {
     return m_totalTime;
 }
 
 float Timer::GetDeltaTime() const 
 { 
-    return static_cast<float>(m_deltaTime); 
+    return m_deltaTime;
 }
 
 int Timer::GetFPS() const

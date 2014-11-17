@@ -41,8 +41,10 @@ public:
     /**
     * Renders the 3D scene
     * @param scene The elements making up the scene
+    * @param timer The time passed since scene start
     */
-    virtual void Render(const SceneElements& scene) override;
+    virtual void Render(const SceneElements& scene,
+                        float timer) override;
 
     /**
     * Initialises the scene for the engine

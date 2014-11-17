@@ -180,7 +180,8 @@ void SceneModifier::UpdateWater()
         auto& water = m_scene.GetWater(m_selectedWater);
 
         m_cache->Water[WATER_BUMP].SetUpdated(water.bump);
-        m_cache->Water[WATER_BUMP_SPEED].SetUpdated(water.bumpSpeed);
+        m_cache->Water[WATER_BUMP_VELOCITY_X].SetUpdated(water.bumpVelocity.x);
+        m_cache->Water[WATER_BUMP_VELOCITY_Y].SetUpdated(water.bumpVelocity.y);
         m_cache->Water[WATER_SPEED].SetUpdated(water.speed);
         m_cache->Water[WATER_DEEP_R].SetUpdated(water.deepColour.r);
         m_cache->Water[WATER_DEEP_G].SetUpdated(water.deepColour.g);
@@ -201,7 +202,8 @@ void SceneModifier::UpdateWater()
     {
         auto& water = m_scene.GetWater(m_selectedWater);
         water.bump = m_cache->Water[WATER_BUMP].Get();
-        water.bumpSpeed = m_cache->Water[WATER_BUMP_SPEED].Get();
+        water.bumpVelocity.x = m_cache->Water[WATER_BUMP_VELOCITY_X].Get();
+        water.bumpVelocity.y = m_cache->Water[WATER_BUMP_VELOCITY_Y].Get();
         water.speed = m_cache->Water[WATER_SPEED].Get();
         water.deepColour.r = m_cache->Water[WATER_DEEP_R].Get();
         water.deepColour.g = m_cache->Water[WATER_DEEP_G].Get();

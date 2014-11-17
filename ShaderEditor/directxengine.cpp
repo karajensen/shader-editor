@@ -350,7 +350,7 @@ bool DirectxEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void DirectxEngine::Render(const SceneElements& scene)
+void DirectxEngine::Render(const SceneElements& scene, float timer)
 {
     auto renderMesh = [&](DxMesh& mesh)
     {
@@ -361,28 +361,28 @@ void DirectxEngine::Render(const SceneElements& scene)
 
     // Render the scene/glow map
     m_data->sceneTarget.SetActive(m_data->context);
-    for (auto& water : m_data->waters)
-    {
-        UpdateShader(water->GetWater(), scene.Lights());
-        renderMesh(*water);
-    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Lights());
         renderMesh(*mesh);
     }
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Lights(), timer);
+        renderMesh(*water);
+    }
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context);
-    for (auto& water : m_data->waters)
-    {
-        UpdateShader(water->GetWater(), scene.Post());
-        renderMesh(*water);
-    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Post());
         renderMesh(*mesh);
+    }
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Post(), timer);
+        renderMesh(*water);
     }
 
     // Render the post processing
@@ -534,7 +534,8 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
 
 void DirectxEngine::UpdateShader(const Water& water, 
-                                 const PostProcessing& post)
+                                 const PostProcessing& post,
+                                 float timer)
 {
     const int index = water.normalIndex;
     auto& shader = m_data->shaders[index];
@@ -554,7 +555,8 @@ void DirectxEngine::UpdateShader(const Water& water,
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
-                                 const std::vector<Light>& lights)
+                                 const std::vector<Light>& lights,
+                                 float timer)
 {
     const int index = water.shaderIndex;
     auto& shader = m_data->shaders[index];
@@ -563,9 +565,22 @@ void DirectxEngine::UpdateShader(const Water& water,
     {
         SetSelectedShader(index);
         
+        shader->UpdateConstantFloat("timer", &timer, 1);
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->SendConstants(m_data->context);
     }
+
+    shader->UpdateConstantFloat("speed", &water.speed, 1);
+    shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
+    shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+    shader->UpdateConstantFloat("textureOffset", &water.textureOffset.x, 2);
+    shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 3);
+    shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 3);
+    shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
+    shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
+    shader->UpdateConstantFloat("fresnalFactor", &water.fresnalFactor, 1);
+
+    shader->SendConstants(m_data->context);
 }
 
 void DirectxEngine::SetSelectedShader(int index)

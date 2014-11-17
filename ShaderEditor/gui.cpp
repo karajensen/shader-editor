@@ -283,7 +283,7 @@ void Gui::UpdateScene(Tweaker& tweaker)
     const Float2 mousePosition = m_cache->MousePosition.Get();
     const Float2 mouseDirection = m_cache->MouseDirection.Get();
     const float deltaTime = m_cache->DeltaTime.Get();
-    const double timer = m_cache->Timer.Get();
+    const float timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
     tweaker.SetMousePosition(

@@ -3,6 +3,14 @@
 // Reference: http://developer.download.nvidia.com/shaderlibrary/webpages/shader_library.html#Ocean
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct Wave
+{
+    float frequency;
+    float amplitude;
+    float speed;
+    float2 direction;
+};
+
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
@@ -11,11 +19,11 @@ cbuffer SceneVertexBuffer : register(b0)
 
 cbuffer MeshVertexBuffer : register(b1)
 {
-    float meshBump;
-    float2 waveBumpSpeed;
-    float2 waveOffset;
-    float waveFrequency;
-    float waveAmplitude;
+    float speed;
+    float bumpIntensity;
+    float2 bumpVelocity;
+    float2 textureOffset;
+    Wave waves[MAX_WAVES];
 };
 
 cbuffer MeshPixelBuffer : register(b2)
@@ -30,14 +38,6 @@ cbuffer MeshPixelBuffer : register(b2)
 SamplerState Sampler;
 Texture2D DiffuseTexture;
 Texture2D NormalTexture;
-
-struct Wave 
-{
-  float frequency;  // 2*PI / wavelength
-  float phase;      // speed * frequency
-  float amplitude;
-  float2 direction;
-};
 
 struct Attributes
 {
@@ -62,12 +62,6 @@ Attributes VShader(float4 position    : POSITION,
     output.normal = normal;
     output.tangent = tangent;
     output.bitangent = bitangent;
-
-    Wave wave1;
-    Wave wave2;
-
-
-
 
     return output;
 }

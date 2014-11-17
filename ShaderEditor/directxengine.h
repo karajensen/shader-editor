@@ -41,8 +41,10 @@ public:
     /**
     * Renders the 3D scene
     * @param scene The elements making up the scene
+    * @param timer The time passed since scene start
     */
-    virtual void Render(const SceneElements& scene) override;
+    virtual void Render(const SceneElements& scene,
+                        float timer) override;
 
     /**
     * Initialises the scene for the engine
@@ -144,15 +146,21 @@ private:
     * Updates and switches to main shader the water requires
     * @param water The water currently rendering
     * @param lights All lighting in the scene
+    * @param timer The time passed since scene start
     */
-    void UpdateShader(const Water& water, const std::vector<Light>& lights);
+    void UpdateShader(const Water& water, 
+                      const std::vector<Light>& lights,
+                      float timer);
 
     /**
     * Updates and switches to the normal shader the water requires
     * @param water The mesh currently rendering
     * @param post Data for post processing
+    * @param timer The time passed since scene start
     */
-    void UpdateShader(const Water& water, const PostProcessing& post);
+    void UpdateShader(const Water& water, 
+                      const PostProcessing& post,
+                      float timer);
 
     /**
     * Sets the shader at the given index as selected

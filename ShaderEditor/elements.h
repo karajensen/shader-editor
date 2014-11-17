@@ -271,15 +271,17 @@ struct Wave
 */
 struct Water : public Mesh
 {
-    float bumpSpeed = 0.0f;       ///< Speed of the bump movement
-    float speed = 0.0f;           ///< Overally speed of the wave
-    Float2 textureOffset;         ///< Offset of the water texture
-    float fresnalFactor = 0.0f;   ///< Fresnal factor of water
-    Colour shallowColour;         ///< Colour of the shallow water
-    Colour deepColour;            ///< Colour of the deep water
-    Colour reflectionTint;        ///< Colour of the reflection tint
-    float reflection = 0.0f;      ///< Intensity of the reflections
-    std::vector<Wave> waves;      ///< Wave infomation
+    Float2 bumpVelocity;             ///< Velocity of the bump movement
+    float speed = 0.0f;              ///< Overally speed of the wave
+    Float2 textureOffset;            ///< Offset of the water texture
+    float fresnalFactor = 0.0f;      ///< Fresnal factor of water
+    Colour shallowColour;            ///< Colour of the shallow water
+    Colour deepColour;               ///< Colour of the deep water
+    Colour reflectionTint;           ///< Colour of the reflection tint
+    float reflection = 0.0f;         ///< Intensity of the reflections
+
+    static const int MAX_WAVES = 2;  ///< Currently supported maximum waves per water
+    std::vector<Wave> waves;         ///< Wave infomation
 };
 
 /**
