@@ -3,9 +3,6 @@
 - Basic water shader
 - Loading environment map
 - Particles
-
-- Add mesh extras to python script
-- Create 3D scene with baked shadows
 - Optimise shaders
 
 =================================================================

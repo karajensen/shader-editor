@@ -8,6 +8,8 @@
 #include "renderengine.h"
 #include "timer.h"
 
+SceneModifier::~SceneModifier() = default;
+
 SceneModifier::SceneModifier(Scene& scene, 
                              Timer& timer,
                              std::shared_ptr<Cache> cache, 
@@ -16,10 +18,6 @@ SceneModifier::SceneModifier(Scene& scene,
     m_timer(timer),
     m_cache(cache),
     m_selectedMap(selectedMap)
-{
-}
-
-SceneModifier::~SceneModifier()
 {
 }
 

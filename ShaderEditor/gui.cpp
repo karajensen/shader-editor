@@ -8,12 +8,10 @@
 #include "qt/project/tweaker.h"
 #include "qt/include/QtWidgets/qapplication.h"
 
+Gui::~Gui() = default;
+
 Gui::Gui(std::shared_ptr<Cache> cache) :
     m_cache(cache)
-{
-}
-
-Gui::~Gui()
 {
 }
 

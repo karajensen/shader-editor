@@ -25,16 +25,14 @@ namespace
     const float FADE_AMOUNT = 0.02f;       ///< Speed to fade the engine in/out
 }
 
+Application::~Application() = default;
+
 Application::Application(std::shared_ptr<Cache> cache) :
     m_selectedEngine(SELECTED_ENGINE),
     m_camera(new Camera()),
     m_timer(new Timer()),
     m_scene(new Scene()),
     m_modifier(new SceneModifier(*m_scene, *m_timer, cache, SELECTED_MAP))
-{
-}
-
-Application::~Application()
 {
 }
 
