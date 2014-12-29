@@ -98,6 +98,11 @@ public:
     */
     const std::string& GetName() const;
 
+    /**
+    * Sends the lights to the shader
+    */
+    void SendLights(const std::vector<Light>& lights);
+
 private:
 
     /**

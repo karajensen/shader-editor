@@ -3,30 +3,36 @@
 // Reference: http://developer.download.nvidia.com/shaderlibrary/webpages/shader_library.html#Ocean
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Wave
-{
-    float frequency;
-    float amplitude;
-    float speed;
-    float2 direction;
-};
-
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
+    float3 cameraPosition;
     float timer;
 };
 
-cbuffer MeshVertexBuffer : register(b1)
+cbuffer ScenePixelBuffer : register(b1)
+{
+    float3 lightPosition[MAX_LIGHTS];
+    float3 lightAttenuation[MAX_LIGHTS];
+    float3 lightDiffuse[MAX_LIGHTS];
+    float lightSpecularity[MAX_LIGHTS];
+    float3 lightSpecular[MAX_LIGHTS];
+};
+
+cbuffer MeshVertexBuffer : register(b2)
 {
     float speed;
     float bumpIntensity;
     float2 bumpVelocity;
     float2 textureOffset;
-    Wave waves[MAX_WAVES];
+    float waveFrequency[MAX_WAVES];
+    float waveAmplitude[MAX_WAVES];
+    float waveSpeed[MAX_WAVES];
+    float waveDirectionX[MAX_WAVES];
+    float waveDirectionZ[MAX_WAVES];
 };
 
-cbuffer MeshPixelBuffer : register(b2)
+cbuffer MeshPixelBuffer : register(b3)
 {
     float3 deepColor;
     float3 shallowColor;
@@ -62,7 +68,6 @@ Attributes VShader(float4 position    : POSITION,
     output.normal = normal;
     output.tangent = tangent;
     output.bitangent = bitangent;
-
     return output;
 }
 
@@ -71,14 +76,11 @@ float4 PShader(Attributes input) : SV_TARGET
     float4 colour;
 
     float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
-
     float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
-    float2 bump = bumpIntensity * (normalTex.rg - 0.5);
-    float3 normal = normalize(normalize(input.normal) + bump.x * 
-        normalize(input.tangent) + bump.y * normalize(input.bitangent));
 
-    colour.a = min(0.0, diffuseTex.a);
-    colour.rgb = normalTex.rgb;
+    colour.r = diffuseTex.r;
+    colour.gb = normalTex.gb;
+    colour.rgb *= deepColor;
     
     return colour;
 }

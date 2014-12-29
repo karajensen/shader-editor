@@ -513,16 +513,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
         
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-
-        for (unsigned int i = 0; i < lights.size(); ++i)
-        {
-            const int offset = i*4; // Arrays pack in buffer of float4
-            shader->UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, offset);
-            shader->UpdateConstantFloat("lightAttenuation", &lights[i].attenuation.x, 3, offset);
-            shader->UpdateConstantFloat("lightPosition", &lights[i].position.x, 3, offset);
-            shader->UpdateConstantFloat("lightDiffuse", &lights[i].diffuse.r, 3, offset);
-            shader->UpdateConstantFloat("lightSpecular", &lights[i].specular.r, 3, offset);
-        }
+        shader->SendLights(lights);
     }
 
     shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
@@ -549,9 +540,6 @@ void DirectxEngine::UpdateShader(const Water& water,
         shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
         shader->SendConstants(m_data->context);
     }
-
-    shader->UpdateConstantFloat("meshBump", &water.bump, 1);
-    shader->SendConstants(m_data->context);
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
@@ -567,13 +555,25 @@ void DirectxEngine::UpdateShader(const Water& water,
         
         shader->UpdateConstantFloat("timer", &timer, 1);
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->SendConstants(m_data->context);
+        shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+        shader->SendLights(lights);
     }
 
     shader->UpdateConstantFloat("speed", &water.speed, 1);
     shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
     shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
     shader->UpdateConstantFloat("textureOffset", &water.textureOffset.x, 2);
+
+    for (unsigned int i = 0; i < water.waves.size(); ++i)
+    {
+        const int offset = i*4; // Arrays pack in buffer of float4
+        shader->UpdateConstantFloat("waveFrequency", &water.waves[i].amplitude, 1, offset);
+        shader->UpdateConstantFloat("waveAmplitude", &water.waves[i].amplitude, 1, offset);
+        shader->UpdateConstantFloat("waveSpeed", &water.waves[i].speed, 1, offset);
+        shader->UpdateConstantFloat("waveDirectionX", &water.waves[i].directionX, 1, offset);
+        shader->UpdateConstantFloat("waveDirectionZ", &water.waves[i].directionZ, 1, offset);
+    }
+
     shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 3);
     shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 3);
     shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);

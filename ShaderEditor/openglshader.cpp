@@ -645,3 +645,16 @@ const std::string& GlShader::GetName() const
 {
     return m_shader.name;
 }
+
+void GlShader::SendLights(const std::vector<Light>& lights)
+{
+    for (unsigned int i = 0; i < lights.size(); ++i)
+    {
+        const int offset = i*3; // Arrays pack tightly
+        UpdateUniformArray("lightSpecularity", &lights[i].specularity, 1, i);
+        UpdateUniformArray("lightAttenuation", &lights[i].attenuation.x, 3, offset);
+        UpdateUniformArray("lightPosition", &lights[i].position.x, 3, offset);
+        UpdateUniformArray("lightDiffuse", &lights[i].diffuse.r, 3, offset);
+        UpdateUniformArray("lightSpecular", &lights[i].specular.r, 3, offset);
+    }
+}

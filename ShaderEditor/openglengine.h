@@ -139,8 +139,9 @@ private:
     * Updates and switches to main shader the water requires
     * @param water The water currently rendering
     * @param lights All lighting in the scene
+    * @param timer The time passed since scene start
     */
-    void UpdateShader(const Water& water, const std::vector<Light>& lights);
+    void UpdateShader(const Water& water, const std::vector<Light>& lights, float timer);
 
     /**
     * Updates and switches to the normal shader the water requires

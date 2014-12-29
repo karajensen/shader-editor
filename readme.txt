@@ -1,10 +1,10 @@
 
-- Pass water data to shader
-- Basic water shader
-- Loading environment map
-
+- Create basic water shader
+- Environment map
 - Particles
 - Optimise shaders
+
+- Create 3D scene with baked shadows
 
 =================================================================
 SHADER EDITOR

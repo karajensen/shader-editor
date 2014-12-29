@@ -409,7 +409,7 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
     m_data->sceneTarget.SetActive();
     for (auto& water : m_data->waters)
     {
-        UpdateShader(water->GetWater(), scene.Lights());
+        UpdateShader(water->GetWater(), scene.Lights(), timer);
         renderMesh(*water);
     }
     for (auto& mesh : m_data->meshes)
@@ -566,17 +566,7 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-
-        for (unsigned int i = 0; i < lights.size(); ++i)
-        {
-            const int offset = i*3; // Arrays pack tightly
-            shader->UpdateUniformArray("lightSpecularity", &lights[i].specularity, 1, i);
-            shader->UpdateUniformArray("lightAttenuation", &lights[i].attenuation.x, 3, offset);
-            shader->UpdateUniformArray("lightPosition", &lights[i].position.x, 3, offset);
-            shader->UpdateUniformArray("lightDiffuse", &lights[i].diffuse.r, 3, offset);
-            shader->UpdateUniformArray("lightSpecular", &lights[i].specular.r, 3, offset);
-        }
-
+        shader->SendLights(lights);
         shader->SendUniformArrays();
     }
 
@@ -603,7 +593,8 @@ void OpenglEngine::UpdateShader(const Water& water,
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
-                                const std::vector<Light>& lights)
+                                const std::vector<Light>& lights,
+                                float timer)
 {
     const int index = water.shaderIndex;
     auto& shader = m_data->shaders[index];
@@ -612,8 +603,32 @@ void OpenglEngine::UpdateShader(const Water& water,
     {
         SetSelectedShader(index);
 
+        shader->SendUniformFloat("timer", &timer, 1);
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+        shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+        shader->SendLights(lights);
     }
+
+    shader->SendUniformFloat("speed", &water.speed, 1);
+    shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
+    shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+    shader->SendUniformFloat("textureOffset", &water.textureOffset.x, 2);
+    shader->SendUniformFloat("deepColor", &water.deepColour.r, 3);
+    shader->SendUniformFloat("shallowColor", &water.shallowColour.r, 3);
+    shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
+    shader->SendUniformFloat("reflectionIntensity", &water.reflection, 1);
+    shader->SendUniformFloat("fresnalFactor", &water.fresnalFactor, 1);
+
+    for (unsigned int i = 0; i < water.waves.size(); ++i)
+    {
+        shader->UpdateUniformArray("waveFrequency", &water.waves[i].amplitude, 1, i);
+        shader->UpdateUniformArray("waveAmplitude", &water.waves[i].amplitude, 1, i);
+        shader->UpdateUniformArray("waveSpeed", &water.waves[i].speed, 1, i);
+        shader->UpdateUniformArray("waveDirectionX", &water.waves[i].directionX, 1, i);
+        shader->UpdateUniformArray("waveDirectionZ", &water.waves[i].directionZ, 1, i);
+    }
+
+    shader->SendUniformArrays();
 }
 
 std::string OpenglEngine::GetName() const

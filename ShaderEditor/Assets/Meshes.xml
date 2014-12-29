@@ -55,7 +55,7 @@
     <ReflectionIntensity>1.0</ReflectionIntensity>
     <ReflectionTint r="0.0" g="0.0" b="1.0"></ReflectionTint>
     <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
-    <DeepColour r="0.0" g="0.0" b="1.0"></DeepColour>
+    <DeepColour r="0.04" g="0.04" b="1.0"></DeepColour>
     <TextureOffset u="0.0" v="0.0"></TextureOffset>
     <Diffuse>caustic.bmp</Diffuse>
     <Normal>water_normal.png</Normal>

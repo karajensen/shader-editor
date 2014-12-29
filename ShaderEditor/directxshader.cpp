@@ -654,3 +654,16 @@ const std::string& DxShader::GetName() const
 {
     return m_shader.name;
 }
+
+void DxShader::SendLights(const std::vector<Light>& lights)
+{
+    for (unsigned int i = 0; i < lights.size(); ++i)
+    {
+        const int offset = i*4; // Arrays pack in buffer of float4
+        UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, offset);
+        UpdateConstantFloat("lightAttenuation", &lights[i].attenuation.x, 3, offset);
+        UpdateConstantFloat("lightPosition", &lights[i].position.x, 3, offset);
+        UpdateConstantFloat("lightDiffuse", &lights[i].diffuse.r, 3, offset);
+        UpdateConstantFloat("lightSpecular", &lights[i].specular.r, 3, offset);
+    }
+}

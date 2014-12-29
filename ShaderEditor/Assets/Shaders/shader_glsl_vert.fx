@@ -26,7 +26,6 @@ ifdef: !FLAT
 endif
 
 uniform mat4 viewProjection;
-uniform vec3 lightPosition;
 ifdef: !FLAT|SPECULAR
     uniform vec3 cameraPosition;
 endif

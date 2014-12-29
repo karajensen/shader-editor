@@ -164,8 +164,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     water[WATER_REFLECTION_B].Set("Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);
     water[WATER_REFLECTION].Set("Reflection", 0.01, m_callbacks.SetWater[WATER_REFLECTION]);
     water[WATER_BUMP].Set("Bump", 0.01, m_callbacks.SetWater[WATER_BUMP]);
-    water[WATER_BUMP_VELOCITY_X].Set("Bump Speed X", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_X]);
-    water[WATER_BUMP_VELOCITY_Y].Set("Bump Speed Y", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_Y]);
+    water[WATER_BUMP_VELOCITY_X].Set("Bump Vel X", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_X]);
+    water[WATER_BUMP_VELOCITY_Y].Set("Bump Vel Y", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_Y]);
     water[WATER_SPEED].Set("Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
     water[WATER_OFFSET_U].Set("Offset U", 0.01, m_callbacks.SetWater[WATER_OFFSET_U]);
     water[WATER_OFFSET_V].Set("Offset V", 0.01, m_callbacks.SetWater[WATER_OFFSET_V]);
