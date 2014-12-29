@@ -25,40 +25,40 @@ GlMesh::GlMesh(const std::string& name) :
     m_name(name)
 {
     // Top left corner
-    m_vertices.push_back(-1.0); // x
-    m_vertices.push_back(-1.0);  // y
-    m_vertices.push_back(0.0);  // z
-    m_vertices.push_back(0.0); // u
-    m_vertices.push_back(0.0);  // v
+    m_vertices.emplace_back(-1.0); // x
+    m_vertices.emplace_back(-1.0);  // y
+    m_vertices.emplace_back(0.0);  // z
+    m_vertices.emplace_back(0.0); // u
+    m_vertices.emplace_back(0.0);  // v
 
     // Top right corner
-    m_vertices.push_back(1.0); // x
-    m_vertices.push_back(-1.0); // y
-    m_vertices.push_back(0.0); // z
-    m_vertices.push_back(1.0); // u
-    m_vertices.push_back(0.0); // v
+    m_vertices.emplace_back(1.0); // x
+    m_vertices.emplace_back(-1.0); // y
+    m_vertices.emplace_back(0.0); // z
+    m_vertices.emplace_back(1.0); // u
+    m_vertices.emplace_back(0.0); // v
 
     // Bot right corner
-    m_vertices.push_back(1.0);  // x
-    m_vertices.push_back(1.0); // y
-    m_vertices.push_back(0.0);  // z
-    m_vertices.push_back(1.0);  // u
-    m_vertices.push_back(1.0); // v
+    m_vertices.emplace_back(1.0);  // x
+    m_vertices.emplace_back(1.0); // y
+    m_vertices.emplace_back(0.0);  // z
+    m_vertices.emplace_back(1.0);  // u
+    m_vertices.emplace_back(1.0); // v
 
     // Bot left corner
-    m_vertices.push_back(-1.0); // x
-    m_vertices.push_back(1.0); // y
-    m_vertices.push_back(0.0);  // z
-    m_vertices.push_back(0.0); // u
-    m_vertices.push_back(1.0); // v
+    m_vertices.emplace_back(-1.0); // x
+    m_vertices.emplace_back(1.0); // y
+    m_vertices.emplace_back(0.0);  // z
+    m_vertices.emplace_back(0.0); // u
+    m_vertices.emplace_back(1.0); // v
 
-    m_indices.push_back(0);
-    m_indices.push_back(3);
-    m_indices.push_back(1);
-
-    m_indices.push_back(1);
-    m_indices.push_back(3);
-    m_indices.push_back(2);
+    m_indices.emplace_back(0);
+    m_indices.emplace_back(3);
+    m_indices.emplace_back(1);
+              
+    m_indices.emplace_back(1);
+    m_indices.emplace_back(3);
+    m_indices.emplace_back(2);
 
     m_vertexCount = m_vertices.size();
     m_indexCount = m_indices.size();

@@ -352,7 +352,7 @@ bool DirectxEngine::FadeView(bool in, float amount)
 
 void DirectxEngine::Render(const SceneElements& scene, float timer)
 {
-    auto renderMesh = [&](DxMesh& mesh)
+    auto renderMesh = [this](DxMesh& mesh)
     {
         SetTextures(mesh.GetTextureIDs());
         SetBackfaceCull(mesh.ShouldBackfaceCull());

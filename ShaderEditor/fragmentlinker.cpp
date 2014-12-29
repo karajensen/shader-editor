@@ -247,7 +247,7 @@ bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional,
     boost::erase_head(line, conditional.size());
     boost::split(components, line, boost::is_any_of("|"));
 
-    auto isComponentSuccessful = [&](std::string component)
+    auto isComponentSuccessful = [this](std::string component)
     {
         const bool required = !boost::icontains(component, "!");
         boost::ireplace_first(component, "!", "");

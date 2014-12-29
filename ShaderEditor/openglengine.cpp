@@ -396,7 +396,7 @@ bool OpenglEngine::FadeView(bool in, float amount)
 
 void OpenglEngine::Render(const SceneElements& scene, float timer)
 {
-    auto renderMesh = [&](GlMesh& mesh)
+    auto renderMesh = [this](GlMesh& mesh)
     {
         SetTextures(mesh.GetTextureIDs());
         SetBackfaceCull(mesh.ShouldBackfaceCull());
@@ -677,7 +677,7 @@ void OpenglEngine::SetFade(float value)
 void OpenglEngine::WriteToShader(const std::string& name,
                                  const std::string& text)
 {
-    auto WriteToFile = [&](const std::string& contents, const std::string& filepath)
+    auto WriteToFile = [](const std::string& contents, const std::string& filepath)
     {
         std::ofstream file(filepath.c_str(), std::ios_base::out | std::ios_base::trunc);
         if (!file.is_open())

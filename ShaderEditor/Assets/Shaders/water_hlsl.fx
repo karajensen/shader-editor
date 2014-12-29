@@ -73,7 +73,7 @@ float4 PShader(Attributes input) : SV_TARGET
     float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
 
     float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
-    float2 bump = meshBump * (normalTex.rg - 0.5);
+    float2 bump = bumpIntensity * (normalTex.rg - 0.5);
     float3 normal = normalize(normalize(input.normal) + bump.x * 
         normalize(input.tangent) + bump.y * normalize(input.bitangent));
 

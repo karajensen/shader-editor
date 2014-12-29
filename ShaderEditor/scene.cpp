@@ -58,7 +58,7 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
 {
     bool success = true;
 
-    auto CreateShader = [&](const std::string& name, int index)
+    auto CreateShader = [this, &linker, &success](const std::string& name, int index)
     {
         assert(index == m_shaders.size());
         Shader shader;
@@ -72,7 +72,7 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
         else
         {
             Logger::LogInfo("Shader: " + name + " loaded");
-            m_shaders.emplace_back(shader);
+            m_shaders.push_back(shader);
         }
     };
 
@@ -187,7 +187,7 @@ bool Scene::InitialiseEmitters()
             }
         }
 
-        m_emitters.emplace_back(emitter);
+        m_emitters.push_back(emitter);
     }
 
     Logger::LogInfo("Particles: Successfully initialised");
@@ -207,7 +207,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             InitialiseWater(water, it);
             if (CreateMesh(water))
             {
-                m_water.emplace_back(water);
+                m_water.push_back(water);
             }
         }
         else if (it->first == "Mesh")
@@ -217,7 +217,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             InitialiseMeshShader(mesh, linker, it);
             if (CreateMesh(mesh))
             {
-                m_meshes.emplace_back(mesh);
+                m_meshes.push_back(mesh);
             }
         }
     }
@@ -256,7 +256,7 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
             wave.speed = GetValue<float>(child, "Speed");
             wave.directionX = GetAttribute<float>(child, "Direction", "x");
             wave.directionZ = GetAttribute<float>(child, "Direction", "z");
-            water.waves.emplace_back(wave);
+            water.waves.push_back(wave);
         }
     }
 
@@ -332,7 +332,7 @@ int Scene::GetShaderIndex(FragmentLinker& linker,
 
     // Determine if shader with those components already exists and reuse if so
     auto shaderItr = std::find_if(m_shaders.begin(), m_shaders.end(), 
-        [&](const Shader& shader){ return shader.name == name; });
+        [&name](const Shader& shader){ return shader.name == name; });
         
     if(shaderItr == m_shaders.end())
     {
@@ -572,7 +572,7 @@ void Scene::SaveParticlesToFile()
             entry.add("Texture", m_textures[texture].name);
         }
 
-        entries.emplace_back(entry);
+        entries.push_back(entry);
         tree.add_child("Emitter", entries[entries.size()-1]);
     }
 
@@ -588,7 +588,7 @@ void Scene::SaveMeshesToFile()
     {
         boost::property_tree::ptree entry;
         AddMeshToTree(mesh, entry);
-        entries.emplace_back(entry);
+        entries.push_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
     }
 
@@ -596,7 +596,7 @@ void Scene::SaveMeshesToFile()
     {
         boost::property_tree::ptree entry;
         AddWaterToTree(water, entries, entry);
-        entries.emplace_back(entry);
+        entries.push_back(entry);
         tree.add_child("Water", entries[entries.size()-1]);
     }
 
@@ -633,7 +633,7 @@ void Scene::AddWaterToTree(const Water& water,
         waveEntry.add("Speed", wave.speed);
         waveEntry.add("Direction.<xmlattr>.x", wave.directionX);
         waveEntry.add("Direction.<xmlattr>.z", wave.directionZ);
-        entries.emplace_back(waveEntry);
+        entries.push_back(waveEntry);
         entry.add_child("Wave", entries[entries.size()-1]);
     }
 }
@@ -681,7 +681,7 @@ void Scene::SaveLightsToFile()
         entry.add("AttZ", light.attenuation.z);
         entry.add("Specularity", light.specularity);
         
-        entries.emplace_back(entry);
+        entries.push_back(entry);
         tree.add_child("Light", entries[entries.size()-1]);
     }
     SaveXMLFile(root, tree, "Lights");
