@@ -29,32 +29,32 @@ DxMesh::DxMesh(const std::string& name) :
     m_name(name)
 {
     // Top left corner
-    m_vertices.emplace_back(-1.0); // x
-    m_vertices.emplace_back(1.0);  // y
-    m_vertices.emplace_back(0.0);  // z
-    m_vertices.emplace_back(0.0);  // u
-    m_vertices.emplace_back(0.0);  // v
+    m_vertices.emplace_back(-1.0f); // x
+    m_vertices.emplace_back(1.0f);  // y
+    m_vertices.emplace_back(0.0f);  // z
+    m_vertices.emplace_back(0.0f);  // u
+    m_vertices.emplace_back(0.0f);  // v
 
     // Top right corner
-    m_vertices.emplace_back(1.0); // x
-    m_vertices.emplace_back(1.0); // y
-    m_vertices.emplace_back(0.0); // z
-    m_vertices.emplace_back(1.0); // u
-    m_vertices.emplace_back(0.0); // v
+    m_vertices.emplace_back(1.0f); // x
+    m_vertices.emplace_back(1.0f); // y
+    m_vertices.emplace_back(0.0f); // z
+    m_vertices.emplace_back(1.0f); // u
+    m_vertices.emplace_back(0.0f); // v
 
     // Bot right corner
-    m_vertices.emplace_back(1.0);  // x
-    m_vertices.emplace_back(-1.0); // y
-    m_vertices.emplace_back(0.0);  // z
-    m_vertices.emplace_back(1.0);  // u
-    m_vertices.emplace_back(1.0);  // v
+    m_vertices.emplace_back(1.0f);  // x
+    m_vertices.emplace_back(-1.0f); // y
+    m_vertices.emplace_back(0.0f);  // z
+    m_vertices.emplace_back(1.0f);  // u
+    m_vertices.emplace_back(1.0f);  // v
 
     // Bot left corner
-    m_vertices.emplace_back(-1.0); // x
-    m_vertices.emplace_back(-1.0); // y
-    m_vertices.emplace_back(0.0);  // z
-    m_vertices.emplace_back(0.0);  // u
-    m_vertices.emplace_back(1.0);  // v
+    m_vertices.emplace_back(-1.0f); // x
+    m_vertices.emplace_back(-1.0f); // y
+    m_vertices.emplace_back(0.0f);  // z
+    m_vertices.emplace_back(0.0f);  // u
+    m_vertices.emplace_back(1.0f);  // v
 
     m_indices.emplace_back(0);
     m_indices.emplace_back(3);
