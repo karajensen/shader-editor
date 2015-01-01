@@ -27,6 +27,12 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Light[i].Set(value); };
     }
 
+    for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
+    {
+        callbacks.SetCamera[i] = 
+            [this, i](float value){ m_cache->Camera[i].Set(value); };
+    }
+
     for (int i = 0; i < MESH_ATTRIBUTES; ++i)
     {
         callbacks.SetMesh[i] = 
@@ -90,9 +96,8 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedShader =  [this](int index){ m_cache->ShaderSelected.Set(index); };
     callbacks.SetSelectedEmitter = [this](int index){ m_cache->EmitterSelected.Set(index); };
     callbacks.SetPostMap =         [this](int index){ m_cache->PostMapSelected.Set(index); };
-    callbacks.SaveLights =         [this](){ m_cache->SaveLights.Set(true); };
-    callbacks.SaveMeshes =         [this](){ m_cache->SaveMeshes.Set(true); };
-    callbacks.SaveParticles =      [this](){ m_cache->SaveParticles.Set(true); };
+    callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
+    callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
     callbacks.SavePost =           [this](){ m_cache->SavePost.Set(true); };
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
@@ -278,23 +283,22 @@ void Gui::UpdateScene(Tweaker& tweaker)
         tweaker.SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
     }
 
-    const Float2 mousePosition = m_cache->MousePosition.Get();
-    const Float2 mouseDirection = m_cache->MouseDirection.Get();
     const float deltaTime = m_cache->DeltaTime.Get();
     const float timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
-    tweaker.SetMousePosition(
-        boost::lexical_cast<std::string>(static_cast<int>(mousePosition.x)),
-        boost::lexical_cast<std::string>(static_cast<int>(mousePosition.y)));
-
-    tweaker.SetMouseDirection(
-        boost::lexical_cast<std::string>(mouseDirection.x),
-        boost::lexical_cast<std::string>(mouseDirection.y));
-
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
     tweaker.SetTimer(boost::lexical_cast<std::string>(timer));
     tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
+
+    for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
+    {
+        if (m_cache->Camera[i].RequiresUpdate())
+        {
+            tweaker.SetCamera(static_cast<CameraAttribute>(i), 
+                m_cache->Camera[i].GetUpdated());
+        }
+    }
 }
 
 void Gui::UpdateLight(Tweaker& tweaker)

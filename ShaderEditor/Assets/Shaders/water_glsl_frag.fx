@@ -31,7 +31,6 @@ uniform float lightSpecularity[MAX_LIGHTS];
 
 void main(void)
 {
-    out_Color.r = texture(DiffuseSampler, ex_UVs).r;
-    out_Color.gb = texture(NormalSampler, ex_UVs).gb;
-    out_Color.rgb = deepColor;
+    out_Color.rgb = texture(DiffuseSampler, ex_UVs).rgb;
+    out_Color.a = texture(NormalSampler, ex_UVs).a;
 }

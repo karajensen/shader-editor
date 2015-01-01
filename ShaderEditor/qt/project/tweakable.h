@@ -103,6 +103,20 @@ enum LightAttribute
 };
 
 /**
+* Tweakable camera values
+*/
+enum CameraAttribute
+{
+    CAMERA_POSITION_X,
+    CAMERA_POSITION_Y,
+    CAMERA_POSITION_Z,
+    CAMERA_PITCH,
+    CAMERA_YAW,
+    CAMERA_ROLL,
+    CAMERA_ATTRIBUTES
+};
+
+/**
 * Attributes for the emitter
 */
 enum EmitterAttribute
@@ -158,6 +172,7 @@ struct SignalCallbacks
     FloatSignal SetContrast;       ///< Sets the contrast of the final scene
     FloatSignal SetSaturation;     ///< Sets the saturation of the final scene
     FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
+    FloatSignals SetCamera;        ///< Sets the camera tweakable attributes
     FloatSignals SetLight;         ///< Sets the light tweakable attributes
     FloatSignals SetFog;           ///< Sets the fog tweakable attributes
     FloatSignals SetMesh;          ///< Sets the mesh tweakable attributes
@@ -175,9 +190,8 @@ struct SignalCallbacks
     IntSignal SetSelectedShader;   ///< Sets the selected shader to edit
     IntSignal SetSelectedEmitter;  ///< Sets the selected emitter to edit
     IntSignal SetPostMap;          ///< Sets the selected post map to display
-    VoidSignal SaveLights;         ///< Sends a request to save the lights to xml
-    VoidSignal SaveMeshes;         ///< Sends a request to save the meshes to xml
-    VoidSignal SaveParticles;      ///< Sends a request to save the particles to xml
+    VoidSignal ReloadScene;        ///< Sends a request to reload the scene
+    VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
     VoidSignal SavePost;           ///< Sends a request to save post processing to xml
     StrSignal CompileShader;       ///< Sends a compile request
 
@@ -203,14 +217,16 @@ struct SignalCallbacks
         SetSelectedEmitter(nullptr),
         SetSelectedWave(nullptr),
         SetPostMap(nullptr),
-        SaveLights(nullptr),
-        SaveMeshes(nullptr),
+        ReloadScene(nullptr),
+        SaveScene(nullptr),
         SavePost(nullptr),
-        SaveParticles(nullptr),
         CompileShader(nullptr)
     {
         SetLight.resize(LIGHT_ATTRIBUTES);
         SetLight.assign(LIGHT_ATTRIBUTES, nullptr);
+
+        SetCamera.resize(CAMERA_ATTRIBUTES);
+        SetCamera.assign(CAMERA_ATTRIBUTES, nullptr);
 
         SetFog.resize(FOG_ATTRIBUTES);
         SetFog.assign(FOG_ATTRIBUTES, nullptr);

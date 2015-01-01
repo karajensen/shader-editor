@@ -12,6 +12,16 @@ class Camera
 {
 public:
 
+    enum Component
+    {
+        POSITION_X,
+        POSITION_Y,
+        POSITION_Z,
+        ROTATION_PITCH,
+        ROTATION_YAW,
+        ROTATION_ROLL
+    };
+
     /**
     * Constructor
     */
@@ -28,28 +38,29 @@ public:
     void Reset();
 
     /**
-    * Generates forward movement for the camera
+    * Generates rotation for the camera around the camera position
     * @param isMouseDown Whether the mouse is pressed or not
     * @param mouseDir The direction the mouse has moved
     * @param speed The speed for the movement (negative for reverse)
     */
-    void ForwardMovement(const Float2& mouseDir, bool isMouseDown, float speed);
+    void RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed);
 
     /**
-    * Generates side movement for the camera
-    * @param isMouseDown Whether the mouse is pressed or not
-    * @param mouseDir The direction the mouse has moved
-    * @param speed The speed for the movement (negative for reverse)
+    * @return Whether the mouse has affected the camera this tick
     */
-    void SideMovement(const Float2& mouseDir, bool isMouseDown, float speed);
+    bool HasMouseRotatedCamera() const;
 
     /**
-    * Generates rotation for the camera around the world origin
-    * @param isMouseDown Whether the mouse is pressed or not
-    * @param mouseDir The direction the mouse has moved
-    * @param speed The speed for the movement (negative for reverse)
+    * Sets the given component of the camera
+    * @param component The component to set
+    * @param value The value to set the component to
     */
-    void Rotation(const Float2& mouseDir, bool isMouseDown, float speed);
+    void SetCamera(Component component, float value);
+
+    /**
+    * @return the component of the camera
+    */
+    float GetCamera(Component component) const;
 
     /**
     * @return the camera world matrix
@@ -63,48 +74,11 @@ public:
 
 private:
 
-    /**
-    * Rotate the camera
-    * @param angle The angle to rotate in radians
-    */
-    void Yaw(float angle);
-
-    /**
-    * Rotate the camera
-    * @param angle The angle to rotate in radians
-    */
-    void Pitch(float angle);
-
-    /**
-    * Rotate the camera
-    * @param angle The angle to rotate in radians
-    */
-    void Roll(float angle);
-
-    /**
-    * Translates the camera
-    * @param val The amount to move the camera
-    */
-    void Forward(float val);
-
-    /**
-    * Translates the camera
-    * @param val The amount to move the camera
-    */
-    void Right(float val);
-
-    /**
-    * Translates the camera
-    * @param val The amount to move the camera
-    */
-    void Up(float val);
-
     Matrix m_world;                     ///< World Matrix for the camera
     Float3 m_initialPos;                ///< Camera initial position in world space
-    Float3 m_pos;                       ///< Camera position in world space
+    Float3 m_position;                  ///< Camera position in world space
     Float3 m_target;                    ///< Camera Look target
-    float m_yaw = 0.0f;                 ///< Radian amount of yaw
-    float m_pitch = 0.0f;               ///< Radian amount of pitch
-    float m_roll = 0.0f;                ///< Radian amount of roll
+    Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
+    bool m_mouseRotatedCamera = false;  ///< Whether the mouse has updated the camera this tick
 };

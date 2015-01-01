@@ -19,9 +19,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
 
-    m_saveLights.Initialise(m_ui.saveLights_btn, m_callbacks.SaveLights);
-    m_saveMeshes.Initialise(m_ui.saveMeshes_btn, m_callbacks.SaveMeshes);
-    m_saveParticles.Initialise(m_ui.saveParticles_btn, m_callbacks.SaveParticles);
+    m_reloadScene.Initialise(m_ui.reloadScene_btn, m_callbacks.ReloadScene);
+    m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
@@ -60,6 +59,24 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.waveNumber_value->setMinimum(0.0);
     m_selectedWave.Initialise(1.0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
+
+    m_camera[CAMERA_POSITION_X].Initialise(1.0, m_ui.cameraX_value,
+        m_ui.cameraX_dial, m_callbacks.SetCamera[CAMERA_POSITION_X]);
+
+    m_camera[CAMERA_POSITION_Y].Initialise(1.0, m_ui.cameraY_value,
+        m_ui.cameraY_dial, m_callbacks.SetCamera[CAMERA_POSITION_Y]);
+
+    m_camera[CAMERA_POSITION_Z].Initialise(1.0, m_ui.cameraZ_value,
+        m_ui.cameraZ_dial, m_callbacks.SetCamera[CAMERA_POSITION_Z]);
+
+    m_camera[CAMERA_PITCH].Initialise(0.01, m_ui.cameraPitch_value,
+        m_ui.cameraPitch_dial, m_callbacks.SetCamera[CAMERA_PITCH]);
+
+    m_camera[CAMERA_YAW].Initialise(0.01, m_ui.cameraYaw_value,
+        m_ui.cameraYaw_dial, m_callbacks.SetCamera[CAMERA_YAW]);
+
+    m_camera[CAMERA_ROLL].Initialise(0.01, m_ui.cameraRoll_value,
+        m_ui.cameraRoll_dial, m_callbacks.SetCamera[CAMERA_ROLL]);
 
     m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
@@ -204,24 +221,6 @@ void Tweaker::SetFramesPerSec(const std::string& fps)
     m_ui.fps_text->update();
 }
 
-void Tweaker::SetMousePosition(const std::string& x, const std::string& y)
-{
-    m_ui.mousePosX_text->setText(QString(x.c_str()));
-    m_ui.mousePosX_text->update();
-
-    m_ui.mousePosY_text->setText(QString(y.c_str()));
-    m_ui.mousePosY_text->update();
-}
-
-void Tweaker::SetMouseDirection(const std::string& x, const std::string& y)
-{
-    m_ui.mouseDirX_text->setText(QString(x.c_str()));
-    m_ui.mouseDirX_text->update();
-
-    m_ui.mouseDirY_text->setText(QString(y.c_str()));
-    m_ui.mouseDirY_text->update();
-}
-
 void Tweaker::SetMeshShaderName(const std::string& name)
 {
     m_ui.shader_text->setText(QString(name.c_str()));
@@ -231,6 +230,11 @@ void Tweaker::SetMeshShaderName(const std::string& name)
 void Tweaker::SetFog(FogAttribute attribute, float value)
 {
     m_fog.SetValue(attribute, value);
+}
+
+void Tweaker::SetCamera(CameraAttribute attribute, float value)
+{
+    m_camera[attribute].Set(value);
 }
 
 void Tweaker::SetLight(LightAttribute attribute, float value)

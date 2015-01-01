@@ -540,6 +540,13 @@ std::vector<std::string> Scene::GetShaderNames() const
     return shaders;
 }
 
+void Scene::SaveSceneToFile()
+{
+    SaveParticlesToFile();
+    SaveMeshesToFile();
+    SaveLightsToFile();
+}
+
 void Scene::SaveParticlesToFile()
 {
     boost::property_tree::ptree root, tree;

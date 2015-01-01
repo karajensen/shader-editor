@@ -1,53 +1,49 @@
 <Meshes>
   <Mesh>
-    <Name>Ground.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>SpecularBump</Shader>
-    <Diffuse>caustic.bmp</Diffuse>
-    <Specular>specular.JPG</Specular>
-    <Normal>normal.png</Normal>
-  </Mesh>
-  <Mesh>
-    <Name>Skybox.obj</Name>
+    <Name>mock_skybox.obj</Name>
     <Specularity>1.0</Specularity>
     <Shader>Flat</Shader>
-    <Diffuse>caustic.bmp</Diffuse>
+    <Diffuse>sky.png</Diffuse>
     <BackfaceCulling>0</BackfaceCulling>
   </Mesh>
   <Mesh>
-    <Name>Ref_Lside.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Intensity>0.45</Intensity>
-    <Shader>SpecularGlow</Shader>
-    <Diffuse>caustic.bmp</Diffuse>
-    <Specular>specular.JPG</Specular>
-    <Glow>caustic.bmp</Glow>
-  </Mesh>
-  <Mesh>
-    <Name>Ref_middle.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>SpecularBump</Shader>
-    <Bump>5.0</Bump>
-    <Diffuse>caustic.bmp</Diffuse>
-    <Specular>specular.JPG</Specular>
-    <Normal>normal.png</Normal>
-  </Mesh>
-  <Mesh>
-    <Name>Ref_Rocks.obj</Name>
+    <Name>mock_ground1.obj</Name>
     <Specularity>1.0</Specularity>
     <Shader>Bump</Shader>
-    <Diffuse>caustic.bmp</Diffuse>
-    <Normal>normal.png</Normal>
+    <Diffuse>ground.png</Diffuse>
+    <Normal>bump.png</Normal>
   </Mesh>
   <Mesh>
-    <Name>Ref_Rside.obj</Name>
+    <Name>mock_ground2.obj</Name>
     <Specularity>1.0</Specularity>
-    <Shader>Specular</Shader>
-    <Diffuse>caustic.bmp</Diffuse>
-    <Specular>specular.JPG</Specular>
+    <Shader>Bump</Shader>
+    <Diffuse>ground.png</Diffuse>
+    <Normal>bump.png</Normal>
+  </Mesh>
+  <Mesh>
+    <Name>mock_hill1.obj</Name>
+    <Specularity>1.0</Specularity>
+    <Shader>Bump</Shader>
+    <Diffuse>ground.png</Diffuse>
+    <Normal>bump.png</Normal>
+  </Mesh>
+  <Mesh>
+    <Name>mock_hill2.obj</Name>
+    <Specularity>1.0</Specularity>
+    <Shader>Bump</Shader>
+    <Diffuse>ground.png</Diffuse>
+    <Normal>bump.png</Normal>
+  </Mesh>  
+  <Mesh>
+    <Name>mock_bridge.obj</Name>
+    <Specularity>1.0</Specularity>
+    <Intensity>0.45</Intensity>
+    <Shader>Diffuse</Shader>
+    <Diffuse>bridge.bmp</Diffuse>
+    <BackfaceCulling>0</BackfaceCulling>
   </Mesh>
   <Water>
-    <Name>Ref_water.obj</Name>
+    <Name>mock_water.obj</Name>
     <Bump>1.0</Bump>
     <BumpVelocity x="0.0" y="0.0"></BumpVelocity>
     <Speed>1.0</Speed>
@@ -57,7 +53,7 @@
     <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
     <DeepColour r="0.04" g="0.04" b="1.0"></DeepColour>
     <TextureOffset u="0.0" v="0.0"></TextureOffset>
-    <Diffuse>caustic.bmp</Diffuse>
+    <Diffuse>water.png</Diffuse>
     <Normal>water_normal.png</Normal>
     <!--<Environment>water_environment.dds</Environment>-->
     <Wave>

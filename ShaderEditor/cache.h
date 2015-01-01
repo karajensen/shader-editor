@@ -139,18 +139,16 @@ struct Cache
     Cache() :
         ApplicationRunning(true),
         PageSelected(NO_PAGE),
-        SaveLights(false),
-        SaveMeshes(false),
-        SaveParticles(false),
+        ReloadScene(false),
+        SaveScene(false),
         SavePost(false)
     {
     }
 
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running
     Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui            
-    Lockable<bool> SaveLights;          ///< Request to save the lights to xml
-    Lockable<bool> SaveMeshes;          ///< Request to save the meshes to xml
-    Lockable<bool> SaveParticles;       ///< Request to save the particles to xml
+    Lockable<bool> ReloadScene;         ///< Request to reload the scene
+    Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> SavePost;            ///< Request to save post processing to xml
                                         
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
@@ -162,8 +160,6 @@ struct Cache
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
     Lockable<float> Timer;              ///< The time passed in seconds from start
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
-    Lockable<Float2> MousePosition;     ///< The screen position of the mouse
-    Lockable<Float2> MouseDirection;    ///< The direction normalized of the mouse
                                         
     Lockable<int> LightSelected;        ///< Index of the currently selected light                                           
     Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
@@ -184,6 +180,7 @@ struct Cache
     Lockable<float> DOFDistance;        ///< Distance DOF is active
     Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
 
+    std::array<Lockable<float>, CAMERA_ATTRIBUTES> Camera;      ///< Camera attributes
     std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;        ///< Selected light attributes
     std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;          ///< Selected mesh attributes
     std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes

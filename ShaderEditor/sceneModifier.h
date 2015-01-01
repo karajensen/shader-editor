@@ -9,6 +9,7 @@
 class Scene;
 class RenderEngine;
 class Timer;
+class Camera;
 struct Cache;
 
 /**
@@ -22,11 +23,13 @@ public:
     * Constructor
     * @param scene The scene to modifer
     * @param timer The timer for the scene
+    * @param camera The camera for the scene
     * @param cache Shared data between the gui and application
     * @param selectedMap The initial post map selected
     */
     SceneModifier(Scene& scene, 
                   Timer& timer,
+                  Camera& camera,
                   std::shared_ptr<Cache> cache,
                   int selectedMap);
 
@@ -38,12 +41,8 @@ public:
     /**
     * Ticks the modifier to recieve information from the gui cache
     * @param engine The selected render engine
-    * @param mousePosition The screen position of the mouse
-    * @Param mouseDirection The direction the mouse is moving
     */
-    void Tick(RenderEngine& engine,
-              const Float2& mousePosition, 
-              const Float2& mouseDirection);
+    void Tick(RenderEngine& engine);
 
     /**
     * Sets whether the application should be running
@@ -66,17 +65,24 @@ public:
     * @param engineNames The names of all engines supported
     * @param selectedEngine The engine currently selected
     */
-    void Initialise(const std::vector<std::string>& engineNames,
-                    int selectedEngine);
+    void Initialise(const std::vector<std::string>& engineNames, int selectedEngine);
+
+    /**
+    * @return whether the scene requires a reload
+    */
+    bool RequiresReload();
 
 private:
 
     /**
     * Updates the scene shared cache between the gui and application
-    * @param mousePosition The screen position of the mouse
-    * @Param mouseDirection The direction the mouse is moving
     */
-    void UpdateScene(const Float2& mousePosition, const Float2& mouseDirection);
+    void UpdateScene();
+
+    /**
+    * Updates the scene camera from the shared cache
+    */
+    void UpdateCamera();
 
     /**
     * Updates the light shared cache between the gui and application
@@ -119,6 +125,7 @@ private:
 
     Scene& m_scene;                   ///< The scene object to manipulate
     Timer& m_timer;                   ///< The timer for the scene
+    Camera& m_camera;                 ///< The camera for the scene
     int m_selectedLight = NO_INDEX;   ///< Current light selected
     int m_selectedMesh = NO_INDEX;    ///< Current mesh selected
     int m_selectedWater = NO_INDEX;   ///< Current water selected

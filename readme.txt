@@ -3,8 +3,7 @@
 - Environment map
 - Particles
 - Optimise shaders
-
-- Create 3D scene with baked shadows
+- Create 3D scene
 
 =================================================================
 SHADER EDITOR

@@ -78,9 +78,8 @@ float4 PShader(Attributes input) : SV_TARGET
     float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
     float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
 
-    colour.r = diffuseTex.r;
-    colour.gb = normalTex.gb;
-    colour.rgb *= deepColor;
+    colour.rgb = diffuseTex.rgb;
+    colour.a = normalTex.a;
     
     return colour;
 }

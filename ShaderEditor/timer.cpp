@@ -35,7 +35,7 @@ void Timer::UpdateTimer()
     }
 
     m_totalTime += m_deltaTime;
-    m_totalTime = _finite(m_totalTime) ? 0.0f : m_totalTime;
+    m_totalTime = _finite(m_totalTime) ? m_totalTime : 0.0f;
 
     m_deltaTime = max(deltatime, DT_MINIMUM);
     m_deltaTime = min(m_deltaTime, DT_MAXIMUM);

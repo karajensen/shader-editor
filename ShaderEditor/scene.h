@@ -154,6 +154,18 @@ public:
     int GetLightCount() const;
 
     /**
+    * Outputs post processing to an xml file
+    */
+    void SavePostProcessingtoFile();
+
+    /**
+    * Outputs the scene to an xml file
+    */
+    void SaveSceneToFile();
+
+private:
+
+    /**
     * Outputs the meshes and emitters to an xml file
     */
     void SaveMeshesToFile();
@@ -164,16 +176,9 @@ public:
     void SaveLightsToFile();
 
     /**
-    * Outputs post processing to an xml file
-    */
-    void SavePostProcessingtoFile();
-
-    /**
     * Outputs particle emitters to an xml file
     */
     void SaveParticlesToFile();
-
-private:
 
     /**
     * Saves the tree to a file

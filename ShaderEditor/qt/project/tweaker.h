@@ -63,20 +63,6 @@ public:
     void SetFramesPerSec(const std::string& fps);
 
     /**
-    * Sets the position for the mouse
-    * @param x The x screen position of the mouse
-    * @param y The y screen position of the mouse
-    */
-    void SetMousePosition(const std::string& x, const std::string& y);
-
-    /**
-    * Sets the direction for the mouse
-    * @param x The x direction normalized of the mouse
-    * @param y The y direction normalized of the mouse
-    */
-    void SetMouseDirection(const std::string& x, const std::string& y);
-
-    /**
     * Sets the near value for the camera
     * @param value The near value for the camera
     */
@@ -143,6 +129,13 @@ public:
     * @param value The value to set for the attribute
     */
     void SetLight(LightAttribute attribute, float value);
+
+    /**
+    * Sets the value for an attribute of the camera
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetCamera(CameraAttribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a mesh
@@ -319,9 +312,8 @@ private:
     TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_particleAmount;     ///< The amount of particles to spawn
 
-    TweakableButton m_saveMeshes;        ///< Button to save all meshes to xml
-    TweakableButton m_saveParticles;     ///< Button to save all particles to xml
-    TweakableButton m_saveLights;        ///< Button to save all lights to xml
+    TweakableButton m_reloadScene;       ///< Button to reload the application
+    TweakableButton m_saveScene;         ///< Button to save all scene to xml
     TweakableButton m_savePost;          ///< Button to save all post processing to xml
 
     TweakableBox m_postMap;              ///< Combo box for selecting the post map
@@ -342,6 +334,7 @@ private:
     TweakableBoxedValue m_particles;     ///< Tweakable values for particle attributes
 
     std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light
+    std::array<TweakableValue, CAMERA_ATTRIBUTES> m_camera; ///< Tweakable values for the camera
 
     Ui::Tweaker m_ui;                    ///< User interface object
     SignalCallbacks m_callbacks;         ///< Callbacks to update the cache

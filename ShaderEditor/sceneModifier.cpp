@@ -5,6 +5,7 @@
 #include "sceneModifier.h"
 #include "scene.h"
 #include "cache.h"
+#include "camera.h"
 #include "renderengine.h"
 #include "timer.h"
 
@@ -12,24 +13,24 @@ SceneModifier::~SceneModifier() = default;
 
 SceneModifier::SceneModifier(Scene& scene, 
                              Timer& timer,
+                             Camera& camera,
                              std::shared_ptr<Cache> cache, 
                              int selectedMap) :
     m_scene(scene),
     m_timer(timer),
     m_cache(cache),
+    m_camera(camera),
     m_selectedMap(selectedMap)
 {
 }
 
-void SceneModifier::Tick(RenderEngine& engine, 
-                         const Float2& mousePosition, 
-                         const Float2& mouseDirection)
+void SceneModifier::Tick(RenderEngine& engine)
 {
     UpdateShader(engine);
     switch (m_cache->PageSelected.Get())
     {
     case SCENE:
-        UpdateScene(mousePosition, mouseDirection);
+        UpdateScene();
         break;
     case LIGHT:
         UpdateLight();
@@ -103,9 +104,20 @@ void SceneModifier::SetSelectedEngine(int engine)
     m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 }
 
-void SceneModifier::UpdateScene(const Float2& mousePosition, 
-                                const Float2& mouseDirection)
+bool SceneModifier::RequiresReload()
 {
+    if (m_cache->ReloadScene.Get())
+    {
+        return true;
+        m_cache->ReloadScene.Set(false);
+    }
+    return false;
+}
+
+void SceneModifier::UpdateScene()
+{
+    UpdateCamera();
+
     const int selectedMap = m_cache->PostMapSelected.Get();
     if (selectedMap != m_selectedMap)
     {
@@ -113,35 +125,50 @@ void SceneModifier::UpdateScene(const Float2& mousePosition,
         m_scene.SetPostMap(selectedMap);
     }
 
-    m_cache->MousePosition.Set(mousePosition);
-    m_cache->MouseDirection.Set(mouseDirection);
-
     m_cache->FramesPerSec.Set(m_timer.GetFPS());
     m_cache->DeltaTime.Set(m_timer.GetDeltaTime());
     m_cache->Timer.Set(m_timer.GetTotalTime());
 
-    if (m_cache->SaveLights.Get())
+    if (m_cache->SaveScene.Get())
     {
-        m_scene.SaveLightsToFile();
-        m_cache->SaveLights.Set(false);
-    }
-
-    if (m_cache->SaveMeshes.Get())
-    {
-        m_scene.SaveMeshesToFile();
-        m_cache->SaveMeshes.Set(false);
-    }
-
-    if (m_cache->SaveParticles.Get())
-    {
-        m_scene.SaveParticlesToFile();
-        m_cache->SaveParticles.Set(false);
+        m_scene.SaveSceneToFile();
+        m_cache->SaveScene.Set(false);
     }
 
     if (m_cache->SavePost.Get())
     {
         m_scene.SavePostProcessingtoFile();
         m_cache->SavePost.Set(false);
+    }
+}
+
+void SceneModifier::UpdateCamera()
+{
+    if (m_camera.HasMouseRotatedCamera())
+    {
+        m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.GetCamera(Camera::POSITION_X));
+        m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.GetCamera(Camera::POSITION_Y));
+        m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(m_camera.GetCamera(Camera::POSITION_Z));
+        m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.GetCamera(Camera::ROTATION_PITCH));
+        m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.GetCamera(Camera::ROTATION_YAW));
+        m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.GetCamera(Camera::ROTATION_ROLL));
+    }
+    else
+    {
+        auto updateCamera = [this](CameraAttribute attribute, Camera::Component component)
+        {
+            if (!m_cache->Camera[attribute].RequiresUpdate())
+            {
+                m_camera.SetCamera(component, m_cache->Camera[attribute].Get());
+            }
+        };
+
+        updateCamera(CAMERA_POSITION_X, Camera::POSITION_X);
+        updateCamera(CAMERA_POSITION_Y, Camera::POSITION_Y);
+        updateCamera(CAMERA_POSITION_Z, Camera::POSITION_Z);
+        updateCamera(CAMERA_PITCH, Camera::ROTATION_PITCH);
+        updateCamera(CAMERA_ROLL, Camera::ROTATION_ROLL);
+        updateCamera(CAMERA_YAW, Camera::ROTATION_YAW);
     }
 }
 
@@ -402,4 +429,11 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
     m_cache->MaxColour[RED].SetUpdated(post.maximumColour.r);
     m_cache->MaxColour[GREEN].SetUpdated(post.maximumColour.g);
     m_cache->MaxColour[BLUE].SetUpdated(post.maximumColour.b);
+
+    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.GetCamera(Camera::POSITION_X));
+    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.GetCamera(Camera::POSITION_Y));
+    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(m_camera.GetCamera(Camera::POSITION_Z));
+    m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.GetCamera(Camera::ROTATION_PITCH));
+    m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.GetCamera(Camera::ROTATION_YAW));
+    m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.GetCamera(Camera::ROTATION_ROLL));
 }

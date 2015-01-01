@@ -58,6 +58,12 @@ private:
     void SwitchRenderEngine(int index);
 
     /**
+    * Forces a direct switch to a render engine without fade
+    * @param index The index of the engine to switch to
+    */
+    void ForceRenderEngine(int index);
+
+    /**
     * Updates and renders the application
     */
     void TickApplication();

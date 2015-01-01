@@ -688,13 +688,7 @@ border-radius: 4px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="mousePosX">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QFrame" name="cameraX">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -712,15 +706,18 @@ border-radius: 4px;</string>
 border-radius: 4px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+           <enum>QFrame::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Plain</enum>
           </property>
-          <widget class="QLabel" name="mousePosX_lbl">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraX_lbl">
            <property name="geometry">
             <rect>
-             <x>3</x>
+             <x>2</x>
              <y>2</y>
              <width>100</width>
              <height>30</height>
@@ -750,70 +747,112 @@ border-radius: 4px;</string>
              <bold>false</bold>
             </font>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
            <property name="text">
-            <string>Mouse Pos X</string>
+            <string>Camera X</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
            </property>
           </widget>
-          <widget class="QLabel" name="mousePosX_text">
+          <widget class="QDoubleSpinBox" name="cameraX_value">
            <property name="geometry">
             <rect>
-             <x>106</x>
+             <x>104</x>
              <y>5</y>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </rect>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-</string>
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+           <property name="frame">
+            <bool>false</bool>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-           <property name="margin">
+           <property name="decimals">
             <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraX_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
            </property>
           </widget>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="mousePosY">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QFrame" name="cameraY">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -831,15 +870,18 @@ border-radius: 4px;</string>
 border-radius: 4px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+           <enum>QFrame::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Plain</enum>
           </property>
-          <widget class="QLabel" name="mousePosY_lbl">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraY_lbl">
            <property name="geometry">
             <rect>
-             <x>3</x>
+             <x>2</x>
              <y>2</y>
              <width>100</width>
              <height>30</height>
@@ -869,70 +911,112 @@ border-radius: 4px;</string>
              <bold>false</bold>
             </font>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
            <property name="text">
-            <string>Mouse Pos Y</string>
+            <string>Camera Y</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
            </property>
           </widget>
-          <widget class="QLabel" name="mousePosY_text">
+          <widget class="QDoubleSpinBox" name="cameraY_value">
            <property name="geometry">
             <rect>
-             <x>106</x>
+             <x>104</x>
              <y>5</y>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </rect>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-</string>
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+           <property name="frame">
+            <bool>false</bool>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-           <property name="margin">
+           <property name="decimals">
             <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraY_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
            </property>
           </widget>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="mouseDirX">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QFrame" name="cameraZ">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -950,15 +1034,18 @@ border-radius: 4px;</string>
 border-radius: 4px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+           <enum>QFrame::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Plain</enum>
           </property>
-          <widget class="QLabel" name="mouseDirX_lbl">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraZ_lbl">
            <property name="geometry">
             <rect>
-             <x>3</x>
+             <x>2</x>
              <y>2</y>
              <width>100</width>
              <height>30</height>
@@ -988,70 +1075,112 @@ border-radius: 4px;</string>
              <bold>false</bold>
             </font>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
            <property name="text">
-            <string>Mouse Dir X</string>
+            <string>Camera Z</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
            </property>
           </widget>
-          <widget class="QLabel" name="mouseDirX_text">
+          <widget class="QDoubleSpinBox" name="cameraZ_value">
            <property name="geometry">
             <rect>
-             <x>106</x>
+             <x>104</x>
              <y>5</y>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </rect>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-</string>
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+           <property name="frame">
+            <bool>false</bool>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-           <property name="margin">
+           <property name="decimals">
             <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraZ_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
            </property>
           </widget>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="mouseDirY">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
+         <widget class="QFrame" name="cameraPitch">
           <property name="minimumSize">
            <size>
             <width>225</width>
@@ -1069,15 +1198,18 @@ border-radius: 4px;</string>
 border-radius: 4px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+           <enum>QFrame::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Plain</enum>
           </property>
-          <widget class="QLabel" name="mouseDirY_lbl">
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraPitch_lbl">
            <property name="geometry">
             <rect>
-             <x>3</x>
+             <x>2</x>
              <y>2</y>
              <width>100</width>
              <height>30</height>
@@ -1107,64 +1239,440 @@ border-radius: 4px;</string>
              <bold>false</bold>
             </font>
            </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
            <property name="text">
-            <string>Mouse Dir Y</string>
+            <string>Camera Pitch</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
            </property>
           </widget>
-          <widget class="QLabel" name="mouseDirY_text">
+          <widget class="QDoubleSpinBox" name="cameraPitch_value">
            <property name="geometry">
             <rect>
-             <x>106</x>
+             <x>104</x>
              <y>5</y>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </rect>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>115</width>
+             <width>86</width>
              <height>25</height>
             </size>
            </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-</string>
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
+           <property name="frame">
+            <bool>false</bool>
            </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
-           <property name="lineWidth">
-            <number>0</number>
-           </property>
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-           <property name="margin">
+           <property name="decimals">
             <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraPitch_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
            </property>
           </widget>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="saveMeshes">
+         <widget class="QFrame" name="cameraYaw">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraYaw_lbl">
+           <property name="geometry">
+            <rect>
+             <x>2</x>
+             <y>2</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="text">
+            <string>Camera Yaw</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="cameraYaw_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraYaw_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="cameraRoll">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="cameraRoll_lbl">
+           <property name="geometry">
+            <rect>
+             <x>2</x>
+             <y>2</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="text">
+            <string>Camera Roll</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="cameraRoll_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-9999.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>9999.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="cameraRoll_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="reloadScene">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1193,7 +1701,7 @@ border-radius: 4px;</string>
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <widget class="QPushButton" name="saveMeshes_btn">
+          <widget class="QPushButton" name="reloadScene_btn">
            <property name="geometry">
             <rect>
              <x>5</x>
@@ -1212,7 +1720,7 @@ border-style: solid;
 border-width: 2px;</string>
            </property>
            <property name="text">
-            <string>Save Meshes to File</string>
+            <string>Reload Scene</string>
            </property>
            <property name="default">
             <bool>false</bool>
@@ -1221,7 +1729,7 @@ border-width: 2px;</string>
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="saveParticles">
+         <widget class="QFrame" name="saveScene">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -1250,7 +1758,7 @@ border-radius: 4px;</string>
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <widget class="QPushButton" name="saveParticles_btn">
+          <widget class="QPushButton" name="saveScene_btn">
            <property name="geometry">
             <rect>
              <x>5</x>
@@ -1269,64 +1777,10 @@ border-style: solid;
 border-width: 2px;</string>
            </property>
            <property name="text">
-            <string>Save Particles To File</string>
+            <string>Save Scene to File</string>
            </property>
            <property name="default">
             <bool>false</bool>
-           </property>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="saveLights">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>225</width>
-            <height>35</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(245, 245, 245);
-border-radius: 4px;</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QPushButton" name="saveLights_btn">
-           <property name="geometry">
-            <rect>
-             <x>5</x>
-             <y>4</y>
-             <width>216</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(255, 255, 255);
-border-left-color: rgb(255, 255, 255);
-border-bottom-color: rgb(180, 180, 180);
-border-right-color: rgb(180, 180, 180);
-border-style: solid;
-border-width: 2px;</string>
-           </property>
-           <property name="text">
-            <string>Save Lights to File</string>
            </property>
           </widget>
          </widget>

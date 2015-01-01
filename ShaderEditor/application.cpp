@@ -15,13 +15,13 @@
 
 #define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::FINAL_MAP
+#define SELECTED_MAP PostProcessing::SCENE_MAP
 
 namespace
 {
-    const float CAMERA_MOVE_SPEED = 50.0f; ///< Speed the camera will translate
+    const float CAMERA_MOVE_SPEED = 75.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
-    const float CAMERA_SIDE_SPEED = 30.0f; ///< Speed the camera will strafe
+    const float CAMERA_SIDE_SPEED = 50.0f; ///< Speed the camera will strafe
     const float FADE_AMOUNT = 0.02f;       ///< Speed to fade the engine in/out
 }
 
@@ -32,7 +32,7 @@ Application::Application(std::shared_ptr<Cache> cache) :
     m_camera(new Camera()),
     m_timer(new Timer()),
     m_scene(new Scene()),
-    m_modifier(new SceneModifier(*m_scene, *m_timer, cache, SELECTED_MAP))
+    m_modifier(new SceneModifier(*m_scene, *m_timer, *m_camera, cache, SELECTED_MAP))
 {
 }
 
@@ -78,10 +78,7 @@ void Application::HandleKeyPress(const WPARAM& keypress)
         {
             index = 0;
         }
-
-        m_modifier->SetSelectedEngine(index);
-        SwitchRenderEngine(index);
-        m_engines[index]->SetFade(1.0f);
+        ForceRenderEngine(index);
     }
 }
 
@@ -135,18 +132,8 @@ void Application::HandleMouseMovement(const MSG& msg)
     // Adjust camera according to the movement
     if(IsKeyDown(VK_MENU))
     {
-        m_camera->Rotation(m_mouseDirection, m_mousePressed,
+        m_camera->RotateCamera(m_mouseDirection, m_mousePressed,
             m_timer->GetDeltaTime()*CAMERA_ROT_SPEED);
-    }
-    else if(IsKeyDown(VK_SHIFT))
-    {
-        m_camera->ForwardMovement(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_MOVE_SPEED);
-    }
-    else if(IsKeyDown(VK_CONTROL))
-    {
-        m_camera->SideMovement(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_SIDE_SPEED);
     }
 
     m_mousePosition.x = x;
@@ -155,6 +142,12 @@ void Application::HandleMouseMovement(const MSG& msg)
 
 void Application::TickApplication()
 {
+    m_modifier->Tick(*GetEngine());
+    if (m_modifier->RequiresReload())
+    {
+        ForceRenderEngine(m_selectedEngine);
+    }
+
     if(m_camera->RequiresUpdate())
     {
         m_camera->Update();
@@ -163,7 +156,6 @@ void Application::TickApplication()
 
     FadeRenderEngine();
     GetEngine()->Render(*m_scene, m_timer->GetTotalTime());
-    m_modifier->Tick(*GetEngine(), m_mousePosition, m_mouseDirection);
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
@@ -263,4 +255,11 @@ void Application::SwitchRenderEngine(int index)
 
     GetEngine()->UpdateView(m_camera->GetWorld());
     GetEngine()->SetFade(0.0f);
+}
+
+void Application::ForceRenderEngine(int index)
+{
+    m_modifier->SetSelectedEngine(index);
+    SwitchRenderEngine(index);
+    m_engines[index]->SetFade(1.0f);
 }

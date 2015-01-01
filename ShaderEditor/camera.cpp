@@ -9,96 +9,98 @@ Camera::Camera()
     Reset();
 }
 
-void Camera::ForwardMovement(const Float2& mouseDir, bool isMouseDown, float speed)
+void Camera::SetCamera(Component component, float value)
 {
-    if(isMouseDown)
+    m_cameraNeedsUpdate = true;
+    switch (component)
     {
-        Forward(speed*mouseDir.y);
-        m_cameraNeedsUpdate = true;
+    case POSITION_X:
+        m_position.x = value;
+        break;
+    case POSITION_Y:
+        m_position.y = value;
+        break;
+    case POSITION_Z:
+        m_position.z = value;
+        break;
+    case ROTATION_PITCH:
+        m_rotation.x = value;
+        break;
+    case ROTATION_YAW:
+        m_rotation.y = value;
+        break;
+    case ROTATION_ROLL:
+        m_rotation.z = value;
+        break;
     }
 }
 
-void Camera::SideMovement(const Float2& mouseDir, bool isMouseDown, float speed)
+float Camera::GetCamera(Component component) const
 {
-    if(isMouseDown)
+    switch (component)
     {
-        Up(-speed*mouseDir.y);
-        Right(speed*mouseDir.x);
-        m_cameraNeedsUpdate = true;
+    case POSITION_X:
+        return m_position.x;
+    case POSITION_Y:
+        return m_position.y;
+    case POSITION_Z:
+        return m_position.z;
+    case ROTATION_PITCH:
+        return m_rotation.x;
+    case ROTATION_YAW:
+        return m_rotation.y;
+    case ROTATION_ROLL:
+        return m_rotation.z;
     }
+    return 0.0f;
 }
 
-void Camera::Rotation(const Float2& mouseDir, bool isMouseDown, float speed)
+bool Camera::HasMouseRotatedCamera() const
+{
+    return m_mouseRotatedCamera;
+}
+
+void Camera::RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed)
 {
     if(isMouseDown)
     {
         if(mouseDir.x != 0.0f)
         {
-            Yaw(mouseDir.x < 0.0f ? speed : -speed);
+            m_rotation.y += mouseDir.x < 0.0f ? speed : -speed;
             m_cameraNeedsUpdate = true;
+            m_mouseRotatedCamera = true;
         }
 
         if(mouseDir.y != 0.0f)
         {
-            Pitch(mouseDir.y < 0.0f ? speed : -speed);
+            m_rotation.x += mouseDir.y < 0.0f ? speed : -speed;
             m_cameraNeedsUpdate = true;
+            m_mouseRotatedCamera = true;
         }
     }
 }
 
-void Camera::Forward(float val)
-{
-    m_pos.z += val;
-}
-
-void Camera::Right(float val)
-{
-    m_pos.x += val;
-}
-
-void Camera::Up(float val)
-{
-    m_pos.y += val;
-}
-
-void Camera::Yaw(float angle)
-{
-    m_yaw += angle;
-}
-
-void Camera::Pitch(float angle)
-{
-    m_pitch += angle;
-}
-
-void Camera::Roll(float angle)
-{
-    m_roll += angle;
-}
-
 void Camera::Reset()
 {
+    m_mouseRotatedCamera = false;
     m_cameraNeedsUpdate = true;
-    m_initialPos.x = 3.0f;
-    m_initialPos.y = 52.0f;
-    m_initialPos.z = -12.0f;
-    m_pos.x = 3.0f;
-    m_pos.y = 52.0f;
-    m_pos.z = -12.0f;
-    m_yaw = -2.0f;
-    m_pitch = 0.35f;
-    m_roll = 0.0f;
+    m_initialPos.x = 527.0f;
+    m_initialPos.y = 1.0f;
+    m_initialPos.z = -6.0f;
+    m_position = m_initialPos;
+    m_rotation.y = 5.0f; 
 }
 
 void Camera::Update()
 {
     m_cameraNeedsUpdate = false;
+    m_mouseRotatedCamera = false;
 
     m_world.MakeIdentity();
-    m_world.SetPosition(m_pos);
+    m_world.SetPosition(m_position);
 
-    Matrix pitch = Matrix::CreateRotateX(m_pitch);
-    Matrix yaw = Matrix::CreateRotateY(m_yaw);
-    Matrix roll = Matrix::CreateRotateZ(m_roll);
+    Matrix pitch = Matrix::CreateRotateX(m_rotation.x);
+    Matrix yaw = Matrix::CreateRotateY(m_rotation.y);
+    Matrix roll = Matrix::CreateRotateZ(m_rotation.z);
     m_world *= roll * yaw * pitch;
 }
