@@ -108,8 +108,8 @@ bool SceneModifier::RequiresReload()
 {
     if (m_cache->ReloadScene.Get())
     {
-        return true;
         m_cache->ReloadScene.Set(false);
+        return true;
     }
     return false;
 }
@@ -219,8 +219,8 @@ void SceneModifier::UpdateWater()
         m_cache->Water[WATER_REFLECTION_B].SetUpdated(water.reflectionTint.b);
         m_cache->Water[WATER_REFLECTION].SetUpdated(water.reflection);
         m_cache->Water[WATER_FRESNAL_FACTOR].SetUpdated(water.fresnalFactor);
-        m_cache->Water[WATER_OFFSET_U].SetUpdated(water.textureOffset.x);
-        m_cache->Water[WATER_OFFSET_V].SetUpdated(water.textureOffset.y);
+        m_cache->Water[WATER_SCALE_U].SetUpdated(water.uvScale.x);
+        m_cache->Water[WATER_SCALE_V].SetUpdated(water.uvScale.y);
         m_cache->WaveAmount.SetUpdated(static_cast<int>(water.waves.size()));
     }
     else if(m_selectedWater >= 0 && m_selectedWater < m_scene.GetWaterCount())
@@ -241,8 +241,8 @@ void SceneModifier::UpdateWater()
         water.reflectionTint.b = m_cache->Water[WATER_REFLECTION_B].Get();
         water.reflection = m_cache->Water[WATER_REFLECTION].Get();
         water.fresnalFactor = m_cache->Water[WATER_FRESNAL_FACTOR].Get();
-        water.textureOffset.x = m_cache->Water[WATER_OFFSET_U].Get();
-        water.textureOffset.y = m_cache->Water[WATER_OFFSET_V].Get();
+        water.uvScale.x = m_cache->Water[WATER_SCALE_U].Get();
+        water.uvScale.y = m_cache->Water[WATER_SCALE_V].Get();
     }
 
     if (m_selectedWater != NO_INDEX)
@@ -257,7 +257,7 @@ void SceneModifier::UpdateWater()
 
             m_cache->Wave[WAVE_AMPLITUDE].SetUpdated(wave.amplitude);
             m_cache->Wave[WAVE_FREQUENCY].SetUpdated(wave.frequency);
-            m_cache->Wave[WAVE_SPEED].SetUpdated(wave.speed);
+            m_cache->Wave[WAVE_PHASE].SetUpdated(wave.phase);
             m_cache->Wave[WAVE_DIRECTION_X].SetUpdated(wave.directionX);
             m_cache->Wave[WAVE_DIRECTION_Z].SetUpdated(wave.directionZ);
         }
@@ -266,7 +266,7 @@ void SceneModifier::UpdateWater()
             auto& wave = water.waves[m_selectedWave];
             wave.amplitude = m_cache->Wave[WAVE_AMPLITUDE].Get();
             wave.frequency = m_cache->Wave[WAVE_FREQUENCY].Get();
-            wave.speed = m_cache->Wave[WAVE_SPEED].Get();
+            wave.phase = m_cache->Wave[WAVE_PHASE].Get();
             wave.directionX = m_cache->Wave[WAVE_DIRECTION_X].Get();
             wave.directionZ = m_cache->Wave[WAVE_DIRECTION_Z].Get();
         }

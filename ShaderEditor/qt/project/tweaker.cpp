@@ -184,15 +184,15 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     water[WATER_BUMP_VELOCITY_X].Set("Bump Vel X", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_X]);
     water[WATER_BUMP_VELOCITY_Y].Set("Bump Vel Y", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_Y]);
     water[WATER_SPEED].Set("Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
-    water[WATER_OFFSET_U].Set("Offset U", 0.01, m_callbacks.SetWater[WATER_OFFSET_U]);
-    water[WATER_OFFSET_V].Set("Offset V", 0.01, m_callbacks.SetWater[WATER_OFFSET_V]);
+    water[WATER_SCALE_U].Set("Scale U", 0.01, m_callbacks.SetWater[WATER_SCALE_U]);
+    water[WATER_SCALE_V].Set("Scale V", 0.01, m_callbacks.SetWater[WATER_SCALE_V]);
     water[WATER_FRESNAL_FACTOR].Set("Fresnal", 0.01, m_callbacks.SetWater[WATER_FRESNAL_FACTOR]);
     m_water.Initialise(m_ui.water_box, m_ui.water_value, m_ui.water_dial, water);
 
     std::vector<ComboEntry> wave(WAVE_ATTRIBUTES);
     wave[WAVE_AMPLITUDE].Set("Amplitude", 0.01, m_callbacks.SetWave[WAVE_AMPLITUDE]);
     wave[WAVE_FREQUENCY].Set("Frequency", 0.01, m_callbacks.SetWave[WAVE_FREQUENCY]);
-    wave[WAVE_SPEED].Set("Speed", 0.01, m_callbacks.SetWave[WAVE_SPEED]);
+    wave[WAVE_PHASE].Set("Phase", 0.01, m_callbacks.SetWave[WAVE_PHASE]);
     wave[WAVE_DIRECTION_X].Set("Direction X", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_X]);
     wave[WAVE_DIRECTION_Z].Set("Direction Z", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_Z]);
     m_wave.Initialise(m_ui.wave_box, m_ui.wave_value, m_ui.wave_dial, wave);

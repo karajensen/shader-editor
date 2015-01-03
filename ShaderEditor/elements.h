@@ -261,7 +261,7 @@ struct Wave
 {
     float frequency = 0.0f;   ///< Frequency of the wave
     float amplitude = 0.0f;   ///< Amplitude of the wave
-    float speed = 0.0f;       ///< Speed of the wave
+    float phase = 0.0f;       ///< Phase of the wave
     float directionX = 0.0f;  ///< Direction the wave moves
     float directionZ = 0.0f;  ///< Direction the wave moves
 };
@@ -273,7 +273,7 @@ struct Water : public Mesh
 {
     Float2 bumpVelocity;             ///< Velocity of the bump movement
     float speed = 0.0f;              ///< Overally speed of the wave
-    Float2 textureOffset;            ///< Offset of the water texture
+    Float2 uvScale;                  ///< Scale of the water texture
     float fresnalFactor = 0.0f;      ///< Fresnal factor of water
     Colour shallowColour;            ///< Colour of the shallow water
     Colour deepColour;               ///< Colour of the deep water

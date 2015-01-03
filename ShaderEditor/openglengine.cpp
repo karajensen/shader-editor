@@ -612,7 +612,7 @@ void OpenglEngine::UpdateShader(const Water& water,
     shader->SendUniformFloat("speed", &water.speed, 1);
     shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
     shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->SendUniformFloat("textureOffset", &water.textureOffset.x, 2);
+    shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
     shader->SendUniformFloat("deepColor", &water.deepColour.r, 3);
     shader->SendUniformFloat("shallowColor", &water.shallowColour.r, 3);
     shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
@@ -623,7 +623,7 @@ void OpenglEngine::UpdateShader(const Water& water,
     {
         shader->UpdateUniformArray("waveFrequency", &water.waves[i].amplitude, 1, i);
         shader->UpdateUniformArray("waveAmplitude", &water.waves[i].amplitude, 1, i);
-        shader->UpdateUniformArray("waveSpeed", &water.waves[i].speed, 1, i);
+        shader->UpdateUniformArray("wavePhase", &water.waves[i].phase, 1, i);
         shader->UpdateUniformArray("waveDirectionX", &water.waves[i].directionX, 1, i);
         shader->UpdateUniformArray("waveDirectionZ", &water.waves[i].directionZ, 1, i);
     }

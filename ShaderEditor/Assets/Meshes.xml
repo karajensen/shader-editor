@@ -52,20 +52,20 @@
     <ReflectionTint r="0.0" g="0.0" b="1.0"></ReflectionTint>
     <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
     <DeepColour r="0.04" g="0.04" b="1.0"></DeepColour>
-    <TextureOffset u="0.0" v="0.0"></TextureOffset>
+    <UVScale u="1.0" v="1.0"></UVScale>
     <Diffuse>water.png</Diffuse>
     <Normal>water_normal.png</Normal>
     <!--<Environment>water_environment.dds</Environment>-->
     <Wave>
       <Frequency>1.0</Frequency>
       <Amplitude>1.0</Amplitude>
-      <Speed>1.0</Speed>
+      <Phase>1.0</Phase>
       <Direction x="-1.0" z="0.0"></Direction>
     </Wave>
     <Wave>
       <Frequency>2.0</Frequency>
       <Amplitude>0.5</Amplitude>
-      <Speed>1.0</Speed>
+      <Phase>1.0</Phase>
       <Direction x="-0.7" z="0.7"></Direction>
     </Wave>
   </Water>

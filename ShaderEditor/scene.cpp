@@ -232,8 +232,8 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     water.fresnalFactor = GetValue<float>(it, "FresnalFactor");
     water.reflection = GetValue<float>(it, "ReflectionIntensity");
     water.speed = GetValue<float>(it, "Speed");
-    water.textureOffset.x = GetAttribute<float>(it, "TextureOffset", "u");
-    water.textureOffset.y = GetAttribute<float>(it, "TextureOffset", "v");
+    water.uvScale.x = GetAttribute<float>(it, "UVScale", "u");
+    water.uvScale.y = GetAttribute<float>(it, "UVScale", "v");
     water.deepColour.r = GetAttribute<float>(it, "DeepColour", "r");
     water.deepColour.g = GetAttribute<float>(it, "DeepColour", "g");
     water.deepColour.b = GetAttribute<float>(it, "DeepColour", "b");
@@ -253,7 +253,7 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
             Wave wave;
             wave.amplitude = GetValue<float>(child, "Amplitude");
             wave.frequency = GetValue<float>(child, "Frequency");
-            wave.speed = GetValue<float>(child, "Speed");
+            wave.phase = GetValue<float>(child, "Phase");
             wave.directionX = GetAttribute<float>(child, "Direction", "x");
             wave.directionZ = GetAttribute<float>(child, "Direction", "z");
             water.waves.push_back(wave);
@@ -620,8 +620,8 @@ void Scene::AddWaterToTree(const Water& water,
     entry.add("BumpVelocity.<xmlattr>.y", water.bumpVelocity.y);
     entry.add("FresnalFactor", water.fresnalFactor);
     entry.add("ReflectionIntensity", water.reflection);
-    entry.add("TextureOffset.<xmlattr>.u", water.textureOffset.x);
-    entry.add("TextureOffset.<xmlattr>.v", water.textureOffset.y);
+    entry.add("UVScale.<xmlattr>.u", water.uvScale.x);
+    entry.add("UVScale.<xmlattr>.v", water.uvScale.y);
     entry.add("DeepColour.<xmlattr>.r", water.deepColour.r);
     entry.add("DeepColour.<xmlattr>.g", water.deepColour.g);
     entry.add("DeepColour.<xmlattr>.b", water.deepColour.b);
@@ -637,7 +637,7 @@ void Scene::AddWaterToTree(const Water& water,
         boost::property_tree::ptree waveEntry;
         waveEntry.add("Frequency", wave.frequency);
         waveEntry.add("Amplitude", wave.amplitude);
-        waveEntry.add("Speed", wave.speed);
+        waveEntry.add("Phase", wave.phase);
         waveEntry.add("Direction.<xmlattr>.x", wave.directionX);
         waveEntry.add("Direction.<xmlattr>.z", wave.directionZ);
         entries.push_back(waveEntry);

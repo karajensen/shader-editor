@@ -562,14 +562,14 @@ void DirectxEngine::UpdateShader(const Water& water,
     shader->UpdateConstantFloat("speed", &water.speed, 1);
     shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
     shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->UpdateConstantFloat("textureOffset", &water.textureOffset.x, 2);
+    shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
 
     for (unsigned int i = 0; i < water.waves.size(); ++i)
     {
         const int offset = i*4; // Arrays pack in buffer of float4
         shader->UpdateConstantFloat("waveFrequency", &water.waves[i].amplitude, 1, offset);
         shader->UpdateConstantFloat("waveAmplitude", &water.waves[i].amplitude, 1, offset);
-        shader->UpdateConstantFloat("waveSpeed", &water.waves[i].speed, 1, offset);
+        shader->UpdateConstantFloat("wavePhase", &water.waves[i].phase, 1, offset);
         shader->UpdateConstantFloat("waveDirectionX", &water.waves[i].directionX, 1, offset);
         shader->UpdateConstantFloat("waveDirectionZ", &water.waves[i].directionZ, 1, offset);
     }

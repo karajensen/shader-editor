@@ -26,11 +26,11 @@ uniform float timer;
 uniform float speed;
 uniform float bumpIntensity;
 uniform vec2 bumpVelocity;
-uniform vec2 textureOffset;
+uniform vec2 uvScale;
 
 uniform float waveFrequency[MAX_WAVES];
 uniform float waveAmplitude[MAX_WAVES];
-uniform float waveSpeed[MAX_WAVES];
+uniform float wavePhase[MAX_WAVES];
 uniform float waveDirectionX[MAX_WAVES];
 uniform float waveDirectionZ[MAX_WAVES];
  

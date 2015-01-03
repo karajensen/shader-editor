@@ -319,9 +319,6 @@
     <FxCompile Include="Assets\Shaders\water_glsl_vert.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\water_hlsl.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Assets\Shaders\water_normal_glsl_frag.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -329,6 +326,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_normal_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\water_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,5 +1,9 @@
 
 - Create basic water shader
+    - section up proxy water mesh
+    - figure out magic numbers from sample shader
+    - get bump mapping working
+
 - Environment map
 - Particles
 - Optimise shaders
