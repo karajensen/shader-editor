@@ -9,8 +9,6 @@
 in vec4 in_Position;
 in vec2 in_UVs;
 in vec3 in_Normal;
-in vec3 in_Tangent;
-in vec3 in_Bitangent;
 
 out vec2 ex_UVs;
 out vec3 ex_PositionWorld;
@@ -40,7 +38,7 @@ void main(void)
     ex_UVs = in_UVs;
     ex_PositionWorld = in_Position.xyz;
     ex_Normal = in_Normal;
-    ex_Tangent = in_Tangent;
-    ex_Bitangent = in_Bitangent;
+    ex_Tangent = vec3(0,1,0);
+    ex_Bitangent = vec3(0,1,0);
     ex_VertToCamera = cameraPosition - in_Position.xyz;
 }

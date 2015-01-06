@@ -83,8 +83,6 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
     CreateShader(PARTICLE_SHADER, PARTICLE_SHADER_INDEX);
     CreateShader(PARTICLE_NORMAL_SHADER, PARTICLE_NORMAL_SHADER_INDEX);
 
-    m_shaders[WATER_SHADER_INDEX].components.push_back(Shader::BUMP);
-
     return success;
 }
 

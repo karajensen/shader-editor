@@ -60,14 +60,9 @@ struct Attributes
 
 Attributes VShader(float4 position    : POSITION,    
                    float2 uvs         : TEXCOORD0,
-                   float3 normal      : NORMAL,
-                   float3 tangent     : TEXCOORD1,
-                   float3 bitangent   : TEXCOORD2)
+                   float3 normal      : NORMAL)
 {
     Attributes output;
-    output.normal = normal;
-    output.tangent = tangent;
-    output.bitangent = bitangent;
 
     // Sum the waves together
     float time = timer * speed;
@@ -84,14 +79,16 @@ Attributes VShader(float4 position    : POSITION,
 
     output.position = mul(viewProjection, wavePosition);
     output.positionWorld = wavePosition.xyz;
+    output.bitangent = float3(1, waveDerivative.x, 0);
+    output.tangent = float3(0, waveDerivative.y, 1);
+    output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
 
-    // Generate normal map coordinates
-    // TODO: Figure out what the magic numbers are doing
-    float cycle = fmod(timer, 100.0);
+    // Generate UV Coordinates
+    float uvVelocity = bumpVelocity * timer * 0.001;
     output.uvs = uvs * uvScale;
-    output.normalUV0 = uvs * uvScale + cycle * bumpVelocity;
-    output.normalUV1 = uvs * uvScale * 2.0 + cycle * bumpVelocity * 4.0;
-    output.normalUV2 = uvs * uvScale * 4.0 + cycle * bumpVelocity * 8.0;
+    output.normalUV0 = uvs * uvScale + uvVelocity;
+    output.normalUV1 = uvs * uvScale * 2.0 + uvVelocity * 4.0;
+    output.normalUV2 = uvs * uvScale * 4.0 + uvVelocity * 8.0;
 
     return output;
 }
@@ -100,10 +97,17 @@ float4 PShader(Attributes input) : SV_TARGET
 {
     float4 colour = DiffuseTexture.Sample(Sampler, input.uvs);
 
-    float4 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0) * 2.0 - 1.0;
-    float4 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1) * 2.0 - 1.0;
-    float4 normalTex2 = NormalTexture.Sample(Sampler, input.normalUV2) * 2.0 - 1.0;
-    float3 normalTex = normalTex0.xyz + normalTex1.xyz + normalTex2.xyz;
+    float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
+    float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
+    float3 normalTex2 = NormalTexture.Sample(Sampler, input.normalUV2).rgb - 0.5;
+    float3 bump = bumpIntensity * (normalTex0 + normalTex1 + normalTex2);
+
+    float3 normal = normalize(input.normal);
+    float3 bitangent = normalize(input.bitangent);
+    float3 tangent = normalize(input.tangent);
+    normal = normalize(normal + bump.x * tangent + bump.y * bitangent);
+
+    colour.rgb = normal;
     
     return colour;
 }
