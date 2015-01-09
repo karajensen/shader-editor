@@ -44,6 +44,7 @@ cbuffer MeshPixelBuffer : register(b3)
 SamplerState Sampler;
 Texture2D DiffuseTexture;
 Texture2D NormalTexture;
+TextureCube EnvironmentTexture;
 
 struct Attributes
 {
@@ -51,11 +52,12 @@ struct Attributes
     float3 normal           : NORMAL;
     float2 uvs              : TEXCOORD0;
     float3 positionWorld    : TEXCOORD1;
-    float3 tangent          : TEXCOORD2;
-    float3 bitangent        : TEXCOORD3;
+    float3 bitangent        : TEXCOORD2;
+    float3 tangent          : TEXCOORD3;
     float2 normalUV0        : TEXCOORD4;
     float2 normalUV1        : TEXCOORD5;
     float2 normalUV2        : TEXCOORD6;
+    float3 vertToCamera     : TEXCOORD7;
 };
 
 Attributes VShader(float4 position    : POSITION,    
@@ -82,6 +84,7 @@ Attributes VShader(float4 position    : POSITION,
     output.bitangent = float3(1, waveDerivative.x, 0);
     output.tangent = float3(0, waveDerivative.y, 1);
     output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
+    output.vertToCamera = cameraPosition - wavePosition.xyz;
 
     // Generate UV Coordinates
     float uvVelocity = bumpVelocity * timer * 0.001;
@@ -95,7 +98,7 @@ Attributes VShader(float4 position    : POSITION,
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    float4 colour = DiffuseTexture.Sample(Sampler, input.uvs);
+    float4 diffuse = float4(DiffuseTexture.Sample(Sampler, input.uvs).rgb, 0.0);
 
     float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
     float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
@@ -107,7 +110,26 @@ float4 PShader(Attributes input) : SV_TARGET
     float3 tangent = normalize(input.tangent);
     normal = normalize(normal + bump.x * tangent + bump.y * bitangent);
 
-    colour.rgb = normal;
-    
-    return colour;
+    for (int i = 0; i < MAX_LIGHTS; ++i)
+    {
+        float3 lightColour = lightDiffuse[i];
+        float3 vertToLight = lightPosition[i] - input.positionWorld;
+        float lightLength = length(vertToLight);
+        
+        float attenuation = 1.0 / (lightAttenuation[i].x 
+            + lightAttenuation[i].y * lightLength 
+            + lightAttenuation[i].z * lightLength * lightLength);
+
+        vertToLight /= lightLength;
+        lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
+        diffuse.rgb += lightColour * attenuation;
+    }
+
+    float3 reflection = reflect(-input.vertToCamera, normal);
+    float3 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
+    float facing = 1.0 - max(dot(input.vertToCamera, normal), 0);
+    diffuse.rgb *= lerp(deepColor, shallowColor, facing);
+    diffuse.rgb += fresnalFactor * reflectionTex.rgb * reflectionIntensity * reflectionTint;
+
+    return diffuse;
 }

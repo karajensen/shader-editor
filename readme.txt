@@ -2,9 +2,9 @@
 - Create basic water shader
     - section up proxy water mesh
     - figure out magic numbers from sample shader
-    - get bump mapping working
+    - loading in environment map
+    - tweak values to get water looking correct
 
-- Environment map
 - Particles
 - Optimise shaders
 - Create 3D scene
