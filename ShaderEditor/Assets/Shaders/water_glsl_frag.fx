@@ -17,11 +17,11 @@ in vec3 ex_VertToCamera;
 uniform sampler2D DiffuseSampler;
 uniform sampler2D NormalSampler;
 
-uniform vec3 deepColor;
-uniform vec3 shallowColor;
+uniform vec3 fresnal;
 uniform vec3 reflectionTint;
 uniform float reflectionIntensity;
-uniform float fresnalFactor;
+uniform float deepColor;
+uniform float shallowColor;
 
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];

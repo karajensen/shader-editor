@@ -613,11 +613,11 @@ void OpenglEngine::UpdateShader(const Water& water,
     shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
     shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
     shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
-    shader->SendUniformFloat("deepColor", &water.deepColour.r, 3);
-    shader->SendUniformFloat("shallowColor", &water.shallowColour.r, 3);
+    shader->SendUniformFloat("deepColor", &water.deepColour, 1);
+    shader->SendUniformFloat("shallowColor", &water.shallowColour, 1);
     shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
     shader->SendUniformFloat("reflectionIntensity", &water.reflection, 1);
-    shader->SendUniformFloat("fresnalFactor", &water.fresnalFactor, 1);
+    shader->SendUniformFloat("fresnal", &water.fresnal.x, 3);
 
     for (unsigned int i = 0; i < water.waves.size(); ++i)
     {

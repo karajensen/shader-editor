@@ -2,8 +2,9 @@
 - Create basic water shader
     - section up proxy water mesh
     - figure out magic numbers from sample shader
-    - loading in environment map
-    - tweak values to get water looking correct
+    - learn fresnal equation
+    - OpenGL load in cube map
+    - OpenGL water shader matching DirectX
 
 - Particles
 - Optimise shaders

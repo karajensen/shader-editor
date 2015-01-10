@@ -274,9 +274,9 @@ struct Water : public Mesh
     Float2 bumpVelocity;             ///< Velocity of the bump movement
     float speed = 0.0f;              ///< Overally speed of the wave
     Float2 uvScale;                  ///< Scale of the water texture
-    float fresnalFactor = 0.0f;      ///< Fresnal factor of water
-    Colour shallowColour;            ///< Colour of the shallow water
-    Colour deepColour;               ///< Colour of the deep water
+    Float3 fresnal;                  ///< The fresnal scale, bias and power
+    float shallowColour = 1.0f;      ///< Colour intensity of the shallow water
+    float deepColour = 1.0f;         ///< Colour intensity of the deep water
     Colour reflectionTint;           ///< Colour of the reflection tint
     float reflection = 0.0f;         ///< Intensity of the reflections
 

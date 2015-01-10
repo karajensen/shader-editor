@@ -33,12 +33,12 @@ cbuffer MeshVertexBuffer : register(b2)
 
 cbuffer MeshPixelBuffer : register(b3)
 {
-    float3 deepColor;
-    float fresnalFactor;
-    float3 shallowColor;
+    float deepColor;
+    float shallowColor;
     float bumpIntensity;
-    float3 reflectionTint;
     float reflectionIntensity;
+    float3 reflectionTint;
+    float3 fresnal;
 };
 
 SamplerState Sampler;
@@ -87,7 +87,8 @@ Attributes VShader(float4 position    : POSITION,
     output.vertToCamera = cameraPosition - wavePosition.xyz;
 
     // Generate UV Coordinates
-    float uvVelocity = bumpVelocity * timer * 0.001;
+    float velocityScale = 0.001;
+    float uvVelocity = bumpVelocity * timer * velocityScale;
     output.uvs = uvs * uvScale;
     output.normalUV0 = uvs * uvScale + uvVelocity;
     output.normalUV1 = uvs * uvScale * 2.0 + uvVelocity * 4.0;
@@ -98,7 +99,8 @@ Attributes VShader(float4 position    : POSITION,
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    float4 diffuse = float4(DiffuseTexture.Sample(Sampler, input.uvs).rgb, 0.0);
+    float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
+    float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
 
     float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
     float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
@@ -125,11 +127,19 @@ float4 PShader(Attributes input) : SV_TARGET
         diffuse.rgb += lightColour * attenuation;
     }
 
-    float3 reflection = reflect(-input.vertToCamera, normal);
-    float3 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
-    float facing = 1.0 - max(dot(input.vertToCamera, normal), 0);
-    diffuse.rgb *= lerp(deepColor, shallowColor, facing);
-    diffuse.rgb += fresnalFactor * reflectionTex.rgb * reflectionIntensity * reflectionTint;
+    //float4 finalColour = diffuseTex * diffuse;
+    float4 finalColour = float4(0.0, 0.6, 0.9, 0.0) * diffuse;
+    finalColour.a = diffuseTex.a * diffuse;
 
-    return diffuse;
+    float facingCamera = saturate(dot(input.vertToCamera, normal));
+    //finalColour.rgb *= (facingCamera*(deepColor-shallowColor))+shallowColor;
+        
+    float3 reflection = reflect(-input.vertToCamera, normal);
+    float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
+    float fresnalFactor = fresnal.x * (fresnal.y + (1.0-fresnal.y) * pow(1.0-facingCamera, fresnal.z));
+    finalColour.rgb += fresnalFactor * reflectionTint * reflectionIntensity;
+
+    finalColour.rgb = reflectionTex.rgb;
+
+    return finalColour;
 }

@@ -170,12 +170,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, particle);
 
     std::vector<ComboEntry> water(WATER_ATTRIBUTES);
-    water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
-    water[WATER_SHALLOW_G].Set("Shallow G", 0.01, m_callbacks.SetWater[WATER_SHALLOW_G]);
-    water[WATER_SHALLOW_B].Set("Shallow B", 0.01, m_callbacks.SetWater[WATER_SHALLOW_B]);
-    water[WATER_DEEP_R].Set("Deep R", 0.01, m_callbacks.SetWater[WATER_DEEP_R]);
-    water[WATER_DEEP_G].Set("Deep G", 0.01, m_callbacks.SetWater[WATER_DEEP_G]);
-    water[WATER_DEEP_B].Set("Deep B", 0.01, m_callbacks.SetWater[WATER_DEEP_B]);
+    water[WATER_SHALLOW].Set("Shallow", 0.01, m_callbacks.SetWater[WATER_SHALLOW]);
+    water[WATER_DEEP].Set("Deep", 0.01, m_callbacks.SetWater[WATER_DEEP]);
     water[WATER_REFLECTION_R].Set("Reflection R", 0.01, m_callbacks.SetWater[WATER_REFLECTION_R]);
     water[WATER_REFLECTION_G].Set("Reflection G", 0.01, m_callbacks.SetWater[WATER_REFLECTION_G]);
     water[WATER_REFLECTION_B].Set("Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);
@@ -186,7 +182,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     water[WATER_SPEED].Set("Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
     water[WATER_SCALE_U].Set("Scale U", 0.01, m_callbacks.SetWater[WATER_SCALE_U]);
     water[WATER_SCALE_V].Set("Scale V", 0.01, m_callbacks.SetWater[WATER_SCALE_V]);
-    water[WATER_FRESNAL_FACTOR].Set("Fresnal", 0.01, m_callbacks.SetWater[WATER_FRESNAL_FACTOR]);
+    water[WATER_FRESNAL_SCALE].Set("Fresnal Scale", 0.01, m_callbacks.SetWater[WATER_FRESNAL_SCALE]);
+    water[WATER_FRESNAL_BIAS].Set("Fresnal Bias", 0.01, m_callbacks.SetWater[WATER_FRESNAL_BIAS]);
+    water[WATER_FRESNAL_POWER].Set("Fresnal Pow", 0.01, m_callbacks.SetWater[WATER_FRESNAL_POWER]);
     m_water.Initialise(m_ui.water_box, m_ui.water_value, m_ui.water_dial, water);
 
     std::vector<ComboEntry> wave(WAVE_ATTRIBUTES);

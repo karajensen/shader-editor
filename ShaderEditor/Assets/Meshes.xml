@@ -47,15 +47,15 @@
     <Bump>1.0</Bump>
     <BumpVelocity x="0.0" y="0.0"></BumpVelocity>
     <Speed>1.0</Speed>
-    <FresnalFactor>1.5</FresnalFactor>
+    <Fresnal scale="0.12" bias="0.5" power="2.0"></Fresnal>
     <ReflectionIntensity>1.0</ReflectionIntensity>
-    <ReflectionTint r="0.0" g="0.0" b="1.0"></ReflectionTint>
-    <ShallowColour r="0.0" g="0.0" b="1.0"></ShallowColour>
-    <DeepColour r="0.04" g="0.04" b="1.0"></DeepColour>
+    <ReflectionTint r="1.0" g="1.0" b="1.0"></ReflectionTint>
+    <ShallowColour>0.8</ShallowColour>
+    <DeepColour>1.0</DeepColour>
     <UVScale u="1.0" v="1.0"></UVScale>
     <Diffuse>water.png</Diffuse>
     <Normal>water_normal.png</Normal>
-    <!--<Environment>water_environment.dds</Environment>-->
+    <Environment>water_environment.dds</Environment>
     <Wave>
       <Frequency>1.0</Frequency>
       <Amplitude>1.0</Amplitude>
