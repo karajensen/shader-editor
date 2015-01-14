@@ -47,7 +47,7 @@
     <Bump>1.0</Bump>
     <BumpVelocity x="0.0" y="0.0"></BumpVelocity>
     <Speed>1.0</Speed>
-    <Fresnal scale="0.12" bias="0.5" power="2.0"></Fresnal>
+    <Fresnal scale="1.0" bias="0.5" power="2.0"></Fresnal>
     <ReflectionIntensity>1.0</ReflectionIntensity>
     <ReflectionTint r="1.0" g="1.0" b="1.0"></ReflectionTint>
     <ShallowColour>0.8</ShallowColour>
