@@ -94,16 +94,18 @@ public:
     * Sends a texture to the shader
     * @param slot The slot to put the texture in
     * @param id The unique id for the opengl texture
+    * @param cubemap Whether this texture is a cubemap
     * @param multisample Whether this texture is to be multisampled
     */
-    void SendTexture(int slot, GLuint id, bool multisample = false);
+    void SendTexture(int slot, GLuint id, bool cubemap, bool multisample);
 
     /**
     * Clears the current texture set
     * @param slot The slot to put the texture in
+    * @param cubemap Whether this texture is a cubemap
     * @param multisample Whether this texture is to be multisampled
     */
-    void ClearTexture(int slot, bool multisample = false);
+    void ClearTexture(int slot, bool cubemap, bool multisample);
 
     /**
     * @return the text for the shader

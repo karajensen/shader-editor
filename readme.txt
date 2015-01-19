@@ -1,9 +1,5 @@
 
-- Create basic water shader
-    - section up proxy water mesh
-    - OpenGL load in cube map
-    - OpenGL water shader matching DirectX
-
+- OpenGL water shader matching DirectX
 - Particles
 - Optimise shaders
 - Create 3D scene

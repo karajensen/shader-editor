@@ -44,6 +44,7 @@ public:
 
 private:
 
-    const std::string m_filepath; ///< The path for the texture
+    const bool m_isCubeMap = false; ///< Whether the texture is 3D
+    const std::string m_filepath;   ///< The path for the texture
     ID3D11ShaderResourceView* m_texture = nullptr; ///< The actual texture view
 };

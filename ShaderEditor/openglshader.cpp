@@ -581,12 +581,19 @@ void GlShader::EnableAttributes()
     }
 }
 
-void GlShader::ClearTexture(int slot, bool multisample)
+void GlShader::ClearTexture(int slot, bool cubemap, bool multisample)
 {
     glActiveTexture(GetTexture(slot));
 
-    glBindTexture(!multisample ? GL_TEXTURE_2D :
-        GL_TEXTURE_2D_MULTISAMPLE, 0);
+    if (cubemap)
+    {
+        glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
+    }
+    else
+    {
+        glBindTexture(!multisample ? GL_TEXTURE_2D :
+            GL_TEXTURE_2D_MULTISAMPLE, 0);
+    }
 
     if(HasCallFailed())
     {
@@ -594,12 +601,19 @@ void GlShader::ClearTexture(int slot, bool multisample)
     }
 }
 
-void GlShader::SendTexture(int slot, GLuint id, bool multisample)
+void GlShader::SendTexture(int slot, GLuint id, bool cubemap, bool multisample)
 {
     glActiveTexture(GetTexture(slot));
 
-    glBindTexture(!multisample ? GL_TEXTURE_2D :
-        GL_TEXTURE_2D_MULTISAMPLE, id);
+    if (cubemap)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+    }
+    else
+    {
+        glBindTexture(!multisample ? GL_TEXTURE_2D :
+            GL_TEXTURE_2D_MULTISAMPLE, id);
+    }
 
     glUniform1i(m_samplers[slot], slot);
 

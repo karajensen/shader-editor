@@ -454,11 +454,11 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
     blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
 
-    blurShader->SendTexture(0, m_data->sceneTarget.GetTextureID(), true);
+    blurShader->SendTexture(0, m_data->sceneTarget.GetTextureID(), false, true);
     m_data->quad.PreRender();
     blurShader->EnableAttributes();
     m_data->quad.Render();
-    blurShader->ClearTexture(0, true);
+    blurShader->ClearTexture(0, false, true);
 
     // Render second vertical blur pass
     m_data->blurTargetP2.SetActive();
@@ -467,11 +467,11 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
     blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
 
-    blurShader->SendTexture(0, m_data->blurTargetP1.GetTextureID(), true);
+    blurShader->SendTexture(0, m_data->blurTargetP1.GetTextureID(), false, true);
     m_data->quad.PreRender();
     blurShader->EnableAttributes();
     m_data->quad.Render();
-    blurShader->ClearTexture(0, true);
+    blurShader->ClearTexture(0, false, true);
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -502,17 +502,17 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("depthOfFieldMask", &post.masks[PostProcessing::DOF_MAP], 1);
     postShader->SendUniformFloat("fogMask", &post.masks[PostProcessing::FOG_MAP], 1);
 
-    postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), true);
-    postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), true);
-    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTargetP2.GetTextureID(), true);
+    postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), false, true);
+    postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), false, true);
+    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTargetP2.GetTextureID(), false, true);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-    postShader->ClearTexture(PostProcessing::SCENE, true);
-    postShader->ClearTexture(PostProcessing::NORMAL, true);
-    postShader->ClearTexture(PostProcessing::BLUR, true);
+    postShader->ClearTexture(PostProcessing::SCENE, false, true);
+    postShader->ClearTexture(PostProcessing::NORMAL, false, true);
+    postShader->ClearTexture(PostProcessing::BLUR, false, true);
 }
 
 void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
@@ -524,7 +524,8 @@ void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
     {
         if(id != NO_INDEX && shader->HasTextureSlot(slot))
         {
-            shader->SendTexture(slot, m_data->textures[id]->GetID());
+            const auto& texture = m_data->textures[id];
+            shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
             ++slot;
         }
     }

@@ -40,9 +40,22 @@ public:
     */
     GLuint GetID() const;
 
+    /**
+    * @return whether this texture is a cube map
+    */
+    bool IsCubeMap() const;
+
 private:
 
-    bool m_initialised = false;   ///< Whether this texture is initialised
-    GLuint m_id = 0;              ///< Unique id for the texture
-    const std::string m_filepath; ///< The path for the texture
+    /**
+    * Loads a texture from file
+    * @param type The type of texture to load
+    * @param path The path to the texture
+    */
+    void LoadTexture(GLenum type, const std::string& path);
+
+    const bool m_isCubeMap = false; ///< Whether the texture is 3D
+    bool m_initialised = false;     ///< Whether this texture is initialised
+    GLuint m_id = 0;                ///< Unique id for the texture
+    const std::string m_filepath;   ///< The path for the texture
 };

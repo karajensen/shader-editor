@@ -5,9 +5,12 @@
 #include "opengltexture.h"
 #include "opengl/soil/SOIL.h"
 #include "boost/algorithm/string.hpp"
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem.hpp"
 
 GlTexture::GlTexture(const std::string& filepath) :
-    m_filepath(filepath)
+    m_filepath(filepath),
+    m_isCubeMap(boost::filesystem::path(filepath).extension().string().empty())
 {
 }
 
@@ -27,37 +30,64 @@ void GlTexture::Release()
 
 bool GlTexture::Initialise()
 {
-    if (boost::icontains(m_filepath, ".dds"))
-    {
+    glGenTextures(1, &m_id);
+    m_initialised = true;
 
+    if (m_isCubeMap)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_filepath + "_c00.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_filepath + "_c01.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_filepath + "_c02.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m_filepath + "_c03.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_filepath + "_c04.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_filepath + "_c05.png");
     }
     else
     {
-        m_initialised = true;
-        glGenTextures(1, &m_id);
         glBindTexture(GL_TEXTURE_2D, m_id);
-
-        int width, height;
-        unsigned char* image = SOIL_load_image(m_filepath.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-        SOIL_free_image_data(image);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        if(HasCallFailed())
-        {
-            Logger::LogError("OpenGL: Failed " + m_filepath + " texture");
-            return false;
-        }
+        LoadTexture(GL_TEXTURE_2D, m_filepath);
     }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + m_filepath + " texture");
+        return false;
+    }
+
     return true;
+}
+
+void GlTexture::LoadTexture(GLenum type, const std::string& path)
+{
+    if (!boost::filesystem::exists(path))
+    {
+        Logger::LogError("OpenGL: " + path + " doesn't exist");
+    }
+
+    int width, height;
+    unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, 0, SOIL_LOAD_RGB);
+    glTexImage2D(type, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    SOIL_free_image_data(image);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + path + " texture");
+    }
 }
 
 GLuint GlTexture::GetID() const
 {
     assert(m_initialised);
     return m_id;
+}
+
+bool GlTexture::IsCubeMap() const
+{
+    return m_isCubeMap;
 }

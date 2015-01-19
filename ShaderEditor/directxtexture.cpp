@@ -4,9 +4,12 @@
 
 #include "directxtexture.h"
 #include "boost/algorithm/string.hpp"
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem.hpp"
 
 DxTexture::DxTexture(const std::string& filepath) :
-    m_filepath(filepath)
+    m_filepath(filepath),
+    m_isCubeMap(boost::filesystem::path(filepath).extension().string().empty())
 {
 }
 
@@ -22,18 +25,24 @@ void DxTexture::Release()
 
 void DxTexture::Initialise(ID3D11Device* device)
 {
-    if (boost::icontains(m_filepath, ".dds"))
+    if (m_isCubeMap)
     {
+        const std::string filePath = m_filepath + ".dds";
+        if (!boost::filesystem::exists(filePath))
+        {
+            Logger::LogError("DirectX: " + filePath + " doesn't exist");
+        }
+
 	    D3DX11_IMAGE_LOAD_INFO loadInfo;
 	    loadInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 	    ID3D11Texture2D* texture = nullptr;
-        SetDebugName(texture, m_filepath + "_texture");
+        SetDebugName(texture, filePath + "_texture");
 
-        if (FAILED(D3DX11CreateTextureFromFile(device, m_filepath.c_str(),
+        if (FAILED(D3DX11CreateTextureFromFile(device, filePath.c_str(),
             &loadInfo, 0, (ID3D11Resource**)&texture, 0)))
         {
-            Logger::LogError("Failed to create texture " + m_filepath);
+            Logger::LogError("DirectX: Failed to create texture " + filePath);
         }
 
 	    D3D11_TEXTURE2D_DESC textureDesc;
@@ -47,7 +56,7 @@ void DxTexture::Initialise(ID3D11Device* device)
 
         if (FAILED(device->CreateShaderResourceView(texture, &viewDesc, &m_texture)))
         {
-            Logger::LogError("Failed to resource view " + m_filepath);
+            Logger::LogError("DirectX: Failed to resource view " + filePath);
         }
 
         texture->Release();
@@ -57,7 +66,7 @@ void DxTexture::Initialise(ID3D11Device* device)
         if(FAILED(D3DX11CreateShaderResourceViewFromFile(device,
             m_filepath.c_str(), 0, 0, &m_texture, 0)))
         {
-            Logger::LogError("Failed to create texture " + m_filepath);
+            Logger::LogError("DirectX: Failed to create texture " + m_filepath);
         }
     }
 

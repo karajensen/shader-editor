@@ -55,6 +55,7 @@ const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
+const std::string CUBEMAP_FOLDER("cubemap");
 const std::string SAMPLES(boost::lexical_cast<std::string>(MULTISAMPLING_COUNT));
 
 const std::string BLUR_SHADER("blur");

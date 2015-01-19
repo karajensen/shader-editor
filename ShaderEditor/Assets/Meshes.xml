@@ -55,7 +55,7 @@
     <UVScale u="1.0" v="1.0"></UVScale>
     <Diffuse>water.png</Diffuse>
     <Normal>water_normal.png</Normal>
-    <Environment>water_environment.dds</Environment>
+    <Environment>water_environment</Environment>
     <Wave>
       <Frequency>1.0</Frequency>
       <Amplitude>1.0</Amplitude>
