@@ -60,8 +60,7 @@ struct Attributes
 };
 
 Attributes VShader(float4 position    : POSITION,    
-                   float2 uvs         : TEXCOORD0,
-                   float3 normal      : NORMAL)
+                   float2 uvs         : TEXCOORD0)
 {
     Attributes output;
 
@@ -87,7 +86,7 @@ Attributes VShader(float4 position    : POSITION,
 
     // Generate UV Coordinates
     float4 scale = float4(2.0, 4.0, 8.0, 0.001);
-    float uvVelocity = bumpVelocity * timer * scale.w;
+    float2 uvVelocity = bumpVelocity * timer * scale.w;
     output.uvs = uvs * uvScale;
     output.normalUV0 = uvs * uvScale + uvVelocity;
     output.normalUV1 = uvs * uvScale * scale.x + uvVelocity * scale.y;
@@ -137,6 +136,9 @@ float4 PShader(Attributes input) : SV_TARGET
     float3 reflection = reflect(-vertToCamera, normal);
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
     finalColour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
+    
+    finalColour.rgb = reflectionTex.rgb;
+    finalColour.a = diffuseTex.r * bump.r;
 
     return finalColour;
 }

@@ -5,11 +5,10 @@
 #version 150
 
 in vec2 ex_UVs;
-in vec3 ex_Normal;
 in float ex_Depth;
 out vec4 out_Color;
  
 void main(void)
 {
-    out_Color = vec4(normalize(ex_Normal), ex_Depth);
+    out_Color = vec4(0.0, 1.0, 0.0, ex_Depth);
 }

@@ -232,9 +232,10 @@ struct Mesh
     /**
     * Fills in mesh data
     * @param requiresNormals Whether this mesh requires normals
+    * @param requiresBumpMapping Whether this mesh requires tangents/bitangents
     * @return whether creation was successful
     */
-    bool Initialise(bool requiresNormals);
+    bool Initialise(bool requiresNormals, bool requiresBumpMapping);
 
     float specularity = 1.0f;           ///< Brightness of the specular highlights
     float ambience = 1.0f;              ///< Ambient light multiplier

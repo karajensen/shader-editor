@@ -424,7 +424,7 @@ std::string GlShader::FindShaderUniforms()
             return "Could not find uniform " + name + " for shader " + m_shader.name;
         }
         
-        if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE)
+        if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE || type == GL_SAMPLER_CUBE)
         {
             m_samplers.push_back(location);
         }

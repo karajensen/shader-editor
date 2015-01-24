@@ -203,7 +203,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             Water water;
             InitialiseMesh(water, it);
             InitialiseWater(water, it);
-            if (CreateMesh(water))
+            if (water.Initialise(false, false))
             {
                 m_water.push_back(water);
             }
@@ -213,7 +213,8 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
             Mesh mesh;
             InitialiseMesh(mesh, it);
             InitialiseMeshShader(mesh, linker, it);
-            if (CreateMesh(mesh))
+            const auto& shader = m_shaders[mesh.shaderIndex];
+            if (mesh.Initialise(true, shader.HasComponent(Shader::BUMP)))
             {
                 m_meshes.push_back(mesh);
             }
@@ -372,12 +373,6 @@ int Scene::AddTexture(const std::string& name)
     texture.path = TEXTURE_PATH + name;
     m_textures.push_back(texture);
     return m_textures.size()-1;
-}
-
-bool Scene::CreateMesh(Mesh& mesh)
-{
-    const Shader& shader = m_shaders[mesh.shaderIndex];
-    return mesh.Initialise(shader.HasComponent(Shader::BUMP));
 }
 
 const std::vector<Water>& Scene::Waters() const

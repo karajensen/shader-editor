@@ -33,9 +33,11 @@ bool GlTexture::Initialise()
     glGenTextures(1, &m_id);
     m_initialised = true;
 
+    auto type = m_isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    glBindTexture(type, m_id);
+
     if (m_isCubeMap)
     {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
         LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_filepath + "_c00.png");
         LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_filepath + "_c01.png");
         LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_filepath + "_c02.png");
@@ -49,10 +51,9 @@ bool GlTexture::Initialise()
         LoadTexture(GL_TEXTURE_2D, m_filepath);
     }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, MAX_ANISOTROPY);
 
     if(HasCallFailed())
     {

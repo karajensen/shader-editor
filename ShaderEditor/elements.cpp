@@ -118,7 +118,7 @@ Mesh::Mesh()
     textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
 }
 
-bool Mesh::Initialise(bool requiresNormals)
+bool Mesh::Initialise(bool requiresNormals, bool requiresBumpMapping)
 {
     const std::string path = ASSETS_PATH + "Meshes//" + name;
 
@@ -131,6 +131,12 @@ bool Mesh::Initialise(bool requiresNormals)
     if(!scene)
     {
         Logger::LogError("Assimp import error for mesh " + path + ": " + importer.GetErrorString());
+        return false;
+    }
+
+    if (requiresBumpMapping && !requiresNormals)
+    {
+        Logger::LogError(path + " requies normals for bump mapping");
         return false;
     }
 
@@ -157,7 +163,7 @@ bool Mesh::Initialise(bool requiresNormals)
             Logger::LogError(name + " requires uvs for requested shader");
             return false;
         }
-        if(!pMesh->HasNormals())
+        if(requiresNormals && !pMesh->HasNormals())
         {
             Logger::LogError(name + " requires normals for requested shader");
             return false;
@@ -172,13 +178,18 @@ bool Mesh::Initialise(bool requiresNormals)
             vertices.push_back(pMesh->mVertices[vert].z);
             vertices.push_back(pMesh->mTextureCoords[0][vert].x);
             vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-            vertices.push_back(pMesh->mNormals[vert].x);
-            vertices.push_back(pMesh->mNormals[vert].y);
-            vertices.push_back(pMesh->mNormals[vert].z);
-            componentCount = 8;
+            componentCount = 5;
+
+            if (requiresNormals)
+            {
+                vertices.push_back(pMesh->mNormals[vert].x);
+                vertices.push_back(pMesh->mNormals[vert].y);
+                vertices.push_back(pMesh->mNormals[vert].z);
+                componentCount = 8;
+            }
 
             // Add any bitangents/tangents for the mesh
-            if(requiresNormals)
+            if(requiresBumpMapping)
             {
                 if(pMesh->HasTangentsAndBitangents())
                 {

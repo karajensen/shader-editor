@@ -260,13 +260,6 @@ private:
     int AddTexture(const std::string& name);
 
     /**
-    * Fills in mesh data
-    * @param mesh The mesh object to load
-    * @return whether creation was successful
-    */
-    bool CreateMesh(Mesh& mesh);
-
-    /**
     * Gets the index for the shader
     * @param linker The fragment linker
     * @param shaderName The name of the shader to get the index for

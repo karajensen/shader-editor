@@ -1,5 +1,6 @@
 
-- OpenGL water shader matching DirectX
+- Fix opengl reflections
+- Alpha transparency for water
 - Particles
 - Optimise shaders
 - Create 3D scene
