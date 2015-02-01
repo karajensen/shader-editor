@@ -1,6 +1,6 @@
 
-- Fix opengl reflections
-- Alpha transparency for water
+- Fix OpenGL alpha blending not matching with DirectX
+- Configurable transparency for water
 - Particles
 - Optimise shaders
 - Create 3D scene

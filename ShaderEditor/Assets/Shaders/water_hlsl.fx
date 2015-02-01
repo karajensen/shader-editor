@@ -125,7 +125,7 @@ float4 PShader(Attributes input) : SV_TARGET
         diffuse.rgb += lightColour * attenuation;
     }
 
-    // Fresnal Approximation = max(0, min(1, bias + scale * (1.0 + dot(I,N))))
+    // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
@@ -137,8 +137,7 @@ float4 PShader(Attributes input) : SV_TARGET
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
     finalColour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
     
-    finalColour.rgb = reflectionTex.rgb;
-    finalColour.a = diffuseTex.r * bump.r;
+    finalColour.a = 0.5;
 
     return finalColour;
 }

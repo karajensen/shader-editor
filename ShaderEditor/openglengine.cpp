@@ -272,13 +272,20 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
+    // Set the blending state
+    // Use zero for src alpha to prevent from interferring with glow
+    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
+
     // Initialise the opengl environment
-    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearDepth(1.0f);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
+    SetBackfaceCull(true);
+    EnableAlphaBlending(false);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -407,28 +414,31 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
 
     // Render the scene/glow map
     m_data->sceneTarget.SetActive();
-    for (auto& water : m_data->waters)
-    {
-        UpdateShader(water->GetWater(), scene.Lights(), timer);
-        renderMesh(*water);
-    }
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Lights());
         renderMesh(*mesh);
     }
 
-    // Render the normal/depth map
-    m_data->normalTarget.SetActive();
+    EnableAlphaBlending(true);
     for (auto& water : m_data->waters)
     {
-        UpdateShader(water->GetWater(), scene.Post());
+        UpdateShader(water->GetWater(), scene.Lights(), timer);
         renderMesh(*water);
     }
+    EnableAlphaBlending(false);
+
+    // Render the normal/depth map
+    m_data->normalTarget.SetActive();
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Post());
         renderMesh(*mesh);
+    }
+    for (auto& water : m_data->waters)
+    {
+        UpdateShader(water->GetWater(), scene.Post());
+        renderMesh(*water);
     }
 
     // Render the post processing
@@ -718,4 +728,9 @@ void OpenglEngine::WriteToShader(const std::string& name,
 
     WriteToFile(GLSL_HEADER + components[2], 
         GENERATED_PATH + name + GLSL_FRAGMENT_EXTENSION);
+}
+
+void OpenglEngine::EnableAlphaBlending(bool enable)
+{
+    enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
 }

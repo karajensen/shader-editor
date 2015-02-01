@@ -173,6 +173,11 @@ private:
     */
     void RenderSceneBlur(const PostProcessing& post);
 
+    /**
+    * Sets whether alpha blending is enabled or not
+    */
+    void EnableAlphaBlending(bool enable);
+
     HWND m_hwnd = nullptr;               ///< handle to the window
     HWND m_temporaryHwnd = nullptr;      ///< Handle to the temporary window used for glew
     std::unique_ptr<OpenglData> m_data;  ///< member data of opengl

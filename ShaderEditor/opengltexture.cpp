@@ -38,12 +38,12 @@ bool GlTexture::Initialise()
 
     if (m_isCubeMap)
     {
-        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_filepath + "_c00.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_filepath + "_c01.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_filepath + "_c00.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_filepath + "_c01.png");
         LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_filepath + "_c02.png");
         LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m_filepath + "_c03.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_filepath + "_c04.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_filepath + "_c05.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_filepath + "_c04.png");
+        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_filepath + "_c05.png");
     }
     else
     {

@@ -32,6 +32,8 @@ struct DirectxData
     */
     void Release();
 
+    ID3D11BlendState* alphaBlendState = nullptr;  ///< State for alpha blending
+    ID3D11BlendState* noBlendState = nullptr;     ///< State for no alpha blending
     ID3D11RasterizerState* cullState = nullptr;   ///< Normal state of the rasterizer
     ID3D11RasterizerState* nocullState = nullptr; ///< No face culling state of the rasterizer
     IDXGISwapChain* swapchain = nullptr;          ///< Collection of buffers for displaying frames
@@ -107,6 +109,8 @@ void DirectxData::Release()
     blurTargetP2.Release();
     backBuffer.Release();
 
+    SafeRelease(&noBlendState);
+    SafeRelease(&alphaBlendState);
     SafeRelease(&cullState);
     SafeRelease(&nocullState);
     SafeRelease(&swapchain);
@@ -183,7 +187,32 @@ bool DirectxEngine::Initialize()
     // Create the post processing quad
     m_data->quad.Initialise(m_data->device, m_data->context);
 
-    // Setup the directX environment
+	// Create the Blending states
+    // Use zero for src alpha to prevent from interferring with glow
+    D3D11_BLEND_DESC blendStateDesc = {};
+    blendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+    blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO; 
+    blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendStateDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+    if (FAILED(m_data->device->CreateBlendState(&blendStateDesc, &m_data->alphaBlendState)))
+    {
+        Logger::LogError("DirectX: Failed to create alpha blending state");
+        return false;
+    }
+
+    blendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+    if (FAILED(m_data->device->CreateBlendState(&blendStateDesc, &m_data->noBlendState)))
+    {
+        Logger::LogError("DirectX: Failed to create no blending state");
+        return false;
+    }
+
+    // Create the rasterizer state
     D3D11_RASTERIZER_DESC rasterDesc;
     rasterDesc.AntialiasedLineEnable = false;
     rasterDesc.DepthBias = 0;
@@ -201,7 +230,6 @@ bool DirectxEngine::Initialize()
         Logger::LogError("DirectX: Failed to create cull rasterizer state");
         return false;
     }
-    SetBackfaceCull(true);
 
     rasterDesc.CullMode = D3D11_CULL_NONE;
     if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->nocullState)))
@@ -209,6 +237,10 @@ bool DirectxEngine::Initialize()
         Logger::LogError("DirectX: Failed to create no cull rasterizer state");
         return false;
     }
+
+    // Setup the directX environment
+    SetBackfaceCull(true);
+    EnableAlphaBlending(false);
 
     D3D11_VIEWPORT viewport;
     ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
@@ -225,6 +257,8 @@ bool DirectxEngine::Initialize()
         (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
         FRUSTRUM_NEAR, FRUSTRUM_FAR);
 
+    SetDebugName(m_data->noBlendState, "NoBlendState");
+    SetDebugName(m_data->alphaBlendState, "AlphaBlendState");
     SetDebugName(m_data->cullState, "CullState");
     SetDebugName(m_data->nocullState, "NoCullState");
     SetDebugName(m_data->device, "Device");
@@ -366,11 +400,14 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
         UpdateShader(mesh->GetMesh(), scene.Lights());
         renderMesh(*mesh);
     }
+
+    EnableAlphaBlending(true);
     for (auto& water : m_data->waters)
     {
         UpdateShader(water->GetWater(), scene.Lights(), timer);
         renderMesh(*water);
     }
+    EnableAlphaBlending(false);
 
     // Render the normal/depth map
     m_data->normalTarget.SetActive(m_data->context);
@@ -668,4 +705,12 @@ void DirectxEngine::WriteToShader(const std::string& name,
         file << text << std::endl;
         file.close();
     }
+}
+
+void DirectxEngine::EnableAlphaBlending(bool enable)
+{
+    const std::array<float, 4> blend = {1.0,1.0,1.0,1.0};
+	m_data->context->OMSetBlendState(
+        enable ? m_data->alphaBlendState : m_data->noBlendState, 
+        &blend[0], 0xFFFFFFFF);
 }
