@@ -170,8 +170,14 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, particle);
 
     std::vector<ComboEntry> water(WATER_ATTRIBUTES);
-    water[WATER_SHALLOW].Set("Shallow", 0.01, m_callbacks.SetWater[WATER_SHALLOW]);
-    water[WATER_DEEP].Set("Deep", 0.01, m_callbacks.SetWater[WATER_DEEP]);
+    water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
+    water[WATER_SHALLOW_G].Set("Shallow G", 0.01, m_callbacks.SetWater[WATER_SHALLOW_G]);
+    water[WATER_SHALLOW_B].Set("Shallow B", 0.01, m_callbacks.SetWater[WATER_SHALLOW_B]);
+    water[WATER_SHALLOW_A].Set("Shallow A", 0.01, m_callbacks.SetWater[WATER_SHALLOW_A]);
+    water[WATER_DEEP_R].Set("Deep R", 0.01, m_callbacks.SetWater[WATER_DEEP_R]);
+    water[WATER_DEEP_G].Set("Deep G", 0.01, m_callbacks.SetWater[WATER_DEEP_G]);
+    water[WATER_DEEP_B].Set("Deep B", 0.01, m_callbacks.SetWater[WATER_DEEP_B]);
+    water[WATER_DEEP_A].Set("Deep A", 0.01, m_callbacks.SetWater[WATER_DEEP_A]);
     water[WATER_REFLECTION_R].Set("Reflection R", 0.01, m_callbacks.SetWater[WATER_REFLECTION_R]);
     water[WATER_REFLECTION_G].Set("Reflection G", 0.01, m_callbacks.SetWater[WATER_REFLECTION_G]);
     water[WATER_REFLECTION_B].Set("Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);

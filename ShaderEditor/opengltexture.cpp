@@ -53,7 +53,7 @@ bool GlTexture::Initialise()
 
     glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, MAX_ANISOTROPY);
+    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(MAX_ANISOTROPY));
 
     if(HasCallFailed())
     {

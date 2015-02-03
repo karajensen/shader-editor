@@ -276,8 +276,8 @@ struct Water : public Mesh
     float speed = 0.0f;              ///< Overally speed of the wave
     Float2 uvScale;                  ///< Scale of the water texture
     Float3 fresnal;                  ///< The fresnal scale, bias and power
-    float shallowColour = 1.0f;      ///< Colour intensity of the shallow water
-    float deepColour = 1.0f;         ///< Colour intensity of the deep water
+    Colour shallowColour;            ///< Colour intensity of the shallow water
+    Colour deepColour;               ///< Colour intensity of the deep water
     Colour reflectionTint;           ///< Colour of the reflection tint
     float reflection = 0.0f;         ///< Intensity of the reflections
 

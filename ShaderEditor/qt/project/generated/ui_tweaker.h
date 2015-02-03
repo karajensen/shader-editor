@@ -1930,7 +1930,7 @@ public:
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        water_box->setMaxVisibleItems(20);
+        water_box->setMaxVisibleItems(30);
         water_box->setFrame(false);
 
         meshLayout->addWidget(water);
@@ -2813,7 +2813,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(2);
         selectedLight_box->setCurrentIndex(-1);
 
 

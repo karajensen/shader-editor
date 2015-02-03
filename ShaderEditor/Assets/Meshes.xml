@@ -50,8 +50,8 @@
     <Fresnal scale="1.0" bias="0.5" power="2.0"></Fresnal>
     <ReflectionIntensity>1.0</ReflectionIntensity>
     <ReflectionTint r="1.0" g="1.0" b="1.0"></ReflectionTint>
-    <ShallowColour>0.8</ShallowColour>
-    <DeepColour>1.0</DeepColour>
+    <ShallowColour r="1.0" g="1.0" b="1.0" a="0.5"></ShallowColour>
+    <DeepColour r="0.8" g="0.8" b="0.8" a="1.0"></DeepColour>
     <UVScale u="1.0" v="1.0"></UVScale>
     <Diffuse>water.png</Diffuse>
     <Normal>water_normal.png</Normal>

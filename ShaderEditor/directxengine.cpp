@@ -611,8 +611,8 @@ void DirectxEngine::UpdateShader(const Water& water,
         shader->UpdateConstantFloat("waveDirectionZ", &water.waves[i].directionZ, 1, offset);
     }
 
-    shader->UpdateConstantFloat("deepColor", &water.deepColour, 1);
-    shader->UpdateConstantFloat("shallowColor", &water.shallowColour, 1);
+    shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 4);
+    shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 4);
     shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
     shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
     shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);

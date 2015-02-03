@@ -32,12 +32,12 @@ cbuffer MeshVertexBuffer : register(b2)
 
 cbuffer MeshPixelBuffer : register(b3)
 {
-    float deepColor;
-    float shallowColor;
-    float bumpIntensity;
-    float reflectionIntensity;
+    float4 deepColor;
+    float4 shallowColor;
     float3 reflectionTint;
+    float reflectionIntensity;
     float3 fresnal;
+    float bumpIntensity;
 };
 
 SamplerState Sampler;
@@ -97,8 +97,8 @@ Attributes VShader(float4 position    : POSITION,
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
-    float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
+    float3 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs).rgb;
+    float3 diffuse = float3(0.0, 0.0, 0.0);
 
     float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
     float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
@@ -122,7 +122,7 @@ float4 PShader(Attributes input) : SV_TARGET
 
         vertToLight /= lightLength;
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-        diffuse.rgb += lightColour * attenuation;
+        diffuse += lightColour * attenuation;
     }
 
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
@@ -130,14 +130,12 @@ float4 PShader(Attributes input) : SV_TARGET
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
 
-    float4 finalColour = diffuseTex * diffuse;
-    finalColour.rgb *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
+    float4 finalColour = float4(diffuseTex * diffuse, 1.0);
+    finalColour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
 
     float3 reflection = reflect(-vertToCamera, normal);
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
     finalColour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    
-    finalColour.a = 0.5;
 
     return finalColour;
 }

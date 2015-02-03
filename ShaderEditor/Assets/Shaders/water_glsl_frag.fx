@@ -21,11 +21,11 @@ uniform sampler2D NormalSampler;
 uniform samplerCube EnvironmentSampler;
 
 uniform vec3 fresnal;
+uniform float bumpIntensity;
 uniform vec3 reflectionTint;
 uniform float reflectionIntensity;
-uniform float deepColor;
-uniform float shallowColor;
-uniform float bumpIntensity;
+uniform vec4 deepColor;
+uniform vec4 shallowColor;
 
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];
@@ -40,8 +40,8 @@ float saturate(float value)
 
 void main(void)
 {
-    vec4 diffuseTex = texture(DiffuseSampler, ex_UVs);
-    vec4 diffuse = vec4(0.0, 0.0, 0.0, 0.0);
+    vec3 diffuseTex = texture(DiffuseSampler, ex_UVs).rgb;
+    vec3 diffuse = vec3(0.0, 0.0, 0.0);
 
     vec3 normalTex0 = texture(NormalSampler, ex_NormalUV0).rgb - 0.5;
     vec3 normalTex1 = texture(NormalSampler, ex_NormalUV1).rgb - 0.5;
@@ -65,7 +65,7 @@ void main(void)
 
         vertToLight /= lightLength;
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-        diffuse.rgb += lightColour * attenuation;
+        diffuse += lightColour * attenuation;
     }
 
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
@@ -73,12 +73,10 @@ void main(void)
     vec3 vertToCamera = normalize(ex_VertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
 
-    out_Color = diffuseTex * diffuse;
-    out_Color.rgb *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
+    out_Color = vec4(diffuseTex * diffuse, 1.0);
+    out_Color *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
 
     vec3 reflection = reflect(-vertToCamera, normal);
     vec4 reflectionTex = texture(EnvironmentSampler, reflection);
     out_Color.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    
-    out_Color.a = 0.5;
 }

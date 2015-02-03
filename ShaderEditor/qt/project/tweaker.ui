@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -5222,7 +5222,7 @@ border-style: solid;
 border-width: 2px;</string>
            </property>
            <property name="maxVisibleItems">
-            <number>20</number>
+            <number>30</number>
            </property>
            <property name="frame">
             <bool>false</bool>
