@@ -16,6 +16,7 @@ cbuffer ScenePixelBuffer : register(b1)
     float3 lightDiffuse[MAX_LIGHTS];
     float3 lightSpecular[MAX_LIGHTS];
     float lightSpecularity[MAX_LIGHTS];
+    float blendFactor;
 };
 
 cbuffer MeshVertexBuffer : register(b2)
@@ -99,17 +100,17 @@ float4 PShader(Attributes input) : SV_TARGET
 {
     float3 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs).rgb;
     float3 diffuse = float3(0.0, 0.0, 0.0);
-
+    
     float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
     float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
     float3 normalTex2 = NormalTexture.Sample(Sampler, input.normalUV2).rgb - 0.5;
     float3 bump = bumpIntensity * (normalTex0 + normalTex1 + normalTex2);
-
+    
     float3 normal = normalize(input.normal);
     float3 bitangent = normalize(input.bitangent);
     float3 tangent = normalize(input.tangent);
     normal = normalize(normal + bump.x * tangent + bump.y * bitangent);
-
+    
     for (int i = 0; i < MAX_LIGHTS; ++i)
     {
         float3 lightColour = lightDiffuse[i];
@@ -119,23 +120,24 @@ float4 PShader(Attributes input) : SV_TARGET
         float attenuation = 1.0 / (lightAttenuation[i].x 
             + lightAttenuation[i].y * lightLength 
             + lightAttenuation[i].z * lightLength * lightLength);
-
+    
         vertToLight /= lightLength;
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
         diffuse += lightColour * attenuation;
     }
-
+    
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
-
+    
     float4 finalColour = float4(diffuseTex * diffuse, 1.0);
     finalColour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
-
+    
     float3 reflection = reflect(-vertToCamera, normal);
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
     finalColour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
+    finalColour.a *= blendFactor;
 
     return finalColour;
 }

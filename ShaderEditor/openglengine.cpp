@@ -48,6 +48,7 @@ struct OpenglData
     bool isBackfaceCull = true;      ///< Whether backface culling is currently active
     int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
     float fadeAmount = 0.0f;         ///< the amount to fade the scene by
+    float blendFactor = 0.540f;      ///< Alpha blend modifier
 
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
@@ -272,12 +273,8 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-    // Set the blending state
-    // Use zero for src alpha to prevent from interferring with glow
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
-
     // Initialise the opengl environment
+    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearDepth(1.0f);
@@ -419,7 +416,7 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
         UpdateShader(mesh->GetMesh(), scene.Lights());
         renderMesh(*mesh);
     }
-
+    
     EnableAlphaBlending(true);
     for (auto& water : m_data->waters)
     {
@@ -615,6 +612,7 @@ void OpenglEngine::UpdateShader(const Water& water,
         SetSelectedShader(index);
 
         shader->SendUniformFloat("timer", &timer, 1);
+        shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
         shader->SendLights(lights);
@@ -732,5 +730,15 @@ void OpenglEngine::WriteToShader(const std::string& name,
 
 void OpenglEngine::EnableAlphaBlending(bool enable)
 {
-    enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+    if (enable)
+    {
+        // Use zero for src alpha to prevent from interferring with glow
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
+        glEnable(GL_BLEND);
+    }
+    else
+    {
+        glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+        glDisable(GL_BLEND);
+    }
 }

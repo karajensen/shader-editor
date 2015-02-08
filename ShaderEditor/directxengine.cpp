@@ -54,6 +54,7 @@ struct DirectxData
     bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
+    float blendFactor = 1.0f;           ///< Alpha blend modifier
     
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
@@ -189,24 +190,28 @@ bool DirectxEngine::Initialize()
 
 	// Create the Blending states
     // Use zero for src alpha to prevent from interferring with glow
-    D3D11_BLEND_DESC blendStateDesc = {};
-    blendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-    blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO; 
-    blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
-    blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    blendStateDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+    D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.AlphaToCoverageEnable = FALSE;
+    blendDesc.RenderTarget[0].BlendEnable = TRUE;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO; 
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    if (FAILED(m_data->device->CreateBlendState(&blendStateDesc, &m_data->alphaBlendState)))
+    if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->alphaBlendState)))
     {
         Logger::LogError("DirectX: Failed to create alpha blending state");
         return false;
     }
 
-    blendStateDesc.RenderTarget[0].BlendEnable = FALSE;
-    if (FAILED(m_data->device->CreateBlendState(&blendStateDesc, &m_data->noBlendState)))
+    blendDesc.RenderTarget[0].BlendEnable = FALSE;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; 
+    if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->noBlendState)))
     {
         Logger::LogError("DirectX: Failed to create no blending state");
         return false;
@@ -591,6 +596,7 @@ void DirectxEngine::UpdateShader(const Water& water,
         SetSelectedShader(index);
         
         shader->UpdateConstantFloat("timer", &timer, 1);
+        shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
         shader->SendLights(lights);
@@ -709,8 +715,6 @@ void DirectxEngine::WriteToShader(const std::string& name,
 
 void DirectxEngine::EnableAlphaBlending(bool enable)
 {
-    const std::array<float, 4> blend = {1.0,1.0,1.0,1.0};
 	m_data->context->OMSetBlendState(
-        enable ? m_data->alphaBlendState : m_data->noBlendState, 
-        &blend[0], 0xFFFFFFFF);
+        enable ? m_data->alphaBlendState : m_data->noBlendState, 0, 0xFFFFFFFF);
 }
