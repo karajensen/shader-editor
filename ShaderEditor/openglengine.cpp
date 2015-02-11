@@ -40,7 +40,7 @@ struct OpenglData
     GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
     GlRenderTarget blurTargetP1;     ///< Render target for blurring the scene (pass1)
     GlRenderTarget blurTargetP2;     ///< Render target for blurring the scene (pass2)
-    GlMesh quad;                     ///< Quad to render the final post processed scene onto
+    GlQuad quad;                     ///< Quad to render the final post processed scene onto
     glm::vec3 cameraPosition;        ///< Position of the camera
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
@@ -323,15 +323,15 @@ bool OpenglEngine::InitialiseScene(const SceneElements& scene)
     m_data->meshes.reserve(scene.Meshes().size());
     for(const Mesh& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<GlMesh>(
-            new GlMesh(&mesh)));
+        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh,
+            [this](const Mesh& data){ PreRender(data); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const Water& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<GlWater>(
-            new GlWater(&water)));
+        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(water,
+            [this](const Mesh& data){ PreRender(data); })));
     }
 
     return ReInitialiseScene();
@@ -400,49 +400,51 @@ bool OpenglEngine::FadeView(bool in, float amount)
 
 void OpenglEngine::Render(const SceneElements& scene, float timer)
 {
-    auto renderMesh = [this](GlMesh& mesh)
-    {
-        SetTextures(mesh.GetTextureIDs());
-        SetBackfaceCull(mesh.ShouldBackfaceCull());
-        mesh.PreRender();
-        m_data->shaders[mesh.GetShaderID()]->EnableAttributes();
-        mesh.Render();
-    };
-
-    // Render the scene/glow map
     m_data->sceneTarget.SetActive();
+
     for (auto& mesh : m_data->meshes)
     {
         UpdateShader(mesh->GetMesh(), scene.Lights());
-        renderMesh(*mesh);
+        mesh->PreRender();
+        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
+        mesh->Render();
     }
     
     EnableAlphaBlending(true);
+
     for (auto& water : m_data->waters)
     {
         UpdateShader(water->GetWater(), scene.Lights(), timer);
-        renderMesh(*water);
+        water->PreRender();
+        m_data->shaders[water->GetShaderID()]->EnableAttributes();
+        water->Render();
     }
+
     EnableAlphaBlending(false);
-
-    // Render the normal/depth map
-    m_data->normalTarget.SetActive();
-    for (auto& mesh : m_data->meshes)
-    {
-        UpdateShader(mesh->GetMesh(), scene.Post());
-        renderMesh(*mesh);
-    }
-    for (auto& water : m_data->waters)
-    {
-        UpdateShader(water->GetWater(), scene.Post());
-        renderMesh(*water);
-    }
-
-    // Render the post processing
+    RenderNormalMap(scene.Post());
     SetBackfaceCull(false);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
     SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::RenderNormalMap(const PostProcessing& post)
+{
+    m_data->normalTarget.SetActive();
+
+    for (auto& mesh : m_data->meshes)
+    {
+        mesh->PreRender();
+        UpdateShader(mesh->GetMesh(), post);
+        mesh->Render();
+    }
+
+    for (auto& water : m_data->waters)
+    {
+        water->PreRender();
+        UpdateShader(water->GetWater(), post);
+        water->Render();
+    }
 }
 
 void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
@@ -522,12 +524,29 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(PostProcessing::BLUR, false, true);
 }
 
-void OpenglEngine::SetTextures(const std::vector<int>& textureIDs)
+void OpenglEngine::PreRender(int texture)
+{
+    if (texture != NO_INDEX)
+    {
+        auto& shader = m_data->shaders[m_data->selectedShader];
+        if (shader->HasTextureSlot(0))
+        {
+            const auto& textureData = m_data->textures[texture];
+            shader->SendTexture(0, textureData->GetID(), textureData->IsCubeMap(), false);
+        }
+        else
+        {
+            Logger::LogError("OpenGL: Shader does not have given texture slot");
+        }
+    }
+}
+
+void OpenglEngine::PreRender(const Mesh& mesh)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
 
     int slot = 0;
-    for(int id : textureIDs)
+    for(int id : mesh.textureIDs)
     {
         if(id != NO_INDEX && shader->HasTextureSlot(slot))
         {

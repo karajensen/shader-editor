@@ -154,7 +154,10 @@ void Application::TickApplication()
         GetEngine()->UpdateView(m_camera->GetWorld());
     }
 
+    m_scene->Tick(m_timer->GetDeltaTime());
+
     FadeRenderEngine();
+
     GetEngine()->Render(*m_scene, m_timer->GetTotalTime());
 
     m_mouseDirection.x = 0;

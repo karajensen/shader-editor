@@ -8,28 +8,16 @@
 struct Mesh;
 
 /**
-* OpenGL Individual mesh or quad
+* Base data for any polygons to be rendered
 */
-class GlMesh : boost::noncopyable
+class GlMeshData : boost::noncopyable
 {
 public:
 
     /**
-    * Constructor to generate a complex mesh
-    * @param mesh The mesh to use as a template
-    */
-    GlMesh(const Mesh* mesh);
-
-    /**
-    * Constructor to generate a quad
-    * @param name A unique name for the quad
-    */
-    GlMesh(const std::string& name);
-
-    /**
     * Destructor
     */
-    virtual ~GlMesh();
+    virtual ~GlMeshData();
 
     /**
     * Releases the opengl mesh
@@ -37,14 +25,14 @@ public:
     void Release();
 
     /**
+    * Pre-renders the mesh
+    */
+    virtual void PreRender();
+
+    /**
     * Renders the mesh
     */
     void Render();
-
-    /**
-    * Sets up the mesh for rendering
-    */
-    void PreRender();
 
     /**
     * Initialises the mesh
@@ -52,15 +40,67 @@ public:
     */
     bool Initialise();
 
-    /**
-    * @return whether the mesh requires backface culling or not
-    */
-    bool ShouldBackfaceCull() const;
+protected:
+
+    GLsizei m_vertexCount = 0;      ///< Number of vertices for the mesh
+    GLsizei m_indexCount = 0;       ///< Number of indices for the mesh
+    GLuint m_vaoID = 0;             ///< An unique ID for Vertex Array Object (VAO)
+    GLuint m_vboID = 0;             ///< Unique ID for the Vertex Buffer Object (VBO)   
+    GLuint m_iboID = 0;             ///< Unique ID for the Index Buffer Object (IBO)
+    bool m_initialised = false;     ///< Whether the vertex buffer object is initialised or not
+    std::vector<float> m_vertices;  ///< Mesh Vertex information
+    std::vector<DWORD> m_indices;   ///< Mesh Index information
+    std::string m_name;             ///< Name of the mesh
+};
+
+/**
+* OpenGL screen quad
+*/
+class GlQuad : public GlMeshData
+{
+public:
 
     /**
-    * @return a container of unique IDs for the mesh textures
+    * Constructor to generate a quad
+    * @param name A unique name for the quad
+    * @param preRender callback to setup rendering
     */
-    const std::vector<int>& GetTextureIDs() const;
+    GlQuad(const std::string& name, PreRenderQuad preRender = nullptr);
+
+    /**
+    * PreRenders the mesh
+    */
+    virtual void PreRender() override;
+
+    /**
+    * Sets the id of the texture used
+    */
+    void SetTexture(int ID);
+
+private:
+
+    int m_texture = NO_INDEX;            ///< Index for the quad texture
+    PreRenderQuad m_preRender = nullptr; ///< Callback to setup rendering
+};
+
+/**
+* OpenGL complex mesh
+*/
+class GlMesh : public GlMeshData
+{
+public:
+
+    /**
+    * Constructor to generate a complex mesh
+    * @param mesh The mesh to use as a template
+    * @param preRender Callback to pre-render the mesh
+    */
+    GlMesh(const Mesh& mesh, PreRenderMesh preRender);
+
+    /**
+    * PreRenders the mesh
+    */
+    virtual void PreRender() override;
 
     /**
     * @return the unique ID for the mesh shader
@@ -74,16 +114,8 @@ public:
 
 private:
 
-    GLsizei m_vertexCount = 0;      ///< Number of vertices for the mesh
-    GLsizei m_indexCount = 0;       ///< Number of indices for the mesh
-    GLuint m_vaoID = 0;             ///< An unique ID for Vertex Array Object (VAO)
-    GLuint m_vboID = 0;             ///< Unique ID for the Vertex Buffer Object (VBO)   
-    GLuint m_iboID = 0;             ///< Unique ID for the Index Buffer Object (IBO)
-    bool m_initialised = false;     ///< Whether the vertex buffer object is initialised or not
-    std::vector<float> m_vertices;  ///< Mesh Vertex information
-    std::vector<DWORD> m_indices;   ///< Mesh Index information
-    const Mesh* m_mesh = nullptr;   ///< Mesh information or null if a quad
-    const std::string m_name;       ///< Name of the mesh
+    PreRenderMesh m_preRender = nullptr; ///< Callback to pre-render the mesh
+    const Mesh& m_mesh;                  ///< Mesh information
 };                     
 
 /**
@@ -96,8 +128,9 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
+    * @param preRender Callback to pre-render the mesh
     */
-    GlWater(const Water* water);
+    GlWater(const Water& water, PreRenderMesh preRender);
 
     /**
     * @return the water information for the mesh
@@ -106,5 +139,5 @@ public:
 
 private:
 
-    const Water* m_water; ///< Water information
+    const Water& m_water; ///< Water information
 };

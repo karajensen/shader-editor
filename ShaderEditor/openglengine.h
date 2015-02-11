@@ -156,10 +156,20 @@ private:
     void SetSelectedShader(int index);
 
     /**
-    * Sends the textures to the selected shader
-    * @param textureIDs the unique ids of the textures to send
+    * Pre-renders a mesh
     */
-    void SetTextures(const std::vector<int>& textureIDs);
+    void PreRender(const Mesh& mesh);
+
+    /**
+    * Pre-renders a particle
+    */
+    void PreRender(int texture);
+
+    /**
+    * Renders the scene as a normal/depth map
+    * @param postProcessing values for the final image
+    */
+    void RenderNormalMap(const PostProcessing& post);
 
     /**
     * Renders the scene with post processing

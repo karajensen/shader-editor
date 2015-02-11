@@ -142,6 +142,9 @@
     <ClCompile Include="elements.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="directxemitter.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -254,6 +257,9 @@
     </ClInclude>
     <ClInclude Include="elements.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="directxemitter.h">
+      <Filter>Render Engine Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

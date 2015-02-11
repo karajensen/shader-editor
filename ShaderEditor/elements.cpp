@@ -259,3 +259,22 @@ void Emitter::Resize(int size)
         particles.resize(size);
     }
 }
+
+void Emitter::Tick(float deltatime)
+{
+    for (Particle& particle : particles)
+    {
+        if (particle.alive)
+        {
+            particle.lifeTime += deltatime;
+            particle.position += direction * particle.speed;
+            particle.alive = particle.lifeTime < lifeTime;
+        }
+        else
+        {
+            particle.lifeTime = 0.0;
+            particle.position = position;
+            particle.alive = true;
+        }
+    }
+}

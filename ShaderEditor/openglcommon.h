@@ -12,6 +12,9 @@
 #include "opengl/glm/glm.hpp"
 #include "opengl/glm/gtc/matrix_transform.hpp"
 
+typedef std::function<void(const Mesh& mesh)> PreRenderMesh;
+typedef std::function<void(int texture)> PreRenderQuad;
+
 /**
 * OpenGL call checking
 * @return whether the last call to OpenGL has failed

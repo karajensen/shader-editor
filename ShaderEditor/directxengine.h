@@ -156,11 +156,9 @@ private:
     * Updates and switches to the normal shader the water requires
     * @param water The mesh currently rendering
     * @param post Data for post processing
-    * @param timer The time passed since scene start
     */
     void UpdateShader(const Water& water, 
-                      const PostProcessing& post,
-                      float timer);
+                      const PostProcessing& post);
 
     /**
     * Sets the shader at the given index as selected
@@ -168,16 +166,26 @@ private:
     void SetSelectedShader(int index);
 
     /**
-    * Sends the textures to the selected shader
-    * @param textureIDs the unique ids of the textures to send
+    * Pre-renders a mesh
     */
-    void SetTextures(const std::vector<int>& textureIDs);
+    void PreRender(const Mesh& mesh);
+
+    /**
+    * Pre-renders a particle
+    */
+    void PreRender(int texture);
 
     /**
     * Initialises the DirectX debugging layer
     * @note only for _DEBUG
     */
     void InitialiseDebugging();
+
+    /**
+    * Renders the scene as a normal/depth map
+    * @param postProcessing values for the final image
+    */
+    void RenderNormalMap(const PostProcessing& post);
 
     /**
     * Renders the scene with post processing

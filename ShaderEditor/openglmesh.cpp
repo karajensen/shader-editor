@@ -5,25 +5,28 @@
 #include "openglmesh.h"
 #include "elements.h"
 
-GlWater::GlWater(const Water* water) :
-    GlMesh(water),
+GlWater::GlWater(const Water& water, PreRenderMesh preRender) :
+    GlMesh(water, preRender),
     m_water(water)
 {
 }
 
-GlMesh::GlMesh(const Mesh* mesh) :
-    m_vertexCount(mesh->vertexCount),
-    m_indexCount(mesh->indexCount),
+GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
     m_mesh(mesh),
-    m_vertices(mesh->vertices),
-    m_indices(mesh->indices),
-    m_name(mesh->name)
+    m_preRender(preRender)
 {
+    m_vertexCount = mesh.vertexCount;
+    m_indexCount = mesh.indexCount;
+    m_vertices = mesh.vertices;
+    m_indices = mesh.indices;
+    m_name = mesh.name;
 }
 
-GlMesh::GlMesh(const std::string& name) :
-    m_name(name)
+GlQuad::GlQuad(const std::string& name, PreRenderQuad preRender) :
+    m_preRender(preRender)
 {
+    m_name = name;
+
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
     m_vertices.emplace_back(-1.0f);  // y
@@ -64,12 +67,12 @@ GlMesh::GlMesh(const std::string& name) :
     m_indexCount = m_indices.size();
 }
 
-GlMesh::~GlMesh()
+GlMeshData::~GlMeshData()
 {
     Release();
 }
 
-void GlMesh::Release()
+void GlMeshData::Release()
 {
     if(m_initialised)
     {
@@ -80,7 +83,7 @@ void GlMesh::Release()
     }
 }
 
-bool GlMesh::Initialise()
+bool GlMeshData::Initialise()
 {
     glGenVertexArrays(1, &m_vaoID);
     glBindVertexArray(m_vaoID);
@@ -105,44 +108,52 @@ bool GlMesh::Initialise()
     return true;
 }
 
+void GlQuad::SetTexture(int ID)
+{
+    m_texture = ID;
+}
+
+void GlQuad::PreRender()
+{
+    if (m_preRender)
+    {
+        m_preRender(m_texture);
+    }
+    GlMeshData::PreRender();
+}
+
 void GlMesh::PreRender()
+{
+    if (m_preRender)
+    {
+        m_preRender(m_mesh);
+    }
+    GlMeshData::PreRender();
+}
+
+void GlMeshData::PreRender()
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 }
 
-void GlMesh::Render()
+void GlMeshData::Render()
 {
     assert(m_initialised);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 }
 
-bool GlMesh::ShouldBackfaceCull() const
-{
-    assert(m_mesh);
-    return m_mesh->backfacecull;
-}
-
-const std::vector<int>& GlMesh::GetTextureIDs() const
-{
-    assert(m_mesh);
-    return m_mesh->textureIDs;
-}
-
 int GlMesh::GetShaderID() const 
 { 
-    assert(m_mesh);
-    return m_mesh->shaderIndex;
+    return m_mesh.shaderIndex;
 }
 
 const Mesh& GlMesh::GetMesh() const
 {
-    assert(m_mesh);
-    return *m_mesh;
+    return m_mesh;
 }
 
 const Water& GlWater::GetWater() const
 {
-    assert(m_water);
-    return *m_water;
+    return m_water;
 }

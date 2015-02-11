@@ -21,6 +21,12 @@ public:
     bool Initialise();
 
     /**
+    * Ticks the scene
+    * @param deltatime The time passed between ticks
+    */
+    void Tick(float deltatime);
+
+    /**
     * @return the meshes in the scene
     */
     virtual const std::vector<Mesh>& Meshes() const override;

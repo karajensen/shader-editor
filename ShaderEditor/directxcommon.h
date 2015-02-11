@@ -10,6 +10,9 @@
 #include "directx/include/d3dx10.h"
 #include "common.h"
 
+typedef std::function<void(const Mesh& mesh)> PreRenderMesh;
+typedef std::function<void(int texture)> PreRenderQuad;
+
 /**
 * Sets the name of the directx object for debugging
 * @param object The object to set

@@ -720,3 +720,11 @@ void Scene::SavePostProcessingtoFile()
     tree.add("MinimumColourB", m_postProcessing.minimumColour.b);
     SaveXMLFile(root, tree, "PostProcessing");
 }
+
+void Scene::Tick(float deltatime)
+{
+    for (Emitter& emitter : m_emitters)
+    {
+        emitter.Tick(deltatime);
+    }
+}

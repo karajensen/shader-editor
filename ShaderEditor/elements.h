@@ -290,9 +290,9 @@ struct Water : public Mesh
 */
 struct Particle
 {
-    Float3 direction;        ///< The direction of the particle
     Float3 position;         ///< The position of the particle
-    float speed = 0.0f;      ///< The speed of the particle
+    float lifeTime = 0.0f;   ///< How long has this particle been alive
+    float speed = 1.0f;      ///< The speed of the particle
     int texture = NO_INDEX;  ///< The texture to render the particle with
     bool alive = false;      ///< Whether this particle should be rendered
 };
@@ -307,6 +307,12 @@ struct Emitter
     * @param size The new size to make the particles
     */
     void Resize(int size);
+
+    /**
+    * Ticks the emitter
+    * @param deltatime the time passed between ticks
+    */
+    void Tick(float deltatime);
 
     float width = 0.0f;              ///< The width of the emitter
     float length = 0.0f;             ///< The length of the emitter

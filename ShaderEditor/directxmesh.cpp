@@ -3,31 +3,30 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directxmesh.h"
-#include "elements.h"
 
-DxWater::DxWater(const Water* water) :
-    DxMesh(water),
+DxWater::DxWater(const Water& water, PreRenderMesh preRender) :
+    DxMesh(water, preRender),
     m_water(water)
 {
-
 }
 
-DxMesh::DxMesh(const Mesh* mesh) :
-    m_vertexStride(sizeof(float) * mesh->vertexComponentCount),
-    m_vertexCount(mesh->vertexCount),
-    m_indexCount(mesh->indexCount),
-    m_mesh(mesh),
-    m_vertices(mesh->vertices),
-    m_indices(mesh->indices),
-    m_name(mesh->name)
+DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
+    m_preRender(preRender),
+    m_mesh(mesh)
 {
+    m_vertexStride = sizeof(float) * mesh.vertexComponentCount;
+    m_vertexCount = mesh.vertexCount;
+    m_indexCount = mesh.indexCount;
+    m_vertices = mesh.vertices;
+    m_indices = mesh.indices;
+    m_name = mesh.name;
 }
 
-DxMesh::DxMesh(const std::string& name) :
-    m_vertexBuffer(nullptr),
-    m_indexBuffer(nullptr),
-    m_name(name)
+DxQuad::DxQuad(const std::string& name, PreRenderQuad preRender) :
+    m_preRender(preRender)
 {
+    m_name = name;
+
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
     m_vertices.emplace_back(1.0f);  // y
@@ -70,18 +69,18 @@ DxMesh::DxMesh(const std::string& name) :
     m_indexCount = m_indices.size();
 }
 
-DxMesh::~DxMesh()
+DxMeshData::~DxMeshData()
 {
     Release();
 }
 
-void DxMesh::Release()
+void DxMeshData::Release()
 {
     SafeRelease(&m_vertexBuffer);
     SafeRelease(&m_indexBuffer);
 }
 
-void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
+void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
 {
     // Create the vertex buffer
     D3D11_BUFFER_DESC vbd;
@@ -117,7 +116,25 @@ void DxMesh::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     SetDebugName(m_vertexBuffer, m_name + "_VertexBuffer");
 }
 
+void DxQuad::Render(ID3D11DeviceContext* context)
+{
+    if (m_preRender)
+    {
+        m_preRender(m_texture);
+    }
+    DxMeshData::Render(context);
+}
+
 void DxMesh::Render(ID3D11DeviceContext* context)
+{
+    if (m_preRender)
+    {
+        m_preRender(m_mesh);
+    }
+    DxMeshData::Render(context);
+}
+
+void DxMeshData::Render(ID3D11DeviceContext* context)
 {
     UINT offset = 0;
     context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_vertexStride, &offset);
@@ -126,38 +143,22 @@ void DxMesh::Render(ID3D11DeviceContext* context)
     context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-bool DxMesh::ShouldBackfaceCull() const
-{
-    assert(m_mesh);
-    return m_mesh->backfacecull;
-}
-
-const std::vector<int>& DxMesh::GetTextureIDs() const
-{
-    assert(m_mesh);
-    return m_mesh->textureIDs;
-}
-
 int DxMesh::GetShaderID() const 
 { 
-    assert(m_mesh);
-    return m_mesh->shaderIndex;
+    return m_mesh.shaderIndex;
 }
 
-int DxMesh::GetMaxTextures() const 
-{ 
-    assert(m_mesh);
-    return m_mesh->maxTextures; 
+void DxQuad::SetTexture(int ID)
+{
+    m_texture = ID;
 }
 
 const Mesh& DxMesh::GetMesh() const
 {
-    assert(m_mesh);
-    return *m_mesh;
+    return m_mesh;
 }
 
 const Water& DxWater::GetWater() const
 {
-    assert(m_water);
-    return *m_water;
+    return m_water;
 }

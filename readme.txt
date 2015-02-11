@@ -1,5 +1,10 @@
 
 - Particles
+    - UpdateShader for emitters
+    - Rendering particles
+    - sort particles in order for transparency
+    - add particles to opengl
+
 - Optimise shaders
 - Create 3D scene
 
