@@ -22,6 +22,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_reloadScene.Initialise(m_ui.reloadScene_btn, m_callbacks.ReloadScene);
     m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
+    m_pauseEmission.Initialise(m_ui.pauseEmission_btn, m_callbacks.PauseEmission);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
         m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
@@ -153,17 +154,17 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     emitter[EMITTER_DIR_X].Set("Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
     emitter[EMITTER_DIR_Y].Set("Direction Y", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Y]);
     emitter[EMITTER_DIR_Z].Set("Direction Z", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Z]);
-    emitter[EMITTER_POS_X].Set("Position X", 0.01, m_callbacks.SetEmitter[EMITTER_POS_X]);
-    emitter[EMITTER_POS_Y].Set("Position Y", 0.01, m_callbacks.SetEmitter[EMITTER_POS_Y]);
-    emitter[EMITTER_POS_Z].Set("Position Z", 0.01, m_callbacks.SetEmitter[EMITTER_POS_Z]);
+    emitter[EMITTER_POS_X].Set("Position X", 1.0, m_callbacks.SetEmitter[EMITTER_POS_X]);
+    emitter[EMITTER_POS_Y].Set("Position Y", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Y]);
+    emitter[EMITTER_POS_Z].Set("Position Z", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Z]);
     m_emitter.Initialise(m_ui.emitter_box, m_ui.emitter_value, m_ui.emitter_dial, emitter);
 
     std::vector<ComboEntry> particle(PARTICLE_ATTRIBUTES);
     particle[PARTICLE_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetParticles[PARTICLE_LIFETIME]);
-    particle[PARTICLE_SPEED].Set("Speed", 0.01, m_callbacks.SetParticles[PARTICLE_SPEED]);
-    particle[PARTICLE_SPEED_VAR].Set("Speed Var.", 0.01, m_callbacks.SetParticles[PARTICLE_SPEED_VAR]);
-    particle[PARTICLE_SIZE].Set("Size", 0.01, m_callbacks.SetParticles[PARTICLE_SIZE]);
-    particle[PARTICLE_SIZE_VAR].Set("Size Var.", 0.01, m_callbacks.SetParticles[PARTICLE_SIZE_VAR]);
+    particle[PARTICLE_MAX_SPEED].Set("Max Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SPEED]);
+    particle[PARTICLE_MIN_SPEED].Set("Min Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SPEED]);
+    particle[PARTICLE_MAX_SIZE].Set("Max Size", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SIZE]);
+    particle[PARTICLE_MIN_SIZE].Set("Min Size", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SIZE]);
     particle[PARTICLE_TINT_R].Set("Tint R", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_R]);
     particle[PARTICLE_TINT_G].Set("Tint G", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_G]);
     particle[PARTICLE_TINT_B].Set("Tint B", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_B]);

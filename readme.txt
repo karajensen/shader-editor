@@ -1,9 +1,9 @@
 
 - Particles
-    - UpdateShader for emitters
-    - Rendering particles
-    - sort particles in order for transparency
-    - add particles to opengl
+    - Particles fade at being/end of lifetime
+    - Get movement/position/size accurate
+    - Particles facing camera
+    - Add to openGL
 
 - Optimise shaders
 - Create 3D scene

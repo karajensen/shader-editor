@@ -4605,7 +4605,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -5241,7 +5241,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>20</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -5858,6 +5858,63 @@ border-style: solid;
 border-width: 2px;</string>
            </property>
            <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="pauseEmission">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QPushButton" name="pauseEmission_btn">
+           <property name="geometry">
+            <rect>
+             <x>5</x>
+             <y>4</y>
+             <width>216</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(255, 255, 255);
+border-left-color: rgb(255, 255, 255);
+border-bottom-color: rgb(180, 180, 180);
+border-right-color: rgb(180, 180, 180);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="text">
+            <string>Pause Emission</string>
+           </property>
+           <property name="default">
             <bool>false</bool>
            </property>
           </widget>

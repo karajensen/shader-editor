@@ -141,7 +141,8 @@ struct Cache
         PageSelected(NO_PAGE),
         ReloadScene(false),
         SaveScene(false),
-        SavePost(false)
+        SavePost(false),
+        PauseEmission(false)
     {
     }
 
@@ -150,6 +151,7 @@ struct Cache
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
     Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> SavePost;            ///< Request to save post processing to xml
+    Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
                                         
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
     LockableString ShaderText;          ///< Text for the selected shader

@@ -334,21 +334,22 @@ bool DirectxEngine::InitialiseScene(const SceneElements& scene)
     for(const Mesh& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(mesh, 
-            [this](const Mesh& data){ PreRender(data); })));
+            [this](const Mesh& data){ SendTexture(data); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const Water& water : scene.Waters())
     {
         m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(water, 
-            [this](const Mesh& data){ PreRender(data); })));
+            [this](const Mesh& data){ SendTexture(data); })));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
     for(const Emitter& emitter : scene.Emitters())
     {
         m_data->emitters.push_back(std::unique_ptr<DxEmitter>(new DxEmitter(emitter,
-            [this](int texture){ PreRender(texture); })));
+            [this](int texture){ SendTexture(texture); },
+            [this](const Particle& data){ SendParticle(data); })));
     }
 
     return ReInitialiseScene();
@@ -417,10 +418,9 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
         UpdateShader(mesh->GetMesh(), scene.Lights());
         mesh->Render(m_data->context);
     }
-
-    SetBackfaceCull(true);
+    
     EnableAlphaBlending(true);
-
+    
     for (auto& water : m_data->waters)
     {
         UpdateShader(water->GetWater(), scene.Lights(), timer);
@@ -429,14 +429,16 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
     
     for (auto& emitter : m_data->emitters)
     {
+        UpdateShader(emitter->GetEmitter());
         emitter->Render(m_data->context);
     }
 
     EnableAlphaBlending(false);
+
     RenderNormalMap(scene.Post());
-    SetBackfaceCull(false);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
+
     m_data->swapchain->Present(0, 0);
 }
 
@@ -459,6 +461,8 @@ void DirectxEngine::RenderNormalMap(const PostProcessing& post)
 
 void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 {
+    SetBackfaceCull(false);
+
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive(m_data->context);
 
@@ -494,6 +498,8 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
+    SetBackfaceCull(false);
+
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
@@ -533,10 +539,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->blurTargetP2.ClearTexture(m_data->context, PostProcessing::BLUR);
 }
 
-void DirectxEngine::PreRender(const Mesh& mesh)
+void DirectxEngine::SendTexture(const Mesh& mesh)
 {
-    SetBackfaceCull(mesh.backfacecull);
-
     auto& shader = m_data->shaders[m_data->selectedShader];
 
     int slot = 0;
@@ -549,7 +553,7 @@ void DirectxEngine::PreRender(const Mesh& mesh)
     }
 }
 
-void DirectxEngine::PreRender(int texture)
+void DirectxEngine::SendTexture(int texture)
 {
     if (texture != NO_INDEX)
     {
@@ -566,8 +570,9 @@ void DirectxEngine::PreRender(int texture)
 }
 
 void DirectxEngine::UpdateShader(const Mesh& mesh, 
-                                const PostProcessing& post)
+                                 const PostProcessing& post)
 {
+    SetBackfaceCull(mesh.backfacecull);
     const int index = mesh.normalIndex;
     auto& shader = m_data->shaders[index];
 
@@ -587,6 +592,7 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 void DirectxEngine::UpdateShader(const Mesh& mesh, 
                                  const std::vector<Light>& lights)
 {
+    SetBackfaceCull(mesh.backfacecull);
     const int index = mesh.shaderIndex;
     auto& shader = m_data->shaders[index];
 
@@ -606,10 +612,10 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
     shader->SendConstants(m_data->context);
 }
 
-
 void DirectxEngine::UpdateShader(const Water& water, 
                                  const PostProcessing& post)
 {
+    SetBackfaceCull(true);
     const int index = water.normalIndex;
     auto& shader = m_data->shaders[index];
 
@@ -628,6 +634,7 @@ void DirectxEngine::UpdateShader(const Water& water,
                                  const std::vector<Light>& lights,
                                  float timer)
 {
+    SetBackfaceCull(true);
     const int index = water.shaderIndex;
     auto& shader = m_data->shaders[index];
 
@@ -663,6 +670,39 @@ void DirectxEngine::UpdateShader(const Water& water,
     shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
     shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);
 
+    shader->SendConstants(m_data->context);
+}
+
+void DirectxEngine::UpdateShader(const Emitter& emitter)
+{
+    SetBackfaceCull(false);
+    const int index = emitter.shaderIndex;
+    auto& shader = m_data->shaders[index];
+
+    if (index != m_data->selectedShader)
+    {
+        SetSelectedShader(index);
+    }
+
+    shader->UpdateConstantFloat("tint", &emitter.tint.r, 4);
+    shader->SendConstants(m_data->context);
+}
+
+void DirectxEngine::SendParticle(const Particle& particle)
+{
+    D3DXMATRIX worldViewProjection;
+    D3DXMatrixIdentity(&worldViewProjection);
+    worldViewProjection._11 = particle.size;
+    worldViewProjection._22 = particle.size;
+    worldViewProjection._33 = particle.size;
+    worldViewProjection._41 = particle.position.x;
+    worldViewProjection._42 = particle.position.y;
+    worldViewProjection._43 = particle.position.z;
+    worldViewProjection *= m_data->viewProjection;
+
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->UpdateConstantMatrix("worldViewProjection", worldViewProjection);
+    shader->UpdateConstantFloat("alpha", &particle.alpha, 1);
     shader->SendConstants(m_data->context);
 }
 

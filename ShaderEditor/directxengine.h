@@ -161,19 +161,30 @@ private:
                       const PostProcessing& post);
 
     /**
+    * Updates the shader for an emitter
+    */
+    void UpdateShader(const Emitter& emitter);
+
+    /**
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
 
     /**
-    * Pre-renders a mesh
+    * Updates the shader for a particle
+    * @param particle Information to render the particle
     */
-    void PreRender(const Mesh& mesh);
+    void SendParticle(const Particle& particle);
 
     /**
-    * Pre-renders a particle
+    * Sends a texture to the selected shader
     */
-    void PreRender(int texture);
+    void SendTexture(const Mesh& mesh);
+
+    /**
+    * Sends a texture to the selected shader
+    */
+    void SendTexture(int texture);
 
     /**
     * Initialises the DirectX debugging layer

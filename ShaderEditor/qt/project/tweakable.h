@@ -141,11 +141,11 @@ enum EmitterAttribute
 */
 enum ParticleAttribute
 {
-    PARTICLE_SPEED,
-    PARTICLE_SPEED_VAR,
+    PARTICLE_MIN_SPEED,
+    PARTICLE_MAX_SPEED,
     PARTICLE_LIFETIME,
-    PARTICLE_SIZE,
-    PARTICLE_SIZE_VAR,
+    PARTICLE_MIN_SIZE,
+    PARTICLE_MAX_SIZE,
     PARTICLE_TINT_R,
     PARTICLE_TINT_G,
     PARTICLE_TINT_B,
@@ -196,6 +196,7 @@ struct SignalCallbacks
     IntSignal SetPostMap;          ///< Sets the selected post map to display
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
+    VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
     VoidSignal SavePost;           ///< Sends a request to save post processing to xml
     StrSignal CompileShader;       ///< Sends a compile request
 
@@ -223,6 +224,7 @@ struct SignalCallbacks
         SetPostMap(nullptr),
         ReloadScene(nullptr),
         SaveScene(nullptr),
+        PauseEmission(nullptr),
         SavePost(nullptr),
         CompileShader(nullptr)
     {

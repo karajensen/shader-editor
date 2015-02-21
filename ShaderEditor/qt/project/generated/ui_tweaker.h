@@ -185,6 +185,8 @@ public:
     QDoubleSpinBox *particle_value;
     QDial *particle_dial;
     QComboBox *particle_box;
+    QFrame *pauseEmission;
+    QPushButton *pauseEmission_btn;
     QSpacerItem *_meshSpacer;
     QWidget *Post;
     QWidget *layoutWidget3;
@@ -1724,7 +1726,7 @@ public:
 
         meshLayout->addWidget(meshAttributes);
 
-        _meshSpacer_2 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_2);
 
@@ -1935,7 +1937,7 @@ public:
 
         meshLayout->addWidget(water);
 
-        _meshSpacer_3 = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_3 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_3);
 
@@ -2144,6 +2146,30 @@ public:
         particle_box->setFrame(false);
 
         meshLayout->addWidget(particle);
+
+        pauseEmission = new QFrame(layoutWidget2);
+        pauseEmission->setObjectName(QStringLiteral("pauseEmission"));
+        sizePolicy.setHeightForWidth(pauseEmission->sizePolicy().hasHeightForWidth());
+        pauseEmission->setSizePolicy(sizePolicy);
+        pauseEmission->setMinimumSize(QSize(225, 35));
+        pauseEmission->setMaximumSize(QSize(225, 35));
+        pauseEmission->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        pauseEmission->setFrameShape(QFrame::Panel);
+        pauseEmission->setFrameShadow(QFrame::Raised);
+        pauseEmission_btn = new QPushButton(pauseEmission);
+        pauseEmission_btn->setObjectName(QStringLiteral("pauseEmission_btn"));
+        pauseEmission_btn->setGeometry(QRect(5, 4, 216, 25));
+        pauseEmission_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        pauseEmission_btn->setDefault(false);
+
+        meshLayout->addWidget(pauseEmission);
 
         _meshSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2863,6 +2889,7 @@ public:
         waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
         particleAmount_lbl->setText(QApplication::translate("Tweaker", "Amount", 0));
+        pauseEmission_btn->setText(QApplication::translate("Tweaker", "Pause Emission", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         depthNear_lbl->setText(QApplication::translate("Tweaker", "Depth Near", 0));
         depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));

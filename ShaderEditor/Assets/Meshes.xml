@@ -1,5 +1,11 @@
 <Meshes>
   <Mesh>
+    <Name>sphere.obj</Name>
+    <Specularity>1.0</Specularity>
+    <Shader>Diffuse</Shader>
+    <Diffuse>sky.png</Diffuse>
+  </Mesh>  
+  <Mesh>
     <Name>mock_skybox.obj</Name>
     <Specularity>1.0</Specularity>
     <Shader>Flat</Shader>

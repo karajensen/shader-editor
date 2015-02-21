@@ -99,6 +99,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
     callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
     callbacks.SavePost =           [this](){ m_cache->SavePost.Set(true); };
+    callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);

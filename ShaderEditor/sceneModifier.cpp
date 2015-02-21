@@ -129,6 +129,12 @@ void SceneModifier::UpdateScene()
     m_cache->DeltaTime.Set(m_timer.GetDeltaTime());
     m_cache->Timer.Set(m_timer.GetTotalTime());
 
+    if (m_cache->PauseEmission.Get() && m_selectedEmitter != NO_INDEX)
+    {
+        m_scene.GetEmitter(m_selectedEmitter).TogglePaused();
+        m_cache->PauseEmission.Set(false);
+    }
+
     if (m_cache->SaveScene.Get())
     {
         m_scene.SaveSceneToFile();
@@ -298,10 +304,10 @@ void SceneModifier::UpdateEmitter()
         m_cache->Emitter[EMITTER_DIR_Y].SetUpdated(emitter.direction.y);
         m_cache->Emitter[EMITTER_DIR_Z].SetUpdated(emitter.direction.z);
         m_cache->Particles[PARTICLE_LIFETIME].SetUpdated(emitter.lifeTime);
-        m_cache->Particles[PARTICLE_SPEED].SetUpdated(emitter.speed);
-        m_cache->Particles[PARTICLE_SPEED_VAR].SetUpdated(emitter.speedVariation);
-        m_cache->Particles[PARTICLE_SIZE].SetUpdated(emitter.size);
-        m_cache->Particles[PARTICLE_SIZE_VAR].SetUpdated(emitter.sizeVariation);
+        m_cache->Particles[PARTICLE_MAX_SPEED].SetUpdated(emitter.maxSpeed);
+        m_cache->Particles[PARTICLE_MIN_SPEED].SetUpdated(emitter.minSpeed);
+        m_cache->Particles[PARTICLE_MAX_SIZE].SetUpdated(emitter.maxSize);
+        m_cache->Particles[PARTICLE_MIN_SIZE].SetUpdated(emitter.minSize);
         m_cache->Particles[PARTICLE_TINT_R].SetUpdated(emitter.tint.r);
         m_cache->Particles[PARTICLE_TINT_G].SetUpdated(emitter.tint.g);
         m_cache->Particles[PARTICLE_TINT_B].SetUpdated(emitter.tint.b);
@@ -319,10 +325,10 @@ void SceneModifier::UpdateEmitter()
         emitter.direction.y = m_cache->Emitter[EMITTER_DIR_Y].Get();
         emitter.direction.z = m_cache->Emitter[EMITTER_DIR_Z].Get();
         emitter.lifeTime = m_cache->Particles[PARTICLE_LIFETIME].Get();
-        emitter.speed = m_cache->Particles[PARTICLE_SPEED].Get();
-        emitter.speedVariation = m_cache->Particles[PARTICLE_SPEED_VAR].Get();
-        emitter.size = m_cache->Particles[PARTICLE_SIZE].Get();
-        emitter.sizeVariation = m_cache->Particles[PARTICLE_SIZE_VAR].Get();
+        emitter.minSpeed = m_cache->Particles[PARTICLE_MIN_SPEED].Get();
+        emitter.maxSpeed = m_cache->Particles[PARTICLE_MAX_SPEED].Get();
+        emitter.minSize = m_cache->Particles[PARTICLE_MIN_SIZE].Get();
+        emitter.maxSize = m_cache->Particles[PARTICLE_MAX_SIZE].Get();
         emitter.tint.r = m_cache->Particles[PARTICLE_TINT_R].Get();
         emitter.tint.g = m_cache->Particles[PARTICLE_TINT_G].Get();
         emitter.tint.b = m_cache->Particles[PARTICLE_TINT_B].Get();

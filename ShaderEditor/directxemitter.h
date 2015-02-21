@@ -18,7 +18,9 @@ public:
     * @param emitter The emitter to use as a template
     * @param preRender a callback to setup rendering
     */
-    DxEmitter(const Emitter& emitter, PreRenderQuad preRender);
+    DxEmitter(const Emitter& emitter, 
+              PreRenderQuad preRender,
+              PreRenderParticle preRenderParticle);
 
     /**
     * Renders the emitter
@@ -38,9 +40,15 @@ public:
     */
     void Release();
 
+    /**
+    * @return the emitter information
+    */
+    const Emitter& GetEmitter() const;
+
 private:
 
-    std::unique_ptr<DxQuad> m_particle; ///< Particle quad
-    const Emitter& m_emitter;           ///< Emitter information
+    PreRenderParticle m_preRender = nullptr; ///< Pre render callback for particles
+    std::unique_ptr<DxQuad> m_particle;      ///< Particle quad
+    const Emitter& m_emitter;                ///< Emitter information
 };
                                                                                                       

@@ -1,10 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - water_hlsl.fx
+// Kara Jensen - mail@karajensen.com - particle_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
-cbuffer SceneVertexBuffer : register(b0)
+cbuffer MeshVertexBuffer : register(b0)
 {
-    float4x4 viewProjection;
+    float4x4 worldViewProjection;
+};
+
+cbuffer MeshPixelBuffer : register(b1)
+{
+    float alpha;
+};
+
+cbuffer ScenePixelBuffer : register(b2)
+{
+    float4 tint;
 };
 
 SamplerState Sampler;
@@ -17,16 +27,15 @@ struct Attributes
 };
 
 Attributes VShader(float4 position  : POSITION,    
-                   float2 uvs       : TEXCOORD0,
-                   float3 normal    : NORMAL)
+                   float2 uvs       : TEXCOORD0)
 {
     Attributes output;
-    output.position = mul(viewProjection, position);
+    output.position = mul(worldViewProjection, position);
     output.uvs = uvs;
     return output;
 }
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    return float4(DiffuseTexture.Sample(Sampler, input.uvs).rgb, 0.0);
+    return float4(DiffuseTexture.Sample(Sampler, input.uvs).rgb * tint.rgb, tint.a * alpha);
 }

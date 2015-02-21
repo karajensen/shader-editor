@@ -160,10 +160,10 @@ bool Scene::InitialiseEmitters()
         emitter.width = GetValue<float>(it, "Width");
         emitter.length = GetValue<float>(it, "Length");
         emitter.lifeTime = GetValue<float>(it, "LifeTime");
-        emitter.speed = GetValue<float>(it, "Speed");
-        emitter.speedVariation = GetValue<float>(it, "SpeedVariation");
-        emitter.size = GetValue<float>(it, "Size");
-        emitter.sizeVariation = GetValue<float>(it, "SizeVariation");
+        emitter.maxSpeed = GetValue<float>(it, "MaximumSpeed");
+        emitter.minSpeed = GetValue<float>(it, "MinimumSpeed");
+        emitter.minSize = GetValue<float>(it, "MinimumSize");
+        emitter.maxSize = GetValue<float>(it, "MaximumSize");
         emitter.name = GetValue<std::string>(it, "Name");
         emitter.position.x = GetAttribute<float>(it, "Position", "x");
         emitter.position.y = GetAttribute<float>(it, "Position", "y");
@@ -174,6 +174,7 @@ bool Scene::InitialiseEmitters()
         emitter.tint.r = GetAttribute<float>(it, "Tint", "r");
         emitter.tint.g = GetAttribute<float>(it, "Tint", "g");
         emitter.tint.b = GetAttribute<float>(it, "Tint", "b");
+        emitter.tint.a = GetAttribute<float>(it, "Tint", "a");
         emitter.shaderIndex = PARTICLE_SHADER_INDEX;
         emitter.normalIndex = PARTICLE_NORMAL_SHADER_INDEX;
 
@@ -557,10 +558,10 @@ void Scene::SaveParticlesToFile()
         entry.add("Length", emitter.length);
         entry.add("Amount", emitter.particles.size());
         entry.add("LifeTime", emitter.lifeTime);
-        entry.add("Speed", emitter.speed);
-        entry.add("SpeedVariation", emitter.speedVariation);
-        entry.add("Size", emitter.size);
-        entry.add("SizeVariation", emitter.sizeVariation);
+        entry.add("MaximumSpeed", emitter.maxSpeed);
+        entry.add("MinimumSpeed", emitter.minSpeed);
+        entry.add("MaximumSize", emitter.maxSize);
+        entry.add("MinimumSize", emitter.minSize);
         entry.add("Position.<xmlattr>.x", emitter.position.x);
         entry.add("Position.<xmlattr>.y", emitter.position.y);
         entry.add("Position.<xmlattr>.z", emitter.position.z);
@@ -570,6 +571,7 @@ void Scene::SaveParticlesToFile()
         entry.add("Tint.<xmlattr>.r", emitter.tint.r);
         entry.add("Tint.<xmlattr>.g", emitter.tint.g);
         entry.add("Tint.<xmlattr>.b", emitter.tint.b);
+        entry.add("Tint.<xmlattr>.a", emitter.tint.a);
 
         for (int texture : emitter.textures)
         {

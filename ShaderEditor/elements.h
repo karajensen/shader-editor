@@ -290,11 +290,17 @@ struct Water : public Mesh
 */
 struct Particle
 {
-    Float3 position;         ///< The position of the particle
-    float lifeTime = 0.0f;   ///< How long has this particle been alive
-    float speed = 1.0f;      ///< The speed of the particle
-    int texture = NO_INDEX;  ///< The texture to render the particle with
-    bool alive = false;      ///< Whether this particle should be rendered
+    Particle();
+
+    Float3 position;            ///< The position of the particle
+    float lifeTime = 0.0f;      ///< How long has this particle been alive
+    float waitTime = 0.0f;      ///< How long has passed while waiting
+    float maxWaitTime = 0.0f;   ///< Time to wait before respawning
+    float speed = 1.0f;         ///< The speed of the particle
+    int texture = NO_INDEX;     ///< The texture to render the particle with
+    bool alive = false;         ///< Whether this particle should be rendered
+    float size = 1.0f;          ///< Size of the particle
+    float alpha = 1.0f;         ///< How transparent this particle is
 };
 
 /**
@@ -314,13 +320,19 @@ struct Emitter
     */
     void Tick(float deltatime);
 
+    /**
+    * Toggles whether the emitter is paused
+    */
+    void TogglePaused();
+
     float width = 0.0f;              ///< The width of the emitter
     float length = 0.0f;             ///< The length of the emitter
-    float speed = 0.0f;              ///< The speed of the particles
-    float speedVariation = 0.0f;     ///< The variation in speed of the particles
-    float size = 1.0f;               ///< Size of the particles
-    float sizeVariation = 1.0f;      ///< Size variation of the particles
+    float minSpeed = 1.0f;           ///< The minimum speed of the particles
+    float maxSpeed = 1.0f;           ///< The maximum speed of the particles
+    float minSize = 1.0f;            ///< Minimum size of the particles
+    float maxSize = 1.0f;            ///< Maximum size of the particles
     float lifeTime = 0.0f;           ///< Seconds the particle can live before dying
+    float lifeFade = 1.0f;           ///< Seconds before lifetime ends to fade the particle
     Float3 position;                 ///< The position of the emitter
     Float3 direction;                ///< The direction the particles will spawn 
     Colour tint;                     ///< Colour to tint the particle texture
@@ -329,4 +341,5 @@ struct Emitter
     int shaderIndex = NO_INDEX;      ///< Unique Index of the mesh shader to use
     int normalIndex = NO_INDEX;      ///< Unique Index of the normal shader to use
     std::string name;                ///< Name of this emitter
+    bool paused = false;             ///< Whether emission is paused
 };

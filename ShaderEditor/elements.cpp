@@ -2,11 +2,35 @@
 // Kara Jensen - mail@karajensen.com - elements.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#include <random>
 #include "elements.h"
 #include "common.h"
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
+
+namespace
+{
+    static std::default_random_engine generator; ///< Used for random generation
+
+    /**
+    * Utility class to get a random value
+    */
+    int GetRandom(int min, int max)
+    {
+        std::uniform_int_distribution<int> distribution(min, max);
+        return distribution(generator);
+    }
+
+    /**
+    * Utility class to get a random value
+    */
+    float GetRandom(float min, float max)
+    {
+        std::uniform_real_distribution<float> distribution(min, max);
+        return distribution(generator);
+    }
+}
 
 Float2::Float2(float X, float Y) 
     : x(X), y(Y)
@@ -247,6 +271,11 @@ bool Mesh::Initialise(bool requiresNormals, bool requiresBumpMapping)
     return true;
 }
 
+Particle::Particle() :
+    maxWaitTime(GetRandom(0.0f,1.0f))
+{
+}
+
 void Emitter::Resize(int size)
 {
     const int currentSize = static_cast<int>(particles.size());
@@ -260,8 +289,18 @@ void Emitter::Resize(int size)
     }
 }
 
+void Emitter::TogglePaused()
+{
+    paused = !paused;
+}
+
 void Emitter::Tick(float deltatime)
 {
+    if (paused)
+    {
+        return;
+    }
+
     for (Particle& particle : particles)
     {
         if (particle.alive)
@@ -269,12 +308,31 @@ void Emitter::Tick(float deltatime)
             particle.lifeTime += deltatime;
             particle.position += direction * particle.speed;
             particle.alive = particle.lifeTime < lifeTime;
+
+            const float fadeBegin = lifeTime - lifeFade;
+            if (particle.lifeTime > fadeBegin)
+            {
+            }
+        }
+        else if (particle.waitTime < particle.maxWaitTime)
+        {
+            particle.waitTime += deltatime;
         }
         else
         {
-            particle.lifeTime = 0.0;
+            particle.waitTime = 0.0f;
+            particle.lifeTime = 0.0f;
             particle.position = position;
             particle.alive = true;
+            particle.speed = GetRandom(minSpeed, maxSpeed);
+            particle.size = GetRandom(minSize, maxSize);
+            particle.texture = textures[GetRandom(0, static_cast<int>(textures.size()-1))];
         }
     }
+
+    std::stable_sort(particles.begin(), particles.end(), 
+        [](const Particle& p1, const Particle& p2)
+        {
+            return p1.position.z < p2.position.z;
+        });
 }
