@@ -25,8 +25,12 @@ public:
     /**
     * Renders the emitter
     * @param context Direct3D device context
+    * @param cameraPosition The world position of the camera
+    * @param camerUp The up vector of the camera
     */
-    void Render(ID3D11DeviceContext* context);
+    void Render(ID3D11DeviceContext* context, 
+                const D3DXVECTOR3& cameraPosition,
+                const D3DXVECTOR3& cameraUp);
 
     /**
     * Initialises the emitter

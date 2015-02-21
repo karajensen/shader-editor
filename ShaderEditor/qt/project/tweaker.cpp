@@ -161,13 +161,13 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     std::vector<ComboEntry> particle(PARTICLE_ATTRIBUTES);
     particle[PARTICLE_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetParticles[PARTICLE_LIFETIME]);
-    particle[PARTICLE_MAX_SPEED].Set("Max Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SPEED]);
-    particle[PARTICLE_MIN_SPEED].Set("Min Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SPEED]);
-    particle[PARTICLE_MAX_SIZE].Set("Max Size", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SIZE]);
-    particle[PARTICLE_MIN_SIZE].Set("Min Size", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SIZE]);
     particle[PARTICLE_TINT_R].Set("Tint R", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_R]);
     particle[PARTICLE_TINT_G].Set("Tint G", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_G]);
     particle[PARTICLE_TINT_B].Set("Tint B", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_B]);
+    particle[PARTICLE_MAX_SPEED].Set("Max Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SPEED]);
+    particle[PARTICLE_MIN_SPEED].Set("Min Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SPEED]);
+    particle[PARTICLE_MAX_SIZE].Set("Max Size", 0.1, m_callbacks.SetParticles[PARTICLE_MAX_SIZE]);
+    particle[PARTICLE_MIN_SIZE].Set("Min Size", 0.1, m_callbacks.SetParticles[PARTICLE_MIN_SIZE]);
     m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, particle);
 
     std::vector<ComboEntry> water(WATER_ATTRIBUTES);

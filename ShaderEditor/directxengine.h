@@ -8,6 +8,7 @@
 
 struct DirectxData;
 struct ID3D11Device;
+struct D3DXMATRIX;
 
 /**
 * DirectX Graphics engine
@@ -172,9 +173,10 @@ private:
 
     /**
     * Updates the shader for a particle
-    * @param particle Information to render the particle
+    * @param world The world matrix for the particle
+    * @param particle The data for the particle
     */
-    void SendParticle(const Particle& particle);
+    void SendParticle(D3DXMATRIX world, const Particle& particle);
 
     /**
     * Sends a texture to the selected shader

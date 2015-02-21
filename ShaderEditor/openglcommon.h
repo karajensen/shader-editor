@@ -15,7 +15,6 @@
 /**
 * Callbacks for pre-rendering elements
 */
-typedef std::function<void(const Particle& particle)> PreRenderParticle;
 typedef std::function<void(const Mesh& mesh)> PreRenderMesh;
 typedef std::function<void(int texture)> PreRenderQuad;
 

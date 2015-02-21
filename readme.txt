@@ -1,12 +1,9 @@
 
-- Particles
-    - Particles fade at being/end of lifetime
-    - Get movement/position/size accurate
-    - Particles facing camera
-    - Add to openGL
+- Position/direction randomized over emitter area
+- Add to openGL
 
-- Optimise shaders
 - Create 3D scene
+- Optimise shaders
 
 =================================================================
 SHADER EDITOR

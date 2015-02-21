@@ -103,3 +103,24 @@ inline void ShowMessage(const std::string& message, const std::string& title)
 {
     MessageBox(nullptr, message.c_str(), title.c_str(), MB_OK);
 }
+
+/**
+* Change the range a value is between
+*/
+template<typename T> T ConvertRange(T value,    
+                                    T currentInner, 
+                                    T currentOuter, 
+                                    T newInner, 
+                                    T newOuter)
+{
+    return ((value-currentInner)*((newOuter-newInner)/
+        (currentOuter-currentInner)))+newInner;
+}
+
+/**
+* Clamp a value between min and max
+*/
+template<typename T> T Clamp(T value, T minValue, T maxValue)
+{
+    return min(max(value, minValue), maxValue);
+}

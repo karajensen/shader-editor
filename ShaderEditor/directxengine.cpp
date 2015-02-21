@@ -52,6 +52,7 @@ struct DirectxData
     D3DXMATRIX projection;              ///< Projection matrix
     D3DXMATRIX viewProjection;          ///< View projection matrix
     D3DXVECTOR3 cameraPosition;         ///< Position of the camera
+    D3DXVECTOR3 cameraUp;               ///< Up vector of the camera
     bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
@@ -349,7 +350,7 @@ bool DirectxEngine::InitialiseScene(const SceneElements& scene)
     {
         m_data->emitters.push_back(std::unique_ptr<DxEmitter>(new DxEmitter(emitter,
             [this](int texture){ SendTexture(texture); },
-            [this](const Particle& data){ SendParticle(data); })));
+            [this](D3DXMATRIX world, const Particle& data){ SendParticle(world, data); })));
     }
 
     return ReInitialiseScene();
@@ -430,7 +431,8 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
     for (auto& emitter : m_data->emitters)
     {
         UpdateShader(emitter->GetEmitter());
-        emitter->Render(m_data->context);
+        emitter->Render(m_data->context, 
+            m_data->cameraPosition, m_data->cameraUp);
     }
 
     EnableAlphaBlending(false);
@@ -688,20 +690,10 @@ void DirectxEngine::UpdateShader(const Emitter& emitter)
     shader->SendConstants(m_data->context);
 }
 
-void DirectxEngine::SendParticle(const Particle& particle)
+void DirectxEngine::SendParticle(D3DXMATRIX world, const Particle& particle)
 {
-    D3DXMATRIX worldViewProjection;
-    D3DXMatrixIdentity(&worldViewProjection);
-    worldViewProjection._11 = particle.size;
-    worldViewProjection._22 = particle.size;
-    worldViewProjection._33 = particle.size;
-    worldViewProjection._41 = particle.position.x;
-    worldViewProjection._42 = particle.position.y;
-    worldViewProjection._43 = particle.position.z;
-    worldViewProjection *= m_data->viewProjection;
-
     auto& shader = m_data->shaders[m_data->selectedShader];
-    shader->UpdateConstantMatrix("worldViewProjection", worldViewProjection);
+    shader->UpdateConstantMatrix("worldViewProjection", world * m_data->viewProjection);
     shader->UpdateConstantFloat("alpha", &particle.alpha, 1);
     shader->SendConstants(m_data->context);
 }
@@ -742,13 +734,15 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->view._42 = world.m24;
     m_data->view._43 = world.m34;
 
-    m_data->cameraPosition.x = world.m14;
-    m_data->cameraPosition.y = world.m24;
-    m_data->cameraPosition.z = world.m34;
+    m_data->cameraPosition.x = m_data->view._41;
+    m_data->cameraPosition.y = m_data->view._42;
+    m_data->cameraPosition.z = m_data->view._43;
+
+    m_data->cameraUp.x = m_data->view._21;
+    m_data->cameraUp.y = m_data->view._22;
+    m_data->cameraUp.z = m_data->view._23;
 
     D3DXMatrixInverse(&m_data->view, nullptr, &m_data->view);
-
-    // Model pivot points exist at the origin: world matrix is the identity
     m_data->viewProjection = m_data->view * m_data->projection;
 }
 

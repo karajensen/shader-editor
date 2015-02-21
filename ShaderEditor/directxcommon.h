@@ -13,9 +13,9 @@
 /**
 * Callbacks for pre-rendering elements
 */
-typedef std::function<void(const Particle& particle)> PreRenderParticle;
-typedef std::function<void(const Mesh& mesh)> PreRenderMesh;
-typedef std::function<void(int texture)> PreRenderQuad;
+typedef std::function<void(D3DXMATRIX, const Particle&)> PreRenderParticle;
+typedef std::function<void(const Mesh&)> PreRenderMesh;
+typedef std::function<void(int)> PreRenderQuad;
 
 /**
 * Sets the name of the directx object for debugging

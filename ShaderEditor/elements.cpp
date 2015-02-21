@@ -309,9 +309,17 @@ void Emitter::Tick(float deltatime)
             particle.position += direction * particle.speed;
             particle.alive = particle.lifeTime < lifeTime;
 
-            const float fadeBegin = lifeTime - lifeFade;
-            if (particle.lifeTime > fadeBegin)
+            // Fade particle in/out of lifetime
+            const float fadeEnd = lifeTime - lifeFade;
+            if (particle.lifeTime <= lifeFade)
             {
+                particle.alpha = Clamp(ConvertRange(particle.lifeTime, 
+                    0.0f, lifeFade, 0.0f, 1.0f), 0.0f, 1.0f);
+            }
+            else if (particle.lifeTime >= fadeEnd)
+            {
+                particle.alpha = Clamp(ConvertRange(particle.lifeTime, 
+                    fadeEnd, lifeTime, 1.0f, 0.0f), 0.0f, 1.0f);
             }
         }
         else if (particle.waitTime < particle.maxWaitTime)
@@ -320,6 +328,7 @@ void Emitter::Tick(float deltatime)
         }
         else
         {
+            particle.alpha = 0.0f;
             particle.waitTime = 0.0f;
             particle.lifeTime = 0.0f;
             particle.position = position;

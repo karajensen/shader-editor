@@ -6,8 +6,8 @@
 		<Length>10</Length>
 		<Amount>10</Amount>
 		<LifeTime>2.0</LifeTime>
-		<MinimumSpeed>1.0</MinimumSpeed>
-    <MaximumSpeed>2.0</MaximumSpeed>
+		<MinimumSpeed>0.2</MinimumSpeed>
+    <MaximumSpeed>0.5</MaximumSpeed>
 		<MinimumSize>5.0</MinimumSize>
 		<MaximumSize>15.0</MaximumSize>
 		<Position x="0.0" y="0.0" z="0.0"/>
