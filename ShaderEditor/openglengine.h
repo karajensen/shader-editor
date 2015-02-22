@@ -5,6 +5,7 @@
 #pragma once
 
 #include "renderengine.h"
+#include "opengl/glm/glm.hpp"
 
 struct OpenglData;
 
@@ -151,19 +152,26 @@ private:
     void UpdateShader(const Water& water, const PostProcessing& post);
 
     /**
+    * Updates the shader for an emitter
+    */
+    void UpdateShader(const Emitter& emitter);
+
+    /**
+    * Updates the shader for a particle
+    * @param world The world matrix for the particle
+    * @param particle The data for the particle
+    */
+    void UpdateShader(glm::mat4 world, const Particle& particle);
+
+    /**
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
 
     /**
-    * Pre-renders a mesh
+    * Sends all textures to the selected shader
     */
-    void PreRender(const Mesh& mesh);
-
-    /**
-    * Pre-renders a particle
-    */
-    void PreRender(int texture);
+    void SendTextures(const std::vector<int>& textures);
 
     /**
     * Renders the scene as a normal/depth map

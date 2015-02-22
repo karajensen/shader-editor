@@ -5,11 +5,10 @@
 #include "directxemitter.h"
 
 DxEmitter::DxEmitter(const Emitter& emitter, 
-                     PreRenderQuad preRenderQuad, 
                      PreRenderParticle preRenderParticle) :
 
     m_emitter(emitter),
-    m_particle(new DxQuad(emitter.name, preRenderQuad)),
+    m_particle(new DxQuad(emitter.name)),
     m_preRender(preRenderParticle)
 {
 }
@@ -56,7 +55,6 @@ void DxEmitter::Render(ID3D11DeviceContext* context,
             translate._43 = particle.position.z;
             
             m_preRender(scale * rotate * translate, particle);
-            m_particle->SetTexture(particle.texture);
             m_particle->Render(context);
         }
     }

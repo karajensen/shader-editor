@@ -1,18 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - water_glsl_vert.fx
+// Kara Jensen - mail@karajensen.com - particle_glsl_vert.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #version 150
 
 in vec4 in_Position;
 in vec2 in_UVs;
-in vec3 in_Normal;
 out vec2 ex_UVs;
 
-uniform mat4 viewProjection;
+uniform mat4 worldViewProjection;
  
 void main(void)
 {
-    gl_Position = viewProjection * in_Position;
+    gl_Position = worldViewProjection * in_Position;
     ex_UVs = in_UVs;
 }

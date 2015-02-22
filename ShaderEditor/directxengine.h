@@ -167,26 +167,21 @@ private:
     void UpdateShader(const Emitter& emitter);
 
     /**
+    * Updates the shader for a particle
+    * @param world The world matrix for the particle
+    * @param particle The data for the particle
+    */
+    void UpdateShader(D3DXMATRIX world, const Particle& particle);
+
+    /**
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
 
     /**
-    * Updates the shader for a particle
-    * @param world The world matrix for the particle
-    * @param particle The data for the particle
+    * Sends all textures to the selected shader
     */
-    void SendParticle(D3DXMATRIX world, const Particle& particle);
-
-    /**
-    * Sends a texture to the selected shader
-    */
-    void SendTexture(const Mesh& mesh);
-
-    /**
-    * Sends a texture to the selected shader
-    */
-    void SendTexture(int texture);
+    void SendTextures(const std::vector<int>& textures);
 
     /**
     * Initialises the DirectX debugging layer

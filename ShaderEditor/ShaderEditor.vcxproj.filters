@@ -145,6 +145,9 @@
     <ClCompile Include="directxemitter.cpp">
       <Filter>Render Engine Source</Filter>
     </ClCompile>
+    <ClCompile Include="openglemitter.cpp">
+      <Filter>Render Engine Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -261,6 +264,9 @@
     <ClInclude Include="directxemitter.h">
       <Filter>Render Engine Header</Filter>
     </ClInclude>
+    <ClInclude Include="openglemitter.h">
+      <Filter>Render Engine Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_frag.fx">
@@ -296,15 +302,6 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\particle_hlsl.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_glsl_frag.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_glsl_vert.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\post_glsl_frag.fx">

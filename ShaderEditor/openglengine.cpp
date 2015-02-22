@@ -7,6 +7,7 @@
 #include "openglmesh.h"
 #include "opengltexture.h"
 #include "opengltarget.h"
+#include "openglemitter.h"
 #include "sceneElements.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
@@ -42,6 +43,7 @@ struct OpenglData
     GlRenderTarget blurTargetP2;     ///< Render target for blurring the scene (pass2)
     GlQuad quad;                     ///< Quad to render the final post processed scene onto
     glm::vec3 cameraPosition;        ///< Position of the camera
+    glm::vec3 cameraUp;              ///< The up vector of the camera
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
     glm::mat4 viewProjection;        ///< View projection matrix
@@ -54,6 +56,7 @@ struct OpenglData
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
+    std::vector<std::unique_ptr<GlEmitter>> emitters; ///< Emitters holding particles
 };
 
 OpenglData::OpenglData() :
@@ -95,6 +98,11 @@ void OpenglData::Release()
     for(auto& shader : shaders)
     {
         shader->Release();
+    }
+
+    for(auto& emitter : emitters)
+    {
+        emitter->Release();
     }
 
     backBuffer.Release();
@@ -323,15 +331,20 @@ bool OpenglEngine::InitialiseScene(const SceneElements& scene)
     m_data->meshes.reserve(scene.Meshes().size());
     for(const Mesh& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh,
-            [this](const Mesh& data){ PreRender(data); })));
+        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh)));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const Water& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(water,
-            [this](const Mesh& data){ PreRender(data); })));
+        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(water)));
+    }
+
+    m_data->emitters.reserve(scene.Emitters().size());
+    for(const Emitter& emitter : scene.Emitters())
+    {
+        m_data->emitters.push_back(std::unique_ptr<GlEmitter>(new GlEmitter(emitter,
+            [this](glm::mat4 world, const Particle& data){ UpdateShader(world, data); })));
     }
 
     return ReInitialiseScene();
@@ -373,6 +386,15 @@ bool OpenglEngine::ReInitialiseScene()
         if(!texture->Initialise())
         {
             Logger::LogError("OpenGL: Failed to re-initialise texture");
+            return false;
+        }
+    }
+
+    for(auto& emitter : m_data->emitters)
+    {
+        if(!emitter->Initialise())
+        {
+            Logger::LogError("OpenGL: Failed to re-initialise emitter");
             return false;
         }
     }
@@ -420,11 +442,20 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
         water->Render();
     }
 
+    for (auto& emitter : m_data->emitters)
+    {
+        UpdateShader(emitter->GetEmitter());
+        emitter->PreRender();
+        m_data->shaders[emitter->GetShaderID()]->EnableAttributes();
+        emitter->Render(m_data->cameraPosition, m_data->cameraUp);
+    }
+
     EnableAlphaBlending(false);
+
     RenderNormalMap(scene.Post());
-    SetBackfaceCull(false);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
+
     SwapBuffers(m_data->hdc); 
 }
 
@@ -434,21 +465,25 @@ void OpenglEngine::RenderNormalMap(const PostProcessing& post)
 
     for (auto& mesh : m_data->meshes)
     {
-        mesh->PreRender();
         UpdateShader(mesh->GetMesh(), post);
+        mesh->PreRender();
+        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
         mesh->Render();
     }
 
     for (auto& water : m_data->waters)
     {
-        water->PreRender();
         UpdateShader(water->GetWater(), post);
+        water->PreRender();
+        m_data->shaders[water->GetShaderID()]->EnableAttributes();
         water->Render();
     }
 }
 
 void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 {
+    SetBackfaceCull(false);
+
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive();
     blurShader->SendUniformFloat("blurStep", &post.blurStep, 1);
@@ -485,6 +520,8 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
+    SetBackfaceCull(false);
+
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive();
     m_data->backBuffer.SetActive();
@@ -524,43 +561,29 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(PostProcessing::BLUR, false, true);
 }
 
-void OpenglEngine::PreRender(int texture)
+void OpenglEngine::UpdateShader(const Emitter& emitter)
 {
-    if (texture != NO_INDEX)
+    const int index = emitter.shaderIndex;
+    auto& shader = m_data->shaders[index];
+
+    if (index != m_data->selectedShader)
     {
-        auto& shader = m_data->shaders[m_data->selectedShader];
-        if (shader->HasTextureSlot(0))
-        {
-            const auto& textureData = m_data->textures[texture];
-            shader->SendTexture(0, textureData->GetID(), textureData->IsCubeMap(), false);
-        }
-        else
-        {
-            Logger::LogError("OpenGL: Shader does not have given texture slot");
-        }
+        SetSelectedShader(index);
     }
+
+    shader->SendUniformFloat("tint", &emitter.tint.r, 4);
+
+    SetBackfaceCull(false);
 }
 
-void OpenglEngine::PreRender(const Mesh& mesh)
+void OpenglEngine::UpdateShader(glm::mat4 world, const Particle& particle)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
 
-    int slot = 0;
-    for(int id : mesh.textureIDs)
-    {
-        if(id != NO_INDEX && shader->HasTextureSlot(slot))
-        {
-            const auto& texture = m_data->textures[id];
-            shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
-            ++slot;
-        }
-    }
-}
+    shader->SendUniformMatrix("worldViewProjection", m_data->viewProjection * world);
+    shader->SendUniformFloat("alpha", &particle.alpha, 1);
 
-void OpenglEngine::SetSelectedShader(int index)
-{
-    m_data->selectedShader = index;
-    m_data->shaders[index]->SetActive();
+    shader->SendTexture(0, m_data->textures[particle.texture]->GetID(), false, false);
 }
 
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
@@ -579,6 +602,9 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     }
 
     shader->SendUniformFloat("meshBump", &mesh.bump, 1);
+
+    SetBackfaceCull(mesh.backfacecull);
+    SendTextures(mesh.textureIDs);
 }
 
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
@@ -601,6 +627,9 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     shader->SendUniformFloat("meshBump", &mesh.bump, 1);
     shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
     shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
+
+    SetBackfaceCull(mesh.backfacecull);
+    SendTextures(mesh.textureIDs);
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
@@ -617,6 +646,9 @@ void OpenglEngine::UpdateShader(const Water& water,
         shader->SendUniformFloat("depthNear", &post.depthNear, 1);
         shader->SendUniformFloat("depthFar", &post.depthFar, 1);
     }
+
+    SetBackfaceCull(true);
+    SendTextures(water.textureIDs);
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
@@ -657,6 +689,31 @@ void OpenglEngine::UpdateShader(const Water& water,
     }
 
     shader->SendUniformArrays();
+
+    SetBackfaceCull(true);
+    SendTextures(water.textureIDs);
+}
+
+void OpenglEngine::SendTextures(const std::vector<int>& textures)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+
+    int slot = 0;
+    for(int id : textures)
+    {
+        if(id != NO_INDEX && shader->HasTextureSlot(slot))
+        {
+            const auto& texture = m_data->textures[id];
+            shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
+            ++slot;
+        }
+    }
+}
+
+void OpenglEngine::SetSelectedShader(int index)
+{
+    m_data->selectedShader = index;
+    m_data->shaders[index]->SetActive();
 }
 
 std::string OpenglEngine::GetName() const
@@ -687,9 +744,11 @@ void OpenglEngine::UpdateView(const Matrix& world)
     m_data->cameraPosition.y = world.m24;
     m_data->cameraPosition.z = world.m34;
 
-    m_data->view = glm::inverse(view);
+    m_data->cameraUp.x = world.m12;
+    m_data->cameraUp.y = world.m22;
+    m_data->cameraUp.z = world.m32;
 
-    // Model pivot points exist at the origin: world matrix is the identity
+    m_data->view = glm::inverse(view);
     m_data->viewProjection = m_data->projection * m_data->view;
 }
 

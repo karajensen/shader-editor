@@ -27,7 +27,7 @@ public:
     * Renders the data
     * @param context Direct3D device context
     */
-    virtual void Render(ID3D11DeviceContext* context);
+    void Render(ID3D11DeviceContext* context);
 
     /**
     * Initialises the data
@@ -58,25 +58,8 @@ public:
     /**
     * Constructor for a 2D screen quad
     * @param name The name of the mesh
-    * @param preRender a callback to setup rendering
     */
-    DxQuad(const std::string& name, PreRenderQuad preRender = nullptr);
-
-    /**
-    * Renders the data
-    * @param context Direct3D device context
-    */
-    virtual void Render(ID3D11DeviceContext* context) override;
-
-    /**
-    * Sets the id of the texture used
-    */
-    void SetTexture(int ID);
-
-private:
-
-    int m_texture = NO_INDEX;            ///< Index for the quad texture
-    PreRenderQuad m_preRender = nullptr; ///< Callback to pre-render the quad
+    DxQuad(const std::string& name);
 };
 
 /**
@@ -89,15 +72,8 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
-    * @param preRender a callback to setup rendering
     */
-    DxMesh(const Mesh& mesh, PreRenderMesh preRender);
-
-    /**
-    * Renders the data
-    * @param context Direct3D device context
-    */
-    virtual void Render(ID3D11DeviceContext* context) override;
+    DxMesh(const Mesh& mesh);
 
     /**
     * @return the unique ID for the mesh shader
@@ -111,7 +87,6 @@ public:
 
 private:
 
-    PreRenderMesh m_preRender = nullptr; ///< Callback to pre-render the mesh
     const Mesh& m_mesh;                  ///< Mesh information
 };                                           
 
@@ -125,9 +100,8 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
-    * @param preRender a callback to setup rendering
     */
-    DxWater(const Water& water, PreRenderMesh preRender);
+    DxWater(const Water& water);
 
     /**
     * @return the water information for the mesh

@@ -15,8 +15,7 @@
 /**
 * Callbacks for pre-rendering elements
 */
-typedef std::function<void(const Mesh& mesh)> PreRenderMesh;
-typedef std::function<void(int texture)> PreRenderQuad;
+typedef std::function<void(glm::mat4, const Particle&)> PreRenderParticle;
 
 /**
 * OpenGL call checking

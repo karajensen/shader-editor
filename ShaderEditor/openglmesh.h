@@ -27,7 +27,7 @@ public:
     /**
     * Pre-renders the mesh
     */
-    virtual void PreRender();
+    void PreRender();
 
     /**
     * Renders the mesh
@@ -63,24 +63,8 @@ public:
     /**
     * Constructor to generate a quad
     * @param name A unique name for the quad
-    * @param preRender callback to setup rendering
     */
-    GlQuad(const std::string& name, PreRenderQuad preRender = nullptr);
-
-    /**
-    * PreRenders the mesh
-    */
-    virtual void PreRender() override;
-
-    /**
-    * Sets the id of the texture used
-    */
-    void SetTexture(int ID);
-
-private:
-
-    int m_texture = NO_INDEX;            ///< Index for the quad texture
-    PreRenderQuad m_preRender = nullptr; ///< Callback to setup rendering
+    GlQuad(const std::string& name);
 };
 
 /**
@@ -93,14 +77,8 @@ public:
     /**
     * Constructor to generate a complex mesh
     * @param mesh The mesh to use as a template
-    * @param preRender Callback to pre-render the mesh
     */
-    GlMesh(const Mesh& mesh, PreRenderMesh preRender);
-
-    /**
-    * PreRenders the mesh
-    */
-    virtual void PreRender() override;
+    GlMesh(const Mesh& mesh);
 
     /**
     * @return the unique ID for the mesh shader
@@ -114,7 +92,6 @@ public:
 
 private:
 
-    PreRenderMesh m_preRender = nullptr; ///< Callback to pre-render the mesh
     const Mesh& m_mesh;                  ///< Mesh information
 };                     
 
@@ -128,9 +105,8 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
-    * @param preRender Callback to pre-render the mesh
     */
-    GlWater(const Water& water, PreRenderMesh preRender);
+    GlWater(const Water& water);
 
     /**
     * @return the water information for the mesh

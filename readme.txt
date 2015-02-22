@@ -1,6 +1,5 @@
 
 - Position/direction randomized over emitter area
-- Add to openGL
 
 - Create 3D scene
 - Optimise shaders

@@ -4,14 +4,13 @@
 
 #include "directxmesh.h"
 
-DxWater::DxWater(const Water& water, PreRenderMesh preRender) :
-    DxMesh(water, preRender),
+DxWater::DxWater(const Water& water) :
+    DxMesh(water),
     m_water(water)
 {
 }
 
-DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    m_preRender(preRender),
+DxMesh::DxMesh(const Mesh& mesh) :
     m_mesh(mesh)
 {
     m_vertexStride = sizeof(float) * mesh.vertexComponentCount;
@@ -22,8 +21,7 @@ DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
     m_name = mesh.name;
 }
 
-DxQuad::DxQuad(const std::string& name, PreRenderQuad preRender) :
-    m_preRender(preRender)
+DxQuad::DxQuad(const std::string& name)
 {
     m_name = name;
 
@@ -116,24 +114,6 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     SetDebugName(m_vertexBuffer, m_name + "_VertexBuffer");
 }
 
-void DxQuad::Render(ID3D11DeviceContext* context)
-{
-    if (m_preRender)
-    {
-        m_preRender(m_texture);
-    }
-    DxMeshData::Render(context);
-}
-
-void DxMesh::Render(ID3D11DeviceContext* context)
-{
-    if (m_preRender)
-    {
-        m_preRender(m_mesh);
-    }
-    DxMeshData::Render(context);
-}
-
 void DxMeshData::Render(ID3D11DeviceContext* context)
 {
     UINT offset = 0;
@@ -146,11 +126,6 @@ void DxMeshData::Render(ID3D11DeviceContext* context)
 int DxMesh::GetShaderID() const 
 { 
     return m_mesh.shaderIndex;
-}
-
-void DxQuad::SetTexture(int ID)
-{
-    m_texture = ID;
 }
 
 const Mesh& DxMesh::GetMesh() const

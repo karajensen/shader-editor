@@ -81,7 +81,6 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
     CreateShader(WATER_SHADER, WATER_SHADER_INDEX);
     CreateShader(WATER_NORMAL_SHADER, WATER_NORMAL_SHADER_INDEX);
     CreateShader(PARTICLE_SHADER, PARTICLE_SHADER_INDEX);
-    CreateShader(PARTICLE_NORMAL_SHADER, PARTICLE_NORMAL_SHADER_INDEX);
 
     return success;
 }
@@ -176,7 +175,6 @@ bool Scene::InitialiseEmitters()
         emitter.tint.b = GetAttribute<float>(it, "Tint", "b");
         emitter.tint.a = GetAttribute<float>(it, "Tint", "a");
         emitter.shaderIndex = PARTICLE_SHADER_INDEX;
-        emitter.normalIndex = PARTICLE_NORMAL_SHADER_INDEX;
 
         for (auto child = it->second.begin(); child != it->second.end(); ++child)
         {

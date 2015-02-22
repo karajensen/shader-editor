@@ -5,15 +5,14 @@
 #include "openglmesh.h"
 #include "elements.h"
 
-GlWater::GlWater(const Water& water, PreRenderMesh preRender) :
-    GlMesh(water, preRender),
+GlWater::GlWater(const Water& water) :
+    GlMesh(water),
     m_water(water)
 {
 }
 
-GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    m_mesh(mesh),
-    m_preRender(preRender)
+GlMesh::GlMesh(const Mesh& mesh) :
+    m_mesh(mesh)
 {
     m_vertexCount = mesh.vertexCount;
     m_indexCount = mesh.indexCount;
@@ -22,8 +21,7 @@ GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
     m_name = mesh.name;
 }
 
-GlQuad::GlQuad(const std::string& name, PreRenderQuad preRender) :
-    m_preRender(preRender)
+GlQuad::GlQuad(const std::string& name)
 {
     m_name = name;
 
@@ -108,31 +106,9 @@ bool GlMeshData::Initialise()
     return true;
 }
 
-void GlQuad::SetTexture(int ID)
-{
-    m_texture = ID;
-}
-
-void GlQuad::PreRender()
-{
-    if (m_preRender)
-    {
-        m_preRender(m_texture);
-    }
-    GlMeshData::PreRender();
-}
-
-void GlMesh::PreRender()
-{
-    if (m_preRender)
-    {
-        m_preRender(m_mesh);
-    }
-    GlMeshData::PreRender();
-}
-
 void GlMeshData::PreRender()
 {
+    assert(m_initialised);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 }

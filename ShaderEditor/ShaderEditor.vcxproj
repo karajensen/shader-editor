@@ -38,6 +38,7 @@
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="openglemitter.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
     <ClCompile Include="opengltarget.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="cache.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="openglcommon.h" />
+    <ClInclude Include="openglemitter.h" />
     <ClInclude Include="openglmesh.h" />
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
@@ -139,15 +141,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\particle_hlsl.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_glsl_frag.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_glsl_vert.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\particle_normal_hlsl.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\post_glsl_frag.fx">

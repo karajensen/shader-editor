@@ -1,15 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - directxemitter.h
+// Kara Jensen - mail@karajensen.com - openglemitter.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "directxmesh.h"
+#include "openglmesh.h"
 
 /**
-* DirectX Emitter
+* OpenGL Emitter
 */
-class DxEmitter
+class GlEmitter
 {
 public:
 
@@ -18,25 +18,32 @@ public:
     * @param emitter The emitter to use as a template
     * @param preRender a callback to setup rendering
     */
-    DxEmitter(const Emitter& emitter, 
+    GlEmitter(const Emitter& emitter, 
               PreRenderParticle preRender);
 
     /**
     * Renders the emitter
-    * @param context Direct3D device context
     * @param cameraPosition The world position of the camera
     * @param camerUp The up vector of the camera
     */
-    void Render(ID3D11DeviceContext* context, 
-                const D3DXVECTOR3& cameraPosition,
-                const D3DXVECTOR3& cameraUp);
+    void Render(const glm::vec3& cameraPosition,
+                const glm::vec3& cameraUp);
 
     /**
-    * Initialises the emitter
-    * @param device The DirectX device interface
-    * @param context Direct3D device context
+    * Pre-Renders the emitter
     */
-    void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);
+    void PreRender();
+
+    /**
+    * Initialises the mesh
+    * @return whether initialisation succeeded
+    */
+    bool Initialise();
+
+    /**
+    * @return the unique ID for the mesh shader
+    */
+    int GetShaderID() const;
 
     /**
     * Releases the emitter
@@ -51,7 +58,7 @@ public:
 private:
 
     PreRenderParticle m_preRender = nullptr; ///< Pre render callback for particles
-    std::unique_ptr<DxQuad> m_particle;      ///< Particle quad
+    std::unique_ptr<GlQuad> m_particle;      ///< Particle quad
     const Emitter& m_emitter;                ///< Emitter information
 };
                                                                                                       
