@@ -125,6 +125,8 @@ enum CameraAttribute
 */
 enum EmitterAttribute
 {
+    EMITTER_LIFETIME,
+    EMITTER_LIFEFADE,
     EMITTER_WIDTH,
     EMITTER_LENGTH,
     EMITTER_POS_X,
@@ -133,24 +135,26 @@ enum EmitterAttribute
     EMITTER_DIR_X,
     EMITTER_DIR_Y,
     EMITTER_DIR_Z,
+
+    EMITTER_TINT_R,
+    EMITTER_TINT_G,
+    EMITTER_TINT_B,
+
+    EMITTER_MIN_SPEED,
+    EMITTER_MAX_SPEED,
+    EMITTER_MIN_FREQ,
+    EMITTER_MAX_FREQ,
+    EMITTER_MIN_AMP,
+    EMITTER_MAX_AMP,
+    EMITTER_MIN_SIZE,
+    EMITTER_MAX_SIZE,
+    EMITTER_MIN_WAVE,
+    EMITTER_MAX_WAVE,
+
     EMITTER_ATTRIBUTES
 };
-
-/**
-* Attributes for the particle
-*/
-enum ParticleAttribute
-{
-    PARTICLE_MIN_SPEED,
-    PARTICLE_MAX_SPEED,
-    PARTICLE_LIFETIME,
-    PARTICLE_MIN_SIZE,
-    PARTICLE_MAX_SIZE,
-    PARTICLE_TINT_R,
-    PARTICLE_TINT_G,
-    PARTICLE_TINT_B,
-    PARTICLE_ATTRIBUTES
-};
+const auto EmitterColourID = EMITTER_TINT_R;
+const auto EmitterMinMaxID = EMITTER_MIN_SPEED;
 
 /**
 * Supported callback types
@@ -185,7 +189,6 @@ struct SignalCallbacks
     FloatSignals SetMinColour;     ///< Sets the minimum post colour range
     FloatSignals SetMaxColour;     ///< Sets the maximum post colour range
     FloatSignals SetEmitter;       ///< Sets the emitter tweakable attributes
-    FloatSignals SetParticles;     ///< Sets the particles tweakable attributes
     FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
     IntSignal SetSelectedEngine;   ///< Sets the selected engine to render
     IntSignal SetSelectedLight;    ///< Sets the selected light to display
@@ -254,8 +257,5 @@ struct SignalCallbacks
 
         SetEmitter.resize(EMITTER_ATTRIBUTES);
         SetEmitter.assign(EMITTER_ATTRIBUTES, nullptr);
-
-        SetParticles.resize(PARTICLE_ATTRIBUTES);
-        SetParticles.assign(PARTICLE_ATTRIBUTES, nullptr);
     }
 };

@@ -148,7 +148,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     fog[FOG_BLUE].Set("Fog Blue", 0.01, m_callbacks.SetFog[FOG_BLUE]);
     m_fog.Initialise(m_ui.fog_box, m_ui.fog_value, m_ui.fog_dial, fog);
 
-    std::vector<ComboEntry> emitter(EMITTER_ATTRIBUTES);
+    std::vector<ComboEntry> emitter(EmitterColourID);
     emitter[EMITTER_LENGTH].Set("Length", 0.01, m_callbacks.SetEmitter[EMITTER_LENGTH]);
     emitter[EMITTER_WIDTH].Set("Width", 0.01, m_callbacks.SetEmitter[EMITTER_WIDTH]);
     emitter[EMITTER_DIR_X].Set("Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
@@ -157,18 +157,30 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     emitter[EMITTER_POS_X].Set("Position X", 1.0, m_callbacks.SetEmitter[EMITTER_POS_X]);
     emitter[EMITTER_POS_Y].Set("Position Y", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Y]);
     emitter[EMITTER_POS_Z].Set("Position Z", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Z]);
+    emitter[EMITTER_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetEmitter[EMITTER_LIFETIME]);
+    emitter[EMITTER_LIFEFADE].Set("LifeFade", 0.01, m_callbacks.SetEmitter[EMITTER_LIFEFADE]);
     m_emitter.Initialise(m_ui.emitter_box, m_ui.emitter_value, m_ui.emitter_dial, emitter);
 
-    std::vector<ComboEntry> particle(PARTICLE_ATTRIBUTES);
-    particle[PARTICLE_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetParticles[PARTICLE_LIFETIME]);
-    particle[PARTICLE_TINT_R].Set("Tint R", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_R]);
-    particle[PARTICLE_TINT_G].Set("Tint G", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_G]);
-    particle[PARTICLE_TINT_B].Set("Tint B", 0.01, m_callbacks.SetParticles[PARTICLE_TINT_B]);
-    particle[PARTICLE_MAX_SPEED].Set("Max Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MAX_SPEED]);
-    particle[PARTICLE_MIN_SPEED].Set("Min Speed", 0.01, m_callbacks.SetParticles[PARTICLE_MIN_SPEED]);
-    particle[PARTICLE_MAX_SIZE].Set("Max Size", 0.1, m_callbacks.SetParticles[PARTICLE_MAX_SIZE]);
-    particle[PARTICLE_MIN_SIZE].Set("Min Size", 0.1, m_callbacks.SetParticles[PARTICLE_MIN_SIZE]);
-    m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, particle);
+    int ID = EmitterColourID;
+    std::vector<ComboEntry> emitterColor(EMITTER_ATTRIBUTES-ID);
+    emitterColor[EMITTER_TINT_R-ID].Set("Tint R", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_R]);
+    emitterColor[EMITTER_TINT_G-ID].Set("Tint G", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_G]);
+    emitterColor[EMITTER_TINT_B-ID].Set("Tint B", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_B]);
+    m_emitterColour.Initialise(m_ui.emitterColour_box, m_ui.emitterColour_value, m_ui.emitterColour_dial, emitterColor);
+
+    ID = EmitterMinMaxID;
+    std::vector<ComboEntry> emitterMinMax(EMITTER_ATTRIBUTES - ID);
+    emitterMinMax[EMITTER_MAX_SPEED-ID].Set("Max Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MAX_SPEED]);
+    emitterMinMax[EMITTER_MIN_SPEED-ID].Set("Min Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MIN_SPEED]);
+    emitterMinMax[EMITTER_MAX_SIZE-ID].Set("Max Size", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_SIZE]);
+    emitterMinMax[EMITTER_MIN_SIZE-ID].Set("Min Size", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_SIZE]);
+    emitterMinMax[EMITTER_MAX_AMP-ID].Set("Max Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_AMP]);
+    emitterMinMax[EMITTER_MIN_AMP-ID].Set("Min Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_AMP]);
+    emitterMinMax[EMITTER_MAX_FREQ-ID].Set("Max Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_FREQ]);
+    emitterMinMax[EMITTER_MIN_FREQ-ID].Set("Min Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_FREQ]);
+    emitterMinMax[EMITTER_MAX_WAVE-ID].Set("Max Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_WAVE]);
+    emitterMinMax[EMITTER_MIN_WAVE-ID].Set("Min Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_WAVE]);
+    m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, emitterMinMax);
 
     std::vector<ComboEntry> water(WATER_ATTRIBUTES);
     water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
@@ -259,12 +271,18 @@ void Tweaker::SetWave(WaveAttribute attribute, float value)
 
 void Tweaker::SetEmitter(EmitterAttribute attribute, float value)
 {
-    m_emitter.SetValue(attribute, value);
-}
-
-void Tweaker::SetParticles(ParticleAttribute attribute, float value)
-{
-    m_particles.SetValue(attribute, value);
+    if (attribute >= EmitterMinMaxID)
+    {
+        m_particles.SetValue(attribute - EmitterMinMaxID, value);
+    }
+    else if (attribute >= EmitterColourID)
+    {
+        m_emitterColour.SetValue(attribute - EmitterColourID, value);
+    }
+    else
+    {
+        m_emitter.SetValue(attribute, value);
+    }
 }
 
 void Tweaker::SetMaximumColour(ColourAttribute attribute, float value)

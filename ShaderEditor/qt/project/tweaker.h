@@ -159,13 +159,6 @@ public:
     void SetEmitter(EmitterAttribute attribute, float value);
 
     /**
-    * Sets the value for an attribute of the emitter particles
-    * @param attribute The type of attribute to set
-    * @param value The value to set for the attribute
-    */
-    void SetParticles(ParticleAttribute attribute, float value);
-
-    /**
     * Sets the value for an attribute of a the maximum colour rante
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
@@ -332,6 +325,7 @@ private:
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
     TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
+    TweakableBoxedValue m_emitterColour;  ///< Tweakable values for emitter colour attributes
     TweakableBoxedValue m_particles;     ///< Tweakable values for particle attributes
 
     std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light

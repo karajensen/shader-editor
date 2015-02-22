@@ -306,8 +306,15 @@ void Emitter::Tick(float deltatime)
         if (particle.alive)
         {
             particle.lifeTime += deltatime;
-            particle.position += direction * particle.speed;
             particle.alive = particle.lifeTime < lifeTime;
+            particle.position += direction * particle.speed;
+
+            // Wave equation: y = a * sin(kx-wt+phase)
+            const float wt = particle.waveSpeed * particle.lifeTime;
+            const float kx = particle.frequency * particle.position.y;
+            const float zOffset = 2.0f;
+            particle.position.x = particle.amplitude * std::sin(kx - wt);
+            particle.position.z = particle.amplitude * std::sin(kx - wt * zOffset);
 
             // Fade particle in/out of lifetime
             const float fadeEnd = lifeTime - lifeFade;
@@ -331,11 +338,19 @@ void Emitter::Tick(float deltatime)
             particle.alpha = 0.0f;
             particle.waitTime = 0.0f;
             particle.lifeTime = 0.0f;
-            particle.position = position;
             particle.alive = true;
             particle.speed = GetRandom(minSpeed, maxSpeed);
             particle.size = GetRandom(minSize, maxSize);
             particle.texture = textures[GetRandom(0, static_cast<int>(textures.size()-1))];
+            particle.amplitude = GetRandom(minAmplitude, maxAmplitude);
+            particle.waveSpeed = GetRandom(minWaveSpeed, maxWaveSpeed);
+            particle.frequency = GetRandom(minFrequency, maxFrequency);
+
+            const float xOffset = GetRandom(-width, width) * 0.5f;
+            const float zOffset = GetRandom(-length, length) * 0.5f;
+            particle.position.x = position.x + xOffset;
+            particle.position.z = position.z + zOffset;
+            particle.position.y = position.y;
         }
     }
 

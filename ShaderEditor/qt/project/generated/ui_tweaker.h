@@ -181,6 +181,10 @@ public:
     QDoubleSpinBox *emitter_value;
     QDial *emitter_dial;
     QComboBox *emitter_box;
+    QFrame *emitterColour;
+    QDoubleSpinBox *emitterColour_value;
+    QDial *emitterColour_dial;
+    QComboBox *emitterColour_box;
     QFrame *particle;
     QDoubleSpinBox *particle_value;
     QDial *particle_dial;
@@ -2085,9 +2089,69 @@ public:
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
+        emitter_box->setMaxVisibleItems(20);
         emitter_box->setFrame(false);
 
         meshLayout->addWidget(emitter);
+
+        emitterColour = new QFrame(layoutWidget2);
+        emitterColour->setObjectName(QStringLiteral("emitterColour"));
+        emitterColour->setMinimumSize(QSize(225, 35));
+        emitterColour->setMaximumSize(QSize(225, 35));
+        emitterColour->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        emitterColour->setFrameShape(QFrame::NoFrame);
+        emitterColour->setFrameShadow(QFrame::Plain);
+        emitterColour->setLineWidth(0);
+        emitterColour_value = new QDoubleSpinBox(emitterColour);
+        emitterColour_value->setObjectName(QStringLiteral("emitterColour_value"));
+        emitterColour_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(emitterColour_value->sizePolicy().hasHeightForWidth());
+        emitterColour_value->setSizePolicy(sizePolicy);
+        emitterColour_value->setMinimumSize(QSize(86, 25));
+        emitterColour_value->setMaximumSize(QSize(86, 25));
+        emitterColour_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        emitterColour_value->setFrame(false);
+        emitterColour_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        emitterColour_value->setDecimals(3);
+        emitterColour_value->setMinimum(-9999);
+        emitterColour_value->setMaximum(9999);
+        emitterColour_value->setSingleStep(0.05);
+        emitterColour_dial = new QDial(emitterColour);
+        emitterColour_dial->setObjectName(QStringLiteral("emitterColour_dial"));
+        emitterColour_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(emitterColour_dial->sizePolicy().hasHeightForWidth());
+        emitterColour_dial->setSizePolicy(sizePolicy);
+        emitterColour_dial->setMinimumSize(QSize(30, 30));
+        emitterColour_dial->setMaximumSize(QSize(30, 30));
+        emitterColour_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        emitterColour_dial->setMinimum(-10000);
+        emitterColour_dial->setMaximum(10000);
+        emitterColour_box = new QComboBox(emitterColour);
+        emitterColour_box->setObjectName(QStringLiteral("emitterColour_box"));
+        emitterColour_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(emitterColour_box->sizePolicy().hasHeightForWidth());
+        emitterColour_box->setSizePolicy(sizePolicy);
+        emitterColour_box->setMinimumSize(QSize(95, 22));
+        emitterColour_box->setMaximumSize(QSize(90, 22));
+        emitterColour_box->setBaseSize(QSize(90, 25));
+        emitterColour_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        emitterColour_box->setMaxVisibleItems(20);
+        emitterColour_box->setFrame(false);
+
+        meshLayout->addWidget(emitterColour);
 
         particle = new QFrame(layoutWidget2);
         particle->setObjectName(QStringLiteral("particle"));

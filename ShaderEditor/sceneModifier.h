@@ -5,12 +5,12 @@
 #pragma once
 
 #include "common.h"
+#include "cache.h"
 
 class Scene;
 class RenderEngine;
 class Timer;
 class Camera;
-struct Cache;
 
 /**
 * Allows manipulation oft the scene elements through the tweak bar
@@ -122,6 +122,20 @@ private:
     * @return whether recompilation was successful
     */
     bool ReCompileShader(const std::string& text, RenderEngine& engine);
+
+    /**
+    * Restricts whether the min/max values are accepted from the cache
+    * @param minCached The cache for the minimum attribute
+    * @param maxCached The cache for the maximum attribute
+    * @param restrictNegative Whether to enforce values should be positive
+    * @param minValue The minimum value to set
+    * @param maxValue The maximum value to set
+    */
+    void RestrictMinMax(Lockable<float>& minCached,
+                        Lockable<float>& maxCached,
+                        float& minValue,
+                        float& maxValue,
+                        bool restrictNegative = false);
 
     Scene& m_scene;                   ///< The scene object to manipulate
     Timer& m_timer;                   ///< The timer for the scene

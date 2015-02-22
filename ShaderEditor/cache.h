@@ -189,7 +189,6 @@ struct Cache
     std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;            ///< Fog attributes
     std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
     std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
-    std::array<Lockable<float>, PARTICLE_ATTRIBUTES> Particles; ///< Particle attributes
     std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour;   ///< Min colour attributes
     std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour;   ///< Max colour attributes
 

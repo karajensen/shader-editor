@@ -57,12 +57,6 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Emitter[i].Set(value); };
     }
 
-    for (int i = 0; i < PARTICLE_ATTRIBUTES; ++i)
-    {
-        callbacks.SetParticles[i] = 
-            [this, i](float value){ m_cache->Particles[i].Set(value); };
-    }
-
     for (int i = 0; i < FOG_ATTRIBUTES; ++i)
     {
         callbacks.SetFog[i] = 
@@ -369,15 +363,6 @@ void Gui::UpdateEmitter(Tweaker& tweaker)
     if(initialisedEmitter || m_cache->ParticleAmount.RequiresUpdate())
     {
         tweaker.SetParticleAmount(m_cache->ParticleAmount.GetUpdated());
-    }
-
-    for (int i = 0; i < PARTICLE_ATTRIBUTES; ++i)
-    {
-        if (initialisedEmitter || m_cache->Particles[i].RequiresUpdate())
-        {
-            tweaker.SetParticles(static_cast<ParticleAttribute>(i), 
-                m_cache->Particles[i].GetUpdated());
-        }
     }
 }
 

@@ -159,6 +159,11 @@ bool Scene::InitialiseEmitters()
         emitter.width = GetValue<float>(it, "Width");
         emitter.length = GetValue<float>(it, "Length");
         emitter.lifeTime = GetValue<float>(it, "LifeTime");
+        emitter.lifeFade = GetValue<float>(it, "LifeFade");
+        emitter.maxAmplitude = GetValue<float>(it, "MaximumAmplitude");
+        emitter.minAmplitude = GetValue<float>(it, "MinimumAmplitude");
+        emitter.maxFrequency = GetValue<float>(it, "MaximumFrequency");
+        emitter.minFrequency = GetValue<float>(it, "MinimumFrequency");
         emitter.maxSpeed = GetValue<float>(it, "MaximumSpeed");
         emitter.minSpeed = GetValue<float>(it, "MinimumSpeed");
         emitter.minSize = GetValue<float>(it, "MinimumSize");
@@ -556,6 +561,13 @@ void Scene::SaveParticlesToFile()
         entry.add("Length", emitter.length);
         entry.add("Amount", emitter.particles.size());
         entry.add("LifeTime", emitter.lifeTime);
+        entry.add("LifeFade", emitter.lifeFade);
+        entry.add("MaximumWaveSpeed", emitter.maxWaveSpeed);
+        entry.add("MinimumWaveSpeed", emitter.minWaveSpeed);
+        entry.add("MaximumAmplitude", emitter.maxAmplitude);
+        entry.add("MinimumAmplitude", emitter.minAmplitude);
+        entry.add("MaximumFrequency", emitter.maxFrequency);
+        entry.add("MinimumFrequency", emitter.minFrequency);
         entry.add("MaximumSpeed", emitter.maxSpeed);
         entry.add("MinimumSpeed", emitter.minSpeed);
         entry.add("MaximumSize", emitter.maxSize);
