@@ -23,7 +23,8 @@ Individual independent project.
 
 Language/Software:
 C++, Boost, Qt, DirectX, OpenGL, 
-HLSL, GLSL, Maya, Photoshop, GPU Shader Analyzer
+HLSL, GLSL, Maya, Photoshop,
+GPU Shader Analyzer
 
 Features include:
 • Real time shader editing
@@ -32,8 +33,8 @@ Features include:
 • Multithreaded Qt GUI
 • PyQt Maya exporter
 • Colour correction
-• Switching between 
-  multiple render engines
+• Toggling between both
+  OpenGL and DirectX
 
 View Base Shader
 View Post Processing
