@@ -18,19 +18,17 @@ struct ComboEntry
 {
     /**
     * Constructor
-    */
-    ComboEntry();
-
-    /**
-    * Sets the values for the entry
+    * @param Attribute What this is tweaking
     * @param Name Name of the entry
     * @param Step How much to change the value by
     * @param Callback The callback for when value changes
     */
-    void Set(const std::string& Name,
-             double Step,
-             std::function<void(float)> Callback);
+    ComboEntry(int Attribute,
+               const std::string& Name,
+               double Step,
+               std::function<void(float)> Callback);
 
+    int attribute;    ///< What this is tweaking
     std::string name; ///< Name of the entry
     double step;      ///< How much to change the value by
     double value;     ///< Current value of the entry
@@ -67,11 +65,12 @@ public:
                     const std::vector<ComboEntry>& entries);
 
     /**
-    * Sets the value for the index
-    * @param index The index to set the value at
+    * Sets the value for the attribute if it exists
+    * @param attribute The attribute to set the value at
     * @param value The value to set
+    * @return if the attribute existed and was set
     */
-    void SetValue(int index, double value);
+    bool SetValue(int attribute, double value);
 
 private slots:
 
@@ -95,10 +94,10 @@ private slots:
 
 private:
 
-    int m_selectedIndex;               ///< The current selected entry
-    int m_previousDialValue;           ///< The previous value of the dial
-    QDoubleSpinBox* m_box;             ///< The spin box used to edit/display the value
-    QDial* m_dial;                     ///< The dial used to edit the value
-    QComboBox* m_comboBox;             ///< Combo box widget
+    int m_selectedIndex;     ///< The current selected entry
+    int m_previousDialValue; ///< The previous value of the dial
+    QDoubleSpinBox* m_box;   ///< The spin box used to edit/display the value
+    QDial* m_dial;           ///< The dial used to edit the value
+    QComboBox* m_comboBox;   ///< Combo box widget
     std::vector<ComboEntry> m_entries; ///< Entries for the combo box
 };

@@ -224,6 +224,11 @@ private:
     void RenderSceneBlur(const PostProcessing& post);
 
     /**
+    * Renders all emitters
+    */
+    void RenderEmitters();
+
+    /**
     * Sets whether alpha blending is enabled or not
     */
     void EnableAlphaBlending(bool enable);

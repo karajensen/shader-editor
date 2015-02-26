@@ -97,12 +97,12 @@ enum LightAttribute
     LIGHT_ATTENUATION_Y,
     LIGHT_ATTENUATION_Z,
     LIGHT_SPECULARITY,
-    LIGHT_SPECULAR_R,
-    LIGHT_SPECULAR_G,
-    LIGHT_SPECULAR_B,
     LIGHT_DIFFUSE_R,
     LIGHT_DIFFUSE_G,
     LIGHT_DIFFUSE_B,
+    LIGHT_SPECULAR_R,
+    LIGHT_SPECULAR_G,
+    LIGHT_SPECULAR_B,
     LIGHT_ATTRIBUTES
 };
 
@@ -135,11 +135,9 @@ enum EmitterAttribute
     EMITTER_DIR_X,
     EMITTER_DIR_Y,
     EMITTER_DIR_Z,
-
     EMITTER_TINT_R,
     EMITTER_TINT_G,
     EMITTER_TINT_B,
-
     EMITTER_MIN_SPEED,
     EMITTER_MAX_SPEED,
     EMITTER_MIN_FREQ,
@@ -150,11 +148,8 @@ enum EmitterAttribute
     EMITTER_MAX_SIZE,
     EMITTER_MIN_WAVE,
     EMITTER_MAX_WAVE,
-
     EMITTER_ATTRIBUTES
 };
-const auto EmitterColourID = EMITTER_TINT_R;
-const auto EmitterMinMaxID = EMITTER_MIN_SPEED;
 
 /**
 * Supported callback types
@@ -197,6 +192,7 @@ struct SignalCallbacks
     IntSignal SetSelectedShader;   ///< Sets the selected shader to edit
     IntSignal SetSelectedEmitter;  ///< Sets the selected emitter to edit
     IntSignal SetPostMap;          ///< Sets the selected post map to display
+    VoidSignal LightDiagnostics;   ///< Sends a request to toggle the light diagnostics
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
@@ -226,6 +222,7 @@ struct SignalCallbacks
         SetSelectedWave(nullptr),
         SetPostMap(nullptr),
         ReloadScene(nullptr),
+        LightDiagnostics(nullptr),
         SaveScene(nullptr),
         PauseEmission(nullptr),
         SavePost(nullptr),

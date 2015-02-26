@@ -152,6 +152,7 @@ struct Cache
         ApplicationRunning(true),
         PageSelected(PAGE_NONE),
         ReloadScene(false),
+        LightDiagnostics(false),
         SaveScene(false),
         SavePost(false),
         PauseEmission(false)
@@ -163,6 +164,7 @@ struct Cache
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
     Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> SavePost;            ///< Request to save post processing to xml
+    Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics
     Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
                                         
     Lockable<int> ShaderSelected;       ///< Index for the selected shader

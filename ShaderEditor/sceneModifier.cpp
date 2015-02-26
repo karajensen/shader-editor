@@ -453,6 +453,11 @@ void SceneModifier::UpdateLight()
         light.specular.b = m_cache->Light[LIGHT_SPECULAR_B].Get();
         light.specularity = m_cache->Light[LIGHT_SPECULARITY].Get();
     }
+
+    if (m_cache->LightDiagnostics.Get())
+    {
+        m_cache->LightDiagnostics.Set(false);
+    }
 }
 
 void SceneModifier::Initialise(const std::vector<std::string>& engineNames,

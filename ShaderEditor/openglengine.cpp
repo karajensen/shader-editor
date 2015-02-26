@@ -446,6 +446,18 @@ void OpenglEngine::Render(const IScene& scene, float timer)
         water->Render();
     }
 
+    RenderEmitters();
+    RenderNormalMap(scene.Post(), timer);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
+
+    SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::RenderEmitters()
+{
+    EnableDepthWrite(false);
+
     for (auto& emitter : m_data->emitters)
     {
         UpdateShader(emitter->GetEmitter());
@@ -454,11 +466,7 @@ void OpenglEngine::Render(const IScene& scene, float timer)
         emitter->Render(m_data->cameraPosition, m_data->cameraUp);
     }
 
-    RenderNormalMap(scene.Post(), timer);
-    RenderSceneBlur(scene.Post());
-    RenderPostProcessing(scene.Post());
-
-    SwapBuffers(m_data->hdc); 
+    EnableDepthWrite(true);
 }
 
 void OpenglEngine::RenderNormalMap(const PostProcessing& post, float timer)
@@ -484,7 +492,6 @@ void OpenglEngine::RenderNormalMap(const PostProcessing& post, float timer)
 
 void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 {
-    EnableDepthWrite(true);
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
@@ -524,7 +531,6 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    EnableDepthWrite(true);
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
@@ -581,7 +587,6 @@ void OpenglEngine::UpdateShader(const Emitter& emitter)
 
     EnableBackfaceCull(false);
     EnableAlphaBlending(true);
-    EnableDepthWrite(false);
 }
 
 void OpenglEngine::UpdateShader(glm::mat4 world, const Particle& particle)
@@ -613,7 +618,6 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
     SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
     EnableBackfaceCull(mesh.backfacecull);
-    EnableDepthWrite(true);
     EnableAlphaBlending(false);
 }
 
@@ -641,7 +645,6 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     SendTextures(mesh.textureIDs);
     EnableBackfaceCull(mesh.backfacecull);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
@@ -671,7 +674,6 @@ void OpenglEngine::UpdateShader(const Water& water,
 
     EnableBackfaceCull(true);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
     SendTexture(0, water.textureIDs[Texture::NORMAL]);
 }
 
@@ -707,7 +709,6 @@ void OpenglEngine::UpdateShader(const Water& water,
     shader->SendUniformArrays();
     
     EnableBackfaceCull(true);
-    EnableDepthWrite(true);
     EnableAlphaBlending(true);
     SendTextures(water.textureIDs);
 }

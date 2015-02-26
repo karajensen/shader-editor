@@ -1,75 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Meshes>
-  <Mesh>
-    <Name>sphere.obj</Name>
-    <Shader>Diffuse</Shader>
-    <Diffuse>ground.png</Diffuse>
-  </Mesh>
-  <Mesh>
-    <Name>mock_skybox.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>Flat</Shader>
-    <Diffuse>sky.png</Diffuse>
-    <BackfaceCulling>0</BackfaceCulling>
-  </Mesh>
-  <Mesh>
-    <Name>mock_ground1.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>Bump</Shader>
-    <Diffuse>ground.png</Diffuse>
+	<Mesh>
+		<Name>sphere.obj</Name>
+		<Bump>20</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>0.5</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>specularbump</Shader>
+		<Diffuse>ground.png</Diffuse>
     <Normal>bump.png</Normal>
+    <Specular>specular.jpg</Specular>
   </Mesh>
-  <Mesh>
-    <Name>mock_ground2.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>Bump</Shader>
-    <Diffuse>ground.png</Diffuse>
-    <Normal>bump.png</Normal>
-  </Mesh>
-  <Mesh>
-    <Name>mock_hill1.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>Bump</Shader>
-    <Diffuse>ground.png</Diffuse>
-    <Normal>bump.png</Normal>
-  </Mesh>
-  <Mesh>
-    <Name>mock_hill2.obj</Name>
-    <Specularity>1.0</Specularity>
-    <Shader>Bump</Shader>
-    <Diffuse>ground.png</Diffuse>
-    <Normal>bump.png</Normal>
-  </Mesh>  
-  <Mesh>
-    <Name>mock_bridge.obj</Name>
-    <Shader>Diffuse</Shader>
-    <Diffuse>bridge.bmp</Diffuse>
-    <BackfaceCulling>0</BackfaceCulling>
-  </Mesh>
-  <Water>
-    <Name>mock_water.obj</Name>
-    <Bump>1.0</Bump>
-    <BumpVelocity x="0.0" y="0.0"></BumpVelocity>
-    <Speed>1.0</Speed>
-    <Fresnal scale="1.0" bias="0.5" power="2.0"></Fresnal>
-    <ReflectionIntensity>1.0</ReflectionIntensity>
-    <ReflectionTint r="1.0" g="1.0" b="1.0"></ReflectionTint>
-    <ShallowColour r="1.0" g="1.0" b="1.0" a="0.5"></ShallowColour>
-    <DeepColour r="0.8" g="0.8" b="0.8" a="1.0"></DeepColour>
-    <UVScale u="1.0" v="1.0"></UVScale>
-    <Diffuse>water.png</Diffuse>
-    <Normal>water_normal.png</Normal>
-    <Environment>water_environment</Environment>
-    <Wave>
-      <Frequency>1.0</Frequency>
-      <Amplitude>1.0</Amplitude>
-      <Phase>1.0</Phase>
-      <Direction x="-1.0" z="0.0"></Direction>
-    </Wave>
-    <Wave>
-      <Frequency>2.0</Frequency>
-      <Amplitude>0.5</Amplitude>
-      <Phase>1.0</Phase>
-      <Direction x="-0.7" z="0.7"></Direction>
-    </Wave>
-  </Water>
+	<Mesh>
+		<Name>mock_bridge.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>5</Specularity>
+		<BackfaceCulling>0</BackfaceCulling>
+		<Shader>Diffuse</Shader>
+		<Diffuse>bridge.bmp</Diffuse>
+	</Mesh>
+	<Mesh>
+		<Name>mock_skybox.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>1</Specularity>
+		<BackfaceCulling>0</BackfaceCulling>
+		<Shader>flat</Shader>
+		<Diffuse>sky.png</Diffuse>
+	</Mesh>
+	<Mesh>
+		<Name>mock_ground1.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>1</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>bump</Shader>
+		<Diffuse>ground.png</Diffuse>
+		<Normal>bump.png</Normal>
+	</Mesh>
+	<Mesh>
+		<Name>mock_ground2.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>1</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>bump</Shader>
+		<Diffuse>ground.png</Diffuse>
+		<Normal>bump.png</Normal>
+	</Mesh>
+	<Mesh>
+		<Name>mock_hill1.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>1</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>bump</Shader>
+		<Diffuse>ground.png</Diffuse>
+		<Normal>bump.png</Normal>
+	</Mesh>
+	<Mesh>
+		<Name>mock_hill2.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>1</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>bump</Shader>
+		<Diffuse>ground.png</Diffuse>
+		<Normal>bump.png</Normal>
+	</Mesh>
+	<Water>
+		<Name>mock_water.obj</Name>
+		<Bump>1</Bump>
+		<Intensity>1</Intensity>
+		<Ambience>1</Ambience>
+		<Specularity>5</Specularity>
+		<BackfaceCulling>1</BackfaceCulling>
+		<Shader>water</Shader>
+		<Diffuse>water.png</Diffuse>
+		<Normal>water_normal.png</Normal>
+		<Environment>water_environment</Environment>
+		<Speed>1</Speed>
+		<BumpVelocity x="0" y="0"/>
+		<Fresnal scale="1" bias="0.5" power="2"/>
+		<ReflectionIntensity>1</ReflectionIntensity>
+		<UVScale u="1" v="1"/>
+		<DeepColour r="0.8" g="0.8" b="0.8" a="1"/>
+		<ShallowColour r="1" g="1" b="1" a="0.5"/>
+		<ReflectionTint r="1" g="1" b="1"/>
+		<Wave>
+			<Frequency>1</Frequency>
+			<Amplitude>1</Amplitude>
+			<Phase>1</Phase>
+			<Direction x="-1" z="0"/>
+		</Wave>
+		<Wave>
+			<Frequency>2</Frequency>
+			<Amplitude>0.5</Amplitude>
+			<Phase>1</Phase>
+			<Direction x="-0.7" z="0.7"/>
+		</Wave>
+	</Water>
 </Meshes>

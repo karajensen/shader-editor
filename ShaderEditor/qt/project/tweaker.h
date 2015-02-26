@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <array>
+#include <unordered_map>
 #include "tweakable.h"
 #include "tweakable_value.h"
 #include "tweakable_box.h"
@@ -304,7 +304,9 @@ private:
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_particleAmount;     ///< The amount of particles to spawn
+    TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
+    TweakableButton m_lightDiag;         ///< Button to toggle light diagnostics
     TweakableButton m_reloadScene;       ///< Button to reload the application
     TweakableButton m_saveScene;         ///< Button to save all scene to xml
     TweakableButton m_savePost;          ///< Button to save all post processing to xml
@@ -316,7 +318,6 @@ private:
     TweakableBox m_selectedMesh;         ///< Combo box for selecting the mesh
     TweakableBox m_selectedWater;        ///< Combo box for selecting the water
     TweakableBox m_selectedEmitter;      ///< Combo box for selecting the emitter
-    TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
     TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
     TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
@@ -325,11 +326,13 @@ private:
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
     TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
-    TweakableBoxedValue m_emitterColour;  ///< Tweakable values for emitter colour attributes
-    TweakableBoxedValue m_particles;     ///< Tweakable values for particle attributes
+    TweakableBoxedValue m_emitterColour; ///< Tweakable values for emitter colour attributes
+    TweakableBoxedValue m_emitterMinMax; ///< Tweakable values for emitter min/max attributes
+    TweakableBoxedValue m_lightDiffuse;  ///< Tweakable values for light diffuse colour
+    TweakableBoxedValue m_lightSpecular; ///< Tweakable values for light specular colour
 
-    std::array<TweakableValue, LIGHT_ATTRIBUTES> m_light; ///< Tweakable values for the selected light
-    std::array<TweakableValue, CAMERA_ATTRIBUTES> m_camera; ///< Tweakable values for the camera
+    std::unordered_map<CameraAttribute, TweakableValue> m_camera; ///< Camera Tweakable values
+    std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 
     Ui::Tweaker m_ui;                    ///< User interface object
     SignalCallbacks m_callbacks;         ///< Callbacks to update the cache

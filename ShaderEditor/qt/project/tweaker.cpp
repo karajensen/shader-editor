@@ -19,6 +19,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_ui.setupUi(this);
     m_ui.TabMenu->setCurrentIndex(0);
 
+    m_lightDiag.Initialise(m_ui.lightDiagnostics_btn, m_callbacks.LightDiagnostics);
     m_reloadScene.Initialise(m_ui.reloadScene_btn, m_callbacks.ReloadScene);
     m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
@@ -61,157 +62,159 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_selectedWave.Initialise(1.0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
 
+    m_camera[CAMERA_POSITION_X];
     m_camera[CAMERA_POSITION_X].Initialise(1.0, m_ui.cameraX_value,
         m_ui.cameraX_dial, m_callbacks.SetCamera[CAMERA_POSITION_X]);
 
+    m_camera[CAMERA_POSITION_Y];
     m_camera[CAMERA_POSITION_Y].Initialise(1.0, m_ui.cameraY_value,
         m_ui.cameraY_dial, m_callbacks.SetCamera[CAMERA_POSITION_Y]);
 
+    m_camera[CAMERA_POSITION_Z];
     m_camera[CAMERA_POSITION_Z].Initialise(1.0, m_ui.cameraZ_value,
         m_ui.cameraZ_dial, m_callbacks.SetCamera[CAMERA_POSITION_Z]);
 
+    m_camera[CAMERA_PITCH];
     m_camera[CAMERA_PITCH].Initialise(0.01, m_ui.cameraPitch_value,
         m_ui.cameraPitch_dial, m_callbacks.SetCamera[CAMERA_PITCH]);
 
+    m_camera[CAMERA_YAW];
     m_camera[CAMERA_YAW].Initialise(0.01, m_ui.cameraYaw_value,
         m_ui.cameraYaw_dial, m_callbacks.SetCamera[CAMERA_YAW]);
 
+    m_camera[CAMERA_ROLL];
     m_camera[CAMERA_ROLL].Initialise(0.01, m_ui.cameraRoll_value,
         m_ui.cameraRoll_dial, m_callbacks.SetCamera[CAMERA_ROLL]);
 
+    m_light[LIGHT_POSITION_X];
     m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
-
+    
+    m_light[LIGHT_POSITION_Y];
     m_light[LIGHT_POSITION_Y].Initialise(1.0, m_ui.positionY_value,
         m_ui.positionY_dial, m_callbacks.SetLight[LIGHT_POSITION_Y]);
-
+    
+    m_light[LIGHT_POSITION_Z];
     m_light[LIGHT_POSITION_Z].Initialise(1.0, m_ui.positionZ_value,
         m_ui.positionZ_dial, m_callbacks.SetLight[LIGHT_POSITION_Z]);
-
+    
+    m_light[LIGHT_ATTENUATION_X];
     m_light[LIGHT_ATTENUATION_X].Initialise(0.01, m_ui.attenuationX_value,
         m_ui.attenuationX_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_X]);
-
+    
+    m_light[LIGHT_ATTENUATION_Y];
     m_light[LIGHT_ATTENUATION_Y].Initialise(0.001, m_ui.attenuationY_value,
         m_ui.attenuationY_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Y]);
-
+    
+    m_light[LIGHT_ATTENUATION_Z];
     m_light[LIGHT_ATTENUATION_Z].Initialise(0.0001, m_ui.attenuationZ_value,
         m_ui.attenuationZ_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Z]);
 
-    m_light[LIGHT_DIFFUSE_R].Initialise(0.01, m_ui.diffuseRed_value,
-        m_ui.diffuseRed_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_R]);
+    m_light[LIGHT_SPECULARITY];
+    m_light[LIGHT_SPECULARITY].Initialise(0.1, m_ui.specularity_value,
+        m_ui.specularity_dial, m_callbacks.SetLight[LIGHT_SPECULARITY]);
 
-    m_light[LIGHT_DIFFUSE_G].Initialise(0.01, m_ui.diffuseGreen_value,
-        m_ui.diffuseGreen_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_G]);
+    std::vector<ComboEntry> diffuse;
+    diffuse.emplace_back(LIGHT_DIFFUSE_R, "Diffuse R", 0.01, m_callbacks.SetLight[LIGHT_DIFFUSE_R]);
+    diffuse.emplace_back(LIGHT_DIFFUSE_G, "Diffuse G", 0.01, m_callbacks.SetLight[LIGHT_DIFFUSE_G]);
+    diffuse.emplace_back(LIGHT_DIFFUSE_B, "Diffuse B", 0.01, m_callbacks.SetLight[LIGHT_DIFFUSE_B]);
+    m_lightDiffuse.Initialise(m_ui.light_diffuse_box, m_ui.light_diffuse_value, m_ui.light_diffuse_dial, diffuse);
 
-    m_light[LIGHT_DIFFUSE_B].Initialise(0.01, m_ui.diffuseBlue_value,
-        m_ui.diffuseBlue_dial, m_callbacks.SetLight[LIGHT_DIFFUSE_B]);
+    std::vector<ComboEntry> specular;
+    specular.emplace_back(LIGHT_SPECULAR_R, "Specular R", 0.01, m_callbacks.SetLight[LIGHT_SPECULAR_R]);
+    specular.emplace_back(LIGHT_SPECULAR_G, "Specular G", 0.01, m_callbacks.SetLight[LIGHT_SPECULAR_G]);
+    specular.emplace_back(LIGHT_SPECULAR_B, "Specular B", 0.01, m_callbacks.SetLight[LIGHT_SPECULAR_B]);
+    m_lightSpecular.Initialise(m_ui.light_specular_box, m_ui.light_specular_value, m_ui.light_specular_dial, specular);
 
-    m_light[LIGHT_SPECULAR_R].Initialise(0.01, m_ui.specularRed_value,
-        m_ui.specularRed_dial, m_callbacks.SetLight[LIGHT_SPECULAR_R]);
+    std::vector<ComboEntry> mesh;
+    mesh.emplace_back(MESH_AMBIENCE, "Ambience", 0.01, m_callbacks.SetMesh[MESH_AMBIENCE]);
+    mesh.emplace_back(MESH_BUMP, "Bump", 0.01, m_callbacks.SetMesh[MESH_BUMP]);
+    mesh.emplace_back(MESH_GLOW, "Glow", 0.01, m_callbacks.SetMesh[MESH_GLOW]);
+    mesh.emplace_back(MESH_SPECULARITY, "Specularity", 0.01, m_callbacks.SetMesh[MESH_SPECULARITY]);
+    m_mesh.Initialise(m_ui.meshAttributes_box, m_ui.meshAttributes_value, m_ui.meshAttributes_dial, mesh);
 
-    m_light[LIGHT_SPECULAR_G].Initialise(0.01, m_ui.specularGreen_value,
-        m_ui.specularGreen_dial, m_callbacks.SetLight[LIGHT_SPECULAR_G]);
+    std::vector<ComboEntry> minimumColour;
+    minimumColour.emplace_back(RED, "Min Red", 0.01, m_callbacks.SetMinColour[RED]);
+    minimumColour.emplace_back(GREEN, "Min Green", 0.01, m_callbacks.SetMinColour[GREEN]);
+    minimumColour.emplace_back(BLUE, "Min Blue", 0.01, m_callbacks.SetMinColour[BLUE]);
+    m_minColour.Initialise(m_ui.minRange_box, m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
 
-    m_light[LIGHT_SPECULAR_B].Initialise(0.01, m_ui.specularBlue_value,
-        m_ui.specularBlue_dial, m_callbacks.SetLight[LIGHT_SPECULAR_B]);
+    std::vector<ComboEntry> maximumColour;
+    maximumColour.emplace_back(RED, "Max Red", 0.01, m_callbacks.SetMaxColour[RED]);
+    maximumColour.emplace_back(GREEN, "Max Green", 0.01, m_callbacks.SetMaxColour[GREEN]);
+    maximumColour.emplace_back(BLUE, "Max Blue", 0.01, m_callbacks.SetMaxColour[BLUE]);
+    m_maxColour.Initialise(m_ui.maxRange_box, m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
 
-    m_light[LIGHT_SPECULARITY].Initialise(0.1, m_ui.lightSpecularity_value,
-        m_ui.lightSpecularity_dial, m_callbacks.SetLight[LIGHT_SPECULARITY]);
-
-    std::vector<ComboEntry> mesh(MESH_ATTRIBUTES);
-    mesh[MESH_AMBIENCE].Set("Ambience", 0.01, m_callbacks.SetMesh[MESH_AMBIENCE]);
-    mesh[MESH_BUMP].Set("Bump", 0.01, m_callbacks.SetMesh[MESH_BUMP]);
-    mesh[MESH_GLOW].Set("Glow", 0.01, m_callbacks.SetMesh[MESH_GLOW]);
-    mesh[MESH_SPECULARITY].Set("Specularity", 0.01, m_callbacks.SetMesh[MESH_SPECULARITY]);
-    m_mesh.Initialise(m_ui.meshAttributes_box,
-        m_ui.meshAttributes_value, m_ui.meshAttributes_dial, mesh);
-
-    std::vector<ComboEntry> minimumColour(COLOUR_ATTRIBUTES);
-    minimumColour[RED].Set("Min Red", 0.01, m_callbacks.SetMinColour[RED]);
-    minimumColour[GREEN].Set("Min Green", 0.01, m_callbacks.SetMinColour[GREEN]);
-    minimumColour[BLUE].Set("Min Blue", 0.01, m_callbacks.SetMinColour[BLUE]);
-    m_minColour.Initialise(m_ui.minRange_box,
-        m_ui.minRange_value, m_ui.minRange_dial, minimumColour);
-
-    std::vector<ComboEntry> maximumColour(COLOUR_ATTRIBUTES);
-    maximumColour[RED].Set("Max Red", 0.01, m_callbacks.SetMaxColour[RED]);
-    maximumColour[GREEN].Set("Max Green", 0.01, m_callbacks.SetMaxColour[GREEN]);
-    maximumColour[BLUE].Set("Max Blue", 0.01, m_callbacks.SetMaxColour[BLUE]);
-    m_maxColour.Initialise(m_ui.maxRange_box,
-        m_ui.maxRange_value, m_ui.maxRange_dial, maximumColour);
-
-    std::vector<ComboEntry> fog(FOG_ATTRIBUTES);
-    fog[FOG_DISTANCE].Set("Fog Start", 0.01, m_callbacks.SetFog[FOG_DISTANCE]);
-    fog[FOG_FADE].Set("Fog Fade", 0.01, m_callbacks.SetFog[FOG_FADE]);
-    fog[FOG_RED].Set("Fog Red", 0.01, m_callbacks.SetFog[FOG_RED]);
-    fog[FOG_GREEN].Set("Fog Green", 0.01, m_callbacks.SetFog[FOG_GREEN]);
-    fog[FOG_BLUE].Set("Fog Blue", 0.01, m_callbacks.SetFog[FOG_BLUE]);
+    std::vector<ComboEntry> fog;
+    fog.emplace_back(FOG_FADE, "Fog Fade", 0.01, m_callbacks.SetFog[FOG_FADE]);
+    fog.emplace_back(FOG_DISTANCE, "Fog Start", 0.01, m_callbacks.SetFog[FOG_DISTANCE]);
+    fog.emplace_back(FOG_RED, "Fog Red", 0.01, m_callbacks.SetFog[FOG_RED]);
+    fog.emplace_back(FOG_GREEN, "Fog Green", 0.01, m_callbacks.SetFog[FOG_GREEN]);
+    fog.emplace_back(FOG_BLUE, "Fog Blue", 0.01, m_callbacks.SetFog[FOG_BLUE]);
     m_fog.Initialise(m_ui.fog_box, m_ui.fog_value, m_ui.fog_dial, fog);
 
-    std::vector<ComboEntry> emitter(EmitterColourID);
-    emitter[EMITTER_LENGTH].Set("Length", 0.01, m_callbacks.SetEmitter[EMITTER_LENGTH]);
-    emitter[EMITTER_WIDTH].Set("Width", 0.01, m_callbacks.SetEmitter[EMITTER_WIDTH]);
-    emitter[EMITTER_DIR_X].Set("Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
-    emitter[EMITTER_DIR_Y].Set("Direction Y", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Y]);
-    emitter[EMITTER_DIR_Z].Set("Direction Z", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Z]);
-    emitter[EMITTER_POS_X].Set("Position X", 0.1, m_callbacks.SetEmitter[EMITTER_POS_X]);
-    emitter[EMITTER_POS_Y].Set("Position Y", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Y]);
-    emitter[EMITTER_POS_Z].Set("Position Z", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Z]);
-    emitter[EMITTER_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetEmitter[EMITTER_LIFETIME]);
-    emitter[EMITTER_LIFEFADE].Set("LifeFade", 0.01, m_callbacks.SetEmitter[EMITTER_LIFEFADE]);
+    std::vector<ComboEntry> emitter;
+    emitter.emplace_back(EMITTER_LIFETIME, "Lifetime", 0.01, m_callbacks.SetEmitter[EMITTER_LIFETIME]);
+    emitter.emplace_back(EMITTER_LIFEFADE, "LifeFade", 0.01, m_callbacks.SetEmitter[EMITTER_LIFEFADE]);
+    emitter.emplace_back(EMITTER_LENGTH, "Length", 0.01, m_callbacks.SetEmitter[EMITTER_LENGTH]);
+    emitter.emplace_back(EMITTER_WIDTH, "Width", 0.01, m_callbacks.SetEmitter[EMITTER_WIDTH]);
+    emitter.emplace_back(EMITTER_DIR_X, "Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
+    emitter.emplace_back(EMITTER_DIR_Y, "Direction Y", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Y]);
+    emitter.emplace_back(EMITTER_DIR_Z, "Direction Z", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Z]);
+    emitter.emplace_back(EMITTER_POS_X, "Position X", 0.1, m_callbacks.SetEmitter[EMITTER_POS_X]);
+    emitter.emplace_back(EMITTER_POS_Y, "Position Y", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Y]);
+    emitter.emplace_back(EMITTER_POS_Z, "Position Z", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Z]);
     m_emitter.Initialise(m_ui.emitter_box, m_ui.emitter_value, m_ui.emitter_dial, emitter);
 
-    int ID = EmitterColourID;
-    std::vector<ComboEntry> emitterColor(EmitterMinMaxID-EmitterColourID);
-    emitterColor[EMITTER_TINT_R-ID].Set("Tint R", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_R]);
-    emitterColor[EMITTER_TINT_G-ID].Set("Tint G", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_G]);
-    emitterColor[EMITTER_TINT_B-ID].Set("Tint B", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_B]);
+    std::vector<ComboEntry> emitterColor;
+    emitterColor.emplace_back(EMITTER_TINT_R, "Tint R", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_R]);
+    emitterColor.emplace_back(EMITTER_TINT_G, "Tint G", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_G]);
+    emitterColor.emplace_back(EMITTER_TINT_B, "Tint B", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_B]);
     m_emitterColour.Initialise(m_ui.emitterColour_box, m_ui.emitterColour_value, m_ui.emitterColour_dial, emitterColor);
 
-    ID = EmitterMinMaxID;
-    std::vector<ComboEntry> emitterMinMax(EMITTER_ATTRIBUTES-EmitterMinMaxID);
-    emitterMinMax[EMITTER_MAX_SPEED-ID].Set("Max Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MAX_SPEED]);
-    emitterMinMax[EMITTER_MIN_SPEED-ID].Set("Min Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MIN_SPEED]);
-    emitterMinMax[EMITTER_MAX_SIZE-ID].Set("Max Size", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_SIZE]);
-    emitterMinMax[EMITTER_MIN_SIZE-ID].Set("Min Size", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_SIZE]);
-    emitterMinMax[EMITTER_MAX_AMP-ID].Set("Max Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_AMP]);
-    emitterMinMax[EMITTER_MIN_AMP-ID].Set("Min Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_AMP]);
-    emitterMinMax[EMITTER_MAX_FREQ-ID].Set("Max Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_FREQ]);
-    emitterMinMax[EMITTER_MIN_FREQ-ID].Set("Min Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_FREQ]);
-    emitterMinMax[EMITTER_MAX_WAVE-ID].Set("Max Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_WAVE]);
-    emitterMinMax[EMITTER_MIN_WAVE-ID].Set("Min Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_WAVE]);
-    m_particles.Initialise(m_ui.particle_box, m_ui.particle_value, m_ui.particle_dial, emitterMinMax);
+    std::vector<ComboEntry> emitterMinMax;
+    emitterMinMax.emplace_back(EMITTER_MAX_SPEED, "Max Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MAX_SPEED]);
+    emitterMinMax.emplace_back(EMITTER_MIN_SPEED, "Min Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MIN_SPEED]);
+    emitterMinMax.emplace_back(EMITTER_MAX_SIZE, "Max Size", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_SIZE]);
+    emitterMinMax.emplace_back(EMITTER_MIN_SIZE, "Min Size", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_SIZE]);
+    emitterMinMax.emplace_back(EMITTER_MAX_AMP, "Max Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_AMP]);
+    emitterMinMax.emplace_back(EMITTER_MIN_AMP, "Min Amp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_AMP]);
+    emitterMinMax.emplace_back(EMITTER_MAX_FREQ, "Max Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_FREQ]);
+    emitterMinMax.emplace_back(EMITTER_MIN_FREQ, "Min Freq", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_FREQ]);
+    emitterMinMax.emplace_back(EMITTER_MAX_WAVE, "Max Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_WAVE]);
+    emitterMinMax.emplace_back(EMITTER_MIN_WAVE, "Min Wave Sp", 0.1, m_callbacks.SetEmitter[EMITTER_MIN_WAVE]);
+    m_emitterMinMax.Initialise(m_ui.emitterMinMax_box, m_ui.emitterMinMax_value, m_ui.emitterMinMax_dial, emitterMinMax);
 
-    std::vector<ComboEntry> water(WATER_ATTRIBUTES);
-    water[WATER_SHALLOW_R].Set("Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
-    water[WATER_SHALLOW_G].Set("Shallow G", 0.01, m_callbacks.SetWater[WATER_SHALLOW_G]);
-    water[WATER_SHALLOW_B].Set("Shallow B", 0.01, m_callbacks.SetWater[WATER_SHALLOW_B]);
-    water[WATER_SHALLOW_A].Set("Shallow A", 0.01, m_callbacks.SetWater[WATER_SHALLOW_A]);
-    water[WATER_DEEP_R].Set("Deep R", 0.01, m_callbacks.SetWater[WATER_DEEP_R]);
-    water[WATER_DEEP_G].Set("Deep G", 0.01, m_callbacks.SetWater[WATER_DEEP_G]);
-    water[WATER_DEEP_B].Set("Deep B", 0.01, m_callbacks.SetWater[WATER_DEEP_B]);
-    water[WATER_DEEP_A].Set("Deep A", 0.01, m_callbacks.SetWater[WATER_DEEP_A]);
-    water[WATER_REFLECTION_R].Set("Reflection R", 0.01, m_callbacks.SetWater[WATER_REFLECTION_R]);
-    water[WATER_REFLECTION_G].Set("Reflection G", 0.01, m_callbacks.SetWater[WATER_REFLECTION_G]);
-    water[WATER_REFLECTION_B].Set("Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);
-    water[WATER_REFLECTION].Set("Reflection", 0.01, m_callbacks.SetWater[WATER_REFLECTION]);
-    water[WATER_BUMP].Set("Bump", 0.01, m_callbacks.SetWater[WATER_BUMP]);
-    water[WATER_BUMP_VELOCITY_X].Set("Bump Vel X", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_X]);
-    water[WATER_BUMP_VELOCITY_Y].Set("Bump Vel Y", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_Y]);
-    water[WATER_SPEED].Set("Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
-    water[WATER_SCALE_U].Set("Scale U", 0.01, m_callbacks.SetWater[WATER_SCALE_U]);
-    water[WATER_SCALE_V].Set("Scale V", 0.01, m_callbacks.SetWater[WATER_SCALE_V]);
-    water[WATER_FRESNAL_SCALE].Set("Fresnal Scale", 0.01, m_callbacks.SetWater[WATER_FRESNAL_SCALE]);
-    water[WATER_FRESNAL_BIAS].Set("Fresnal Bias", 0.01, m_callbacks.SetWater[WATER_FRESNAL_BIAS]);
-    water[WATER_FRESNAL_POWER].Set("Fresnal Pow", 0.01, m_callbacks.SetWater[WATER_FRESNAL_POWER]);
+    std::vector<ComboEntry> water;
+    water.emplace_back(WATER_SPEED, "Speed", 0.01, m_callbacks.SetWater[WATER_SPEED]);
+    water.emplace_back(WATER_SHALLOW_R, "Shallow R", 0.01, m_callbacks.SetWater[WATER_SHALLOW_R]);
+    water.emplace_back(WATER_SHALLOW_G, "Shallow G", 0.01, m_callbacks.SetWater[WATER_SHALLOW_G]);
+    water.emplace_back(WATER_SHALLOW_B, "Shallow B", 0.01, m_callbacks.SetWater[WATER_SHALLOW_B]);
+    water.emplace_back(WATER_SHALLOW_A, "Shallow A", 0.01, m_callbacks.SetWater[WATER_SHALLOW_A]);
+    water.emplace_back(WATER_DEEP_R, "Deep R", 0.01, m_callbacks.SetWater[WATER_DEEP_R]);
+    water.emplace_back(WATER_DEEP_G, "Deep G", 0.01, m_callbacks.SetWater[WATER_DEEP_G]);
+    water.emplace_back(WATER_DEEP_B, "Deep B", 0.01, m_callbacks.SetWater[WATER_DEEP_B]);
+    water.emplace_back(WATER_DEEP_A, "Deep A", 0.01, m_callbacks.SetWater[WATER_DEEP_A]);
+    water.emplace_back(WATER_REFLECTION_R, "Reflection R", 0.01, m_callbacks.SetWater[WATER_REFLECTION_R]);
+    water.emplace_back(WATER_REFLECTION_G, "Reflection G", 0.01, m_callbacks.SetWater[WATER_REFLECTION_G]);
+    water.emplace_back(WATER_REFLECTION_B, "Reflection B", 0.01, m_callbacks.SetWater[WATER_REFLECTION_B]);
+    water.emplace_back(WATER_REFLECTION, "Reflection", 0.01, m_callbacks.SetWater[WATER_REFLECTION]);
+    water.emplace_back(WATER_BUMP, "Bump", 0.01, m_callbacks.SetWater[WATER_BUMP]);
+    water.emplace_back(WATER_BUMP_VELOCITY_X, "Bump Vel X", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_X]);
+    water.emplace_back(WATER_BUMP_VELOCITY_Y, "Bump Vel Y", 0.01, m_callbacks.SetWater[WATER_BUMP_VELOCITY_Y]);
+    water.emplace_back(WATER_SCALE_U, "Scale U", 0.01, m_callbacks.SetWater[WATER_SCALE_U]);
+    water.emplace_back(WATER_SCALE_V, "Scale V", 0.01, m_callbacks.SetWater[WATER_SCALE_V]);
+    water.emplace_back(WATER_FRESNAL_SCALE, "Fresnal Scale", 0.01, m_callbacks.SetWater[WATER_FRESNAL_SCALE]);
+    water.emplace_back(WATER_FRESNAL_BIAS, "Fresnal Bias", 0.01, m_callbacks.SetWater[WATER_FRESNAL_BIAS]);
+    water.emplace_back(WATER_FRESNAL_POWER, "Fresnal Pow", 0.01, m_callbacks.SetWater[WATER_FRESNAL_POWER]);
     m_water.Initialise(m_ui.water_box, m_ui.water_value, m_ui.water_dial, water);
 
-    std::vector<ComboEntry> wave(WAVE_ATTRIBUTES);
-    wave[WAVE_AMPLITUDE].Set("Amplitude", 0.01, m_callbacks.SetWave[WAVE_AMPLITUDE]);
-    wave[WAVE_FREQUENCY].Set("Frequency", 0.01, m_callbacks.SetWave[WAVE_FREQUENCY]);
-    wave[WAVE_PHASE].Set("Phase", 0.01, m_callbacks.SetWave[WAVE_PHASE]);
-    wave[WAVE_DIRECTION_X].Set("Direction X", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_X]);
-    wave[WAVE_DIRECTION_Z].Set("Direction Z", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_Z]);
+    std::vector<ComboEntry> wave;
+    wave.emplace_back(WAVE_AMPLITUDE, "Amplitude", 0.01, m_callbacks.SetWave[WAVE_AMPLITUDE]);
+    wave.emplace_back(WAVE_FREQUENCY, "Frequency", 0.01, m_callbacks.SetWave[WAVE_FREQUENCY]);
+    wave.emplace_back(WAVE_PHASE, "Phase", 0.01, m_callbacks.SetWave[WAVE_PHASE]);
+    wave.emplace_back(WAVE_DIRECTION_X, "Direction X", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_X]);
+    wave.emplace_back(WAVE_DIRECTION_Z, "Direction Z", 0.01, m_callbacks.SetWave[WAVE_DIRECTION_Z]);
     m_wave.Initialise(m_ui.wave_box, m_ui.wave_value, m_ui.wave_dial, wave);
 }
 
@@ -256,7 +259,11 @@ void Tweaker::SetCamera(CameraAttribute attribute, float value)
 
 void Tweaker::SetLight(LightAttribute attribute, float value)
 {
-    m_light[attribute].Set(value);
+    if (!m_lightDiffuse.SetValue(attribute, value) &&
+        !m_lightSpecular.SetValue(attribute, value))
+    {
+        m_light[attribute].Set(value);
+    }
 }
 
 void Tweaker::SetMesh(MeshAttribute attribute, float value)
@@ -271,15 +278,8 @@ void Tweaker::SetWave(WaveAttribute attribute, float value)
 
 void Tweaker::SetEmitter(EmitterAttribute attribute, float value)
 {
-    if (attribute >= EmitterMinMaxID)
-    {
-        m_particles.SetValue(attribute - EmitterMinMaxID, value);
-    }
-    else if (attribute >= EmitterColourID)
-    {
-        m_emitterColour.SetValue(attribute - EmitterColourID, value);
-    }
-    else
+    if (!m_emitterColour.SetValue(attribute, value) &&
+        !m_emitterMinMax.SetValue(attribute, value))
     {
         m_emitter.SetValue(attribute, value);
     }

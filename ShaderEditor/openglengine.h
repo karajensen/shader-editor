@@ -207,12 +207,19 @@ private:
     void RenderSceneBlur(const PostProcessing& post);
 
     /**
+    * Renders all emitters
+    */
+    void RenderEmitters();
+
+    /**
     * Sets whether alpha blending is enabled or not
     */
     void EnableAlphaBlending(bool enable);
 
     /**
     * Sets whether values are written to the depth buffer or not
+    * @note if set to false the depth buffer of the currently 
+    *       selected render target till not clear
     */
     void EnableDepthWrite(bool enable);
 

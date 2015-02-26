@@ -454,6 +454,18 @@ void DirectxEngine::Render(const IScene& scene, float timer)
         water->Render(m_data->context);
     }
     
+    RenderEmitters();
+    RenderNormalMap(scene.Post(), timer);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
+
+    m_data->swapchain->Present(0, 0);
+}
+
+void DirectxEngine::RenderEmitters()
+{
+    EnableDepthWrite(false);
+
     for (auto& emitter : m_data->emitters)
     {
         UpdateShader(emitter->GetEmitter());
@@ -461,11 +473,7 @@ void DirectxEngine::Render(const IScene& scene, float timer)
             m_data->cameraPosition, m_data->cameraUp);
     }
 
-    RenderNormalMap(scene.Post(), timer);
-    RenderSceneBlur(scene.Post());
-    RenderPostProcessing(scene.Post());
-
-    m_data->swapchain->Present(0, 0);
+    EnableDepthWrite(true);
 }
 
 void DirectxEngine::RenderNormalMap(const PostProcessing& post, float timer)
@@ -489,7 +497,6 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 {
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
 
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive(m_data->context);
@@ -528,7 +535,6 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
 
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive(m_data->context);
@@ -589,7 +595,6 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
 
     SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
     EnableBackfaceCull(mesh.backfacecull);
-    EnableDepthWrite(true);
     EnableAlphaBlending(false);
 }
 
@@ -618,7 +623,6 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
     SendTextures(mesh.textureIDs);
     EnableBackfaceCull(mesh.backfacecull);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
@@ -648,7 +652,6 @@ void DirectxEngine::UpdateShader(const Water& water,
 
     EnableBackfaceCull(true);
     EnableAlphaBlending(false);
-    EnableDepthWrite(true);
     SendTexture(0, water.textureIDs[Texture::NORMAL]);
 }
 
@@ -684,7 +687,6 @@ void DirectxEngine::UpdateShader(const Water& water,
     shader->SendConstants(m_data->context);
 
     EnableBackfaceCull(true);
-    EnableDepthWrite(true);
     EnableAlphaBlending(true);
     SendTextures(water.textureIDs);
 }
@@ -705,7 +707,6 @@ void DirectxEngine::UpdateShader(const Emitter& emitter)
     
     EnableBackfaceCull(false);
     EnableAlphaBlending(true);
-    EnableDepthWrite(false);
 }
 
 void DirectxEngine::UpdateShader(D3DXMATRIX world, const Particle& particle)
