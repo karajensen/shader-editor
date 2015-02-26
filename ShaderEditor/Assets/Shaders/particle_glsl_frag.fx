@@ -13,6 +13,6 @@ uniform vec4 tint;
 
 void main(void)
 {
-    out_Color.rgb = texture(DiffuseSampler, ex_UVs).rgb * tint.rgb;
-    out_Color.a = tint.a * alpha;
+    out_Color = texture(DiffuseSampler, ex_UVs) * tint;
+    out_Color.a *= alpha;
 }

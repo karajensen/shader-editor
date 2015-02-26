@@ -1,19 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - sceneElements.h
+// Kara Jensen - mail@karajensen.com - sceneInterface.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #include "common.h"
+#include "renderdata.h"
 
 /**
 * Allows access to the elements of the scene
 */
-class SceneElements
+class IScene
 {
 public:
 
-    virtual ~SceneElements() = default;
+    virtual ~IScene() = default;
 
     /**
     * @return the meshes in the scene

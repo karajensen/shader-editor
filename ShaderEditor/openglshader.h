@@ -123,9 +123,9 @@ public:
     const std::string& GetName() const;
 
     /**
-    * Sends the lights to the shader
+    * @return the header version keyword for GLSL shaders
     */
-    void SendLights(const std::vector<Light>& lights);
+    static std::string GetShaderHeader();
 
 private:
 
@@ -193,6 +193,13 @@ private:
     */
     void SendUniformFloat(const std::string& name, const float* value, 
         int location, int size, GLenum type);
+
+    /**
+    * Determines the unique ID of the texture slot
+    * @param slot The slot in the shader the texture will fill
+    * @return the unique ID of the texture
+    */
+    static unsigned int GetTexture(int slot);
 
     /**
     * Information for each vertex input attribute

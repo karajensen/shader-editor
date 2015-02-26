@@ -5,6 +5,7 @@
 #pragma once
 
 #include "renderengine.h"
+#include <Windows.h>
 
 struct DirectxData;
 struct ID3D11Device;
@@ -13,7 +14,7 @@ struct D3DXMATRIX;
 /**
 * DirectX Graphics engine
 */
-class DirectxEngine : public RenderEngine, boost::noncopyable
+class DirectxEngine : public RenderEngine
 {
 public:
 
@@ -44,7 +45,7 @@ public:
     * @param scene The elements making up the scene
     * @param timer The time passed since scene start
     */
-    virtual void Render(const SceneElements& scene,
+    virtual void Render(const IScene& scene,
                         float timer) override;
 
     /**
@@ -52,7 +53,7 @@ public:
     * @param scene The elements making up the scene
     * @return whether initialisation was successful
     */
-    virtual bool InitialiseScene(const SceneElements& scene) override;
+    virtual bool InitialiseScene(const IScene& scene) override;
 
     /**
     * ReInitialises the scene for openGL
@@ -124,12 +125,6 @@ public:
 private:
 
     /**
-    * Sets whether directx should cull backfaces or not
-    * @param shouldCull whether to cull or not
-    */
-    void SetBackfaceCull(bool shouldCull);
-
-    /**
     * Updates and switches to the main shader the mesh requires
     * @param mesh The mesh currently rendering
     * @param lights All lighting in the scene
@@ -157,9 +152,11 @@ private:
     * Updates and switches to the normal shader the water requires
     * @param water The mesh currently rendering
     * @param post Data for post processing
+    * @param timer The time passed since scene start
     */
     void UpdateShader(const Water& water, 
-                      const PostProcessing& post);
+                      const PostProcessing& post,
+                      float timer);
 
     /**
     * Updates the shader for an emitter
@@ -179,9 +176,27 @@ private:
     void SetSelectedShader(int index);
 
     /**
+    * Sends wave information to the selected shader
+    */
+    void SendWaves(const std::vector<Wave>& waves);
+
+    /**
+    * Sends light information to the selected shader
+    */
+    void SendLights(const std::vector<Light>& lights);
+
+    /**
     * Sends all textures to the selected shader
     */
     void SendTextures(const std::vector<int>& textures);
+
+    /**
+    * Sends the given texture to the selected shader
+    * @param slot Which slot in the shader should it go in
+    * @param ID The texture ID
+    * @return whether sending was successful
+    */
+    bool SendTexture(int slot, int ID);
 
     /**
     * Initialises the DirectX debugging layer
@@ -192,8 +207,9 @@ private:
     /**
     * Renders the scene as a normal/depth map
     * @param postProcessing values for the final image
+    * @param timer The time passed since scene start
     */
-    void RenderNormalMap(const PostProcessing& post);
+    void RenderNormalMap(const PostProcessing& post, float timer);
 
     /**
     * Renders the scene with post processing
@@ -211,6 +227,17 @@ private:
     * Sets whether alpha blending is enabled or not
     */
     void EnableAlphaBlending(bool enable);
+
+    /**
+    * Sets whether values are written to the depth buffer or not
+    */
+    void EnableDepthWrite(bool enable);
+
+    /**
+    * Sets whether directx should cull backfaces or not
+    * @param enable whether to cull or not
+    */
+    void EnableBackfaceCull(bool enable);
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX

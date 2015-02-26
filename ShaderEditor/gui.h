@@ -4,8 +4,8 @@
 
 #pragma once
 #include "common.h"
+#include "cache.h"
 
-struct Cache;
 class Tweaker;
 class Editor;
 

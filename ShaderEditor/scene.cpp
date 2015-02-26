@@ -3,12 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include "fragmentlinker.h"
+#include "renderdata.h"
 #include "ptree_utilities.h"
-#include <algorithm>
 #include "boost/filesystem.hpp"
 #include "boost/property_tree/xml_parser.hpp"
 #include "boost/algorithm/string.hpp"
-#include "fragmentlinker.h"
+#include <algorithm>
 
 namespace
 {
@@ -76,11 +77,11 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
         }
     };
 
-    CreateShader(POST_SHADER, POST_SHADER_INDEX);
-    CreateShader(BLUR_SHADER, BLUR_SHADER_INDEX);
-    CreateShader(WATER_SHADER, WATER_SHADER_INDEX);
-    CreateShader(WATER_NORMAL_SHADER, WATER_NORMAL_SHADER_INDEX);
-    CreateShader(PARTICLE_SHADER, PARTICLE_SHADER_INDEX);
+    CreateShader("post", POST_SHADER_INDEX);
+    CreateShader("blur", BLUR_SHADER_INDEX);
+    CreateShader("water", WATER_SHADER_INDEX);
+    CreateShader("water_normal", WATER_NORMAL_SHADER_INDEX);
+    CreateShader("particle", PARTICLE_SHADER_INDEX);
 
     return success;
 }

@@ -27,14 +27,15 @@ HLSL, GLSL, Maya, Photoshop,
 GPU Shader Analyzer
 
 Features include:
+• Toggling render engines
 • Real time shader editing
 • Shader fragment linker
 • Shader assembly output
-• Multithreaded Qt GUI
-• PyQt Maya exporter
-• Colour correction
-• Toggling between both
-  OpenGL and DirectX
+• Procedural terrain
+• Ambient Occlusion
+• Colour Correction
+• Multithreaded Qt GUI for
+  real time scene editing
 
 View Base Shader
 View Post Processing

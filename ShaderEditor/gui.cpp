@@ -3,10 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "gui.h"
-#include "cache.h"
 #include "qt/project/editor.h"
 #include "qt/project/tweaker.h"
 #include "qt/include/QtWidgets/qapplication.h"
+#include "boost/lexical_cast.hpp"
 
 Gui::~Gui() = default;
 
@@ -126,18 +126,18 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
 
     switch(page)
     {
-    case SCENE:
+    case PAGE_SCENE:
         UpdateScene(tweaker);
         break;
-    case LIGHT:
+    case PAGE_LIGHT:
         UpdateLight(tweaker);
         break;
-    case MESH:
+    case PAGE_MESH:
         UpdateMesh(tweaker);
         UpdateWater(tweaker);
         UpdateEmitter(tweaker);
         break;
-    case POST:
+    case PAGE_POST:
         UpdatePost(tweaker);
         break;
     }
@@ -168,21 +168,21 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
 {
     if(page == "Scene")
     {
-        return SCENE;
+        return PAGE_SCENE;
     }
     else if(page == "Mesh")
     {
-        return MESH;
+        return PAGE_MESH;
     }
     else if(page == "Post")
     {
-        return POST;
+        return PAGE_POST;
     }
     else if(page == "Light")
     {
-        return LIGHT;
+        return PAGE_LIGHT;
     }
-    return NO_PAGE;
+    return PAGE_NONE;
 }
 
 void Gui::UpdatePost(Tweaker& tweaker)

@@ -1,10 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - float.h
+// Kara Jensen - mail@karajensen.com - float3.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include <cmath>
 #include <ostream>
+
+/**
+* Vector with two floats
+*/
+struct Float2
+{
+    float x = 0.0f;
+    float y = 0.0f;
+
+    /**
+    * Constructor
+    */
+    Float2() = default;
+    Float2(float X, float Y) : x(X), y(Y) {}
+};
 
 /**
 * Three dimensional vector

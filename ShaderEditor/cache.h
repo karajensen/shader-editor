@@ -10,6 +10,18 @@
 #include <array>
 
 /**
+* GUI pages available
+*/
+enum GuiPage
+{
+    PAGE_SCENE,
+    PAGE_LIGHT,
+    PAGE_MESH,
+    PAGE_POST,
+    PAGE_NONE
+};
+
+/**
 * Dual-way Lockable data for the cache which allows a 'setter' thread
 * to control the value which a 'getter' thread will read. The getter 
 * thread can also lock the value from being set when the setter is
@@ -138,7 +150,7 @@ struct Cache
 {
     Cache() :
         ApplicationRunning(true),
-        PageSelected(NO_PAGE),
+        PageSelected(PAGE_NONE),
         ReloadScene(false),
         SaveScene(false),
         SavePost(false),

@@ -4,11 +4,12 @@
 
 #pragma once
 
-#pragma warning (disable : 4005)
+#pragma warning (disable : 4005) // For DX10
 #include "directx/include/d3d11.h"
 #include "directx/include/d3dx11.h"
 #include "directx/include/d3dx10.h"
 #include "common.h"
+#include "renderdata.h"
 
 /**
 * Callbacks for pre-rendering elements

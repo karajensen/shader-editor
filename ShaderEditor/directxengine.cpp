@@ -9,7 +9,7 @@
 #include "directxtexture.h"
 #include "directxemitter.h"
 #include "directxtarget.h"
-#include "sceneElements.h"
+#include "sceneInterface.h"
 #include <array>
 #include <fstream>
 
@@ -33,14 +33,16 @@ struct DirectxData
     */
     void Release();
 
-    ID3D11BlendState* alphaBlendState = nullptr;  ///< State for alpha blending
-    ID3D11BlendState* noBlendState = nullptr;     ///< State for no alpha blending
-    ID3D11RasterizerState* cullState = nullptr;   ///< Normal state of the rasterizer
-    ID3D11RasterizerState* nocullState = nullptr; ///< No face culling state of the rasterizer
-    IDXGISwapChain* swapchain = nullptr;          ///< Collection of buffers for displaying frames
-    ID3D11Device* device = nullptr;               ///< Direct3D device interface
-    ID3D11DeviceContext* context = nullptr;       ///< Direct3D device context
-    ID3D11Debug* debug = nullptr;                 ///< Direct3D debug interface, only created in debug
+    ID3D11BlendState* alphaBlendState = nullptr;     ///< State for alpha blending
+    ID3D11BlendState* noBlendState = nullptr;        ///< State for no alpha blending
+    ID3D11RasterizerState* cullState = nullptr;      ///< Normal state of the rasterizer
+    ID3D11RasterizerState* noCullState = nullptr;    ///< No face culling state of the rasterizer
+    ID3D11DepthStencilState* writeState = nullptr;   ///< State for writing to the depth buffer
+    ID3D11DepthStencilState* noWriteState = nullptr; ///< State for not writing to the depth buffer
+    IDXGISwapChain* swapchain = nullptr;             ///< Collection of buffers for displaying frames
+    ID3D11Device* device = nullptr;                  ///< Direct3D device interface
+    ID3D11DeviceContext* context = nullptr;          ///< Direct3D device context
+    ID3D11Debug* debug = nullptr;                    ///< Direct3D debug interface, only created in debug
 
     DxQuad quad;                        ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
@@ -53,7 +55,9 @@ struct DirectxData
     D3DXMATRIX viewProjection;          ///< View projection matrix
     D3DXVECTOR3 cameraPosition;         ///< Position of the camera
     D3DXVECTOR3 cameraUp;               ///< Up vector of the camera
-    bool isBackfaceCull = true;         ///< Whether the culling rasterize state is active
+    bool isBackfaceCull = false;        ///< Whether the culling rasterize state is active
+    bool isAlphaBlend = false;          ///< Whether alpha blending is currently active
+    bool isDepthWrite = false;          ///< Whether writing to the depth buffer is active
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
     float blendFactor = 1.0f;           ///< Alpha blend modifier
@@ -83,7 +87,6 @@ DirectxData::~DirectxData()
 void DirectxData::Release()
 {
     selectedShader = NO_INDEX;
-    isBackfaceCull = true;
     fadeAmount = 0.0f;
 
     for(auto& texture : textures)
@@ -121,7 +124,9 @@ void DirectxData::Release()
     SafeRelease(&noBlendState);
     SafeRelease(&alphaBlendState);
     SafeRelease(&cullState);
-    SafeRelease(&nocullState);
+    SafeRelease(&noCullState);
+    SafeRelease(&writeState);
+    SafeRelease(&noWriteState);
     SafeRelease(&swapchain);
     SafeRelease(&context);
     SafeRelease(&device);
@@ -245,15 +250,39 @@ bool DirectxEngine::Initialize()
     }
 
     rasterDesc.CullMode = D3D11_CULL_NONE;
-    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->nocullState)))
+    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->noCullState)))
     {
         Logger::LogError("DirectX: Failed to create no cull rasterizer state");
         return false;
     }
 
+    // Create the depth buffer state
+    D3D11_DEPTH_STENCIL_DESC depthDesc;
+    depthDesc.DepthEnable = true;
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    depthDesc.StencilEnable = false;
+
+    if (FAILED(m_data->device->CreateDepthStencilState(&depthDesc, &m_data->writeState)))
+    {
+        Logger::LogError("DirectX: Failed to create write to depth buffer state");
+        return false;
+    }
+
+    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    if (FAILED(m_data->device->CreateDepthStencilState(&depthDesc, &m_data->noWriteState)))
+    {
+        Logger::LogError("DirectX: Failed to create no write to depth buffer state");
+        return false;
+    }
+
     // Setup the directX environment
-    SetBackfaceCull(true);
+    m_data->isBackfaceCull = false;
+    m_data->isAlphaBlend = true;
+    m_data->isDepthWrite = false;
+    EnableBackfaceCull(true);
     EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 
     D3D11_VIEWPORT viewport;
     ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
@@ -273,7 +302,9 @@ bool DirectxEngine::Initialize()
     SetDebugName(m_data->noBlendState, "NoBlendState");
     SetDebugName(m_data->alphaBlendState, "AlphaBlendState");
     SetDebugName(m_data->cullState, "CullState");
-    SetDebugName(m_data->nocullState, "NoCullState");
+    SetDebugName(m_data->noCullState, "NoCullState");
+    SetDebugName(m_data->writeState, "DepthWriteState");
+    SetDebugName(m_data->noWriteState, "NoDepthWriteState");
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
     SetDebugName(m_data->swapchain, "SwapChain");
@@ -315,7 +346,7 @@ std::string DirectxEngine::CompileShader(int index)
     return errors.empty() ? "" : "\n\n" + errors;
 }
 
-bool DirectxEngine::InitialiseScene(const SceneElements& scene)
+bool DirectxEngine::InitialiseScene(const IScene& scene)
 {
     m_data->textures.reserve(scene.Textures().size());
     for(const Texture& texture : scene.Textures())
@@ -407,7 +438,7 @@ bool DirectxEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void DirectxEngine::Render(const SceneElements& scene, float timer)
+void DirectxEngine::Render(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive(m_data->context);
 
@@ -416,9 +447,7 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
         UpdateShader(mesh->GetMesh(), scene.Lights());
         mesh->Render(m_data->context);
     }
-    
-    EnableAlphaBlending(true);
-    
+
     for (auto& water : m_data->waters)
     {
         UpdateShader(water->GetWater(), scene.Lights(), timer);
@@ -432,16 +461,14 @@ void DirectxEngine::Render(const SceneElements& scene, float timer)
             m_data->cameraPosition, m_data->cameraUp);
     }
 
-    EnableAlphaBlending(false);
-
-    RenderNormalMap(scene.Post());
+    RenderNormalMap(scene.Post(), timer);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
 
     m_data->swapchain->Present(0, 0);
 }
 
-void DirectxEngine::RenderNormalMap(const PostProcessing& post)
+void DirectxEngine::RenderNormalMap(const PostProcessing& post, float timer)
 {
     m_data->normalTarget.SetActive(m_data->context);
 
@@ -453,14 +480,16 @@ void DirectxEngine::RenderNormalMap(const PostProcessing& post)
 
     for (auto& water : m_data->waters)
     {
-        UpdateShader(water->GetWater(), post);
+        UpdateShader(water->GetWater(), post, timer);
         water->Render(m_data->context);
     }
 }
 
 void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 {
-    SetBackfaceCull(false);
+    EnableBackfaceCull(false);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive(m_data->context);
@@ -497,7 +526,9 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    SetBackfaceCull(false);
+    EnableBackfaceCull(false);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive(m_data->context);
@@ -530,7 +561,6 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("fogMask", &post.masks[PostProcessing::FOG_MAP], 1);
 
     postShader->SendConstants(m_data->context);
-
     m_data->quad.Render(m_data->context);
 
     m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
@@ -554,10 +584,13 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
     }
 
     shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+
     shader->SendConstants(m_data->context);
 
-    SetBackfaceCull(mesh.backfacecull);
-    SendTextures(mesh.textureIDs);
+    SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
+    EnableBackfaceCull(mesh.backfacecull);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(false);
 }
 
 void DirectxEngine::UpdateShader(const Mesh& mesh, 
@@ -572,21 +605,25 @@ void DirectxEngine::UpdateShader(const Mesh& mesh,
         
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        shader->SendLights(lights);
+        SendLights(lights);
     }
 
     shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
     shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
     shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
     shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
+
     shader->SendConstants(m_data->context);
 
-    SetBackfaceCull(mesh.backfacecull);
     SendTextures(mesh.textureIDs);
+    EnableBackfaceCull(mesh.backfacecull);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
-                                 const PostProcessing& post)
+                                 const PostProcessing& post,
+                                 float timer)
 {
     const int index = water.normalIndex;
     auto& shader = m_data->shaders[index];
@@ -598,11 +635,21 @@ void DirectxEngine::UpdateShader(const Water& water,
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
         shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
-        shader->SendConstants(m_data->context);
+        shader->UpdateConstantFloat("timer", &timer, 1);
     }
 
-    SetBackfaceCull(true);
-    SendTextures(water.textureIDs);
+    shader->UpdateConstantFloat("speed", &water.speed, 1);
+    shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
+    shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+    shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
+    SendWaves(water.waves);
+
+    shader->SendConstants(m_data->context);
+
+    EnableBackfaceCull(true);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
+    SendTexture(0, water.textureIDs[Texture::NORMAL]);
 }
 
 void DirectxEngine::UpdateShader(const Water& water, 
@@ -620,33 +667,25 @@ void DirectxEngine::UpdateShader(const Water& water,
         shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
         shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
         shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        shader->SendLights(lights);
+        SendLights(lights);
     }
 
     shader->UpdateConstantFloat("speed", &water.speed, 1);
     shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
     shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
     shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
-
-    for (unsigned int i = 0; i < water.waves.size(); ++i)
-    {
-        const int offset = i*4; // Arrays pack in buffer of float4
-        shader->UpdateConstantFloat("waveFrequency", &water.waves[i].amplitude, 1, offset);
-        shader->UpdateConstantFloat("waveAmplitude", &water.waves[i].amplitude, 1, offset);
-        shader->UpdateConstantFloat("wavePhase", &water.waves[i].phase, 1, offset);
-        shader->UpdateConstantFloat("waveDirectionX", &water.waves[i].directionX, 1, offset);
-        shader->UpdateConstantFloat("waveDirectionZ", &water.waves[i].directionZ, 1, offset);
-    }
-
     shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 4);
     shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 4);
     shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
     shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
     shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);
+    SendWaves(water.waves);
 
     shader->SendConstants(m_data->context);
 
-    SetBackfaceCull(true);
+    EnableBackfaceCull(true);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(true);
     SendTextures(water.textureIDs);
 }
 
@@ -661,9 +700,12 @@ void DirectxEngine::UpdateShader(const Emitter& emitter)
     }
 
     shader->UpdateConstantFloat("tint", &emitter.tint.r, 4);
-    shader->SendConstants(m_data->context);
 
-    SetBackfaceCull(false);
+    shader->SendConstants(m_data->context);
+    
+    EnableBackfaceCull(false);
+    EnableAlphaBlending(true);
+    EnableDepthWrite(false);
 }
 
 void DirectxEngine::UpdateShader(D3DXMATRIX world, const Particle& particle)
@@ -674,21 +716,59 @@ void DirectxEngine::UpdateShader(D3DXMATRIX world, const Particle& particle)
     shader->UpdateConstantFloat("alpha", &particle.alpha, 1);
     shader->SendConstants(m_data->context);
 
-    m_data->textures[particle.texture]->SendTexture(m_data->context, 0);
+    SendTexture(0, particle.texture);
+}
+
+void DirectxEngine::SendWaves(const std::vector<Wave>& waves)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    for (unsigned int i = 0; i < waves.size(); ++i)
+    {
+        const int offset = i*4; // Arrays pack in buffer of float4
+        shader->UpdateConstantFloat("waveFrequency", &waves[i].amplitude, 1, offset);
+        shader->UpdateConstantFloat("waveAmplitude", &waves[i].amplitude, 1, offset);
+        shader->UpdateConstantFloat("wavePhase", &waves[i].phase, 1, offset);
+        shader->UpdateConstantFloat("waveDirectionX", &waves[i].directionX, 1, offset);
+        shader->UpdateConstantFloat("waveDirectionZ", &waves[i].directionZ, 1, offset);
+    }
+}
+
+void DirectxEngine::SendLights(const std::vector<Light>& lights)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    for (unsigned int i = 0; i < lights.size(); ++i)
+    {
+        const int offset = i*4; // Arrays pack in buffer of float4
+        shader->UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, offset);
+        shader->UpdateConstantFloat("lightAttenuation", &lights[i].attenuation.x, 3, offset);
+        shader->UpdateConstantFloat("lightPosition", &lights[i].position.x, 3, offset);
+        shader->UpdateConstantFloat("lightDiffuse", &lights[i].diffuse.r, 3, offset);
+        shader->UpdateConstantFloat("lightSpecular", &lights[i].specular.r, 3, offset);
+    }
 }
 
 void DirectxEngine::SendTextures(const std::vector<int>& textures)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-
-    int slot = 0;
-    for(int id : textures)
+    for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
-        if(id != NO_INDEX && shader->HasTextureSlot(slot))
+        const Texture::Type type = static_cast<Texture::Type>(i);
+        if (SendTexture(slot, textures[type]))
         {
-            m_data->textures[id]->SendTexture(m_data->context, slot++);
+            ++slot;
         }
     }
+}
+
+bool DirectxEngine::SendTexture(int slot, int ID)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    if(ID != NO_INDEX && shader->HasTextureSlot(slot))
+    {
+        m_data->textures[ID]->SendTexture(m_data->context, slot);
+        return true;
+    }
+    return false;
 }
 
 void DirectxEngine::SetSelectedShader(int index)
@@ -739,15 +819,6 @@ void DirectxEngine::UpdateView(const Matrix& world)
     m_data->viewProjection = m_data->view * m_data->projection;
 }
 
-void DirectxEngine::SetBackfaceCull(bool shouldCull)
-{
-    if(shouldCull != m_data->isBackfaceCull)
-    {
-        m_data->isBackfaceCull = shouldCull;
-        m_data->context->RSSetState(shouldCull ? m_data->cullState : m_data->nocullState);
-    }
-}
-
 std::string DirectxEngine::GetShaderText(int index) const
 {
     return m_data->shaders[index]->GetText();
@@ -780,8 +851,32 @@ void DirectxEngine::WriteToShader(const std::string& name,
     }
 }
 
+void DirectxEngine::EnableDepthWrite(bool enable)
+{
+    if (enable != m_data->isDepthWrite)
+    {
+        m_data->isDepthWrite = enable;
+        m_data->context->OMSetDepthStencilState(
+            enable ? m_data->writeState : m_data->noWriteState, 0xFFFFFFFF);
+    }
+}
+
 void DirectxEngine::EnableAlphaBlending(bool enable)
 {
-	m_data->context->OMSetBlendState(
-        enable ? m_data->alphaBlendState : m_data->noBlendState, 0, 0xFFFFFFFF);
+    if (enable != m_data->isAlphaBlend)
+    {
+        m_data->isAlphaBlend = enable;
+	    m_data->context->OMSetBlendState(
+            enable ? m_data->alphaBlendState : m_data->noBlendState, 0, 0xFFFFFFFF);
+    }
+}
+
+void DirectxEngine::EnableBackfaceCull(bool enable)
+{
+    if(enable != m_data->isBackfaceCull)
+    {
+        m_data->isBackfaceCull = enable;
+        m_data->context->RSSetState(
+            enable ? m_data->cullState : m_data->noCullState);
+    }
 }

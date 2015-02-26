@@ -37,5 +37,7 @@ Attributes VShader(float4 position  : POSITION,
 
 float4 PShader(Attributes input) : SV_TARGET
 {
-    return float4(DiffuseTexture.Sample(Sampler, input.uvs).rgb * tint.rgb, tint.a * alpha);
+    float4 colour = DiffuseTexture.Sample(Sampler, input.uvs) * tint;
+    colour.a *= alpha;
+    return colour;
 }

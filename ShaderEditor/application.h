@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <Windows.h>
-#include "elements.h"
 #include "common.h"
 
 class OpenglEngine;

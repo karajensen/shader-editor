@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include "sceneElements.h"
+#include "boost/property_tree/ptree.hpp"
+#include "sceneInterface.h"
+
 class FragmentLinker;
 
 /**
 * Manager and owner of all objects and diagnostics
 */
-class Scene : public SceneElements
+class Scene : public IScene
 {
 public:
 

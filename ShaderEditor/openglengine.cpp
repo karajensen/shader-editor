@@ -8,7 +8,7 @@
 #include "opengltexture.h"
 #include "opengltarget.h"
 #include "openglemitter.h"
-#include "sceneElements.h"
+#include "sceneInterface.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
 #include <array>
@@ -47,7 +47,9 @@ struct OpenglData
     glm::mat4 projection;            ///< Projection matrix
     glm::mat4 view;                  ///< View matrix
     glm::mat4 viewProjection;        ///< View projection matrix
-    bool isBackfaceCull = true;      ///< Whether backface culling is currently active
+    bool isBackfaceCull = false;     ///< Whether the culling rasterize state is active
+    bool isAlphaBlend = false;       ///< Whether alpha blending is currently active
+    bool isDepthWrite = false;       ///< Whether writing to the depth buffer is active
     int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
     float fadeAmount = 0.0f;         ///< the amount to fade the scene by
     float blendFactor = 0.540f;      ///< Alpha blend modifier
@@ -77,7 +79,6 @@ OpenglData::~OpenglData()
 void OpenglData::Release()
 {
     selectedShader = NO_INDEX;
-    isBackfaceCull = true;
     fadeAmount = 0.0f;
 
     for(auto& texture : textures)
@@ -289,8 +290,13 @@ bool OpenglEngine::Initialize()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
     glFrontFace(GL_CCW); 
-    SetBackfaceCull(true);
+
+    m_data->isBackfaceCull = false;
+    m_data->isAlphaBlend = true;
+    m_data->isDepthWrite = false;
+    EnableBackfaceCull(true);
     EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
         WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
@@ -312,7 +318,7 @@ std::string OpenglEngine::CompileShader(int index)
     return m_data->shaders[index]->CompileShader();
 }
 
-bool OpenglEngine::InitialiseScene(const SceneElements& scene)
+bool OpenglEngine::InitialiseScene(const IScene& scene)
 {
     m_data->textures.reserve(scene.Textures().size());
     for(const Texture& texture : scene.Textures())
@@ -420,7 +426,7 @@ bool OpenglEngine::FadeView(bool in, float amount)
     return false;
 }
 
-void OpenglEngine::Render(const SceneElements& scene, float timer)
+void OpenglEngine::Render(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive();
 
@@ -432,8 +438,6 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
         mesh->Render();
     }
     
-    EnableAlphaBlending(true);
-
     for (auto& water : m_data->waters)
     {
         UpdateShader(water->GetWater(), scene.Lights(), timer);
@@ -450,16 +454,14 @@ void OpenglEngine::Render(const SceneElements& scene, float timer)
         emitter->Render(m_data->cameraPosition, m_data->cameraUp);
     }
 
-    EnableAlphaBlending(false);
-
-    RenderNormalMap(scene.Post());
+    RenderNormalMap(scene.Post(), timer);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
 
     SwapBuffers(m_data->hdc); 
 }
 
-void OpenglEngine::RenderNormalMap(const PostProcessing& post)
+void OpenglEngine::RenderNormalMap(const PostProcessing& post, float timer)
 {
     m_data->normalTarget.SetActive();
 
@@ -473,7 +475,7 @@ void OpenglEngine::RenderNormalMap(const PostProcessing& post)
 
     for (auto& water : m_data->waters)
     {
-        UpdateShader(water->GetWater(), post);
+        UpdateShader(water->GetWater(), post, timer);
         water->PreRender();
         m_data->shaders[water->GetShaderID()]->EnableAttributes();
         water->Render();
@@ -482,7 +484,9 @@ void OpenglEngine::RenderNormalMap(const PostProcessing& post)
 
 void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 {
-    SetBackfaceCull(false);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(false);
+    EnableBackfaceCull(false);
 
     auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
     blurShader->SetActive();
@@ -520,7 +524,9 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
-    SetBackfaceCull(false);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(false);
+    EnableBackfaceCull(false);
 
     auto& postShader = m_data->shaders[POST_SHADER_INDEX];
     postShader->SetActive();
@@ -573,7 +579,9 @@ void OpenglEngine::UpdateShader(const Emitter& emitter)
 
     shader->SendUniformFloat("tint", &emitter.tint.r, 4);
 
-    SetBackfaceCull(false);
+    EnableBackfaceCull(false);
+    EnableAlphaBlending(true);
+    EnableDepthWrite(false);
 }
 
 void OpenglEngine::UpdateShader(glm::mat4 world, const Particle& particle)
@@ -583,7 +591,7 @@ void OpenglEngine::UpdateShader(glm::mat4 world, const Particle& particle)
     shader->SendUniformMatrix("worldViewProjection", m_data->viewProjection * world);
     shader->SendUniformFloat("alpha", &particle.alpha, 1);
 
-    shader->SendTexture(0, m_data->textures[particle.texture]->GetID(), false, false);
+    SendTexture(0, particle.texture);
 }
 
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
@@ -603,8 +611,10 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
 
     shader->SendUniformFloat("meshBump", &mesh.bump, 1);
 
-    SetBackfaceCull(mesh.backfacecull);
-    SendTextures(mesh.textureIDs);
+    SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
+    EnableBackfaceCull(mesh.backfacecull);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(false);
 }
 
 void OpenglEngine::UpdateShader(const Mesh& mesh, 
@@ -616,11 +626,9 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     if(index != m_data->selectedShader)
     {
         SetSelectedShader(index);
-
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        shader->SendLights(lights);
-        shader->SendUniformArrays();
+        SendLights(lights);
     }
 
     shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
@@ -628,12 +636,17 @@ void OpenglEngine::UpdateShader(const Mesh& mesh,
     shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
     shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
 
-    SetBackfaceCull(mesh.backfacecull);
+    shader->SendUniformArrays();
+
     SendTextures(mesh.textureIDs);
+    EnableBackfaceCull(mesh.backfacecull);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
-                                const PostProcessing& post)
+                                const PostProcessing& post,
+                                float timer)
 {
     const int index = water.normalIndex;
     auto& shader = m_data->shaders[index];
@@ -645,10 +658,21 @@ void OpenglEngine::UpdateShader(const Water& water,
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("depthNear", &post.depthNear, 1);
         shader->SendUniformFloat("depthFar", &post.depthFar, 1);
+        shader->SendUniformFloat("timer", &timer, 1);
     }
 
-    SetBackfaceCull(true);
-    SendTextures(water.textureIDs);
+    shader->SendUniformFloat("speed", &water.speed, 1);
+    shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
+    shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+    shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
+    SendWaves(water.waves);
+
+    shader->SendUniformArrays();
+
+    EnableBackfaceCull(true);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
+    SendTexture(0, water.textureIDs[Texture::NORMAL]);
 }
 
 void OpenglEngine::UpdateShader(const Water& water, 
@@ -666,7 +690,7 @@ void OpenglEngine::UpdateShader(const Water& water,
         shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
         shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
         shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        shader->SendLights(lights);
+        SendLights(lights);
     }
 
     shader->SendUniformFloat("speed", &water.speed, 1);
@@ -678,36 +702,66 @@ void OpenglEngine::UpdateShader(const Water& water,
     shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
     shader->SendUniformFloat("reflectionIntensity", &water.reflection, 1);
     shader->SendUniformFloat("fresnal", &water.fresnal.x, 3);
-
-    for (unsigned int i = 0; i < water.waves.size(); ++i)
-    {
-        shader->UpdateUniformArray("waveFrequency", &water.waves[i].amplitude, 1, i);
-        shader->UpdateUniformArray("waveAmplitude", &water.waves[i].amplitude, 1, i);
-        shader->UpdateUniformArray("wavePhase", &water.waves[i].phase, 1, i);
-        shader->UpdateUniformArray("waveDirectionX", &water.waves[i].directionX, 1, i);
-        shader->UpdateUniformArray("waveDirectionZ", &water.waves[i].directionZ, 1, i);
-    }
+    SendWaves(water.waves);
 
     shader->SendUniformArrays();
-
-    SetBackfaceCull(true);
+    
+    EnableBackfaceCull(true);
+    EnableDepthWrite(true);
+    EnableAlphaBlending(true);
     SendTextures(water.textureIDs);
+}
+
+void OpenglEngine::SendLights(const std::vector<Light>& lights)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    for (unsigned int i = 0; i < lights.size(); ++i)
+    {
+        const int offset = i*3; // Arrays pack tightly
+        shader->UpdateUniformArray("lightSpecularity", &lights[i].specularity, 1, i);
+        shader->UpdateUniformArray("lightAttenuation", &lights[i].attenuation.x, 3, offset);
+        shader->UpdateUniformArray("lightPosition", &lights[i].position.x, 3, offset);
+        shader->UpdateUniformArray("lightDiffuse", &lights[i].diffuse.r, 3, offset);
+        shader->UpdateUniformArray("lightSpecular", &lights[i].specular.r, 3, offset);
+    }
+}
+
+void OpenglEngine::SendWaves(const std::vector<Wave>& waves)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    for (unsigned int i = 0; i < waves.size(); ++i)
+    {
+        shader->UpdateUniformArray("waveFrequency", &waves[i].amplitude, 1, i);
+        shader->UpdateUniformArray("waveAmplitude", &waves[i].amplitude, 1, i);
+        shader->UpdateUniformArray("wavePhase", &waves[i].phase, 1, i);
+        shader->UpdateUniformArray("waveDirectionX", &waves[i].directionX, 1, i);
+        shader->UpdateUniformArray("waveDirectionZ", &waves[i].directionZ, 1, i);
+    }
 }
 
 void OpenglEngine::SendTextures(const std::vector<int>& textures)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-
-    int slot = 0;
-    for(int id : textures)
+    for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
-        if(id != NO_INDEX && shader->HasTextureSlot(slot))
+        const Texture::Type type = static_cast<Texture::Type>(i);
+        if (SendTexture(slot, textures[type]))
         {
-            const auto& texture = m_data->textures[id];
-            shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
             ++slot;
         }
     }
+}
+
+bool OpenglEngine::SendTexture(int slot, int ID)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    if (ID != NO_INDEX && shader->HasTextureSlot(slot))
+    {
+        const auto& texture = m_data->textures[ID];
+        shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
+        return true;
+    }
+    return false;
 }
 
 void OpenglEngine::SetSelectedShader(int index)
@@ -752,15 +806,6 @@ void OpenglEngine::UpdateView(const Matrix& world)
     m_data->viewProjection = m_data->projection * m_data->view;
 }
 
-void OpenglEngine::SetBackfaceCull(bool shouldCull)
-{
-    if(shouldCull != m_data->isBackfaceCull)
-    {
-        m_data->isBackfaceCull = shouldCull;
-        shouldCull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-    }
-}
-
 std::string OpenglEngine::GetShaderText(int index) const
 {
     return m_data->shaders[index]->GetText();
@@ -797,26 +842,50 @@ void OpenglEngine::WriteToShader(const std::string& name,
     // Note first component in split regex vector is whitespace or empty
 
     std::vector<std::string> components;
-    boost::algorithm::split_regex(components, text, boost::regex(GLSL_HEADER));
+    boost::algorithm::split_regex(components, 
+        text, boost::regex(GlShader::GetShaderHeader()));
 
-    WriteToFile(GLSL_HEADER + components[1], 
+    WriteToFile(GlShader::GetShaderHeader() + components[1], 
         GENERATED_PATH + name + GLSL_VERTEX_EXTENSION);
 
-    WriteToFile(GLSL_HEADER + components[2], 
+    WriteToFile(GlShader::GetShaderHeader() + components[2], 
         GENERATED_PATH + name + GLSL_FRAGMENT_EXTENSION);
 }
 
 void OpenglEngine::EnableAlphaBlending(bool enable)
 {
-    if (enable)
+    if (enable != m_data->isAlphaBlend)
     {
-        // Use zero for src alpha to prevent from interferring with glow
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
-        glEnable(GL_BLEND);
+        m_data->isAlphaBlend = enable;
+
+        if (enable)
+        {
+            // Use zero for src alpha to prevent from interferring with glow
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
+            glEnable(GL_BLEND);
+        }
+        else
+        {
+            glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+            glDisable(GL_BLEND);
+        }
     }
-    else
+}
+
+void OpenglEngine::EnableBackfaceCull(bool enable)
+{
+    if(enable != m_data->isBackfaceCull)
     {
-        glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-        glDisable(GL_BLEND);
+        m_data->isBackfaceCull = enable;
+        enable ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+    }
+}
+
+void OpenglEngine::EnableDepthWrite(bool enable)
+{
+    if (enable != m_data->isDepthWrite)
+    {
+        m_data->isDepthWrite = enable;
+        enable ? glDepthMask(GL_TRUE) : glDepthMask(GL_FALSE);
     }
 }

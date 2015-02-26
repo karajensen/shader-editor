@@ -34,15 +34,17 @@
     <ClCompile Include="directxshader.cpp" />
     <ClCompile Include="directxtarget.cpp" />
     <ClCompile Include="directxtexture.cpp" />
-    <ClCompile Include="elements.cpp" />
+    <ClCompile Include="emitter.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="openglemitter.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
     <ClCompile Include="opengltarget.cpp" />
     <ClCompile Include="opengltexture.cpp" />
+    <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_box.cpp" />
@@ -64,6 +66,7 @@
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="colour.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="directxcommon.h" />
     <ClInclude Include="directxemitter.h" />
@@ -72,16 +75,19 @@
     <ClInclude Include="directxshader.h" />
     <ClInclude Include="directxtarget.h" />
     <ClInclude Include="directxtexture.h" />
-    <ClInclude Include="elements.h" />
+    <ClInclude Include="emitter.h" />
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="cache.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="openglcommon.h" />
     <ClInclude Include="openglemitter.h" />
     <ClInclude Include="openglmesh.h" />
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
     <ClInclude Include="opengltexture.h" />
+    <ClInclude Include="postprocessing.h" />
     <ClInclude Include="ptree_utilities.h" />
     <ClInclude Include="qt\project\editor.h" />
     <ClInclude Include="qt\project\generated\ui_editor.h" />
@@ -92,15 +98,19 @@
     <ClInclude Include="qt\project\tweakable_button.h" />
     <ClInclude Include="qt\project\tweakable_value.h" />
     <ClInclude Include="qt\project\tweaker.h" />
+    <ClInclude Include="renderdata.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="openglengine.h" />
     <ClInclude Include="renderengine.h" />
-    <ClInclude Include="sceneElements.h" />
+    <ClInclude Include="sceneInterface.h" />
     <ClInclude Include="sceneModifier.h" />
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
+    <ClInclude Include="water.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_frag.fx">

@@ -139,14 +139,20 @@
     <ClCompile Include="sceneModifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="elements.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="directxemitter.cpp">
       <Filter>Render Engine Source</Filter>
     </ClCompile>
     <ClCompile Include="openglemitter.cpp">
       <Filter>Render Engine Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="emitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="postprocessing.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,9 +252,6 @@
     <ClInclude Include="qt\project\tweakable_button.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="sceneElements.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ptree_utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -258,14 +261,41 @@
     <ClInclude Include="sceneModifier.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="elements.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="directxemitter.h">
       <Filter>Render Engine Header</Filter>
     </ClInclude>
     <ClInclude Include="openglemitter.h">
       <Filter>Render Engine Header</Filter>
+    </ClInclude>
+    <ClInclude Include="renderdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="emitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="postprocessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="water.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneInterface.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

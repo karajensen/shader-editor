@@ -6,10 +6,10 @@
 #include "boost/algorithm/string.hpp"
 #include "boost/bimap.hpp"
 #include "boost/assign.hpp"
+#include "boost/lexical_cast.hpp"
 #include <iomanip>
 #include <assert.h>
 #include <fstream>
-#include "elements.h"
 
 namespace
 {
@@ -22,6 +22,7 @@ namespace
     const std::string MAIN_ENTRY(ENTRY_NAME + "(void)");
     const std::string VERTEX_MODEL("glsl_vs");
     const std::string FRAGMENT_MODEL("glsl_fs");
+    const std::string GLSL_HEADER("#version");
     const std::string GLSL_FLT("float");
     const std::string GLSL_VEC_PREFIX("vec");
     const std::string GLSL_VEC2(GLSL_VEC_PREFIX + "2");
@@ -660,15 +661,35 @@ const std::string& GlShader::GetName() const
     return m_shader.name;
 }
 
-void GlShader::SendLights(const std::vector<Light>& lights)
+std::string GlShader::GetShaderHeader()
 {
-    for (unsigned int i = 0; i < lights.size(); ++i)
+    return GLSL_HEADER;
+}
+
+unsigned int GlShader::GetTexture(int slot)
+{
+    switch(slot)
     {
-        const int offset = i*3; // Arrays pack tightly
-        UpdateUniformArray("lightSpecularity", &lights[i].specularity, 1, i);
-        UpdateUniformArray("lightAttenuation", &lights[i].attenuation.x, 3, offset);
-        UpdateUniformArray("lightPosition", &lights[i].position.x, 3, offset);
-        UpdateUniformArray("lightDiffuse", &lights[i].diffuse.r, 3, offset);
-        UpdateUniformArray("lightSpecular", &lights[i].specular.r, 3, offset);
+    case 0:
+        return GL_TEXTURE0;
+    case 1:
+        return GL_TEXTURE1;
+    case 2:
+        return GL_TEXTURE2;
+    case 3:
+        return GL_TEXTURE3;
+    case 4:
+        return GL_TEXTURE4;
+    case 5:
+        return GL_TEXTURE5;
+    case 6:
+        return GL_TEXTURE6;
+    case 7:
+        return GL_TEXTURE7;
+    case 8:
+        return GL_TEXTURE8;
+    default:
+        Logger::LogError("Unknown texture slot");
+        return 0;
     }
 }

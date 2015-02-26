@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "sceneModifier.h"
+#include "renderdata.h"
 #include "scene.h"
 #include "cache.h"
 #include "camera.h"
@@ -29,18 +30,18 @@ void SceneModifier::Tick(RenderEngine& engine)
     UpdateShader(engine);
     switch (m_cache->PageSelected.Get())
     {
-    case SCENE:
+    case PAGE_SCENE:
         UpdateScene();
         break;
-    case LIGHT:
+    case PAGE_LIGHT:
         UpdateLight();
         break;
-    case MESH:
+    case PAGE_MESH:
         UpdateMesh();
         UpdateWater();
         UpdateEmitter();
         break;
-    case POST:
+    case PAGE_POST:
         UpdatePost();
         break;
     }
@@ -66,7 +67,7 @@ bool SceneModifier::ReCompileShader(const std::string& text, RenderEngine& engin
     else
     {
         Logger::LogInfo(name + ": Failed Recompilation");
-        ShowMessage(name + ":" + errors, "Compilation Errors");
+        MessageBox(nullptr, (name + ":" + errors).c_str(), "Compilation Errors", MB_OK);
         return false;
     }
 }

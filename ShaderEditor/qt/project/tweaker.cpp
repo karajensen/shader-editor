@@ -154,22 +154,22 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     emitter[EMITTER_DIR_X].Set("Direction X", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_X]);
     emitter[EMITTER_DIR_Y].Set("Direction Y", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Y]);
     emitter[EMITTER_DIR_Z].Set("Direction Z", 0.01, m_callbacks.SetEmitter[EMITTER_DIR_Z]);
-    emitter[EMITTER_POS_X].Set("Position X", 1.0, m_callbacks.SetEmitter[EMITTER_POS_X]);
-    emitter[EMITTER_POS_Y].Set("Position Y", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Y]);
-    emitter[EMITTER_POS_Z].Set("Position Z", 1.0, m_callbacks.SetEmitter[EMITTER_POS_Z]);
+    emitter[EMITTER_POS_X].Set("Position X", 0.1, m_callbacks.SetEmitter[EMITTER_POS_X]);
+    emitter[EMITTER_POS_Y].Set("Position Y", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Y]);
+    emitter[EMITTER_POS_Z].Set("Position Z", 0.1, m_callbacks.SetEmitter[EMITTER_POS_Z]);
     emitter[EMITTER_LIFETIME].Set("Lifetime", 0.01, m_callbacks.SetEmitter[EMITTER_LIFETIME]);
     emitter[EMITTER_LIFEFADE].Set("LifeFade", 0.01, m_callbacks.SetEmitter[EMITTER_LIFEFADE]);
     m_emitter.Initialise(m_ui.emitter_box, m_ui.emitter_value, m_ui.emitter_dial, emitter);
 
     int ID = EmitterColourID;
-    std::vector<ComboEntry> emitterColor(EMITTER_ATTRIBUTES-ID);
+    std::vector<ComboEntry> emitterColor(EmitterMinMaxID-EmitterColourID);
     emitterColor[EMITTER_TINT_R-ID].Set("Tint R", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_R]);
     emitterColor[EMITTER_TINT_G-ID].Set("Tint G", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_G]);
     emitterColor[EMITTER_TINT_B-ID].Set("Tint B", 0.01, m_callbacks.SetEmitter[EMITTER_TINT_B]);
     m_emitterColour.Initialise(m_ui.emitterColour_box, m_ui.emitterColour_value, m_ui.emitterColour_dial, emitterColor);
 
     ID = EmitterMinMaxID;
-    std::vector<ComboEntry> emitterMinMax(EMITTER_ATTRIBUTES - ID);
+    std::vector<ComboEntry> emitterMinMax(EMITTER_ATTRIBUTES-EmitterMinMaxID);
     emitterMinMax[EMITTER_MAX_SPEED-ID].Set("Max Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MAX_SPEED]);
     emitterMinMax[EMITTER_MIN_SPEED-ID].Set("Min Speed", 0.01, m_callbacks.SetEmitter[EMITTER_MIN_SPEED]);
     emitterMinMax[EMITTER_MAX_SIZE-ID].Set("Max Size", 0.1, m_callbacks.SetEmitter[EMITTER_MAX_SIZE]);

@@ -3,12 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "fragmentlinker.h"
+#include "renderdata.h"
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
+#include "boost/lexical_cast.hpp"
 
 namespace
 {
@@ -23,7 +25,7 @@ namespace
 bool FragmentLinker::Initialise(unsigned int maxLights)
 {
     m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);
-    m_defines["SAMPLES"] = boost::lexical_cast<std::string>(SAMPLES);
+    m_defines["SAMPLES"] = boost::lexical_cast<std::string>(MULTISAMPLING_COUNT);
     m_defines["WINDOW_WIDTH"] = boost::lexical_cast<std::string>(WINDOW_WIDTH);
     m_defines["WINDOW_HEIGHT"] = boost::lexical_cast<std::string>(WINDOW_HEIGHT);
     m_defines["MAX_WAVES"] = boost::lexical_cast<std::string>(Water::MAX_WAVES);
@@ -214,7 +216,7 @@ std::string FragmentLinker::ReadBaseShader(std::ifstream& baseFile,
             const int spacesInTabs = 4;
             const int spaceOffset = targets.empty() ? 0 : spacesInTabs * level;
             const int spaceAmount = line.size()-trimmedline.size()-spaceOffset;
-            const std::string spaces(max(0, spaceAmount), ' ');
+            const std::string spaces(std::max(0, spaceAmount), ' ');
             const std::string extraSpaces(spaceOffset, ' ');
             boost::ireplace_all(trimmedline, ":", extraSpaces + ":"); // Ensure semantics align
             generatedFile << spaces << trimmedline << std::endl;

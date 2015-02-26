@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include <Windows.h>
 #include "common.h"
+#include "renderdata.h"
 
-class SceneElements;
+class IScene;
 
 /**
 * Base graphics API interface
 */
-class RenderEngine
+class RenderEngine : boost::noncopyable
 {
 public:
 
@@ -37,7 +37,7 @@ public:
     * @param scene The elements making up the scene
     * @param timer The time passed since scene start
     */
-    virtual void Render(const SceneElements& scene,
+    virtual void Render(const IScene& scene,
                         float timer) = 0;
 
     /**
@@ -52,7 +52,7 @@ public:
     * @param scene The elements making up the scene
     * @return whether initialisation was successful
     */
-    virtual bool InitialiseScene(const SceneElements& scene) = 0;
+    virtual bool InitialiseScene(const IScene& scene) = 0;
 
     /**
     * ReInitialises the scene for the ending
