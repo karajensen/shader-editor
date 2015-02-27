@@ -10,15 +10,16 @@
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
 
-Mesh::Mesh()
+MeshData::MeshData()
 {
     textureIDs.resize(Texture::MAX_TYPES);
     textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
 }
 
-bool Mesh::Initialise(bool requiresNormals, bool requiresBumpMapping)
+bool MeshData::Initialise(bool requiresNormals, bool requiresBumpMapping)
 {
     const std::string path = MESH_PATH + name;
+    const bool requiresUVs = maxTextures > 0;
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
@@ -56,7 +57,7 @@ bool Mesh::Initialise(bool requiresNormals, bool requiresBumpMapping)
             Logger::LogError(name + " requires positions for requested shader");
             return false;
         }
-        if(!pMesh->HasTextureCoords(0))
+        if(requiresUVs && !pMesh->HasTextureCoords(0))
         {
             Logger::LogError(name + " requires uvs for requested shader");
             return false;
@@ -74,16 +75,21 @@ bool Mesh::Initialise(bool requiresNormals, bool requiresBumpMapping)
             vertices.push_back(pMesh->mVertices[vert].x);
             vertices.push_back(pMesh->mVertices[vert].y);
             vertices.push_back(pMesh->mVertices[vert].z);
-            vertices.push_back(pMesh->mTextureCoords[0][vert].x);
-            vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-            componentCount = 5;
+            componentCount = 3;
+
+            if (requiresUVs)
+            {
+                vertices.push_back(pMesh->mTextureCoords[0][vert].x);
+                vertices.push_back(pMesh->mTextureCoords[0][vert].y);
+                componentCount += 2;
+            }
 
             if (requiresNormals)
             {
                 vertices.push_back(pMesh->mNormals[vert].x);
                 vertices.push_back(pMesh->mNormals[vert].y);
                 vertices.push_back(pMesh->mNormals[vert].z);
-                componentCount = 8;
+                componentCount += 3;
             }
 
             // Add any bitangents/tangents for the mesh

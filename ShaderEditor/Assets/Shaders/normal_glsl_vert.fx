@@ -20,19 +20,20 @@ ifdef: BUMP
     out vec3 ex_Bitangent;
 endif
 
+uniform mat4 world;
 uniform mat4 viewProjection;
 uniform float depthNear;
 uniform float depthFar;
  
 void main(void)
 {
-    gl_Position = viewProjection * in_Position;
+    gl_Position = viewProjection * world * in_Position;
     ex_UVs = in_UVs;
-    ex_Normal = in_Normal;
+    ex_Normal = (world * vec4(in_Normal, 0.0)).xyz;
 
     ifdef: BUMP
-        ex_Tangent = in_Tangent;
-        ex_Bitangent = in_Bitangent;
+        ex_Tangent = (world * vec4(in_Tangent, 0.0)).xyz;
+        ex_Bitangent = (world * vec4(in_Bitangent, 0.0)).xyz;
     endif
 
     vec2 depthBounds = vec2(0.0, 1.0);

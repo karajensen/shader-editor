@@ -5,7 +5,6 @@
 #include "directxshader.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
-#include "boost/assign.hpp"
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
 #include "directx/include/D3Dcompiler.h"

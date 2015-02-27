@@ -186,6 +186,12 @@ public:
     void SetMeshShaderName(const std::string& name);
 
     /**
+    * Sets the readonly selected mesh instance count
+    * @param count The number of instances
+    */
+    void SetMeshInstanceCount(const std::string& count);
+
+    /**
     * Sets the selected engine
     * @param selected The selected engine
     */

@@ -365,7 +365,8 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     m_data->meshes.reserve(scene.Meshes().size());
     for(const Mesh& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(mesh)));
+        m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(mesh,
+            [this](const D3DXMATRIX& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
@@ -378,7 +379,7 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     for(const Emitter& emitter : scene.Emitters())
     {
         m_data->emitters.push_back(std::unique_ptr<DxEmitter>(new DxEmitter(emitter,
-            [this](D3DXMATRIX world, const Particle& data){ UpdateShader(world, data); })));
+            [this](const D3DXMATRIX& world, const Particle& data){ UpdateShader(world, data); })));
     }
 
     return ReInitialiseScene();
@@ -440,26 +441,34 @@ bool DirectxEngine::FadeView(bool in, float amount)
 
 void DirectxEngine::Render(const IScene& scene, float timer)
 {
+    RenderSceneMap(scene.Lights(), timer);
+    RenderNormalMap(scene.Post(), timer);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
+    m_data->swapchain->Present(0, 0);
+}
+
+void DirectxEngine::RenderSceneMap(const std::vector<Light>& lights, float timer)
+{
     m_data->sceneTarget.SetActive(m_data->context);
 
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), scene.Lights());
-        mesh->Render(m_data->context);
+        if (UpdateShader(mesh->GetMesh(), lights))
+        {
+            mesh->Render(m_data->context);
+        }
     }
 
-    for (auto& water : m_data->waters)
+    for (auto& mesh : m_data->waters)
     {
-        UpdateShader(water->GetWater(), scene.Lights(), timer);
-        water->Render(m_data->context);
+        if (UpdateShader(mesh->GetWater(), lights, timer))
+        {
+            mesh->Render(m_data->context);
+        }
     }
     
     RenderEmitters();
-    RenderNormalMap(scene.Post(), timer);
-    RenderSceneBlur(scene.Post());
-    RenderPostProcessing(scene.Post());
-
-    m_data->swapchain->Present(0, 0);
 }
 
 void DirectxEngine::RenderEmitters()
@@ -468,9 +477,11 @@ void DirectxEngine::RenderEmitters()
 
     for (auto& emitter : m_data->emitters)
     {
-        UpdateShader(emitter->GetEmitter());
-        emitter->Render(m_data->context, 
-            m_data->cameraPosition, m_data->cameraUp);
+        if (UpdateShader(emitter->GetEmitter()))
+        {
+            emitter->Render(m_data->context, 
+                m_data->cameraPosition, m_data->cameraUp);
+        }
     }
 
     EnableDepthWrite(true);
@@ -482,14 +493,18 @@ void DirectxEngine::RenderNormalMap(const PostProcessing& post, float timer)
 
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), post);
-        mesh->Render(m_data->context);
+        if(UpdateShader(mesh->GetMesh(), post))
+        {
+            mesh->Render(m_data->context);
+        }
     }
 
-    for (auto& water : m_data->waters)
+    for (auto& mesh : m_data->waters)
     {
-        UpdateShader(water->GetWater(), post, timer);
-        water->Render(m_data->context);
+        if (UpdateShader(mesh->GetWater(), post, timer))
+        {
+            mesh->Render(m_data->context);
+        }
     }
 }
 
@@ -498,7 +513,7 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
 
-    auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
+    auto& blurShader = m_data->shaders[BLUR_SHADER];
     blurShader->SetActive(m_data->context);
 
     blurShader->UpdateConstantFloat("blurStep", &post.blurStep, 1);
@@ -536,7 +551,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
 
-    auto& postShader = m_data->shaders[POST_SHADER_INDEX];
+    auto& postShader = m_data->shaders[POST_SHADER];
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
 
@@ -574,149 +589,172 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->blurTargetP2.ClearTexture(m_data->context, PostProcessing::BLUR);
 }
 
-void DirectxEngine::UpdateShader(const Mesh& mesh, 
+void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->UpdateConstantMatrix("world", world);
+    shader->UpdateConstantFloat("meshColour", &colour.r, 3);
+    shader->SendConstants(m_data->context);
+}
+
+bool DirectxEngine::UpdateShader(const Mesh& mesh, 
                                  const PostProcessing& post)
 {
     const int index = mesh.normalIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if (index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+            shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
+            shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+        }
 
-        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
-        shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+        shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+        shader->SendConstants(m_data->context);
+
+        SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
+        EnableBackfaceCull(mesh.backfacecull);
+        EnableAlphaBlending(false);
+
+        return true;
     }
-
-    shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
-
-    shader->SendConstants(m_data->context);
-
-    SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
-    EnableBackfaceCull(mesh.backfacecull);
-    EnableAlphaBlending(false);
+    return false;
 }
 
-void DirectxEngine::UpdateShader(const Mesh& mesh, 
+bool DirectxEngine::UpdateShader(const Mesh& mesh, 
                                  const std::vector<Light>& lights)
 {
     const int index = mesh.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
-        
-        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        SendLights(lights);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+            shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+            SendLights(lights);
+        }
+
+        shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
+        shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+        shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
+        shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
+        shader->SendConstants(m_data->context);
+
+        SendTextures(mesh.textureIDs);
+        EnableBackfaceCull(mesh.backfacecull);
+        EnableAlphaBlending(false);
+
+        return true;
     }
-
-    shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
-    shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
-    shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
-    shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
-
-    shader->SendConstants(m_data->context);
-
-    SendTextures(mesh.textureIDs);
-    EnableBackfaceCull(mesh.backfacecull);
-    EnableAlphaBlending(false);
+    return false;
 }
 
-void DirectxEngine::UpdateShader(const Water& water, 
+bool DirectxEngine::UpdateShader(const Water& water, 
                                  const PostProcessing& post,
                                  float timer)
 {
     const int index = water.normalIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+            shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
+            shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+            shader->UpdateConstantFloat("timer", &timer, 1);
+        }
 
-        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
-        shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
-        shader->UpdateConstantFloat("timer", &timer, 1);
+        shader->UpdateConstantFloat("speed", &water.speed, 1);
+        shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
+        shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+        shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
+        SendWaves(water.waves);
+
+        shader->SendConstants(m_data->context);
+
+        EnableBackfaceCull(true);
+        EnableAlphaBlending(false);
+        SendTexture(0, water.textureIDs[Texture::NORMAL]);
+
+        return true;
     }
-
-    shader->UpdateConstantFloat("speed", &water.speed, 1);
-    shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
-    shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
-    SendWaves(water.waves);
-
-    shader->SendConstants(m_data->context);
-
-    EnableBackfaceCull(true);
-    EnableAlphaBlending(false);
-    SendTexture(0, water.textureIDs[Texture::NORMAL]);
+    return false;
 }
 
-void DirectxEngine::UpdateShader(const Water& water, 
+bool DirectxEngine::UpdateShader(const Water& water, 
                                  const std::vector<Light>& lights,
                                  float timer)
 {
     const int index = water.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
-        
-        shader->UpdateConstantFloat("timer", &timer, 1);
-        shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
-        shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-        shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        SendLights(lights);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+            shader->UpdateConstantFloat("timer", &timer, 1);
+            shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
+            shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+            SendLights(lights);
+        }
+
+        shader->UpdateConstantFloat("speed", &water.speed, 1);
+        shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
+        shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+        shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
+        shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 4);
+        shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 4);
+        shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
+        shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
+        shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);
+        SendWaves(water.waves);
+
+        shader->SendConstants(m_data->context);
+
+        EnableBackfaceCull(true);
+        EnableAlphaBlending(true);
+        SendTextures(water.textureIDs);
+
+        return true;
     }
-
-    shader->UpdateConstantFloat("speed", &water.speed, 1);
-    shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
-    shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
-    shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 4);
-    shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 4);
-    shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
-    shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
-    shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);
-    SendWaves(water.waves);
-
-    shader->SendConstants(m_data->context);
-
-    EnableBackfaceCull(true);
-    EnableAlphaBlending(true);
-    SendTextures(water.textureIDs);
+    return false;
 }
 
-void DirectxEngine::UpdateShader(const Emitter& emitter)
+bool DirectxEngine::UpdateShader(const Emitter& emitter)
 {
     const int index = emitter.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if (index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if (index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+        }
+
+        shader->UpdateConstantFloat("tint", &emitter.tint.r, 4);
+
+        EnableBackfaceCull(false);
+        EnableAlphaBlending(true);
+
+        return true;
     }
-
-    shader->UpdateConstantFloat("tint", &emitter.tint.r, 4);
-
-    shader->SendConstants(m_data->context);
-    
-    EnableBackfaceCull(false);
-    EnableAlphaBlending(true);
+    return false;
 }
 
-void DirectxEngine::UpdateShader(D3DXMATRIX world, const Particle& particle)
+void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Particle& particle)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-
     shader->UpdateConstantMatrix("worldViewProjection", world * m_data->viewProjection);
     shader->UpdateConstantFloat("alpha", &particle.alpha, 1);
     shader->SendConstants(m_data->context);
-
     SendTexture(0, particle.texture);
 }
 

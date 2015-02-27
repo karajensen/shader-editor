@@ -6,14 +6,16 @@
 
 #include <string>
 #include <vector>
+#include "float3.h"
+#include "colour.h"
 
 /**
-* Mesh object rendered in the scene
+* Mesh information
 */
-struct Mesh
+struct MeshData
 {
-    Mesh();
-    virtual ~Mesh() = default;
+    MeshData();
+    virtual ~MeshData() = default;
 
     /**
     * Fills in mesh data
@@ -23,12 +25,8 @@ struct Mesh
     */
     bool Initialise(bool requiresNormals, bool requiresBumpMapping);
 
-    float specularity = 1.0f;           ///< Brightness of the specular highlights
-    float ambience = 1.0f;              ///< Ambient light multiplier
     float bump = 1.0f;                  ///< Saturation of bump
-    float glow = 1.0f;                  ///< Intensity glow multiplier
     std::string name;                   ///< Name of the mesh
-    bool backfacecull = true;           ///< Whether back facing polygons are culled
     int shaderIndex = -1;               ///< Unique Index of the mesh shader to use
     int normalIndex = -1;               ///< Unique Index of the normal shader to use
     std::vector<float> vertices;        ///< Mesh Vertex information
@@ -38,5 +36,30 @@ struct Mesh
     int vertexCount = 0;                ///< Number of vertices in the mesh
     int faceCount = 0;                  ///< Number of faces in the mesh
     int indexCount = 0;                 ///< Number of indicies in the mesh
-    int maxTextures = 0;                ///< Maximum textures used for this mesh
+    int maxTextures = 0;                ///< The number of valid textures using
+};
+
+/**
+* Mesh object rendered in the scene
+*/
+struct Mesh : public MeshData
+{
+    float specularity = 1.0f;        ///< Brightness of the specular highlights
+    float ambience = 1.0f;           ///< Ambient light multiplier
+    float glow = 1.0f;               ///< Intensity glow multiplier
+    bool backfacecull = true;        ///< Whether back facing polygons are culled
+    bool isInstanced = false;        ///< Whether this mesh using instancing
+
+    /**
+    * Holds information for a single instance of a mesh
+    */
+    struct Instance
+    {
+        Colour colour;            ///< Colouring of the mesh
+        Float3 position;          ///< Position offset
+        float scale = 1.0f;       ///< Scaling of the mesh
+        bool shouldRender = true; ///< Whether to render this instance
+    };
+
+    std::vector<Instance> instances; ///< Instances of this mesh
 };

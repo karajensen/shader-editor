@@ -21,7 +21,7 @@ struct Wave
 /**
 * Data for a water-shaded mesh
 */
-struct Water : public Mesh
+struct Water : public MeshData
 {
     Float2 bumpVelocity;             ///< Velocity of the bump movement
     float speed = 0.0f;              ///< Overally speed of the wave

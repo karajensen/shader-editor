@@ -121,43 +121,61 @@ private:
     * Updates and switches to main shader the mesh requires
     * @param mesh The mesh currently rendering
     * @param lights All lighting in the scene
+    * @return whether the mesh can now be rendered
     */
-    void UpdateShader(const Mesh& mesh, const std::vector<Light>& lights);
+    bool UpdateShader(const Mesh& mesh, 
+                      const std::vector<Light>& lights);
 
     /**
     * Updates and switches to the normal shader the mesh requires
     * @param mesh The mesh currently rendering
     * @param post Data for post processing
+    * @return whether the mesh can now be rendered
     */
-    void UpdateShader(const Mesh& mesh, const PostProcessing& post);
+    bool UpdateShader(const Mesh& mesh, 
+                      const PostProcessing& post);
 
     /**
     * Updates and switches to main shader the water requires
     * @param water The water currently rendering
     * @param lights All lighting in the scene
     * @param timer The time passed since scene start
+    * @return whether the mesh can now be rendered
     */
-    void UpdateShader(const Water& water, const std::vector<Light>& lights, float timer);
+    bool UpdateShader(const Water& water, 
+                      const std::vector<Light>& lights, 
+                      float timer);
 
     /**
     * Updates and switches to the normal shader the water requires
     * @param water The mesh currently rendering
     * @param post Data for post processing
     * @param timer The time passed since scene start
+    * @return whether the mesh can now be rendered
     */
-    void UpdateShader(const Water& water, const PostProcessing& post, float timer);
+    bool UpdateShader(const Water& water, 
+                      const PostProcessing& post, 
+                      float timer);
 
     /**
-    * Updates the shader for an emitter
+    * Updates and switches to the shader for an emitter
+    * @return whether the emitter can now be rendered
     */
-    void UpdateShader(const Emitter& emitter);
+    bool UpdateShader(const Emitter& emitter);
 
     /**
-    * Updates the shader for a particle
+    * Updates the shader for a particle per instance
     * @param world The world matrix for the particle
     * @param particle The data for the particle
     */
-    void UpdateShader(glm::mat4 world, const Particle& particle);
+    void UpdateShader(const glm::mat4& world, const Particle& particle);
+
+    /**
+    * Updates the shader for a mesh per instance
+    * @param world The world matrix for the particle
+    * @param particle The data for the particle
+    */
+    void UpdateShader(const glm::mat4& world, const Colour& colour);
 
     /**
     * Sets the shader at the given index as selected
@@ -186,6 +204,13 @@ private:
     * @return whether sending was successful
     */
     bool SendTexture(int slot, int ID);
+
+    /**
+    * Renders the scene
+    * @param lights All the lights in the scene
+    * @param timer The time passed since scene start
+    */
+    void RenderSceneMap(const std::vector<Light>& lights, float timer);
 
     /**
     * Renders the scene as a normal/depth map
@@ -228,6 +253,11 @@ private:
     * @param enable whether to cull or not
     */
     void EnableBackfaceCull(bool enable);
+
+    /**
+    * Enables the attributes of the currently selected shader
+    */
+    void EnableAttributes();
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     HWND m_temporaryHwnd = nullptr;      ///< Handle to the temporary window used for glew

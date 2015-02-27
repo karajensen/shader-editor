@@ -4,20 +4,14 @@
 	<BlurStep>2</BlurStep>
 	<DepthFar>1250</DepthFar>
 	<DepthNear>30</DepthNear>
-	<DOFDistance>0.95</DOFDistance>
+	<DOFDistance>1</DOFDistance>
 	<DOFFade>0.04</DOFFade>
-	<FogColourR>0</FogColourR>
-	<FogColourG>0</FogColourG>
-	<FogColourB>1</FogColourB>
+	<FogColour r="0" g="0" b="1"/>
 	<FogDistance>-1.16</FogDistance>
 	<FogFade>2.29</FogFade>
 	<GlowAmount>100</GlowAmount>
 	<Contrast>0</Contrast>
 	<Saturation>1</Saturation>
-	<MaximumColourR>1</MaximumColourR>
-	<MaximumColourG>1</MaximumColourG>
-	<MaximumColourB>1</MaximumColourB>
-	<MinimumColourR>0</MinimumColourR>
-	<MinimumColourG>0</MinimumColourG>
-	<MinimumColourB>0</MinimumColourB>
+	<MaximumColour r="1" g="1" b="1"/>
+	<MinimumColour r="0" g="0" b="0"/>
 </PostProcessing>

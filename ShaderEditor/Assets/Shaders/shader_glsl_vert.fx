@@ -25,26 +25,27 @@ ifdef: !FLAT
     endif
 endif
 
+uniform mat4 world;
 uniform mat4 viewProjection;
-ifdef: !FLAT|SPECULAR
+ifdef: SPECULAR
     uniform vec3 cameraPosition;
 endif
  
 void main(void)
 {
-    gl_Position = viewProjection * in_Position;
+    gl_Position = viewProjection * world * in_Position;
     ex_UVs = in_UVs;
-    ex_PositionWorld = in_Position.xyz;
+    ex_PositionWorld = (world * in_Position).xyz;
     
     ifdef: !FLAT
-        ex_Normal = in_Normal;
+        ex_Normal = (world * vec4(in_Normal, 0.0)).xyz;
         ifdef: BUMP
-            ex_Tangent = in_Tangent;
-            ex_Bitangent = in_Bitangent;
+            ex_Tangent = (world * vec4(in_Tangent, 0.0)).xyz;
+            ex_Bitangent = (world * vec4(in_Bitangent, 0.0)).xyz;
         endif
 
         ifdef: SPECULAR
-            ex_VertToCamera = cameraPosition - in_Position.xyz;
+            ex_VertToCamera = cameraPosition - ex_PositionWorld;
         endif
     endif
 }

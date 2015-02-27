@@ -340,6 +340,8 @@ void Gui::UpdateMesh(Tweaker& tweaker)
     {
         tweaker.SetMeshShaderName(m_cache->MeshShader.GetUpdated());
     }
+
+    tweaker.SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
 }
 
 void Gui::UpdateEmitter(Tweaker& tweaker)

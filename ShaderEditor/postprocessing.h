@@ -37,7 +37,6 @@ struct PostProcessing
         BLUR_GLOW_MAP,
         DOF_MAP,
         FOG_MAP,
-        LIGHT_MAP,
         MAX_MAPS
     };
 

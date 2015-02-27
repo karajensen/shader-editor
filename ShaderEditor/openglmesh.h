@@ -32,7 +32,7 @@ public:
     /**
     * Renders the mesh
     */
-    void Render();
+    virtual void Render();
 
     /**
     * Initialises the mesh
@@ -42,6 +42,7 @@ public:
 
 protected:
 
+    int m_shaderID = NO_INDEX;      ///< ID of the shader to use
     GLsizei m_vertexCount = 0;      ///< Number of vertices for the mesh
     GLsizei m_indexCount = 0;       ///< Number of indices for the mesh
     GLuint m_vaoID = 0;             ///< An unique ID for Vertex Array Object (VAO)
@@ -77,28 +78,32 @@ public:
     /**
     * Constructor to generate a complex mesh
     * @param mesh The mesh to use as a template
+    * @param preRender Callback to render a single mesh instance
     */
-    GlMesh(const Mesh& mesh);
-
-    /**
-    * @return the unique ID for the mesh shader
-    */
-    int GetShaderID() const;
+    GlMesh(const Mesh& mesh, PreRenderMesh preRender);
 
     /**
     * @return the mesh element
     */
     const Mesh& GetMesh() const;
 
+    /**
+    * Renders the mesh
+    */
+    virtual void Render() override;
+
 private:
 
-    const Mesh& m_mesh;                  ///< Mesh information
+    Colour m_colour;           ///< Mesh default colour
+    glm::mat4 m_world;         ///< World matrix
+    const Mesh& m_mesh;        ///< Mesh information
+    PreRenderMesh m_preRender; ///< Callback to render a single mesh instance
 };                     
 
 /**
 * OpenGL Water mesh
 */
-class GlWater : public GlMesh
+class GlWater : public GlMeshData
 {
 public:
 

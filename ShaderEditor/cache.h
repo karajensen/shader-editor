@@ -180,6 +180,7 @@ struct Cache
     Lockable<int> LightSelected;        ///< Index of the currently selected light                                           
     Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
     LockableString MeshShader;          ///< Shader used for the selected mesh
+    LockableString MeshInstances;       ///< Number of instances of the selected mesh
     Lockable<int> WaterSelected;        ///< Index of the currently selected water  
     Lockable<int> WaveSelected;         ///< Index of the currently selected wave
     Lockable<int> WaveAmount;           ///< The amount of waves for the selected water

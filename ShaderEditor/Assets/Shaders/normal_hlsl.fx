@@ -9,14 +9,17 @@ cbuffer SceneVertexBuffer : register(b0)
     float depthFar;
 };
 
-cbuffer MeshPixelBuffer : register(b1)
+cbuffer MeshVertexBuffer : register(b1)
 {
-    ifdef: BUMP
-        float meshBump;
-    endif
+    float4x4 world;
 };
 
 ifdef: BUMP
+cbuffer MeshPixelBuffer : register(b2)
+{
+    float meshBump;
+};
+
 SamplerState Sampler;
 Texture2D NormalTexture : register(t0);
 endif
@@ -44,13 +47,13 @@ Attributes VShader(float4 position      : POSITION,
                    endif
 {
     Attributes output;
-    output.position = mul(viewProjection, position);
-    output.normal = normal;
+    output.position = mul(mul(viewProjection, world), position);
+    output.normal = mul(world, normal);
 
     ifdef: BUMP
         output.uvs = uvs;
-        output.tangent = tangent;
-        output.bitangent = bitangent;
+        output.tangent = mul(world, tangent);
+        output.bitangent = mul(world, bitangent);
     endif
 
     float2 depthBounds = float2(0.0, 1.0);

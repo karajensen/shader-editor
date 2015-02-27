@@ -189,23 +189,6 @@ private:
     void SaveParticlesToFile();
 
     /**
-    * Saves the tree to a file
-    * @param root The first entry
-    * @param tree The data to save
-    * @param name The name of the file to save
-    */
-    void SaveXMLFile(boost::property_tree::ptree& root,
-                    boost::property_tree::ptree& tree,
-                    const std::string& name);
-
-    /**
-    * Reads an xml file into a tree
-    * @param name The name of the file to read
-    * @return the tree generated
-    */
-    boost::property_tree::ptree ReadXMLFile(const std::string& name);
-
-    /**
     * Initiliases any stand-alone and shared shaders explicitly
     * @param linker The fragment linker used to generate shaders
     * @return Whether the initialization was successful
@@ -254,6 +237,13 @@ private:
     void InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it);
 
     /**
+    * Initialises a mesh for the scene
+    * @param mesh The mesh to initialise
+    * @param it The iterator for the mesh config file
+    */
+    void InitialiseMeshData(MeshData& mesh, boost::property_tree::ptree::iterator& it);
+
+    /**
     * Initialises a water mesh for the scene
     * @param water The water to initialise
     * @param it The iterator for the mesh config file
@@ -266,6 +256,13 @@ private:
     * @return The unique id of the texture added
     */
     int AddTexture(const std::string& name);
+
+    /**
+    * Gets the index for the shader if possible
+    * @param shadername The name of the shader
+    * @return the index for the shader or -1 if can't find
+    */
+    int GetShaderIndex(const std::string& shadername);
 
     /**
     * Gets the index for the shader
@@ -285,6 +282,14 @@ private:
     */
     void AddMeshToTree(const Mesh& mesh, 
                        boost::property_tree::ptree& entry);
+
+    /**
+    * Adds the given mesh to the given tree
+    * @param mesh The mesh data to add
+    * @param entry The tree to add to
+    */
+    void AddMeshDataToTree(const MeshData& mesh, 
+                           boost::property_tree::ptree& entry);
 
     /**
     * Adds the given water to the given tree

@@ -5,12 +5,17 @@
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
-    ifdef: !FLAT|SPECULAR
-        float3 cameraPosition;
+    ifdef: SPECULAR
+        float3 cameraPosition;  
     endif
 };
 
-cbuffer ScenePixelBuffer : register(b1)
+cbuffer MeshVertexBuffer : register(b1)
+{
+    float4x4 world;
+};
+
+cbuffer ScenePixelBuffer : register(b2)
 {
     float3 lightPosition[MAX_LIGHTS];
     float3 lightAttenuation[MAX_LIGHTS];
@@ -21,9 +26,10 @@ cbuffer ScenePixelBuffer : register(b1)
     endif
 };
 
-cbuffer MeshPixelBuffer : register(b2)
+cbuffer MeshPixelBuffer : register(b3)
 {
     float meshAmbience;
+    float3 meshColour;
     ifdef: GLOW
         float meshGlow;
     endif
@@ -72,19 +78,19 @@ Attributes VShader(float4 position      : POSITION,
 {
     Attributes output;
 
-    output.position = mul(viewProjection, position);
+    output.position = mul(mul(viewProjection, world), position);
     output.uvs = uvs;
-    output.positionWorld = position.xyz;
+    output.positionWorld = mul(world, position).xyz;
     
     ifdef: !FLAT
-        output.normal = normal;
+        output.normal = mul(world, normal);
         ifdef: BUMP
-            output.tangent = tangent;
-            output.bitangent = bitangent;
+            output.tangent = mul(world, tangent);
+            output.bitangent = mul(world, bitangent);
         endif
 
         ifdef: SPECULAR
-            output.vertToCamera = cameraPosition - position.xyz;
+            output.vertToCamera = cameraPosition - output.positionWorld;
         endif
     endif
 
@@ -141,7 +147,7 @@ float4 PShader(Attributes input) : SV_TARGET
     ifdef: !FLAT|SPECULAR
         finalColour += specularTex * specular;
     endif
-    finalColour *= meshAmbience;
+    finalColour.rgb *= meshAmbience;
     
     ifdef: GLOW
         finalColour.a = GlowTexture.Sample(Sampler, input.uvs).r * meshGlow;

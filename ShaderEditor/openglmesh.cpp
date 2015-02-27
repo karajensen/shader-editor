@@ -5,13 +5,18 @@
 #include "openglmesh.h"
 
 GlWater::GlWater(const Water& water) :
-    GlMesh(water),
     m_water(water)
 {
+    m_vertexCount = water.vertexCount;
+    m_indexCount = water.indexCount;
+    m_vertices = water.vertices;
+    m_indices = water.indices;
+    m_name = water.name;
 }
 
-GlMesh::GlMesh(const Mesh& mesh) :
-    m_mesh(mesh)
+GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
+    m_mesh(mesh),
+    m_preRender(preRender)
 {
     m_vertexCount = mesh.vertexCount;
     m_indexCount = mesh.indexCount;
@@ -118,11 +123,6 @@ void GlMeshData::Render()
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
 }
 
-int GlMesh::GetShaderID() const 
-{ 
-    return m_mesh.shaderIndex;
-}
-
 const Mesh& GlMesh::GetMesh() const
 {
     return m_mesh;
@@ -131,4 +131,32 @@ const Mesh& GlMesh::GetMesh() const
 const Water& GlWater::GetWater() const
 {
     return m_water;
+}
+
+void GlMesh::Render()
+{
+    if (m_mesh.isInstanced)
+    {
+        for (const Mesh::Instance& instance : m_mesh.instances)
+        {
+            if (instance.shouldRender)
+            {
+                m_world[0][0] = instance.scale;
+                m_world[1][1] = instance.scale;
+                m_world[2][2] = instance.scale;
+            
+                m_world[3][0] = instance.position.x;
+                m_world[3][1] = instance.position.y;
+                m_world[3][2] = instance.position.z;
+
+                m_preRender(m_world, instance.colour);
+                GlMeshData::Render();
+            }
+        }
+    }
+    else
+    {     
+        m_preRender(m_world, m_colour);
+        GlMeshData::Render();
+    }
 }

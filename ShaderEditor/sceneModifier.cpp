@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "renderengine.h"
 #include "timer.h"
+#include "boost/lexical_cast.hpp"
 
 SceneModifier::~SceneModifier() = default;
 
@@ -176,6 +177,7 @@ void SceneModifier::UpdateCamera()
 void SceneModifier::UpdateMesh()
 {
     const int selectedMesh = m_cache->MeshSelected.Get();
+
     if (selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
@@ -190,10 +192,14 @@ void SceneModifier::UpdateMesh()
     else if (m_selectedMesh >= 0 && m_selectedMesh < m_scene.GetMeshCount())
     {
         auto& mesh = m_scene.GetMesh(m_selectedMesh);
+
         mesh.specularity = m_cache->Mesh[MESH_SPECULARITY].Get();
         mesh.ambience = m_cache->Mesh[MESH_AMBIENCE].Get();
         mesh.bump = m_cache->Mesh[MESH_BUMP].Get();
         mesh.glow = m_cache->Mesh[MESH_GLOW].Get();
+
+        const int instances = mesh.isInstanced ? mesh.instances.size() : 1;
+        m_cache->MeshInstances.SetUpdated(boost::lexical_cast<std::string>(instances));
     }
 }
 

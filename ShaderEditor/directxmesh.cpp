@@ -5,14 +5,25 @@
 #include "directxmesh.h"
 
 DxWater::DxWater(const Water& water) :
-    DxMesh(water),
     m_water(water)
 {
+    m_vertexStride = sizeof(float) * water.vertexComponentCount;
+    m_vertexCount = water.vertexCount;
+    m_indexCount = water.indexCount;
+    m_vertices = water.vertices;
+    m_indices = water.indices;
+    m_name = water.name;
 }
 
-DxMesh::DxMesh(const Mesh& mesh) :
-    m_mesh(mesh)
+DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
+    m_mesh(mesh),
+    m_preRender(preRender)
 {
+    D3DXMatrixIdentity(&m_world);  
+    m_colour.r = 1.0f;
+    m_colour.g = 1.0f;
+    m_colour.b = 1.0f;
+
     m_vertexStride = sizeof(float) * mesh.vertexComponentCount;
     m_vertexCount = mesh.vertexCount;
     m_indexCount = mesh.indexCount;
@@ -123,11 +134,6 @@ void DxMeshData::Render(ID3D11DeviceContext* context)
     context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-int DxMesh::GetShaderID() const 
-{ 
-    return m_mesh.shaderIndex;
-}
-
 const Mesh& DxMesh::GetMesh() const
 {
     return m_mesh;
@@ -136,4 +142,32 @@ const Mesh& DxMesh::GetMesh() const
 const Water& DxWater::GetWater() const
 {
     return m_water;
+}
+
+void DxMesh::Render(ID3D11DeviceContext* context)
+{
+    if (m_mesh.isInstanced)
+    {
+        for (const Mesh::Instance& instance : m_mesh.instances)
+        {
+            if (instance.shouldRender)
+            {
+                m_world._11 = instance.scale;
+                m_world._22 = instance.scale;
+                m_world._33 = instance.scale;
+
+                m_world._41 = instance.position.x;
+                m_world._42 = instance.position.y;
+                m_world._43 = instance.position.z;
+
+                m_preRender(m_world, instance.colour);
+                DxMeshData::Render(context);
+            }
+        }
+    }
+    else
+    {     
+        m_preRender(m_world, m_colour);
+        DxMeshData::Render(context);
+    }
 }

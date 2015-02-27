@@ -5,7 +5,6 @@
 #include "openglshader.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/bimap.hpp"
-#include "boost/assign.hpp"
 #include "boost/lexical_cast.hpp"
 #include <iomanip>
 #include <assert.h>

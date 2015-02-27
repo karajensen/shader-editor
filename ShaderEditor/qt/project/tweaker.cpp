@@ -62,55 +62,42 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_selectedWave.Initialise(1.0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
 
-    m_camera[CAMERA_POSITION_X];
     m_camera[CAMERA_POSITION_X].Initialise(1.0, m_ui.cameraX_value,
         m_ui.cameraX_dial, m_callbacks.SetCamera[CAMERA_POSITION_X]);
 
-    m_camera[CAMERA_POSITION_Y];
     m_camera[CAMERA_POSITION_Y].Initialise(1.0, m_ui.cameraY_value,
         m_ui.cameraY_dial, m_callbacks.SetCamera[CAMERA_POSITION_Y]);
 
-    m_camera[CAMERA_POSITION_Z];
     m_camera[CAMERA_POSITION_Z].Initialise(1.0, m_ui.cameraZ_value,
         m_ui.cameraZ_dial, m_callbacks.SetCamera[CAMERA_POSITION_Z]);
 
-    m_camera[CAMERA_PITCH];
     m_camera[CAMERA_PITCH].Initialise(0.01, m_ui.cameraPitch_value,
         m_ui.cameraPitch_dial, m_callbacks.SetCamera[CAMERA_PITCH]);
 
-    m_camera[CAMERA_YAW];
     m_camera[CAMERA_YAW].Initialise(0.01, m_ui.cameraYaw_value,
         m_ui.cameraYaw_dial, m_callbacks.SetCamera[CAMERA_YAW]);
 
-    m_camera[CAMERA_ROLL];
     m_camera[CAMERA_ROLL].Initialise(0.01, m_ui.cameraRoll_value,
         m_ui.cameraRoll_dial, m_callbacks.SetCamera[CAMERA_ROLL]);
 
-    m_light[LIGHT_POSITION_X];
     m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
     
-    m_light[LIGHT_POSITION_Y];
     m_light[LIGHT_POSITION_Y].Initialise(1.0, m_ui.positionY_value,
         m_ui.positionY_dial, m_callbacks.SetLight[LIGHT_POSITION_Y]);
     
-    m_light[LIGHT_POSITION_Z];
     m_light[LIGHT_POSITION_Z].Initialise(1.0, m_ui.positionZ_value,
         m_ui.positionZ_dial, m_callbacks.SetLight[LIGHT_POSITION_Z]);
     
-    m_light[LIGHT_ATTENUATION_X];
     m_light[LIGHT_ATTENUATION_X].Initialise(0.01, m_ui.attenuationX_value,
         m_ui.attenuationX_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_X]);
     
-    m_light[LIGHT_ATTENUATION_Y];
     m_light[LIGHT_ATTENUATION_Y].Initialise(0.001, m_ui.attenuationY_value,
         m_ui.attenuationY_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Y]);
     
-    m_light[LIGHT_ATTENUATION_Z];
     m_light[LIGHT_ATTENUATION_Z].Initialise(0.0001, m_ui.attenuationZ_value,
         m_ui.attenuationZ_dial, m_callbacks.SetLight[LIGHT_ATTENUATION_Z]);
 
-    m_light[LIGHT_SPECULARITY];
     m_light[LIGHT_SPECULARITY].Initialise(0.1, m_ui.specularity_value,
         m_ui.specularity_dial, m_callbacks.SetLight[LIGHT_SPECULARITY]);
 
@@ -241,6 +228,12 @@ void Tweaker::SetFramesPerSec(const std::string& fps)
     m_ui.fps_text->update();
 }
 
+void Tweaker::SetMeshInstanceCount(const std::string& count)
+{
+    m_ui.instances_text->setText(QString(count.c_str()));
+    m_ui.instances_text->update();
+}
+
 void Tweaker::SetMeshShaderName(const std::string& name)
 {
     m_ui.shader_text->setText(QString(name.c_str()));
@@ -254,7 +247,7 @@ void Tweaker::SetFog(FogAttribute attribute, float value)
 
 void Tweaker::SetCamera(CameraAttribute attribute, float value)
 {
-    m_camera[attribute].Set(value);
+    m_camera.at(attribute).Set(value);
 }
 
 void Tweaker::SetLight(LightAttribute attribute, float value)
@@ -262,7 +255,7 @@ void Tweaker::SetLight(LightAttribute attribute, float value)
     if (!m_lightDiffuse.SetValue(attribute, value) &&
         !m_lightSpecular.SetValue(attribute, value))
     {
-        m_light[attribute].Set(value);
+        m_light.at(attribute).Set(value);
     }
 }
 

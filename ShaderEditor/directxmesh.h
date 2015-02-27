@@ -27,7 +27,7 @@ public:
     * Renders the data
     * @param context Direct3D device context
     */
-    void Render(ID3D11DeviceContext* context);
+    virtual void Render(ID3D11DeviceContext* context);
 
     /**
     * Initialises the data
@@ -72,28 +72,32 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
+    * @param preRender Callback to render a single mesh instance
     */
-    DxMesh(const Mesh& mesh);
-
-    /**
-    * @return the unique ID for the mesh shader
-    */
-    int GetShaderID() const;
+    DxMesh(const Mesh& mesh, PreRenderMesh preRender);
 
     /**
     * @return the mesh element
     */
     const Mesh& GetMesh() const;
 
+    /**
+    * Renders the mesh
+    */
+    virtual void Render(ID3D11DeviceContext* context) override;
+
 private:
 
-    const Mesh& m_mesh;                  ///< Mesh information
+    Colour m_colour;           ///< Default colour of the mesh
+    D3DXMATRIX m_world;        ///< World matrix information
+    const Mesh& m_mesh;        ///< Mesh information
+    PreRenderMesh m_preRender; ///< Callback to render a single mesh instance
 };                                           
 
 /**
 * DirectX Water mesh
 */
-class DxWater : public DxMesh
+class DxWater : public DxMeshData
 {
 public:
 

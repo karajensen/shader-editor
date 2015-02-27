@@ -56,8 +56,6 @@ std::string PostProcessing::GetMapName(PostProcessing::Map map)
         return "DOF Map";
     case FOG_MAP:
         return "Fog Map";
-    case LIGHT_MAP:
-        return "Light Map";
     default:
         return "None";
     }

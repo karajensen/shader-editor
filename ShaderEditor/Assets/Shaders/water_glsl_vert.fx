@@ -50,7 +50,7 @@ void main(void)
     ex_Bitangent = vec3(1, waveDerivative.x, 0);
     ex_Tangent = vec3(0, waveDerivative.y, 1);
     ex_Normal = vec3(-waveDerivative.x, 1, -waveDerivative.y);
-    ex_VertToCamera = cameraPosition - wavePosition.xyz;
+    ex_VertToCamera = cameraPosition - ex_PositionWorld;
 
     // Generate UV Coordinates
     vec4 scale = vec4(2.0, 4.0, 8.0, 0.001);

@@ -2,91 +2,65 @@
 <Meshes>
 	<Mesh>
 		<Name>sphere.obj</Name>
+		<Instanced>1</Instanced>
+		<Shader>diagnostic</Shader>
+	</Mesh>
+	<Mesh>
+		<Name>sphere.obj</Name>
+		<Diffuse>ground.png</Diffuse>
+		<Normal>bump.png</Normal>
+		<Specular>specular.jpg</Specular>
 		<Bump>20</Bump>
 		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
 		<Specularity>0.5</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>specularbump</Shader>
-		<Diffuse>ground.png</Diffuse>
-    <Normal>bump.png</Normal>
-    <Specular>specular.jpg</Specular>
-  </Mesh>
+		<Shader>bumpspecular</Shader>
+	</Mesh>
 	<Mesh>
 		<Name>mock_bridge.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>5</Specularity>
+		<Diffuse>bridge.bmp</Diffuse>
 		<BackfaceCulling>0</BackfaceCulling>
 		<Shader>Diffuse</Shader>
-		<Diffuse>bridge.bmp</Diffuse>
 	</Mesh>
 	<Mesh>
 		<Name>mock_skybox.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>1</Specularity>
+		<Diffuse>sky.png</Diffuse>
 		<BackfaceCulling>0</BackfaceCulling>
 		<Shader>flat</Shader>
-		<Diffuse>sky.png</Diffuse>
 	</Mesh>
 	<Mesh>
 		<Name>mock_ground1.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>1</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>bump</Shader>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
+		<Bump>20</Bump>
+		<Shader>bump</Shader>
 	</Mesh>
 	<Mesh>
 		<Name>mock_ground2.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>1</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>bump</Shader>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
+		<Bump>20</Bump>
+		<Shader>bump</Shader>
 	</Mesh>
 	<Mesh>
 		<Name>mock_hill1.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>1</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>bump</Shader>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
+		<Bump>20</Bump>
+		<Shader>bump</Shader>
 	</Mesh>
 	<Mesh>
 		<Name>mock_hill2.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>1</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>bump</Shader>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
+		<Bump>20</Bump>
+		<Shader>bump</Shader>
 	</Mesh>
 	<Water>
 		<Name>mock_water.obj</Name>
-		<Bump>1</Bump>
-		<Intensity>1</Intensity>
-		<Ambience>1</Ambience>
-		<Specularity>5</Specularity>
-		<BackfaceCulling>1</BackfaceCulling>
-		<Shader>water</Shader>
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
+		<Bump>1</Bump>
 		<Speed>1</Speed>
 		<BumpVelocity x="0" y="0"/>
 		<Fresnal scale="1" bias="0.5" power="2"/>

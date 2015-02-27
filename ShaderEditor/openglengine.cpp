@@ -337,7 +337,8 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     m_data->meshes.reserve(scene.Meshes().size());
     for(const Mesh& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh)));
+        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh,
+            [this](const glm::mat4& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
@@ -350,7 +351,7 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     for(const Emitter& emitter : scene.Emitters())
     {
         m_data->emitters.push_back(std::unique_ptr<GlEmitter>(new GlEmitter(emitter,
-            [this](glm::mat4 world, const Particle& data){ UpdateShader(world, data); })));
+            [this](const glm::mat4& world, const Particle& data){ UpdateShader(world, data); })));
     }
 
     return ReInitialiseScene();
@@ -428,30 +429,38 @@ bool OpenglEngine::FadeView(bool in, float amount)
 
 void OpenglEngine::Render(const IScene& scene, float timer)
 {
+    RenderSceneMap(scene.Lights(), timer);
+    RenderNormalMap(scene.Post(), timer);
+    RenderSceneBlur(scene.Post());
+    RenderPostProcessing(scene.Post());
+    SwapBuffers(m_data->hdc); 
+}
+
+void OpenglEngine::RenderSceneMap(const std::vector<Light>& lights, float timer)
+{
     m_data->sceneTarget.SetActive();
 
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), scene.Lights());
-        mesh->PreRender();
-        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
-        mesh->Render();
+        if (UpdateShader(mesh->GetMesh(), lights))
+        {
+            mesh->PreRender();
+            EnableAttributes();
+            mesh->Render();
+        }
     }
     
-    for (auto& water : m_data->waters)
+    for (auto& mesh : m_data->waters)
     {
-        UpdateShader(water->GetWater(), scene.Lights(), timer);
-        water->PreRender();
-        m_data->shaders[water->GetShaderID()]->EnableAttributes();
-        water->Render();
+        if (UpdateShader(mesh->GetWater(), lights, timer))
+        {
+            mesh->PreRender();
+            EnableAttributes();
+            mesh->Render();
+        }
     }
 
     RenderEmitters();
-    RenderNormalMap(scene.Post(), timer);
-    RenderSceneBlur(scene.Post());
-    RenderPostProcessing(scene.Post());
-
-    SwapBuffers(m_data->hdc); 
 }
 
 void OpenglEngine::RenderEmitters()
@@ -460,10 +469,12 @@ void OpenglEngine::RenderEmitters()
 
     for (auto& emitter : m_data->emitters)
     {
-        UpdateShader(emitter->GetEmitter());
-        emitter->PreRender();
-        m_data->shaders[emitter->GetShaderID()]->EnableAttributes();
-        emitter->Render(m_data->cameraPosition, m_data->cameraUp);
+        if (UpdateShader(emitter->GetEmitter()))
+        {
+            emitter->PreRender();
+            EnableAttributes();
+            emitter->Render(m_data->cameraPosition, m_data->cameraUp);
+        }
     }
 
     EnableDepthWrite(true);
@@ -475,18 +486,22 @@ void OpenglEngine::RenderNormalMap(const PostProcessing& post, float timer)
 
     for (auto& mesh : m_data->meshes)
     {
-        UpdateShader(mesh->GetMesh(), post);
-        mesh->PreRender();
-        m_data->shaders[mesh->GetShaderID()]->EnableAttributes();
-        mesh->Render();
+        if (UpdateShader(mesh->GetMesh(), post))
+        {
+            mesh->PreRender();
+            EnableAttributes();
+            mesh->Render();
+        }
     }
 
-    for (auto& water : m_data->waters)
+    for (auto& mesh : m_data->waters)
     {
-        UpdateShader(water->GetWater(), post, timer);
-        water->PreRender();
-        m_data->shaders[water->GetShaderID()]->EnableAttributes();
-        water->Render();
+        if (UpdateShader(mesh->GetWater(), post, timer))
+        {
+            mesh->PreRender();
+            EnableAttributes();
+            mesh->Render();
+        }
     }
 }
 
@@ -495,7 +510,7 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
-    auto& blurShader = m_data->shaders[BLUR_SHADER_INDEX];
+    auto& blurShader = m_data->shaders[BLUR_SHADER];
     blurShader->SetActive();
     blurShader->SendUniformFloat("blurStep", &post.blurStep, 1);
     blurShader->SendUniformFloat("blurAmount", &post.blurAmount, 1);
@@ -534,7 +549,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
-    auto& postShader = m_data->shaders[POST_SHADER_INDEX];
+    auto& postShader = m_data->shaders[POST_SHADER];
     postShader->SetActive();
     m_data->backBuffer.SetActive();
 
@@ -573,144 +588,167 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(PostProcessing::BLUR, false, true);
 }
 
-void OpenglEngine::UpdateShader(const Emitter& emitter)
+bool OpenglEngine::UpdateShader(const Emitter& emitter)
 {
     const int index = emitter.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if (index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if (index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+        }
+
+        shader->SendUniformFloat("tint", &emitter.tint.r, 4);
+
+        EnableBackfaceCull(false);
+        EnableAlphaBlending(true);
+        return true;
     }
-
-    shader->SendUniformFloat("tint", &emitter.tint.r, 4);
-
-    EnableBackfaceCull(false);
-    EnableAlphaBlending(true);
+    return false;
 }
 
-void OpenglEngine::UpdateShader(glm::mat4 world, const Particle& particle)
+void OpenglEngine::UpdateShader(const glm::mat4& world, const Particle& particle)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-
     shader->SendUniformMatrix("worldViewProjection", m_data->viewProjection * world);
     shader->SendUniformFloat("alpha", &particle.alpha, 1);
-
     SendTexture(0, particle.texture);
 }
 
-void OpenglEngine::UpdateShader(const Mesh& mesh, 
+void OpenglEngine::UpdateShader(const glm::mat4& world, const Colour& colour)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->SendUniformMatrix("world", world);
+    shader->SendUniformFloat("meshColour", &colour.r, 3);
+}
+
+bool OpenglEngine::UpdateShader(const Mesh& mesh, 
                                 const PostProcessing& post)
 {
     const int index = mesh.normalIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
 
-        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader->SendUniformFloat("depthNear", &post.depthNear, 1);
-        shader->SendUniformFloat("depthFar", &post.depthFar, 1);
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+            shader->SendUniformFloat("depthNear", &post.depthNear, 1);
+            shader->SendUniformFloat("depthFar", &post.depthFar, 1);
+        }
+
+        shader->SendUniformFloat("meshBump", &mesh.bump, 1);
+
+        SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
+        EnableBackfaceCull(mesh.backfacecull);
+        EnableAlphaBlending(false);
+        return true;
     }
-
-    shader->SendUniformFloat("meshBump", &mesh.bump, 1);
-
-    SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
-    EnableBackfaceCull(mesh.backfacecull);
-    EnableAlphaBlending(false);
+    return false;
 }
 
-void OpenglEngine::UpdateShader(const Mesh& mesh, 
+bool OpenglEngine::UpdateShader(const Mesh& mesh, 
                                 const std::vector<Light>& lights)
 {
     const int index = mesh.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
-        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        SendLights(lights);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+            shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+            SendLights(lights);
+        }
+    
+        shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
+        shader->SendUniformFloat("meshBump", &mesh.bump, 1);
+        shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
+        shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
+
+        shader->SendUniformArrays();
+
+        SendTextures(mesh.textureIDs);
+        EnableBackfaceCull(mesh.backfacecull);
+        EnableAlphaBlending(false);
+        return true;
     }
-
-    shader->SendUniformFloat("meshAmbience", &mesh.ambience, 1);
-    shader->SendUniformFloat("meshBump", &mesh.bump, 1);
-    shader->SendUniformFloat("meshGlow", &mesh.glow, 1);
-    shader->SendUniformFloat("meshSpecularity", &mesh.specularity, 1);
-
-    shader->SendUniformArrays();
-
-    SendTextures(mesh.textureIDs);
-    EnableBackfaceCull(mesh.backfacecull);
-    EnableAlphaBlending(false);
+    return false;
 }
 
-void OpenglEngine::UpdateShader(const Water& water, 
+bool OpenglEngine::UpdateShader(const Water& water,
                                 const PostProcessing& post,
                                 float timer)
 {
     const int index = water.normalIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+            shader->SendUniformFloat("depthNear", &post.depthNear, 1);
+            shader->SendUniformFloat("depthFar", &post.depthFar, 1);
+            shader->SendUniformFloat("timer", &timer, 1);
+        }
 
-        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader->SendUniformFloat("depthNear", &post.depthNear, 1);
-        shader->SendUniformFloat("depthFar", &post.depthFar, 1);
-        shader->SendUniformFloat("timer", &timer, 1);
+        shader->SendUniformFloat("speed", &water.speed, 1);
+        shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
+        shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+        shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
+        SendWaves(water.waves);
+
+        shader->SendUniformArrays();
+
+        EnableBackfaceCull(true);
+        EnableAlphaBlending(false);
+        SendTexture(0, water.textureIDs[Texture::NORMAL]);
+        return true;
     }
-
-    shader->SendUniformFloat("speed", &water.speed, 1);
-    shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
-    shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
-    SendWaves(water.waves);
-
-    shader->SendUniformArrays();
-
-    EnableBackfaceCull(true);
-    EnableAlphaBlending(false);
-    SendTexture(0, water.textureIDs[Texture::NORMAL]);
+    return false;
 }
 
-void OpenglEngine::UpdateShader(const Water& water, 
+bool OpenglEngine::UpdateShader(const Water& water, 
                                 const std::vector<Light>& lights,
                                 float timer)
 {
     const int index = water.shaderIndex;
-    auto& shader = m_data->shaders[index];
-
-    if(index != m_data->selectedShader)
+    if (index != NO_INDEX)
     {
-        SetSelectedShader(index);
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+            shader->SendUniformFloat("timer", &timer, 1);
+            shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
+            shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
+            SendLights(lights);
+        }
 
-        shader->SendUniformFloat("timer", &timer, 1);
-        shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
-        shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-        shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-        SendLights(lights);
-    }
+        shader->SendUniformFloat("speed", &water.speed, 1);
+        shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
+        shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
+        shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
+        shader->SendUniformFloat("deepColor", &water.deepColour.r, 4);
+        shader->SendUniformFloat("shallowColor", &water.shallowColour.r, 4);
+        shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
+        shader->SendUniformFloat("reflectionIntensity", &water.reflection, 1);
+        shader->SendUniformFloat("fresnal", &water.fresnal.x, 3);
+        SendWaves(water.waves);
 
-    shader->SendUniformFloat("speed", &water.speed, 1);
-    shader->SendUniformFloat("bumpIntensity", &water.bump, 1);
-    shader->SendUniformFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-    shader->SendUniformFloat("uvScale", &water.uvScale.x, 2);
-    shader->SendUniformFloat("deepColor", &water.deepColour.r, 4);
-    shader->SendUniformFloat("shallowColor", &water.shallowColour.r, 4);
-    shader->SendUniformFloat("reflectionTint", &water.reflectionTint.r, 3);
-    shader->SendUniformFloat("reflectionIntensity", &water.reflection, 1);
-    shader->SendUniformFloat("fresnal", &water.fresnal.x, 3);
-    SendWaves(water.waves);
-
-    shader->SendUniformArrays();
+        shader->SendUniformArrays();
     
-    EnableBackfaceCull(true);
-    EnableAlphaBlending(true);
-    SendTextures(water.textureIDs);
+        EnableBackfaceCull(true);
+        EnableAlphaBlending(true);
+        SendTextures(water.textureIDs);
+        return true;
+    }
+    return false;
 }
 
 void OpenglEngine::SendLights(const std::vector<Light>& lights)
@@ -889,4 +927,9 @@ void OpenglEngine::EnableDepthWrite(bool enable)
         m_data->isDepthWrite = enable;
         enable ? glDepthMask(GL_TRUE) : glDepthMask(GL_FALSE);
     }
+}
+
+void OpenglEngine::EnableAttributes()
+{
+    m_data->shaders[m_data->selectedShader]->EnableAttributes();
 }

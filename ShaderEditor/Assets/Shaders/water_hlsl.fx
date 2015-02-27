@@ -83,7 +83,7 @@ Attributes VShader(float4 position    : POSITION,
     output.bitangent = float3(1, waveDerivative.x, 0);
     output.tangent = float3(0, waveDerivative.y, 1);
     output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
-    output.vertToCamera = cameraPosition - wavePosition.xyz;
+    output.vertToCamera = cameraPosition - output.positionWorld;
 
     // Generate UV Coordinates
     float4 scale = float4(2.0, 4.0, 8.0, 0.001);

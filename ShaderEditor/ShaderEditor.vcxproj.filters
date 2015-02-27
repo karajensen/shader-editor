@@ -364,6 +364,15 @@
     <FxCompile Include="Assets\Shaders\water_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Assets\Shaders\diagnostic_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\diagnostic_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\diagnostic_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Assets\PostProcessing.xml">

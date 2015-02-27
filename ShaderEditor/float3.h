@@ -272,6 +272,14 @@ public:
     }
 
     /**
+    * @return whether all components are zero
+    */
+    bool IsZero() const
+    {
+        return x == 0.0f && y == 0.0f && z == 0.0f;
+    }
+
+    /**
     * Allows output of the vector to a standard stream
     * @param stream The stream to output in
     * @param vec The vector to output

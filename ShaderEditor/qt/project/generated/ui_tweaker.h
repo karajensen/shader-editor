@@ -135,6 +135,9 @@ public:
     QFrame *shader;
     QLabel *shader_lbl;
     QLabel *shader_text;
+    QFrame *instances;
+    QLabel *instances_lbl;
+    QLabel *instances_text;
     QFrame *meshAttributes;
     QDoubleSpinBox *meshAttributes_value;
     QDial *meshAttributes_dial;
@@ -1487,6 +1490,41 @@ public:
 
         meshLayout->addWidget(shader);
 
+        instances = new QFrame(layoutWidget2);
+        instances->setObjectName(QStringLiteral("instances"));
+        sizePolicy.setHeightForWidth(instances->sizePolicy().hasHeightForWidth());
+        instances->setSizePolicy(sizePolicy);
+        instances->setMinimumSize(QSize(225, 35));
+        instances->setMaximumSize(QSize(225, 35));
+        instances->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        instances->setFrameShape(QFrame::Panel);
+        instances->setFrameShadow(QFrame::Raised);
+        instances_lbl = new QLabel(instances);
+        instances_lbl->setObjectName(QStringLiteral("instances_lbl"));
+        instances_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(instances_lbl->sizePolicy().hasHeightForWidth());
+        instances_lbl->setSizePolicy(sizePolicy);
+        instances_lbl->setMinimumSize(QSize(100, 30));
+        instances_lbl->setMaximumSize(QSize(100, 30));
+        instances_lbl->setFont(font1);
+        instances_text = new QLabel(instances);
+        instances_text->setObjectName(QStringLiteral("instances_text"));
+        instances_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(instances_text->sizePolicy().hasHeightForWidth());
+        instances_text->setSizePolicy(sizePolicy1);
+        instances_text->setMinimumSize(QSize(115, 25));
+        instances_text->setMaximumSize(QSize(115, 25));
+        instances_text->setAutoFillBackground(false);
+        instances_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        instances_text->setFrameShape(QFrame::NoFrame);
+        instances_text->setFrameShadow(QFrame::Plain);
+        instances_text->setLineWidth(0);
+        instances_text->setMargin(3);
+
+        meshLayout->addWidget(instances);
+
         meshAttributes = new QFrame(layoutWidget2);
         meshAttributes->setObjectName(QStringLiteral("meshAttributes"));
         meshAttributes->setMinimumSize(QSize(225, 35));
@@ -2718,7 +2756,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(3);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2759,6 +2797,8 @@ public:
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
+        instances_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
+        instances_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         selectedWater_lbl->setText(QApplication::translate("Tweaker", "Water", 0));
         waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));

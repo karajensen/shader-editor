@@ -6,15 +6,31 @@
 #include "fragmentlinker.h"
 #include "renderdata.h"
 #include "ptree_utilities.h"
+#include "boost/assign.hpp"
 #include "boost/filesystem.hpp"
-#include "boost/property_tree/xml_parser.hpp"
 #include "boost/algorithm/string.hpp"
 #include <algorithm>
 
 namespace
 {
-    const bool OVERRIDE_SHADERS = false; ///< Whether to do a global override of shader names
-    const std::string GLOBAL_SHADER("Bump"); ///< Shader to override all meshes
+    std::map<std::string, ShaderIndex> SPECIAL_SHADERS = boost::assign::map_list_of
+        ("post", POST_SHADER)
+        ("blur", BLUR_SHADER)
+        ("water", WATER_SHADER)
+        ("water_normal", WATER_NORMAL_SHADER)
+        ("particle", PARTICLE_SHADER)
+        ("diagnostic", DIAGNOSTIC_SHADER);
+
+    const std::string EMITTERS_NAME("Emitters");
+    const std::string MESHES_NAME("Meshes");
+    const std::string POST_NAME("PostProcessing");
+    const std::string LIGHTS_NAME("Lights");
+    const std::string EMITTERS_PATH(ASSETS_PATH + EMITTERS_NAME);
+    const std::string MESHES_PATH(ASSETS_PATH + MESHES_NAME);
+    const std::string LIGHTS_PATH(ASSETS_PATH + LIGHTS_NAME);
+    const std::string POST_PATH(ASSETS_PATH + POST_NAME);
+    const std::string SAVED("_saved");
+    const std::string XML(".xml");
 }
 
 bool Scene::Initialise()
@@ -27,6 +43,28 @@ bool Scene::Initialise()
         InitialiseMeshes(linker) &&
         InitialiseEmitters())
     {
+        // Temporary testing the instancing
+        auto itr = std::find_if(m_meshes.begin(), m_meshes.end(), [](const Mesh& mesh)
+        {
+            return mesh.isInstanced;
+        });
+        if (itr != m_meshes.end())
+        {
+            Mesh& mesh = *itr;
+            Mesh::Instance instance;
+
+            instance.position.z = 5;
+            instance.position.y = 5;
+            instance.colour.r = 1.0f;
+            instance.scale = 0.25f;
+            mesh.instances.push_back(instance);
+
+            instance.position.z = -5;
+            instance.colour.b = 1.0f;
+            instance.scale = 0.5f;
+            mesh.instances.push_back(instance);
+        }
+
         // To prevent unnecessary shader switching, sort by shader used
         std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
         {
@@ -37,35 +75,15 @@ bool Scene::Initialise()
     return false;
 }
 
-void Scene::SaveXMLFile(boost::property_tree::ptree& root,
-                       boost::property_tree::ptree& tree,
-                       const std::string& name)
-{
-    root.add_child(name, tree);
-    boost::filesystem::path filePath(ASSETS_PATH + name + "_saved.xml");
-    boost::property_tree::xml_parser::xml_writer_settings<char> settings('\t', 1);
-    boost::property_tree::write_xml(filePath.generic_string(), root, std::locale(), settings);
-}
-
-boost::property_tree::ptree Scene::ReadXMLFile(const std::string& name)
-{
-    boost::property_tree::ptree root;
-    boost::property_tree::xml_parser::read_xml(ASSETS_PATH + name + ".xml", 
-        root, boost::property_tree::xml_parser::trim_whitespace);
-    return root.get_child(name);
-}
-
 bool Scene::InitialiseShaders(FragmentLinker& linker)
 {
     bool success = true;
 
     auto CreateShader = [this, &linker, &success](const std::string& name, int index)
     {
-        assert(index == m_shaders.size());
-        Shader shader;
-        shader.index = index;
-        shader.name = name;
-        if (!linker.GenerateFromFile(shader))
+        m_shaders[index].index = index;
+        m_shaders[index].name = name;
+        if (!linker.GenerateFromFile(m_shaders[index]))
         {
             Logger::LogError("Could not generate shader " + name);
             success = false;
@@ -73,42 +91,43 @@ bool Scene::InitialiseShaders(FragmentLinker& linker)
         else
         {
             Logger::LogInfo("Shader: " + name + " loaded");
-            m_shaders.push_back(shader);
         }
     };
 
-    CreateShader("post", POST_SHADER_INDEX);
-    CreateShader("blur", BLUR_SHADER_INDEX);
-    CreateShader("water", WATER_SHADER_INDEX);
-    CreateShader("water_normal", WATER_NORMAL_SHADER_INDEX);
-    CreateShader("particle", PARTICLE_SHADER_INDEX);
+    assert(m_shaders.empty());
+    m_shaders.resize(SPECIAL_SHADERS.size());
+
+    for (auto& pair : SPECIAL_SHADERS)
+    {
+        CreateShader(pair.first, pair.second);
+    }
 
     return success;
 }
 
 bool Scene::InitialisePost()
 {
-    boost::property_tree::ptree tree = ReadXMLFile("PostProcessing");
+    boost::property_tree::ptree tree = ReadXMLFile(POST_NAME, POST_PATH + XML);
     m_postProcessing.blurAmount = GetValue<float>(tree, "BlurAmount");
     m_postProcessing.blurStep = GetValue<float>(tree, "BlurStep");
     m_postProcessing.depthFar = GetValue<float>(tree, "DepthFar");
     m_postProcessing.depthNear = GetValue<float>(tree, "DepthNear");
     m_postProcessing.dofDistance = GetValue<float>(tree, "DOFDistance");
     m_postProcessing.dofFade = GetValue<float>(tree, "DOFFade");
-    m_postProcessing.fogColour.r = GetValue<float>(tree, "FogColourR");
-    m_postProcessing.fogColour.g = GetValue<float>(tree, "FogColourG");
-    m_postProcessing.fogColour.b = GetValue<float>(tree, "FogColourB");
+    m_postProcessing.fogColour.r = GetAttribute<float>(tree, "FogColour", "r");
+    m_postProcessing.fogColour.g = GetAttribute<float>(tree, "FogColour", "g");
+    m_postProcessing.fogColour.b = GetAttribute<float>(tree, "FogColour", "b");
     m_postProcessing.fogDistance = GetValue<float>(tree, "FogDistance");
     m_postProcessing.fogFade = GetValue<float>(tree, "FogFade");
     m_postProcessing.glowAmount = GetValue<float>(tree, "GlowAmount");
     m_postProcessing.contrast = GetValue<float>(tree, "Contrast");
     m_postProcessing.saturation = GetValue<float>(tree, "Saturation");
-    m_postProcessing.maximumColour.r = GetValue<float>(tree, "MaximumColourR");
-    m_postProcessing.maximumColour.g = GetValue<float>(tree, "MaximumColourG");
-    m_postProcessing.maximumColour.b = GetValue<float>(tree, "MaximumColourB");
-    m_postProcessing.minimumColour.r = GetValue<float>(tree, "MinimumColourR");
-    m_postProcessing.minimumColour.g = GetValue<float>(tree, "MinimumColourG");
-    m_postProcessing.minimumColour.b = GetValue<float>(tree, "MinimumColourB");
+    m_postProcessing.maximumColour.r = GetAttribute<float>(tree, "MaximumColour", "r");
+    m_postProcessing.maximumColour.g = GetAttribute<float>(tree, "MaximumColour", "g");
+    m_postProcessing.maximumColour.b = GetAttribute<float>(tree, "MaximumColour", "b");
+    m_postProcessing.minimumColour.r = GetAttribute<float>(tree, "MinimumColour", "r");
+    m_postProcessing.minimumColour.g = GetAttribute<float>(tree, "MinimumColour", "g");
+    m_postProcessing.minimumColour.b = GetAttribute<float>(tree, "MinimumColour", "b");
 
     Logger::LogInfo("PostProcessing: Successfully initialised");
     return true;
@@ -116,32 +135,25 @@ bool Scene::InitialisePost()
 
 bool Scene::InitialiseLighting()
 {
-    boost::property_tree::ptree tree = ReadXMLFile("Lights");
+    boost::property_tree::ptree tree = ReadXMLFile(LIGHTS_NAME, LIGHTS_PATH + XML);
     boost::property_tree::ptree::iterator it;
     for (it = tree.begin(); it != tree.end(); ++it)
     {
         Light light;
         light.name = GetValue<std::string>(it, "Name");
-
-        light.diffuse.a = 1.0f;
-        light.diffuse.r = GetValue<float>(it, "R");
-        light.diffuse.b = GetValue<float>(it, "B");
-        light.diffuse.g = GetValue<float>(it, "G");
-
-        light.specular.a = 1.0f;
-        light.specular.r = GetValue<float>(it, "SR");
-        light.specular.b = GetValue<float>(it, "SB");
-        light.specular.g = GetValue<float>(it, "SG");
-
-        light.position.x = GetValue<float>(it, "X");
-        light.position.y = GetValue<float>(it, "Y");
-        light.position.z = GetValue<float>(it, "Z");
-
+        light.diffuse.r = GetAttribute<float>(it, "Diffuse", "r");
+        light.diffuse.g = GetAttribute<float>(it, "Diffuse", "g");
+        light.diffuse.b = GetAttribute<float>(it, "Diffuse", "b");
+        light.specular.r = GetAttribute<float>(it, "Specular", "r");
+        light.specular.g = GetAttribute<float>(it, "Specular", "g");
+        light.specular.b = GetAttribute<float>(it, "Specular", "b");
+        light.position.x = GetAttribute<float>(it, "Position", "x");
+        light.position.y = GetAttribute<float>(it, "Position", "y");
+        light.position.z = GetAttribute<float>(it, "Position", "z");
+        light.attenuation.x = GetAttribute<float>(it, "Attenuation", "x");
+        light.attenuation.y = GetAttribute<float>(it, "Attenuation", "y");
+        light.attenuation.z = GetAttribute<float>(it, "Attenuation", "z");
         light.specularity = GetValue<float>(it, "Specularity");
-        light.attenuation.x = GetValue<float>(it, "AttX");
-        light.attenuation.y = GetValue<float>(it, "AttY");
-        light.attenuation.z = GetValue<float>(it, "AttZ");
-
         m_lights.push_back(light);
     }
 
@@ -151,7 +163,7 @@ bool Scene::InitialiseLighting()
 
 bool Scene::InitialiseEmitters()
 {
-    boost::property_tree::ptree tree = ReadXMLFile("Emitters");
+    boost::property_tree::ptree tree = ReadXMLFile(EMITTERS_NAME, EMITTERS_PATH + XML);
     boost::property_tree::ptree::iterator it;
     for (it = tree.begin(); it != tree.end(); ++it)
     {
@@ -180,7 +192,7 @@ bool Scene::InitialiseEmitters()
         emitter.tint.g = GetAttribute<float>(it, "Tint", "g");
         emitter.tint.b = GetAttribute<float>(it, "Tint", "b");
         emitter.tint.a = GetAttribute<float>(it, "Tint", "a");
-        emitter.shaderIndex = PARTICLE_SHADER_INDEX;
+        emitter.shaderIndex = PARTICLE_SHADER;
 
         for (auto child = it->second.begin(); child != it->second.end(); ++child)
         {
@@ -199,14 +211,14 @@ bool Scene::InitialiseEmitters()
 
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
 {	
-    boost::property_tree::ptree tree = ReadXMLFile("Meshes");
+    boost::property_tree::ptree tree = ReadXMLFile(MESHES_NAME, MESHES_PATH + XML);
     boost::property_tree::ptree::iterator it;
     for(it = tree.begin(); it != tree.end(); ++it)
     {
         if (it->first == "Water")
         {
             Water water;
-            InitialiseMesh(water, it);
+            InitialiseMeshData(water, it);
             InitialiseWater(water, it);
             if (water.Initialise(false, false))
             {
@@ -216,9 +228,11 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
         else if (it->first == "Mesh")
         {
             Mesh mesh;
+            InitialiseMeshData(mesh, it);
             InitialiseMesh(mesh, it);
             InitialiseMeshShader(mesh, linker, it);
-            const auto& shader = m_shaders[mesh.shaderIndex];
+
+            auto& shader = m_shaders[mesh.shaderIndex];
             if (mesh.Initialise(true, shader.HasComponent(Shader::BUMP)))
             {
                 m_meshes.push_back(mesh);
@@ -251,8 +265,8 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     water.reflectionTint.r = GetAttribute<float>(it, "ReflectionTint", "r");
     water.reflectionTint.g = GetAttribute<float>(it, "ReflectionTint", "g");
     water.reflectionTint.b = GetAttribute<float>(it, "ReflectionTint", "b");
-    water.shaderIndex = WATER_SHADER_INDEX;
-    water.normalIndex = WATER_NORMAL_SHADER_INDEX;
+    water.shaderIndex = WATER_SHADER;
+    water.normalIndex = WATER_NORMAL_SHADER;
 
     for (auto child = it->second.begin(); child != it->second.end(); ++child)
     {
@@ -276,15 +290,11 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     }
 }
 
-void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
+void Scene::InitialiseMeshData(MeshData& mesh, boost::property_tree::ptree::iterator& it)
 {
     mesh.name = GetValue<std::string>(it, "Name");
-    mesh.specularity = GetValueOptional(it, 5.0f, "Specularity");
-    mesh.ambience = GetValueOptional(it, 1.0f, "Ambience");
-    mesh.bump = GetValueOptional(it, 1.0f, "Bump");
-    mesh.glow = GetValueOptional(it, 1.0f, "Intensity");
-    mesh.backfacecull = GetValueOptional(it, true, "BackfaceCulling");
-	
+    mesh.bump = GetValueOptional<float>(it, 0.0f, "Bump");
+
     // Get the textures used by the mesh
     assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
@@ -293,9 +303,17 @@ void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it
             it, std::string(), Texture::GetTypeDescription(i).c_str()));
     }
 
-    const int unusedTextures = std::count(
-        mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
-    mesh.maxTextures = mesh.textureIDs.size() - unusedTextures;
+    mesh.maxTextures = mesh.textureIDs.size() - 
+        std::count(mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
+}
+
+void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
+{
+    mesh.specularity = GetValueOptional<float>(it, 0.0f, "Specularity");
+    mesh.ambience = GetValueOptional<float>(it, 1.0f, "Ambience");
+    mesh.glow = GetValueOptional<float>(it, 0.0f, "Intensity");
+    mesh.backfacecull = GetValueOptional<bool>(it, true, "BackfaceCulling");
+    mesh.isInstanced = GetValueOptional<bool>(it, false, "Instanced");
 }
 
 void Scene::InitialiseMeshShader(Mesh& mesh, 
@@ -303,26 +321,41 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
                                  boost::property_tree::ptree::iterator& it)
 {
     // Get the shader used by the mesh
-    std::string shader = OVERRIDE_SHADERS ? GLOBAL_SHADER : 
-        GetValue<std::string>(it, "Shader");
+    std::string shader = GetValue<std::string>(it, "Shader");
 
-    // Copy each component featured in the given shader name to a set order
-    std::string newShaderName;
-    std::string component;
-    for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
+    // Ensure not asking for a specialised shader
+    const int index = GetShaderIndex(shader);
+    if (index != NO_INDEX)
     {
-        component = Shader::ComponentAsString(i);
-        if(boost::algorithm::icontains(shader, component))
-        {
-            newShaderName += component;
-            boost::algorithm::ireplace_all(shader, component, "");
-        }
+        mesh.shaderIndex = index;
+        mesh.normalIndex = GetShaderIndex(NORMAL_SHADER + shader);
     }
+    else
+    {
+        // Copy each component featured in the given shader name to a set order
+        std::string newShaderName;
+        std::string component;
+        for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
+        {
+            component = Shader::ComponentAsString(i);
+            if(boost::algorithm::icontains(shader, component))
+            {
+                newShaderName += component;
+                boost::algorithm::ireplace_all(shader, component, "");
+            }
+        }
 	
-    // Add any non-component text to the ordered components
-    shader += boost::algorithm::to_lower_copy(newShaderName);
-    mesh.shaderIndex = GetShaderIndex(linker, shader, mesh.name);
-    mesh.normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shader, mesh.name);
+        // Add any non-component text to the ordered components
+        shader += boost::algorithm::to_lower_copy(newShaderName);
+        mesh.shaderIndex = GetShaderIndex(linker, shader, mesh.name);
+        mesh.normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shader, mesh.name);
+    }
+}
+
+int Scene::GetShaderIndex(const std::string& shadername)
+{
+    auto itr = SPECIAL_SHADERS.find(shadername);
+    return itr != SPECIAL_SHADERS.end() ? itr->second : NO_INDEX;
 }
 
 int Scene::GetShaderIndex(FragmentLinker& linker, 
@@ -593,7 +626,7 @@ void Scene::SaveParticlesToFile()
         tree.add_child("Emitter", entries[entries.size()-1]);
     }
 
-    SaveXMLFile(root, tree, "Emitters");
+    SaveXMLFile(root, tree, EMITTERS_NAME, EMITTERS_PATH + SAVED + XML);
 }
 
 void Scene::SaveMeshesToFile()
@@ -604,6 +637,7 @@ void Scene::SaveMeshesToFile()
     for(const Mesh& mesh : m_meshes)
     {
         boost::property_tree::ptree entry;
+        AddMeshDataToTree(mesh, entry);
         AddMeshToTree(mesh, entry);
         entries.push_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
@@ -612,19 +646,19 @@ void Scene::SaveMeshesToFile()
     for(const Water& water : m_water)
     {
         boost::property_tree::ptree entry;
+        AddMeshDataToTree(water, entry);
         AddWaterToTree(water, entries, entry);
         entries.push_back(entry);
         tree.add_child("Water", entries[entries.size()-1]);
     }
 
-    SaveXMLFile(root, tree, "Meshes");
+    SaveXMLFile(root, tree, MESHES_NAME, MESHES_PATH + SAVED + XML);
 }
 
 void Scene::AddWaterToTree(const Water& water, 
                            std::vector<boost::property_tree::ptree>& entries,
                            boost::property_tree::ptree& entry)
 {
-    AddMeshToTree(water, entry);
     entry.add("Speed", water.speed);
     entry.add("BumpVelocity.<xmlattr>.x", water.bumpVelocity.x);
     entry.add("BumpVelocity.<xmlattr>.y", water.bumpVelocity.y);
@@ -661,22 +695,28 @@ void Scene::AddWaterToTree(const Water& water,
 
 void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
 {
-    entry.add("Name", mesh.name.c_str());
-    entry.add("Bump", mesh.bump);
-    entry.add("Intensity", mesh.glow);
-    entry.add("Ambience", mesh.ambience);
-    entry.add("Specularity", mesh.specularity);
-    entry.add("BackfaceCulling", mesh.backfacecull ? 1 : 0);
     entry.add("Shader", m_shaders[mesh.shaderIndex].name);
-	
+    AddValueOptional(entry, "Intensity", mesh.glow, 0.0f);
+    AddValueOptional(entry, "Ambience", mesh.ambience, 1.0f);
+    AddValueOptional(entry, "Specularity", mesh.specularity, 0.0f);
+    AddValueOptional(entry, "BackfaceCulling", mesh.backfacecull ? 1 : 0, 1);
+    AddValueOptional(entry, "Instanced", mesh.isInstanced ? 1 : 0, 0);
+}
+
+void Scene::AddMeshDataToTree(const MeshData& mesh, boost::property_tree::ptree& entry)
+{
+    entry.add("Name", mesh.name.c_str());
+
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
-        if(mesh.textureIDs[i] != NO_INDEX)
+        if (mesh.textureIDs[i] != NO_INDEX)
         {
-            entry.add(Texture::GetTypeDescription(i), 
+            entry.add(Texture::GetTypeDescription(i),
                 m_textures[mesh.textureIDs[i]].name);
         }
     };
+
+    AddValueOptional(entry, "Bump", mesh.bump, 0.0f);
 }
 
 void Scene::SaveLightsToFile()
@@ -688,24 +728,23 @@ void Scene::SaveLightsToFile()
     {
         boost::property_tree::ptree entry;
         entry.add("Name", light.name.c_str());
-        entry.add("X", light.position.x);
-        entry.add("Y", light.position.y);
-        entry.add("Z", light.position.z);
-        entry.add("R", light.diffuse.r);
-        entry.add("G", light.diffuse.g);
-        entry.add("B", light.diffuse.b);
-        entry.add("SR", light.specular.r);
-        entry.add("SG", light.specular.g);
-        entry.add("SB", light.specular.b);
-        entry.add("AttX", light.attenuation.x);
-        entry.add("AttY", light.attenuation.y);
-        entry.add("AttZ", light.attenuation.z);
+        entry.add("Position.<xmlattr>.x", light.position.x);
+        entry.add("Position.<xmlattr>.y", light.position.y);
+        entry.add("Position.<xmlattr>.z", light.position.z);
+        entry.add("Attenuation.<xmlattr>.x", light.attenuation.x);
+        entry.add("Attenuation.<xmlattr>.y", light.attenuation.y);
+        entry.add("Attenuation.<xmlattr>.z", light.attenuation.z);
+        entry.add("Diffuse.<xmlattr>.r", light.diffuse.r);
+        entry.add("Diffuse.<xmlattr>.g", light.diffuse.g);
+        entry.add("Diffuse.<xmlattr>.b", light.diffuse.b);
+        entry.add("Specular.<xmlattr>.r", light.specular.r);
+        entry.add("Specular.<xmlattr>.g", light.specular.g);
+        entry.add("Specular.<xmlattr>.b", light.specular.b);
         entry.add("Specularity", light.specularity);
-        
         entries.push_back(entry);
         tree.add_child("Light", entries[entries.size()-1]);
     }
-    SaveXMLFile(root, tree, "Lights");
+    SaveXMLFile(root, tree, LIGHTS_NAME, LIGHTS_PATH + SAVED + XML);
 }
 
 void Scene::SavePostProcessingtoFile()
@@ -717,21 +756,21 @@ void Scene::SavePostProcessingtoFile()
     tree.add("DepthNear", m_postProcessing.depthNear);
     tree.add("DOFDistance", m_postProcessing.dofDistance);
     tree.add("DOFFade", m_postProcessing.dofFade);
-    tree.add("FogColourR", m_postProcessing.fogColour.r);
-    tree.add("FogColourG", m_postProcessing.fogColour.g);
-    tree.add("FogColourB", m_postProcessing.fogColour.b);
+    tree.add("FogColour.<xmlattr>.r", m_postProcessing.fogColour.r);
+    tree.add("FogColour.<xmlattr>.g", m_postProcessing.fogColour.g);
+    tree.add("FogColour.<xmlattr>.b", m_postProcessing.fogColour.b);
     tree.add("FogDistance", m_postProcessing.fogDistance);
     tree.add("FogFade", m_postProcessing.fogFade);
     tree.add("GlowAmount", m_postProcessing.glowAmount);
     tree.add("Contrast", m_postProcessing.contrast);
     tree.add("Saturation", m_postProcessing.saturation);
-    tree.add("MaximumColourR", m_postProcessing.maximumColour.r);
-    tree.add("MaximumColourG", m_postProcessing.maximumColour.g);
-    tree.add("MaximumColourB", m_postProcessing.maximumColour.b);
-    tree.add("MinimumColourR", m_postProcessing.minimumColour.r);
-    tree.add("MinimumColourG", m_postProcessing.minimumColour.g);
-    tree.add("MinimumColourB", m_postProcessing.minimumColour.b);
-    SaveXMLFile(root, tree, "PostProcessing");
+    tree.add("MaximumColour.<xmlattr>.r", m_postProcessing.maximumColour.r);
+    tree.add("MaximumColour.<xmlattr>.g", m_postProcessing.maximumColour.g);
+    tree.add("MaximumColour.<xmlattr>.b", m_postProcessing.maximumColour.b);
+    tree.add("MinimumColour.<xmlattr>.r", m_postProcessing.minimumColour.r);
+    tree.add("MinimumColour.<xmlattr>.g", m_postProcessing.minimumColour.g);
+    tree.add("MinimumColour.<xmlattr>.b", m_postProcessing.minimumColour.b);
+    SaveXMLFile(root, tree, POST_NAME, POST_PATH + SAVED + XML);
 }
 
 void Scene::Tick(float deltatime)
