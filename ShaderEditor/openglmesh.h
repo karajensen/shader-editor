@@ -94,8 +94,6 @@ public:
 
 private:
 
-    Colour m_colour;           ///< Mesh default colour
-    glm::mat4 m_world;         ///< World matrix
     const Mesh& m_mesh;        ///< Mesh information
     PreRenderMesh m_preRender; ///< Callback to render a single mesh instance
 };                     

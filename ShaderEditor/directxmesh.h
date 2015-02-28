@@ -88,8 +88,6 @@ public:
 
 private:
 
-    Colour m_colour;           ///< Default colour of the mesh
-    D3DXMATRIX m_world;        ///< World matrix information
     const Mesh& m_mesh;        ///< Mesh information
     PreRenderMesh m_preRender; ///< Callback to render a single mesh instance
 };                                           

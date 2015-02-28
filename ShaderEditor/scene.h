@@ -237,32 +237,32 @@ private:
     * Initialises a mesh shader for the scene
     * @param mesh The mesh to initialise
     * @param linker The fragment linker used to generate shaders
-    * @param it The iterator for the mesh config file
+    * @param node The node for the mesh config file
     */
     void InitialiseMeshShader(Mesh& mesh,
                               FragmentLinker& linker,
-                              boost::property_tree::ptree::iterator& it);
+                              const boost::property_tree::ptree& node);
 
     /**
     * Initialises a mesh for the scene
     * @param mesh The mesh to initialise
-    * @param it The iterator for the mesh config file
+    * @param node The node for the mesh config file
     */
-    void InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it);
+    void InitialiseMesh(Mesh& mesh, const boost::property_tree::ptree& node);
 
     /**
     * Initialises a mesh for the scene
     * @param mesh The mesh to initialise
-    * @param it The iterator for the mesh config file
+    * @param node The node for the mesh config file
     */
-    void InitialiseMeshData(MeshData& mesh, boost::property_tree::ptree::iterator& it);
+    void InitialiseMeshData(MeshData& mesh, const boost::property_tree::ptree& node);
 
     /**
     * Initialises a water mesh for the scene
     * @param water The water to initialise
-    * @param it The iterator for the mesh config file
+    * @param node The node for the mesh config file
     */
-    void InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it);
+    void InitialiseWater(Water& water, const boost::property_tree::ptree& node);
 
     /**
     * Creates the mesh buffers

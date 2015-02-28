@@ -10,6 +10,12 @@
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
 
+Mesh::Mesh(int instanceAmount) :
+    initialInstances(instanceAmount)
+{
+    instances.resize(instanceAmount);
+}
+
 MeshData::MeshData()
 {
     textureIDs.resize(Texture::MAX_TYPES);

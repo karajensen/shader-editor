@@ -8,14 +8,14 @@ GlEmitter::GlEmitter(const Emitter& emitter,
                      PreRenderParticle preRenderParticle) :
 
     m_emitter(emitter),
-    m_particle(new GlQuad(emitter.name)),
+    m_particle(new GlQuad(emitter.Name())),
     m_preRender(preRenderParticle)
 {
 }
 
 int GlEmitter::GetShaderID() const
 {
-    return m_emitter.shaderIndex;
+    return m_emitter.ShaderID();
 }
 
 void GlEmitter::PreRender()
@@ -26,24 +26,24 @@ void GlEmitter::PreRender()
 void GlEmitter::Render(const glm::vec3& cameraPosition,
                        const glm::vec3& cameraUp)
 {
-    for (const Particle& particle : m_emitter.particles)
+    for (const Particle& particle : m_emitter.Particles())
     {
-        if (particle.alive)
+        if (particle.Alive())
         {
             // Particle always facing the camera
             glm::vec3 right, up, forward;
-            forward.x = cameraPosition.x - particle.position.x;
-            forward.y = cameraPosition.y - particle.position.y;
-            forward.z = cameraPosition.z - particle.position.z;
+            forward.x = cameraPosition.x - particle.Position().x;
+            forward.y = cameraPosition.y - particle.Position().y;
+            forward.z = cameraPosition.z - particle.Position().z;
             
             forward = glm::normalize(forward);
             right = glm::cross(forward, cameraUp);
             up = glm::cross(forward, right);
 
             glm::mat4 scale;
-            scale[0][0] = particle.size;  
-            scale[1][1] = particle.size;
-            scale[2][2] = particle.size;
+            scale[0][0] = particle.Size();  
+            scale[1][1] = particle.Size();
+            scale[2][2] = particle.Size();
             
             glm::mat4 rotate;
             rotate[0][0] = right.x;  
@@ -57,9 +57,9 @@ void GlEmitter::Render(const glm::vec3& cameraPosition,
             rotate[2][2] = forward.z;
 
             glm::mat4 translate;
-            translate[3][0] = particle.position.x;
-            translate[3][1] = particle.position.y;
-            translate[3][2] = particle.position.z;
+            translate[3][0] = particle.Position().x;
+            translate[3][1] = particle.Position().y;
+            translate[3][2] = particle.Position().z;
             
             m_preRender(translate * rotate * scale, particle);
             m_particle->Render();

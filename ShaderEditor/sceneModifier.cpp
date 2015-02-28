@@ -199,8 +199,8 @@ void SceneModifier::UpdateMesh()
         mesh.bump = m_cache->Mesh[MESH_BUMP].Get();
         mesh.glow = m_cache->Mesh[MESH_GLOW].Get();
 
-        const int instances = mesh.isInstanced ? mesh.instances.size() : 1;
-        m_cache->MeshInstances.SetUpdated(boost::lexical_cast<std::string>(instances));
+        m_cache->MeshInstances.SetUpdated(
+            boost::lexical_cast<std::string>(mesh.instances.size()));
     }
 }
 
@@ -320,73 +320,73 @@ void SceneModifier::UpdateEmitter()
         m_selectedEmitter = selectedEmitter;
         auto& emitter = m_scene.GetEmitter(m_selectedEmitter);
 
-        m_cache->Emitter[EMITTER_LENGTH].SetUpdated(emitter.length);
-        m_cache->Emitter[EMITTER_WIDTH].SetUpdated(emitter.width);
-        m_cache->Emitter[EMITTER_POS_X].SetUpdated(emitter.position.x);
-        m_cache->Emitter[EMITTER_POS_Y].SetUpdated(emitter.position.y);
-        m_cache->Emitter[EMITTER_POS_Z].SetUpdated(emitter.position.z);
-        m_cache->Emitter[EMITTER_DIR_X].SetUpdated(emitter.direction.x);
-        m_cache->Emitter[EMITTER_DIR_Y].SetUpdated(emitter.direction.y);
-        m_cache->Emitter[EMITTER_DIR_Z].SetUpdated(emitter.direction.z);
-        m_cache->Emitter[EMITTER_LIFETIME].SetUpdated(emitter.lifeTime);
-        m_cache->Emitter[EMITTER_LIFEFADE].SetUpdated(emitter.lifeFade);
-        m_cache->Emitter[EMITTER_TINT_R].SetUpdated(emitter.tint.r);
-        m_cache->Emitter[EMITTER_TINT_G].SetUpdated(emitter.tint.g);
-        m_cache->Emitter[EMITTER_TINT_B].SetUpdated(emitter.tint.b);
-        m_cache->Emitter[EMITTER_MAX_SPEED].SetUpdated(emitter.maxSpeed);
-        m_cache->Emitter[EMITTER_MIN_SPEED].SetUpdated(emitter.minSpeed);
-        m_cache->Emitter[EMITTER_MAX_SIZE].SetUpdated(emitter.maxSize);
-        m_cache->Emitter[EMITTER_MIN_SIZE].SetUpdated(emitter.minSize);
-        m_cache->Emitter[EMITTER_MAX_FREQ].SetUpdated(emitter.maxFrequency);
-        m_cache->Emitter[EMITTER_MIN_FREQ].SetUpdated(emitter.minFrequency);
-        m_cache->Emitter[EMITTER_MAX_AMP].SetUpdated(emitter.maxAmplitude);
-        m_cache->Emitter[EMITTER_MIN_AMP].SetUpdated(emitter.minAmplitude);
-        m_cache->Emitter[EMITTER_MAX_WAVE].SetUpdated(emitter.maxWaveSpeed);
-        m_cache->Emitter[EMITTER_MIN_WAVE].SetUpdated(emitter.minWaveSpeed);
-        m_cache->ParticleAmount.SetUpdated(static_cast<int>(emitter.particles.size()));
+        m_cache->Emitter[EMITTER_LENGTH].SetUpdated(emitter.m_length);
+        m_cache->Emitter[EMITTER_WIDTH].SetUpdated(emitter.m_width);
+        m_cache->Emitter[EMITTER_POS_X].SetUpdated(emitter.m_position.x);
+        m_cache->Emitter[EMITTER_POS_Y].SetUpdated(emitter.m_position.y);
+        m_cache->Emitter[EMITTER_POS_Z].SetUpdated(emitter.m_position.z);
+        m_cache->Emitter[EMITTER_DIR_X].SetUpdated(emitter.m_direction.x);
+        m_cache->Emitter[EMITTER_DIR_Y].SetUpdated(emitter.m_direction.y);
+        m_cache->Emitter[EMITTER_DIR_Z].SetUpdated(emitter.m_direction.z);
+        m_cache->Emitter[EMITTER_LIFETIME].SetUpdated(emitter.m_lifeTime);
+        m_cache->Emitter[EMITTER_LIFEFADE].SetUpdated(emitter.m_lifeFade);
+        m_cache->Emitter[EMITTER_TINT_R].SetUpdated(emitter.m_tint.r);
+        m_cache->Emitter[EMITTER_TINT_G].SetUpdated(emitter.m_tint.g);
+        m_cache->Emitter[EMITTER_TINT_B].SetUpdated(emitter.m_tint.b);
+        m_cache->Emitter[EMITTER_MAX_SPEED].SetUpdated(emitter.m_maxSpeed);
+        m_cache->Emitter[EMITTER_MIN_SPEED].SetUpdated(emitter.m_minSpeed);
+        m_cache->Emitter[EMITTER_MAX_SIZE].SetUpdated(emitter.m_maxSize);
+        m_cache->Emitter[EMITTER_MIN_SIZE].SetUpdated(emitter.m_minSize);
+        m_cache->Emitter[EMITTER_MAX_FREQ].SetUpdated(emitter.m_maxFrequency);
+        m_cache->Emitter[EMITTER_MIN_FREQ].SetUpdated(emitter.m_minFrequency);
+        m_cache->Emitter[EMITTER_MAX_AMP].SetUpdated(emitter.m_maxAmplitude);
+        m_cache->Emitter[EMITTER_MIN_AMP].SetUpdated(emitter.m_minAmplitude);
+        m_cache->Emitter[EMITTER_MAX_WAVE].SetUpdated(emitter.m_maxWaveSpeed);
+        m_cache->Emitter[EMITTER_MIN_WAVE].SetUpdated(emitter.m_minWaveSpeed);
+        m_cache->ParticleAmount.SetUpdated(static_cast<int>(emitter.m_particles.size()));
     }
     else if(m_selectedEmitter >= 0 && m_selectedEmitter < m_scene.GetEmitterCount())
     {
         auto& emitter = m_scene.GetEmitter(m_selectedEmitter);
-        emitter.length = m_cache->Emitter[EMITTER_LENGTH].Get();
-        emitter.width = m_cache->Emitter[EMITTER_WIDTH].Get();
-        emitter.position.x = m_cache->Emitter[EMITTER_POS_X].Get();
-        emitter.position.y = m_cache->Emitter[EMITTER_POS_Y].Get();
-        emitter.position.z = m_cache->Emitter[EMITTER_POS_Z].Get();
-        emitter.direction.x = m_cache->Emitter[EMITTER_DIR_X].Get();
-        emitter.direction.y = m_cache->Emitter[EMITTER_DIR_Y].Get();
-        emitter.direction.z = m_cache->Emitter[EMITTER_DIR_Z].Get();
-        emitter.lifeTime = m_cache->Emitter[EMITTER_LIFETIME].Get();
-        emitter.lifeFade = m_cache->Emitter[EMITTER_LIFEFADE].Get();
-        emitter.tint.r = m_cache->Emitter[EMITTER_TINT_R].Get();
-        emitter.tint.g = m_cache->Emitter[EMITTER_TINT_G].Get();
-        emitter.tint.b = m_cache->Emitter[EMITTER_TINT_B].Get();
+        emitter.m_length = m_cache->Emitter[EMITTER_LENGTH].Get();
+        emitter.m_width = m_cache->Emitter[EMITTER_WIDTH].Get();
+        emitter.m_position.x = m_cache->Emitter[EMITTER_POS_X].Get();
+        emitter.m_position.y = m_cache->Emitter[EMITTER_POS_Y].Get();
+        emitter.m_position.z = m_cache->Emitter[EMITTER_POS_Z].Get();
+        emitter.m_direction.x = m_cache->Emitter[EMITTER_DIR_X].Get();
+        emitter.m_direction.y = m_cache->Emitter[EMITTER_DIR_Y].Get();
+        emitter.m_direction.z = m_cache->Emitter[EMITTER_DIR_Z].Get();
+        emitter.m_lifeTime = m_cache->Emitter[EMITTER_LIFETIME].Get();
+        emitter.m_lifeFade = m_cache->Emitter[EMITTER_LIFEFADE].Get();
+        emitter.m_tint.r = m_cache->Emitter[EMITTER_TINT_R].Get();
+        emitter.m_tint.g = m_cache->Emitter[EMITTER_TINT_G].Get();
+        emitter.m_tint.b = m_cache->Emitter[EMITTER_TINT_B].Get();
         emitter.Resize(m_cache->ParticleAmount.Get());
 
         RestrictMinMax(
             m_cache->Emitter[EMITTER_MIN_SIZE],
             m_cache->Emitter[EMITTER_MAX_SIZE],
-            emitter.minSize, emitter.maxSize, true);
+            emitter.m_minSize, emitter.m_maxSize, true);
 
         RestrictMinMax(
             m_cache->Emitter[EMITTER_MIN_SPEED],
             m_cache->Emitter[EMITTER_MAX_SPEED],
-            emitter.minSpeed, emitter.maxSpeed);
+            emitter.m_minSpeed, emitter.m_maxSpeed);
 
         RestrictMinMax(
             m_cache->Emitter[EMITTER_MIN_AMP],
             m_cache->Emitter[EMITTER_MAX_AMP],
-            emitter.minAmplitude, emitter.maxAmplitude);
+            emitter.m_minAmplitude, emitter.m_maxAmplitude);
 
         RestrictMinMax(
             m_cache->Emitter[EMITTER_MIN_WAVE],
             m_cache->Emitter[EMITTER_MAX_WAVE],
-            emitter.minWaveSpeed, emitter.maxWaveSpeed);
+            emitter.m_minWaveSpeed, emitter.m_maxWaveSpeed);
 
         RestrictMinMax(
             m_cache->Emitter[EMITTER_MIN_FREQ],
             m_cache->Emitter[EMITTER_MAX_FREQ],
-            emitter.minFrequency, emitter.maxFrequency);
+            emitter.m_minFrequency, emitter.m_maxFrequency);
     }
 
     if (m_cache->PauseEmission.Get() && m_selectedEmitter != NO_INDEX)

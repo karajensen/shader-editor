@@ -128,22 +128,24 @@ bool Scene::InitialiseLighting()
     boost::property_tree::ptree::iterator it;
     for (it = tree.begin(); it != tree.end(); ++it)
     {
-        Light light;
-        light.name = GetValue<std::string>(it, "Name");
-        light.diffuse.r = GetAttribute<float>(it, "Diffuse", "r");
-        light.diffuse.g = GetAttribute<float>(it, "Diffuse", "g");
-        light.diffuse.b = GetAttribute<float>(it, "Diffuse", "b");
-        light.specular.r = GetAttribute<float>(it, "Specular", "r");
-        light.specular.g = GetAttribute<float>(it, "Specular", "g");
-        light.specular.b = GetAttribute<float>(it, "Specular", "b");
-        light.position.x = GetAttribute<float>(it, "Position", "x");
-        light.position.y = GetAttribute<float>(it, "Position", "y");
-        light.position.z = GetAttribute<float>(it, "Position", "z");
-        light.attenuation.x = GetAttribute<float>(it, "Attenuation", "x");
-        light.attenuation.y = GetAttribute<float>(it, "Attenuation", "y");
-        light.attenuation.z = GetAttribute<float>(it, "Attenuation", "z");
-        light.specularity = GetValue<float>(it, "Specularity");
-        m_lights.push_back(light);
+        m_lights.emplace_back();
+        Light& light = m_lights[m_lights.size()-1];
+
+        boost::property_tree::ptree& node = it->second;
+        light.name = GetValue<std::string>(node, "Name");
+        light.diffuse.r = GetAttribute<float>(node, "Diffuse", "r");
+        light.diffuse.g = GetAttribute<float>(node, "Diffuse", "g");
+        light.diffuse.b = GetAttribute<float>(node, "Diffuse", "b");
+        light.specular.r = GetAttribute<float>(node, "Specular", "r");
+        light.specular.g = GetAttribute<float>(node, "Specular", "g");
+        light.specular.b = GetAttribute<float>(node, "Specular", "b");
+        light.position.x = GetAttribute<float>(node, "Position", "x");
+        light.position.y = GetAttribute<float>(node, "Position", "y");
+        light.position.z = GetAttribute<float>(node, "Position", "z");
+        light.attenuation.x = GetAttribute<float>(node, "Attenuation", "x");
+        light.attenuation.y = GetAttribute<float>(node, "Attenuation", "y");
+        light.attenuation.z = GetAttribute<float>(node, "Attenuation", "z");
+        light.specularity = GetValue<float>(node, "Specularity");
     }
 
     Logger::LogInfo("Lighting: Successfully initialised");
@@ -156,42 +158,14 @@ bool Scene::InitialiseEmitters()
     boost::property_tree::ptree::iterator it;
     for (it = tree.begin(); it != tree.end(); ++it)
     {
-        m_emitters.emplace_back();
+        m_emitters.emplace_back(it->second, PARTICLE_SHADER);
         Emitter& emitter = m_emitters.at(m_emitters.size()-1);
-
-        emitter.Resize(GetValue<int>(it, "Amount"));
-        emitter.width = GetValue<float>(it, "Width");
-        emitter.length = GetValue<float>(it, "Length");
-        emitter.lifeTime = GetValue<float>(it, "LifeTime");
-        emitter.lifeFade = GetValue<float>(it, "LifeFade");
-        emitter.maxWaveSpeed = GetValue<float>(it, "MaxWaveSpeed");
-        emitter.minWaveSpeed = GetValue<float>(it, "MinWaveSpeed");
-        emitter.maxAmplitude = GetValue<float>(it, "MaxAmplitude");
-        emitter.minAmplitude = GetValue<float>(it, "MinAmplitude");
-        emitter.maxFrequency = GetValue<float>(it, "MaxFrequency");
-        emitter.minFrequency = GetValue<float>(it, "MinFrequency");
-        emitter.maxSpeed = GetValue<float>(it, "MaxSpeed");
-        emitter.minSpeed = GetValue<float>(it, "MinSpeed");
-        emitter.minSize = GetValue<float>(it, "MinSize");
-        emitter.maxSize = GetValue<float>(it, "MaxSize");
-        emitter.name = GetValue<std::string>(it, "Name");
-        emitter.position.x = GetAttribute<float>(it, "Position", "x");
-        emitter.position.y = GetAttribute<float>(it, "Position", "y");
-        emitter.position.z = GetAttribute<float>(it, "Position", "z");
-        emitter.direction.x = GetAttribute<float>(it, "Direction", "x");
-        emitter.direction.y = GetAttribute<float>(it, "Direction", "y");
-        emitter.direction.z = GetAttribute<float>(it, "Direction", "z");
-        emitter.tint.r = GetAttribute<float>(it, "Tint", "r");
-        emitter.tint.g = GetAttribute<float>(it, "Tint", "g");
-        emitter.tint.b = GetAttribute<float>(it, "Tint", "b");
-        emitter.tint.a = GetAttribute<float>(it, "Tint", "a");
-        emitter.shaderIndex = PARTICLE_SHADER;
 
         for (auto child = it->second.begin(); child != it->second.end(); ++child)
         {
             if (child->first == "Texture")
             {
-                emitter.textures.push_back(AddTexture(child->second.data()));
+                emitter.AddTexture(AddTexture(child->second.data()));
             }
         }
     }
@@ -230,29 +204,33 @@ bool Scene::InitialiseDiagnostics()
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
 {	
     boost::property_tree::ptree tree = ReadXMLFile(MESHES_NAME, MESHES_PATH + XML);
-    boost::property_tree::ptree::iterator it;
-    for(it = tree.begin(); it != tree.end(); ++it)
+    boost::property_tree::ptree::iterator itr;
+    for(itr = tree.begin(); itr != tree.end(); ++itr)
     {
-        if (it->first == "Water")
+        const std::string& key = itr->first;
+        boost::property_tree::ptree node = itr->second;
+
+        if (key == "Water")
         {
             m_water.emplace_back();
             Water& water = m_water.at(m_water.size()-1);
 
-            InitialiseMeshData(water, it);
-            InitialiseWater(water, it);
+            InitialiseMeshData(water, node);
+            InitialiseWater(water, node);
             if (!CreateMesh(water, false))
             {
                 return false;
             }
         }
-        else if (it->first == "Mesh")
+        else if (key == "Mesh")
         {
-            m_meshes.emplace_back();
+            const int amount = GetValueOptional(node, 1, "Instances");
+            m_meshes.emplace_back(amount);
             Mesh& mesh = m_meshes.at(m_meshes.size()-1);
 
-            InitialiseMeshData(mesh, it);
-            InitialiseMesh(mesh, it);
-            InitialiseMeshShader(mesh, linker, it);
+            InitialiseMeshData(mesh, node);
+            InitialiseMesh(mesh, node);
+            InitialiseMeshShader(mesh, linker, node);
             if (!CreateMesh(mesh, true))
             {
                 return false;
@@ -268,42 +246,44 @@ bool Scene::CreateMesh(MeshData& mesh, bool hasNormals)
     return mesh.Initialise(hasNormals, m_shaders[mesh.shaderIndex].HasComponent(Shader::BUMP));
 }
 
-void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
+void Scene::InitialiseWater(Water& water, const boost::property_tree::ptree& node)
 {
-    water.bumpVelocity.x = GetAttribute<float>(it, "BumpVelocity", "x");
-    water.bumpVelocity.y = GetAttribute<float>(it, "BumpVelocity", "y");
-    water.fresnal.x = GetAttribute<float>(it, "Fresnal", "scale");
-    water.fresnal.y = GetAttribute<float>(it, "Fresnal", "bias");
-    water.fresnal.z = GetAttribute<float>(it, "Fresnal", "power");
-    water.reflection = GetValue<float>(it, "ReflectionIntensity");
-    water.speed = GetValue<float>(it, "Speed");
-    water.uvScale.x = GetAttribute<float>(it, "UVScale", "u");
-    water.uvScale.y = GetAttribute<float>(it, "UVScale", "v");
-    water.deepColour.r = GetAttribute<float>(it, "DeepColour", "r");
-    water.deepColour.g = GetAttribute<float>(it, "DeepColour", "g");
-    water.deepColour.b = GetAttribute<float>(it, "DeepColour", "b");
-    water.deepColour.a = GetAttribute<float>(it, "DeepColour", "a");
-    water.shallowColour.r = GetAttribute<float>(it, "ShallowColour", "r");
-    water.shallowColour.g = GetAttribute<float>(it, "ShallowColour", "g");
-    water.shallowColour.b = GetAttribute<float>(it, "ShallowColour", "b");
-    water.shallowColour.a = GetAttribute<float>(it, "ShallowColour", "a");
-    water.reflectionTint.r = GetAttribute<float>(it, "ReflectionTint", "r");
-    water.reflectionTint.g = GetAttribute<float>(it, "ReflectionTint", "g");
-    water.reflectionTint.b = GetAttribute<float>(it, "ReflectionTint", "b");
+    water.bumpVelocity.x = GetAttribute<float>(node, "BumpVelocity", "x");
+    water.bumpVelocity.y = GetAttribute<float>(node, "BumpVelocity", "y");
+    water.fresnal.x = GetAttribute<float>(node, "Fresnal", "scale");
+    water.fresnal.y = GetAttribute<float>(node, "Fresnal", "bias");
+    water.fresnal.z = GetAttribute<float>(node, "Fresnal", "power");
+    water.reflection = GetValue<float>(node, "ReflectionIntensity");
+    water.speed = GetValue<float>(node, "Speed");
+    water.uvScale.x = GetAttribute<float>(node, "UVScale", "u");
+    water.uvScale.y = GetAttribute<float>(node, "UVScale", "v");
+    water.deepColour.r = GetAttribute<float>(node, "DeepColour", "r");
+    water.deepColour.g = GetAttribute<float>(node, "DeepColour", "g");
+    water.deepColour.b = GetAttribute<float>(node, "DeepColour", "b");
+    water.deepColour.a = GetAttribute<float>(node, "DeepColour", "a");
+    water.shallowColour.r = GetAttribute<float>(node, "ShallowColour", "r");
+    water.shallowColour.g = GetAttribute<float>(node, "ShallowColour", "g");
+    water.shallowColour.b = GetAttribute<float>(node, "ShallowColour", "b");
+    water.shallowColour.a = GetAttribute<float>(node, "ShallowColour", "a");
+    water.reflectionTint.r = GetAttribute<float>(node, "ReflectionTint", "r");
+    water.reflectionTint.g = GetAttribute<float>(node, "ReflectionTint", "g");
+    water.reflectionTint.b = GetAttribute<float>(node, "ReflectionTint", "b");
     water.shaderIndex = WATER_SHADER;
     water.normalIndex = WATER_NORMAL_SHADER;
 
-    for (auto child = it->second.begin(); child != it->second.end(); ++child)
+    for (auto itr = node.begin(); itr != node.end(); ++itr)
     {
-        if (child->first == "Wave")
+        if (itr->first == "Wave")
         {
-            Wave wave;
+            water.waves.emplace_back();
+            Wave& wave = water.waves[water.waves.size()-1];
+
+            const boost::property_tree::ptree& child = itr->second;
             wave.amplitude = GetValue<float>(child, "Amplitude");
             wave.frequency = GetValue<float>(child, "Frequency");
             wave.phase = GetValue<float>(child, "Phase");
             wave.directionX = GetAttribute<float>(child, "Direction", "x");
             wave.directionZ = GetAttribute<float>(child, "Direction", "z");
-            water.waves.push_back(wave);
         }
     }
 
@@ -315,38 +295,37 @@ void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator&
     }
 }
 
-void Scene::InitialiseMeshData(MeshData& mesh, boost::property_tree::ptree::iterator& it)
+void Scene::InitialiseMeshData(MeshData& mesh, const boost::property_tree::ptree& node)
 {
-    mesh.name = GetValue<std::string>(it, "Name");
-    mesh.bump = GetValueOptional<float>(it, 0.0f, "Bump");
+    mesh.name = GetValue<std::string>(node, "Name");
+    mesh.bump = GetValueOptional<float>(node, 0.0f, "Bump");
 
     // Get the textures used by the mesh
     assert(static_cast<int>(mesh.textureIDs.size()) == Texture::MAX_TYPES);
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
         mesh.textureIDs[i] = AddTexture(GetValueOptional(
-            it, std::string(), Texture::GetTypeDescription(i).c_str()));
+            node, std::string(), Texture::GetTypeDescription(i).c_str()));
     }
 
     mesh.maxTextures = mesh.textureIDs.size() - 
         std::count(mesh.textureIDs.begin(), mesh.textureIDs.end(), NO_INDEX);
 }
 
-void Scene::InitialiseMesh(Mesh& mesh, boost::property_tree::ptree::iterator& it)
+void Scene::InitialiseMesh(Mesh& mesh, const boost::property_tree::ptree& node)
 {
-    mesh.specularity = GetValueOptional<float>(it, 0.0f, "Specularity");
-    mesh.ambience = GetValueOptional<float>(it, 1.0f, "Ambience");
-    mesh.glow = GetValueOptional<float>(it, 0.0f, "Intensity");
-    mesh.backfacecull = GetValueOptional<bool>(it, true, "BackfaceCulling");
-    mesh.isInstanced = GetValueOptional<bool>(it, false, "Instanced");
+    mesh.specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
+    mesh.ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
+    mesh.glow = GetValueOptional<float>(node, 0.0f, "Intensity");
+    mesh.backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
 }
 
 void Scene::InitialiseMeshShader(Mesh& mesh, 
                                  FragmentLinker& linker,
-                                 boost::property_tree::ptree::iterator& it)
+                                 const boost::property_tree::ptree& node)
 {
     // Get the shader used by the mesh
-    std::string shader = GetValue<std::string>(it, "Shader");
+    std::string shader = GetValue<std::string>(node, "Shader");
 
     // Ensure not asking for a specialised shader
     const int index = GetShaderIndex(shader);
@@ -559,7 +538,7 @@ std::vector<std::string> Scene::GetEmitterNames() const
     std::vector<std::string> emitters;
     for(const Emitter& emitter : m_emitters)
     {
-        emitters.push_back(emitter.name);
+        emitters.push_back(emitter.Name());
     }
     return emitters;
 }
@@ -620,34 +599,9 @@ void Scene::SaveParticlesToFile()
     for (const Emitter& emitter : m_emitters)
     {
         boost::property_tree::ptree entry;
-        entry.add("Name", emitter.name.c_str());
-        entry.add("Width", emitter.width);
-        entry.add("Length", emitter.length);
-        entry.add("Amount", emitter.particles.size());
-        entry.add("LifeTime", emitter.lifeTime);
-        entry.add("LifeFade", emitter.lifeFade);
-        entry.add("MaxWaveSpeed", emitter.maxWaveSpeed);
-        entry.add("MinWaveSpeed", emitter.minWaveSpeed);
-        entry.add("MaxAmplitude", emitter.maxAmplitude);
-        entry.add("MinAmplitude", emitter.minAmplitude);
-        entry.add("MaxFrequency", emitter.maxFrequency);
-        entry.add("MinFrequency", emitter.minFrequency);
-        entry.add("MaxSpeed", emitter.maxSpeed);
-        entry.add("MinSpeed", emitter.minSpeed);
-        entry.add("MaxSize", emitter.maxSize);
-        entry.add("MinSize", emitter.minSize);
-        entry.add("Position.<xmlattr>.x", emitter.position.x);
-        entry.add("Position.<xmlattr>.y", emitter.position.y);
-        entry.add("Position.<xmlattr>.z", emitter.position.z);
-        entry.add("Direction.<xmlattr>.x", emitter.direction.x);
-        entry.add("Direction.<xmlattr>.y", emitter.direction.y);
-        entry.add("Direction.<xmlattr>.z", emitter.direction.z);
-        entry.add("Tint.<xmlattr>.r", emitter.tint.r);
-        entry.add("Tint.<xmlattr>.g", emitter.tint.g);
-        entry.add("Tint.<xmlattr>.b", emitter.tint.b);
-        entry.add("Tint.<xmlattr>.a", emitter.tint.a);
-
-        for (int texture : emitter.textures)
+        emitter.Write(entry);
+     
+        for (int texture : emitter.Textures())
         {
             entry.add("Texture", m_textures[texture].name);
         }
@@ -730,7 +684,7 @@ void Scene::AddMeshToTree(const Mesh& mesh, boost::property_tree::ptree& entry)
     AddValueOptional(entry, "Ambience", mesh.ambience, 1.0f);
     AddValueOptional(entry, "Specularity", mesh.specularity, 0.0f);
     AddValueOptional(entry, "BackfaceCulling", mesh.backfacecull ? 1 : 0, 1);
-    AddValueOptional(entry, "Instanced", mesh.isInstanced ? 1 : 0, 0);
+    AddValueOptional(entry, "Instances", mesh.initialInstances, 1);
 }
 
 void Scene::AddMeshDataToTree(const MeshData& mesh, boost::property_tree::ptree& entry)

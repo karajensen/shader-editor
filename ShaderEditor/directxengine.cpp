@@ -730,7 +730,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
 
 bool DirectxEngine::UpdateShader(const Emitter& emitter)
 {
-    const int index = emitter.shaderIndex;
+    const int index = emitter.ShaderID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -739,7 +739,7 @@ bool DirectxEngine::UpdateShader(const Emitter& emitter)
             SetSelectedShader(index);
         }
 
-        shader->UpdateConstantFloat("tint", &emitter.tint.r, 4);
+        shader->UpdateConstantFloat("tint", &emitter.Tint().r, 4);
 
         EnableBackfaceCull(false);
         EnableAlphaBlending(true);
@@ -753,9 +753,9 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Particle& partic
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->UpdateConstantMatrix("worldViewProjection", world * m_data->viewProjection);
-    shader->UpdateConstantFloat("alpha", &particle.alpha, 1);
+    shader->UpdateConstantFloat("alpha", &particle.Alpha(), 1);
     shader->SendConstants(m_data->context);
-    SendTexture(0, particle.texture);
+    SendTexture(0, particle.Texture());
 }
 
 void DirectxEngine::SendWaves(const std::vector<Wave>& waves)

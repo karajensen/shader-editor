@@ -45,6 +45,7 @@
     <ClCompile Include="openglshader.cpp" />
     <ClCompile Include="opengltarget.cpp" />
     <ClCompile Include="opengltexture.cpp" />
+    <ClCompile Include="particle.cpp" />
     <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
@@ -89,6 +90,7 @@
     <ClInclude Include="openglshader.h" />
     <ClInclude Include="opengltarget.h" />
     <ClInclude Include="opengltexture.h" />
+    <ClInclude Include="particle.h" />
     <ClInclude Include="postprocessing.h" />
     <ClInclude Include="ptree_utilities.h" />
     <ClInclude Include="qt\project\editor.h" />

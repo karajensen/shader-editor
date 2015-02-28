@@ -135,28 +135,22 @@ const Water& GlWater::GetWater() const
 
 void GlMesh::Render()
 {
-    if (m_mesh.isInstanced)
+    for (const Mesh::Instance& instance : m_mesh.instances)
     {
-        for (const Mesh::Instance& instance : m_mesh.instances)
+        if (instance.shouldRender)
         {
-            if (instance.shouldRender)
-            {
-                m_world[0][0] = instance.scale;
-                m_world[1][1] = instance.scale;
-                m_world[2][2] = instance.scale;
-            
-                m_world[3][0] = instance.position.x;
-                m_world[3][1] = instance.position.y;
-                m_world[3][2] = instance.position.z;
+            glm::mat4 world;
 
-                m_preRender(m_world, instance.colour);
-                GlMeshData::Render();
-            }
+            world[0][0] = instance.scale;
+            world[1][1] = instance.scale;
+            world[2][2] = instance.scale;
+            
+            world[3][0] = instance.position.x;
+            world[3][1] = instance.position.y;
+            world[3][2] = instance.position.z;
+
+            m_preRender(world, instance.colour);
+            GlMeshData::Render();
         }
-    }
-    else
-    {     
-        m_preRender(m_world, m_colour);
-        GlMeshData::Render();
     }
 }

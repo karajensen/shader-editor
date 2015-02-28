@@ -15,6 +15,7 @@
 #endif
 
 #define _USE_MATH_DEFINES
+#include <random>
 #include <math.h>
 #include <sstream>
 #include <memory>
@@ -66,3 +67,23 @@ template<typename T> T Clamp(T value, T minValue, T maxValue)
 {
     return std::min(std::max(value, minValue), maxValue);
 }
+
+/**
+* Utility class to get a random value
+*/
+struct Random
+{
+    static int Generate(int min, int max)
+    {
+        static std::default_random_engine generator;
+        std::uniform_int_distribution<int> distribution(min, max);
+        return distribution(generator);
+    }
+
+    static float Generate(float min, float max)
+    {
+        static std::default_random_engine generator;
+        std::uniform_real_distribution<float> distribution(min, max);
+        return distribution(generator);
+    }
+};

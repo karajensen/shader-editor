@@ -4,116 +4,144 @@
 
 #include "emitter.h"
 #include "common.h"
-#include <random>
 
-namespace
+Emitter::Emitter(const boost::property_tree::ptree& node, int shaderID) :
+    m_shaderIndex(shaderID)
 {
-    static std::default_random_engine generator; ///< Used for random generation
-
-    /**
-    * Utility class to get a random value
-    */
-    int GetRandom(int min, int max)
-    {
-        std::uniform_int_distribution<int> distribution(min, max);
-        return distribution(generator);
-    }
-
-    /**
-    * Utility class to get a random value
-    */
-    float GetRandom(float min, float max)
-    {
-        std::uniform_real_distribution<float> distribution(min, max);
-        return distribution(generator);
-    }
+    Resize(GetValue<int>(node, "Amount"));
+    m_width = GetValue<float>(node, "Width");
+    m_length = GetValue<float>(node, "Length");
+    m_lifeTime = GetValue<float>(node, "LifeTime");
+    m_lifeFade = GetValue<float>(node, "LifeFade");
+    m_maxWaveSpeed = GetValue<float>(node, "MaxWaveSpeed");
+    m_minWaveSpeed = GetValue<float>(node, "MinWaveSpeed");
+    m_maxAmplitude = GetValue<float>(node, "MaxAmplitude");
+    m_minAmplitude = GetValue<float>(node, "MinAmplitude");
+    m_maxFrequency = GetValue<float>(node, "MaxFrequency");
+    m_minFrequency = GetValue<float>(node, "MinFrequency");
+    m_maxSpeed = GetValue<float>(node, "MaxSpeed");
+    m_minSpeed = GetValue<float>(node, "MinSpeed");
+    m_minSize = GetValue<float>(node, "MinSize");
+    m_maxSize = GetValue<float>(node, "MaxSize");
+    m_name = GetValue<std::string>(node, "Name");
+    m_position.x = GetAttribute<float>(node, "Position", "x");
+    m_position.y = GetAttribute<float>(node, "Position", "y");
+    m_position.z = GetAttribute<float>(node, "Position", "z");
+    m_direction.x = GetAttribute<float>(node, "Direction", "x");
+    m_direction.y = GetAttribute<float>(node, "Direction", "y");
+    m_direction.z = GetAttribute<float>(node, "Direction", "z");
+    m_tint.r = GetAttribute<float>(node, "Tint", "r");
+    m_tint.g = GetAttribute<float>(node, "Tint", "g");
+    m_tint.b = GetAttribute<float>(node, "Tint", "b");
+    m_tint.a = GetAttribute<float>(node, "Tint", "a");
 }
 
-Particle::Particle() :
-    maxWaitTime(GetRandom(0.0f,1.0f))
+void Emitter::Write(boost::property_tree::ptree& node) const
 {
+    node.add("Name", m_name.c_str());
+    node.add("Width", m_width);
+    node.add("Length", m_length);
+    node.add("Amount", m_particles.size());
+    node.add("LifeTime", m_lifeTime);
+    node.add("LifeFade", m_lifeFade);
+    node.add("MaxWaveSpeed", m_maxWaveSpeed);
+    node.add("MinWaveSpeed", m_minWaveSpeed);
+    node.add("MaxAmplitude", m_maxAmplitude);
+    node.add("MinAmplitude", m_minAmplitude);
+    node.add("MaxFrequency", m_maxFrequency);
+    node.add("MinFrequency", m_minFrequency);
+    node.add("MaxSpeed", m_maxSpeed);
+    node.add("MinSpeed", m_minSpeed);
+    node.add("MaxSize", m_maxSize);
+    node.add("MinSize", m_minSize);
+    node.add("Position.<xmlattr>.x", m_position.x);
+    node.add("Position.<xmlattr>.y", m_position.y);
+    node.add("Position.<xmlattr>.z", m_position.z);
+    node.add("Direction.<xmlattr>.x", m_direction.x);
+    node.add("Direction.<xmlattr>.y", m_direction.y);
+    node.add("Direction.<xmlattr>.z", m_direction.z);
+    node.add("Tint.<xmlattr>.r", m_tint.r);
+    node.add("Tint.<xmlattr>.g", m_tint.g);
+    node.add("Tint.<xmlattr>.b", m_tint.b);
+    node.add("Tint.<xmlattr>.a", m_tint.a);
 }
 
 void Emitter::Resize(int size)
 {
-    const int currentSize = static_cast<int>(particles.size());
+    const int currentSize = static_cast<int>(m_particles.size());
     if (size < currentSize)
     {
-        particles.erase(particles.begin() + size, particles.end());
+        m_particles.erase(m_particles.begin() + size, m_particles.end());
     }
     else if (size > currentSize)
     {
-        particles.resize(size);
+        m_particles.resize(size);
     }
 }
 
 void Emitter::TogglePaused()
 {
-    paused = !paused;
+    m_paused = !m_paused;
+}
+
+const std::string& Emitter::Name() const
+{
+    return m_name;
+}
+
+const std::vector<int>& Emitter::Textures() const
+{
+    return m_textures;
+}
+
+const std::vector<Particle>& Emitter::Particles() const
+{
+    return m_particles;
+}
+
+int Emitter::ShaderID() const
+{
+    return m_shaderIndex;
+}
+
+const Colour& Emitter::Tint() const
+{
+    return m_tint;
+}
+
+void Emitter::AddTexture(int ID)
+{
+    m_textures.push_back(ID);
 }
 
 void Emitter::Tick(float deltatime)
 {
-    if (paused)
+    if (m_paused)
     {
         return;
     }
 
-    for (Particle& particle : particles)
-    {
-        if (particle.alive)
-        {
-            particle.lifeTime += deltatime;
-            particle.alive = particle.lifeTime < lifeTime;
-            particle.position += direction * particle.speed;
+   for (Particle& particle : m_particles)
+   {
+       if (!particle.Tick(deltatime, m_direction))
+       {
+            Float3 particlePosition(m_position);
+            particlePosition.x += Random::Generate(-m_width, m_width) * 0.5f;
+            particlePosition.z += Random::Generate(-m_length, m_length) * 0.5f;
 
-            // Wave equation: y = a * sin(kx-wt+phase)
-            const float wt = particle.waveSpeed * particle.lifeTime;
-            const float kx = particle.frequency * particle.position.y;
-            const float zOffset = 2.0f;
+            const int textureID = m_textures[Random::Generate(
+                0, static_cast<int>(m_textures.size()-1))];
 
-            particle.position.x = particle.startPosition.x +
-                particle.amplitude * std::sin(kx - wt);
+            particle.Reset(m_lifeTime, 
+                           m_lifeFade,
+                           Random::Generate(m_minSpeed, m_maxSpeed),
+                           Random::Generate(m_minWaveSpeed, m_maxWaveSpeed),
+                           Random::Generate(m_minSize, m_maxSize),
+                           Random::Generate(m_minAmplitude, m_maxAmplitude),
+                           Random::Generate(m_minFrequency, m_maxFrequency),
+                           textureID,
+                           particlePosition);
 
-            particle.position.z = particle.startPosition.z +
-                particle.amplitude * std::sin(kx - wt * zOffset);
-
-            // Fade particle in/out of lifetime
-            const float fadeEnd = lifeTime - lifeFade;
-            if (particle.lifeTime <= lifeFade)
-            {
-                particle.alpha = Clamp(ConvertRange(particle.lifeTime, 
-                    0.0f, lifeFade, 0.0f, 1.0f), 0.0f, 1.0f);
-            }
-            else if (particle.lifeTime >= fadeEnd)
-            {
-                particle.alpha = Clamp(ConvertRange(particle.lifeTime, 
-                    fadeEnd, lifeTime, 1.0f, 0.0f), 0.0f, 1.0f);
-            }
-        }
-        else if (particle.waitTime < particle.maxWaitTime)
-        {
-            particle.waitTime += deltatime;
-        }
-        else
-        {
-            particle.alpha = 0.0f;
-            particle.waitTime = 0.0f;
-            particle.lifeTime = 0.0f;
-            particle.alive = true;
-            particle.speed = GetRandom(minSpeed, maxSpeed);
-            particle.size = GetRandom(minSize, maxSize);
-            particle.texture = textures[GetRandom(0, static_cast<int>(textures.size()-1))];
-            particle.amplitude = GetRandom(minAmplitude, maxAmplitude);
-            particle.waveSpeed = GetRandom(minWaveSpeed, maxWaveSpeed);
-            particle.frequency = GetRandom(minFrequency, maxFrequency);
-
-            const float xOffset = GetRandom(-width, width) * 0.5f;
-            const float zOffset = GetRandom(-length, length) * 0.5f;
-            particle.startPosition.x = position.x + xOffset;
-            particle.startPosition.z = position.z + zOffset;
-            particle.startPosition.y = position.y;
-            particle.position = particle.startPosition;
-        }
-    }
+       }
+   }
 }

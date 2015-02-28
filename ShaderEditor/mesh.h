@@ -8,6 +8,7 @@
 #include <vector>
 #include "float3.h"
 #include "colour.h"
+#include "matrix.h"
 
 /**
 * Mesh information
@@ -44,22 +45,29 @@ struct MeshData
 */
 struct Mesh : public MeshData
 {
-    float specularity = 1.0f;        ///< Brightness of the specular highlights
-    float ambience = 1.0f;           ///< Ambient light multiplier
-    float glow = 1.0f;               ///< Intensity glow multiplier
-    bool backfacecull = true;        ///< Whether back facing polygons are culled
-    bool isInstanced = false;        ///< Whether this mesh using instancing
+    /**
+    * Constructor
+    * @param instanceAmount The amount of this mesh to intially create
+    */
+    Mesh(int instanceAmount);
 
     /**
     * Holds information for a single instance of a mesh
     */
     struct Instance
     {
+        Matrix world;             ///< World matrix generated from the data
         Colour colour;            ///< Colouring of the mesh
         Float3 position;          ///< Position offset
+        Float3 rotation;          ///< Degress rotated around each axis
         float scale = 1.0f;       ///< Scaling of the mesh
         bool shouldRender = true; ///< Whether to render this instance
     };
 
+    float specularity = 1.0f;        ///< Brightness of the specular highlights
+    float ambience = 1.0f;           ///< Ambient light multiplier
+    float glow = 1.0f;               ///< Intensity glow multiplier
+    bool backfacecull = true;        ///< Whether back facing polygons are culled
+    int initialInstances = 0;        ///< The number of instances on load
     std::vector<Instance> instances; ///< Instances of this mesh
 };

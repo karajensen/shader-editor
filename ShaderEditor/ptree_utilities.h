@@ -14,26 +14,26 @@ namespace
 {
     /**
     * Gets the value if it exists in the tree or returns defaultValue
-    * @param itr Iterator from the tree to check 
+    * @param node Node from the tree
     * @param defaultValue The default value to use if name is not found
     * @param name The name of the node to search
     * @return the chosen value from either the tree or defaultValue
     */
-    template<typename T> T GetValueOptional(boost::property_tree::ptree::iterator& itr, 
+    template<typename T> T GetValueOptional(const boost::property_tree::ptree& node, 
                                             T defaultValue, 
                                             const std::string& name)
     {
-        return itr->second.count(name) > 0 ?
-            GetValue<T>(itr, name) : defaultValue;
+        return node.count(name) > 0 ?
+            GetValue<T>(node, name) : defaultValue;
     }
 
     /**
     * Gets the value of the node
-    * @param node Node from the tree to check 
+    * @param node Node from the tree
     * @param name The name of the node to search
     * @return the value of the node
     */
-    template<typename T> T GetValue(boost::property_tree::ptree& node, 
+    template<typename T> T GetValue(const boost::property_tree::ptree& node, 
                                     const std::string& name)
     {
         if (node.count(name) == 0)
@@ -45,39 +45,13 @@ namespace
     }
 
     /**
-    * Gets the value of the node
-    * @param itr Iterator from the tree to check 
-    * @param name The name of the node to search
-    * @return the value of the node
-    */
-    template<typename T> T GetValue(boost::property_tree::ptree::iterator& itr, 
-                                    const std::string& name)
-    {
-        return GetValue<T>(itr->second, name);
-    }
-
-    /**
     * Gets the attribute of the node
-    * @param itr Iterator from the tree to get 
+    * @param node Node from the tree
     * @param name The name of the node to search
     * @param attr The attribute of the nodeto get
     * @return the chosen value from either the tree
     */
-    template<typename T> T GetAttribute(boost::property_tree::ptree::iterator& itr, 
-                                        const char* name, 
-                                        const char* attr)
-    {
-        return GetAttribute<T>(itr->second, name, attr);
-    }
-
-    /**
-    * Gets the attribute of the node
-    * @param itr Iterator from the tree to get 
-    * @param name The name of the node to search
-    * @param attr The attribute of the nodeto get
-    * @return the chosen value from either the tree
-    */
-    template<typename T> T GetAttribute(boost::property_tree::ptree& node,
+    template<typename T> T GetAttribute(const boost::property_tree::ptree& node,
                                         const char* name, 
                                         const char* attr)
     {
@@ -87,19 +61,19 @@ namespace
 
     /**
     * Gets the attribute of the node optionally
-    * @param itr Iterator from the tree to get 
+    * @param node Node from the tree
     * @param name The name of the node to search
     * @param attr The attribute of the nodeto get
     * @param defaultValue The value to use if it doesn't exist
     * @return the chosen value from either the tree or optional
     */
-    template<typename T> T GetAttributeOptional(boost::property_tree::ptree::iterator& itr, 
+    template<typename T> T GetAttributeOptional(const boost::property_tree::ptree& node, 
                                                 const char* name, 
                                                 const char* attr, 
                                                 T defaultValue)
     {
-        return itr->second.count(name) > 0 ?
-            GetAttribute<T>(itr, name, attr) : defaultValue;
+        return node.count(name) > 0 ?
+            GetAttribute<T>(node, name, attr) : defaultValue;
     }
 
     /**

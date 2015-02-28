@@ -19,11 +19,6 @@ DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
     m_mesh(mesh),
     m_preRender(preRender)
 {
-    D3DXMatrixIdentity(&m_world);  
-    m_colour.r = 1.0f;
-    m_colour.g = 1.0f;
-    m_colour.b = 1.0f;
-
     m_vertexStride = sizeof(float) * mesh.vertexComponentCount;
     m_vertexCount = mesh.vertexCount;
     m_indexCount = mesh.indexCount;
@@ -146,28 +141,23 @@ const Water& DxWater::GetWater() const
 
 void DxMesh::Render(ID3D11DeviceContext* context)
 {
-    if (m_mesh.isInstanced)
+    for (const Mesh::Instance& instance : m_mesh.instances)
     {
-        for (const Mesh::Instance& instance : m_mesh.instances)
+        if (instance.shouldRender)
         {
-            if (instance.shouldRender)
-            {
-                m_world._11 = instance.scale;
-                m_world._22 = instance.scale;
-                m_world._33 = instance.scale;
+            D3DXMATRIX world;
+            D3DXMatrixIdentity(&world);  
 
-                m_world._41 = instance.position.x;
-                m_world._42 = instance.position.y;
-                m_world._43 = instance.position.z;
+            world._11 = instance.scale;
+            world._22 = instance.scale;
+            world._33 = instance.scale;
 
-                m_preRender(m_world, instance.colour);
-                DxMeshData::Render(context);
-            }
+            world._41 = instance.position.x;
+            world._42 = instance.position.y;
+            world._43 = instance.position.z;
+
+            m_preRender(world, instance.colour);
+            DxMeshData::Render(context);
         }
-    }
-    else
-    {     
-        m_preRender(m_world, m_colour);
-        DxMeshData::Render(context);
     }
 }

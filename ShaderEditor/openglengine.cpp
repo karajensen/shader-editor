@@ -590,7 +590,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)
 {
-    const int index = emitter.shaderIndex;
+    const int index = emitter.ShaderID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -599,7 +599,7 @@ bool OpenglEngine::UpdateShader(const Emitter& emitter)
             SetSelectedShader(index);
         }
 
-        shader->SendUniformFloat("tint", &emitter.tint.r, 4);
+        shader->SendUniformFloat("tint", &emitter.Tint().r, 4);
 
         EnableBackfaceCull(false);
         EnableAlphaBlending(true);
@@ -612,8 +612,8 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Particle& particle
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("worldViewProjection", m_data->viewProjection * world);
-    shader->SendUniformFloat("alpha", &particle.alpha, 1);
-    SendTexture(0, particle.texture);
+    shader->SendUniformFloat("alpha", &particle.Alpha(), 1);
+    SendTexture(0, particle.Texture());
 }
 
 void OpenglEngine::UpdateShader(const glm::mat4& world, const Colour& colour)

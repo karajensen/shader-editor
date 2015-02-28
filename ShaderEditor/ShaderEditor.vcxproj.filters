@@ -25,11 +25,11 @@
     <Filter Include="Elements">
       <UniqueIdentifier>{957ec1ed-d20f-4531-9941-8185e2195bb9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL">
-      <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DirectX">
+    <Filter Include="Engine - DirectX">
       <UniqueIdentifier>{df8d1dfb-1910-489c-9f0d-a34bc4d64c45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine - OpenGL">
+      <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -68,22 +68,22 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="directxengine.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="directxmesh.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="directxshader.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="directxtexture.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="directxtarget.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="qt\project\editor.cpp">
       <Filter>Qt</Filter>
@@ -128,7 +128,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="directxemitter.cpp">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="diagnostic.cpp">
       <Filter>Source Files</Filter>
@@ -143,22 +143,25 @@
       <Filter>Elements</Filter>
     </ClCompile>
     <ClCompile Include="openglemitter.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="openglengine.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="openglmesh.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="openglshader.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="opengltarget.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="opengltexture.cpp">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,25 +193,25 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="opengltexture.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="openglcommon.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="openglengine.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="openglmesh.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="openglshader.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="opengltarget.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="cache.h">
       <Filter>Header Files</Filter>
@@ -250,7 +253,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="openglemitter.h">
-      <Filter>OpenGL</Filter>
+      <Filter>Engine - OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="renderdata.h">
       <Filter>Header Files</Filter>
@@ -286,25 +289,28 @@
       <Filter>Elements</Filter>
     </ClInclude>
     <ClInclude Include="directxtexture.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxcommon.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxemitter.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxengine.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxmesh.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxshader.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="directxtarget.h">
-      <Filter>DirectX</Filter>
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
