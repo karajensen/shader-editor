@@ -194,7 +194,7 @@ private:
     /**
     * Sends wave information to the selected shader
     */
-    void SendWaves(const std::vector<Wave>& waves);
+    void SendWaves(const std::vector<Water::Wave>& waves);
 
     /**
     * Sends light information to the selected shader

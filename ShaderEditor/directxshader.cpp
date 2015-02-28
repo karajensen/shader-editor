@@ -30,7 +30,7 @@ namespace
 
 DxShader::DxShader(const Shader& shader) :
     m_shader(shader),
-    m_filepath(shader.hlslShaderFile)
+    m_filepath(shader.HLSLShaderFile())
 {
     m_asmpath = boost::ireplace_last_copy(
         m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
@@ -439,7 +439,7 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     if(FAILED(cbuffer->GetDesc(&bufferDesc)))
     {
         Logger::LogInfo("CBuffer " + boost::lexical_cast<std::string>(index) + 
-            " has been optimised out of shader " + m_shader.name);
+            " has been optimised out of shader " + m_shader.Name());
         return std::string();
     }
 
@@ -523,15 +523,15 @@ std::string DxShader::CreateSamplerState(ID3D11Device* device)
 
 void DxShader::SetDebugNames()
 {
-    SetDebugName(m_vs, m_shader.name + "_Vertex");
-    SetDebugName(m_ps, m_shader.name + "_Pixel");
-    SetDebugName(m_layout, m_shader.name + "_Layout");
-    SetDebugName(m_samplerState, m_shader.name + "_Sampler");
+    SetDebugName(m_vs, m_shader.Name() + "_Vertex");
+    SetDebugName(m_ps, m_shader.Name() + "_Pixel");
+    SetDebugName(m_layout, m_shader.Name() + "_Layout");
+    SetDebugName(m_samplerState, m_shader.Name() + "_Sampler");
 
     for(const auto& constantBuffer : m_cbuffers)
     {
         SetDebugName(constantBuffer->buffer, 
-            m_shader.name + "_" + constantBuffer->name);
+            m_shader.Name() + "_" + constantBuffer->name);
     }
 }
 
@@ -626,7 +626,7 @@ void DxShader::SendConstants(ID3D11DeviceContext* context)
 
 int DxShader::GetIndex() const
 {
-    return m_shader.index;
+    return m_shader.ID();
 }
 
 bool DxShader::HasTextureSlot(int slot)
@@ -644,12 +644,12 @@ std::string DxShader::GetAssembly()
     const std::string errors = GenerateAssembly();
     if(!errors.empty())
     {
-        Logger::LogError("DirectX: " + m_shader.name + " " + errors);
+        Logger::LogError("DirectX: " + m_shader.Name() + " " + errors);
     }
     return m_vertexAsm + "\n" + m_pixelAsm;
 }
 
 const std::string& DxShader::GetName() const
 {
-    return m_shader.name;
+    return m_shader.Name();
 }

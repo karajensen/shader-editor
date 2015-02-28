@@ -43,7 +43,7 @@ int Diagnostic::AddInstance(const Float3& position, const Colour& colour, float 
 
 void Diagnostic::AddInstance(const Light& light, float scale)
 {
-    const int index = AddInstance(light.position, light.diffuse, scale);
+    const int index = AddInstance(light.Position(), light.Diffuse(), scale);
     EnableInstance(index, m_lightDiagnosticsOn);
     m_lights.push_back(index);
 }

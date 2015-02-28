@@ -8,7 +8,7 @@
 #include "directx/include/D3D11Shader.h"
 #include <unordered_map>
 
-struct Shader;
+class Shader;
 
 /**
 * Holds information for a directx shader

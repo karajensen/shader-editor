@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "common.h"
 
-struct Shader;
+class Shader;
 
 /**
 * Generates a shader with the required components from a set of base shader fragments

@@ -35,8 +35,8 @@ namespace
 
 GlShader::GlShader(const Shader& shader) :
     m_shader(shader),
-    m_vsFilepath(shader.glslVertexFile),
-    m_fsFilepath(shader.glslFragmentFile)
+    m_vsFilepath(shader.GLSLVertexFile()),
+    m_fsFilepath(shader.GLSLFragmentFile())
 {
     m_vaFilepath = boost::ireplace_last_copy(
         m_vsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
@@ -403,7 +403,7 @@ std::string GlShader::FindShaderUniforms()
 
     if(HasCallFailed())
     {
-        return "Could not get uniform count for shader " + m_shader.name;
+        return "Could not get uniform count for shader " + m_shader.Name();
     }
 
     for (int i = 0; i < uniformCount; ++i)
@@ -421,7 +421,7 @@ std::string GlShader::FindShaderUniforms()
         GLint location = glGetUniformLocation(m_program, name.c_str());
         if(HasCallFailed() || location == NO_INDEX)
         {
-            return "Could not find uniform " + name + " for shader " + m_shader.name;
+            return "Could not find uniform " + name + " for shader " + m_shader.Name();
         }
         
         if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE || type == GL_SAMPLER_CUBE)
@@ -630,7 +630,7 @@ void GlShader::SetActive()
 
 int GlShader::GetIndex() const
 {
-    return m_shader.index;
+    return m_shader.ID();
 }
 
 bool GlShader::HasTextureSlot(int slot)
@@ -650,14 +650,14 @@ std::string GlShader::GetAssembly()
     const std::string errors = GenerateAssembly();
     if(!errors.empty())
     {
-        Logger::LogError("OpenGL: " + m_shader.name + " " + errors);
+        Logger::LogError("OpenGL: " + m_shader.Name() + " " + errors);
     }
     return m_vertexAsm + "\n" + m_fragmentAsm;
 }
 
 const std::string& GlShader::GetName() const
 {
-    return m_shader.name;
+    return m_shader.Name();
 }
 
 std::string GlShader::GetShaderHeader()

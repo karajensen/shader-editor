@@ -7,7 +7,7 @@
 #include "mesh.h"
 #include <unordered_map>
 
-struct Light;
+class Light;
 
 /**
 * Manages diagnostics for the scene

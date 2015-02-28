@@ -244,25 +244,30 @@ private:
                               const boost::property_tree::ptree& node);
 
     /**
-    * Initialises a mesh for the scene
+    * Initialises any textures requires for the mesh
     * @param mesh The mesh to initialise
-    * @param node The node for the mesh config file
     */
-    void InitialiseMesh(Mesh& mesh, const boost::property_tree::ptree& node);
+    void InitialiseMeshTextures(MeshData& mesh);
 
     /**
     * Initialises a mesh for the scene
     * @param mesh The mesh to initialise
+    * @param linker The fragment linker used to generate shaders
     * @param node The node for the mesh config file
+    * @return if initialization was successfull
     */
-    void InitialiseMeshData(MeshData& mesh, const boost::property_tree::ptree& node);
+    bool InitialiseMesh(Mesh& mesh, 
+                        FragmentLinker& linker,
+                        const boost::property_tree::ptree& node);
 
     /**
     * Initialises a water mesh for the scene
     * @param water The water to initialise
     * @param node The node for the mesh config file
+    * @return if initialization was successfull
     */
-    void InitialiseWater(Water& water, const boost::property_tree::ptree& node);
+    bool InitialiseWater(Water& water, const 
+                         boost::property_tree::ptree& node);
 
     /**
     * Creates the mesh buffers
@@ -296,38 +301,13 @@ private:
                        const std::string& shadername, 
                        const std::string& meshName);
 
-    /**
-    * Adds the given mesh to the given tree
-    * @param mesh The mesh data to add
-    * @param entry The tree to add to
-    */
-    void AddMeshToTree(const Mesh& mesh, 
-                       boost::property_tree::ptree& entry);
-
-    /**
-    * Adds the given mesh to the given tree
-    * @param mesh The mesh data to add
-    * @param entry The tree to add to
-    */
-    void AddMeshDataToTree(const MeshData& mesh, 
-                           boost::property_tree::ptree& entry);
-
-    /**
-    * Adds the given water to the given tree
-    * @param water The water data to add
-    * @param entries All entries for the tree
-    * @param entry The tree to add to
-    */
-    void AddWaterToTree(const Water& water, 
-                        std::vector<boost::property_tree::ptree>& entries,
-                        boost::property_tree::ptree& entry);
-                            
-    PostProcessing m_postProcessing;            ///< Post processing for the final image
-    std::vector<Texture> m_textures;            ///< All textures in the scene
-    std::vector<Shader> m_shaders;              ///< All shaders in the scene
-    std::vector<Mesh> m_meshes;                 ///< All meshes in the scene
-    std::vector<Light> m_lights;                ///< All lights in the scene
-    std::vector<Water> m_water;                 ///< All water in the scene
-    std::vector<Emitter> m_emitters;            ///< All particle emitters in the scene
-    std::unique_ptr<Diagnostic> m_diagnostic;   ///< Diagnostics for the scene
+    
+    std::vector<Texture> m_textures;                  ///< All textures in the scene
+    std::vector<Shader> m_shaders;                    ///< All shaders in the scene
+    std::vector<Mesh> m_meshes;                       ///< All meshes in the scene
+    std::vector<Light> m_lights;                      ///< All lights in the scene
+    std::vector<Water> m_water;                       ///< All water in the scene
+    std::vector<Emitter> m_emitters;                  ///< All particle emitters in the scene
+    std::unique_ptr<Diagnostic> m_diagnostic;         ///< Diagnostics for the scene
+    std::unique_ptr<PostProcessing> m_postProcessing; ///< Post processing for the final image
 };                     

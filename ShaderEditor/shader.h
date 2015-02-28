@@ -7,12 +7,15 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "renderdata.h"
 
 /**
-* Shader for a mesh generated from components
+* Shader used to render a mesh
 */
-struct Shader
+class Shader
 {
+public:
+
     /**
     * All shader components
     */
@@ -39,42 +42,89 @@ struct Shader
     };
 
     /**
+    * Constructor
+    */
+    Shader() = default;
+
+    /**
+    * Constructor
+    * @param name The name of the shader
+    * @param index The unique ID of the shader
+    */
+    Shader(const std::string& name, int index);
+
+    /**
+    * Sets the data for the shader
+    * @param name The name of the shader
+    * @param index The unique ID of the shader
+    */
+    void Set(const std::string& name, int index);
+
+    /**
     * Gets a text description of the shader component
     * @param component The component to query for text
-    * @return the text description of the component
+    * @return The text description of the component
     */
-    static std::string ComponentAsString(unsigned int component)
-    {
-        switch (component)
-        {
-        case FLAT:
-            return "FLAT";
-        case BUMP:
-            return "BUMP";
-        case SPECULAR:
-            return "SPECULAR";
-        case GLOW:
-            return "GLOW";
-        default:
-            return "NONE";
-        };
-    }
+    static std::string ComponentAsString(unsigned int component);
 
     /**
     * Determines whether the shader has the component
     * @param component The component to query for text
-    * @return whether the shader has the component
+    * @return whether The shader has the component
     */
-    bool HasComponent(unsigned int component) const
-    {
-        return std::find(components.begin(), components.end(),
-            Component(component)) != components.end();
-    }
+    bool HasComponent(unsigned int component) const;
 
-    int index = -1;                    ///< Unique index of the shader
-    std::string name;                  ///< name of the shader
-    std::string glslVertexFile;        ///< filename of the glsl shader
-    std::string glslFragmentFile;      ///< filename of the glsl shader
-    std::string hlslShaderFile;        ///< filename of the hlsl shader
-    std::vector<Component> components; ///< Sections that make up this shader
+    /**
+    * @param component The component to add to the shader
+    */
+    void AddComponent(Component component);
+
+    /**
+    * @return The name of the shader
+    */
+    const std::string& Name() const;
+
+    /**
+    * @return Unique index of the shader
+    */
+    int ID() const;
+
+    /**
+    * @param file The filename of the GLSL vertex shader
+    */
+    void GLSLVertexFile(const std::string& file);
+
+    /**
+    * @param file The filename of the GLSL fragment shader
+    */
+    void GLSLFragmentFile(const std::string& file);
+
+    /**
+    * @param file The filename of the HLSL shader
+    */
+    void HLSLShaderFile(const std::string& file);
+
+    /**
+    * @return The filename of the GLSL vertex shader
+    */
+    const std::string& GLSLVertexFile() const;
+
+    /**
+    * @return The filename of the GLSL fragment shader
+    */
+    const std::string& GLSLFragmentFile() const;
+
+    /**
+    * @return The filename of the HLSL shader
+    */
+    const std::string& HLSLShaderFile() const;
+
+private:
+
+    int m_index = -1;                    ///< Unique index of the shader
+    std::string m_name;                  ///< name of the shader
+    std::string m_glslVertexFile;        ///< filename of the glsl shader
+    std::string m_glslFragmentFile;      ///< filename of the glsl shader
+    std::string m_hlslShaderFile;        ///< filename of the hlsl shader
+    std::vector<Component> m_components; ///< Sections that make up this shader
 };

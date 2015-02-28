@@ -38,8 +38,10 @@
     <ClCompile Include="emitter.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="gui.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshdata.cpp" />
     <ClCompile Include="openglemitter.cpp" />
     <ClCompile Include="openglmesh.cpp" />
     <ClCompile Include="openglshader.cpp" />
@@ -63,7 +65,9 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="openglengine.cpp" />
     <ClCompile Include="sceneModifier.cpp" />
+    <ClCompile Include="shader.cpp" />
     <ClCompile Include="timer.cpp" />
+    <ClCompile Include="water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
@@ -84,6 +88,7 @@
     <ClInclude Include="gui.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="meshdata.h" />
     <ClInclude Include="openglcommon.h" />
     <ClInclude Include="openglemitter.h" />
     <ClInclude Include="openglmesh.h" />

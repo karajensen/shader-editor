@@ -7,7 +7,7 @@
 #include "openglcommon.h"
 #include <unordered_map>
 
-struct Shader;
+class Shader;
 
 /**
 * Holds information for an opengl shader

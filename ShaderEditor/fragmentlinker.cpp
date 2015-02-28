@@ -28,7 +28,7 @@ bool FragmentLinker::Initialise(unsigned int maxLights)
     m_defines["SAMPLES"] = boost::lexical_cast<std::string>(MULTISAMPLING_COUNT);
     m_defines["WINDOW_WIDTH"] = boost::lexical_cast<std::string>(WINDOW_WIDTH);
     m_defines["WINDOW_HEIGHT"] = boost::lexical_cast<std::string>(WINDOW_HEIGHT);
-    m_defines["MAX_WAVES"] = boost::lexical_cast<std::string>(Water::MAX_WAVES);
+    m_defines["MAX_WAVES"] = boost::lexical_cast<std::string>(Water::GetMaxWaves());
     m_defines["DIAGNOSTIC_LIGHT"] = "10.0, 10.0, 0.0";
 
     return CreateGeneratedFolder();
@@ -41,10 +41,10 @@ void FragmentLinker::FindShaderComponents(Shader& shader)
     for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
     {
         const std::string component = Shader::ComponentAsString(i);
-        if(boost::algorithm::icontains(shader.name, component))
+        if(boost::algorithm::icontains(shader.Name(), component))
         {
             m_shaderComponents.push_back(component);
-            shader.components.push_back(Shader::Component(i));
+            shader.AddComponent(Shader::Component(i));
         }
     }
 }
@@ -96,38 +96,38 @@ bool FragmentLinker::GenerateFromFile(const std::string& name,
 
 bool FragmentLinker::GenerateFromFile(Shader& shader)
 {
-    shader.glslFragmentFile = GENERATED_PATH + shader.name + GLSL_FRAGMENT_EXTENSION;
-    shader.glslVertexFile = GENERATED_PATH + shader.name + GLSL_VERTEX_EXTENSION;
-    shader.hlslShaderFile = GENERATED_PATH + shader.name + HLSL_SHADER_EXTENSION;
+    shader.GLSLFragmentFile(GENERATED_PATH + shader.Name() + GLSL_FRAGMENT_EXTENSION);
+    shader.GLSLVertexFile(GENERATED_PATH + shader.Name() + GLSL_VERTEX_EXTENSION);
+    shader.HLSLShaderFile(GENERATED_PATH + shader.Name() + HLSL_SHADER_EXTENSION);
 
-    return GenerateFromFile(shader.name, GLSL_FRAGMENT_EXTENSION) &&
-        GenerateFromFile(shader.name, GLSL_VERTEX_EXTENSION) &&
-        GenerateFromFile(shader.name, HLSL_SHADER_EXTENSION);
+    return GenerateFromFile(shader.Name(), GLSL_FRAGMENT_EXTENSION) &&
+        GenerateFromFile(shader.Name(), GLSL_VERTEX_EXTENSION) &&
+        GenerateFromFile(shader.Name(), HLSL_SHADER_EXTENSION);
 }
 
 bool FragmentLinker::GenerateWithFragments(Shader& shader)
 {
-    const std::string filename = GENERATED_PATH + shader.name;
+    const std::string filename = GENERATED_PATH + shader.Name();
     FindShaderComponents(shader);
 
-    shader.glslVertexFile = filename + GLSL_VERTEX_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, GLSL_VERTEX_EXTENSION))
+    shader.GLSLVertexFile(filename + GLSL_VERTEX_EXTENSION);
+    if(!CreateShaderFromFragments(shader.Name(), GLSL_VERTEX_EXTENSION))
     {
-        Logger::LogError(shader.name + " GLSL Vertex Shader failed");
+        Logger::LogError(shader.Name() + " GLSL Vertex Shader failed");
         return false;            
     }
 
-    shader.glslFragmentFile = filename + GLSL_FRAGMENT_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, GLSL_FRAGMENT_EXTENSION))
+    shader.GLSLFragmentFile(filename + GLSL_FRAGMENT_EXTENSION);
+    if(!CreateShaderFromFragments(shader.Name(), GLSL_FRAGMENT_EXTENSION))
     {
-        Logger::LogError(shader.name + " GLSL Fragment Shader failed");
+        Logger::LogError(shader.Name() + " GLSL Fragment Shader failed");
         return false;            
     }
 
-    shader.hlslShaderFile = filename + HLSL_SHADER_EXTENSION;
-    if(!CreateShaderFromFragments(shader.name, HLSL_SHADER_EXTENSION))
+    shader.HLSLShaderFile(filename + HLSL_SHADER_EXTENSION);
+    if(!CreateShaderFromFragments(shader.Name(), HLSL_SHADER_EXTENSION))
     {
-        Logger::LogError(shader.name + " HLSL Vertex Shader failed");
+        Logger::LogError(shader.Name() + " HLSL Vertex Shader failed");
         return false;            
     }
 

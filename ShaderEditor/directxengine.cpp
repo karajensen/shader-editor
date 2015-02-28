@@ -516,10 +516,10 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
     auto& blurShader = m_data->shaders[BLUR_SHADER];
     blurShader->SetActive(m_data->context);
 
-    blurShader->UpdateConstantFloat("blurStep", &post.blurStep, 1);
-    blurShader->UpdateConstantFloat("blurAmount", &post.blurAmount, 1);
-    blurShader->UpdateConstantFloat("weightMain", &post.weights[0], 1);
-    blurShader->UpdateConstantFloat("weightOffset", &post.weights[1], 4);
+    blurShader->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
+    blurShader->UpdateConstantFloat("blurAmount", &post.BlurAmount(), 1);
+    blurShader->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
+    blurShader->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
 
     // Render first horizontal blur pass
     m_data->blurTargetP1.SetActive(m_data->context);
@@ -560,26 +560,26 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->blurTargetP2.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
-    postShader->UpdateConstantFloat("glowAmount", &post.glowAmount, 1);
-    postShader->UpdateConstantFloat("contrast", &post.contrast, 1);
-    postShader->UpdateConstantFloat("saturation", &post.saturation, 1);
-    postShader->UpdateConstantFloat("dofDistance", &post.dofDistance, 1);
-    postShader->UpdateConstantFloat("dofFade", &post.dofFade, 1);
-    postShader->UpdateConstantFloat("fogDistance", &post.fogDistance, 1);
-    postShader->UpdateConstantFloat("fogFade", &post.fogFade, 1);
-    postShader->UpdateConstantFloat("fogColor", &post.fogColour.r, 3);
-    postShader->UpdateConstantFloat("minimumColor", &post.minimumColour.r, 3);
-    postShader->UpdateConstantFloat("maximumColor", &post.maximumColour.r, 3);
+    postShader->UpdateConstantFloat("glowAmount", &post.Glow(), 1);
+    postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
+    postShader->UpdateConstantFloat("saturation", &post.Saturation(), 1);
+    postShader->UpdateConstantFloat("dofDistance", &post.DOFDistance(), 1);
+    postShader->UpdateConstantFloat("dofFade", &post.DOFFade(), 1);
+    postShader->UpdateConstantFloat("fogDistance", &post.FogDistance(), 1);
+    postShader->UpdateConstantFloat("fogFade", &post.FogFade(), 1);
+    postShader->UpdateConstantFloat("fogColor", &post.FogColour().r, 3);
+    postShader->UpdateConstantFloat("minimumColor", &post.MinColour().r, 3);
+    postShader->UpdateConstantFloat("maximumColor", &post.MaxColour().r, 3);
 
-    postShader->UpdateConstantFloat("finalMask", &post.masks[PostProcessing::FINAL_MAP], 1);
-    postShader->UpdateConstantFloat("sceneMask", &post.masks[PostProcessing::SCENE_MAP], 1);
-    postShader->UpdateConstantFloat("normalMask", &post.masks[PostProcessing::NORMAL_MAP], 1);
-    postShader->UpdateConstantFloat("depthMask", &post.masks[PostProcessing::DEPTH_MAP], 1);
-    postShader->UpdateConstantFloat("glowMask", &post.masks[PostProcessing::GLOW_MAP], 1);
-    postShader->UpdateConstantFloat("blurGlowMask", &post.masks[PostProcessing::BLUR_GLOW_MAP], 1);
-    postShader->UpdateConstantFloat("blurSceneMask", &post.masks[PostProcessing::BLUR_SCENE_MAP], 1);
-    postShader->UpdateConstantFloat("depthOfFieldMask", &post.masks[PostProcessing::DOF_MAP], 1);
-    postShader->UpdateConstantFloat("fogMask", &post.masks[PostProcessing::FOG_MAP], 1);
+    postShader->UpdateConstantFloat("finalMask", &post.Mask(PostProcessing::FINAL_MAP), 1);
+    postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
+    postShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
+    postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
+    postShader->UpdateConstantFloat("glowMask", &post.Mask(PostProcessing::GLOW_MAP), 1);
+    postShader->UpdateConstantFloat("blurGlowMask", &post.Mask(PostProcessing::BLUR_GLOW_MAP), 1);
+    postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
+    postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
+    postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
 
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
@@ -600,7 +600,7 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
 bool DirectxEngine::UpdateShader(const Mesh& mesh, 
                                  const PostProcessing& post)
 {
-    const int index = mesh.normalIndex;
+    const int index = mesh.NormalID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -608,15 +608,15 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh,
         {
             SetSelectedShader(index);
             shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-            shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
-            shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+            shader->UpdateConstantFloat("depthNear", &post.DepthNear(), 1);
+            shader->UpdateConstantFloat("depthFar", &post.DepthFar(), 1);
         }
 
-        shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
+        shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
         shader->SendConstants(m_data->context);
 
-        SendTexture(0, mesh.textureIDs[Texture::NORMAL]);
-        EnableBackfaceCull(mesh.backfacecull);
+        SendTexture(0, mesh.TextureIDs().at(Texture::NORMAL));
+        EnableBackfaceCull(mesh.BackfaceCull());
         EnableAlphaBlending(false);
 
         return true;
@@ -627,7 +627,7 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh,
 bool DirectxEngine::UpdateShader(const Mesh& mesh, 
                                  const std::vector<Light>& lights)
 {
-    const int index = mesh.shaderIndex;
+    const int index = mesh.ShaderID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -639,14 +639,14 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh,
             SendLights(lights);
         }
 
-        shader->UpdateConstantFloat("meshAmbience", &mesh.ambience, 1);
-        shader->UpdateConstantFloat("meshBump", &mesh.bump, 1);
-        shader->UpdateConstantFloat("meshGlow", &mesh.glow, 1);
-        shader->UpdateConstantFloat("meshSpecularity", &mesh.specularity, 1);
+        shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
+        shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
+        shader->UpdateConstantFloat("meshGlow", &mesh.Glow(), 1);
+        shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);
         shader->SendConstants(m_data->context);
 
-        SendTextures(mesh.textureIDs);
-        EnableBackfaceCull(mesh.backfacecull);
+        SendTextures(mesh.TextureIDs());
+        EnableBackfaceCull(mesh.BackfaceCull());
         EnableAlphaBlending(false);
 
         return true;
@@ -658,7 +658,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
                                  const PostProcessing& post,
                                  float timer)
 {
-    const int index = water.normalIndex;
+    const int index = water.NormalID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -666,22 +666,22 @@ bool DirectxEngine::UpdateShader(const Water& water,
         {
             SetSelectedShader(index);
             shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-            shader->UpdateConstantFloat("depthNear", &post.depthNear, 1);
-            shader->UpdateConstantFloat("depthFar", &post.depthFar, 1);
+            shader->UpdateConstantFloat("depthNear", &post.DepthNear(), 1);
+            shader->UpdateConstantFloat("depthFar", &post.DepthFar(), 1);
             shader->UpdateConstantFloat("timer", &timer, 1);
         }
 
-        shader->UpdateConstantFloat("speed", &water.speed, 1);
-        shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
-        shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-        shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
-        SendWaves(water.waves);
+        shader->UpdateConstantFloat("speed", &water.Speed(), 1);
+        shader->UpdateConstantFloat("bumpIntensity", &water.Bump(), 1);
+        shader->UpdateConstantFloat("bumpVelocity", &water.BumpVelocity().x, 2);
+        shader->UpdateConstantFloat("uvScale", &water.UVScale().x, 2);
+        SendWaves(water.Waves());
 
         shader->SendConstants(m_data->context);
 
         EnableBackfaceCull(true);
         EnableAlphaBlending(false);
-        SendTexture(0, water.textureIDs[Texture::NORMAL]);
+        SendTexture(0, water.TextureIDs().at(Texture::NORMAL));
 
         return true;
     }
@@ -692,7 +692,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
                                  const std::vector<Light>& lights,
                                  float timer)
 {
-    const int index = water.shaderIndex;
+    const int index = water.ShaderID();
     if (index != NO_INDEX)
     {
         auto& shader = m_data->shaders[index];
@@ -706,22 +706,22 @@ bool DirectxEngine::UpdateShader(const Water& water,
             SendLights(lights);
         }
 
-        shader->UpdateConstantFloat("speed", &water.speed, 1);
-        shader->UpdateConstantFloat("bumpIntensity", &water.bump, 1);
-        shader->UpdateConstantFloat("bumpVelocity", &water.bumpVelocity.x, 2);
-        shader->UpdateConstantFloat("uvScale", &water.uvScale.x, 2);
-        shader->UpdateConstantFloat("deepColor", &water.deepColour.r, 4);
-        shader->UpdateConstantFloat("shallowColor", &water.shallowColour.r, 4);
-        shader->UpdateConstantFloat("reflectionTint", &water.reflectionTint.r, 3);
-        shader->UpdateConstantFloat("reflectionIntensity", &water.reflection, 1);
-        shader->UpdateConstantFloat("fresnal", &water.fresnal.x, 3);
-        SendWaves(water.waves);
+        shader->UpdateConstantFloat("speed", &water.Speed(), 1);
+        shader->UpdateConstantFloat("bumpIntensity", &water.Bump(), 1);
+        shader->UpdateConstantFloat("bumpVelocity", &water.BumpVelocity().x, 2);
+        shader->UpdateConstantFloat("uvScale", &water.UVScale().x, 2);
+        shader->UpdateConstantFloat("deepColor", &water.Deep().r, 4);
+        shader->UpdateConstantFloat("shallowColor", &water.Shallow().r, 4);
+        shader->UpdateConstantFloat("reflectionTint", &water.ReflectionTint().r, 3);
+        shader->UpdateConstantFloat("reflectionIntensity", &water.ReflectionIntensity(), 1);
+        shader->UpdateConstantFloat("fresnal", &water.Fresnal().x, 3);
+        SendWaves(water.Waves());
 
         shader->SendConstants(m_data->context);
 
         EnableBackfaceCull(true);
         EnableAlphaBlending(true);
-        SendTextures(water.textureIDs);
+        SendTextures(water.TextureIDs());
 
         return true;
     }
@@ -758,7 +758,7 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Particle& partic
     SendTexture(0, particle.Texture());
 }
 
-void DirectxEngine::SendWaves(const std::vector<Wave>& waves)
+void DirectxEngine::SendWaves(const std::vector<Water::Wave>& waves)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     for (unsigned int i = 0; i < waves.size(); ++i)
@@ -778,11 +778,11 @@ void DirectxEngine::SendLights(const std::vector<Light>& lights)
     for (unsigned int i = 0; i < lights.size(); ++i)
     {
         const int offset = i*4; // Arrays pack in buffer of float4
-        shader->UpdateConstantFloat("lightSpecularity", &lights[i].specularity, 1, offset);
-        shader->UpdateConstantFloat("lightAttenuation", &lights[i].attenuation.x, 3, offset);
-        shader->UpdateConstantFloat("lightPosition", &lights[i].position.x, 3, offset);
-        shader->UpdateConstantFloat("lightDiffuse", &lights[i].diffuse.r, 3, offset);
-        shader->UpdateConstantFloat("lightSpecular", &lights[i].specular.r, 3, offset);
+        shader->UpdateConstantFloat("lightSpecularity", &lights[i].Specularity(), 1, offset);
+        shader->UpdateConstantFloat("lightAttenuation", &lights[i].Attenuation().x, 3, offset);
+        shader->UpdateConstantFloat("lightPosition", &lights[i].Position().x, 3, offset);
+        shader->UpdateConstantFloat("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
+        shader->UpdateConstantFloat("lightSpecular", &lights[i].Specular().r, 3, offset);
     }
 }
 

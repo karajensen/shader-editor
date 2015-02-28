@@ -163,6 +163,18 @@
     <ClCompile Include="particle.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="meshdata.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="water.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -310,6 +322,9 @@
       <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="particle.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="meshdata.h">
       <Filter>Elements</Filter>
     </ClInclude>
   </ItemGroup>

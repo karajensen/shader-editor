@@ -4,33 +4,37 @@
 
 #include "directxmesh.h"
 
+DxMeshData::DxMeshData(const std::string& name) :
+    m_name(name)
+{
+}
+
 DxWater::DxWater(const Water& water) :
+    DxMeshData(water.Name()),
     m_water(water)
 {
-    m_vertexStride = sizeof(float) * water.vertexComponentCount;
-    m_vertexCount = water.vertexCount;
-    m_indexCount = water.indexCount;
-    m_vertices = water.vertices;
-    m_indices = water.indices;
-    m_name = water.name;
+    m_vertexStride = sizeof(float) * water.VertexComponentCount();
+    m_vertexCount = water.Vertices().size();
+    m_indexCount = water.Indices().size();
+    m_vertices = water.Vertices();
+    m_indices = water.Indices();
 }
 
 DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
+    DxMeshData(mesh.Name()),
     m_mesh(mesh),
     m_preRender(preRender)
 {
-    m_vertexStride = sizeof(float) * mesh.vertexComponentCount;
-    m_vertexCount = mesh.vertexCount;
-    m_indexCount = mesh.indexCount;
-    m_vertices = mesh.vertices;
-    m_indices = mesh.indices;
-    m_name = mesh.name;
+    m_vertexStride = sizeof(float) * mesh.VertexComponentCount();
+    m_vertexCount = mesh.Vertices().size();
+    m_indexCount = mesh.Indices().size();
+    m_vertices = mesh.Vertices();
+    m_indices = mesh.Indices();
 }
 
-DxQuad::DxQuad(const std::string& name)
+DxQuad::DxQuad(const std::string& name) :
+    DxMeshData(name)
 {
-    m_name = name;
-
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
     m_vertices.emplace_back(1.0f);  // y
@@ -141,7 +145,7 @@ const Water& DxWater::GetWater() const
 
 void DxMesh::Render(ID3D11DeviceContext* context)
 {
-    for (const Mesh::Instance& instance : m_mesh.instances)
+    for (const Mesh::Instance& instance : m_mesh.Instances())
     {
         if (instance.shouldRender)
         {

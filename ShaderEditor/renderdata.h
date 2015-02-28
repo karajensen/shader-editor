@@ -38,6 +38,17 @@ const std::string NORMAL_SHADER("normal");
 const std::string BASE_SHADER("shader");
 
 /**
+* Available render engines
+*/
+enum RenderingEngine
+{
+    OPENGL,
+    DIRECTX,
+    MAX_ENGINES
+};
+
+
+/**
 * Index for special shaders
 */
 enum ShaderIndex

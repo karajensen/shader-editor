@@ -4,31 +4,37 @@
 
 #include "openglmesh.h"
 
+GlMeshData::GlMeshData(const std::string& name) :
+    m_name(name)
+{
+}
+
 GlWater::GlWater(const Water& water) :
+    GlMeshData(water.Name()),
     m_water(water)
 {
-    m_vertexCount = water.vertexCount;
-    m_indexCount = water.indexCount;
-    m_vertices = water.vertices;
-    m_indices = water.indices;
-    m_name = water.name;
+    m_vertexCount = water.Vertices().size();
+    m_indexCount = water.Indices().size();
+    m_vertices = water.Vertices();
+    m_indices = water.Indices();
+    m_name = water.Name();
 }
 
 GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
+    GlMeshData(mesh.Name()),
     m_mesh(mesh),
     m_preRender(preRender)
 {
-    m_vertexCount = mesh.vertexCount;
-    m_indexCount = mesh.indexCount;
-    m_vertices = mesh.vertices;
-    m_indices = mesh.indices;
-    m_name = mesh.name;
+    m_vertexCount = mesh.Vertices().size();
+    m_indexCount = mesh.Indices().size();
+    m_vertices = mesh.Vertices();
+    m_indices = mesh.Indices();
+    m_name = mesh.Name();
 }
 
-GlQuad::GlQuad(const std::string& name)
+GlQuad::GlQuad(const std::string& name) :
+    GlMeshData(name)
 {
-    m_name = name;
-
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
     m_vertices.emplace_back(-1.0f);  // y
@@ -135,7 +141,7 @@ const Water& GlWater::GetWater() const
 
 void GlMesh::Render()
 {
-    for (const Mesh::Instance& instance : m_mesh.instances)
+    for (const Mesh::Instance& instance : m_mesh.Instances())
     {
         if (instance.shouldRender)
         {

@@ -3,156 +3,76 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh.h"
-#include "common.h"
-#include "renderdata.h"
-#include "boost/lexical_cast.hpp"
-#include "assimp/include/scene.h"
-#include "assimp/include/Importer.hpp"
-#include "assimp/include/postprocess.h"
+#include "cache.h"
 
-Mesh::Mesh(int instanceAmount) :
-    initialInstances(instanceAmount)
+Mesh::Mesh(const boost::property_tree::ptree& node) :
+    MeshData(node)
 {
-    instances.resize(instanceAmount);
+    m_initialInstances = GetValueOptional(node, 1, "Instances");
+    m_instances.resize(m_initialInstances);
+
+    m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
+    m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
+    m_glow = GetValueOptional<float>(node, 0.0f, "Intensity");
+    m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
 }
 
-MeshData::MeshData()
+void Mesh::Write(boost::property_tree::ptree& node) const
 {
-    textureIDs.resize(Texture::MAX_TYPES);
-    textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
+    MeshData::Write(node);
+
+    AddValueOptional(node, "Intensity", m_glow, 0.0f);
+    AddValueOptional(node, "Ambience", m_ambience, 1.0f);
+    AddValueOptional(node, "Specularity", m_specularity, 0.0f);
+    AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
+    AddValueOptional(node, "Instances", m_initialInstances, 1);
 }
 
-bool MeshData::Initialise(bool requiresNormals, bool requiresBumpMapping)
+void Mesh::Write(Cache& cache)
 {
-    const std::string path = MESH_PATH + name;
-    const bool requiresUVs = maxTextures > 0;
+    MeshData::Write(cache);
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
-        aiProcess_Triangulate|aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
-        aiProcess_CalcTangentSpace|aiProcess_JoinIdenticalVertices|aiProcess_GenSmoothNormals|
-        aiProcess_LimitBoneWeights|aiProcess_RemoveRedundantMaterials|aiProcess_OptimizeMeshes);
+    cache.Mesh[MESH_AMBIENCE].SetUpdated(m_ambience);
+    cache.Mesh[MESH_SPECULARITY].SetUpdated(m_specularity);
+    cache.Mesh[MESH_GLOW].SetUpdated(m_glow);
+    cache.MeshShader.SetUpdated(ShaderName());
+}
 
-    if(!scene)
-    {
-        Logger::LogError("Assimp import error for mesh " + path + ": " + importer.GetErrorString());
-        return false;
-    }
+void Mesh::Read(Cache& cache)
+{
+    MeshData::Read(cache);
 
-    if (requiresBumpMapping && !requiresNormals)
-    {
-        Logger::LogError(path + " requies normals for bump mapping");
-        return false;
-    }
+    m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
+    m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
+    m_glow = cache.Mesh[MESH_GLOW].Get();
+}
 
-    unsigned int numMeshes = scene->mNumMeshes;
-    aiMesh** meshes = scene->mMeshes;
+std::vector<Mesh::Instance>& Mesh::Instances()
+{
+    return m_instances;
+}
 
-    // For each submesh
-    bool generatedComponentCount = false;
-    for(unsigned int i = 0; i < numMeshes; ++i)
-    {
-        aiMesh* pMesh = meshes[i];
+const std::vector<Mesh::Instance>& Mesh::Instances() const
+{
+    return m_instances;
+}
 
-        unsigned int indexOffset = vertices.size() / vertexComponentCount;
-        vertexCount += pMesh->mNumVertices;
-        faceCount += pMesh->mNumFaces;
+const float& Mesh::Specularity() const
+{
+    return m_specularity;
+}
 
-        if(!pMesh->HasPositions())
-        {
-            Logger::LogError(name + " requires positions for requested shader");
-            return false;
-        }
-        if(requiresUVs && !pMesh->HasTextureCoords(0))
-        {
-            Logger::LogError(name + " requires uvs for requested shader");
-            return false;
-        }
-        if(requiresNormals && !pMesh->HasNormals())
-        {
-            Logger::LogError(name + " requires normals for requested shader");
-            return false;
-        }
+const float& Mesh::Ambience() const
+{
+    return m_ambience;
+}
 
-        // For each vertex
-        int componentCount = 0;
-        for(unsigned int vert = 0; vert < pMesh->mNumVertices; ++vert)
-        {
-            vertices.push_back(pMesh->mVertices[vert].x);
-            vertices.push_back(pMesh->mVertices[vert].y);
-            vertices.push_back(pMesh->mVertices[vert].z);
-            componentCount = 3;
+const float& Mesh::Glow() const
+{
+    return m_glow;
+}
 
-            if (requiresUVs)
-            {
-                vertices.push_back(pMesh->mTextureCoords[0][vert].x);
-                vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-                componentCount += 2;
-            }
-
-            if (requiresNormals)
-            {
-                vertices.push_back(pMesh->mNormals[vert].x);
-                vertices.push_back(pMesh->mNormals[vert].y);
-                vertices.push_back(pMesh->mNormals[vert].z);
-                componentCount += 3;
-            }
-
-            // Add any bitangents/tangents for the mesh
-            if(requiresBumpMapping)
-            {
-                if(pMesh->HasTangentsAndBitangents())
-                {
-                    vertices.push_back(pMesh->mTangents[vert].x);
-                    vertices.push_back(pMesh->mTangents[vert].y);
-                    vertices.push_back(pMesh->mTangents[vert].z);
-                    vertices.push_back(pMesh->mBitangents[vert].x);
-                    vertices.push_back(pMesh->mBitangents[vert].y);
-                    vertices.push_back(pMesh->mBitangents[vert].z);
-                    componentCount += 6;
-                }
-                else
-                {
-                    Logger::LogError(name + " requires tangents for requested shader");
-                    return false;
-                }
-            }
-        }
-
-        // Make sure vertex layout is consistant between submeshes
-        if(generatedComponentCount)
-        {
-            if(componentCount != vertexComponentCount)
-            {
-                Logger::LogError("Assimp error for mesh " + path + ": " + 
-                    boost::lexical_cast<std::string>(componentCount) + " does not match " +
-                    boost::lexical_cast<std::string>(vertexComponentCount));
-                return false;
-            }
-        }
-        else
-        {
-            vertexComponentCount = componentCount;
-            generatedComponentCount = true;
-        }
-
-        // For each face
-        for(unsigned int face = 0; face < pMesh->mNumFaces; ++face)
-        {
-            aiFace *pFace = &pMesh->mFaces[face];
-            if(pFace->mNumIndices != 3)
-            {
-                Logger::LogError("Assimp error for mesh " + path + ": not all faces are triangles");
-                return false;
-            }
-
-            indices.push_back(indexOffset + pFace->mIndices[0]);
-            indices.push_back(indexOffset + pFace->mIndices[1]);
-            indices.push_back(indexOffset + pFace->mIndices[2]);
-        }
-    }
-
-    indexCount = indices.size();
-    Logger::LogInfo("Mesh: " + path + " created");
-    return true;
+bool Mesh::BackfaceCull() const
+{
+    return m_backfacecull;
 }

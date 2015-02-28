@@ -120,16 +120,6 @@ private:
         NO_FADE
     };
 
-    /**
-    * Available render engines
-    */
-    enum
-    {
-        OPENGL,
-        DIRECTX,
-        MAX_ENGINES
-    };
-
     FadeState m_fadeState = FADE_IN;             ///< Current state of fading in/out the selected engine
     Float2 m_mouseDirection;                     ///< Direction of movement for the mouse
     Float2 m_mousePosition;                      ///< 2D coordinates of the mouse

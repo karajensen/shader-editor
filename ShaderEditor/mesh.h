@@ -9,47 +9,14 @@
 #include "float3.h"
 #include "colour.h"
 #include "matrix.h"
-
-/**
-* Mesh information
-*/
-struct MeshData
-{
-    MeshData();
-    virtual ~MeshData() = default;
-
-    /**
-    * Fills in mesh data
-    * @param requiresNormals Whether this mesh requires normals
-    * @param requiresBumpMapping Whether this mesh requires tangents/bitangents
-    * @return whether creation was successful
-    */
-    bool Initialise(bool requiresNormals, bool requiresBumpMapping);
-
-    float bump = 1.0f;                  ///< Saturation of bump
-    std::string name;                   ///< Name of the mesh
-    int shaderIndex = -1;               ///< Unique Index of the mesh shader to use
-    int normalIndex = -1;               ///< Unique Index of the normal shader to use
-    std::vector<float> vertices;        ///< Mesh Vertex information
-    std::vector<unsigned long> indices; ///< Mesh Index information
-    std::vector<int> textureIDs;        ///< IDs for each texture used
-    int vertexComponentCount = 1;       ///< Number of components that make up a vertex
-    int vertexCount = 0;                ///< Number of vertices in the mesh
-    int faceCount = 0;                  ///< Number of faces in the mesh
-    int indexCount = 0;                 ///< Number of indicies in the mesh
-    int maxTextures = 0;                ///< The number of valid textures using
-};
+#include "meshdata.h"
 
 /**
 * Mesh object rendered in the scene
 */
 struct Mesh : public MeshData
 {
-    /**
-    * Constructor
-    * @param instanceAmount The amount of this mesh to intially create
-    */
-    Mesh(int instanceAmount);
+public:
 
     /**
     * Holds information for a single instance of a mesh
@@ -64,10 +31,66 @@ struct Mesh : public MeshData
         bool shouldRender = true; ///< Whether to render this instance
     };
 
-    float specularity = 1.0f;        ///< Brightness of the specular highlights
-    float ambience = 1.0f;           ///< Ambient light multiplier
-    float glow = 1.0f;               ///< Intensity glow multiplier
-    bool backfacecull = true;        ///< Whether back facing polygons are culled
-    int initialInstances = 0;        ///< The number of instances on load
-    std::vector<Instance> instances; ///< Instances of this mesh
+    /**
+    * Constructor
+    * @param node The data to intialize the mesh with
+    */
+    Mesh(const boost::property_tree::ptree& node);
+
+    /**
+    * Writes the data to a property tree
+    * @param node The node to write to
+    */
+    virtual void Write(boost::property_tree::ptree& node) const override;
+
+    /**
+    * Writes to the data in the cache
+    * @param cache The cache of data from the GUI
+    */
+    virtual void Write(Cache& cache) override;
+
+    /**
+    * Reads the data from the cache
+    * @param cache The cache of data from the GUI
+    */
+    virtual void Read(Cache& cache) override;
+
+    /**
+    * @return The instances of this mesh
+    */
+    std::vector<Instance>& Instances();
+
+    /**
+    * @return The instances of this mesh
+    */
+    const std::vector<Instance>& Instances() const;
+
+    /**
+    * @return Brightness of the specular highlights
+    */
+    const float& Specularity() const;
+
+    /**
+    * @return Ambient light multiplier
+    */
+    const float& Ambience() const;
+
+    /**
+    * @return Intensity glow multiplier
+    */
+    const float& Glow() const;
+
+    /**
+    * @return Whether back facing polygons are culled
+    */
+    bool BackfaceCull() const;
+
+private:
+
+    float m_specularity = 1.0f;        ///< Brightness of the specular highlights
+    float m_ambience = 1.0f;           ///< Ambient light multiplier
+    float m_glow = 1.0f;               ///< Intensity glow multiplier
+    bool m_backfacecull = true;        ///< Whether back facing polygons are culled
+    int m_initialInstances = 0;        ///< The number of instances on load
+    std::vector<Instance> m_instances; ///< Instances of this mesh
 };

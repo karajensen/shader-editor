@@ -14,6 +14,11 @@ class DxMeshData : boost::noncopyable
 public:
 
     /**
+    * Constructor
+    */
+    DxMeshData(const std::string& name);
+
+    /**
     * Destructor
     */
     virtual ~DxMeshData();

@@ -15,6 +15,11 @@ class GlMeshData : boost::noncopyable
 public:
 
     /**
+    * Constructor
+    */
+    GlMeshData(const std::string& name);
+
+    /**
     * Destructor
     */
     virtual ~GlMeshData();
