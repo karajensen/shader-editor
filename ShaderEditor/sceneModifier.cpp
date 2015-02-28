@@ -8,6 +8,7 @@
 #include "cache.h"
 #include "camera.h"
 #include "renderengine.h"
+#include "diagnostic.h"
 #include "timer.h"
 #include "boost/lexical_cast.hpp"
 
@@ -462,6 +463,7 @@ void SceneModifier::UpdateLight()
 
     if (m_cache->LightDiagnostics.Get())
     {
+        m_scene.GetDiagnostics().ToggleLightDiagnostics();
         m_cache->LightDiagnostics.Set(false);
     }
 }

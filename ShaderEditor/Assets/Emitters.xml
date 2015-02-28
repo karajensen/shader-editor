@@ -7,16 +7,16 @@
 		<Amount>10</Amount>
 		<LifeTime>2</LifeTime>
 		<LifeFade>0.25</LifeFade>
-		<MaximumWaveSpeed>1</MaximumWaveSpeed>
-		<MinimumWaveSpeed>1</MinimumWaveSpeed>
-		<MaximumAmplitude>1</MaximumAmplitude>
-		<MinimumAmplitude>1</MinimumAmplitude>
-		<MaximumFrequency>1</MaximumFrequency>
-		<MinimumFrequency>1</MinimumFrequency>
-		<MaximumSpeed>0.5</MaximumSpeed>
-		<MinimumSpeed>0.2</MinimumSpeed>
-		<MaximumSize>2</MaximumSize>
-		<MinimumSize>1</MinimumSize>
+		<MaxWaveSpeed>1</MaxWaveSpeed>
+		<MinWaveSpeed>1</MinWaveSpeed>
+		<MaxAmplitude>1</MaxAmplitude>
+		<MinAmplitude>1</MinAmplitude>
+		<MaxFrequency>1</MaxFrequency>
+		<MinFrequency>1</MinFrequency>
+		<MaxSpeed>0.5</MaxSpeed>
+		<MinSpeed>0.2</MinSpeed>
+		<MaxSize>2</MaxSize>
+		<MinSize>1</MinSize>
 		<Position x="-10" y="0" z="0"/>
 		<Direction x="0" y="1" z="0"/>
 		<Tint r="0" g="0.5" b="1" a="1"/>

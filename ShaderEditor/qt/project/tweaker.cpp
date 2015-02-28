@@ -80,13 +80,13 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_camera[CAMERA_ROLL].Initialise(0.01, m_ui.cameraRoll_value,
         m_ui.cameraRoll_dial, m_callbacks.SetCamera[CAMERA_ROLL]);
 
-    m_light[LIGHT_POSITION_X].Initialise(1.0, m_ui.positionX_value,
+    m_light[LIGHT_POSITION_X].Initialise(0.1, m_ui.positionX_value,
         m_ui.positionX_dial, m_callbacks.SetLight[LIGHT_POSITION_X]);
     
-    m_light[LIGHT_POSITION_Y].Initialise(1.0, m_ui.positionY_value,
+    m_light[LIGHT_POSITION_Y].Initialise(0.1, m_ui.positionY_value,
         m_ui.positionY_dial, m_callbacks.SetLight[LIGHT_POSITION_Y]);
     
-    m_light[LIGHT_POSITION_Z].Initialise(1.0, m_ui.positionZ_value,
+    m_light[LIGHT_POSITION_Z].Initialise(0.1, m_ui.positionZ_value,
         m_ui.positionZ_dial, m_callbacks.SetLight[LIGHT_POSITION_Z]);
     
     m_light[LIGHT_ATTENUATION_X].Initialise(0.01, m_ui.attenuationX_value,

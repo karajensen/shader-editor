@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include "diagnostic.h"
 #include "fragmentlinker.h"
 #include "renderdata.h"
 #include "ptree_utilities.h"
@@ -13,6 +14,9 @@
 
 namespace
 {
+    /**
+    * Shaders that do not need to be generated through fragment linking
+    */
     std::map<std::string, ShaderIndex> SPECIAL_SHADERS = boost::assign::map_list_of
         ("post", POST_SHADER)
         ("blur", BLUR_SHADER)
@@ -21,6 +25,9 @@ namespace
         ("particle", PARTICLE_SHADER)
         ("diagnostic", DIAGNOSTIC_SHADER);
 
+    /**
+    * Resource file information
+    */
     const std::string EMITTERS_NAME("Emitters");
     const std::string MESHES_NAME("Meshes");
     const std::string POST_NAME("PostProcessing");
@@ -33,6 +40,9 @@ namespace
     const std::string XML(".xml");
 }
 
+Scene::Scene() = default;
+Scene::~Scene() = default;
+
 bool Scene::Initialise()
 {
     FragmentLinker linker;
@@ -41,30 +51,9 @@ bool Scene::Initialise()
         linker.Initialise(m_lights.size()) &&
         InitialiseShaders(linker) &&
         InitialiseMeshes(linker) &&
-        InitialiseEmitters())
+        InitialiseEmitters() && 
+        InitialiseDiagnostics())
     {
-        // Temporary testing the instancing
-        auto itr = std::find_if(m_meshes.begin(), m_meshes.end(), [](const Mesh& mesh)
-        {
-            return mesh.isInstanced;
-        });
-        if (itr != m_meshes.end())
-        {
-            Mesh& mesh = *itr;
-            Mesh::Instance instance;
-
-            instance.position.z = 5;
-            instance.position.y = 5;
-            instance.colour.r = 1.0f;
-            instance.scale = 0.25f;
-            mesh.instances.push_back(instance);
-
-            instance.position.z = -5;
-            instance.colour.b = 1.0f;
-            instance.scale = 0.5f;
-            mesh.instances.push_back(instance);
-        }
-
         // To prevent unnecessary shader switching, sort by shader used
         std::sort(m_meshes.begin(), m_meshes.end(), [](const Mesh& m1, const Mesh& m2)->bool
         {
@@ -167,20 +156,24 @@ bool Scene::InitialiseEmitters()
     boost::property_tree::ptree::iterator it;
     for (it = tree.begin(); it != tree.end(); ++it)
     {
-        Emitter emitter;
+        m_emitters.emplace_back();
+        Emitter& emitter = m_emitters.at(m_emitters.size()-1);
+
         emitter.Resize(GetValue<int>(it, "Amount"));
         emitter.width = GetValue<float>(it, "Width");
         emitter.length = GetValue<float>(it, "Length");
         emitter.lifeTime = GetValue<float>(it, "LifeTime");
         emitter.lifeFade = GetValue<float>(it, "LifeFade");
-        emitter.maxAmplitude = GetValue<float>(it, "MaximumAmplitude");
-        emitter.minAmplitude = GetValue<float>(it, "MinimumAmplitude");
-        emitter.maxFrequency = GetValue<float>(it, "MaximumFrequency");
-        emitter.minFrequency = GetValue<float>(it, "MinimumFrequency");
-        emitter.maxSpeed = GetValue<float>(it, "MaximumSpeed");
-        emitter.minSpeed = GetValue<float>(it, "MinimumSpeed");
-        emitter.minSize = GetValue<float>(it, "MinimumSize");
-        emitter.maxSize = GetValue<float>(it, "MaximumSize");
+        emitter.maxWaveSpeed = GetValue<float>(it, "MaxWaveSpeed");
+        emitter.minWaveSpeed = GetValue<float>(it, "MinWaveSpeed");
+        emitter.maxAmplitude = GetValue<float>(it, "MaxAmplitude");
+        emitter.minAmplitude = GetValue<float>(it, "MinAmplitude");
+        emitter.maxFrequency = GetValue<float>(it, "MaxFrequency");
+        emitter.minFrequency = GetValue<float>(it, "MinFrequency");
+        emitter.maxSpeed = GetValue<float>(it, "MaxSpeed");
+        emitter.minSpeed = GetValue<float>(it, "MinSpeed");
+        emitter.minSize = GetValue<float>(it, "MinSize");
+        emitter.maxSize = GetValue<float>(it, "MaxSize");
         emitter.name = GetValue<std::string>(it, "Name");
         emitter.position.x = GetAttribute<float>(it, "Position", "x");
         emitter.position.y = GetAttribute<float>(it, "Position", "y");
@@ -201,12 +194,37 @@ bool Scene::InitialiseEmitters()
                 emitter.textures.push_back(AddTexture(child->second.data()));
             }
         }
-
-        m_emitters.push_back(emitter);
     }
 
     Logger::LogInfo("Particles: Successfully initialised");
     return true;
+}
+
+bool Scene::InitialiseDiagnostics()
+{
+    for (Mesh& mesh : m_meshes)
+    {
+        if (mesh.shaderIndex == DIAGNOSTIC_SHADER)
+        {
+            m_diagnostic = std::make_unique<Diagnostic>(mesh.instances);
+            break;
+        }
+    }
+
+    if (!m_diagnostic)
+    {
+        Logger::LogError("Diagnostics: Could not find mesh");
+        return false;
+    }
+    else
+    {
+        const float scale = 0.25f;
+        for (const Light& light : m_lights)
+        {
+            m_diagnostic->AddInstance(light, scale);
+        }
+        return true;
+    }
 }
 
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
@@ -217,30 +235,37 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
     {
         if (it->first == "Water")
         {
-            Water water;
+            m_water.emplace_back();
+            Water& water = m_water.at(m_water.size()-1);
+
             InitialiseMeshData(water, it);
             InitialiseWater(water, it);
-            if (water.Initialise(false, false))
+            if (!CreateMesh(water, false))
             {
-                m_water.push_back(water);
+                return false;
             }
         }
         else if (it->first == "Mesh")
         {
-            Mesh mesh;
+            m_meshes.emplace_back();
+            Mesh& mesh = m_meshes.at(m_meshes.size()-1);
+
             InitialiseMeshData(mesh, it);
             InitialiseMesh(mesh, it);
             InitialiseMeshShader(mesh, linker, it);
-
-            auto& shader = m_shaders[mesh.shaderIndex];
-            if (mesh.Initialise(true, shader.HasComponent(Shader::BUMP)))
+            if (!CreateMesh(mesh, true))
             {
-                m_meshes.push_back(mesh);
+                return false;
             }
         }
     }
 
     return true;
+}
+
+bool Scene::CreateMesh(MeshData& mesh, bool hasNormals)
+{
+    return mesh.Initialise(hasNormals, m_shaders[mesh.shaderIndex].HasComponent(Shader::BUMP));
 }
 
 void Scene::InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it)
@@ -354,7 +379,7 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
 
 int Scene::GetShaderIndex(const std::string& shadername)
 {
-    auto itr = SPECIAL_SHADERS.find(shadername);
+    const auto itr = SPECIAL_SHADERS.find(shadername);
     return itr != SPECIAL_SHADERS.end() ? itr->second : NO_INDEX;
 }
 
@@ -412,11 +437,11 @@ int Scene::AddTexture(const std::string& name)
         }
     }
 
-    Texture texture;
-    texture.name = name;
-    texture.path = TEXTURE_PATH + name;
-    m_textures.push_back(texture);
-    return m_textures.size()-1;
+    const int index = m_textures.size();
+    m_textures.emplace_back();
+    m_textures[index].name = name;
+    m_textures[index].path = TEXTURE_PATH + name;
+    return index;
 }
 
 const std::vector<Water>& Scene::Waters() const
@@ -487,6 +512,11 @@ Shader& Scene::GetShader(int index)
 PostProcessing& Scene::GetPost()
 {
     return m_postProcessing;
+}
+
+Diagnostic& Scene::GetDiagnostics()
+{
+    return *m_diagnostic;
 }
 
 void Scene::SetPostMap(int index)
@@ -596,16 +626,16 @@ void Scene::SaveParticlesToFile()
         entry.add("Amount", emitter.particles.size());
         entry.add("LifeTime", emitter.lifeTime);
         entry.add("LifeFade", emitter.lifeFade);
-        entry.add("MaximumWaveSpeed", emitter.maxWaveSpeed);
-        entry.add("MinimumWaveSpeed", emitter.minWaveSpeed);
-        entry.add("MaximumAmplitude", emitter.maxAmplitude);
-        entry.add("MinimumAmplitude", emitter.minAmplitude);
-        entry.add("MaximumFrequency", emitter.maxFrequency);
-        entry.add("MinimumFrequency", emitter.minFrequency);
-        entry.add("MaximumSpeed", emitter.maxSpeed);
-        entry.add("MinimumSpeed", emitter.minSpeed);
-        entry.add("MaximumSize", emitter.maxSize);
-        entry.add("MinimumSize", emitter.minSize);
+        entry.add("MaxWaveSpeed", emitter.maxWaveSpeed);
+        entry.add("MinWaveSpeed", emitter.minWaveSpeed);
+        entry.add("MaxAmplitude", emitter.maxAmplitude);
+        entry.add("MinAmplitude", emitter.minAmplitude);
+        entry.add("MaxFrequency", emitter.maxFrequency);
+        entry.add("MinFrequency", emitter.minFrequency);
+        entry.add("MaxSpeed", emitter.maxSpeed);
+        entry.add("MinSpeed", emitter.minSpeed);
+        entry.add("MaxSize", emitter.maxSize);
+        entry.add("MinSize", emitter.minSize);
         entry.add("Position.<xmlattr>.x", emitter.position.x);
         entry.add("Position.<xmlattr>.y", emitter.position.y);
         entry.add("Position.<xmlattr>.z", emitter.position.z);
@@ -775,6 +805,8 @@ void Scene::SavePostProcessingtoFile()
 
 void Scene::Tick(float deltatime)
 {
+    m_diagnostic->Tick();
+
     for (Emitter& emitter : m_emitters)
     {
         emitter.Tick(deltatime);

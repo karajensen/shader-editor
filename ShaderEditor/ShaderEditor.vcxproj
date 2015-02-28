@@ -28,6 +28,7 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="directxemitter.cpp" />
     <ClCompile Include="directxengine.cpp" />
     <ClCompile Include="directxmesh.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="colour.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="diagnostic.h" />
     <ClInclude Include="directxcommon.h" />
     <ClInclude Include="directxemitter.h" />
     <ClInclude Include="directxengine.h" />

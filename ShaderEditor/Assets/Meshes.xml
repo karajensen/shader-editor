@@ -2,8 +2,8 @@
 <Meshes>
 	<Mesh>
 		<Name>sphere.obj</Name>
-		<Instanced>1</Instanced>
 		<Shader>diagnostic</Shader>
+    <Instanced>1</Instanced>
 	</Mesh>
 	<Mesh>
 		<Name>sphere.obj</Name>

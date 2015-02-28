@@ -8,6 +8,7 @@
 #include "sceneInterface.h"
 
 class FragmentLinker;
+class Diagnostic;
 
 /**
 * Manager and owner of all objects and diagnostics
@@ -16,8 +17,11 @@ class Scene : public IScene
 {
 public:
 
+    Scene();
+    ~Scene();
+
     /**
-    * Constructor
+    * Initialises the scene
     * @return Whether the initialization was successful
     */
     bool Initialise();
@@ -129,6 +133,11 @@ public:
     PostProcessing& GetPost();
 
     /**
+    * @return the diagnostics for the scene
+    */
+    Diagnostic& GetDiagnostics();
+
+    /**
     * Sets which post map will currently be rendered
     * @param index The index for the map to render
     */
@@ -213,6 +222,11 @@ private:
     bool InitialiseEmitters();
 
     /**
+    * Initialises the diagnostics in the scene
+    */
+    bool InitialiseDiagnostics();
+
+    /**
     * Initialises the meshes for the scene
     * @param linker The fragment linker used to generate shaders
     * @return Whether the initialization was successful
@@ -249,6 +263,13 @@ private:
     * @param it The iterator for the mesh config file
     */
     void InitialiseWater(Water& water, boost::property_tree::ptree::iterator& it);
+
+    /**
+    * Creates the mesh buffers
+    * @param mesh The mesh to create
+    * @param hasNormals Whether this mesh requires normals in the buffer
+    */
+    bool CreateMesh(MeshData& mesh, bool hasNormals);
 
     /**
     * Adds a texture from a mesh if it doesn't already exist
@@ -301,11 +322,12 @@ private:
                         std::vector<boost::property_tree::ptree>& entries,
                         boost::property_tree::ptree& entry);
                             
-    PostProcessing m_postProcessing;  ///< Post processing for the final image
-    std::vector<Texture> m_textures;  ///< All textures in the scene
-    std::vector<Shader> m_shaders;    ///< All shaders in the scene
-    std::vector<Mesh> m_meshes;       ///< All meshes in the scene
-    std::vector<Light> m_lights;      ///< All lights in the scene
-    std::vector<Water> m_water;       ///< All water in the scene
-    std::vector<Emitter> m_emitters;  ///< All particle emitters in the scene
+    PostProcessing m_postProcessing;            ///< Post processing for the final image
+    std::vector<Texture> m_textures;            ///< All textures in the scene
+    std::vector<Shader> m_shaders;              ///< All shaders in the scene
+    std::vector<Mesh> m_meshes;                 ///< All meshes in the scene
+    std::vector<Light> m_lights;                ///< All lights in the scene
+    std::vector<Water> m_water;                 ///< All water in the scene
+    std::vector<Emitter> m_emitters;            ///< All particle emitters in the scene
+    std::unique_ptr<Diagnostic> m_diagnostic;   ///< Diagnostics for the scene
 };                     
