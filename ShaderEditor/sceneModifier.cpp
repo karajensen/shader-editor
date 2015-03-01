@@ -267,6 +267,12 @@ void SceneModifier::UpdateLight()
         m_scene.GetDiagnostics().ToggleLightDiagnostics();
         m_cache->LightDiagnostics.Set(false);
     }
+
+    if (m_cache->RenderLightsOnly.Get())
+    {
+        m_scene.GetPost().ToggleDiffuseTextures();
+        m_cache->RenderLightsOnly.Set(false);
+    }
 }
 
 void SceneModifier::Initialise(const std::vector<std::string>& engineNames,

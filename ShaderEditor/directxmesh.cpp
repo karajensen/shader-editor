@@ -149,18 +149,30 @@ void DxMesh::Render(ID3D11DeviceContext* context)
     {
         if (instance.shouldRender)
         {
-            D3DXMATRIX world;
-            D3DXMatrixIdentity(&world);  
+            D3DXMATRIX scale;
+            D3DXMatrixIdentity(&scale);
+            scale._11 = instance.scale;
+            scale._22 = instance.scale;
+            scale._33 = instance.scale;
 
-            world._11 = instance.scale;
-            world._22 = instance.scale;
-            world._33 = instance.scale;
+            D3DXMATRIX translate;
+            D3DXMatrixIdentity(&translate);
+            translate._41 = instance.position.x;
+            translate._42 = instance.position.y;
+            translate._43 = instance.position.z;
 
-            world._41 = instance.position.x;
-            world._42 = instance.position.y;
-            world._43 = instance.position.z;
-
-            m_preRender(world, instance.colour);
+            D3DXMATRIX rotate;
+            D3DXMatrixIdentity(&rotate);
+            if (!instance.rotation.IsZero())
+            {
+                D3DXMATRIX rotateX, rotateY, rotateZ;
+                D3DXMatrixRotationX(&rotateX, DegToRad(instance.rotation.x)); 
+                D3DXMatrixRotationY(&rotateY, DegToRad(instance.rotation.y)); 
+                D3DXMatrixRotationZ(&rotateZ, DegToRad(instance.rotation.z)); 
+                rotate = rotateZ * rotateX * rotateY;
+            }
+            
+            m_preRender(scale * rotate * translate, instance.colour);
             DxMeshData::Render(context);
         }
     }

@@ -317,6 +317,7 @@ private:
     TweakableButton m_saveScene;         ///< Button to save all scene to xml
     TweakableButton m_savePost;          ///< Button to save all post processing to xml
     TweakableButton m_pauseEmission;     ///< Button to pause the selected emitter
+    TweakableButton m_lightsOnly;        ///< Button to render the lights only
 
     TweakableBox m_postMap;              ///< Combo box for selecting the post map
     TweakableBox m_renderEngine;         ///< Combo box for selecting the render engine

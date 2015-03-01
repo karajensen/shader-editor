@@ -14,8 +14,7 @@ cbuffer ScenePixelBuffer : register(b1)
     float3 lightPosition[MAX_LIGHTS];
     float3 lightAttenuation[MAX_LIGHTS];
     float3 lightDiffuse[MAX_LIGHTS];
-    float3 lightSpecular[MAX_LIGHTS];
-    float lightSpecularity[MAX_LIGHTS];
+    float lightActive[MAX_LIGHTS];
     float blendFactor;
 };
 
@@ -123,7 +122,7 @@ float4 PShader(Attributes input) : SV_TARGET
     
         vertToLight /= lightLength;
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-        diffuse += lightColour * attenuation;
+        diffuse += lightColour * attenuation * lightActive[i];
     }
     
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))

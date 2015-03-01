@@ -23,7 +23,6 @@ public:
     */
     struct Instance
     {
-        Matrix world;             ///< World matrix generated from the data
         Colour colour;            ///< Colouring of the mesh
         Float3 position;          ///< Position offset
         Float3 rotation;          ///< Degress rotated around each axis

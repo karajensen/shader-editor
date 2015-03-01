@@ -31,8 +31,7 @@ uniform float blendFactor;
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];
 uniform vec3 lightAttenuation[MAX_LIGHTS];
-uniform vec3 lightSpecular[MAX_LIGHTS];
-uniform float lightSpecularity[MAX_LIGHTS];
+uniform float lightActive[MAX_LIGHTS];
 
 float saturate(float value)
 {
@@ -66,7 +65,7 @@ void main(void)
     
         vertToLight /= lightLength;
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-        diffuse += lightColour * attenuation;
+        diffuse += lightColour * attenuation * lightActive[i];
     }
     
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))

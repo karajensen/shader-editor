@@ -103,6 +103,7 @@ enum LightAttribute
     LIGHT_SPECULAR_R,
     LIGHT_SPECULAR_G,
     LIGHT_SPECULAR_B,
+    LIGHT_ACTIVE,
     LIGHT_ATTRIBUTES
 };
 
@@ -196,6 +197,7 @@ struct SignalCallbacks
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
+    VoidSignal RenderLightsOnly;   ///< Sends a request to render only the lights
     VoidSignal SavePost;           ///< Sends a request to save post processing to xml
     StrSignal CompileShader;       ///< Sends a compile request
 
@@ -225,6 +227,7 @@ struct SignalCallbacks
         LightDiagnostics(nullptr),
         SaveScene(nullptr),
         PauseEmission(nullptr),
+        RenderLightsOnly(nullptr),
         SavePost(nullptr),
         CompileShader(nullptr)
     {

@@ -36,8 +36,10 @@ namespace
     const std::string MESHES_PATH(ASSETS_PATH + MESHES_NAME);
     const std::string LIGHTS_PATH(ASSETS_PATH + LIGHTS_NAME);
     const std::string POST_PATH(ASSETS_PATH + POST_NAME);
+    const std::string TEXTURE_PATH(ASSETS_PATH + "Textures");
     const std::string SAVED("_saved");
     const std::string XML(".xml");
+    const std::string BLANK_TEXTURE("blank.png");
 }
 
 Scene::Scene() = default;
@@ -46,7 +48,8 @@ Scene::~Scene() = default;
 bool Scene::Initialise()
 {
     FragmentLinker linker;
-    if (InitialisePost() &&
+    if (InitialiseTextures() &&
+        InitialisePost() &&
         InitialiseLighting() &&
         linker.Initialise(m_lights.size()) &&
         InitialiseShaders(linker) &&
@@ -146,15 +149,20 @@ bool Scene::InitialiseDiagnostics()
         Logger::LogError("Diagnostics: Could not find mesh");
         return false;
     }
-    else
+
+    const float scale = 0.25f;
+    for (const Light& light : m_lights)
     {
-        const float scale = 0.25f;
-        for (const Light& light : m_lights)
-        {
-            m_diagnostic->AddInstance(light, scale);
-        }
-        return true;
+        m_diagnostic->AddInstance(light, scale);
     }
+    return true;
+}
+
+bool Scene::InitialiseTextures()
+{
+    assert(m_textures.empty());
+    m_textures.emplace_back(BLANK_TEXTURE, TEXTURE_PATH + "//" + BLANK_TEXTURE);
+    return true;
 }
 
 bool Scene::InitialiseMeshes(FragmentLinker& linker)
@@ -186,7 +194,7 @@ bool Scene::InitialiseMeshes(FragmentLinker& linker)
 
 bool Scene::CreateMesh(MeshData& mesh, bool hasNormals)
 {
-    return mesh.Initialise(hasNormals, 
+    return mesh.Initialise(MESHES_PATH + "//" + mesh.Name(), hasNormals, 
         m_shaders[mesh.ShaderID()].HasComponent(Shader::BUMP));
 }
 
@@ -311,16 +319,14 @@ int Scene::AddTexture(const std::string& name)
 
     for(int i = 0; i < static_cast<int>(m_textures.size()); ++i)
     {
-        if(name == m_textures[i].name)
+        if(name == m_textures[i].Name())
         {
             return i;
         }
     }
 
     const int index = m_textures.size();
-    m_textures.emplace_back();
-    m_textures[index].name = name;
-    m_textures[index].path = TEXTURE_PATH + name;
+    m_textures.emplace_back(name, TEXTURE_PATH + "//" + name);
     return index;
 }
 
@@ -371,7 +377,7 @@ Light& Scene::GetLight(int index)
 
 std::string Scene::GetTexture(int index)
 {
-    return index == NO_INDEX ? "None" : m_textures[index].name;
+    return index == NO_INDEX ? "None" : m_textures[index].Name();
 }
 
 Mesh& Scene::GetMesh(int index)

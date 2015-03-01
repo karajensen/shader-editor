@@ -145,17 +145,27 @@ void GlMesh::Render()
     {
         if (instance.shouldRender)
         {
-            glm::mat4 world;
+            glm::mat4 scale;
+            scale[0][0] = instance.scale;
+            scale[1][1] = instance.scale;
+            scale[2][2] = instance.scale;
 
-            world[0][0] = instance.scale;
-            world[1][1] = instance.scale;
-            world[2][2] = instance.scale;
+            glm::mat4 translate;
+            translate[3][0] = instance.position.x;
+            translate[3][1] = instance.position.y;
+            translate[3][2] = instance.position.z;
             
-            world[3][0] = instance.position.x;
-            world[3][1] = instance.position.y;
-            world[3][2] = instance.position.z;
+            glm::mat4 rotate;
+            if (!instance.rotation.IsZero())
+            {
+                glm::mat4 rotateX, rotateY, rotateZ;
+                glm::rotate(rotateX, instance.rotation.x, glm::vec3(1,0,0));
+                glm::rotate(rotateY, instance.rotation.y, glm::vec3(0,1,0));
+                glm::rotate(rotateZ, instance.rotation.z, glm::vec3(0,0,1));
+                rotate = rotateZ * rotateX * rotateY;
+            }
 
-            m_preRender(world, instance.colour);
+            m_preRender(translate * rotate * scale, instance.colour);
             GlMeshData::Render();
         }
     }

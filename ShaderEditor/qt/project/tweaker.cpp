@@ -24,6 +24,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_savePost.Initialise(m_ui.savePost_btn, m_callbacks.SavePost);
     m_pauseEmission.Initialise(m_ui.pauseEmission_btn, m_callbacks.PauseEmission);
+    m_lightsOnly.Initialise(m_ui.renderLightsOnly_btn, m_callbacks.RenderLightsOnly);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
         m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
@@ -100,6 +101,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_light[LIGHT_SPECULARITY].Initialise(0.1, m_ui.specularity_value,
         m_ui.specularity_dial, m_callbacks.SetLight[LIGHT_SPECULARITY]);
+
+    m_light[LIGHT_ACTIVE].Initialise(0.1, m_ui.lightActive_value,
+        m_ui.lightActive_dial, m_callbacks.SetLight[LIGHT_ACTIVE]);
 
     std::vector<ComboEntry> diffuse;
     diffuse.emplace_back(LIGHT_DIFFUSE_R, "Diffuse R", 0.01, m_callbacks.SetLight[LIGHT_DIFFUSE_R]);

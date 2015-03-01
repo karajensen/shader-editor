@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -175,35 +171,11 @@
     <ClCompile Include="shader.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderengine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="float3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fragmentlinker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="opengltexture.h">
       <Filter>Engine - OpenGL</Filter>
     </ClInclude>
@@ -219,14 +191,8 @@
     <ClInclude Include="openglshader.h">
       <Filter>Engine - OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="opengltarget.h">
       <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="cache.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="qt\project\editor.h">
       <Filter>Qt</Filter>
@@ -240,9 +206,6 @@
     <ClInclude Include="qt\project\generated\ui_tweaker.h">
       <Filter>Qt\generated</Filter>
     </ClInclude>
-    <ClInclude Include="gui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="qt\project\tweakable_box.h">
       <Filter>Qt</Filter>
     </ClInclude>
@@ -255,29 +218,11 @@
     <ClInclude Include="qt\project\tweakable_button.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="ptree_utilities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="qt\project\tweakable.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="sceneModifier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="openglemitter.h">
       <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="renderdata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="colour.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sceneInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="diagnostic.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="water.h">
       <Filter>Elements</Filter>
@@ -326,6 +271,60 @@
     </ClInclude>
     <ClInclude Include="meshdata.h">
       <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="application.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cache.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colour.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="diagnostic.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="float3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fragmentlinker.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ptree_utilities.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderdata.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderengine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneInterface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneModifier.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

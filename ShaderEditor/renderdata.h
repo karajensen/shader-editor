@@ -16,6 +16,7 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
+const int BLANK_TEXTURE_ID = 0;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 2000.0f;
 const float FIELD_OF_VIEW = 60.0f;
@@ -30,9 +31,7 @@ const std::string GLSL_VERTEX_EXTENSION(GLSL_VERTEX + SHADER_EXTENSION);
 const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);
 
 const std::string ASSETS_PATH(".//Assets//");
-const std::string MESH_PATH(ASSETS_PATH + "Meshes//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
-const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 const std::string NORMAL_SHADER("normal");
 const std::string BASE_SHADER("shader");

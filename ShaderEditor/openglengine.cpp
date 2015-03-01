@@ -50,6 +50,7 @@ struct OpenglData
     bool isBackfaceCull = false;     ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;       ///< Whether alpha blending is currently active
     bool isDepthWrite = false;       ///< Whether writing to the depth buffer is active
+    bool useDiffuseTextures = true;  ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
     float fadeAmount = 0.0f;         ///< the amount to fade the scene by
     float blendFactor = 0.540f;      ///< Alpha blend modifier
@@ -324,7 +325,7 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<GlTexture>(
-            new GlTexture(texture.path)));
+            new GlTexture(texture.Path())));
     }
 
     m_data->shaders.reserve(scene.Shaders().size());
@@ -546,6 +547,8 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
+    m_data->useDiffuseTextures = post.UseDiffuseTextures();
+
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
@@ -762,6 +765,7 @@ void OpenglEngine::SendLights(const std::vector<Light>& lights)
         shader->UpdateUniformArray("lightPosition", &lights[i].Position().x, 3, offset);
         shader->UpdateUniformArray("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
         shader->UpdateUniformArray("lightSpecular", &lights[i].Specular().r, 3, offset);
+        shader->UpdateUniformArray("lightActive", &lights[i].Active(), 1, offset);
     }
 }
 
@@ -784,7 +788,12 @@ void OpenglEngine::SendTextures(const std::vector<int>& textures)
     for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
         const Texture::Type type = static_cast<Texture::Type>(i);
-        if (SendTexture(slot, textures[type]))
+        const bool isDiffuse = type == Texture::DIFFUSE;
+
+        const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
+            BLANK_TEXTURE_ID : textures[type];
+
+        if (SendTexture(slot, ID))
         {
             ++slot;
         }

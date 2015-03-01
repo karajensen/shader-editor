@@ -227,6 +227,11 @@ private:
     bool InitialiseDiagnostics();
 
     /**
+    * Initialises any special textures not attached to a mesh
+    */
+    bool InitialiseTextures();
+
+    /**
     * Initialises the meshes for the scene
     * @param linker The fragment linker used to generate shaders
     * @return Whether the initialization was successful

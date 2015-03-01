@@ -94,6 +94,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
     callbacks.SavePost =           [this](){ m_cache->SavePost.Set(true); };
     callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
+    callbacks.RenderLightsOnly =   [this](){ m_cache->RenderLightsOnly.Set(true); };
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 

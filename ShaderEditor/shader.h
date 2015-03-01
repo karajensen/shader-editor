@@ -75,6 +75,7 @@ public:
     bool HasComponent(unsigned int component) const;
 
     /**
+    * Adds a component to the shader
     * @param component The component to add to the shader
     */
     void AddComponent(Component component);

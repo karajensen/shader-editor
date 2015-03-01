@@ -17,6 +17,7 @@ cbuffer MeshVertexBuffer : register(b1)
 
 cbuffer ScenePixelBuffer : register(b2)
 {
+    float lightActive[MAX_LIGHTS];
     float3 lightPosition[MAX_LIGHTS];
     float3 lightAttenuation[MAX_LIGHTS];
     float3 lightDiffuse[MAX_LIGHTS];
@@ -136,11 +137,11 @@ float4 PShader(Attributes input) : SV_TARGET
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 float3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * attenuation;
+                specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
             endif
         endif
 
-        diffuse.rgb += lightColour * attenuation;
+        diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
     float4 finalColour = diffuseTex * diffuse;

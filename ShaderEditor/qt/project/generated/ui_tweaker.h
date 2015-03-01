@@ -84,11 +84,17 @@ public:
     QWidget *Light;
     QWidget *layoutWidget1;
     QVBoxLayout *lightLayout;
+    QFrame *renderLightsOnly;
+    QPushButton *renderLightsOnly_btn;
     QFrame *lightDiagnostics;
     QPushButton *lightDiagnostics_btn;
     QFrame *selectedLight;
     QLabel *selectedLight_lbl;
     QComboBox *selectedLight_box;
+    QFrame *lightActive;
+    QLabel *lightActive_lbl;
+    QDoubleSpinBox *lightActive_value;
+    QDial *lightActive_dial;
     QFrame *positionX;
     QLabel *positionX_lbl;
     QDoubleSpinBox *positionX_value;
@@ -856,6 +862,30 @@ public:
         lightLayout->setSpacing(2);
         lightLayout->setObjectName(QStringLiteral("lightLayout"));
         lightLayout->setContentsMargins(4, 4, 0, 0);
+        renderLightsOnly = new QFrame(layoutWidget1);
+        renderLightsOnly->setObjectName(QStringLiteral("renderLightsOnly"));
+        sizePolicy.setHeightForWidth(renderLightsOnly->sizePolicy().hasHeightForWidth());
+        renderLightsOnly->setSizePolicy(sizePolicy);
+        renderLightsOnly->setMinimumSize(QSize(225, 35));
+        renderLightsOnly->setMaximumSize(QSize(225, 35));
+        renderLightsOnly->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        renderLightsOnly->setFrameShape(QFrame::Panel);
+        renderLightsOnly->setFrameShadow(QFrame::Raised);
+        renderLightsOnly_btn = new QPushButton(renderLightsOnly);
+        renderLightsOnly_btn->setObjectName(QStringLiteral("renderLightsOnly_btn"));
+        renderLightsOnly_btn->setGeometry(QRect(5, 4, 216, 25));
+        renderLightsOnly_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        renderLightsOnly_btn->setDefault(false);
+
+        lightLayout->addWidget(renderLightsOnly);
+
         lightDiagnostics = new QFrame(layoutWidget1);
         lightDiagnostics->setObjectName(QStringLiteral("lightDiagnostics"));
         sizePolicy.setHeightForWidth(lightDiagnostics->sizePolicy().hasHeightForWidth());
@@ -919,6 +949,58 @@ public:
         selectedLight_box->setFrame(false);
 
         lightLayout->addWidget(selectedLight);
+
+        lightActive = new QFrame(layoutWidget1);
+        lightActive->setObjectName(QStringLiteral("lightActive"));
+        lightActive->setMinimumSize(QSize(225, 35));
+        lightActive->setMaximumSize(QSize(225, 35));
+        lightActive->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        lightActive->setFrameShape(QFrame::NoFrame);
+        lightActive->setFrameShadow(QFrame::Plain);
+        lightActive->setLineWidth(0);
+        lightActive_lbl = new QLabel(lightActive);
+        lightActive_lbl->setObjectName(QStringLiteral("lightActive_lbl"));
+        lightActive_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(lightActive_lbl->sizePolicy().hasHeightForWidth());
+        lightActive_lbl->setSizePolicy(sizePolicy);
+        lightActive_lbl->setMinimumSize(QSize(100, 30));
+        lightActive_lbl->setMaximumSize(QSize(100, 30));
+        lightActive_lbl->setFont(font1);
+        lightActive_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        lightActive_lbl->setMargin(1);
+        lightActive_value = new QDoubleSpinBox(lightActive);
+        lightActive_value->setObjectName(QStringLiteral("lightActive_value"));
+        lightActive_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(lightActive_value->sizePolicy().hasHeightForWidth());
+        lightActive_value->setSizePolicy(sizePolicy);
+        lightActive_value->setMinimumSize(QSize(86, 25));
+        lightActive_value->setMaximumSize(QSize(86, 25));
+        lightActive_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        lightActive_value->setFrame(false);
+        lightActive_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        lightActive_value->setDecimals(3);
+        lightActive_value->setMinimum(0);
+        lightActive_value->setMaximum(1);
+        lightActive_value->setSingleStep(0.05);
+        lightActive_dial = new QDial(lightActive);
+        lightActive_dial->setObjectName(QStringLiteral("lightActive_dial"));
+        lightActive_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(lightActive_dial->sizePolicy().hasHeightForWidth());
+        lightActive_dial->setSizePolicy(sizePolicy);
+        lightActive_dial->setMinimumSize(QSize(30, 30));
+        lightActive_dial->setMaximumSize(QSize(30, 30));
+        lightActive_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        lightActive_dial->setMinimum(-10000);
+        lightActive_dial->setMaximum(10000);
+
+        lightLayout->addWidget(lightActive);
 
         positionX = new QFrame(layoutWidget1);
         positionX->setObjectName(QStringLiteral("positionX"));
@@ -1583,7 +1665,7 @@ public:
 
         meshLayout->addWidget(meshAttributes);
 
-        _meshSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_2 = new QSpacerItem(20, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_2);
 
@@ -1794,7 +1876,7 @@ public:
 
         meshLayout->addWidget(water);
 
-        _meshSpacer_3 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_3 = new QSpacerItem(20, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_3);
 
@@ -2756,7 +2838,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(1);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2784,8 +2866,10 @@ public:
         saveScene_btn->setText(QApplication::translate("Tweaker", "Save Scene to File", 0));
         savePost_btn->setText(QApplication::translate("Tweaker", "Save Post Processing to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
+        renderLightsOnly_btn->setText(QApplication::translate("Tweaker", "Render Lights Only", 0));
         lightDiagnostics_btn->setText(QApplication::translate("Tweaker", "Toggle Light Diagnostics", 0));
         selectedLight_lbl->setText(QApplication::translate("Tweaker", "Light", 0));
+        lightActive_lbl->setText(QApplication::translate("Tweaker", "Activity", 0));
         positionX_lbl->setText(QApplication::translate("Tweaker", "Position X", 0));
         positionY_lbl->setText(QApplication::translate("Tweaker", "Position Y", 0));
         positionZ_lbl->setText(QApplication::translate("Tweaker", "Position Z", 0));

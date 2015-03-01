@@ -28,7 +28,7 @@ public:
     ~Gui();
 
     /**
-    * Ticks the guid
+    * Ticks the gui
     * @param argc Number of arguments passed into the application
     * @Param argv Arguments passed into the application
     */

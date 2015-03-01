@@ -51,10 +51,8 @@ void MeshData::Read(Cache& cache)
     m_bump = cache.Mesh[MESH_BUMP].Get();
 }
 
-bool MeshData::Initialise(bool requiresNormals, bool requiresTangents)
+bool MeshData::Initialise(const std::string& path, bool requiresNormals, bool requiresTangents)
 {
-    const std::string path = MESH_PATH + m_name;
-
     const int maxTextures = m_textureIDs.size() - 
         std::count(m_textureIDs.begin(), m_textureIDs.end(), NO_INDEX);
 

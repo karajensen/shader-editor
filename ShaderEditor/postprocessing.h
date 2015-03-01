@@ -153,7 +153,7 @@ public:
     const Colour& MaxColour() const;
 
     /**
-    * @return the mask value for the map
+    * @return The mask value for the map
     */
     const float& Mask(PostProcessing::Map map) const;
 
@@ -162,6 +162,16 @@ public:
     */
     const float& Glow() const;
 
+    /**
+    * Toggles whether to render with diffuse textures
+    */
+    void ToggleDiffuseTextures();
+
+    /**
+    * @return Whether to render with diffuse textures
+    */
+    bool UseDiffuseTextures() const;
+
 private:
 
     /**
@@ -169,6 +179,7 @@ private:
     */
     void NormaliseWeights();
 
+    bool m_useDiffuseTextures = true;     ///< Whether to render diffuse textures;
     float m_dofDistance = 0.0f;           ///< Distance the depth of field starts
     float m_dofFade = 0.0f;               ///< How quick depth of field fades to the scene
     float m_glowAmount = 0.0f;            ///< The overall glow multiplier

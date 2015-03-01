@@ -234,3 +234,13 @@ const float& PostProcessing::Mask(PostProcessing::Map map) const
 {
     return m_masks.at(map);
 }
+
+void PostProcessing::ToggleDiffuseTextures()
+{
+    m_useDiffuseTextures = !m_useDiffuseTextures;
+}
+
+bool PostProcessing::UseDiffuseTextures() const
+{
+    return m_useDiffuseTextures;
+}

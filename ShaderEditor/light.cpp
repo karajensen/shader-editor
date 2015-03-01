@@ -56,6 +56,7 @@ void Light::Write(Cache& cache)
     cache.Light[LIGHT_SPECULAR_G].SetUpdated(m_specular.g);
     cache.Light[LIGHT_SPECULAR_B].SetUpdated(m_specular.b);
     cache.Light[LIGHT_SPECULARITY].SetUpdated(m_specularity);
+    cache.Light[LIGHT_ACTIVE].SetUpdated(m_active);
 }
 
 void Light::Read(Cache& cache)
@@ -73,6 +74,7 @@ void Light::Read(Cache& cache)
     m_specular.g = cache.Light[LIGHT_SPECULAR_G].Get();
     m_specular.b = cache.Light[LIGHT_SPECULAR_B].Get();
     m_specularity = cache.Light[LIGHT_SPECULARITY].Get();
+    m_active = cache.Light[LIGHT_ACTIVE].Get();
 }
 
 const std::string& Light::Name() const
@@ -105,3 +107,7 @@ const float& Light::Specularity() const
     return m_specularity;
 }
 
+const float& Light::Active() const
+{
+    return m_active;
+}

@@ -58,6 +58,7 @@ struct DirectxData
     bool isBackfaceCull = false;        ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;          ///< Whether alpha blending is currently active
     bool isDepthWrite = false;          ///< Whether writing to the depth buffer is active
+    bool useDiffuseTextures = true;     ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;      ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;            ///< the amount to fade the scene by
     float blendFactor = 1.0f;           ///< Alpha blend modifier
@@ -352,7 +353,7 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<DxTexture>(
-            new DxTexture(texture.path)));
+            new DxTexture(texture.Path())));
     }
 
     m_data->shaders.reserve(scene.Shaders().size());
@@ -548,6 +549,8 @@ void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
+    m_data->useDiffuseTextures = post.UseDiffuseTextures();
+
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
 
@@ -783,6 +786,7 @@ void DirectxEngine::SendLights(const std::vector<Light>& lights)
         shader->UpdateConstantFloat("lightPosition", &lights[i].Position().x, 3, offset);
         shader->UpdateConstantFloat("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
         shader->UpdateConstantFloat("lightSpecular", &lights[i].Specular().r, 3, offset);
+        shader->UpdateConstantFloat("lightActive", &lights[i].Active(), 1, offset);
     }
 }
 
@@ -792,7 +796,12 @@ void DirectxEngine::SendTextures(const std::vector<int>& textures)
     for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
         const Texture::Type type = static_cast<Texture::Type>(i);
-        if (SendTexture(slot, textures[type]))
+        const bool isDiffuse = type == Texture::DIFFUSE;
+
+        const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
+            BLANK_TEXTURE_ID : textures[type];
+
+        if (SendTexture(slot, ID))
         {
             ++slot;
         }

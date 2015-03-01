@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -1882,6 +1882,63 @@ border-width: 2px;</string>
          <number>4</number>
         </property>
         <item>
+         <widget class="QFrame" name="renderLightsOnly">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Panel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QPushButton" name="renderLightsOnly_btn">
+           <property name="geometry">
+            <rect>
+             <x>5</x>
+             <y>4</y>
+             <width>216</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(255, 255, 255);
+border-left-color: rgb(255, 255, 255);
+border-bottom-color: rgb(180, 180, 180);
+border-right-color: rgb(180, 180, 180);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="text">
+            <string>Render Lights Only</string>
+           </property>
+           <property name="default">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
          <widget class="QFrame" name="lightDiagnostics">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2062,6 +2119,170 @@ border-width: 2px;</string>
            </property>
            <property name="frame">
             <bool>false</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="lightActive">
+          <property name="minimumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>225</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(245, 245, 245);
+border-radius: 4px;</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <widget class="QLabel" name="lightActive_lbl">
+           <property name="geometry">
+            <rect>
+             <x>2</x>
+             <y>2</y>
+             <width>100</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="text">
+            <string>Activity</string>
+           </property>
+           <property name="margin">
+            <number>1</number>
+           </property>
+          </widget>
+          <widget class="QDoubleSpinBox" name="lightActive_value">
+           <property name="geometry">
+            <rect>
+             <x>104</x>
+             <y>5</y>
+             <width>86</width>
+             <height>25</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>86</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(230, 230, 230);
+border-top-color: rgb(180, 180, 180);
+border-left-color: rgb(180, 180, 180);
+border-bottom-color: rgb(255, 255, 255);
+border-right-color: rgb(255, 255, 255);
+border-style: solid;
+border-width: 2px;</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.050000000000000</double>
+           </property>
+          </widget>
+          <widget class="QDial" name="lightActive_dial">
+           <property name="geometry">
+            <rect>
+             <x>192</x>
+             <y>2</y>
+             <width>30</width>
+             <height>30</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border-width: 0px;</string>
+           </property>
+           <property name="minimum">
+            <number>-10000</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -4134,7 +4355,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>10</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
@@ -4770,7 +4991,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>10</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>

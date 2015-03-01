@@ -19,6 +19,7 @@ ifdef: !FLAT
     endif
 endif
 
+uniform float lightActive[MAX_LIGHTS];
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];
 uniform vec3 lightAttenuation[MAX_LIGHTS];
@@ -80,11 +81,11 @@ void main(void)
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 vec3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * attenuation;
+                specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
             endif
         endif
 
-        diffuse.rgb += lightColour * attenuation;
+        diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
     out_Color = diffuseTex * diffuse;

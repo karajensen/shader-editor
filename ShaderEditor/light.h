@@ -72,6 +72,11 @@ public:
     */
     const float& Specularity() const;
 
+    /**
+    * @return Whether this light is enabled or not
+    */
+    const float& Active() const;
+
 private:
 
     std::string m_name;          ///< Name of the light
@@ -80,4 +85,5 @@ private:
     Float3 m_attenuation;        ///< How much the light will fade in distance
     Float3 m_position;           ///< World coordinates of the light
 	float m_specularity = 1.0f;  ///< Brightness of the specular highlights
+    float m_active = 1.0f;       ///< Whether this light is active or not
 };
