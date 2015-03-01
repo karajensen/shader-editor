@@ -41,16 +41,6 @@ void MeshData::Write(boost::property_tree::ptree& node) const
     AddValueOptional(node, "Bump", m_bump, 0.0f);
 }
 
-void MeshData::Write(Cache& cache)
-{
-    cache.Mesh[MESH_BUMP].SetUpdated(m_bump);
-}
-
-void MeshData::Read(Cache& cache)
-{
-    m_bump = cache.Mesh[MESH_BUMP].Get();
-}
-
 bool MeshData::Initialise(const std::string& path, bool requiresNormals, bool requiresTangents)
 {
     const int maxTextures = m_textureIDs.size() - 

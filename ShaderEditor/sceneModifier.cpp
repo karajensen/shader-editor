@@ -215,6 +215,7 @@ void SceneModifier::UpdateWater()
 
         if(selectedWave != m_selectedWave)
         {
+            m_selectedWave = selectedWave;
             water.WriteWave(*m_cache, m_selectedWave);
         }
         else if(m_selectedWave >= 0 && m_selectedWave < waveCount)

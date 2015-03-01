@@ -46,13 +46,13 @@ public:
     * Writes to the data in the cache
     * @param cache The cache of data from the GUI
     */
-    virtual void Write(Cache& cache) override;
+    void Write(Cache& cache);
 
     /**
     * Reads the data from the cache
     * @param cache The cache of data from the GUI
     */
-    virtual void Read(Cache& cache) override;
+    void Read(Cache& cache);
 
     /**
     * @return The instances of this mesh

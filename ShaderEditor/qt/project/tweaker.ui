@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -2892,7 +2892,7 @@ border-width: 2px;</string>
             <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
            <property name="decimals">
-            <number>3</number>
+            <number>5</number>
            </property>
            <property name="minimum">
             <double>-9999.000000000000000</double>
@@ -2901,7 +2901,7 @@ border-width: 2px;</string>
             <double>9999.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.050000000000000</double>
+            <double>0.010000000000000</double>
            </property>
           </widget>
           <widget class="QDial" name="attenuationX_dial">
@@ -3056,7 +3056,7 @@ border-width: 2px;</string>
             <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
            <property name="decimals">
-            <number>3</number>
+            <number>5</number>
            </property>
            <property name="minimum">
             <double>-9999.000000000000000</double>
@@ -3065,7 +3065,7 @@ border-width: 2px;</string>
             <double>9999.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.050000000000000</double>
+            <double>0.010000000000000</double>
            </property>
           </widget>
           <widget class="QDial" name="attenuationY_dial">
@@ -3220,7 +3220,7 @@ border-width: 2px;</string>
             <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
            <property name="decimals">
-            <number>3</number>
+            <number>5</number>
            </property>
            <property name="minimum">
             <double>-9999.000000000000000</double>
@@ -3229,7 +3229,7 @@ border-width: 2px;</string>
             <double>9999.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.050000000000000</double>
+            <double>0.010000000000000</double>
            </property>
           </widget>
           <widget class="QDial" name="attenuationZ_dial">
@@ -4355,7 +4355,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>5</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -4991,7 +4991,7 @@ border-width: 2px;</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>5</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>

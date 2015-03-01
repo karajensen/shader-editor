@@ -93,8 +93,7 @@ void Water::Write(boost::property_tree::ptree& node,
 
 void Water::Write(Cache& cache)
 {
-    MeshData::Write(cache);
-
+    cache.Water[WATER_BUMP].SetUpdated(m_bump);
     cache.Water[WATER_BUMP_VELOCITY_X].SetUpdated(m_bumpVelocity.x);
     cache.Water[WATER_BUMP_VELOCITY_Y].SetUpdated(m_bumpVelocity.y);
     cache.Water[WATER_SPEED].SetUpdated(m_speed);
@@ -120,8 +119,7 @@ void Water::Write(Cache& cache)
 
 void Water::Read(Cache& cache)
 {
-    MeshData::Read(cache);
-
+    m_bump = cache.Water[WATER_BUMP].Get();
     m_bumpVelocity.x = cache.Water[WATER_BUMP_VELOCITY_X].Get();
     m_bumpVelocity.y = cache.Water[WATER_BUMP_VELOCITY_Y].Get();
     m_speed = cache.Water[WATER_SPEED].Get();

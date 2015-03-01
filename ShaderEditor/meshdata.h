@@ -36,18 +36,6 @@ public:
     virtual void Write(boost::property_tree::ptree& node) const;
 
     /**
-    * Writes to the data in the cache
-    * @param cache The cache of data from the GUI
-    */
-    virtual void Write(Cache& cache);
-
-    /**
-    * Reads the data from the cache
-    * @param cache The cache of data from the GUI
-    */
-    virtual void Read(Cache& cache);
-
-    /**
     * Initialises the mesh data buffer containers from file
     * @param path The full path to the mesh file
     * @param requiresNormals Whether this mesh requires normals
@@ -123,9 +111,12 @@ public:
     */
     void SetTexture(Texture::Type type, int ID);
 
-private:
+protected:
 
     float m_bump = 1.0f;                     ///< Saturation of bump
+
+private:
+
     std::string m_name;                      ///< Name of the mesh
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     int m_normalIndex = -1;                  ///< Unique Index of the normal shader to use
