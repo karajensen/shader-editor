@@ -4,7 +4,7 @@
 
 #version 150
 
-out vec4 out_Color[2];
+out vec4 out_Color[SCENE_TEXTURES];
 
 in float ex_Depth;
 in vec2 ex_UVs;
@@ -76,11 +76,11 @@ void main(void)
     vec3 reflection = reflect(-vertToCamera, normal);
     vec4 reflectionTex = texture(EnvironmentSampler, reflection);
 
-    out_Color[0] = vec4(diffuseTex * diffuse, 1.0);
-    out_Color[0] *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
-    out_Color[0].rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    out_Color[0].a *= blendFactor;
+    out_Color[COLOUR] = vec4(diffuseTex * diffuse, 1.0);
+    out_Color[COLOUR] *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
+    out_Color[COLOUR].rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
+    out_Color[COLOUR].a *= blendFactor;
 
-    out_Color[1].rgb = normal;
-    out_Color[1].a = ex_Depth;
+    out_Color[NORMAL].rgb = normal;
+    out_Color[NORMAL].a = ex_Depth;
 }

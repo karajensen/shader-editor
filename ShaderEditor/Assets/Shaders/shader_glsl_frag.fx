@@ -4,7 +4,7 @@
 
 #version 150
 
-out vec4 out_Color[2];
+out vec4 out_Color[SCENE_TEXTURES];
 
 in float ex_Depth;
 in vec2 ex_UVs;
@@ -81,13 +81,13 @@ void main(void)
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    out_Color[0] = diffuseTex * diffuse;
+    out_Color[COLOUR] = diffuseTex * diffuse;
     ifdef: SPECULAR
-        out_Color[0] += specularTex * specular;
+        out_Color[COLOUR] += specularTex * specular;
     endif
-    out_Color[0].rgb *= meshAmbience;
-    out_Color[0].a = 1.0;
+    out_Color[COLOUR].rgb *= meshAmbience;
+    out_Color[COLOUR].a = 1.0;
 
-    out_Color[1].rgb = normal;
-    out_Color[1].a = ex_Depth;
+    out_Color[NORMAL].rgb = normal;
+    out_Color[NORMAL].a = ex_Depth;
 }

@@ -137,23 +137,23 @@ Outputs PShader(Attributes input)
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
         diffuse += lightColour * attenuation * lightActive[i];
     }
-
-    Outputs output;
-    output.normal.rgb = normal;
-    output.normal.a = input.depth;
-    output.colour.rgb = diffuseTex * diffuse;
-    output.colour.a = 1.0;
     
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
-    output.colour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
-    
     float3 reflection = reflect(-vertToCamera, normal);
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
+    
+    Outputs output;
+    output.normal.rgb = normal;
+    output.normal.a = input.depth;
+
+    output.colour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     output.colour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
     output.colour.a *= blendFactor;
+    output.colour.rgb = diffuseTex * diffuse;
+    output.colour.a = 1.0;
 
     return output;
 }
