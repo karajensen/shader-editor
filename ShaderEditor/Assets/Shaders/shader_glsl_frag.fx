@@ -81,13 +81,13 @@ void main(void)
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    out_Color[COLOUR] = diffuseTex * diffuse;
+    out_Color[ID_COLOUR] = diffuseTex * diffuse;
     ifdef: SPECULAR
-        out_Color[COLOUR] += specularTex * specular;
+        out_Color[ID_COLOUR] += specularTex * specular;
     endif
-    out_Color[COLOUR].rgb *= meshAmbience;
-    out_Color[COLOUR].a = 1.0;
+    out_Color[ID_COLOUR].rgb *= meshAmbience;
+    out_Color[ID_COLOUR].a = 1.0;
 
-    out_Color[NORMAL].rgb = normal;
-    out_Color[NORMAL].a = ex_Depth;
+    out_Color[ID_NORMAL].rgb = normal;
+    out_Color[ID_NORMAL].a = ex_Depth;
 }
