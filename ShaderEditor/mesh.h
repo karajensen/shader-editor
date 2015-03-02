@@ -75,11 +75,6 @@ public:
     const float& Ambience() const;
 
     /**
-    * @return Intensity glow multiplier
-    */
-    const float& Glow() const;
-
-    /**
     * @return Whether back facing polygons are culled
     */
     bool BackfaceCull() const;
@@ -88,7 +83,6 @@ private:
 
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
-    float m_glow = 1.0f;               ///< Intensity glow multiplier
     bool m_backfacecull = true;        ///< Whether back facing polygons are culled
     int m_initialInstances = 0;        ///< The number of instances on load
     std::vector<Instance> m_instances; ///< Instances of this mesh

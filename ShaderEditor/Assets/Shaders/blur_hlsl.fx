@@ -18,6 +18,11 @@ struct Attributes
     float2 uvs        : TEXCOORD0;
 };
 
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
+};
+
 Texture2DMS<float4,SAMPLES> SceneSampler : register(t0);
 
 Attributes VShader(float4 position  : POSITION,
@@ -30,7 +35,7 @@ Attributes VShader(float4 position  : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
     float4 uvSteps = float4(blurStep, blurStep * 2.0, blurStep * 3.0, blurStep * 4.0);
     float4 horizontalStep = uvSteps * horizontalPass;
@@ -47,15 +52,16 @@ float4 PShader(Attributes input) : SV_TARGET
     int3 uvs4p = int3(uvs.x + horizontalStep.w, uvs.y + verticalStep.w, 0);
     int3 uvs4n = int3(uvs.x - horizontalStep.w, uvs.y - verticalStep.w, 0);
 
-    float4 finalColor = SceneSampler.Load(uvs, 0) * weightMain;
-    finalColor += SceneSampler.Load(uvs1p, 0) * weightOffset.x;
-    finalColor += SceneSampler.Load(uvs1n, 0) * weightOffset.x;
-    finalColor += SceneSampler.Load(uvs2p, 0) * weightOffset.y;
-    finalColor += SceneSampler.Load(uvs2n, 0) * weightOffset.y;
-    finalColor += SceneSampler.Load(uvs3p, 0) * weightOffset.z;
-    finalColor += SceneSampler.Load(uvs3n, 0) * weightOffset.z;
-    finalColor += SceneSampler.Load(uvs4p, 0) * weightOffset.w;
-    finalColor += SceneSampler.Load(uvs4n, 0) * weightOffset.w;
-
-    return finalColor * blurring;
+    Outputs output;
+    output.colour = SceneSampler.Load(uvs, 0) * weightMain;
+    output.colour += SceneSampler.Load(uvs1p, 0) * weightOffset.x;
+    output.colour += SceneSampler.Load(uvs1n, 0) * weightOffset.x;
+    output.colour += SceneSampler.Load(uvs2p, 0) * weightOffset.y;
+    output.colour += SceneSampler.Load(uvs2n, 0) * weightOffset.y;
+    output.colour += SceneSampler.Load(uvs3p, 0) * weightOffset.z;
+    output.colour += SceneSampler.Load(uvs3n, 0) * weightOffset.z;
+    output.colour += SceneSampler.Load(uvs4p, 0) * weightOffset.w;
+    output.colour += SceneSampler.Load(uvs4n, 0) * weightOffset.w;
+    output.colour *= blurring;
+    return output;
 }

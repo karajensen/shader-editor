@@ -33,14 +33,10 @@ uniform float meshAmbience;
 ifdef: !FLAT|BUMP
     uniform float meshBump;
 endif
-ifdef: GLOW
-    uniform float meshGlow;
-endif
 
 uniform sampler2D DiffuseSampler;
 uniform sampler2D NormalSampler;
 uniform sampler2D SpecularSampler;
-uniform sampler2D GlowSampler;
 
 void main(void)
 {
@@ -93,8 +89,5 @@ void main(void)
         out_Color += specularTex * specular;
     endif
     out_Color.rgb *= meshAmbience;
-
-    ifdef: GLOW
-        out_Color.a = texture(GlowSampler, ex_UVs).r * meshGlow;
-    endif
+    out_Color.a = 1.0;
 }

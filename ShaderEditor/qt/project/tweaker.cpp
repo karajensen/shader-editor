@@ -27,7 +27,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_lightsOnly.Initialise(m_ui.renderLightsOnly_btn, m_callbacks.RenderLightsOnly);
 
     m_glowAmount.Initialise(1.0, m_ui.glowIntensity_value,
-        m_ui.glowIntensity_dial, m_callbacks.SetGlowAmount);
+        m_ui.glowIntensity_dial, m_callbacks.SetBloomIntensity);
 
     m_contrast.Initialise(0.01, m_ui.contrast_value,
         m_ui.contrast_dial, m_callbacks.SetContrast);
@@ -120,7 +120,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     std::vector<ComboEntry> mesh;
     mesh.emplace_back(MESH_AMBIENCE, "Ambience", 0.01, m_callbacks.SetMesh[MESH_AMBIENCE]);
     mesh.emplace_back(MESH_BUMP, "Bump", 0.01, m_callbacks.SetMesh[MESH_BUMP]);
-    mesh.emplace_back(MESH_GLOW, "Glow", 0.01, m_callbacks.SetMesh[MESH_GLOW]);
     mesh.emplace_back(MESH_SPECULARITY, "Specularity", 0.01, m_callbacks.SetMesh[MESH_SPECULARITY]);
     m_mesh.Initialise(m_ui.meshAttributes_box, m_ui.meshAttributes_value, m_ui.meshAttributes_dial, mesh);
 
@@ -317,7 +316,7 @@ void Tweaker::SetBlurStep(float value)
     m_blurStep.Set(value);
 }
 
-void Tweaker::SetGlowAmount(float value)
+void Tweaker::SetBloomIntensity(float value)
 {
     m_glowAmount.Set(value);
 }

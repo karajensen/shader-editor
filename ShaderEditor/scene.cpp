@@ -578,5 +578,5 @@ void Scene::Tick(float deltatime)
     // Temporary to test specularity
     static float timePassed = 0.0f;
     timePassed += deltatime;
-    m_meshes[1].Instances()[0].position.y += cos(timePassed) * 0.08f;
+    m_meshes[1].Instances()[0].position.y += cos(timePassed) * 0.05f;
 }

@@ -24,6 +24,11 @@ struct Attributes
     float3 positionWorld   : TEXCOORD0;
 };
 
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
+};
+
 Attributes VShader(float4 position : POSITION,
                    float3 normal   : NORMAL)
 {
@@ -34,9 +39,13 @@ Attributes VShader(float4 position : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
     float3 vertToLight = float3(DIAGNOSTIC_LIGHT) - input.positionWorld;
     float diffuse = ((dot(normalize(vertToLight), normalize(input.normal))+1.0)*0.5);
-    return float4(meshColour * diffuse, 0.0);
+
+    Outputs output;
+    output.colour.rgb = meshColour * diffuse;
+    output.colour.a = 0.0;
+    return output;
 }

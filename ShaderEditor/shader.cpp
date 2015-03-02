@@ -28,8 +28,6 @@ std::string Shader::ComponentAsString(unsigned int component)
         return "BUMP";
     case SPECULAR:
         return "SPECULAR";
-    case GLOW:
-        return "GLOW";
     default:
         return "NONE";
     };

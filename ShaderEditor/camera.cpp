@@ -84,7 +84,7 @@ void Camera::Reset()
 {
     m_mouseRotatedCamera = false;
     m_cameraNeedsUpdate = true;
-    m_initialPos.x = 25.0f;
+    m_initialPos.x = 15.0f;
     m_initialPos.y = 1.0f;
     m_initialPos.z = 3.0f;
     m_position = m_initialPos;

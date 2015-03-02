@@ -22,7 +22,6 @@ public:
         DIFFUSE,
         NORMAL,
         SPECULAR,
-        GLOW,
         ENVIRONMENT,
         MAX_TYPES
     };

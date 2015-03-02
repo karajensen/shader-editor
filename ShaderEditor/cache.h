@@ -191,7 +191,7 @@ struct Cache
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
     Lockable<float> BlurAmount;         ///< The amount to blur the scene by
     Lockable<float> BlurStep;           ///< The sample step of the blur
-    Lockable<float> GlowAmount;         ///< The amount to glow the scene by
+    Lockable<float> BloomIntensity;     ///< The amount to glow the scene by
     Lockable<float> Contrast;           ///< Contrast controller of the final scene
     Lockable<float> Saturation;         ///< Saturation controller of the final scene
     Lockable<float> DepthNear;          ///< The near value for the depth

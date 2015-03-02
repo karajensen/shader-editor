@@ -5,6 +5,8 @@
 cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
+    float depthNear;
+    float depthFar;
     ifdef: SPECULAR
         float3 cameraPosition;  
     endif
@@ -31,9 +33,6 @@ cbuffer MeshPixelBuffer : register(b3)
 {
     float meshAmbience;
     float3 meshColour;
-    ifdef: GLOW
-        float meshGlow;
-    endif
     ifdef: !FLAT|BUMP
         float meshBump;
     endif
@@ -46,25 +45,29 @@ SamplerState Sampler;
 Texture2D DiffuseTexture;
 Texture2D NormalTexture;
 Texture2D SpecularTexture;
-Texture2D GlowTexture;
 
 struct Attributes
 {
-    float4 position                 : SV_POSITION;
-    float2 uvs                      : TEXCOORD0;
-    float3 positionWorld            : TEXCOORD1;
-    ifdef: !FLAT                    
-        float3 normal               : NORMAL;
-        ifdef: BUMP
-            float3 tangent          : TEXCOORD2;
-            float3 bitangent        : TEXCOORD3;
-        endif
-        ifdef: SPECULAR|BUMP             
-            float3 vertToCamera     : TEXCOORD4;
-        elseif: SPECULAR
-            float3 vertToCamera     : TEXCOORD2;
-        endif
+    float4 position             : SV_POSITION;
+    float3 normal               : NORMAL;
+    float  depth                : TEXCOORD0;
+    float2 uvs                  : TEXCOORD1;
+    float3 positionWorld        : TEXCOORD2;
+    ifdef: BUMP
+        float3 tangent          : TEXCOORD3;
+        float3 bitangent        : TEXCOORD4;
     endif
+    ifdef: SPECULAR|BUMP             
+        float3 vertToCamera     : TEXCOORD5;
+    elseif: SPECULAR
+        float3 vertToCamera     : TEXCOORD3;
+    endif
+};
+
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
+    float4 normal : SV_TARGET1;
 };
 
 Attributes VShader(float4 position      : POSITION,    
@@ -80,40 +83,40 @@ Attributes VShader(float4 position      : POSITION,
     Attributes output;
 
     output.position = mul(mul(viewProjection, world), position);
-    output.uvs = uvs;
     output.positionWorld = mul(world, position).xyz;
-    
-    ifdef: !FLAT
-        output.normal = mul(world, normal);
-        ifdef: BUMP
-            output.tangent = mul(world, tangent);
-            output.bitangent = mul(world, bitangent);
-        endif
+    output.normal = mul(world, normal);
+    output.uvs = uvs;
 
-        ifdef: SPECULAR
-            output.vertToCamera = cameraPosition - output.positionWorld;
-        endif
+    float2 depthBounds = float2(0.0, 1.0);
+    output.depth = ((output.position.z - depthNear) *
+        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+    
+    ifdef: BUMP
+        output.tangent = mul(world, tangent);
+        output.bitangent = mul(world, bitangent);
+    endif
+
+    ifdef: SPECULAR
+        output.vertToCamera = cameraPosition - output.positionWorld;
     endif
 
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
     float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
     float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
+    float3 normal = normalize(input.normal);
 
-    ifdef: !FLAT
-        float3 normal = normalize(input.normal);
-        ifdef: BUMP
-            float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
-            float2 bump = meshBump * (normalTex.rg - 0.5);
-            normal = normalize(normal + bump.x * 
-                normalize(input.tangent) + bump.y * normalize(input.bitangent));
-        endif
+    ifdef: BUMP
+        float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
+        float2 bump = meshBump * (normalTex.rg - 0.5);
+        normal = normalize(normal + bump.x * 
+            normalize(input.tangent) + bump.y * normalize(input.bitangent));
     endif
 
-    ifdef: !FLAT|SPECULAR
+    ifdef: SPECULAR
         float3 vertToCamera = normalize(input.vertToCamera);
         float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
         float4 specular = float4(0.0, 0.0, 0.0, 0.0);
@@ -132,27 +135,28 @@ float4 PShader(Attributes input) : SV_TARGET
         ifdef: !FLAT
             vertToLight /= lightLength;
             lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
+        endif
 
-            ifdef: SPECULAR
-                float specularity = lightSpecularity[i] * meshSpecularity;
-                float3 halfVector = normalize(vertToLight + vertToCamera);
-                float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
-            endif
+        ifdef: SPECULAR
+            float specularity = lightSpecularity[i] * meshSpecularity;
+            float3 halfVector = normalize(vertToLight + vertToCamera);
+            float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
+            specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
         endif
 
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    float4 finalColour = diffuseTex * diffuse;
-    ifdef: !FLAT|SPECULAR
-        finalColour += specularTex * specular;
-    endif
-    finalColour.rgb *= meshAmbience;
-    
-    ifdef: GLOW
-        finalColour.a = GlowTexture.Sample(Sampler, input.uvs).r * meshGlow;
-    endif
+    Outputs output;
+    output.normal.rgb = normal;
+    output.normal.a = input.depth;
 
-    return finalColour;
+    output.colour = diffuseTex * diffuse;
+    ifdef: SPECULAR
+        output.colour += specularTex * specular;
+    endif
+    output.colour.rgb *= meshAmbience;
+    output.colour.a = 1.0;
+
+    return output;
 }

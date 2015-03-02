@@ -13,7 +13,6 @@ Mesh::Mesh(const boost::property_tree::ptree& node) :
 
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
-    m_glow = GetValueOptional<float>(node, 0.0f, "Glow");
     m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
 }
 
@@ -21,7 +20,6 @@ void Mesh::Write(boost::property_tree::ptree& node) const
 {
     MeshData::Write(node);
 
-    AddValueOptional(node, "Glow", m_glow, 0.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
     AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
@@ -33,7 +31,6 @@ void Mesh::Write(Cache& cache)
     cache.Mesh[MESH_BUMP].SetUpdated(m_bump);
     cache.Mesh[MESH_AMBIENCE].SetUpdated(m_ambience);
     cache.Mesh[MESH_SPECULARITY].SetUpdated(m_specularity);
-    cache.Mesh[MESH_GLOW].SetUpdated(m_glow);
     cache.MeshShader.SetUpdated(ShaderName());
 }
 
@@ -42,7 +39,6 @@ void Mesh::Read(Cache& cache)
     m_bump = cache.Mesh[MESH_BUMP].Get();
     m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
-    m_glow = cache.Mesh[MESH_GLOW].Get();
 }
 
 std::vector<Mesh::Instance>& Mesh::Instances()
@@ -63,11 +59,6 @@ const float& Mesh::Specularity() const
 const float& Mesh::Ambience() const
 {
     return m_ambience;
-}
-
-const float& Mesh::Glow() const
-{
-    return m_glow;
 }
 
 bool Mesh::BackfaceCull() const

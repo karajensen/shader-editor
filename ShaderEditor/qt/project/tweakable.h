@@ -37,7 +37,6 @@ enum FogAttribute
 enum MeshAttribute
 {
     MESH_AMBIENCE,
-    MESH_GLOW,
     MESH_BUMP,
     MESH_SPECULARITY,
     MESH_ATTRIBUTES
@@ -172,7 +171,7 @@ struct SignalCallbacks
     FloatSignal SetDOFFade;        ///< Sets how quickly depth of field fades to the scene
     FloatSignal SetBlurAmount;     ///< Sets the amount of blurring on the scene
     FloatSignal SetBlurStep;       ///< Sets the amount of step between samples for blurring
-    FloatSignal SetGlowAmount;     ///< Sets the amount of glow on the scene
+    FloatSignal SetBloomIntensity; ///< Sets the amount of glow on the scene
     FloatSignal SetContrast;       ///< Sets the contrast of the final scene
     FloatSignal SetSaturation;     ///< Sets the saturation of the final scene
     FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
@@ -211,7 +210,7 @@ struct SignalCallbacks
         SetDOFFade(nullptr),
         SetBlurAmount(nullptr),
         SetBlurStep(nullptr),
-        SetGlowAmount(nullptr),
+        SetBloomIntensity(nullptr),
         SetContrast(nullptr),
         SetSaturation(nullptr),
         SetParticleAmount(nullptr),

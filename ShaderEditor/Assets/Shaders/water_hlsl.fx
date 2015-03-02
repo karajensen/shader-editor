@@ -6,6 +6,8 @@ cbuffer SceneVertexBuffer : register(b0)
 {
     float4x4 viewProjection;
     float3 cameraPosition;
+    float depthNear;
+    float depthFar;
     float timer;
 };
 
@@ -49,18 +51,25 @@ struct Attributes
 {
     float4 position         : SV_POSITION;
     float3 normal           : NORMAL;
-    float2 uvs              : TEXCOORD0;
-    float3 positionWorld    : TEXCOORD1;
-    float3 bitangent        : TEXCOORD2;
-    float3 tangent          : TEXCOORD3;
-    float2 normalUV0        : TEXCOORD4;
-    float2 normalUV1        : TEXCOORD5;
-    float2 normalUV2        : TEXCOORD6;
-    float3 vertToCamera     : TEXCOORD7;
+    float  depth            : TEXCOORD0;
+    float2 uvs              : TEXCOORD1;
+    float3 positionWorld    : TEXCOORD2;
+    float3 bitangent        : TEXCOORD3;
+    float3 tangent          : TEXCOORD4;
+    float2 normalUV0        : TEXCOORD5;
+    float2 normalUV1        : TEXCOORD6;
+    float2 normalUV2        : TEXCOORD7;
+    float3 vertToCamera     : TEXCOORD8;
 };
 
-Attributes VShader(float4 position    : POSITION,    
-                   float2 uvs         : TEXCOORD0)
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
+    float4 normal : SV_TARGET1;
+};
+
+Attributes VShader(float4 position  : POSITION,    
+                   float2 uvs       : TEXCOORD0)
 {
     Attributes output;
 
@@ -84,6 +93,10 @@ Attributes VShader(float4 position    : POSITION,
     output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
     output.vertToCamera = cameraPosition - output.positionWorld;
 
+    float2 depthBounds = float2(0.0, 1.0);
+    output.depth = ((output.position.z - depthNear) *
+        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+
     // Generate UV Coordinates
     float4 scale = float4(2.0, 4.0, 8.0, 0.001);
     float2 uvVelocity = bumpVelocity * timer * scale.w;
@@ -95,7 +108,7 @@ Attributes VShader(float4 position    : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
     float3 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs).rgb;
     float3 diffuse = float3(0.0, 0.0, 0.0);
@@ -124,19 +137,23 @@ float4 PShader(Attributes input) : SV_TARGET
         lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
         diffuse += lightColour * attenuation * lightActive[i];
     }
+
+    Outputs output;
+    output.normal.rgb = normal;
+    output.normal.a = input.depth;
+    output.colour.rgb = diffuseTex * diffuse;
+    output.colour.a = 1.0;
     
     // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
-    
-    float4 finalColour = float4(diffuseTex * diffuse, 1.0);
-    finalColour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
+    output.colour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     
     float3 reflection = reflect(-vertToCamera, normal);
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
-    finalColour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    finalColour.a *= blendFactor;
+    output.colour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
+    output.colour.a *= blendFactor;
 
-    return finalColour;
+    return output;
 }

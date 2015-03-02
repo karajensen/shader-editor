@@ -102,7 +102,7 @@ public:
     * Sets the amount of overall glow for the scene
     * @param value The amount of glow on the scene
     */
-    void SetGlowAmount(float value);
+    void SetBloomIntensity(float value);
 
     /**
     * Sets the amount contrast in the final scene

@@ -20,7 +20,7 @@ PostProcessing::PostProcessing(const boost::property_tree::ptree& node)
     m_fogColour.b = GetAttribute<float>(node, "FogColour", "b");
     m_fogDistance = GetValue<float>(node, "FogDistance");
     m_fogFade = GetValue<float>(node, "FogFade");
-    m_glowAmount = GetValue<float>(node, "GlowAmount");
+    m_bloomIntensity = GetValue<float>(node, "BloomIntensity");
     m_contrast = GetValue<float>(node, "Contrast");
     m_saturation = GetValue<float>(node, "Saturation");
     m_maximumColour.r = GetAttribute<float>(node, "MaximumColour", "r");
@@ -51,7 +51,7 @@ void PostProcessing::Write(boost::property_tree::ptree& node) const
     node.add("FogColour.<xmlattr>.b", m_fogColour.b);
     node.add("FogDistance", m_fogDistance);
     node.add("FogFade", m_fogFade);
-    node.add("GlowAmount", m_glowAmount);
+    node.add("BloomIntensity", m_bloomIntensity);
     node.add("Contrast", m_contrast);
     node.add("Saturation", m_saturation);
     node.add("MaximumColour.<xmlattr>.r", m_maximumColour.r);
@@ -70,7 +70,7 @@ void PostProcessing::Write(Cache& cache)
     cache.DOFFade.SetUpdated(m_dofFade);
     cache.BlurAmount.SetUpdated(m_blurAmount);
     cache.BlurStep.SetUpdated(m_blurStep);
-    cache.GlowAmount.SetUpdated(m_glowAmount);
+    cache.BloomIntensity.SetUpdated(m_bloomIntensity);
     cache.Contrast.SetUpdated(m_contrast);
     cache.Saturation.SetUpdated(m_saturation);
     cache.Fog[FOG_RED].SetUpdated(m_fogColour.r);
@@ -92,7 +92,7 @@ void PostProcessing::Read(Cache& cache)
     m_dofFade = cache.DOFFade.Get();
     m_blurAmount = cache.BlurAmount.Get();
     m_blurStep = cache.BlurStep.Get();
-    m_glowAmount = cache.GlowAmount.Get();
+    m_bloomIntensity = cache.BloomIntensity.Get();
     m_contrast = cache.Contrast.Get();
     m_saturation = cache.Saturation.Get();
     m_depthFar = cache.DepthFar.Get();
@@ -140,10 +140,6 @@ std::string PostProcessing::GetMapName(PostProcessing::Map map)
         return "Normal Map";
     case DEPTH_MAP:
         return "Depth Map";
-    case GLOW_MAP:
-        return "Glow Map";
-    case BLUR_GLOW_MAP:
-        return "Blur-Glow Map";
     case BLUR_SCENE_MAP:
         return "Blur-Scene Map";
     case DOF_MAP:
@@ -165,9 +161,9 @@ const float& PostProcessing::DOFFade() const
     return m_dofFade;
 }
 
-const float& PostProcessing::Glow() const
+const float& PostProcessing::BloomIntensity() const
 {
-    return m_glowAmount;
+    return m_bloomIntensity;
 }
 
 const float& PostProcessing::BlurWeight(int index) const

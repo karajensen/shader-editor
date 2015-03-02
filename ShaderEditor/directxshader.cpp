@@ -20,7 +20,7 @@ namespace
 
     // HLSL Keywords
     const std::string VERTEX_RETURN("Attributes");
-    const std::string PIXEL_RETURN("float4");
+    const std::string PIXEL_RETURN("Outputs");
     const std::string VERTEX_ENTRY("VShader");
     const std::string PIXEL_ENTRY("PShader");
     const std::string VERTEX_MODEL("vs_5_0");

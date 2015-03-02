@@ -14,11 +14,17 @@ class DxRenderTarget : boost::noncopyable
 public:
 
     /**
-    * Constructor
+    * Constructor for the back buffer target
     * @param name Name of the render target
-    * @param isBackBuffer Whether this render target is the back buffer
     */
-    DxRenderTarget(const std::string& name, bool isBackBuffer = false);
+    DxRenderTarget(const std::string& name);
+
+    /**
+    * Constructor for a render target with multiple textures
+    * @param name Name of the render target
+    * @param textures The number of textures bound to this target
+    */
+    DxRenderTarget(const std::string& name, int textures);
 
     /**
     * Destructor
@@ -47,15 +53,16 @@ public:
     /**
     * Sends the texture to the currently active shader
     * @param context Direct3D device context
-    * @param slot The slot to put the texture into
+    * @param slot The shader slot the texture should send to
+    * @param ID The texture index attached to the target to send
     * @note requires clearing before render target can use again
     */
-    void SendTexture(ID3D11DeviceContext* context, int slot);
+    void SendTexture(ID3D11DeviceContext* context, int slot, int ID = 0);
 
     /**
     * Clears the texture sent to the currently active shader
     * @param context Direct3D device context
-    * @param slot The slot the texture exists in
+    * @param slot The shader slot the texture should clear from
     * @note Required as texture needs to be unbound from the 
     *       shader before render target is activated
     */
@@ -64,26 +71,39 @@ public:
 private:
 
     /**
-    * Initialises the shared depth buffer
+    * Initialises the containers that hold the buffers
+    */
+    void InitialiseContainers();
+
+    /**
+    * Initialises a render target
     * @param device The DirectX device interface
-    * @return whether initialises succeeded or not
+    * @param ID the index of the target to initialise
+    * @return whether initialise succeeded or not
+    */
+    bool InitialiseRenderTarget(ID3D11Device* device, int ID);
+
+    /**
+    * Initialises the depth buffer
+    * @param device The DirectX device interface
+    * @return whether initialise succeeded or not
     */
     bool InitialiseDepthBuffer(ID3D11Device* device);
 
     /**
-    * Initiliases a render target pass
+    * Initialises the back buffer
     * @param device The DirectX device interface
-    * @param firstPass Whether this is the first pass initialised
-    * @return whether initialises succeeded or not
+    * @param swapchain Collection of buffers for displaying frames
+    * @return whether initialise succeeded or not
     */
-    bool InitialisePass(ID3D11Device* device, bool firstPass);
+    bool InitialiseBackBuffer(ID3D11Device* device, IDXGISwapChain* swapchain);
 
-    bool m_isBackBuffer = false;                       ///< Whether this render target is the back buffer
-    const std::string m_name;                          ///< Name of the render target
-    ID3D11Texture2D* m_texture = nullptr;              ///< Texture to render to
-    ID3D11RenderTargetView* m_renderTarget = nullptr;  ///< Render target buffer for the first pass
-    ID3D11ShaderResourceView* m_view = nullptr;        ///< Shader view of the first pass texture
-    
-    static D3D11_TEXTURE2D_DESC sm_textureDesc;        ///< Base description of the render target textures
-    static ID3D11DepthStencilView* sm_depthBuffer;     ///< Depth buffer shared between render targets
+    const int m_count = 0;                              ///< The number of textures bound to this target
+    const bool m_isBackBuffer = false;                  ///< Whether this render target is the back buffer
+    const std::string m_name;                           ///< Name of the render target
+    std::vector<ID3D11Texture2D*> m_textures;           ///< Textures to render to
+    std::vector<ID3D11RenderTargetView*> m_targets;     ////< Render target buffers
+    std::vector<ID3D11ShaderResourceView*> m_views;     ///< Shader views for the textures
+    ID3D11DepthStencilView* m_depthBuffer = nullptr;    ///< Depth buffer for the render target
+    static D3D11_TEXTURE2D_DESC sm_textureDesc;         ///< Base description of the render target textures
 };

@@ -557,7 +557,6 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->backBuffer.SetActive();
 
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
-    postShader->SendUniformFloat("glowAmount", &post.Glow(), 1);
     postShader->SendUniformFloat("contrast", &post.Contrast(), 1);
     postShader->SendUniformFloat("saturation", &post.Saturation(), 1);
     postShader->SendUniformFloat("dofDistance", &post.DOFDistance(), 1);
@@ -572,8 +571,6 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
     postShader->SendUniformFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->SendUniformFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->SendUniformFloat("glowMask", &post.Mask(PostProcessing::GLOW_MAP), 1);
-    postShader->SendUniformFloat("blurGlowMask", &post.Mask(PostProcessing::BLUR_GLOW_MAP), 1);
     postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
@@ -669,7 +666,6 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh,
     
         shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
-        shader->SendUniformFloat("meshGlow", &mesh.Glow(), 1);
         shader->SendUniformFloat("meshSpecularity", &mesh.Specularity(), 1);
 
         shader->SendUniformArrays();
@@ -761,11 +757,11 @@ void OpenglEngine::SendLights(const std::vector<Light>& lights)
     {
         const int offset = i*3; // Arrays pack tightly
         shader->UpdateUniformArray("lightSpecularity", &lights[i].Specularity(), 1, i);
+        shader->UpdateUniformArray("lightActive", &lights[i].Active(), 1, i);
         shader->UpdateUniformArray("lightAttenuation", &lights[i].Attenuation().x, 3, offset);
         shader->UpdateUniformArray("lightPosition", &lights[i].Position().x, 3, offset);
         shader->UpdateUniformArray("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
         shader->UpdateUniformArray("lightSpecular", &lights[i].Specular().r, 3, offset);
-        shader->UpdateUniformArray("lightActive", &lights[i].Active(), 1, offset);
     }
 }
 
@@ -908,7 +904,6 @@ void OpenglEngine::EnableAlphaBlending(bool enable)
 
         if (enable)
         {
-            // Use zero for src alpha to prevent from interferring with glow
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
             glEnable(GL_BLEND);
         }

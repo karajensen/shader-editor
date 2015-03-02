@@ -24,7 +24,6 @@ public:
         FLAT,
         BUMP,
         SPECULAR,
-        GLOW,
         MAX_COMPONENTS
     };
 

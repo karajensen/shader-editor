@@ -8,8 +8,6 @@ cbuffer PixelBuffer : register(b0)
     float sceneMask;
     float normalMask;
     float depthMask;
-    float glowMask;
-    float blurGlowMask;
     float blurSceneMask;
     float depthOfFieldMask;
     float fogMask;
@@ -17,7 +15,6 @@ cbuffer PixelBuffer : register(b0)
     float contrast;
     float saturation;
     float fadeAmount;
-    float glowAmount;
     float dofDistance;
     float dofFade;
     float fogDistance;
@@ -31,6 +28,11 @@ struct Attributes
 {
     float4 position   : SV_POSITION;
     float2 uvs        : TEXCOORD0;
+};
+
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
 };
 
 Texture2DMS<float4,SAMPLES> SceneSampler   : register(t0);
@@ -56,7 +58,7 @@ Attributes VShader(float4 position  : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
     float4 scene = GetMultisampledColour(SceneSampler, uvs);
@@ -71,10 +73,6 @@ float4 PShader(Attributes input) : SV_TARGET
     float3 depthOfField = blur.rgb * dofWeight;
     postScene *= (1.0 - dofWeight);
     postScene += depthOfField;
-
-    // Glow
-    float3 postGlow = blur.a * glowAmount * blur.rgb * depth;
-    postScene += postGlow;
 
     // Fog
     float fogEnd = fogDistance + fogFade;
@@ -95,16 +93,15 @@ float4 PShader(Attributes input) : SV_TARGET
     postScene -= contrast * (postScene - 1.0) * postScene * (postScene - 0.5);
 
     // Masking the selected texture
-    float4 out_Color;
-    out_Color.rgb = postScene * finalMask;
-    out_Color.rgb += scene.rgb * sceneMask;
-    out_Color.rgb += normal.rgb * normalMask;
-    out_Color.rgb += normal.aaa * depthMask;
-    out_Color.rgb += scene.aaa * glowMask;
-    out_Color.rgb += postGlow * blurGlowMask;
-    out_Color.rgb += blur.rgb * blurSceneMask;
-    out_Color.rgb += depthOfField * depthOfFieldMask;
-    out_Color.rgb += fog * fogMask;
-    out_Color.rgb *= fadeAmount;
-    return out_Color;
+    Outputs output;
+    output.colour.rgb = postScene * finalMask;
+    output.colour.rgb += scene.rgb * sceneMask;
+    output.colour.rgb += normal.rgb * normalMask;
+    output.colour.rgb += normal.aaa * depthMask;
+    output.colour.rgb += blur.rgb * blurSceneMask;
+    output.colour.rgb += depthOfField * depthOfFieldMask;
+    output.colour.rgb += fog * fogMask;
+    output.colour.rgb *= fadeAmount;
+    output.colour.a = 1.0;
+    return output;
 }

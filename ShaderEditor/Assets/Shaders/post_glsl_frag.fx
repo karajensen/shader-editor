@@ -15,8 +15,6 @@ uniform float finalMask;
 uniform float sceneMask;
 uniform float normalMask;
 uniform float depthMask;
-uniform float glowMask;
-uniform float blurGlowMask;
 uniform float blurSceneMask;
 uniform float depthOfFieldMask;
 uniform float fogMask;
@@ -25,7 +23,6 @@ uniform float contrast;
 uniform float saturation;
 uniform float dofDistance;
 uniform float dofFade;
-uniform float glowAmount;
 uniform float fadeAmount;
 uniform float fogDistance;
 uniform float fogFade;
@@ -59,10 +56,6 @@ void main(void)
     postScene *= (1.0 - dofWeight);
     postScene += depthOfField;
 
-    // Glow
-    vec3 postGlow = blur.a * glowAmount * blur.rgb * depth;
-    postScene += postGlow;
-
     // Fog
     float fogEnd = fogDistance + fogFade;
     float fogWeight = clamp(((depth-fogEnd)*(1.0/(fogDistance-fogEnd))), 0.0, 1.0);
@@ -86,8 +79,6 @@ void main(void)
     out_Color.rgb += scene.rgb * sceneMask;
     out_Color.rgb += normal.rgb * normalMask;
     out_Color.rgb += normal.aaa * depthMask;
-    out_Color.rgb += scene.aaa * glowMask;
-    out_Color.rgb += postGlow * blurGlowMask;
     out_Color.rgb += blur.rgb * blurSceneMask;
     out_Color.rgb += depthOfField * depthOfFieldMask;
     out_Color.rgb += fog * fogMask;

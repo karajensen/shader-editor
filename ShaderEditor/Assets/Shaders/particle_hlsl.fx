@@ -26,6 +26,11 @@ struct Attributes
     float2 uvs       : TEXCOORD0;
 };
 
+struct Outputs
+{
+    float4 colour : SV_TARGET0;
+};
+
 Attributes VShader(float4 position  : POSITION,    
                    float2 uvs       : TEXCOORD0)
 {
@@ -35,9 +40,10 @@ Attributes VShader(float4 position  : POSITION,
     return output;
 }
 
-float4 PShader(Attributes input) : SV_TARGET
+Outputs PShader(Attributes input)
 {
-    float4 colour = DiffuseTexture.Sample(Sampler, input.uvs) * tint;
-    colour.a *= alpha;
-    return colour;
+    Outputs output;
+    output.colour = DiffuseTexture.Sample(Sampler, input.uvs) * tint;
+    output.colour.a *= alpha;
+    return output;
 }

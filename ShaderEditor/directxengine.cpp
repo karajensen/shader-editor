@@ -47,7 +47,6 @@ struct DirectxData
     DxQuad quad;                        ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;          ///< Render target for the back buffer
     DxRenderTarget sceneTarget;         ///< Render target for the main scene
-    DxRenderTarget normalTarget;        ///< Render target for the scene normal/depth map
     DxRenderTarget blurTargetP1;        ///< Render target for blurring the main scene pass1
     DxRenderTarget blurTargetP2;        ///< Render target for blurring the main scene pass2
     D3DXMATRIX view;                    ///< View matrix
@@ -71,11 +70,10 @@ struct DirectxData
 };
 
 DirectxData::DirectxData() :
-    sceneTarget("SceneTarget"),
-    normalTarget("NormalTarget"),
-    blurTargetP1("BlurTargetP1"),
-    blurTargetP2("BlurTargetP2"),
-    backBuffer("BackBuffer", true),
+    sceneTarget("SceneTarget", 2),
+    blurTargetP1("BlurTargetP1", 1),
+    blurTargetP2("BlurTargetP2", 1),
+    backBuffer("BackBuffer"),
     quad("SceneQuad")
 {
 }
@@ -117,7 +115,6 @@ void DirectxData::Release()
 
     quad.Release();
     sceneTarget.Release();
-    normalTarget.Release();
     blurTargetP1.Release();
     blurTargetP2.Release();
     backBuffer.Release();
@@ -191,7 +188,6 @@ bool DirectxEngine::Initialize()
     // Create the render targets. Back buffer must be initialised first.
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
        !m_data->sceneTarget.Initialise(m_data->device) ||
-       !m_data->normalTarget.Initialise(m_data->device) ||
        !m_data->blurTargetP1.Initialise(m_data->device) ||
        !m_data->blurTargetP2.Initialise(m_data->device))
     {
@@ -203,31 +199,36 @@ bool DirectxEngine::Initialize()
     m_data->quad.Initialise(m_data->device, m_data->context);
 
 	// Create the Blending states
-    // Use zero for src alpha to prevent from interferring with glow
     D3D11_BLEND_DESC blendDesc = {};
     blendDesc.AlphaToCoverageEnable = FALSE;
-    blendDesc.RenderTarget[0].BlendEnable = TRUE;
-    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO; 
-    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
-    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-    if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->alphaBlendState)))
+    const int maxTargets = 8;
+    for (int i = 0; i < maxTargets; ++i)
     {
-        Logger::LogError("DirectX: Failed to create alpha blending state");
-        return false;
+        blendDesc.RenderTarget[i].BlendEnable = FALSE;
+        blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE; 
+        blendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     }
 
-    blendDesc.RenderTarget[0].BlendEnable = FALSE;
-    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
-    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; 
     if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->noBlendState)))
     {
         Logger::LogError("DirectX: Failed to create no blending state");
+        return false;
+    }
+
+    blendDesc.RenderTarget[0].BlendEnable = TRUE;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; 
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->alphaBlendState)))
+    {
+        Logger::LogError("DirectX: Failed to create alpha blending state");
         return false;
     }
 
@@ -442,20 +443,19 @@ bool DirectxEngine::FadeView(bool in, float amount)
 
 void DirectxEngine::Render(const IScene& scene, float timer)
 {
-    RenderSceneMap(scene.Lights(), timer);
-    RenderNormalMap(scene.Post(), timer);
+    RenderSceneMap(scene, timer);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
     m_data->swapchain->Present(0, 0);
 }
 
-void DirectxEngine::RenderSceneMap(const std::vector<Light>& lights, float timer)
+void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive(m_data->context);
 
     for (auto& mesh : m_data->meshes)
     {
-        if (UpdateShader(mesh->GetMesh(), lights))
+        if (UpdateShader(mesh->GetMesh(), scene))
         {
             mesh->Render(m_data->context);
         }
@@ -463,7 +463,7 @@ void DirectxEngine::RenderSceneMap(const std::vector<Light>& lights, float timer
 
     for (auto& mesh : m_data->waters)
     {
-        if (UpdateShader(mesh->GetWater(), lights, timer))
+        if (UpdateShader(mesh->GetWater(), scene, timer))
         {
             mesh->Render(m_data->context);
         }
@@ -486,27 +486,6 @@ void DirectxEngine::RenderEmitters()
     }
 
     EnableDepthWrite(true);
-}
-
-void DirectxEngine::RenderNormalMap(const PostProcessing& post, float timer)
-{
-    m_data->normalTarget.SetActive(m_data->context);
-
-    for (auto& mesh : m_data->meshes)
-    {
-        if(UpdateShader(mesh->GetMesh(), post))
-        {
-            mesh->Render(m_data->context);
-        }
-    }
-
-    for (auto& mesh : m_data->waters)
-    {
-        if (UpdateShader(mesh->GetWater(), post, timer))
-        {
-            mesh->Render(m_data->context);
-        }
-    }
 }
 
 void DirectxEngine::RenderSceneBlur(const PostProcessing& post)
@@ -558,12 +537,11 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
 
-    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE);
-    m_data->normalTarget.SendTexture(m_data->context, PostProcessing::NORMAL);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE, 0);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::NORMAL, 1);
     m_data->blurTargetP2.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
-    postShader->UpdateConstantFloat("glowAmount", &post.Glow(), 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
     postShader->UpdateConstantFloat("saturation", &post.Saturation(), 1);
     postShader->UpdateConstantFloat("dofDistance", &post.DOFDistance(), 1);
@@ -578,8 +556,6 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
     postShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->UpdateConstantFloat("glowMask", &post.Mask(PostProcessing::GLOW_MAP), 1);
-    postShader->UpdateConstantFloat("blurGlowMask", &post.Mask(PostProcessing::BLUR_GLOW_MAP), 1);
     postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
@@ -588,7 +564,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->quad.Render(m_data->context);
 
     m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::SCENE);
-    m_data->normalTarget.ClearTexture(m_data->context, PostProcessing::NORMAL);
+    m_data->sceneTarget.ClearTexture(m_data->context, PostProcessing::NORMAL);
     m_data->blurTargetP2.ClearTexture(m_data->context, PostProcessing::BLUR);
 }
 
@@ -600,35 +576,7 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
     shader->SendConstants(m_data->context);
 }
 
-bool DirectxEngine::UpdateShader(const Mesh& mesh, 
-                                 const PostProcessing& post)
-{
-    const int index = mesh.NormalID();
-    if (index != NO_INDEX)
-    {
-        auto& shader = m_data->shaders[index];
-        if (index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-            shader->UpdateConstantFloat("depthNear", &post.DepthNear(), 1);
-            shader->UpdateConstantFloat("depthFar", &post.DepthFar(), 1);
-        }
-
-        shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
-        shader->SendConstants(m_data->context);
-
-        SendTexture(0, mesh.TextureIDs().at(Texture::NORMAL));
-        EnableBackfaceCull(mesh.BackfaceCull());
-        EnableAlphaBlending(false);
-
-        return true;
-    }
-    return false;
-}
-
-bool DirectxEngine::UpdateShader(const Mesh& mesh, 
-                                 const std::vector<Light>& lights)
+bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 {
     const int index = mesh.ShaderID();
     if (index != NO_INDEX)
@@ -639,13 +587,15 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh,
             SetSelectedShader(index);
             shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
             shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            SendLights(lights);
+            shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
+            SendLights(scene.Lights());
         }
 
         shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
-        shader->UpdateConstantFloat("meshGlow", &mesh.Glow(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);
+
         shader->SendConstants(m_data->context);
 
         SendTextures(mesh.TextureIDs());
@@ -657,43 +607,7 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh,
     return false;
 }
 
-bool DirectxEngine::UpdateShader(const Water& water, 
-                                 const PostProcessing& post,
-                                 float timer)
-{
-    const int index = water.NormalID();
-    if (index != NO_INDEX)
-    {
-        auto& shader = m_data->shaders[index];
-        if(index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-            shader->UpdateConstantFloat("depthNear", &post.DepthNear(), 1);
-            shader->UpdateConstantFloat("depthFar", &post.DepthFar(), 1);
-            shader->UpdateConstantFloat("timer", &timer, 1);
-        }
-
-        shader->UpdateConstantFloat("speed", &water.Speed(), 1);
-        shader->UpdateConstantFloat("bumpIntensity", &water.Bump(), 1);
-        shader->UpdateConstantFloat("bumpVelocity", &water.BumpVelocity().x, 2);
-        shader->UpdateConstantFloat("uvScale", &water.UVScale().x, 2);
-        SendWaves(water.Waves());
-
-        shader->SendConstants(m_data->context);
-
-        EnableBackfaceCull(true);
-        EnableAlphaBlending(false);
-        SendTexture(0, water.TextureIDs().at(Texture::NORMAL));
-
-        return true;
-    }
-    return false;
-}
-
-bool DirectxEngine::UpdateShader(const Water& water, 
-                                 const std::vector<Light>& lights,
-                                 float timer)
+bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
 {
     const int index = water.ShaderID();
     if (index != NO_INDEX)
@@ -706,7 +620,9 @@ bool DirectxEngine::UpdateShader(const Water& water,
             shader->UpdateConstantFloat("timer", &timer, 1);
             shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
             shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            SendLights(lights);
+            shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
+            SendLights(scene.Lights());
         }
 
         shader->UpdateConstantFloat("speed", &water.Speed(), 1);

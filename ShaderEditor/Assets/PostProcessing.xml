@@ -2,14 +2,14 @@
 <PostProcessing>
 	<BlurAmount>1</BlurAmount>
 	<BlurStep>2</BlurStep>
-	<DepthFar>1250</DepthFar>
-	<DepthNear>30</DepthNear>
+	<DepthFar>1000</DepthFar>
+	<DepthNear>1</DepthNear>
 	<DOFDistance>1</DOFDistance>
-	<DOFFade>0.04</DOFFade>
+	<DOFFade>0.01</DOFFade>
 	<FogColour r="0" g="0" b="1"/>
-	<FogDistance>-1.16</FogDistance>
-	<FogFade>2.29</FogFade>
-	<GlowAmount>100</GlowAmount>
+	<FogDistance>-1.46</FogDistance>
+	<FogFade>2.4</FogFade>
+  <BloomIntensity>2.0</BloomIntensity>
 	<Contrast>0</Contrast>
 	<Saturation>1</Saturation>
 	<MaximumColour r="1" g="1" b="1"/>

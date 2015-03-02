@@ -76,7 +76,7 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetDOFFade =         [this](float value){ m_cache->DOFFade.Set(value); };
     callbacks.SetBlurAmount =      [this](float value){ m_cache->BlurAmount.Set(value); };
     callbacks.SetBlurStep =        [this](float value){ m_cache->BlurStep.Set(value); };
-    callbacks.SetGlowAmount =      [this](float value){ m_cache->GlowAmount.Set(value); };
+    callbacks.SetBloomIntensity =  [this](float value){ m_cache->BloomIntensity.Set(value); };
     callbacks.SetContrast =        [this](float value){ m_cache->Contrast.Set(value); };
     callbacks.SetSaturation =      [this](float value){ m_cache->Saturation.Set(value); };
     callbacks.SetDepthFar =        [this](float value){ m_cache->DepthFar.Set(value); };
@@ -209,9 +209,9 @@ void Gui::UpdatePost(Tweaker& tweaker)
         tweaker.SetBlurStep(m_cache->BlurStep.GetUpdated());
     }
 
-    if (m_cache->GlowAmount.RequiresUpdate())
+    if (m_cache->BloomIntensity.RequiresUpdate())
     {
-        tweaker.SetGlowAmount(m_cache->GlowAmount.GetUpdated());
+        tweaker.SetBloomIntensity(m_cache->BloomIntensity.GetUpdated());
     }
 
     if (m_cache->Saturation.RequiresUpdate())

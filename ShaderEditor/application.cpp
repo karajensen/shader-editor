@@ -16,7 +16,6 @@
 #define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
 #define SELECTED_MAP PostProcessing::DEPTH_MAP
-//#define SELECTED_MAP PostProcessing::FINAL_MAP
 
 namespace
 {

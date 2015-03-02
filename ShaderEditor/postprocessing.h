@@ -37,9 +37,7 @@ public:
         SCENE_MAP,
         NORMAL_MAP,
         DEPTH_MAP,
-        GLOW_MAP,
         BLUR_SCENE_MAP,
-        BLUR_GLOW_MAP,
         DOF_MAP,
         FOG_MAP,
         MAX_MAPS
@@ -160,7 +158,7 @@ public:
     /**
     * @return The overall glow multiplier
     */
-    const float& Glow() const;
+    const float& BloomIntensity() const;
 
     /**
     * Toggles whether to render with diffuse textures
@@ -182,7 +180,7 @@ private:
     bool m_useDiffuseTextures = true;     ///< Whether to render diffuse textures;
     float m_dofDistance = 0.0f;           ///< Distance the depth of field starts
     float m_dofFade = 0.0f;               ///< How quick depth of field fades to the scene
-    float m_glowAmount = 0.0f;            ///< The overall glow multiplier
+    float m_bloomIntensity = 0.0f;        ///< The overall glow multiplier
     float m_contrast = 0.0f;              ///< Contrast controller of the final scene
     float m_saturation = 0.0f;            ///< Saturation controller of the final scene
     float m_blurStep = 0.0f;              ///< Sampling step for blurring

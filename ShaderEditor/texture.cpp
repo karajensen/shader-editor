@@ -30,8 +30,6 @@ std::string Texture::GetTypeDescription(unsigned int type)
         return "Normal";
     case SPECULAR:
         return "Specular";
-    case GLOW:
-        return "Glow";
     case ENVIRONMENT:
         return "Environment";
     default:

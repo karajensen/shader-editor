@@ -128,42 +128,21 @@ private:
     * Updates and switches to the main shader the mesh requires
     * @param world The world matrix for the mesh
     * @param mesh The mesh currently rendering
-    * @param lights All lighting in the scene
+    * @param scene All elements in the scene
     * @return whether the mesh can now be rendered
     */
     bool UpdateShader(const Mesh& mesh,
-                      const std::vector<Light>& lights);
-
-    /**
-    * Updates and switches to the normal shader the mesh requires
-    * @param world The world matrix for the mesh
-    * @param mesh The mesh currently rendering
-    * @param post Data for post processing
-    * @return whether the mesh can now be rendered
-    */
-    bool UpdateShader(const Mesh& mesh, 
-                      const PostProcessing& post);
+                      const IScene& scene);
 
     /**
     * Updates and switches to main shader the water requires
     * @param water The water currently rendering
-    * @param lights All lighting in the scene
+    * @param scene All elements in the scene
     * @param timer The time passed since scene start
     * @return whether the mesh can now be rendered
     */
     bool UpdateShader(const Water& water, 
-                      const std::vector<Light>& lights,
-                      float timer);
-
-    /**
-    * Updates and switches to the normal shader the water requires
-    * @param water The mesh currently rendering
-    * @param post Data for post processing
-    * @param timer The time passed since scene start
-    * @return whether the mesh can now be rendered
-    */
-    bool UpdateShader(const Water& water, 
-                      const PostProcessing& post,
+                      const IScene& scene,
                       float timer);
 
     /**
@@ -222,17 +201,10 @@ private:
 
     /**
     * Renders the scene
-    * @param lights All the lights in the scene
+    * @param scene The scene to render
     * @param timer The time passed since scene start
     */
-    void RenderSceneMap(const std::vector<Light>& lights, float timer);
-
-    /**
-    * Renders the scene as a normal/depth map
-    * @param postProcessing values for the final image
-    * @param timer The time passed since scene start
-    */
-    void RenderNormalMap(const PostProcessing& post, float timer);
+    void RenderSceneMap(const IScene& scene, float timer);
 
     /**
     * Renders the scene with post processing
