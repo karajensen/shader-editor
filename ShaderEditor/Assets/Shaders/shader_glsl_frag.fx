@@ -4,33 +4,32 @@
 
 #version 150
 
-out vec4 out_Color;
+out vec4 out_Color[2];
 
+in float ex_Depth;
 in vec2 ex_UVs;
 in vec3 ex_PositionWorld;
-ifdef: !FLAT
-    in vec3 ex_Normal;
-    ifdef: BUMP
-        in vec3 ex_Tangent;
-        in vec3 ex_Bitangent;
-    endif
-    ifdef: SPECULAR
-        in vec3 ex_VertToCamera;
-    endif
+in vec3 ex_Normal;
+ifdef: BUMP
+    in vec3 ex_Tangent;
+    in vec3 ex_Bitangent;
+endif
+ifdef: SPECULAR
+    in vec3 ex_VertToCamera;
 endif
 
 uniform float lightActive[MAX_LIGHTS];
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];
 uniform vec3 lightAttenuation[MAX_LIGHTS];
-ifdef: !FLAT|SPECULAR
+ifdef: SPECULAR
     uniform vec3 lightSpecular[MAX_LIGHTS];
     uniform float lightSpecularity[MAX_LIGHTS];
     uniform float meshSpecularity;
 endif
 
 uniform float meshAmbience;
-ifdef: !FLAT|BUMP
+ifdef: BUMP
     uniform float meshBump;
 endif
 
@@ -42,18 +41,16 @@ void main(void)
 {
     vec4 diffuseTex = texture(DiffuseSampler, ex_UVs);
     vec4 diffuse = vec4(0.0, 0.0, 0.0, 0.0);
+    vec3 normal = normalize(ex_Normal);
 
-    ifdef: !FLAT
-        vec3 normal = normalize(ex_Normal);
-        ifdef: BUMP
-            vec4 normalTex = texture(NormalSampler, ex_UVs);
-            vec2 bump = meshBump * (normalTex.rg - 0.5);
-            normal = normalize(normal + bump.x * normalize(ex_Tangent) 
-                + bump.y * normalize(ex_Bitangent));
-        endif
+    ifdef: BUMP
+        vec4 normalTex = texture(NormalSampler, ex_UVs);
+        vec2 bump = meshBump * (normalTex.rg - 0.5);
+        normal = normalize(normal + bump.x * normalize(ex_Tangent) 
+            + bump.y * normalize(ex_Bitangent));
     endif
 
-    ifdef: !FLAT|SPECULAR
+    ifdef: SPECULAR
         vec3 vertToCamera = normalize(ex_VertToCamera);
         vec4 specularTex = texture(SpecularSampler, ex_UVs);
         vec4 specular = vec4(0.0, 0.0, 0.0, 0.0);
@@ -72,22 +69,25 @@ void main(void)
         ifdef: !FLAT
             vertToLight /= lightLength;
             lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-
-            ifdef: SPECULAR
-                float specularity = lightSpecularity[i] * meshSpecularity;
-                vec3 halfVector = normalize(vertToLight + vertToCamera);
-                float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
-            endif
         endif
 
+        ifdef: SPECULAR
+            float specularity = lightSpecularity[i] * meshSpecularity;
+            vec3 halfVector = normalize(vertToLight + vertToCamera);
+            float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
+            specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
+        endif
+        
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    out_Color = diffuseTex * diffuse;
-    ifdef: !FLAT|SPECULAR
-        out_Color += specularTex * specular;
+    out_Color[0] = diffuseTex * diffuse;
+    ifdef: SPECULAR
+        out_Color[0] += specularTex * specular;
     endif
-    out_Color.rgb *= meshAmbience;
-    out_Color.a = 1.0;
+    out_Color[0].rgb *= meshAmbience;
+    out_Color[0].a = 1.0;
+
+    out_Color[1].rgb = normal;
+    out_Color[1].a = ex_Depth;
 }

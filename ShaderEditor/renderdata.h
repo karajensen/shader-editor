@@ -33,8 +33,6 @@ const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
-const std::string NORMAL_SHADER("normal");
-const std::string BASE_SHADER("shader");
 
 /**
 * Available render engines
@@ -55,7 +53,6 @@ enum ShaderIndex
     POST_SHADER,
     BLUR_SHADER,
     WATER_SHADER,
-    WATER_NORMAL_SHADER,
     PARTICLE_SHADER,
     DIAGNOSTIC_SHADER
 };

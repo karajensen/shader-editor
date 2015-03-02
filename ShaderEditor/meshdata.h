@@ -100,9 +100,8 @@ public:
     * Sets the shaders used by the mesh to render
     * @param shaderName The name of the shader to render with
     * @param shaderID The ID of the shader to render with
-    * @param normalID The ID of the normal shader to render with
     */
-    void SetShaderID(const std::string& shaderName, int shaderID, int normalID);
+    void SetShaderID(const std::string& shaderName, int shaderID);
 
     /**
     * Sets the ID of the texture to use
@@ -113,13 +112,12 @@ public:
 
 protected:
 
-    float m_bump = 1.0f;                     ///< Saturation of bump
+    float m_bump = 1.0f;  ///< Saturation of bump
 
 private:
 
     std::string m_name;                      ///< Name of the mesh
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
-    int m_normalIndex = -1;                  ///< Unique Index of the normal shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
     std::vector<unsigned long> m_indices;    ///< The indices constructing this mesh

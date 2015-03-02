@@ -345,12 +345,6 @@
     <FxCompile Include="Assets\Shaders\blur_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\normal_glsl_frag.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\normal_glsl_vert.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Assets\Shaders\particle_glsl_frag.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -376,12 +370,6 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_glsl_vert.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\water_normal_glsl_frag.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\water_normal_glsl_vert.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\water_hlsl.fx">

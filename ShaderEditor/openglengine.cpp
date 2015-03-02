@@ -38,7 +38,6 @@ struct OpenglData
     HDC hdc = nullptr;               ///< Device context                            
     GlRenderTarget backBuffer;       ///< Render target for the back buffer
     GlRenderTarget sceneTarget;      ///< Render target for the main scene
-    GlRenderTarget normalTarget;     ///< Render target for the scene normal/depth map
     GlRenderTarget blurTargetP1;     ///< Render target for blurring the scene (pass1)
     GlRenderTarget blurTargetP2;     ///< Render target for blurring the scene (pass2)
     GlQuad quad;                     ///< Quad to render the final post processed scene onto
@@ -64,11 +63,10 @@ struct OpenglData
 
 OpenglData::OpenglData() :
     quad("ScreenQuad"),
-    sceneTarget("SceneTarget"),
-    normalTarget("NormalTarget"),
-    blurTargetP1("BlurTargetP1"),
-    blurTargetP2("BlurTargetP2"),
-    backBuffer("BackBuffer", true)
+    sceneTarget("SceneTarget", 2),
+    blurTargetP1("BlurTargetP1", 1),
+    blurTargetP2("BlurTargetP2", 1),
+    backBuffer("BackBuffer")
 {
 }
 
@@ -111,7 +109,6 @@ void OpenglData::Release()
     sceneTarget.Release();
     blurTargetP1.Release();
     blurTargetP2.Release();
-    normalTarget.Release();
     quad.Release();
 
     wglMakeCurrent(nullptr, nullptr);
@@ -269,8 +266,7 @@ bool OpenglEngine::Initialize()
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
        !m_data->blurTargetP1.Initialise() ||
-       !m_data->blurTargetP2.Initialise() ||
-       !m_data->normalTarget.Initialise())
+       !m_data->blurTargetP2.Initialise())
     {
         Logger::LogError("OpenGL: Could not create render targets");
         return false;
@@ -284,6 +280,7 @@ bool OpenglEngine::Initialize()
     }
 
     // Initialise the opengl environment
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -430,20 +427,19 @@ bool OpenglEngine::FadeView(bool in, float amount)
 
 void OpenglEngine::Render(const IScene& scene, float timer)
 {
-    RenderSceneMap(scene.Lights(), timer);
-    RenderNormalMap(scene.Post(), timer);
+    RenderSceneMap(scene, timer);
     RenderSceneBlur(scene.Post());
     RenderPostProcessing(scene.Post());
     SwapBuffers(m_data->hdc); 
 }
 
-void OpenglEngine::RenderSceneMap(const std::vector<Light>& lights, float timer)
+void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive();
 
     for (auto& mesh : m_data->meshes)
     {
-        if (UpdateShader(mesh->GetMesh(), lights))
+        if (UpdateShader(mesh->GetMesh(), scene))
         {
             mesh->PreRender();
             EnableAttributes();
@@ -453,7 +449,7 @@ void OpenglEngine::RenderSceneMap(const std::vector<Light>& lights, float timer)
     
     for (auto& mesh : m_data->waters)
     {
-        if (UpdateShader(mesh->GetWater(), lights, timer))
+        if (UpdateShader(mesh->GetWater(), scene, timer))
         {
             mesh->PreRender();
             EnableAttributes();
@@ -481,31 +477,6 @@ void OpenglEngine::RenderEmitters()
     EnableDepthWrite(true);
 }
 
-void OpenglEngine::RenderNormalMap(const PostProcessing& post, float timer)
-{
-    m_data->normalTarget.SetActive();
-
-    for (auto& mesh : m_data->meshes)
-    {
-        if (UpdateShader(mesh->GetMesh(), post))
-        {
-            mesh->PreRender();
-            EnableAttributes();
-            mesh->Render();
-        }
-    }
-
-    for (auto& mesh : m_data->waters)
-    {
-        if (UpdateShader(mesh->GetWater(), post, timer))
-        {
-            mesh->PreRender();
-            EnableAttributes();
-            mesh->Render();
-        }
-    }
-}
-
 void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
 {
     EnableAlphaBlending(false);
@@ -525,7 +496,7 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
     blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
 
-    blurShader->SendTexture(0, m_data->sceneTarget.GetTextureID(), false, true);
+    blurShader->SendTexture(0, m_data->sceneTarget.GetTexture(), false, true);
     m_data->quad.PreRender();
     blurShader->EnableAttributes();
     m_data->quad.Render();
@@ -538,7 +509,7 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
     blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
 
-    blurShader->SendTexture(0, m_data->blurTargetP1.GetTextureID(), false, true);
+    blurShader->SendTexture(0, m_data->blurTargetP1.GetTexture(), false, true);
     m_data->quad.PreRender();
     blurShader->EnableAttributes();
     m_data->quad.Render();
@@ -575,9 +546,9 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
 
-    postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTextureID(), false, true);
-    postShader->SendTexture(PostProcessing::NORMAL, m_data->normalTarget.GetTextureID(), false, true);
-    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTargetP2.GetTextureID(), false, true);
+    postShader->SendTexture(PostProcessing::SCENE, m_data->sceneTarget.GetTexture(0), false, true);
+    postShader->SendTexture(PostProcessing::NORMAL, m_data->sceneTarget.GetTexture(1), false, true);
+    postShader->SendTexture(PostProcessing::BLUR, m_data->blurTargetP2.GetTexture(), false, true);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -623,34 +594,7 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Colour& colour)
     shader->SendUniformFloat("meshColour", &colour.r, 3);
 }
 
-bool OpenglEngine::UpdateShader(const Mesh& mesh, 
-                                const PostProcessing& post)
-{
-    const int index = mesh.NormalID();
-    if (index != NO_INDEX)
-    {
-        auto& shader = m_data->shaders[index];
-
-        if(index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-            shader->SendUniformFloat("depthNear", &post.DepthNear(), 1);
-            shader->SendUniformFloat("depthFar", &post.DepthFar(), 1);
-        }
-
-        shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
-
-        SendTexture(0, mesh.TextureIDs().at(Texture::NORMAL));
-        EnableBackfaceCull(mesh.BackfaceCull());
-        EnableAlphaBlending(false);
-        return true;
-    }
-    return false;
-}
-
-bool OpenglEngine::UpdateShader(const Mesh& mesh, 
-                                const std::vector<Light>& lights)
+bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 {
     const int index = mesh.ShaderID();
     if (index != NO_INDEX)
@@ -661,7 +605,9 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh,
             SetSelectedShader(index);
             shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
             shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            SendLights(lights);
+            shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
+            SendLights(scene.Lights());
         }
     
         shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
@@ -678,42 +624,7 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh,
     return false;
 }
 
-bool OpenglEngine::UpdateShader(const Water& water,
-                                const PostProcessing& post,
-                                float timer)
-{
-    const int index = water.NormalID();
-    if (index != NO_INDEX)
-    {
-        auto& shader = m_data->shaders[index];
-        if(index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-            shader->SendUniformFloat("depthNear", &post.DepthNear(), 1);
-            shader->SendUniformFloat("depthFar", &post.DepthFar(), 1);
-            shader->SendUniformFloat("timer", &timer, 1);
-        }
-
-        shader->SendUniformFloat("speed", &water.Speed(), 1);
-        shader->SendUniformFloat("bumpIntensity", &water.Bump(), 1);
-        shader->SendUniformFloat("bumpVelocity", &water.BumpVelocity().x, 2);
-        shader->SendUniformFloat("uvScale", &water.UVScale().x, 2);
-        SendWaves(water.Waves());
-
-        shader->SendUniformArrays();
-
-        EnableBackfaceCull(true);
-        EnableAlphaBlending(false);
-        SendTexture(0, water.TextureIDs().at(Texture::NORMAL));
-        return true;
-    }
-    return false;
-}
-
-bool OpenglEngine::UpdateShader(const Water& water, 
-                                const std::vector<Light>& lights,
-                                float timer)
+bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
 {
     const int index = water.ShaderID();
     if (index != NO_INDEX)
@@ -724,9 +635,11 @@ bool OpenglEngine::UpdateShader(const Water& water,
             SetSelectedShader(index);
             shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
             shader->SendUniformFloat("timer", &timer, 1);
+            shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
             shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
             shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            SendLights(lights);
+            SendLights(scene.Lights());
         }
 
         shader->SendUniformFloat("speed", &water.Speed(), 1);
@@ -901,16 +814,13 @@ void OpenglEngine::EnableAlphaBlending(bool enable)
     if (enable != m_data->isAlphaBlend)
     {
         m_data->isAlphaBlend = enable;
-
         if (enable)
         {
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
-            glEnable(GL_BLEND);
+            glEnablei(GL_BLEND, 0);
         }
         else
         {
-            glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-            glDisable(GL_BLEND);
+            glDisablei(GL_BLEND, 0);
         }
     }
 }

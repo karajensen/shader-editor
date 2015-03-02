@@ -146,8 +146,7 @@ bool FragmentLinker::CreateShaderFromFragments(const std::string& name,
         return false;
     }
 
-    const std::string baseName = boost::icontains(name, NORMAL_SHADER) ? NORMAL_SHADER : BASE_SHADER;
-    const std::string basepath = SHADER_PATH + baseName + extension;
+    const std::string basepath = SHADER_PATH + "shader" + extension;
     std::ifstream baseFile(basepath.c_str(), std::ios_base::in|std::ios_base::_Nocreate);
 
     if(!baseFile.is_open())

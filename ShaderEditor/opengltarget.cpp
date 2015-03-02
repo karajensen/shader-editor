@@ -4,10 +4,20 @@
 
 #include "opengltarget.h"
 
-GlRenderTarget::GlRenderTarget(const std::string& name, bool isBackBuffer) :
-    m_isBackBuffer(isBackBuffer),
-    m_name(name)
+GlRenderTarget::GlRenderTarget(const std::string& name) :
+    m_isBackBuffer(true),
+    m_name(name),
+    m_count(0)
 {
+}
+
+GlRenderTarget::GlRenderTarget(const std::string& name, int textures) :
+    m_isBackBuffer(false),
+    m_name(name),
+    m_count(textures)
+{
+    m_attachments.resize(m_count);
+    m_textures.resize(m_count);
 }
 
 GlRenderTarget::~GlRenderTarget()
@@ -20,10 +30,18 @@ void GlRenderTarget::Release()
     if(m_initialised && !m_isBackBuffer)
     {
         glDeleteFramebuffers(1, &m_frameBuffer);
-        glDeleteTextures(1, &m_colorTexture);
+        for (GLuint texture : m_textures)
+        {
+            glDeleteTextures(1, &texture);
+        }
         glDeleteRenderbuffers(1, &m_renderBuffer);
     }
     m_initialised = false;
+}
+
+GLuint GlRenderTarget::GetTexture(int index) const
+{ 
+    return m_textures[index]; 
 }
 
 bool GlRenderTarget::Initialise()
@@ -39,20 +57,24 @@ bool GlRenderTarget::Initialise()
             return false;
         }
 
-        // Create the colour texture
-        glGenTextures(1, &m_colorTexture);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture);
-
-        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 
-            MULTISAMPLING_COUNT, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, 
-            GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture, 0);
-
-        if(HasCallFailed())
+        for (unsigned int i = 0; i < m_textures.size(); ++i)
         {
-            Logger::LogError(m_name + " Failed to create color texture");
-            return false;
+            m_attachments[i] = GetTextureAttachment(i);
+            glGenTextures(1, &m_textures[i]);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_textures[i]);
+
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 
+                MULTISAMPLING_COUNT, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
+
+            glFramebufferTexture2D(GL_FRAMEBUFFER, m_attachments[i], 
+                GL_TEXTURE_2D_MULTISAMPLE, m_textures[i], 0);
+
+            if(HasCallFailed())
+            {
+                const auto ID = boost::lexical_cast<std::string>(i);
+                Logger::LogError(m_name + " Failed to create texture " + ID);
+                return false;
+            }
         }
 
         // Create the render buffer to hold depth information
@@ -101,10 +123,31 @@ void GlRenderTarget::SetActive()
         glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, m_renderBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glDrawBuffers(m_count, &m_attachments[0]);
     }
 
     if(HasCallFailed())
     {
         Logger::LogError("Could not set " + m_name + " as active");
+    }
+}
+
+unsigned int GlRenderTarget::GetTextureAttachment(int index) const
+{
+    switch (index)
+    {
+    case 0:
+        return GL_COLOR_ATTACHMENT0_EXT;
+    case 1:
+        return GL_COLOR_ATTACHMENT1_EXT;
+    case 2:
+        return GL_COLOR_ATTACHMENT2_EXT;
+    case 3:
+        return GL_COLOR_ATTACHMENT3_EXT;
+    case 4:
+        return GL_COLOR_ATTACHMENT4_EXT;
+    default:
+        Logger::LogError("Unsupported index for render target texture");
+        return 0;
     }
 }

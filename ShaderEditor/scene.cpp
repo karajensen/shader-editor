@@ -21,7 +21,6 @@ namespace
         ("post", POST_SHADER)
         ("blur", BLUR_SHADER)
         ("water", WATER_SHADER)
-        ("water_normal", WATER_NORMAL_SHADER)
         ("particle", PARTICLE_SHADER)
         ("diagnostic", DIAGNOSTIC_SHADER);
 
@@ -202,7 +201,7 @@ bool Scene::InitialiseWater(Water& water,
                             const boost::property_tree::ptree& node)
 {
     InitialiseMeshTextures(water);
-    water.SetShaderID(m_shaders[WATER_SHADER].Name(), WATER_SHADER, WATER_NORMAL_SHADER);
+    water.SetShaderID(m_shaders[WATER_SHADER].Name(), WATER_SHADER);
     return CreateMesh(water, false);
 }
 
@@ -237,8 +236,6 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
 
     // Ensure not asking for a specialised shader
     int shaderIndex = GetShaderIndex(shader);
-    int normalIndex = GetShaderIndex(NORMAL_SHADER + shader);
-
     if (shaderIndex == NO_INDEX)
     {
         // Copy each component featured in the given shader name to a set order
@@ -257,10 +254,9 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
         // Add any non-component text to the ordered components
         shader += boost::algorithm::to_lower_copy(newShaderName);
         shaderIndex = GetShaderIndex(linker, shader, mesh.Name());
-        normalIndex = GetShaderIndex(linker, NORMAL_SHADER + shader, mesh.Name());
     }
 
-    mesh.SetShaderID(m_shaders[shaderIndex].Name(), shaderIndex, normalIndex);
+    mesh.SetShaderID(m_shaders[shaderIndex].Name(), shaderIndex);
 }
 
 int Scene::GetShaderIndex(const std::string& shadername)
@@ -273,14 +269,7 @@ int Scene::GetShaderIndex(FragmentLinker& linker,
                           const std::string& shaderName, 
                           const std::string& meshName)
 {
-    // Optimization for needing only two types of normal shader (bump/non-bump)
     std::string name = shaderName;
-    if (boost::icontains(name, NORMAL_SHADER))
-    {
-        std::string bump = Shader::ComponentAsString(Shader::BUMP);
-        name = NORMAL_SHADER + (boost::icontains(name, bump) ? bump : "");
-        boost::to_lower(name);
-    }
 
     // Determine if shader with those components already exists and reuse if so
     auto shaderItr = std::find_if(m_shaders.begin(), m_shaders.end(), 

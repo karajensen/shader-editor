@@ -4,8 +4,9 @@
 
 #version 150
 
-out vec4 out_Color;
+out vec4 out_Color[2];
 
+in float ex_Depth;
 in vec2 ex_UVs;
 in vec3 ex_PositionWorld;
 in vec3 ex_Normal;
@@ -72,12 +73,14 @@ void main(void)
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     vec3 vertToCamera = normalize(ex_VertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));
-    
-    out_Color = vec4(diffuseTex * diffuse, 1.0);
-    out_Color *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
-    
     vec3 reflection = reflect(-vertToCamera, normal);
     vec4 reflectionTex = texture(EnvironmentSampler, reflection);
-    out_Color.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    out_Color.a *= blendFactor;
+
+    out_Color[0] = vec4(diffuseTex * diffuse, 1.0);
+    out_Color[0] *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
+    out_Color[0].rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
+    out_Color[0].a *= blendFactor;
+
+    out_Color[1].rgb = normal;
+    out_Color[1].a = ex_Depth;
 }

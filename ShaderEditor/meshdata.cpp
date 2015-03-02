@@ -190,11 +190,6 @@ int MeshData::ShaderID() const
     return m_shaderIndex;
 }
 
-int MeshData::NormalID() const
-{
-    return m_normalIndex;
-}
-
 const std::vector<float>& MeshData::Vertices() const
 {
     return m_vertices;
@@ -220,11 +215,10 @@ int MeshData::VertexComponentCount() const
     return m_vertexComponentCount;
 }
 
-void MeshData::SetShaderID(const std::string& shaderName, int shaderID, int normalID)
+void MeshData::SetShaderID(const std::string& shaderName, int shaderID)
 {
     m_shaderName = shaderName;
     m_shaderIndex = shaderID;
-    m_normalIndex = normalID;
 }
 
 void MeshData::SetTexture(Texture::Type type, int ID)
