@@ -24,8 +24,9 @@ public:
     * Constructor for a render target
     * @param name Name of the render target
     * @param textures The number of textures attached to this target
+    * @param multisampled Whether this target has multisampling
     */
-    GlRenderTarget(const std::string& name, int textures);
+    GlRenderTarget(const std::string& name, int textures, bool multisampled);
 
     /**
     * Destructor
@@ -52,6 +53,11 @@ public:
     * @return the ID of the target texture
     */
     GLuint GetTexture(int index = 0) const;
+    
+    /**
+    * @return if this target is multisampled
+    */
+    bool IsMultisampled() const;
 
 private:
 
@@ -64,6 +70,7 @@ private:
     bool m_initialised = false;        ///< Whether the buffer is initialised or not
     const int m_count = 0;             ///< Number of textures attached to this buffer
     const bool m_isBackBuffer = false; ///< Whether this render target is the back buffer
+    const bool m_multisampled = false; ///< Whether this target has multisampling
     const std::string m_name;          ///< Name of the render target
     std::vector<GLuint> m_textures;    ///< Unique IDs of the attached textures
     std::vector<GLenum> m_attachments; ///< Container of attachment slots taken up

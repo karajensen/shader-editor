@@ -9,7 +9,7 @@ out vec4 out_Color;
 
 uniform sampler2DMS SceneSampler;
 uniform sampler2DMS NormalSampler;
-uniform sampler2DMS BlurSampler;
+uniform sampler2D BlurSampler;
 
 uniform float finalMask;
 uniform float sceneMask;
@@ -45,7 +45,7 @@ void main(void)
     ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
     vec4 scene = GetMultisampledColour(SceneSampler, uvs);
     vec4 normal = GetMultisampledColour(NormalSampler, uvs);
-    vec4 blur = texelFetch(BlurSampler, uvs, 0);
+    vec4 blur = texture(BlurSampler, ex_UVs);
     vec3 postScene = scene.rgb;
     float depth = normal.a;
 

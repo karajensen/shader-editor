@@ -70,9 +70,9 @@ struct DirectxData
 };
 
 DirectxData::DirectxData() :
-    sceneTarget("SceneTarget", 2),
-    blurTargetP1("BlurTargetP1", 1),
-    blurTargetP2("BlurTargetP2", 1),
+    sceneTarget("SceneTarget", SCENE_TEXTURES),
+    blurTargetP1("BlurTargetP1", BLUR_TEXTURES),
+    blurTargetP2("BlurTargetP2", BLUR_TEXTURES),
     backBuffer("BackBuffer"),
     quad("SceneQuad")
 {
@@ -537,8 +537,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
 
-    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE, 0);
-    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::NORMAL, 1);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::SCENE, SCENE_ID);
+    m_data->sceneTarget.SendTexture(m_data->context, PostProcessing::NORMAL, NORMAL_ID);
     m_data->blurTargetP2.SendTexture(m_data->context, PostProcessing::BLUR);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);

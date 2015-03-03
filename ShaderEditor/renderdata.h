@@ -4,6 +4,9 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "mesh.h"
 #include "water.h"
 #include "shader.h"
@@ -33,6 +36,14 @@ const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);
 const std::string ASSETS_PATH(".//Assets//");
 const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
+
+/**
+* Number of textures attached to the render targets
+*/
+const int SCENE_TEXTURES = 2;
+const int BLUR_TEXTURES = 1;
+const int SCENE_ID = 0;
+const int NORMAL_ID = 1;
 
 /**
 * Available render engines
