@@ -8,14 +8,16 @@ D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 
 DxRenderTarget::DxRenderTarget(const std::string& name) :
     m_isBackBuffer(true),
+    m_multisampled(false),
     m_name(name),
     m_count(1)
 {
     InitialiseContainers();
 }
 
-DxRenderTarget::DxRenderTarget(const std::string& name, int textures) :
+DxRenderTarget::DxRenderTarget(const std::string& name, int textures, bool multisampled) :
     m_isBackBuffer(false),
+    m_multisampled(multisampled),
     m_name(name),
     m_count(textures)
 {
@@ -63,6 +65,7 @@ bool DxRenderTarget::InitialiseDepthBuffer(ID3D11Device* device)
     D3D11_TEXTURE2D_DESC textureDesc = sm_textureDesc;
     textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
     textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
 
     ID3D11Texture2D* depthTexture;
     if(FAILED(device->CreateTexture2D(&textureDesc, 0, &depthTexture)))
@@ -116,6 +119,7 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
     textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
 
     if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_textures[ID]))) ||
         m_textures[ID] == nullptr)
@@ -127,8 +131,9 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     D3D11_RENDER_TARGET_VIEW_DESC renderTargetDesc;
     ZeroMemory(&renderTargetDesc, sizeof(renderTargetDesc));
     renderTargetDesc.Format = textureDesc.Format;
-    renderTargetDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
     renderTargetDesc.Texture2D.MipSlice = 0;
+    renderTargetDesc.ViewDimension = m_multisampled ? 
+        D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 
     if (FAILED(device->CreateRenderTargetView(m_textures[ID], &renderTargetDesc, &(m_targets[ID]))) ||
         m_targets[ID] == nullptr)
@@ -140,9 +145,10 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     D3D11_SHADER_RESOURCE_VIEW_DESC textureViewDesc;
     ZeroMemory(&textureViewDesc, sizeof(textureViewDesc));
     textureViewDesc.Format = textureDesc.Format;
-    textureViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
     textureViewDesc.Texture2D.MipLevels = 1;
     textureViewDesc.Texture2D.MostDetailedMip = 0;
+    textureViewDesc.ViewDimension = m_multisampled ? 
+        D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 
     if (FAILED(device->CreateShaderResourceView(m_textures[ID], &textureViewDesc, &(m_views[ID]))) ||
         m_views[ID] == nullptr)

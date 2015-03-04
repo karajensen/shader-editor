@@ -37,7 +37,9 @@ struct Outputs
 
 Texture2DMS<float4,SAMPLES> SceneSampler   : register(t0);
 Texture2DMS<float4,SAMPLES> NormalSampler  : register(t1);
-Texture2DMS<float4,SAMPLES> BlurSampler    : register(t2);
+
+SamplerState Sampler;
+Texture2D BlurSampler : register(t2);
 
 float4 GetMultisampledColour(Texture2DMS<float4, SAMPLES> samplerName, int3 uvs)
 {
@@ -63,7 +65,8 @@ Outputs PShader(Attributes input)
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
     float4 scene = GetMultisampledColour(SceneSampler, uvs);
     float4 normal = GetMultisampledColour(NormalSampler, uvs);
-    float4 blur = BlurSampler.Load(uvs, 0);
+    float4 blur = BlurSampler.Sample(Sampler, input.uvs);
+
     float3 postScene = scene.rgb;
     float depth = normal.a;
 

@@ -23,8 +23,9 @@ public:
     * Constructor for a render target with multiple textures
     * @param name Name of the render target
     * @param textures The number of textures bound to this target
+    * @param multisampled Whether this target uses multisampling
     */
-    DxRenderTarget(const std::string& name, int textures);
+    DxRenderTarget(const std::string& name, int textures, bool multisampled);
 
     /**
     * Destructor
@@ -100,6 +101,7 @@ private:
 
     const int m_count = 0;                              ///< The number of textures bound to this target
     const bool m_isBackBuffer = false;                  ///< Whether this render target is the back buffer
+    const bool m_multisampled = false;                  ///< Whether this render target uses multisampling
     const std::string m_name;                           ///< Name of the render target
     std::vector<ID3D11Texture2D*> m_textures;           ///< Textures to render to
     std::vector<ID3D11RenderTargetView*> m_targets;     ////< Render target buffers

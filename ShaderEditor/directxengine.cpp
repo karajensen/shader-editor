@@ -70,9 +70,9 @@ struct DirectxData
 };
 
 DirectxData::DirectxData() :
-    sceneTarget("SceneTarget", SCENE_TEXTURES),
-    blurTargetP1("BlurTargetP1", BLUR_TEXTURES),
-    blurTargetP2("BlurTargetP2", BLUR_TEXTURES),
+    sceneTarget("SceneTarget", SCENE_TEXTURES, true),
+    blurTargetP1("BlurTargetP1", BLUR_TEXTURES, true),
+    blurTargetP2("BlurTargetP2", BLUR_TEXTURES, false),
     backBuffer("BackBuffer"),
     quad("SceneQuad")
 {

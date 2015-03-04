@@ -4,9 +4,6 @@
 
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 #include "mesh.h"
 #include "water.h"
 #include "shader.h"
