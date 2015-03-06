@@ -133,22 +133,13 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_glsl_frag.fx">
+    <FxCompile Include="Assets\Shaders\blur_glsl_frag.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_glsl_vert.fx">
+    <FxCompile Include="Assets\Shaders\blur_glsl_vert.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_hlsl.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_glsl_frag.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_glsl_vert.fx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_hlsl.fx">
+    <FxCompile Include="Assets\Shaders\blur_hlsl.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\diagnostic_glsl_frag.fx">

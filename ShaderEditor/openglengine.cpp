@@ -38,6 +38,7 @@ struct OpenglData
     HDC hdc = nullptr;                   ///< Device context                            
     GlRenderTarget backBuffer;           ///< Render target for the back buffer
     GlRenderTarget sceneTarget;          ///< Render target for the main scene
+    GlRenderTarget preEffectsTarget;     ///< Render target for pre-rendering effects
     GlRenderTarget blurHorizontalTarget; ///< Render target for blurring the scene (pass1)
     GlRenderTarget blurVerticalTarget;   ///< Render target for blurring the scene (pass2)
     GlQuad quad;                         ///< Quad to render the final post processed scene onto
@@ -64,6 +65,7 @@ struct OpenglData
 OpenglData::OpenglData() :
     quad("ScreenQuad"),
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
+    preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
     blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
     blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
     backBuffer("BackBuffer")
@@ -107,6 +109,7 @@ void OpenglData::Release()
 
     backBuffer.Release();
     sceneTarget.Release();
+    preEffectsTarget.Release();
     blurHorizontalTarget.Release();
     blurVerticalTarget.Release();
     quad.Release();
@@ -265,6 +268,7 @@ bool OpenglEngine::Initialize()
     // Create the render targets
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
+       !m_data->preEffectsTarget.Initialise() ||
        !m_data->blurHorizontalTarget.Initialise() ||
        !m_data->blurVerticalTarget.Initialise())
     {
@@ -428,7 +432,8 @@ bool OpenglEngine::FadeView(bool in, float amount)
 void OpenglEngine::Render(const IScene& scene, float timer)
 {
     RenderSceneMap(scene, timer);
-    RenderSceneBlur(scene.Post());
+    RenderPreEffects(scene.Post());
+    RenderBlur(scene.Post());
     RenderPostProcessing(scene.Post());
     SwapBuffers(m_data->hdc); 
 }
@@ -477,45 +482,69 @@ void OpenglEngine::RenderEmitters()
     EnableDepthWrite(true);
 }
 
-void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
+void OpenglEngine::RenderPreEffects(const PostProcessing& post)
+{
+    EnableBackfaceCull(false);
+    EnableAlphaBlending(false);
+
+    auto& preShader = m_data->shaders[PRE_SHADER];
+    preShader->SetActive();
+    m_data->preEffectsTarget.SetActive();
+
+    preShader->SendTexture(0, m_data->sceneTarget.GetTexture(SCENE_ID), 
+        m_data->sceneTarget.IsMultisampled());
+
+    preShader->SendTexture(1, m_data->sceneTarget.GetTexture(NORMAL_ID), 
+        m_data->sceneTarget.IsMultisampled());
+    
+    m_data->quad.PreRender();
+    preShader->EnableAttributes();
+    m_data->quad.Render();
+
+    preShader->ClearTexture(0, m_data->sceneTarget.IsMultisampled());
+    preShader->ClearTexture(1, m_data->sceneTarget.IsMultisampled());
+}
+
+void OpenglEngine::RenderBlur(const PostProcessing& post)
 {
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
-    auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
-    blurHorizontal->SetActive();
-    blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurHorizontal->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-    blurHorizontal->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    const float passOn = 1.0f;
+    const float passOff = 0.0f;
+
+    auto& blurShader = m_data->shaders[BLUR_SHADER];
+    blurShader->SetActive();
+    blurShader->SendUniformFloat("blurStep", &post.BlurStep(), 1);
+    blurShader->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
+    blurShader->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    blurShader->SendUniformFloat("blurAmount", &post.BlurAmount(), 1);
+
     m_data->blurHorizontalTarget.SetActive();
+    blurShader->SendUniformFloat("horizontalPass", &passOn, 1);
+    blurShader->SendUniformFloat("VerticalPass", &passOff, 1);
 
-    blurHorizontal->SendTexture(0, m_data->sceneTarget.GetTexture(), 
-        false, m_data->sceneTarget.IsMultisampled());
+    blurShader->SendTexture(0, m_data->preEffectsTarget.GetTexture(SCENE_ID), 
+        m_data->preEffectsTarget.IsMultisampled());
 
     m_data->quad.PreRender();
-    blurHorizontal->EnableAttributes();
+    blurShader->EnableAttributes();
     m_data->quad.Render();
 
-    blurHorizontal->ClearTexture(0, false,
-        m_data->sceneTarget.IsMultisampled());
+    blurShader->ClearTexture(0, m_data->preEffectsTarget.IsMultisampled());
 
-    auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
-   blurVertical->SetActive();
-   blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-   blurVertical->SendUniformFloat("blurAmount", &post.BlurAmount(), 1);
-   blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-   blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
     m_data->blurVerticalTarget.SetActive();
+    blurShader->SendUniformFloat("horizontalPass", &passOff, 1);
+    blurShader->SendUniformFloat("VerticalPass", &passOn, 1);
 
-    blurVertical->SendTexture(0, m_data->blurHorizontalTarget.GetTexture(), 
-        false, m_data->blurHorizontalTarget.IsMultisampled());
+    blurShader->SendTexture(0, m_data->blurHorizontalTarget.GetTexture(), 
+        m_data->blurHorizontalTarget.IsMultisampled());
 
     m_data->quad.PreRender();
-    blurVertical->EnableAttributes();
+    blurShader->EnableAttributes();
     m_data->quad.Render();
 
-    blurVertical->ClearTexture(0, false, 
-        m_data->blurHorizontalTarget.IsMultisampled());
+    blurShader->ClearTexture(0, m_data->blurHorizontalTarget.IsMultisampled());
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -547,23 +576,27 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
+    postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
 
-    postShader->SendTexture(0, m_data->sceneTarget.GetTexture(SCENE_ID), 
-        false, m_data->sceneTarget.IsMultisampled());
+    postShader->SendTexture(0, m_data->preEffectsTarget.GetTexture(SCENE_ID), 
+        m_data->preEffectsTarget.IsMultisampled());
 
-    postShader->SendTexture(1, m_data->sceneTarget.GetTexture(NORMAL_ID), 
-        false, m_data->sceneTarget.IsMultisampled());
+    postShader->SendTexture(1, m_data->preEffectsTarget.GetTexture(NORMAL_ID), 
+        m_data->preEffectsTarget.IsMultisampled());
 
-    postShader->SendTexture(2, m_data->blurVerticalTarget.GetTexture(), 
-        false, m_data->blurVerticalTarget.IsMultisampled());
+    postShader->SendTexture(2, m_data->preEffectsTarget.GetTexture(EFFECTS_ID), 
+        m_data->preEffectsTarget.IsMultisampled());
+
+    postShader->SendTexture(3, m_data->blurVerticalTarget.GetTexture(), 
+        m_data->blurVerticalTarget.IsMultisampled());
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-    postShader->ClearTexture(0, false, m_data->sceneTarget.IsMultisampled());
-    postShader->ClearTexture(1, false, m_data->sceneTarget.IsMultisampled());
-    postShader->ClearTexture(2, false, m_data->blurVerticalTarget.IsMultisampled());
+    postShader->ClearTexture(0, m_data->sceneTarget.IsMultisampled());
+    postShader->ClearTexture(1, m_data->sceneTarget.IsMultisampled());
+    postShader->ClearTexture(2, m_data->blurVerticalTarget.IsMultisampled());
 }
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)
@@ -722,7 +755,7 @@ bool OpenglEngine::SendTexture(int slot, int ID)
     if (ID != NO_INDEX && shader->HasTextureSlot(slot))
     {
         const auto& texture = m_data->textures[ID];
-        shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap(), false);
+        shader->SendTexture(slot, texture->GetID(), false, texture->IsCubeMap());
         return true;
     }
     return false;

@@ -149,11 +149,11 @@ Outputs PShader(Attributes input)
     output.normal.rgb = normal;
     output.normal.a = input.depth;
 
+    output.colour.rgb = diffuseTex * diffuse;
+    output.colour.a = 1.0;
     output.colour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     output.colour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
     output.colour.a *= blendFactor;
-    output.colour.rgb = diffuseTex * diffuse;
-    output.colour.a = 1.0;
 
     return output;
 }

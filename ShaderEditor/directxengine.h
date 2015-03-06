@@ -222,7 +222,7 @@ private:
     * Renders the scene as blurred
     * @param postProcessing values for the final image
     */
-    void RenderSceneBlur(const PostProcessing& post);
+    void RenderBlur(const PostProcessing& post);
 
     /**
     * Renders all emitters

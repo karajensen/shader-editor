@@ -366,24 +366,6 @@
     <FxCompile Include="Assets\Shaders\diagnostic_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_glsl_frag.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_glsl_vert.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_horizontal_hlsl.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_glsl_frag.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_glsl_vert.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\blur_vertical_hlsl.fx">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Assets\Shaders\pre_effects_glsl_frag.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -400,6 +382,15 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\post_effects_glsl_frag.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\blur_hlsl.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\blur_glsl_vert.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\blur_glsl_frag.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

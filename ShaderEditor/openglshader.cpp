@@ -581,7 +581,7 @@ void GlShader::EnableAttributes()
     }
 }
 
-void GlShader::ClearTexture(int slot, bool cubemap, bool multisample)
+void GlShader::ClearTexture(int slot, bool multisample, bool cubemap)
 {
     glActiveTexture(GetTexture(slot));
 
@@ -601,7 +601,7 @@ void GlShader::ClearTexture(int slot, bool cubemap, bool multisample)
     }
 }
 
-void GlShader::SendTexture(int slot, GLuint id, bool cubemap, bool multisample)
+void GlShader::SendTexture(int slot, GLuint id, bool multisample, bool cubemap)
 {
     glActiveTexture(GetTexture(slot));
 

@@ -30,6 +30,7 @@ public:
         BLUR_SCENE_MAP,
         DOF_MAP,
         FOG_MAP,
+        BLOOM_MAP,
         MAX_MAPS
     };
 

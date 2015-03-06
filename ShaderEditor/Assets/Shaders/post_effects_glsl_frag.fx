@@ -7,8 +7,9 @@
 in vec2 ex_UVs;
 out vec4 out_Color;
 
-uniform sampler2DMS SceneSampler;
-uniform sampler2DMS NormalSampler;
+uniform sampler2D SceneSampler;
+uniform sampler2D NormalSampler;
+uniform sampler2D EffectsSampler;
 uniform sampler2D BlurSampler;
 
 uniform float finalMask;
@@ -18,6 +19,7 @@ uniform float depthMask;
 uniform float blurSceneMask;
 uniform float depthOfFieldMask;
 uniform float fogMask;
+uniform float bloomMask;
 
 uniform float contrast;
 uniform float saturation;
@@ -29,25 +31,18 @@ uniform float fogFade;
 uniform vec3 fogColor;
 uniform vec3 minimumColor;
 uniform vec3 maximumColor;
-
-vec4 GetMultisampledColour(sampler2DMS samplerName, ivec2 uvs)
-{
-    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-    for (int i = 0; i < SAMPLES; ++i)
-    {
-        color += texelFetch(samplerName, uvs, i);
-    }
-    return color * (1.0 / SAMPLES);
-}
  
 void main(void)
 {
-    ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
-    vec4 scene = GetMultisampledColour(SceneSampler, uvs);
-    vec4 normal = GetMultisampledColour(NormalSampler, uvs);
+    vec4 scene = texture(SceneSampler, ex_UVs);
+    vec4 normal = texture(NormalSampler, ex_UVs);
+    vec4 effects = texture(EffectsSampler, ex_UVs);
     vec4 blur = texture(BlurSampler, ex_UVs);
     vec3 postScene = scene.rgb;
     float depth = normal.a;
+
+    // Bloom
+    vec3 bloom = effects.rrr;
 
     // Depth of Field
     float dofEnd = dofDistance - dofFade;
@@ -82,5 +77,6 @@ void main(void)
     out_Color.rgb += blur.rgb * blurSceneMask;
     out_Color.rgb += depthOfField * depthOfFieldMask;
     out_Color.rgb += fog * fogMask;
+    out_Color.rgb += bloom * bloomMask;
     out_Color.rgb *= fadeAmount;
 }

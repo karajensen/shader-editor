@@ -13,8 +13,8 @@
 #include "sceneModifier.h"
 #include <windowsx.h>
 
-#define SELECTED_ENGINE DIRECTX
-//#define SELECTED_ENGINE OPENGL
+//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE OPENGL
 #define SELECTED_MAP PostProcessing::BLUR_SCENE_MAP
 
 namespace

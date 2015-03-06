@@ -30,8 +30,10 @@ bool FragmentLinker::Initialise(unsigned int maxLights)
     m_defines["WINDOW_HEIGHT"] = boost::lexical_cast<std::string>(WINDOW_HEIGHT);
     m_defines["MAX_WAVES"] = boost::lexical_cast<std::string>(Water::GetMaxWaves());
     m_defines["SCENE_TEXTURES"] = boost::lexical_cast<std::string>(SCENE_TEXTURES);
+    m_defines["EFFECTS_TEXTURES"] = boost::lexical_cast<std::string>(EFFECTS_TEXTURES);
     m_defines["ID_COLOUR"] = boost::lexical_cast<std::string>(SCENE_ID);
     m_defines["ID_NORMAL"] = boost::lexical_cast<std::string>(NORMAL_ID);
+    m_defines["ID_EFFECTS"] = boost::lexical_cast<std::string>(EFFECTS_ID);
     m_defines["DIAGNOSTIC_LIGHT"] = "10.0, 10.0, 0.0";
 
     return CreateGeneratedFolder();

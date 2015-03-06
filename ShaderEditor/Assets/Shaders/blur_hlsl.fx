@@ -1,10 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - blur_horizontal_hlsl.fx
+// Kara Jensen - mail@karajensen.com - blur_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
 cbuffer PixelBuffer : register(b0)
 {
+    float horizontalPass;
+    float verticalPass;
     float blurStep;
+    float blurAmount;
     float weightMain;
     float4 weightOffset;
 };
@@ -35,14 +38,18 @@ Attributes VShader(float4 position  : POSITION,
 Outputs PShader(Attributes input)
 {
     float4 uvSteps = float4(blurStep, blurStep * 2.0, blurStep * 3.0, blurStep * 4.0);
-    float2 uvs1p = float2(input.uvs.x + uvSteps.x, input.uvs.y);
-    float2 uvs1n = float2(input.uvs.x - uvSteps.x, input.uvs.y);
-    float2 uvs2p = float2(input.uvs.x + uvSteps.y, input.uvs.y);
-    float2 uvs2n = float2(input.uvs.x - uvSteps.y, input.uvs.y);
-    float2 uvs3p = float2(input.uvs.x + uvSteps.z, input.uvs.y);
-    float2 uvs3n = float2(input.uvs.x - uvSteps.z, input.uvs.y);
-    float2 uvs4p = float2(input.uvs.x + uvSteps.w, input.uvs.y);
-    float2 uvs4n = float2(input.uvs.x - uvSteps.w, input.uvs.y);
+    float4 horizontal = uvSteps * horizontalPass;
+    float4 vertical = uvSteps * verticalPass;
+    float blurring = max(1.0, blurAmount * verticalPass);
+
+    float2 uvs1p = float2(input.uvs.x + horizontal.x, input.uvs.y + vertical.x);
+    float2 uvs1n = float2(input.uvs.x - horizontal.x, input.uvs.y - vertical.x);
+    float2 uvs2p = float2(input.uvs.x + horizontal.y, input.uvs.y + vertical.y);
+    float2 uvs2n = float2(input.uvs.x - horizontal.y, input.uvs.y - vertical.y);
+    float2 uvs3p = float2(input.uvs.x + horizontal.z, input.uvs.y + vertical.z);
+    float2 uvs3n = float2(input.uvs.x - horizontal.z, input.uvs.y - vertical.z);
+    float2 uvs4p = float2(input.uvs.x + horizontal.w, input.uvs.y + vertical.w);
+    float2 uvs4n = float2(input.uvs.x - horizontal.w, input.uvs.y - vertical.w);
 
     Outputs output;
     output.colour =  SceneSampler.Sample(Sampler, input.uvs) * weightMain;
@@ -54,5 +61,6 @@ Outputs PShader(Attributes input)
     output.colour += SceneSampler.Sample(Sampler, uvs3n) * weightOffset.z;
     output.colour += SceneSampler.Sample(Sampler, uvs4p) * weightOffset.w;
     output.colour += SceneSampler.Sample(Sampler, uvs4n) * weightOffset.w;
+    output.colour *= blurring;
     return output;
 }

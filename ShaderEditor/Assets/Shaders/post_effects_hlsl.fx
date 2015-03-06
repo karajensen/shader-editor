@@ -11,6 +11,7 @@ cbuffer PixelBuffer : register(b0)
     float blurSceneMask;
     float depthOfFieldMask;
     float fogMask;
+    float bloomMask;
 
     float contrast;
     float saturation;
@@ -59,6 +60,9 @@ Outputs PShader(Attributes input)
     float3 postScene = scene.rgb;
     float depth = normal.a;
 
+    // Bloom
+    float3 bloom = effects.rrr;
+
     // Depth of Field
     float dofEnd = dofDistance - dofFade;
     float dofWeight = saturate((depth-dofEnd)*(1.0/(dofDistance-dofEnd)));
@@ -93,7 +97,7 @@ Outputs PShader(Attributes input)
     output.colour.rgb += blur.rgb * blurSceneMask;
     output.colour.rgb += depthOfField * depthOfFieldMask;
     output.colour.rgb += fog * fogMask;
+    output.colour.rgb += bloom * bloomMask;
     output.colour.rgb *= fadeAmount;
-    output.colour.a = 1.0;
     return output;
 }

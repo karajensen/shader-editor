@@ -37,7 +37,7 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 /**
 * Number of textures attached to the render targets
 */
-const int PRE_EFFECTS_TEXTURES = 3;
+const int EFFECTS_TEXTURES = 3;
 const int SCENE_TEXTURES = 2;
 const int BLUR_TEXTURES = 1;
 const int SCENE_ID = 0;
@@ -62,8 +62,7 @@ enum ShaderIndex
 {
     POST_SHADER,
     PRE_SHADER,
-    BLUR_HORIZONTAL_SHADER,
-    BLUR_VERTICAL_SHADER,
+    BLUR_SHADER,
     WATER_SHADER,
     PARTICLE_SHADER,
     DIAGNOSTIC_SHADER
