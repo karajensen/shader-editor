@@ -18,8 +18,10 @@ namespace
     * Shaders that do not need to be generated through fragment linking
     */
     std::map<std::string, ShaderIndex> SPECIAL_SHADERS = boost::assign::map_list_of
-        ("post", POST_SHADER)
-        ("blur", BLUR_SHADER)
+        ("post_effects", POST_SHADER)
+        ("pre_effects", PRE_SHADER)
+        ("blur_horizontal", BLUR_HORIZONTAL_SHADER)
+        ("blur_vertical", BLUR_VERTICAL_SHADER)
         ("water", WATER_SHADER)
         ("particle", PARTICLE_SHADER)
         ("diagnostic", DIAGNOSTIC_SHADER);
@@ -485,6 +487,7 @@ void Scene::SaveSceneToFile()
     SaveParticlesToFile();
     SaveMeshesToFile();
     SaveLightsToFile();
+    SavePostProcessingtoFile();
 }
 
 void Scene::SaveParticlesToFile()

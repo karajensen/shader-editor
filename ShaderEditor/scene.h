@@ -171,16 +171,16 @@ public:
     int GetLightCount() const;
 
     /**
-    * Outputs post processing to an xml file
-    */
-    void SavePostProcessingtoFile();
-
-    /**
     * Outputs the scene to an xml file
     */
     void SaveSceneToFile();
 
 private:
+
+    /**
+    * Outputs post processing to an xml file
+    */
+    void SavePostProcessingtoFile();
 
     /**
     * Outputs the meshes and emitters to an xml file

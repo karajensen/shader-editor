@@ -21,6 +21,7 @@ PostProcessing::PostProcessing(const boost::property_tree::ptree& node)
     m_fogDistance = GetValue<float>(node, "FogDistance");
     m_fogFade = GetValue<float>(node, "FogFade");
     m_bloomIntensity = GetValue<float>(node, "BloomIntensity");
+    m_bloomStart = GetValue<float>(node, "BloomStart");
     m_contrast = GetValue<float>(node, "Contrast");
     m_saturation = GetValue<float>(node, "Saturation");
     m_maximumColour.r = GetAttribute<float>(node, "MaximumColour", "r");
@@ -52,6 +53,7 @@ void PostProcessing::Write(boost::property_tree::ptree& node) const
     node.add("FogDistance", m_fogDistance);
     node.add("FogFade", m_fogFade);
     node.add("BloomIntensity", m_bloomIntensity);
+    node.add("BloomStart", m_bloomStart);
     node.add("Contrast", m_contrast);
     node.add("Saturation", m_saturation);
     node.add("MaximumColour.<xmlattr>.r", m_maximumColour.r);
@@ -64,15 +66,16 @@ void PostProcessing::Write(boost::property_tree::ptree& node) const
 
 void PostProcessing::Write(Cache& cache)
 {
-    cache.DepthNear.SetUpdated(m_depthNear);
-    cache.DepthFar.SetUpdated(m_depthFar);
-    cache.DOFDistance.SetUpdated(m_dofDistance);
-    cache.DOFFade.SetUpdated(m_dofFade);
-    cache.BlurAmount.SetUpdated(m_blurAmount);
-    cache.BlurStep.SetUpdated(m_blurStep);
-    cache.BloomIntensity.SetUpdated(m_bloomIntensity);
-    cache.Contrast.SetUpdated(m_contrast);
-    cache.Saturation.SetUpdated(m_saturation);
+    cache.Post[POST_DEPTH_NEAR].SetUpdated(m_depthNear);
+    cache.Post[POST_DEPTH_FAR].SetUpdated(m_depthFar);
+    cache.Post[POST_DOF_DISTANCE].SetUpdated(m_dofDistance);
+    cache.Post[POST_DOF_FADE].SetUpdated(m_dofFade);
+    cache.Post[POST_BLUR_AMOUNT].SetUpdated(m_blurAmount);
+    cache.Post[POST_BLUR_STEP].SetUpdated(m_blurStep);
+    cache.Post[POST_BLOOM_AMOUNT].SetUpdated(m_bloomIntensity);
+    cache.Post[POST_BLOOM_START].SetUpdated(m_bloomStart);
+    cache.Post[POST_CONTRAST].SetUpdated(m_contrast);
+    cache.Post[POST_SATURATION].SetUpdated(m_saturation);
     cache.Fog[FOG_RED].SetUpdated(m_fogColour.r);
     cache.Fog[FOG_GREEN].SetUpdated(m_fogColour.g);
     cache.Fog[FOG_BLUE].SetUpdated(m_fogColour.b);
@@ -88,15 +91,16 @@ void PostProcessing::Write(Cache& cache)
 
 void PostProcessing::Read(Cache& cache)
 {
-    m_dofDistance = cache.DOFDistance.Get();
-    m_dofFade = cache.DOFFade.Get();
-    m_blurAmount = cache.BlurAmount.Get();
-    m_blurStep = cache.BlurStep.Get();
-    m_bloomIntensity = cache.BloomIntensity.Get();
-    m_contrast = cache.Contrast.Get();
-    m_saturation = cache.Saturation.Get();
-    m_depthFar = cache.DepthFar.Get();
-    m_depthNear = cache.DepthNear.Get();
+    m_dofDistance = cache.Post[POST_DOF_DISTANCE].Get();
+    m_dofFade = cache.Post[POST_DOF_FADE].Get();
+    m_blurAmount = cache.Post[POST_BLUR_AMOUNT].Get();
+    m_blurStep = cache.Post[POST_BLUR_STEP].Get();
+    m_bloomIntensity = cache.Post[POST_BLOOM_AMOUNT].Get();
+    m_bloomStart = cache.Post[POST_BLOOM_START].Get();
+    m_contrast = cache.Post[POST_CONTRAST].Get();
+    m_saturation = cache.Post[POST_SATURATION].Get();
+    m_depthFar = cache.Post[POST_DEPTH_FAR].Get();
+    m_depthNear = cache.Post[POST_DEPTH_NEAR].Get();
     m_fogColour.r = cache.Fog[FOG_RED].Get();
     m_fogColour.g = cache.Fog[FOG_GREEN].Get();
     m_fogColour.b = cache.Fog[FOG_BLUE].Get();
@@ -164,6 +168,11 @@ const float& PostProcessing::DOFFade() const
 const float& PostProcessing::BloomIntensity() const
 {
     return m_bloomIntensity;
+}
+
+const float& PostProcessing::BloomStart() const
+{
+    return m_bloomStart;;
 }
 
 const float& PostProcessing::BlurWeight(int index) const

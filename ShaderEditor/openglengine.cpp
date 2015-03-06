@@ -34,26 +34,26 @@ struct OpenglData
     */
     void Release();
 
-    HGLRC hrc = nullptr;             ///< Rendering context  
-    HDC hdc = nullptr;               ///< Device context                            
-    GlRenderTarget backBuffer;       ///< Render target for the back buffer
-    GlRenderTarget sceneTarget;      ///< Render target for the main scene
-    GlRenderTarget blurTargetP1;     ///< Render target for blurring the scene (pass1)
-    GlRenderTarget blurTargetP2;     ///< Render target for blurring the scene (pass2)
-    GlQuad quad;                     ///< Quad to render the final post processed scene onto
-    glm::vec3 cameraPosition;        ///< Position of the camera
-    glm::vec3 cameraUp;              ///< The up vector of the camera
-    glm::mat4 projection;            ///< Projection matrix
-    glm::mat4 view;                  ///< View matrix
-    glm::mat4 viewProjection;        ///< View projection matrix
-    bool isBackfaceCull = false;     ///< Whether the culling rasterize state is active
-    bool isAlphaBlend = false;       ///< Whether alpha blending is currently active
-    bool isDepthWrite = false;       ///< Whether writing to the depth buffer is active
-    bool useDiffuseTextures = true;  ///< Whether to render diffuse textures
-    int selectedShader = NO_INDEX;   ///< Currently active shader for rendering
-    float fadeAmount = 0.0f;         ///< the amount to fade the scene by
-    float blendFactor = 0.540f;      ///< Alpha blend modifier
-
+    HGLRC hrc = nullptr;                 ///< Rendering context  
+    HDC hdc = nullptr;                   ///< Device context                            
+    GlRenderTarget backBuffer;           ///< Render target for the back buffer
+    GlRenderTarget sceneTarget;          ///< Render target for the main scene
+    GlRenderTarget blurHorizontalTarget; ///< Render target for blurring the scene (pass1)
+    GlRenderTarget blurVerticalTarget;   ///< Render target for blurring the scene (pass2)
+    GlQuad quad;                         ///< Quad to render the final post processed scene onto
+    glm::vec3 cameraPosition;            ///< Position of the camera
+    glm::vec3 cameraUp;                  ///< The up vector of the camera
+    glm::mat4 projection;                ///< Projection matrix
+    glm::mat4 view;                      ///< View matrix
+    glm::mat4 viewProjection;            ///< View projection matrix
+    bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
+    bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
+    bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
+    bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
+    int selectedShader = NO_INDEX;       ///< Currently active shader for rendering
+    float fadeAmount = 0.0f;             ///< the amount to fade the scene by
+    float blendFactor = 0.540f;          ///< Alpha blend modifier
+                                        
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
@@ -64,8 +64,8 @@ struct OpenglData
 OpenglData::OpenglData() :
     quad("ScreenQuad"),
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    blurTargetP1("BlurTargetP1", BLUR_TEXTURES, true),
-    blurTargetP2("BlurTargetP2", BLUR_TEXTURES, false),
+    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
+    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
     backBuffer("BackBuffer")
 {
 }
@@ -107,8 +107,8 @@ void OpenglData::Release()
 
     backBuffer.Release();
     sceneTarget.Release();
-    blurTargetP1.Release();
-    blurTargetP2.Release();
+    blurHorizontalTarget.Release();
+    blurVerticalTarget.Release();
     quad.Release();
 
     wglMakeCurrent(nullptr, nullptr);
@@ -265,8 +265,8 @@ bool OpenglEngine::Initialize()
     // Create the render targets
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
-       !m_data->blurTargetP1.Initialise() ||
-       !m_data->blurTargetP2.Initialise())
+       !m_data->blurHorizontalTarget.Initialise() ||
+       !m_data->blurVerticalTarget.Initialise())
     {
         Logger::LogError("OpenGL: Could not create render targets");
         return false;
@@ -482,46 +482,40 @@ void OpenglEngine::RenderSceneBlur(const PostProcessing& post)
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
-    auto& blurShader = m_data->shaders[BLUR_SHADER];
-    blurShader->SetActive();
-    blurShader->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurShader->SendUniformFloat("blurAmount", &post.BlurAmount(), 1);
-    blurShader->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-    blurShader->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
+    blurHorizontal->SetActive();
+    blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
+    blurHorizontal->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
+    blurHorizontal->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    m_data->blurHorizontalTarget.SetActive();
 
-    // Render first horizontal blur pass
-    m_data->blurTargetP1.SetActive();
-    float horizontalPass = 1.0f;
-    float verticalPass = 0.0f;
-    blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
-    blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
-
-    blurShader->SendTexture(0, m_data->sceneTarget.GetTexture(), 
+    blurHorizontal->SendTexture(0, m_data->sceneTarget.GetTexture(), 
         false, m_data->sceneTarget.IsMultisampled());
 
     m_data->quad.PreRender();
-    blurShader->EnableAttributes();
+    blurHorizontal->EnableAttributes();
     m_data->quad.Render();
 
-    blurShader->ClearTexture(0, false,
+    blurHorizontal->ClearTexture(0, false,
         m_data->sceneTarget.IsMultisampled());
 
-    // Render second vertical blur pass
-    m_data->blurTargetP2.SetActive();
-    horizontalPass = 0.0f;
-    verticalPass = 1.0f;
-    blurShader->SendUniformFloat("verticalPass", &verticalPass, 1);
-    blurShader->SendUniformFloat("horizontalPass", &horizontalPass, 1);
+    auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
+   blurVertical->SetActive();
+   blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
+   blurVertical->SendUniformFloat("blurAmount", &post.BlurAmount(), 1);
+   blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
+   blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    m_data->blurVerticalTarget.SetActive();
 
-    blurShader->SendTexture(0, m_data->blurTargetP1.GetTexture(), 
-        false, m_data->blurTargetP1.IsMultisampled());
+    blurVertical->SendTexture(0, m_data->blurHorizontalTarget.GetTexture(), 
+        false, m_data->blurHorizontalTarget.IsMultisampled());
 
     m_data->quad.PreRender();
-    blurShader->EnableAttributes();
+    blurVertical->EnableAttributes();
     m_data->quad.Render();
 
-    blurShader->ClearTexture(0, false, 
-        m_data->blurTargetP1.IsMultisampled());
+    blurVertical->ClearTexture(0, false, 
+        m_data->blurHorizontalTarget.IsMultisampled());
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -554,30 +548,22 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
 
-    postShader->SendTexture(PostProcessing::SCENE, 
-        m_data->sceneTarget.GetTexture(SCENE_ID), 
+    postShader->SendTexture(0, m_data->sceneTarget.GetTexture(SCENE_ID), 
         false, m_data->sceneTarget.IsMultisampled());
 
-    postShader->SendTexture(PostProcessing::NORMAL, 
-        m_data->sceneTarget.GetTexture(NORMAL_ID), 
+    postShader->SendTexture(1, m_data->sceneTarget.GetTexture(NORMAL_ID), 
         false, m_data->sceneTarget.IsMultisampled());
 
-    postShader->SendTexture(PostProcessing::BLUR, 
-        m_data->blurTargetP2.GetTexture(), 
-        false, m_data->blurTargetP2.IsMultisampled());
+    postShader->SendTexture(2, m_data->blurVerticalTarget.GetTexture(), 
+        false, m_data->blurVerticalTarget.IsMultisampled());
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-    postShader->ClearTexture(PostProcessing::SCENE, 
-        false, m_data->sceneTarget.IsMultisampled());
-
-    postShader->ClearTexture(PostProcessing::NORMAL, 
-        false, m_data->sceneTarget.IsMultisampled());
-
-    postShader->ClearTexture(PostProcessing::BLUR, 
-        false, m_data->blurTargetP2.IsMultisampled());
+    postShader->ClearTexture(0, false, m_data->sceneTarget.IsMultisampled());
+    postShader->ClearTexture(1, false, m_data->sceneTarget.IsMultisampled());
+    postShader->ClearTexture(2, false, m_data->blurVerticalTarget.IsMultisampled());
 }
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)

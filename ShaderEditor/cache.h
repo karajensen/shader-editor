@@ -155,7 +155,6 @@ struct Cache
         RenderLightsOnly(false),
         LightDiagnostics(false),
         SaveScene(false),
-        SavePost(false),
         PauseEmission(false)
     {
     }
@@ -164,7 +163,6 @@ struct Cache
     Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui            
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
     Lockable<bool> SaveScene;           ///< Request to save the scene to xml
-    Lockable<bool> SavePost;            ///< Request to save post processing to xml
     Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics
     Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
     Lockable<bool> RenderLightsOnly;    ///< Request to render only the lights
@@ -189,18 +187,10 @@ struct Cache
     Lockable<int> EmitterSelected;      ///< Index of the currently selected emitter
     Lockable<int> ParticleAmount;       ///< The amount of particles to spawn
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
-    Lockable<float> BlurAmount;         ///< The amount to blur the scene by
-    Lockable<float> BlurStep;           ///< The sample step of the blur
-    Lockable<float> BloomIntensity;     ///< The amount to glow the scene by
-    Lockable<float> Contrast;           ///< Contrast controller of the final scene
-    Lockable<float> Saturation;         ///< Saturation controller of the final scene
-    Lockable<float> DepthNear;          ///< The near value for the depth
-    Lockable<float> DepthFar;           ///< The far value for the depth
-    Lockable<float> DOFDistance;        ///< Distance DOF is active
-    Lockable<float> DOFFade;            ///< How quick DOF merges into the scene
 
     std::array<Lockable<float>, CAMERA_ATTRIBUTES> Camera;      ///< Camera attributes
     std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;        ///< Selected light attributes
+    std::array<Lockable<float>, POST_ATTRIBUTES> Post;          ///< Post processing attributes
     std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;          ///< Selected mesh attributes
     std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes
     std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;            ///< Fog attributes

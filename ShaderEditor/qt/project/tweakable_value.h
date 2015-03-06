@@ -33,13 +33,14 @@ public:
 
     /**
     * Initialises the tweakable widget
-    * @param value The default value to set
     * @param step The change if value to set
+    * @param precision The amount of decimal places
     * @param box The spin box for the tweakable widget
     * @param dial The dial for the tweakable widget
     * @param signalCallback The function to call when the value changes
     */
     void Initialise(double step,
+                    int precision,
                     QDoubleSpinBox* box, 
                     QDial* dial,
                     std::function<void(float)> signalCallback);

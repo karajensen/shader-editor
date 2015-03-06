@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - post_hlsl.fx
+// Kara Jensen - mail@karajensen.com - post_effects_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
 cbuffer PixelBuffer : register(b0)
@@ -35,21 +35,11 @@ struct Outputs
     float4 colour : SV_TARGET0;
 };
 
-Texture2DMS<float4,SAMPLES> SceneSampler   : register(t0);
-Texture2DMS<float4,SAMPLES> NormalSampler  : register(t1);
-
 SamplerState Sampler;
-Texture2D BlurSampler : register(t2);
-
-float4 GetMultisampledColour(Texture2DMS<float4, SAMPLES> samplerName, int3 uvs)
-{
-    float4 color = float4(0.0, 0.0, 0.0, 0.0);
-    for (int i = 0; i < SAMPLES; ++i)
-    {
-        color += samplerName.Load(uvs, i);
-    }
-    return color * (1.0 / SAMPLES);
-}
+Texture2D SceneSampler   : register(t0);
+Texture2D NormalSampler  : register(t1);
+Texture2D EffectsSampler : register(t2);
+Texture2D BlurSampler    : register(t3);
 
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
@@ -62,11 +52,10 @@ Attributes VShader(float4 position  : POSITION,
 
 Outputs PShader(Attributes input)
 {
-    int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-    float4 scene = GetMultisampledColour(SceneSampler, uvs);
-    float4 normal = GetMultisampledColour(NormalSampler, uvs);
+    float4 scene = SceneSampler.Sample(Sampler, input.uvs);
+    float4 normal = NormalSampler.Sample(Sampler, input.uvs);
+    float4 effects = EffectsSampler.Sample(Sampler, input.uvs);
     float4 blur = BlurSampler.Sample(Sampler, input.uvs);
-
     float3 postScene = scene.rgb;
     float depth = normal.a;
 

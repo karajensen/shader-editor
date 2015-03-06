@@ -21,16 +21,19 @@ struct ComboEntry
     * @param Attribute What this is tweaking
     * @param Name Name of the entry
     * @param Step How much to change the value by
+    * @param Precision How many decimal places
     * @param Callback The callback for when value changes
     */
     ComboEntry(int Attribute,
                const std::string& Name,
                double Step,
+               int Precision,
                std::function<void(float)> Callback);
 
     int attribute;    ///< What this is tweaking
     std::string name; ///< Name of the entry
     double step;      ///< How much to change the value by
+    int precision;    ///< How many decimal places
     double value;     ///< Current value of the entry
 
     std::function<void(float)> callback; ///< Called when the value is changed

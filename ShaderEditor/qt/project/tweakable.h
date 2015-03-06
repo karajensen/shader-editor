@@ -152,6 +152,24 @@ enum EmitterAttribute
 };
 
 /**
+* Attributes for post processing
+*/
+enum PostAttribute
+{
+    POST_CONTRAST,
+    POST_SATURATION,
+    POST_BLUR_AMOUNT,
+    POST_BLUR_STEP,
+    POST_DOF_DISTANCE,
+    POST_DOF_FADE,
+    POST_DEPTH_NEAR,
+    POST_DEPTH_FAR,
+    POST_BLOOM_AMOUNT,
+    POST_BLOOM_START,
+    POST_ATTRIBUTES
+};
+
+/**
 * Supported callback types
 */
 typedef std::function<void(float)> FloatSignal;
@@ -171,13 +189,15 @@ struct SignalCallbacks
     FloatSignal SetDOFFade;        ///< Sets how quickly depth of field fades to the scene
     FloatSignal SetBlurAmount;     ///< Sets the amount of blurring on the scene
     FloatSignal SetBlurStep;       ///< Sets the amount of step between samples for blurring
-    FloatSignal SetBloomIntensity; ///< Sets the amount of glow on the scene
+    FloatSignal SetBloomIntensity; ///< Sets the amount of bloom on the scene
+    FloatSignal SetBloomStart;     ///< Sets the threshold when the bloom will start
     FloatSignal SetContrast;       ///< Sets the contrast of the final scene
     FloatSignal SetSaturation;     ///< Sets the saturation of the final scene
     FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
     FloatSignals SetCamera;        ///< Sets the camera tweakable attributes
     FloatSignals SetLight;         ///< Sets the light tweakable attributes
     FloatSignals SetFog;           ///< Sets the fog tweakable attributes
+    FloatSignals SetPost;          ///< Sets the post tweakable attributes
     FloatSignals SetMesh;          ///< Sets the mesh tweakable attributes
     FloatSignals SetWater;         ///< Sets the water tweakable attributes
     FloatSignals SetWave;          ///< Sets the water wave tweakable attributes
@@ -197,22 +217,12 @@ struct SignalCallbacks
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
     VoidSignal RenderLightsOnly;   ///< Sends a request to render only the lights
-    VoidSignal SavePost;           ///< Sends a request to save post processing to xml
     StrSignal CompileShader;       ///< Sends a compile request
 
     /**
     * Constructor
     */
     SignalCallbacks() :
-        SetDepthNear(nullptr),
-        SetDepthFar(nullptr),
-        SetDOFDistance(nullptr),
-        SetDOFFade(nullptr),
-        SetBlurAmount(nullptr),
-        SetBlurStep(nullptr),
-        SetBloomIntensity(nullptr),
-        SetContrast(nullptr),
-        SetSaturation(nullptr),
         SetParticleAmount(nullptr),
         SetSelectedEngine(nullptr),
         SetSelectedLight(nullptr),
@@ -227,7 +237,6 @@ struct SignalCallbacks
         SaveScene(nullptr),
         PauseEmission(nullptr),
         RenderLightsOnly(nullptr),
-        SavePost(nullptr),
         CompileShader(nullptr)
     {
         SetLight.resize(LIGHT_ATTRIBUTES);
@@ -256,5 +265,8 @@ struct SignalCallbacks
 
         SetEmitter.resize(EMITTER_ATTRIBUTES);
         SetEmitter.assign(EMITTER_ATTRIBUTES, nullptr);
+
+        SetPost.resize(POST_ATTRIBUTES);
+        SetPost.assign(POST_ATTRIBUTES, nullptr);
     }
 };

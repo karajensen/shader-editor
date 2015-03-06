@@ -78,8 +78,6 @@ public:
     QPushButton *reloadScene_btn;
     QFrame *saveScene;
     QPushButton *saveScene_btn;
-    QFrame *savePost;
-    QPushButton *savePost_btn;
     QSpacerItem *_sceneSpacer;
     QWidget *Light;
     QWidget *layoutWidget1;
@@ -206,10 +204,14 @@ public:
     QLabel *blurStep_lbl;
     QDoubleSpinBox *blurStep_value;
     QDial *blurStep_dial;
-    QFrame *glowIntensity;
-    QLabel *glowIntensity_lbl;
-    QDoubleSpinBox *glowIntensity_value;
-    QDial *glowIntensity_dial;
+    QFrame *bloomStart;
+    QLabel *bloomStart_lbl;
+    QDoubleSpinBox *bloomStart_value;
+    QDial *bloomStart_dial;
+    QFrame *bloomAmount;
+    QLabel *bloomAmount_lbl;
+    QDoubleSpinBox *bloomAmount_value;
+    QDial *bloomAmount_dial;
     QFrame *dofDistance;
     QLabel *dofDistance_lbl;
     QDoubleSpinBox *dofDistance_value;
@@ -824,29 +826,6 @@ public:
 
         sceneLayout->addWidget(saveScene);
 
-        savePost = new QFrame(layoutWidget);
-        savePost->setObjectName(QStringLiteral("savePost"));
-        sizePolicy.setHeightForWidth(savePost->sizePolicy().hasHeightForWidth());
-        savePost->setSizePolicy(sizePolicy);
-        savePost->setMinimumSize(QSize(225, 35));
-        savePost->setMaximumSize(QSize(225, 35));
-        savePost->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        savePost->setFrameShape(QFrame::Panel);
-        savePost->setFrameShadow(QFrame::Raised);
-        savePost_btn = new QPushButton(savePost);
-        savePost_btn->setObjectName(QStringLiteral("savePost_btn"));
-        savePost_btn->setGeometry(QRect(5, 4, 216, 25));
-        savePost_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(255, 255, 255);\n"
-"border-left-color: rgb(255, 255, 255);\n"
-"border-bottom-color: rgb(180, 180, 180);\n"
-"border-right-color: rgb(180, 180, 180);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-
-        sceneLayout->addWidget(savePost);
-
         _sceneSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         sceneLayout->addItem(_sceneSpacer);
@@ -1193,10 +1172,10 @@ public:
 "border-width: 2px;"));
         attenuationX_value->setFrame(false);
         attenuationX_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        attenuationX_value->setDecimals(3);
+        attenuationX_value->setDecimals(5);
         attenuationX_value->setMinimum(-9999);
         attenuationX_value->setMaximum(9999);
-        attenuationX_value->setSingleStep(0.05);
+        attenuationX_value->setSingleStep(0.01);
         attenuationX_dial = new QDial(attenuationX);
         attenuationX_dial->setObjectName(QStringLiteral("attenuationX_dial"));
         attenuationX_dial->setGeometry(QRect(192, 2, 30, 30));
@@ -1245,10 +1224,10 @@ public:
 "border-width: 2px;"));
         attenuationY_value->setFrame(false);
         attenuationY_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        attenuationY_value->setDecimals(3);
+        attenuationY_value->setDecimals(5);
         attenuationY_value->setMinimum(-9999);
         attenuationY_value->setMaximum(9999);
-        attenuationY_value->setSingleStep(0.05);
+        attenuationY_value->setSingleStep(0.01);
         attenuationY_dial = new QDial(attenuationY);
         attenuationY_dial->setObjectName(QStringLiteral("attenuationY_dial"));
         attenuationY_dial->setGeometry(QRect(192, 2, 30, 30));
@@ -1297,10 +1276,10 @@ public:
 "border-width: 2px;"));
         attenuationZ_value->setFrame(false);
         attenuationZ_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        attenuationZ_value->setDecimals(3);
+        attenuationZ_value->setDecimals(5);
         attenuationZ_value->setMinimum(-9999);
         attenuationZ_value->setMaximum(9999);
-        attenuationZ_value->setSingleStep(0.05);
+        attenuationZ_value->setSingleStep(0.01);
         attenuationZ_dial = new QDial(attenuationZ);
         attenuationZ_dial->setObjectName(QStringLiteral("attenuationZ_dial"));
         attenuationZ_dial->setGeometry(QRect(192, 2, 30, 30));
@@ -1665,7 +1644,7 @@ public:
 
         meshLayout->addWidget(meshAttributes);
 
-        _meshSpacer_2 = new QSpacerItem(20, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_2 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_2);
 
@@ -1876,7 +1855,7 @@ public:
 
         meshLayout->addWidget(water);
 
-        _meshSpacer_3 = new QSpacerItem(20, 5, QSizePolicy::Minimum, QSizePolicy::Fixed);
+        _meshSpacer_3 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         meshLayout->addItem(_meshSpacer_3);
 
@@ -2379,7 +2358,7 @@ public:
         blurStep_value->setDecimals(3);
         blurStep_value->setMinimum(-9999);
         blurStep_value->setMaximum(9999);
-        blurStep_value->setSingleStep(0.05);
+        blurStep_value->setSingleStep(0.001);
         blurStep_dial = new QDial(blurStep);
         blurStep_dial->setObjectName(QStringLiteral("blurStep_dial"));
         blurStep_dial->setGeometry(QRect(192, 2, 30, 30));
@@ -2393,57 +2372,109 @@ public:
 
         postLayout->addWidget(blurStep);
 
-        glowIntensity = new QFrame(layoutWidget3);
-        glowIntensity->setObjectName(QStringLiteral("glowIntensity"));
-        glowIntensity->setMinimumSize(QSize(225, 35));
-        glowIntensity->setMaximumSize(QSize(225, 35));
-        glowIntensity->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        bloomStart = new QFrame(layoutWidget3);
+        bloomStart->setObjectName(QStringLiteral("bloomStart"));
+        bloomStart->setMinimumSize(QSize(225, 35));
+        bloomStart->setMaximumSize(QSize(225, 35));
+        bloomStart->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        glowIntensity->setFrameShape(QFrame::NoFrame);
-        glowIntensity->setFrameShadow(QFrame::Plain);
-        glowIntensity->setLineWidth(0);
-        glowIntensity_lbl = new QLabel(glowIntensity);
-        glowIntensity_lbl->setObjectName(QStringLiteral("glowIntensity_lbl"));
-        glowIntensity_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(glowIntensity_lbl->sizePolicy().hasHeightForWidth());
-        glowIntensity_lbl->setSizePolicy(sizePolicy);
-        glowIntensity_lbl->setMinimumSize(QSize(100, 30));
-        glowIntensity_lbl->setMaximumSize(QSize(100, 30));
-        glowIntensity_lbl->setFont(font1);
-        glowIntensity_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        glowIntensity_lbl->setMargin(1);
-        glowIntensity_value = new QDoubleSpinBox(glowIntensity);
-        glowIntensity_value->setObjectName(QStringLiteral("glowIntensity_value"));
-        glowIntensity_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(glowIntensity_value->sizePolicy().hasHeightForWidth());
-        glowIntensity_value->setSizePolicy(sizePolicy);
-        glowIntensity_value->setMinimumSize(QSize(86, 25));
-        glowIntensity_value->setMaximumSize(QSize(86, 25));
-        glowIntensity_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        bloomStart->setFrameShape(QFrame::NoFrame);
+        bloomStart->setFrameShadow(QFrame::Plain);
+        bloomStart->setLineWidth(0);
+        bloomStart_lbl = new QLabel(bloomStart);
+        bloomStart_lbl->setObjectName(QStringLiteral("bloomStart_lbl"));
+        bloomStart_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(bloomStart_lbl->sizePolicy().hasHeightForWidth());
+        bloomStart_lbl->setSizePolicy(sizePolicy);
+        bloomStart_lbl->setMinimumSize(QSize(100, 30));
+        bloomStart_lbl->setMaximumSize(QSize(100, 30));
+        bloomStart_lbl->setFont(font1);
+        bloomStart_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        bloomStart_lbl->setMargin(1);
+        bloomStart_value = new QDoubleSpinBox(bloomStart);
+        bloomStart_value->setObjectName(QStringLiteral("bloomStart_value"));
+        bloomStart_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(bloomStart_value->sizePolicy().hasHeightForWidth());
+        bloomStart_value->setSizePolicy(sizePolicy);
+        bloomStart_value->setMinimumSize(QSize(86, 25));
+        bloomStart_value->setMaximumSize(QSize(86, 25));
+        bloomStart_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 "border-top-color: rgb(180, 180, 180);\n"
 "border-left-color: rgb(180, 180, 180);\n"
 "border-bottom-color: rgb(255, 255, 255);\n"
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
-        glowIntensity_value->setFrame(false);
-        glowIntensity_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        glowIntensity_value->setDecimals(3);
-        glowIntensity_value->setMinimum(-9999);
-        glowIntensity_value->setMaximum(9999);
-        glowIntensity_value->setSingleStep(0.05);
-        glowIntensity_dial = new QDial(glowIntensity);
-        glowIntensity_dial->setObjectName(QStringLiteral("glowIntensity_dial"));
-        glowIntensity_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(glowIntensity_dial->sizePolicy().hasHeightForWidth());
-        glowIntensity_dial->setSizePolicy(sizePolicy);
-        glowIntensity_dial->setMinimumSize(QSize(30, 30));
-        glowIntensity_dial->setMaximumSize(QSize(30, 30));
-        glowIntensity_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        glowIntensity_dial->setMinimum(-10000);
-        glowIntensity_dial->setMaximum(10000);
+        bloomStart_value->setFrame(false);
+        bloomStart_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        bloomStart_value->setDecimals(3);
+        bloomStart_value->setMinimum(-9999);
+        bloomStart_value->setMaximum(9999);
+        bloomStart_value->setSingleStep(0.05);
+        bloomStart_dial = new QDial(bloomStart);
+        bloomStart_dial->setObjectName(QStringLiteral("bloomStart_dial"));
+        bloomStart_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(bloomStart_dial->sizePolicy().hasHeightForWidth());
+        bloomStart_dial->setSizePolicy(sizePolicy);
+        bloomStart_dial->setMinimumSize(QSize(30, 30));
+        bloomStart_dial->setMaximumSize(QSize(30, 30));
+        bloomStart_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        bloomStart_dial->setMinimum(-10000);
+        bloomStart_dial->setMaximum(10000);
 
-        postLayout->addWidget(glowIntensity);
+        postLayout->addWidget(bloomStart);
+
+        bloomAmount = new QFrame(layoutWidget3);
+        bloomAmount->setObjectName(QStringLiteral("bloomAmount"));
+        bloomAmount->setMinimumSize(QSize(225, 35));
+        bloomAmount->setMaximumSize(QSize(225, 35));
+        bloomAmount->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        bloomAmount->setFrameShape(QFrame::NoFrame);
+        bloomAmount->setFrameShadow(QFrame::Plain);
+        bloomAmount->setLineWidth(0);
+        bloomAmount_lbl = new QLabel(bloomAmount);
+        bloomAmount_lbl->setObjectName(QStringLiteral("bloomAmount_lbl"));
+        bloomAmount_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(bloomAmount_lbl->sizePolicy().hasHeightForWidth());
+        bloomAmount_lbl->setSizePolicy(sizePolicy);
+        bloomAmount_lbl->setMinimumSize(QSize(100, 30));
+        bloomAmount_lbl->setMaximumSize(QSize(100, 30));
+        bloomAmount_lbl->setFont(font1);
+        bloomAmount_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        bloomAmount_lbl->setMargin(1);
+        bloomAmount_value = new QDoubleSpinBox(bloomAmount);
+        bloomAmount_value->setObjectName(QStringLiteral("bloomAmount_value"));
+        bloomAmount_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(bloomAmount_value->sizePolicy().hasHeightForWidth());
+        bloomAmount_value->setSizePolicy(sizePolicy);
+        bloomAmount_value->setMinimumSize(QSize(86, 25));
+        bloomAmount_value->setMaximumSize(QSize(86, 25));
+        bloomAmount_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        bloomAmount_value->setFrame(false);
+        bloomAmount_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        bloomAmount_value->setDecimals(3);
+        bloomAmount_value->setMinimum(-9999);
+        bloomAmount_value->setMaximum(9999);
+        bloomAmount_value->setSingleStep(0.05);
+        bloomAmount_dial = new QDial(bloomAmount);
+        bloomAmount_dial->setObjectName(QStringLiteral("bloomAmount_dial"));
+        bloomAmount_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(bloomAmount_dial->sizePolicy().hasHeightForWidth());
+        bloomAmount_dial->setSizePolicy(sizePolicy);
+        bloomAmount_dial->setMinimumSize(QSize(30, 30));
+        bloomAmount_dial->setMaximumSize(QSize(30, 30));
+        bloomAmount_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        bloomAmount_dial->setMinimum(-10000);
+        bloomAmount_dial->setMaximum(10000);
+
+        postLayout->addWidget(bloomAmount);
 
         dofDistance = new QFrame(layoutWidget3);
         dofDistance->setObjectName(QStringLiteral("dofDistance"));
@@ -2838,7 +2869,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(3);
         selectedLight_box->setCurrentIndex(-1);
 
 
@@ -2864,7 +2895,6 @@ public:
         cameraRoll_lbl->setText(QApplication::translate("Tweaker", "Camera Roll", 0));
         reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", 0));
         saveScene_btn->setText(QApplication::translate("Tweaker", "Save Scene to File", 0));
-        savePost_btn->setText(QApplication::translate("Tweaker", "Save Post Processing to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         renderLightsOnly_btn->setText(QApplication::translate("Tweaker", "Render Lights Only", 0));
         lightDiagnostics_btn->setText(QApplication::translate("Tweaker", "Toggle Light Diagnostics", 0));
@@ -2893,7 +2923,8 @@ public:
         depthFar_lbl->setText(QApplication::translate("Tweaker", "Depth Far", 0));
         blurring_lbl->setText(QApplication::translate("Tweaker", "Blur Amount", 0));
         blurStep_lbl->setText(QApplication::translate("Tweaker", "Blur Step", 0));
-        glowIntensity_lbl->setText(QApplication::translate("Tweaker", "Glow Intensity", 0));
+        bloomStart_lbl->setText(QApplication::translate("Tweaker", "Bloom Start", 0));
+        bloomAmount_lbl->setText(QApplication::translate("Tweaker", "Bloom Amount", 0));
         dofDistance_lbl->setText(QApplication::translate("Tweaker", "DOF Start", 0));
         dofFade_lbl->setText(QApplication::translate("Tweaker", "DOF Fade", 0));
         contrast_lbl->setText(QApplication::translate("Tweaker", "Contrast", 0));

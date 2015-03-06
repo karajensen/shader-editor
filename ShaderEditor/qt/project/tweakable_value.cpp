@@ -13,15 +13,17 @@ TweakableValue::TweakableValue() :
 }
 
 void TweakableValue::Initialise(double step,
-                               QDoubleSpinBox* box, 
-                               QDial* dial,
-                               std::function<void(float)> signalCallback)
+                                int precision,
+                                QDoubleSpinBox* box, 
+                                QDial* dial,
+                                std::function<void(float)> signalCallback)
 {
     m_box = box;
     m_signalCallback = signalCallback;
 
     box->setValue(0.0);
     box->setSingleStep(step);
+    box->setDecimals(precision);
 
     connect(box, SIGNAL(valueChanged(double)), 
         this, SLOT(UpdateValue(double)));  

@@ -137,12 +137,6 @@ void SceneModifier::UpdateScene()
         m_scene.SaveSceneToFile();
         m_cache->SaveScene.Set(false);
     }
-
-    if (m_cache->SavePost.Get())
-    {
-        m_scene.SavePostProcessingtoFile();
-        m_cache->SavePost.Set(false);
-    }
 }
 
 void SceneModifier::UpdateCamera()
@@ -295,10 +289,21 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
 
     m_scene.GetPost().Write(*m_cache);
 
-    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.GetCamera(Camera::POSITION_X));
-    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.GetCamera(Camera::POSITION_Y));
-    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(m_camera.GetCamera(Camera::POSITION_Z));
-    m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.GetCamera(Camera::ROTATION_PITCH));
-    m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.GetCamera(Camera::ROTATION_YAW));
-    m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.GetCamera(Camera::ROTATION_ROLL));
+    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_X));
+
+    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_Y));
+
+    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_Z));
+
+    m_cache->Camera[CAMERA_PITCH].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_PITCH));
+
+    m_cache->Camera[CAMERA_YAW].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_YAW));
+
+    m_cache->Camera[CAMERA_ROLL].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_ROLL));
 }

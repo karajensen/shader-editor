@@ -63,58 +63,11 @@ public:
     void SetFramesPerSec(const std::string& fps);
 
     /**
-    * Sets the near value for the camera
-    * @param value The near value for the camera
+    * Sets the value for an attribute of post processing
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
     */
-    void SetDepthNear(float value);
-
-    /**
-    * Sets the far value for the camera
-    * @param value The far value for the camera
-    */
-    void SetDepthFar(float value);
-
-    /**
-    * Sets the distance depth of field will be active
-    * @param value The distance depth of field will be active
-    */
-    void SetDOFDistance(float value);
-
-    /**
-    * Sets how quickly depth of field blends into the scene
-    * @param value How quickly depth of field blends into the scene
-    */
-    void SetDOFFade(float value);
-
-    /**
-    * Sets the amount of blurring on the scene
-    * @param value The amount of blurring on the scene
-    */
-    void SetBlurAmount(float value);
-
-    /**
-    * Sets the step between samples for blurring
-    * @param value The amount of step between samples
-    */
-    void SetBlurStep(float value);
-
-    /**
-    * Sets the amount of overall glow for the scene
-    * @param value The amount of glow on the scene
-    */
-    void SetBloomIntensity(float value);
-
-    /**
-    * Sets the amount contrast in the final scene
-    * @param value The amount contrast in the final scene
-    */
-    void SetContrast(float value);
-
-    /**
-    * Sets the amount saturation in the final scene
-    * @param value The amount saturation in the final scene
-    */
-    void SetSaturation(float value);
+    void SetPost(PostAttribute attribute, float value);
 
     /**
     * Sets the value for an attribute of fog
@@ -304,7 +257,7 @@ private:
     TweakableValue m_DOFDistance;        ///< Distance depth of field will start
     TweakableValue m_contrast;           ///< Contrast controller for the final scene
     TweakableValue m_saturation;         ///< Saturation controller for the final scene
-    TweakableValue m_glowAmount;         ///< Amount to glow the scene by
+    TweakableValue m_bloomAmount;        ///< Intensity of the bloom
     TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_blurStep;           ///< Step between samples for blurring
     TweakableValue m_depthNear;          ///< Tweakable depth near value
@@ -315,7 +268,6 @@ private:
     TweakableButton m_lightDiag;         ///< Button to toggle light diagnostics
     TweakableButton m_reloadScene;       ///< Button to reload the application
     TweakableButton m_saveScene;         ///< Button to save all scene to xml
-    TweakableButton m_savePost;          ///< Button to save all post processing to xml
     TweakableButton m_pauseEmission;     ///< Button to pause the selected emitter
     TweakableButton m_lightsOnly;        ///< Button to render the lights only
 
@@ -338,6 +290,7 @@ private:
     TweakableBoxedValue m_lightDiffuse;  ///< Tweakable values for light diffuse colour
     TweakableBoxedValue m_lightSpecular; ///< Tweakable values for light specular colour
 
+    std::unordered_map<PostAttribute, TweakableValue> m_post;     ///< Post processing values
     std::unordered_map<CameraAttribute, TweakableValue> m_camera; ///< Camera Tweakable values
     std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 

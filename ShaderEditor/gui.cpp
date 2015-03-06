@@ -63,6 +63,12 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Fog[i].Set(value); };
     }
 
+    for (int i = 0; i < POST_ATTRIBUTES; ++i)
+    {
+        callbacks.SetPost[i] = 
+            [this, i](float value){ m_cache->Post[i].Set(value); };
+    }
+
     for (int i = 0; i < COLOUR_ATTRIBUTES; ++i)
     {
         callbacks.SetMinColour[i] = 
@@ -72,15 +78,6 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->MaxColour[i].Set(value); };
     }
 
-    callbacks.SetDOFDistance =     [this](float value){ m_cache->DOFDistance.Set(value); };
-    callbacks.SetDOFFade =         [this](float value){ m_cache->DOFFade.Set(value); };
-    callbacks.SetBlurAmount =      [this](float value){ m_cache->BlurAmount.Set(value); };
-    callbacks.SetBlurStep =        [this](float value){ m_cache->BlurStep.Set(value); };
-    callbacks.SetBloomIntensity =  [this](float value){ m_cache->BloomIntensity.Set(value); };
-    callbacks.SetContrast =        [this](float value){ m_cache->Contrast.Set(value); };
-    callbacks.SetSaturation =      [this](float value){ m_cache->Saturation.Set(value); };
-    callbacks.SetDepthFar =        [this](float value){ m_cache->DepthFar.Set(value); };
-    callbacks.SetDepthNear =       [this](float value){ m_cache->DepthNear.Set(value); };
     callbacks.SetParticleAmount =  [this](float index){ m_cache->ParticleAmount.Set(static_cast<int>(index)); };
     callbacks.SetSelectedWave =    [this](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
     callbacks.SetSelectedEngine =  [this](int index){ m_cache->EngineSelected.Set(index); };
@@ -92,7 +89,6 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetPostMap =         [this](int index){ m_cache->PostMapSelected.Set(index); };
     callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
     callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
-    callbacks.SavePost =           [this](){ m_cache->SavePost.Set(true); };
     callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
     callbacks.RenderLightsOnly =   [this](){ m_cache->RenderLightsOnly.Set(true); };
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
@@ -189,49 +185,13 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
 
 void Gui::UpdatePost(Tweaker& tweaker)
 {
-    if (m_cache->DOFDistance.RequiresUpdate())
+    for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
-        tweaker.SetDOFDistance(m_cache->DOFDistance.GetUpdated());
-    }
-
-    if (m_cache->DOFFade.RequiresUpdate())
-    {
-        tweaker.SetDOFFade(m_cache->DOFFade.GetUpdated());
-    }
-
-    if (m_cache->BlurAmount.RequiresUpdate())
-    {
-        tweaker.SetBlurAmount(m_cache->BlurAmount.GetUpdated());
-    }
-
-    if (m_cache->BlurStep.RequiresUpdate())
-    {
-        tweaker.SetBlurStep(m_cache->BlurStep.GetUpdated());
-    }
-
-    if (m_cache->BloomIntensity.RequiresUpdate())
-    {
-        tweaker.SetBloomIntensity(m_cache->BloomIntensity.GetUpdated());
-    }
-
-    if (m_cache->Saturation.RequiresUpdate())
-    {
-        tweaker.SetSaturation(m_cache->Saturation.GetUpdated());
-    }
-
-    if (m_cache->Contrast.RequiresUpdate())
-    {
-        tweaker.SetContrast(m_cache->Contrast.GetUpdated());
-    }
-
-    if (m_cache->DepthFar.RequiresUpdate())
-    {
-        tweaker.SetDepthFar(m_cache->DepthFar.GetUpdated());
-    }
-
-    if (m_cache->DepthNear.RequiresUpdate())
-    {
-        tweaker.SetDepthNear(m_cache->DepthNear.GetUpdated());
+        if (m_cache->Post[i].RequiresUpdate())
+        {
+            tweaker.SetPost(static_cast<PostAttribute>(i), 
+                m_cache->Post[i].GetUpdated());
+        }
     }
 
     for (int i = 0; i < FOG_ATTRIBUTES; ++i)

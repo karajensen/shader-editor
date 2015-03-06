@@ -17,13 +17,15 @@ TweakableBoxedValue::TweakableBoxedValue() :
 ComboEntry::ComboEntry(int Attribute,
                        const std::string& Name,
                        double Step,
+                       int Precision,
                        std::function<void(float)> Callback) :
 
     attribute(Attribute),
     step(Step),
     value(0.0),
     callback(Callback),
-    name(Name)
+    name(Name),
+    precision(Precision)
 {
 }
 
@@ -76,6 +78,7 @@ void TweakableBoxedValue::UpdateSelected(int index)
 
     m_box->setValue(m_entries[index].value);
     m_box->setSingleStep(m_entries[index].step);
+    m_box->setDecimals(m_entries[index].precision);
 
     m_box->update();
     m_dial->update();
