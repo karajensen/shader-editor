@@ -9,7 +9,6 @@ PostProcessing::PostProcessing(const boost::property_tree::ptree& node)
 {
     SetPostMap(SCENE_MAP);
 
-    m_blurAmount = GetValue<float>(node, "BlurAmount");
     m_blurStep = GetValue<float>(node, "BlurStep");
     m_depthFar = GetValue<float>(node, "DepthFar");
     m_depthNear = GetValue<float>(node, "DepthNear");
@@ -41,7 +40,6 @@ PostProcessing::PostProcessing(const boost::property_tree::ptree& node)
 
 void PostProcessing::Write(boost::property_tree::ptree& node) const
 {
-    node.add("BlurAmount", m_blurAmount);
     node.add("BlurStep", m_blurStep);
     node.add("DepthFar", m_depthFar);
     node.add("DepthNear", m_depthNear);
@@ -70,7 +68,6 @@ void PostProcessing::Write(Cache& cache)
     cache.Post[POST_DEPTH_FAR].SetUpdated(m_depthFar);
     cache.Post[POST_DOF_DISTANCE].SetUpdated(m_dofDistance);
     cache.Post[POST_DOF_FADE].SetUpdated(m_dofFade);
-    cache.Post[POST_BLUR_AMOUNT].SetUpdated(m_blurAmount);
     cache.Post[POST_BLUR_STEP].SetUpdated(m_blurStep);
     cache.Post[POST_BLOOM_AMOUNT].SetUpdated(m_bloomIntensity);
     cache.Post[POST_BLOOM_START].SetUpdated(m_bloomStart);
@@ -93,7 +90,6 @@ void PostProcessing::Read(Cache& cache)
 {
     m_dofDistance = cache.Post[POST_DOF_DISTANCE].Get();
     m_dofFade = cache.Post[POST_DOF_FADE].Get();
-    m_blurAmount = cache.Post[POST_BLUR_AMOUNT].Get();
     m_blurStep = cache.Post[POST_BLUR_STEP].Get();
     m_bloomIntensity = cache.Post[POST_BLOOM_AMOUNT].Get();
     m_bloomStart = cache.Post[POST_BLOOM_START].Get();
@@ -195,11 +191,6 @@ const float& PostProcessing::Saturation() const
 const float& PostProcessing::BlurStep() const
 {
     return m_blurStep;
-}
-
-const float& PostProcessing::BlurAmount() const
-{
-    return m_blurAmount;
 }
 
 const float& PostProcessing::DepthNear() const

@@ -102,11 +102,6 @@ public:
     const float& BlurStep() const;
 
     /**
-    * @return Amount to blur the scene by
-    */
-    const float& BlurAmount() const;
-
-    /**
     * @return Value where depth colour is min
     */
     const float& DepthNear() const;
@@ -181,7 +176,6 @@ private:
     float m_contrast = 0.0f;              ///< Contrast controller of the final scene
     float m_saturation = 0.0f;            ///< Saturation controller of the final scene
     float m_blurStep = 0.0f;              ///< Sampling step for blurring
-    float m_blurAmount = 0.0f;            ///< Amount to blur the scene by
     float m_depthNear = 0.0f;             ///< Value where depth colour is min
     float m_depthFar = 0.0f;              ///< Value where depth colour is max
     float m_fogDistance = 0.0f;           ///< Distance the fog starts

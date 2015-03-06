@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PostProcessing>
-	<BlurAmount>1</BlurAmount>
 	<BlurStep>0.005</BlurStep>
 	<DepthFar>1000</DepthFar>
 	<DepthNear>1</DepthNear>

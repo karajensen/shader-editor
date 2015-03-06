@@ -41,9 +41,6 @@ void main(void)
     vec3 postScene = scene.rgb;
     float depth = normal.a;
 
-    // Bloom
-    vec3 bloom = effects.rrr;
-
     // Depth of Field
     float dofEnd = dofDistance - dofFade;
     float dofWeight = clamp(((depth-dofEnd)*(1.0/(dofDistance-dofEnd))), 0.0, 1.0);
@@ -57,6 +54,10 @@ void main(void)
     vec3 fog = fogColor * fogWeight;
     postScene *= (1.0 - fogWeight);
     postScene += fog;
+
+    // Bloom
+    vec3 bloom = effects.rgb;
+    postScene += bloom;
 
     // Colour Correction
     postScene = min(max(postScene, 0.0), 1.0);

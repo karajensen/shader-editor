@@ -20,7 +20,8 @@ namespace
     std::map<std::string, ShaderIndex> SPECIAL_SHADERS = boost::assign::map_list_of
         ("post_effects", POST_SHADER)
         ("pre_effects", PRE_SHADER)
-        ("blur", BLUR_SHADER)
+        ("blur_horizontal", BLUR_HORIZONTAL_SHADER)
+        ("blur_vertical", BLUR_VERTICAL_SHADER)
         ("water", WATER_SHADER)
         ("particle", PARTICLE_SHADER)
         ("diagnostic", DIAGNOSTIC_SHADER);

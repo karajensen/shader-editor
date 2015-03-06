@@ -46,9 +46,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_post[POST_SATURATION].Initialise(0.01, 3, m_ui.saturation_value,
         m_ui.saturation_dial, m_callbacks.SetPost[POST_SATURATION]);    
 
-    m_post[POST_BLUR_AMOUNT].Initialise(0.01, 4, m_ui.blurring_value,
-        m_ui.blurring_dial, m_callbacks.SetPost[POST_BLUR_AMOUNT]);    
-
     m_post[POST_BLUR_STEP].Initialise(0.0001, 4, m_ui.blurStep_value,
         m_ui.blurStep_dial, m_callbacks.SetPost[POST_BLUR_STEP]);    
 

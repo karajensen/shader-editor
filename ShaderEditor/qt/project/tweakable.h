@@ -158,7 +158,6 @@ enum PostAttribute
 {
     POST_CONTRAST,
     POST_SATURATION,
-    POST_BLUR_AMOUNT,
     POST_BLUR_STEP,
     POST_DOF_DISTANCE,
     POST_DOF_FADE,
@@ -187,7 +186,6 @@ struct SignalCallbacks
     FloatSignal SetDepthFar;       ///< Sets the depth far value
     FloatSignal SetDOFDistance;    ///< Sets when depth of field kicks in
     FloatSignal SetDOFFade;        ///< Sets how quickly depth of field fades to the scene
-    FloatSignal SetBlurAmount;     ///< Sets the amount of blurring on the scene
     FloatSignal SetBlurStep;       ///< Sets the amount of step between samples for blurring
     FloatSignal SetBloomIntensity; ///< Sets the amount of bloom on the scene
     FloatSignal SetBloomStart;     ///< Sets the threshold when the bloom will start

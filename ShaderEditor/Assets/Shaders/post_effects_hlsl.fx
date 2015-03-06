@@ -60,9 +60,6 @@ Outputs PShader(Attributes input)
     float3 postScene = scene.rgb;
     float depth = normal.a;
 
-    // Bloom
-    float3 bloom = effects.rrr;
-
     // Depth of Field
     float dofEnd = dofDistance - dofFade;
     float dofWeight = saturate((depth-dofEnd)*(1.0/(dofDistance-dofEnd)));
@@ -76,6 +73,10 @@ Outputs PShader(Attributes input)
     float3 fog = fogColor * fogWeight;
     postScene *= (1.0 - fogWeight);
     postScene += fog;
+
+    // Bloom
+    float3 bloom = effects.rgb;
+    postScene += bloom;
 
     // Colour Correction
     postScene = saturate(postScene);

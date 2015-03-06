@@ -39,10 +39,12 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 */
 const int EFFECTS_TEXTURES = 3;
 const int SCENE_TEXTURES = 2;
-const int BLUR_TEXTURES = 1;
+const int BLUR_TEXTURES = 2;
 const int SCENE_ID = 0;
 const int NORMAL_ID = 1;
 const int EFFECTS_ID = 2;
+const int BLUR_SCENE_ID = 0;
+const int BLUR_EFFECTS_ID = 1;
 
 /**
 * Available render engines
@@ -62,7 +64,8 @@ enum ShaderIndex
 {
     POST_SHADER,
     PRE_SHADER,
-    BLUR_SHADER,
+    BLUR_HORIZONTAL_SHADER,
+    BLUR_VERTICAL_SHADER,
     WATER_SHADER,
     PARTICLE_SHADER,
     DIAGNOSTIC_SHADER

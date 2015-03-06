@@ -500,11 +500,14 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive(m_data->context);
-    m_data->preEffectsTarget.SetActive(m_data->context);
+    preShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
+    preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
+    preShader->SendConstants(m_data->context);
 
     m_data->sceneTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->sceneTarget.SendTexture(m_data->context, 1, NORMAL_ID);
     
+    m_data->preEffectsTarget.SetActive(m_data->context);
     m_data->quad.Render(m_data->context);
 
     m_data->sceneTarget.ClearTexture(m_data->context, 0);
@@ -516,33 +519,37 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
 
-    const float passOn = 1.0f;
-    const float passOff = 0.0f;
+    auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
+    blurHorizontal->SetActive(m_data->context);
+    blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
+    blurHorizontal->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
+    blurHorizontal->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
+    blurHorizontal->SendConstants(m_data->context);
 
-    auto& blurShader = m_data->shaders[BLUR_SHADER];
-    blurShader->SetActive(m_data->context);
-    blurShader->UpdateConstantFloat("blurAmount", &post.BlurAmount(), 1);
-    blurShader->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
-    blurShader->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
-    blurShader->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
-
-    blurShader->UpdateConstantFloat("horizontalPass", &passOn, 1);
-    blurShader->UpdateConstantFloat("VerticalPass", &passOff, 1);
-    blurShader->SendConstants(m_data->context);
+    m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
+    m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
 
     m_data->blurHorizontalTarget.SetActive(m_data->context);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->quad.Render(m_data->context);
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
 
-    blurShader->UpdateConstantFloat("horizontalPass", &passOff, 1);
-    blurShader->UpdateConstantFloat("VerticalPass", &passOn, 1);
-    blurShader->SendConstants(m_data->context);
+    m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
+    m_data->preEffectsTarget.ClearTexture(m_data->context, 1);
+
+    auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
+    blurVertical->SetActive(m_data->context);
+    blurVertical->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
+    blurVertical->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
+    blurVertical->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
+    blurVertical->SendConstants(m_data->context);
+
+    m_data->blurHorizontalTarget.SendTexture(m_data->context, 0, BLUR_SCENE_ID);
+    m_data->blurHorizontalTarget.SendTexture(m_data->context, 1, BLUR_EFFECTS_ID);
 
     m_data->blurVerticalTarget.SetActive(m_data->context);
-    m_data->blurHorizontalTarget.SendTexture(m_data->context, 0);
     m_data->quad.Render(m_data->context);
+
     m_data->blurHorizontalTarget.ClearTexture(m_data->context, 0);
+    m_data->blurHorizontalTarget.ClearTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -558,8 +565,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->preEffectsTarget.SendTexture(m_data->context, 1, NORMAL_ID);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 2, EFFECTS_ID);
-    m_data->blurVerticalTarget.SendTexture(m_data->context, 3);
+    m_data->blurVerticalTarget.SendTexture(m_data->context, 2, BLUR_EFFECTS_ID);
+    m_data->blurVerticalTarget.SendTexture(m_data->context, 3, BLUR_SCENE_ID);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
@@ -579,13 +586,14 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
+    postShader->UpdateConstantFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
 
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
 
     m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
     m_data->preEffectsTarget.ClearTexture(m_data->context, 1);
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 2);
+    m_data->blurVerticalTarget.ClearTexture(m_data->context, 2);
     m_data->blurVerticalTarget.ClearTexture(m_data->context, 3);
 }
 

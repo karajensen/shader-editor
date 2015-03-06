@@ -258,7 +258,6 @@ private:
     TweakableValue m_contrast;           ///< Contrast controller for the final scene
     TweakableValue m_saturation;         ///< Saturation controller for the final scene
     TweakableValue m_bloomAmount;        ///< Intensity of the bloom
-    TweakableValue m_blurAmount;         ///< Amount to blur the scene by
     TweakableValue m_blurStep;           ///< Step between samples for blurring
     TweakableValue m_depthNear;          ///< Tweakable depth near value
     TweakableValue m_depthFar;           ///< Tweakable depth far value

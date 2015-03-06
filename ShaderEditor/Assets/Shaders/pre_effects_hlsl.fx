@@ -2,6 +2,12 @@
 // Kara Jensen - mail@karajensen.com - pre_effects_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
+cbuffer SceneVertexBuffer : register(b0)
+{
+    float bloomIntensity;
+    float bloomStart;
+};
+
 struct Attributes
 {
     float4 position   : SV_POSITION;
@@ -40,10 +46,17 @@ Attributes VShader(float4 position  : POSITION,
 Outputs PShader(Attributes input)
 {
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
+    float4 scene = GetMultisampled(SceneSampler, uvs);
+    float4 normal = GetMultisampled(NormalSampler, uvs);
 
     Outputs output;
-    output.scene = GetMultisampled(SceneSampler, uvs);
-    output.normal = GetMultisampled(NormalSampler, uvs);
-    output.effects = float4(1.0, 0.0, 0.0, 1.0);
+    output.scene = scene;
+    output.normal = normal;
+
+    float3 outer = float3(1.0, 1.0, 1.0);
+    float3 inner = float3(bloomStart, bloomStart, bloomStart);
+    output.effects.rgb = saturate((scene.rgb-inner)*(outer/(outer-inner)));
+    output.effects.rgb *= bloomIntensity;
+
     return output;
 }
