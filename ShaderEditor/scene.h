@@ -68,6 +68,11 @@ public:
     virtual const PostProcessing& Post() const override;
 
     /**
+    * @return the animating caustics texture
+    */
+    virtual const AnimatedTexture& Caustics() const override;
+
+    /**
     * @return the names of the lights in the scene
     */
     std::vector<std::string> GetLightNames() const;
@@ -315,4 +320,5 @@ private:
     std::vector<Emitter> m_emitters;                  ///< All particle emitters in the scene
     std::unique_ptr<Diagnostic> m_diagnostic;         ///< Diagnostics for the scene
     std::unique_ptr<PostProcessing> m_postProcessing; ///< Post processing for the final image
+    std::unique_ptr<AnimatedTexture> m_caustics;      ///< Caustic animated texture
 };                     

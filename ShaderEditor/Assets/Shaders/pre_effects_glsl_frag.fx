@@ -34,11 +34,8 @@ void main(void)
     out_Color[ID_COLOUR] = scene;
     out_Color[ID_NORMAL] = normal;
 
-    // Create the Ambient Occlusion
-    out_Color[ID_EFFECTS].a = normal.r;
-
     // Create the Bloom
-    // convert range from end->start to 0->1
+    // map range from end->start to 0->1
     vec3 bloom = vec3(bloomStart, bloomStart - bloomFade, 1.0);
     out_Color[ID_EFFECTS].rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
     out_Color[ID_EFFECTS].rgb = clamp(out_Color[ID_EFFECTS].rgb, 0.0, 1.0);

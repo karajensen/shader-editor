@@ -75,12 +75,18 @@ public:
     const float& Ambience() const;
 
     /**
+    * @return Overlay multiplier
+    */
+    const float& Overlay() const;
+
+    /**
     * @return Whether back facing polygons are culled
     */
     bool BackfaceCull() const;
 
 private:
 
+    float m_overlay = 1.0f;            ///< How much of the overlay is visible
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
     bool m_backfacecull = true;        ///< Whether back facing polygons are culled

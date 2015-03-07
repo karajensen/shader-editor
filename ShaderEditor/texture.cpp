@@ -32,7 +32,32 @@ std::string Texture::GetTypeDescription(unsigned int type)
         return "Specular";
     case ENVIRONMENT:
         return "Environment";
+    case OVERLAY:
+        return "Overlay";
     default:
         return "None";
     };
+}
+
+void AnimatedTexture::AddFrame(int ID)
+{
+    m_frames.push_back(ID);
+}
+
+int AnimatedTexture::GetFrame() const
+{
+    return m_frames[m_selectedFrame];
+}
+
+void AnimatedTexture::Tick(float deltatime)
+{
+    m_timePassed += deltatime;
+
+    const float secondsUntilSwitch = 0.05f;
+    if (m_timePassed >= secondsUntilSwitch)
+    {
+        const int maxFrame = static_cast<int>(m_frames.size())-1;
+        m_selectedFrame = m_selectedFrame == maxFrame ? 0 : m_selectedFrame + 1;
+        m_timePassed = 0.0f;
+    }
 }

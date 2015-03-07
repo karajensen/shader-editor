@@ -11,6 +11,7 @@ Mesh::Mesh(const boost::property_tree::ptree& node) :
     m_initialInstances = GetValueOptional(node, 1, "Instances");
     m_instances.resize(m_initialInstances);
 
+    m_overlay = GetValueOptional<float>(node, 1.0f, "Overlay");
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
     m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
@@ -20,6 +21,7 @@ void Mesh::Write(boost::property_tree::ptree& node) const
 {
     MeshData::Write(node);
 
+    AddValueOptional(node, "Overlay", m_overlay, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
     AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
@@ -28,6 +30,7 @@ void Mesh::Write(boost::property_tree::ptree& node) const
 
 void Mesh::Write(Cache& cache)
 {
+    cache.Mesh[MESH_OVERLAY].SetUpdated(m_overlay);
     cache.Mesh[MESH_BUMP].SetUpdated(m_bump);
     cache.Mesh[MESH_AMBIENCE].SetUpdated(m_ambience);
     cache.Mesh[MESH_SPECULARITY].SetUpdated(m_specularity);
@@ -36,6 +39,7 @@ void Mesh::Write(Cache& cache)
 
 void Mesh::Read(Cache& cache)
 {
+    m_overlay = cache.Mesh[MESH_OVERLAY].Get();
     m_bump = cache.Mesh[MESH_BUMP].Get();
     m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
@@ -64,4 +68,9 @@ const float& Mesh::Ambience() const
 bool Mesh::BackfaceCull() const
 {
     return m_backfacecull;
+}
+
+const float& Mesh::Overlay() const
+{
+    return m_overlay;
 }

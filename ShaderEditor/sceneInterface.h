@@ -47,6 +47,11 @@ public:
     virtual const PostProcessing& Post() const = 0;
 
     /**
+    * @return the animating caustics texture
+    */
+    virtual const AnimatedTexture& Caustics() const = 0;
+
+    /**
     * @return the emitters in the scene
     */
     virtual const std::vector<Emitter>& Emitters() const = 0;

@@ -54,11 +54,8 @@ Outputs PShader(Attributes input)
     output.scene = scene;
     output.normal = normal;
 
-    // Create the Ambient Occlusion
-    output.effects.a = normal.r;
-
     // Create the Bloom
-    // convert range from end->start to 0->1
+    // map range from end->start to 0->1
     float3 bloom = float3(bloomStart, bloomStart - bloomFade, 1.0);
     output.effects.rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
     output.effects.rgb = saturate(output.effects.rgb);

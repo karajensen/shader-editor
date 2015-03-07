@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 /**
 * Texture rendered on a mesh
@@ -15,7 +16,7 @@ public:
 
     /**
     * Type of texture
-    * Required in order of usage in shader body for OpenGL
+    * Ordering must much usage in shader body
     */
     enum Type
     {
@@ -23,6 +24,7 @@ public:
         NORMAL,
         SPECULAR,
         ENVIRONMENT,
+        OVERLAY,
         MAX_TYPES
     };
 
@@ -54,4 +56,35 @@ private:
 
     std::string m_name; ///< Name of the texture
     std::string m_path; ///< Path to the texture
+};
+
+/**
+* Manages cycling through multiple textures
+*/
+class AnimatedTexture
+{
+public:
+
+    /**
+    * Adds a texture frame 
+    * @param ID the unique ID of the texture to add
+    */
+    void AddFrame(int ID);
+
+    /**
+    * @return the current frame this texture is in
+    */
+    int GetFrame() const;
+
+    /**
+    * Ticks the animated texture
+    */
+    void Tick(float deltatime);
+
+private:
+
+    std::vector<int> m_frames; ///< All frames to animate
+    int m_selectedFrame = 0;   ///< The currently selected frame
+    float m_timePassed = 0.0f; ///< The time passed since last frame switch
+
 };

@@ -40,7 +40,6 @@ namespace
     const std::string TEXTURE_PATH(ASSETS_PATH + "Textures");
     const std::string SAVED("_saved");
     const std::string XML(".xml");
-    const std::string BLANK_TEXTURE("blank.png");
 }
 
 Scene::Scene() = default;
@@ -162,7 +161,23 @@ bool Scene::InitialiseDiagnostics()
 bool Scene::InitialiseTextures()
 {
     assert(m_textures.empty());
+
+    const std::string BLANK_TEXTURE("blank.png");
     m_textures.emplace_back(BLANK_TEXTURE, TEXTURE_PATH + "//" + BLANK_TEXTURE);
+
+    m_caustics = std::make_unique<AnimatedTexture>();
+    const std::string CAUSTICS("Caustics//CausticsRender_0");
+    const int MAX_CAUSTICS = 16;
+
+    for (int i = 1; i <= MAX_CAUSTICS; ++i)
+    {
+        const std::string number(boost::lexical_cast<std::string>(i));
+        const std::string name(CAUSTICS + (i < 10 ? "0" : "") + number + ".bmp");
+        m_caustics->AddFrame(static_cast<int>(m_textures.size()));
+        m_textures.emplace_back(name, TEXTURE_PATH + "//" + name);
+    }
+
+    Logger::LogInfo("Textures: Successfully initialised");
     return true;
 }
 
@@ -354,6 +369,11 @@ const std::vector<Emitter>& Scene::Emitters() const
 const PostProcessing& Scene::Post() const
 {
     return *m_postProcessing;
+}
+
+const AnimatedTexture& Scene::Caustics() const
+{
+    return *m_caustics;
 }
 
 Emitter& Scene::GetEmitter(int index)
@@ -561,10 +581,16 @@ void Scene::SavePostProcessingtoFile()
 void Scene::Tick(float deltatime)
 {
     m_diagnostic->Tick();
+    m_caustics->Tick(deltatime);
 
     for (Emitter& emitter : m_emitters)
     {
         emitter.Tick(deltatime);
+    }
+
+    for (Mesh& mesh : m_meshes)
+    {
+        mesh.SetTexture(Texture::OVERLAY, m_caustics->GetFrame());
     }
 
     // Temporary to test specularity

@@ -23,7 +23,7 @@ cbuffer ScenePixelBuffer : register(b2)
     float3 lightPosition[MAX_LIGHTS];
     float3 lightAttenuation[MAX_LIGHTS];
     float3 lightDiffuse[MAX_LIGHTS];
-    ifdef: !FLAT|SPECULAR
+    ifdef: SPECULAR
         float lightSpecularity[MAX_LIGHTS];
         float3 lightSpecular[MAX_LIGHTS];
     endif
@@ -31,36 +31,42 @@ cbuffer ScenePixelBuffer : register(b2)
 
 cbuffer MeshPixelBuffer : register(b3)
 {
+    float meshOverlay;
     float meshAmbience;
     float3 meshColour;
-    ifdef: !FLAT|BUMP
+    ifdef: BUMP
         float meshBump;
     endif
-    ifdef: !FLAT|SPECULAR
+    ifdef: SPECULAR
         float meshSpecularity;
     endif
 };
 
 SamplerState Sampler;
-Texture2D DiffuseTexture;
-Texture2D NormalTexture;
-Texture2D SpecularTexture;
+Texture2D DiffuseSampler;
+ifdef: BUMP
+    Texture2D NormalSampler;
+endif
+ifdef: SPECULAR
+    Texture2D SpecularSampler;
+endif
+Texture2D OverlaySampler;
 
 struct Attributes
 {
-    float4 position             : SV_POSITION;
-    float3 normal               : NORMAL;
-    float  depth                : TEXCOORD0;
-    float2 uvs                  : TEXCOORD1;
-    float3 positionWorld        : TEXCOORD2;
+    float4 position          : SV_POSITION;
+    float3 normal            : NORMAL;
+    float  depth             : TEXCOORD0;
+    float2 uvs               : TEXCOORD1;
+    float3 positionWorld     : TEXCOORD2;
     ifdef: BUMP
-        float3 tangent          : TEXCOORD3;
-        float3 bitangent        : TEXCOORD4;
+        float3 tangent       : TEXCOORD3;
+        float3 bitangent     : TEXCOORD4;
     endif
-    ifdef: SPECULAR|BUMP             
-        float3 vertToCamera     : TEXCOORD5;
+    ifdef: SPECULAR|BUMP          
+        float3 vertToCamera  : TEXCOORD5;
     elseif: SPECULAR
-        float3 vertToCamera     : TEXCOORD3;
+        float3 vertToCamera  : TEXCOORD3;
     endif
 };
 
@@ -105,12 +111,12 @@ Attributes VShader(float4 position      : POSITION,
 
 Outputs PShader(Attributes input)
 {
-    float4 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs);
+    float4 diffuseTex = DiffuseSampler.Sample(Sampler, input.uvs);
     float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
     float3 normal = normalize(input.normal);
 
     ifdef: BUMP
-        float4 normalTex = NormalTexture.Sample(Sampler, input.uvs);
+        float4 normalTex = NormalSampler.Sample(Sampler, input.uvs);
         float2 bump = meshBump * (normalTex.rg - 0.5);
         normal = normalize(normal + bump.x * 
             normalize(input.tangent) + bump.y * normalize(input.bitangent));
@@ -118,7 +124,7 @@ Outputs PShader(Attributes input)
 
     ifdef: SPECULAR
         float3 vertToCamera = normalize(input.vertToCamera);
-        float4 specularTex = SpecularTexture.Sample(Sampler, input.uvs);
+        float4 specularTex = SpecularSampler.Sample(Sampler, input.uvs);
         float4 specular = float4(0.0, 0.0, 0.0, 0.0);
     endif
 
@@ -147,15 +153,18 @@ Outputs PShader(Attributes input)
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
+    float3 overlay = OverlaySampler.Sample(Sampler, input.uvs).rgb * max(normal.y, 0.0);
+
     Outputs output;
     output.normal.rgb = normal;
     output.normal.a = input.depth;
 
-    output.colour = diffuseTex * diffuse;
+    output.colour.rgb = diffuseTex.rgb * diffuse;
     ifdef: SPECULAR
-        output.colour += specularTex * specular;
+        output.colour.rgb += specularTex.rgb * specular;
     endif
     output.colour.rgb *= meshAmbience;
+    output.colour.rgb += overlay * meshOverlay;
     output.colour.a = 1.0;
 
     return output;
