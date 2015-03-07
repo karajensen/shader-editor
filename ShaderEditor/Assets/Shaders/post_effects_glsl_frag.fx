@@ -20,13 +20,14 @@ uniform float blurSceneMask;
 uniform float depthOfFieldMask;
 uniform float fogMask;
 uniform float bloomMask;
+uniform float ambienceMask;
 
 uniform float contrast;
 uniform float saturation;
-uniform float dofDistance;
+uniform float dofStart;
 uniform float dofFade;
 uniform float fadeAmount;
-uniform float fogDistance;
+uniform float fogStart;
 uniform float fogFade;
 uniform vec3 fogColor;
 uniform vec3 minimumColor;
@@ -41,16 +42,19 @@ void main(void)
     vec3 postScene = scene.rgb;
     float depth = normal.a;
 
+    // Ambient Occlusion
+    vec3 ambience = effects.aaa;
+
     // Depth of Field
-    float dofEnd = dofDistance - dofFade;
-    float dofWeight = clamp(((depth-dofEnd)*(1.0/(dofDistance-dofEnd))), 0.0, 1.0);
+    float dofEnd = dofStart - dofFade;
+    float dofWeight = clamp(((depth-dofEnd)*(1.0/(dofStart-dofEnd))), 0.0, 1.0);
     vec3 depthOfField = blur.rgb * dofWeight;
     postScene *= (1.0 - dofWeight);
     postScene += depthOfField;
 
     // Fog
-    float fogEnd = fogDistance + fogFade;
-    float fogWeight = clamp(((depth-fogEnd)*(1.0/(fogDistance-fogEnd))), 0.0, 1.0);
+    float fogEnd = fogStart + fogFade;
+    float fogWeight = clamp(((depth-fogEnd)*(1.0/(fogStart-fogEnd))), 0.0, 1.0);
     vec3 fog = fogColor * fogWeight;
     postScene *= (1.0 - fogWeight);
     postScene += fog;
@@ -79,5 +83,6 @@ void main(void)
     out_Color.rgb += depthOfField * depthOfFieldMask;
     out_Color.rgb += fog * fogMask;
     out_Color.rgb += bloom * bloomMask;
+    out_Color.rgb += ambience * ambienceMask;
     out_Color.rgb *= fadeAmount;
 }

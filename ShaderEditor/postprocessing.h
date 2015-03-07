@@ -27,10 +27,11 @@ public:
         SCENE_MAP,
         NORMAL_MAP,
         DEPTH_MAP,
-        BLUR_SCENE_MAP,
+        BLUR_MAP,
         DOF_MAP,
         FOG_MAP,
         BLOOM_MAP,
+        AMBIENCE_MAP,
         MAX_MAPS
     };
 
@@ -73,7 +74,7 @@ public:
     /**
     * @return Distance the depth of field starts
     */
-    const float& DOFDistance() const;
+    const float& DOFStart() const;
 
     /**
     * @return How quick depth of field fades to the scene
@@ -114,7 +115,7 @@ public:
     /**
     * @return Distance the fog starts
     */
-    const float& FogDistance() const;
+    const float& FogStart() const;
 
     /**
     * @return How quick fog fades to the scene
@@ -152,6 +153,11 @@ public:
     const float& BloomStart() const;
 
     /**
+    * @return The fadeoff of the bloom
+    */
+    const float& BloomFade() const;
+
+    /**
     * Toggles whether to render with diffuse textures
     */
     void ToggleDiffuseTextures();
@@ -169,16 +175,17 @@ private:
     void NormaliseWeights();
 
     bool m_useDiffuseTextures = true;     ///< Whether to render diffuse textures;
-    float m_dofDistance = 0.0f;           ///< Distance the depth of field starts
+    float m_dofStart = 0.0f;              ///< Distance the depth of field starts
     float m_dofFade = 0.0f;               ///< How quick depth of field fades to the scene
     float m_bloomStart = 0.0f;            ///< The threshold when the bloom starts
     float m_bloomIntensity = 0.0f;        ///< Intensity of the bloom
+    float m_bloomFade = 0.0f;             ///< The amount of fade off
     float m_contrast = 0.0f;              ///< Contrast controller of the final scene
     float m_saturation = 0.0f;            ///< Saturation controller of the final scene
     float m_blurStep = 0.0f;              ///< Sampling step for blurring
     float m_depthNear = 0.0f;             ///< Value where depth colour is min
     float m_depthFar = 0.0f;              ///< Value where depth colour is max
-    float m_fogDistance = 0.0f;           ///< Distance the fog starts
+    float m_fogStart = 0.0f;              ///< Distance the fog starts
     float m_fogFade = 0.0f;               ///< How quick fog fades to the scene
     Colour m_fogColour;                   ///< Colour for the fog
     Colour m_minimumColour;               ///< Minimum Colour ranges for RGB

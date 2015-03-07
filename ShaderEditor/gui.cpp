@@ -57,25 +57,10 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Emitter[i].Set(value); };
     }
 
-    for (int i = 0; i < FOG_ATTRIBUTES; ++i)
-    {
-        callbacks.SetFog[i] = 
-            [this, i](float value){ m_cache->Fog[i].Set(value); };
-    }
-
     for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
         callbacks.SetPost[i] = 
             [this, i](float value){ m_cache->Post[i].Set(value); };
-    }
-
-    for (int i = 0; i < COLOUR_ATTRIBUTES; ++i)
-    {
-        callbacks.SetMinColour[i] = 
-            [this, i](float value){ m_cache->MinColour[i].Set(value); };
-
-        callbacks.SetMaxColour[i] = 
-            [this, i](float value){ m_cache->MaxColour[i].Set(value); };
     }
 
     callbacks.SetParticleAmount =  [this](float index){ m_cache->ParticleAmount.Set(static_cast<int>(index)); };
@@ -127,8 +112,7 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
     case PAGE_SCENE:
         UpdateScene(tweaker);
         break;
-    case PAGE_LIGHT:
-        UpdateLight(tweaker);
+    case PAGE_AREA:
         break;
     case PAGE_MESH:
         UpdateMesh(tweaker);
@@ -137,6 +121,7 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
         break;
     case PAGE_POST:
         UpdatePost(tweaker);
+        UpdateLight(tweaker);
         break;
     }
 }
@@ -176,44 +161,31 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
     {
         return PAGE_POST;
     }
-    else if(page == "Light")
+    else if(page == "Area")
     {
-        return PAGE_LIGHT;
+        return PAGE_AREA;
     }
     return PAGE_NONE;
 }
 
 void Gui::UpdatePost(Tweaker& tweaker)
 {
+    if (!tweaker.HasPostMaps())
+    {
+        tweaker.InitialisePostMaps(
+            m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
+    }
+    else if (m_cache->PostMapSelected.RequiresUpdate())
+    {
+        tweaker.SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
+    }
+
     for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
         if (m_cache->Post[i].RequiresUpdate())
         {
             tweaker.SetPost(static_cast<PostAttribute>(i), 
                 m_cache->Post[i].GetUpdated());
-        }
-    }
-
-    for (int i = 0; i < FOG_ATTRIBUTES; ++i)
-    {
-        if (m_cache->Fog[i].RequiresUpdate())
-        {
-            tweaker.SetFog(static_cast<FogAttribute>(i), 
-                m_cache->Fog[i].GetUpdated());
-        }
-    }
-
-    for (int i = 0; i < COLOUR_ATTRIBUTES; ++i)
-    {
-        if (m_cache->MinColour[i].RequiresUpdate())
-        {
-            tweaker.SetMinimumColour(static_cast<ColourAttribute>(i), 
-                m_cache->MinColour[i].GetUpdated());
-        }
-        if (m_cache->MaxColour[i].RequiresUpdate())
-        {
-            tweaker.SetMaximumColour(static_cast<ColourAttribute>(i),
-                m_cache->MaxColour[i].GetUpdated());
         }
     }
 }
@@ -228,16 +200,6 @@ void Gui::UpdateScene(Tweaker& tweaker)
     else if(m_cache->EngineSelected.RequiresUpdate())
     {
         tweaker.SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
-    }
-
-    if (!tweaker.HasPostMaps())
-    {
-        tweaker.InitialisePostMaps(
-            m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
-    }
-    else if (m_cache->PostMapSelected.RequiresUpdate())
-    {
-        tweaker.SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
     }
 
     const float deltaTime = m_cache->DeltaTime.Get();

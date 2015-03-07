@@ -502,12 +502,14 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     preShader->SetActive(m_data->context);
     preShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
+    preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
     preShader->SendConstants(m_data->context);
+
+    m_data->preEffectsTarget.SetActive(m_data->context);
 
     m_data->sceneTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->sceneTarget.SendTexture(m_data->context, 1, NORMAL_ID);
     
-    m_data->preEffectsTarget.SetActive(m_data->context);
     m_data->quad.Render(m_data->context);
 
     m_data->sceneTarget.ClearTexture(m_data->context, 0);
@@ -526,10 +528,11 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurHorizontal->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurHorizontal->SendConstants(m_data->context);
 
+    m_data->blurHorizontalTarget.SetActive(m_data->context);
+
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
 
-    m_data->blurHorizontalTarget.SetActive(m_data->context);
     m_data->quad.Render(m_data->context);
 
     m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
@@ -542,10 +545,11 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurVertical->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurVertical->SendConstants(m_data->context);
 
+    m_data->blurVerticalTarget.SetActive(m_data->context);
+
     m_data->blurHorizontalTarget.SendTexture(m_data->context, 0, BLUR_SCENE_ID);
     m_data->blurHorizontalTarget.SendTexture(m_data->context, 1, BLUR_EFFECTS_ID);
 
-    m_data->blurVerticalTarget.SetActive(m_data->context);
     m_data->quad.Render(m_data->context);
 
     m_data->blurHorizontalTarget.ClearTexture(m_data->context, 0);
@@ -571,9 +575,9 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
     postShader->UpdateConstantFloat("saturation", &post.Saturation(), 1);
-    postShader->UpdateConstantFloat("dofDistance", &post.DOFDistance(), 1);
+    postShader->UpdateConstantFloat("dofStart", &post.DOFStart(), 1);
     postShader->UpdateConstantFloat("dofFade", &post.DOFFade(), 1);
-    postShader->UpdateConstantFloat("fogDistance", &post.FogDistance(), 1);
+    postShader->UpdateConstantFloat("fogStart", &post.FogStart(), 1);
     postShader->UpdateConstantFloat("fogFade", &post.FogFade(), 1);
     postShader->UpdateConstantFloat("fogColor", &post.FogColour().r, 3);
     postShader->UpdateConstantFloat("minimumColor", &post.MinColour().r, 3);
@@ -583,10 +587,11 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
     postShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
+    postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
     postShader->UpdateConstantFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
+    postShader->UpdateConstantFloat("ambienceMask", &post.Mask(PostProcessing::AMBIENCE_MAP), 1);
 
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);

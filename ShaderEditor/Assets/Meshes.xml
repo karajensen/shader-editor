@@ -12,14 +12,14 @@
 		<Normal>bump.png</Normal>
 		<Specular>specular.jpg</Specular>
 		<Bump>20</Bump>
-		<Specularity>5.0</Specularity>
+		<Specularity>5</Specularity>
 	</Mesh>
-  <Mesh>
-    <Shader>diffuse</Shader>
-    <Name>sphere.obj</Name>
-    <Diffuse>blank.png</Diffuse>
-  </Mesh>
-  <Mesh>
+	<Mesh>
+		<Shader>diffuse</Shader>
+		<Name>sphere.obj</Name>
+		<Diffuse>blank.png</Diffuse>
+	</Mesh>
+	<Mesh>
 		<Shader>diffuse</Shader>
 		<Name>mock_bridge.obj</Name>
 		<Diffuse>bridge.bmp</Diffuse>

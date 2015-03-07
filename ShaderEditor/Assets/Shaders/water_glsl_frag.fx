@@ -36,7 +36,7 @@ uniform float lightActive[MAX_LIGHTS];
 
 float saturate(float value)
 {
-    return min(1.0, max(value, 0.0));
+    return clamp(value, 0.0, 1.0);
 }
 
 void main(void)

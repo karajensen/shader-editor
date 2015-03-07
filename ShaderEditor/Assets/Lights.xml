@@ -8,12 +8,12 @@
 		<Specular r="0" g="0" b="0"/>
 		<Specularity>1</Specularity>
 	</Light>
-  <Light>
-    <Name>Point</Name>
-    <Position x="0" y="6" z="0"/>
-    <Attenuation x="0" y="0" z="0.08"/>
-    <Diffuse r="0" g="1" b="0"/>
-    <Specular r="1" g="0" b="0"/>
-    <Specularity>1</Specularity>
-  </Light>
+	<Light>
+		<Name>Point</Name>
+		<Position x="0" y="6" z="0"/>
+		<Attenuation x="0" y="0" z="0.08"/>
+		<Diffuse r="0" g="1" b="0"/>
+		<Specular r="1" g="0" b="0"/>
+		<Specularity>1</Specularity>
+	</Light>
 </Lights>

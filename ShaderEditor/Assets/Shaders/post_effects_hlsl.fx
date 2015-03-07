@@ -12,13 +12,14 @@ cbuffer PixelBuffer : register(b0)
     float depthOfFieldMask;
     float fogMask;
     float bloomMask;
+    float ambienceMask;
 
     float contrast;
     float saturation;
     float fadeAmount;
-    float dofDistance;
+    float dofStart;
     float dofFade;
-    float fogDistance;
+    float fogStart;
     float fogFade;
     float3 fogColor;
     float3 minimumColor;
@@ -60,16 +61,19 @@ Outputs PShader(Attributes input)
     float3 postScene = scene.rgb;
     float depth = normal.a;
 
+    // Ambient Occlusion
+    float3 ambience = effects.aaa;
+
     // Depth of Field
-    float dofEnd = dofDistance - dofFade;
-    float dofWeight = saturate((depth-dofEnd)*(1.0/(dofDistance-dofEnd)));
+    float dofEnd = dofStart - dofFade;
+    float dofWeight = saturate((depth-dofEnd)*(1.0/(dofStart-dofEnd)));
     float3 depthOfField = blur.rgb * dofWeight;
     postScene *= (1.0 - dofWeight);
     postScene += depthOfField;
 
     // Fog
-    float fogEnd = fogDistance + fogFade;
-    float fogWeight = saturate((depth-fogEnd)*(1.0/(fogDistance-fogEnd)));
+    float fogEnd = fogStart + fogFade;
+    float fogWeight = saturate((depth-fogEnd)*(1.0/(fogStart-fogEnd)));
     float3 fog = fogColor * fogWeight;
     postScene *= (1.0 - fogWeight);
     postScene += fog;
@@ -99,6 +103,7 @@ Outputs PShader(Attributes input)
     output.colour.rgb += depthOfField * depthOfFieldMask;
     output.colour.rgb += fog * fogMask;
     output.colour.rgb += bloom * bloomMask;
+    output.colour.rgb += ambience * ambienceMask;
     output.colour.rgb *= fadeAmount;
     return output;
 }

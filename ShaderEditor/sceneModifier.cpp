@@ -35,8 +35,7 @@ void SceneModifier::Tick(RenderEngine& engine)
     case PAGE_SCENE:
         UpdateScene();
         break;
-    case PAGE_LIGHT:
-        UpdateLight();
+    case PAGE_AREA:
         break;
     case PAGE_MESH:
         UpdateMesh();
@@ -44,6 +43,7 @@ void SceneModifier::Tick(RenderEngine& engine)
         UpdateEmitter();
         break;
     case PAGE_POST:
+        UpdateLight();
         UpdatePost();
         break;
     }
@@ -120,13 +120,6 @@ bool SceneModifier::RequiresReload()
 void SceneModifier::UpdateScene()
 {
     UpdateCamera();
-
-    const int selectedMap = m_cache->PostMapSelected.Get();
-    if (selectedMap != m_selectedMap)
-    {
-        m_selectedMap = selectedMap;
-        m_scene.SetPostMap(selectedMap);
-    }
 
     m_cache->FramesPerSec.Set(m_timer.GetFPS());
     m_cache->DeltaTime.Set(m_timer.GetDeltaTime());
@@ -241,6 +234,13 @@ void SceneModifier::UpdateEmitter()
 
 void SceneModifier::UpdatePost()
 {
+    const int selectedMap = m_cache->PostMapSelected.Get();
+    if (selectedMap != m_selectedMap)
+    {
+        m_selectedMap = selectedMap;
+        m_scene.SetPostMap(selectedMap);
+    }
+
     m_scene.GetPost().Read(*m_cache);
 }
 

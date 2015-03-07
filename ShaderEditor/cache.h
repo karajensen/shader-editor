@@ -15,7 +15,7 @@
 enum GuiPage
 {
     PAGE_SCENE,
-    PAGE_LIGHT,
+    PAGE_AREA,
     PAGE_MESH,
     PAGE_POST,
     PAGE_NONE
@@ -193,11 +193,8 @@ struct Cache
     std::array<Lockable<float>, POST_ATTRIBUTES> Post;          ///< Post processing attributes
     std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;          ///< Selected mesh attributes
     std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes
-    std::array<Lockable<float>, FOG_ATTRIBUTES> Fog;            ///< Fog attributes
     std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
     std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
-    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MinColour;   ///< Min colour attributes
-    std::array<Lockable<float>, COLOUR_ATTRIBUTES> MaxColour;   ///< Max colour attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

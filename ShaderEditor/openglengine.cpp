@@ -491,6 +491,7 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     preShader->SetActive();
     preShader->SendUniformFloat("bloomIntensity", &post.BloomIntensity(), 1);
     preShader->SendUniformFloat("bloomStart", &post.BloomStart(), 1);
+    preShader->SendUniformFloat("bloomFade", &post.BloomFade(), 1);
 
     preShader->SendTexture(0, m_data->sceneTarget.GetTexture(SCENE_ID), 
         m_data->sceneTarget.IsMultisampled());
@@ -567,9 +568,9 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->SendUniformFloat("contrast", &post.Contrast(), 1);
     postShader->SendUniformFloat("saturation", &post.Saturation(), 1);
-    postShader->SendUniformFloat("dofDistance", &post.DOFDistance(), 1);
+    postShader->SendUniformFloat("dofStart", &post.DOFStart(), 1);
     postShader->SendUniformFloat("dofFade", &post.DOFFade(), 1);
-    postShader->SendUniformFloat("fogDistance", &post.FogDistance(), 1);
+    postShader->SendUniformFloat("fogStart", &post.FogStart(), 1);
     postShader->SendUniformFloat("fogFade", &post.FogFade(), 1);
     postShader->SendUniformFloat("fogColor", &post.FogColour().r, 3);
     postShader->SendUniformFloat("minimumColor", &post.MinColour().r, 3);
@@ -579,10 +580,11 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
     postShader->SendUniformFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->SendUniformFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_SCENE_MAP), 1);
+    postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
     postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
+    postShader->SendUniformFloat("ambienceMask", &post.Mask(PostProcessing::AMBIENCE_MAP), 1);
 
     postShader->SendTexture(0, m_data->preEffectsTarget.GetTexture(SCENE_ID), 
         m_data->preEffectsTarget.IsMultisampled());

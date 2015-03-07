@@ -8,30 +8,6 @@
 #include <vector>
 
 /**
-* Tweakable colour values
-*/
-enum ColourAttribute
-{
-    RED,
-    GREEN,
-    BLUE,
-    COLOUR_ATTRIBUTES
-};
-
-/**
-* Tweakable fog values
-*/
-enum FogAttribute
-{
-    FOG_DISTANCE,
-    FOG_FADE,
-    FOG_RED,
-    FOG_GREEN,
-    FOG_BLUE,
-    FOG_ATTRIBUTES
-};
-
-/**
 * Tweakable mesh values
 */
 enum MeshAttribute
@@ -159,12 +135,24 @@ enum PostAttribute
     POST_CONTRAST,
     POST_SATURATION,
     POST_BLUR_STEP,
-    POST_DOF_DISTANCE,
+    POST_DOF_START,
     POST_DOF_FADE,
     POST_DEPTH_NEAR,
     POST_DEPTH_FAR,
     POST_BLOOM_AMOUNT,
     POST_BLOOM_START,
+    POST_BLOOM_FADE,
+    POST_FOG_START,
+    POST_FOG_FADE,
+    POST_FOG_RED,
+    POST_FOG_GREEN,
+    POST_FOG_BLUE,
+    POST_MIN_RED,
+    POST_MIN_GREEN,
+    POST_MIN_BLUE,
+    POST_MAX_RED,
+    POST_MAX_GREEN,
+    POST_MAX_BLUE,
     POST_ATTRIBUTES
 };
 
@@ -194,13 +182,10 @@ struct SignalCallbacks
     FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
     FloatSignals SetCamera;        ///< Sets the camera tweakable attributes
     FloatSignals SetLight;         ///< Sets the light tweakable attributes
-    FloatSignals SetFog;           ///< Sets the fog tweakable attributes
     FloatSignals SetPost;          ///< Sets the post tweakable attributes
     FloatSignals SetMesh;          ///< Sets the mesh tweakable attributes
     FloatSignals SetWater;         ///< Sets the water tweakable attributes
     FloatSignals SetWave;          ///< Sets the water wave tweakable attributes
-    FloatSignals SetMinColour;     ///< Sets the minimum post colour range
-    FloatSignals SetMaxColour;     ///< Sets the maximum post colour range
     FloatSignals SetEmitter;       ///< Sets the emitter tweakable attributes
     FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
     IntSignal SetSelectedEngine;   ///< Sets the selected engine to render
@@ -243,20 +228,11 @@ struct SignalCallbacks
         SetCamera.resize(CAMERA_ATTRIBUTES);
         SetCamera.assign(CAMERA_ATTRIBUTES, nullptr);
 
-        SetFog.resize(FOG_ATTRIBUTES);
-        SetFog.assign(FOG_ATTRIBUTES, nullptr);
-
         SetMesh.resize(MESH_ATTRIBUTES);
         SetMesh.assign(MESH_ATTRIBUTES, nullptr);
 
         SetWater.resize(WATER_ATTRIBUTES);
         SetWater.assign(WATER_ATTRIBUTES, nullptr);
-
-        SetMinColour.resize(COLOUR_ATTRIBUTES);
-        SetMinColour.assign(COLOUR_ATTRIBUTES, nullptr);
-
-        SetMaxColour.resize(COLOUR_ATTRIBUTES);
-        SetMaxColour.assign(COLOUR_ATTRIBUTES, nullptr);
 
         SetWave.resize(WAVE_ATTRIBUTES);
         SetWave.assign(WAVE_ATTRIBUTES, nullptr);

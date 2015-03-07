@@ -6,6 +6,7 @@ cbuffer SceneVertexBuffer : register(b0)
 {
     float bloomIntensity;
     float bloomStart;
+    float bloomFade;
 };
 
 struct Attributes
@@ -21,7 +22,7 @@ struct Outputs
     float4 effects : SV_TARGET2;
 };
 
-Texture2DMS<float4,SAMPLES> SceneSampler : register(t0);
+Texture2DMS<float4,SAMPLES> SceneSampler  : register(t0);
 Texture2DMS<float4,SAMPLES> NormalSampler : register(t1);
 
 float4 GetMultisampled(Texture2DMS<float4, SAMPLES> samplerName, int3 uvs)
@@ -53,9 +54,14 @@ Outputs PShader(Attributes input)
     output.scene = scene;
     output.normal = normal;
 
-    float3 outer = float3(1.0, 1.0, 1.0);
-    float3 inner = float3(bloomStart, bloomStart, bloomStart);
-    output.effects.rgb = saturate((scene.rgb-inner)*(outer/(outer-inner)));
+    // Create the Ambient Occlusion
+    output.effects.a = normal.r;
+
+    // Create the Bloom
+    // convert range from end->start to 0->1
+    float3 bloom = float3(bloomStart, bloomStart - bloomFade, 1.0);
+    output.effects.rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
+    output.effects.rgb = saturate(output.effects.rgb);
     output.effects.rgb *= bloomIntensity;
 
     return output;

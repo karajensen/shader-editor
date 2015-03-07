@@ -70,13 +70,6 @@ public:
     void SetPost(PostAttribute attribute, float value);
 
     /**
-    * Sets the value for an attribute of fog
-    * @param attribute The type of attribute to set
-    * @param value The value to set for the attribute
-    */
-    void SetFog(FogAttribute attribute, float value);
-
-    /**
     * Sets the value for an attribute of a light
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
@@ -110,20 +103,6 @@ public:
     * @param value The value to set for the attribute
     */
     void SetEmitter(EmitterAttribute attribute, float value);
-
-    /**
-    * Sets the value for an attribute of a the maximum colour rante
-    * @param attribute The type of attribute to set
-    * @param value The value to set for the attribute
-    */
-    void SetMaximumColour(ColourAttribute attribute, float value);
-
-    /**
-    * Sets the value for an attribute of a the minimum colour rante
-    * @param attribute The type of attribute to set
-    * @param value The value to set for the attribute
-    */
-    void SetMinimumColour(ColourAttribute attribute, float value);
 
     /**
     * Sets the value for an attribute of water
@@ -253,14 +232,6 @@ public:
 
 private:
 
-    TweakableValue m_DOFFade;            ///< How quickly depth of field blurs into scene
-    TweakableValue m_DOFDistance;        ///< Distance depth of field will start
-    TweakableValue m_contrast;           ///< Contrast controller for the final scene
-    TweakableValue m_saturation;         ///< Saturation controller for the final scene
-    TweakableValue m_bloomAmount;        ///< Intensity of the bloom
-    TweakableValue m_blurStep;           ///< Step between samples for blurring
-    TweakableValue m_depthNear;          ///< Tweakable depth near value
-    TweakableValue m_depthFar;           ///< Tweakable depth far value
     TweakableValue m_particleAmount;     ///< The amount of particles to spawn
     TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
@@ -277,19 +248,19 @@ private:
     TweakableBox m_selectedWater;        ///< Combo box for selecting the water
     TweakableBox m_selectedEmitter;      ///< Combo box for selecting the emitter
 
-    TweakableBoxedValue m_minColour;     ///< Colour ranges for RGB
-    TweakableBoxedValue m_maxColour;     ///< Colour ranges for RGB
-    TweakableBoxedValue m_fog;           ///< Tweakable values for fog
     TweakableBoxedValue m_mesh;          ///< Tweakable values for mesh attributes
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
     TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
     TweakableBoxedValue m_emitterColour; ///< Tweakable values for emitter colour attributes
     TweakableBoxedValue m_emitterMinMax; ///< Tweakable values for emitter min/max attributes
-    TweakableBoxedValue m_lightDiffuse;  ///< Tweakable values for light diffuse colour
-    TweakableBoxedValue m_lightSpecular; ///< Tweakable values for light specular colour
+    TweakableBoxedValue m_correction;    ///< Post processing colour correction
+    TweakableBoxedValue m_fog;           ///< Tweakable values for fog
+    TweakableBoxedValue m_post;          ///< Tweakable values for post processing
+    TweakableBoxedValue m_lightColour;   ///< Tweakable values for light colour
+    TweakableBoxedValue m_lightPosition; ///< Tweakable values for light position
+    TweakableBoxedValue m_lightAtt;      ///< Tweakable values for light attenuation
 
-    std::unordered_map<PostAttribute, TweakableValue> m_post;     ///< Post processing values
     std::unordered_map<CameraAttribute, TweakableValue> m_camera; ///< Camera Tweakable values
     std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 
