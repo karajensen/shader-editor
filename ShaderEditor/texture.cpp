@@ -32,11 +32,16 @@ std::string Texture::GetTypeDescription(unsigned int type)
         return "Specular";
     case ENVIRONMENT:
         return "Environment";
-    case OVERLAY:
-        return "Overlay";
+    case CAUSTICS:
+        return "Caustics";
     default:
         return "None";
     };
+}
+
+bool Texture::IsAnimatedType(unsigned int type)
+{
+    return type == CAUSTICS;
 }
 
 void AnimatedTexture::AddFrame(int ID)

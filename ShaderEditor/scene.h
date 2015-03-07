@@ -68,11 +68,6 @@ public:
     virtual const PostProcessing& Post() const override;
 
     /**
-    * @return the animating caustics texture
-    */
-    virtual const AnimatedTexture& Caustics() const override;
-
-    /**
     * @return the names of the lights in the scene
     */
     std::vector<std::string> GetLightNames() const;

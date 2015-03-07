@@ -24,7 +24,7 @@ public:
         NORMAL,
         SPECULAR,
         ENVIRONMENT,
-        OVERLAY,
+        CAUSTICS,
         MAX_TYPES
     };
 
@@ -51,6 +51,13 @@ public:
     * @return the text description of the type
     */
     static std::string GetTypeDescription(unsigned int type);
+
+    /**
+    * Determines whether this texture type is animated
+    * @param type The type to query
+    * @return whether it is animated
+    */
+    static bool IsAnimatedType(unsigned int type);
 
 private:
 

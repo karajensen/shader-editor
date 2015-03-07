@@ -22,6 +22,8 @@ std::string Shader::ComponentAsString(unsigned int component)
 {
     switch (component)
     {
+    case CAUSTICS:
+        return "CAUSTICS";
     case FLAT:
         return "FLAT";
     case BUMP:

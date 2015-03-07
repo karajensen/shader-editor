@@ -626,7 +626,7 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
             SendLights(scene.Lights());
         }
 
-        shader->UpdateConstantFloat("meshOverlay", &mesh.Overlay(), 1);
+        shader->UpdateConstantFloat("meshCaustics", &mesh.Caustics(), 1);
         shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);

@@ -75,9 +75,9 @@ public:
     const float& Ambience() const;
 
     /**
-    * @return Overlay multiplier
+    * @return Caustics multiplier
     */
-    const float& Overlay() const;
+    const float& Caustics() const;
 
     /**
     * @return Whether back facing polygons are culled
@@ -86,7 +86,7 @@ public:
 
 private:
 
-    float m_overlay = 1.0f;            ///< How much of the overlay is visible
+    float m_caustics = 1.0f;           ///< How much of the caustics are visible
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
     bool m_backfacecull = true;        ///< Whether back facing polygons are culled

@@ -1,4 +1,9 @@
 
+- Make slower caustics
+- Add SSAO
+- SSAO to compute shader?
+- Fix DirectX frame rate drop?
+
 - Create 3D scene
 - Optimise/clean shaders
 
@@ -14,6 +19,10 @@ INSTALL REQUIREMENTS: GPUShaderAnalyzer 1.59.0.3208
 RELEASE REQUIREMENTS: Windows 7
 BUILD REQUIREMENTS: Windows 7, Visual Studio 2013 (v120)
 LIBRARIES: Assimp 3.0, Boost 1.55, vld 2.2.3, Qt 5.3.0 with opengl
+
+REFERENCES: 
+Caustics Generation  http://www.dualheights.se/caustics/
+Water Shader         http://nvidia.com/shaderlibrary
 
 =================================================================
 
@@ -37,6 +46,6 @@ Features include:
 • Multithreaded Qt GUI for
   real time scene editing
 
-View Base Shader
-View Post Processing
-View Water Shader
+View Shader Repository
+View Base Shader HLSL/GLSL
+View Water Shader HLSL/GLSL

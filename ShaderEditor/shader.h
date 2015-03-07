@@ -24,6 +24,7 @@ public:
         FLAT,
         BUMP,
         SPECULAR,
+        CAUSTICS,
         MAX_COMPONENTS
     };
 

@@ -28,10 +28,12 @@ ifdef: SPECULAR
     uniform float meshSpecularity;
 endif
 
-uniform float meshOverlay;
 uniform float meshAmbience;
 ifdef: BUMP
     uniform float meshBump;
+endif
+ifdef: CAUSTICS
+    uniform float meshCaustics;
 endif
 
 uniform sampler2D DiffuseSampler;
@@ -41,7 +43,9 @@ endif
 ifdef: SPECULAR
     uniform sampler2D SpecularSampler;
 endif
-uniform sampler2D OverlaySampler;
+ifdef: CAUSTICS
+    uniform sampler2D CausticsSampler;
+endif
 
 void main(void)
 {
@@ -87,14 +91,18 @@ void main(void)
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    vec3 overlay = texture(OverlaySampler, ex_UVs).rgb * max(normal.y, 0.0);
+    ifdef: CAUSTICS
+        vec3 caustics = texture(CausticsSampler, ex_UVs).rgb * max(normal.y, 0.0);
+    endif
 
     out_Color[ID_COLOUR].rgb = diffuseTex.rgb * diffuse;
     ifdef: SPECULAR
         out_Color[ID_COLOUR].rgb += specularTex.rgb * specular;
     endif
+    ifdef: CAUSTICS
+        out_Color[ID_COLOUR].rgb += caustics * meshCaustics;
+    endif
     out_Color[ID_COLOUR].rgb *= meshAmbience;
-    out_Color[ID_COLOUR].rgb += overlay * meshOverlay;
     out_Color[ID_COLOUR].a = 1.0;
 
     out_Color[ID_NORMAL].rgb = normal;

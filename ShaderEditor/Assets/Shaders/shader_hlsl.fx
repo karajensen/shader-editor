@@ -31,7 +31,6 @@ cbuffer ScenePixelBuffer : register(b2)
 
 cbuffer MeshPixelBuffer : register(b3)
 {
-    float meshOverlay;
     float meshAmbience;
     float3 meshColour;
     ifdef: BUMP
@@ -39,6 +38,9 @@ cbuffer MeshPixelBuffer : register(b3)
     endif
     ifdef: SPECULAR
         float meshSpecularity;
+    endif
+    ifdef: CAUSTICS
+        float meshCaustics;
     endif
 };
 
@@ -50,7 +52,9 @@ endif
 ifdef: SPECULAR
     Texture2D SpecularSampler;
 endif
-Texture2D OverlaySampler;
+ifdef: CAUSTICS
+    Texture2D CausticsSampler;
+endif
 
 struct Attributes
 {
@@ -153,7 +157,9 @@ Outputs PShader(Attributes input)
         diffuse.rgb += lightColour * attenuation * lightActive[i];
     }
 
-    float3 overlay = OverlaySampler.Sample(Sampler, input.uvs).rgb * max(normal.y, 0.0);
+    ifdef: CAUSTICS
+        float3 caustics = CausticsSampler.Sample(Sampler, input.uvs).rgb * max(normal.y, 0.0);
+    endif
 
     Outputs output;
     output.normal.rgb = normal;
@@ -163,8 +169,10 @@ Outputs PShader(Attributes input)
     ifdef: SPECULAR
         output.colour.rgb += specularTex.rgb * specular;
     endif
+    ifdef: CAUSTICS
+        output.colour.rgb += caustics * meshCaustics;
+    endif
     output.colour.rgb *= meshAmbience;
-    output.colour.rgb += overlay * meshOverlay;
     output.colour.a = 1.0;
 
     return output;

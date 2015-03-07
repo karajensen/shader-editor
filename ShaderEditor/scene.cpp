@@ -167,14 +167,25 @@ bool Scene::InitialiseTextures()
 
     m_caustics = std::make_unique<AnimatedTexture>();
     const std::string CAUSTICS("Caustics//CausticsRender_0");
-    const int MAX_CAUSTICS = 16;
 
-    for (int i = 1; i <= MAX_CAUSTICS; ++i)
+    int frame = 0;
+    bool loadingCaustics = true;
+    while (loadingCaustics)
     {
-        const std::string number(boost::lexical_cast<std::string>(i));
-        const std::string name(CAUSTICS + (i < 10 ? "0" : "") + number + ".bmp");
-        m_caustics->AddFrame(static_cast<int>(m_textures.size()));
-        m_textures.emplace_back(name, TEXTURE_PATH + "//" + name);
+        ++frame;
+        const std::string number(boost::lexical_cast<std::string>(frame));
+        const std::string name(CAUSTICS + (frame < 10 ? "0" : "") + number + ".bmp");
+        const std::string path(TEXTURE_PATH + "//" + name);
+
+        if (boost::filesystem::exists(path))
+        {
+            m_caustics->AddFrame(static_cast<int>(m_textures.size()));
+            m_textures.emplace_back(name, path);
+        }
+        else
+        {
+            loadingCaustics = false;
+        }
     }
 
     Logger::LogInfo("Textures: Successfully initialised");
@@ -250,6 +261,7 @@ void Scene::InitialiseMeshShader(Mesh& mesh,
 {
     // Get the shader used by the mesh
     std::string shader = GetValue<std::string>(node, "Shader");
+    boost::algorithm::replace_all(shader, "|", "");
 
     // Ensure not asking for a specialised shader
     int shaderIndex = GetShaderIndex(shader);
@@ -369,11 +381,6 @@ const std::vector<Emitter>& Scene::Emitters() const
 const PostProcessing& Scene::Post() const
 {
     return *m_postProcessing;
-}
-
-const AnimatedTexture& Scene::Caustics() const
-{
-    return *m_caustics;
 }
 
 Emitter& Scene::GetEmitter(int index)
@@ -590,7 +597,10 @@ void Scene::Tick(float deltatime)
 
     for (Mesh& mesh : m_meshes)
     {
-        mesh.SetTexture(Texture::OVERLAY, m_caustics->GetFrame());
+        if (m_shaders[mesh.ShaderID()].HasComponent(Shader::CAUSTICS))
+        {
+            mesh.SetTexture(Texture::CAUSTICS, m_caustics->GetFrame());
+        }
     }
 
     // Temporary to test specularity

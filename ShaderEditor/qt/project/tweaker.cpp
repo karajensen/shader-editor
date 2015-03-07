@@ -119,7 +119,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     std::vector<ComboEntry> mesh;
     AddEntry(mesh, m_callbacks.SetMesh, MESH_AMBIENCE, 0.01, 3, "Ambience");
-    AddEntry(mesh, m_callbacks.SetMesh, MESH_OVERLAY, 0.01, 3, "Overlay");
+    AddEntry(mesh, m_callbacks.SetMesh, MESH_CAUSTICS, 0.01, 3, "Caustics");
     AddEntry(mesh, m_callbacks.SetMesh, MESH_BUMP, 0.01, 3, "Bump");
     AddEntry(mesh, m_callbacks.SetMesh, MESH_SPECULARITY, 0.01, 3, "Specularity");
     m_mesh.Initialise(m_ui.meshAttributes_box, 

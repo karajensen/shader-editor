@@ -14,7 +14,7 @@ enum MeshAttribute
 {
     MESH_AMBIENCE,
     MESH_BUMP,
-    MESH_OVERLAY,
+    MESH_CAUSTICS,
     MESH_SPECULARITY,
     MESH_ATTRIBUTES
 };

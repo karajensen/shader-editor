@@ -6,7 +6,7 @@
 		<Instances>0</Instances>
 	</Mesh>
 	<Mesh>
-		<Shader>bumpspecular</Shader>
+		<Shader>bump|specular|caustics</Shader>
 		<Name>sphere.obj</Name>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
@@ -15,7 +15,7 @@
 		<Specularity>5</Specularity>
 	</Mesh>
 	<Mesh>
-		<Shader>diffuse</Shader>
+		<Shader>diffuse|caustics</Shader>
 		<Name>sphere.obj</Name>
 		<Diffuse>blank.png</Diffuse>
 	</Mesh>

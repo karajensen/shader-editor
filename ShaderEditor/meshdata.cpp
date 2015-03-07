@@ -32,7 +32,7 @@ void MeshData::Write(boost::property_tree::ptree& node) const
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
-        if (m_textureIDs[i] != NO_INDEX)
+        if (!Texture::IsAnimatedType(i) && m_textureIDs[i] != NO_INDEX)
         {
             node.add(Texture::GetTypeDescription(i), m_textureNames[i]);
         }

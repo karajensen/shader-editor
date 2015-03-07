@@ -659,7 +659,7 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
             SendLights(scene.Lights());
         }
     
-        shader->SendUniformFloat("meshOverlay", &mesh.Overlay(), 1);
+        shader->SendUniformFloat("meshCaustics", &mesh.Caustics(), 1);
         shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &mesh.Specularity(), 1);
