@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 class Shader;
+class GlRenderTarget;
 
 /**
 * Holds information for an opengl shader
@@ -94,18 +95,25 @@ public:
     * Sends a texture to the shader
     * @param slot The slot to put the texture in
     * @param id The unique id for the opengl texture
-    * @param multisample Whether this texture is to be multisampled
     * @param cubemap Whether this texture is a cubemap
     */
-    void SendTexture(int slot, GLuint id, bool multisample, bool cubemap = false);
+    void SendTexture(int slot, GLuint id, bool cubemap);
 
     /**
-    * Clears the current texture set
+    * Sends the render target texture to the shader
     * @param slot The slot to put the texture in
-    * @param multisample Whether this texture is to be multisampled
-    * @param cubemap Whether this texture is a cubemap
+    * @param target The render target to send
+    * @param ID the id of the target texture to send
     */
-    void ClearTexture(int slot, bool multisample, bool cubemap = false);
+    void SendTexture(int slot, const GlRenderTarget& target, int ID = 0);
+
+    /**
+    * Clears the render target texture from the shader
+    * @param slot The slot to put the texture in
+    * @param target The render target to clear
+    * @param ID the id of the target texture to clear
+    */
+    void ClearTexture(int slot, const GlRenderTarget& target);
 
     /**
     * @return the text for the shader
@@ -128,6 +136,23 @@ public:
     static std::string GetShaderHeader();
 
 private:
+
+    /**
+    * Sends a texture to the shader
+    * @param slot The slot to put the texture in
+    * @param id The unique id for the opengl texture
+    * @param multisample Whether this texture is to be multisampled
+    * @param cubemap Whether this texture is a cubemap
+    */
+    void SendTexture(int slot, GLuint id, bool multisample, bool cubemap);
+
+    /**
+    * Clears the current texture set
+    * @param slot The slot to put the texture in
+    * @param multisample Whether this texture is to be multisampled
+    * @param cubemap Whether this texture is a cubemap
+    */
+    void ClearTexture(int slot, bool multisample, bool cubemap);
 
     /**
     * Generates the assembly instructions for the shader if needed

@@ -226,7 +226,7 @@ void DxRenderTarget::SendTexture(ID3D11DeviceContext* context, int slot, int ID)
     context->PSSetShaderResources(slot, 1, &m_views[ID]);
 }
 
-void DxRenderTarget::ClearTexture(ID3D11DeviceContext* context, int slot)
+void DxRenderTarget::RemoveTexture(ID3D11DeviceContext* context, int slot)
 {
     ID3D11ShaderResourceView* nullView = nullptr;
     context->PSSetShaderResources(slot, 1, &nullView);

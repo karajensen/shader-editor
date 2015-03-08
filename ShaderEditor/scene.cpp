@@ -39,6 +39,7 @@ namespace
     const std::string LIGHTS_PATH(ASSETS_PATH + LIGHTS_NAME);
     const std::string POST_PATH(ASSETS_PATH + POST_NAME);
     const std::string TEXTURE_PATH(ASSETS_PATH + "Textures");
+    const std::string GENERATED_TEXTURES(TEXTURE_PATH + "//Generated");
     const std::string SAVED("_saved");
     const std::string XML(".xml");
 }
@@ -161,10 +162,23 @@ bool Scene::InitialiseDiagnostics()
 
 bool Scene::InitialiseTextures()
 {
-    assert(m_textures.empty());
+    auto MakeProcedural = [this](const char* name, int size,
+                                 ProceduralTexture::Type type)
+    {
+        m_proceduralTextures.push_back(m_textures.size());
+        m_textures.push_back(std::make_unique<ProceduralTexture>(
+            name, GENERATED_TEXTURES + "//" + name + ".png", size, type));
+    };
 
-    const std::string BLANK_TEXTURE("blank.png");
-    m_textures.emplace_back(BLANK_TEXTURE, TEXTURE_PATH + "//" + BLANK_TEXTURE);
+    auto MakeTexture = [this](const char* name)
+    {
+        m_textures.push_back(std::make_unique<Texture>(
+            name, TEXTURE_PATH + "//" + name + ".png"));
+    };
+
+    assert(m_textures.empty());
+    MakeTexture("blank");
+    MakeProcedural("random", 128, ProceduralTexture::RANDOM);
 
     m_caustics = std::make_unique<AnimatedTexture>(
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp");
@@ -172,7 +186,7 @@ bool Scene::InitialiseTextures()
     for (const std::string& path : m_caustics->Paths())
     {
         m_caustics->AddFrame(static_cast<int>(m_textures.size()));
-        m_textures.emplace_back(path, path);
+        m_textures.push_back(std::make_unique<Texture>(path, path));
     }
 
     return true;
@@ -323,14 +337,14 @@ int Scene::AddTexture(const std::string& name)
 
     for(int i = 0; i < static_cast<int>(m_textures.size()); ++i)
     {
-        if(name == m_textures[i].Name())
+        if(name == m_textures[i]->Name())
         {
             return i;
         }
     }
 
     const int index = m_textures.size();
-    m_textures.emplace_back(name, TEXTURE_PATH + "//" + name);
+    m_textures.push_back(std::make_unique<Texture>(name, TEXTURE_PATH + "//" + name));
     return index;
 }
 
@@ -354,7 +368,7 @@ const std::vector<Light>& Scene::Lights() const
     return m_lights;
 }
 
-const std::vector<Texture>& Scene::Textures() const
+const std::vector<std::unique_ptr<Texture>>& Scene::Textures() const
 {
     return m_textures;
 }
@@ -381,7 +395,7 @@ Light& Scene::GetLight(int index)
 
 std::string Scene::GetTexture(int index)
 {
-    return index == NO_INDEX ? "None" : m_textures[index].Name();
+    return index == NO_INDEX ? "None" : m_textures[index]->Name();
 }
 
 Mesh& Scene::GetMesh(int index)

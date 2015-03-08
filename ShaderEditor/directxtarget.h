@@ -71,7 +71,7 @@ public:
     * @note Required as texture needs to be unbound from the 
     *       shader before render target is activated
     */
-    void ClearTexture(ID3D11DeviceContext* context, int slot);
+    void RemoveTexture(ID3D11DeviceContext* context, int slot);
 
 private:
 

@@ -56,7 +56,7 @@ public:
     /**
     * @return the textures in the scene
     */
-    virtual const std::vector<Texture>& Textures() const override;
+    virtual const std::vector<std::unique_ptr<Texture>>& Textures() const override;
 
     /**
     * @return the emitters in the scene
@@ -306,9 +306,7 @@ private:
     int GetShaderIndex(FragmentLinker& linker, 
                        const std::string& shadername, 
                        const std::string& meshName);
-
     
-    std::vector<Texture> m_textures;                  ///< All textures in the scene
     std::vector<Shader> m_shaders;                    ///< All shaders in the scene
     std::vector<Mesh> m_meshes;                       ///< All meshes in the scene
     std::vector<Light> m_lights;                      ///< All lights in the scene
@@ -317,4 +315,6 @@ private:
     std::unique_ptr<Diagnostic> m_diagnostic;         ///< Diagnostics for the scene
     std::unique_ptr<PostProcessing> m_postProcessing; ///< Post processing for the final image
     std::unique_ptr<AnimatedTexture> m_caustics;      ///< Caustic animated texture
+    std::vector<std::unique_ptr<Texture>> m_textures; ///< All textures in the scene
+    std::vector<unsigned int> m_proceduralTextures;   ///< Indices of all editable textures
 };                     

@@ -14,6 +14,7 @@ uniform float bloomFade;
 
 uniform sampler2DMS SceneSampler;
 uniform sampler2DMS NormalSampler;
+uniform sampler2D RandomSampler;
 
 vec4 GetMultisampled(sampler2DMS samplerName, ivec2 uvs)
 {
@@ -40,4 +41,8 @@ void main(void)
     out_Color[ID_EFFECTS].rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
     out_Color[ID_EFFECTS].rgb = clamp(out_Color[ID_EFFECTS].rgb, 0.0, 1.0);
     out_Color[ID_EFFECTS].rgb *= bloomIntensity;
+
+    // Testing procedural textures
+    vec4 random = texture(RandomSampler, ex_UVs);
+    out_Color[ID_EFFECTS] = random;
 }

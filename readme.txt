@@ -1,11 +1,9 @@
 
-- Create proc textures in scene class
-- Loading in textures with set pixels
-- Load in random texture to pre effects shader
-- Reloading pixels with guid support
-- Generate random normals texture
-- SSAO Shader
+- Saving texture to file
+- Qt reload and save buttons
 
+
+- SSAO Shader
 - OpenGL Half size RT blurring?
 - Fix DirectX frame rate drop?
 

@@ -17,7 +17,6 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
-const int BLANK_TEXTURE_ID = 0;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 2000.0f;
 const float FIELD_OF_VIEW = 60.0f;
@@ -57,6 +56,14 @@ enum RenderingEngine
     MAX_ENGINES
 };
 
+/**
+* Index for special textures
+*/
+enum TextureIndex
+{
+    BLANK_TEXTURE_ID,
+    RANDOM_TEXTURE_ID
+};
 
 /**
 * Index for special shaders

@@ -47,7 +47,8 @@ bool GlTexture::Initialise()
 
     glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, static_cast<float>(MAX_ANISOTROPY));
+    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
+        static_cast<float>(MAX_ANISOTROPY));
 
     if(HasCallFailed())
     {
@@ -60,12 +61,13 @@ bool GlTexture::Initialise()
 
 void GlTexture::InitialiseCubeMap()
 {
-    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_texture.Path() + "_c00.png");
-    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_texture.Path() + "_c01.png");
-    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_texture.Path() + "_c02.png");
-    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m_texture.Path() + "_c03.png");
-    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_texture.Path() + "_c04.png");
-    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_texture.Path() + "_c05.png");
+    const std::string path(m_texture.Path() + "_c0");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, path + "0.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, path + "1.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, path + "2.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, path + "3.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, path + "4.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, path + "5.png");
 }
 
 void GlTexture::InitialiseFromFile()
@@ -76,11 +78,13 @@ void GlTexture::InitialiseFromFile()
 void GlTexture::InitialiseFromPixels()
 {
     const int size = m_texture.Size();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 
+        size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + m_texture.Name() + " texture");
+        Logger::LogError("OpenGL: Failed " + 
+            m_texture.Name() + " texture");
     }
 
     ReloadPixels();
@@ -117,13 +121,12 @@ bool GlTexture::IsCubeMap() const
 
 void GlTexture::ReloadPixels()
 {
-    assert(!m_texture.HasPixels());
+    assert(m_texture.HasPixels());
 
     glBindTexture(GL_TEXTURE_2D, m_id);
 
-    //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 
-    //    m_texture.Size, m_texture.Size, GL_RGBA, GL_UNSIGNED_BYTE, 
-    //    static_cast<unsigned int*>(&m_texture.Pixels[0]));
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture.Size(), 
+        m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, m_texture.Pixels());
 
     if(HasCallFailed())
     {

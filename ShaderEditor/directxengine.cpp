@@ -355,10 +355,10 @@ std::string DirectxEngine::CompileShader(int index)
 bool DirectxEngine::InitialiseScene(const IScene& scene)
 {
     m_data->textures.reserve(scene.Textures().size());
-    for(const Texture& texture : scene.Textures())
+    for(const auto& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<DxTexture>(
-            new DxTexture(texture)));
+            new DxTexture(*texture)));
     }
 
     m_data->shaders.reserve(scene.Shaders().size());
@@ -512,8 +512,8 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     
     m_data->quad.Render(m_data->context);
 
-    m_data->sceneTarget.ClearTexture(m_data->context, 0);
-    m_data->sceneTarget.ClearTexture(m_data->context, 1);
+    m_data->sceneTarget.RemoveTexture(m_data->context, 0);
+    m_data->sceneTarget.RemoveTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderBlur(const PostProcessing& post)
@@ -535,8 +535,8 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->quad.Render(m_data->context);
 
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 1);
+    m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
+    m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
 
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive(m_data->context);
@@ -552,8 +552,8 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->quad.Render(m_data->context);
 
-    m_data->blurHorizontalTarget.ClearTexture(m_data->context, 0);
-    m_data->blurHorizontalTarget.ClearTexture(m_data->context, 1);
+    m_data->blurHorizontalTarget.RemoveTexture(m_data->context, 0);
+    m_data->blurHorizontalTarget.RemoveTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -596,10 +596,10 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
 
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 0);
-    m_data->preEffectsTarget.ClearTexture(m_data->context, 1);
-    m_data->blurVerticalTarget.ClearTexture(m_data->context, 2);
-    m_data->blurVerticalTarget.ClearTexture(m_data->context, 3);
+    m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
+    m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
+    m_data->blurVerticalTarget.RemoveTexture(m_data->context, 2);
+    m_data->blurVerticalTarget.RemoveTexture(m_data->context, 3);
 }
 
 void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)

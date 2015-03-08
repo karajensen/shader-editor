@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "openglshader.h"
+#include "opengltarget.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
@@ -581,6 +582,11 @@ void GlShader::EnableAttributes()
     }
 }
 
+void GlShader::ClearTexture(int slot, const GlRenderTarget& target)
+{
+    ClearTexture(slot, target.IsMultisampled(), false);
+}
+
 void GlShader::ClearTexture(int slot, bool multisample, bool cubemap)
 {
     glActiveTexture(GetTexture(slot));
@@ -599,6 +605,11 @@ void GlShader::ClearTexture(int slot, bool multisample, bool cubemap)
     {
         Logger::LogError("Could not clear texture");
     }
+}
+
+void GlShader::SendTexture(int slot, GLuint id, bool cubemap)
+{
+    SendTexture(slot, id, false, cubemap);
 }
 
 void GlShader::SendTexture(int slot, GLuint id, bool multisample, bool cubemap)
@@ -621,6 +632,11 @@ void GlShader::SendTexture(int slot, GLuint id, bool multisample, bool cubemap)
     {
         Logger::LogError("Could not send texture");
     }
+}
+
+void GlShader::SendTexture(int slot, const GlRenderTarget& target, int ID)
+{
+    SendTexture(slot, target.GetTexture(ID), target.IsMultisampled(), false);
 }
 
 void GlShader::SetActive()

@@ -39,7 +39,7 @@ public:
     /**
     * @return the textures in the scene
     */
-    virtual const std::vector<Texture>& Textures() const = 0;
+    virtual const std::vector<std::unique_ptr<Texture>>& Textures() const = 0;
 
     /**
     * @return the post processing for the final image

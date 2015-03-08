@@ -53,9 +53,9 @@ bool Texture::IsCubeMap() const
     return boost::filesystem::path(m_path).extension().string().empty();
 }
 
-const std::vector<Pixel>& Texture::Pixels() const
+const unsigned int* Texture::Pixels() const
 {
-    return m_pixels;
+    return &(m_pixels[0]);
 }
 
 bool Texture::HasPixels() const

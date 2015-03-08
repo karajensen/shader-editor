@@ -57,9 +57,9 @@ public:
     const std::string& Path() const;
 
     /**
-    * @return the pixels of the texture or empty if to be loaded from file
+    * @return the pixels of the texture or nullptr if empty
     */
-    const std::vector<Pixel>& Pixels() const;
+    const unsigned int* Pixels() const;
 
     /**
     * @return the size of the texture if set
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    std::vector<Pixel> m_pixels; ///< Optional pixels of the texture
+    std::vector<unsigned int> m_pixels; ///< Optional pixels of the texture
     int m_size;                  ///< Optional dimensions of the texture
     std::string m_name;          ///< Name of the texture
     std::string m_path;          ///< Path to the texture
