@@ -44,6 +44,7 @@ void main(void)
 
     // Ambient Occlusion
     vec3 ambience = effects.aaa;
+    postScene.rgb *= ambience;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;

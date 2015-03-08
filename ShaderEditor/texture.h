@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include "colour.h"
 
 /**
 * Texture rendered on a mesh
@@ -36,6 +37,16 @@ public:
     Texture(const std::string& name, const std::string& path);
 
     /**
+    * @return whether this texture has explicitly set pixels
+    */
+    bool HasPixels() const;
+
+    /**
+    * @return whether this texture is a cube map
+    */
+    bool IsCubeMap() const;
+
+    /**
     * @return the filename of the texture
     */
     const std::string& Name() const;
@@ -44,6 +55,16 @@ public:
     * @return the filename of the texture
     */
     const std::string& Path() const;
+
+    /**
+    * @return the pixels of the texture or empty if to be loaded from file
+    */
+    const std::vector<Pixel>& Pixels() const;
+
+    /**
+    * @return the size of the texture if set
+    */
+    int Size() const;
 
     /**
     * Gets a text description of the texture type
@@ -59,39 +80,10 @@ public:
     */
     static bool IsAnimatedType(unsigned int type);
 
-private:
+protected:
 
-    std::string m_name; ///< Name of the texture
-    std::string m_path; ///< Path to the texture
-};
-
-/**
-* Manages cycling through multiple textures
-*/
-class AnimatedTexture
-{
-public:
-
-    /**
-    * Adds a texture frame 
-    * @param ID the unique ID of the texture to add
-    */
-    void AddFrame(int ID);
-
-    /**
-    * @return the current frame this texture is in
-    */
-    int GetFrame() const;
-
-    /**
-    * Ticks the animated texture
-    */
-    void Tick(float deltatime);
-
-private:
-
-    std::vector<int> m_frames; ///< All frames to animate
-    int m_selectedFrame = 0;   ///< The currently selected frame
-    float m_timePassed = 0.0f; ///< The time passed since last frame switch
-
+    std::vector<Pixel> m_pixels; ///< Optional pixels of the texture
+    int m_size;                  ///< Optional dimensions of the texture
+    std::string m_name;          ///< Name of the texture
+    std::string m_path;          ///< Path to the texture
 };

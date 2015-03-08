@@ -2,7 +2,7 @@
 // Kara Jensen - mail@karajensen.com - pre_effects_hlsl.fx
 ////////////////////////////////////////////////////////////////////////////////////////
 
-cbuffer SceneVertexBuffer : register(b0)
+cbuffer ScenePixelBuffer : register(b0)
 {
     float bloomIntensity;
     float bloomStart;

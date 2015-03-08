@@ -60,8 +60,11 @@ Attributes VShader(float4 position  : POSITION,
 
 Outputs PShader(Attributes input)
 {
+    // Blurring done at half the screen size
+    float2 uvs = input.uvs * 4.0; 
+
     Outputs output;
-    output.scene = Blur(SceneSampler, input.uvs);
-    output.effects = Blur(EffectsSampler, input.uvs);
+    output.scene = Blur(SceneSampler, uvs);
+    output.effects = Blur(EffectsSampler, uvs);
     return output;
 }

@@ -63,6 +63,7 @@ Outputs PShader(Attributes input)
 
     // Ambient Occlusion
     float3 ambience = effects.aaa;
+    postScene.rgb *= ambience;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;

@@ -10,16 +10,18 @@ DxRenderTarget::DxRenderTarget(const std::string& name) :
     m_isBackBuffer(true),
     m_multisampled(false),
     m_name(name),
-    m_count(1)
+    m_count(1),
+    m_halfsize(false)
 {
     InitialiseContainers();
 }
 
-DxRenderTarget::DxRenderTarget(const std::string& name, int textures, bool multisampled) :
+DxRenderTarget::DxRenderTarget(const std::string& name, int textures, bool multisampled, bool halfsize) :
     m_isBackBuffer(false),
     m_multisampled(multisampled),
     m_name(name),
-    m_count(textures)
+    m_count(textures),
+    m_halfsize(halfsize)
 {
     InitialiseContainers();
 }
@@ -66,6 +68,12 @@ bool DxRenderTarget::InitialiseDepthBuffer(ID3D11Device* device)
     textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
     textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
     textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
+
+    if (m_halfsize)
+    {
+        textureDesc.Height /= 2;
+        textureDesc.Width /= 2;
+    }
 
     ID3D11Texture2D* depthTexture;
     if(FAILED(device->CreateTexture2D(&textureDesc, 0, &depthTexture)))
@@ -120,6 +128,12 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
     textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
+
+    if (m_halfsize)
+    {
+        textureDesc.Width /= 2;
+        textureDesc.Height /= 2;
+    }
 
     if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_textures[ID]))) ||
         m_textures[ID] == nullptr)

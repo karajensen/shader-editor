@@ -326,7 +326,7 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<GlTexture>(
-            new GlTexture(texture.Path())));
+            new GlTexture(texture)));
     }
 
     m_data->shaders.reserve(scene.Shaders().size());

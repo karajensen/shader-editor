@@ -63,7 +63,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     std::vector<ComboEntry> post;
     AddEntry(post, m_callbacks.SetPost, POST_DEPTH_NEAR, 0.1, 2, "Depth Near");
-    AddEntry(post, m_callbacks.SetPost, POST_DEPTH_NEAR, 10.0, 1, "Depth Far");
+    AddEntry(post, m_callbacks.SetPost, POST_DEPTH_FAR, 10.0, 1, "Depth Far");
     AddEntry(post, m_callbacks.SetPost, POST_BLUR_STEP, 0.001, 3, "Blur Step");
     AddEntry(post, m_callbacks.SetPost, POST_BLOOM_AMOUNT, 0.001, 3, "Bloom Scale");
     AddEntry(post, m_callbacks.SetPost, POST_BLOOM_START, 0.001, 3, "Bloom Start");

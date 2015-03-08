@@ -8,6 +8,7 @@
 #include "water.h"
 #include "shader.h"
 #include "texture.h"
+#include "textureProcedural.h"
 #include "postprocessing.h"
 #include "emitter.h"
 #include "light.h"

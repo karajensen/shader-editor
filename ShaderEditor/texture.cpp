@@ -3,10 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "texture.h"
+#include "boost/algorithm/string.hpp"
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem.hpp"
 
 Texture::Texture(const std::string& name, const std::string& path) :
     m_name(name),
-    m_path(path)
+    m_path(path),
+    m_size(0)
 {
 }
 
@@ -44,25 +48,23 @@ bool Texture::IsAnimatedType(unsigned int type)
     return type == CAUSTICS;
 }
 
-void AnimatedTexture::AddFrame(int ID)
+bool Texture::IsCubeMap() const
 {
-    m_frames.push_back(ID);
+    return boost::filesystem::path(m_path).extension().string().empty();
 }
 
-int AnimatedTexture::GetFrame() const
+const std::vector<Pixel>& Texture::Pixels() const
 {
-    return m_frames[m_selectedFrame];
+    return m_pixels;
 }
 
-void AnimatedTexture::Tick(float deltatime)
+bool Texture::HasPixels() const
 {
-    m_timePassed += deltatime;
+    return !m_pixels.empty();
+}
 
-    const float secondsUntilSwitch = 0.05f;
-    if (m_timePassed >= secondsUntilSwitch)
-    {
-        const int maxFrame = static_cast<int>(m_frames.size())-1;
-        m_selectedFrame = m_selectedFrame == maxFrame ? 0 : m_selectedFrame + 1;
-        m_timePassed = 0.0f;
-    }
+int Texture::Size() const
+{
+    assert(!m_pixels.empty());
+    return m_size;
 }

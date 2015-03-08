@@ -15,9 +15,9 @@ public:
 
     /**
     * Constructor
-    * @param filepath The path for the texture
+    * @param texture Contains the texture data
     */
-    GlTexture(const std::string& filepath);
+    GlTexture(const Texture& texture);
 
     /**
     * Destructor
@@ -45,7 +45,27 @@ public:
     */
     bool IsCubeMap() const;
 
+    /**
+    * Reloads the texture from pixels
+    */
+    void ReloadPixels();
+
 private:
+
+    /**
+    * Initialises a cube map
+    */
+    void InitialiseCubeMap();
+
+    /**
+    * Initialises the texture from file
+    */
+    void InitialiseFromFile();
+
+    /**
+    * Initialises the texture from pixels
+    */
+    void InitialiseFromPixels();
 
     /**
     * Loads a texture from file
@@ -54,8 +74,7 @@ private:
     */
     void LoadTexture(GLenum type, const std::string& path);
 
-    const bool m_isCubeMap = false; ///< Whether the texture is 3D
+    const Texture& m_texture;       ///< Contains the texture data
     bool m_initialised = false;     ///< Whether this texture is initialised
     GLuint m_id = 0;                ///< Unique id for the texture
-    const std::string m_filepath;   ///< The path for the texture
 };

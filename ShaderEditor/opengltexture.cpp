@@ -4,13 +4,9 @@
 
 #include "opengltexture.h"
 #include "opengl/soil/SOIL.h"
-#include "boost/algorithm/string.hpp"
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem.hpp"
 
-GlTexture::GlTexture(const std::string& filepath) :
-    m_filepath(filepath),
-    m_isCubeMap(boost::filesystem::path(filepath).extension().string().empty())
+GlTexture::GlTexture(const Texture& texture) :
+    m_texture(texture)
 {
 }
 
@@ -33,22 +29,20 @@ bool GlTexture::Initialise()
     glGenTextures(1, &m_id);
     m_initialised = true;
 
-    auto type = m_isCubeMap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    auto type = m_texture.IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
     glBindTexture(type, m_id);
 
-    if (m_isCubeMap)
+    if (m_texture.IsCubeMap())
     {
-        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_filepath + "_c00.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_filepath + "_c01.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_filepath + "_c02.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m_filepath + "_c03.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_filepath + "_c04.png");
-        LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_filepath + "_c05.png");
+        InitialiseCubeMap();
+    }
+    else if (m_texture.HasPixels())
+    {
+        InitialiseFromPixels();
     }
     else
     {
-        glBindTexture(GL_TEXTURE_2D, m_id);
-        LoadTexture(GL_TEXTURE_2D, m_filepath);
+        InitialiseFromFile();
     }
 
     glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -57,11 +51,39 @@ bool GlTexture::Initialise()
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + m_filepath + " texture");
+        Logger::LogError("OpenGL: Failed " + m_texture.Path() + " texture");
         return false;
     }
 
     return true;
+}
+
+void GlTexture::InitialiseCubeMap()
+{
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, m_texture.Path() + "_c00.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, m_texture.Path() + "_c01.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, m_texture.Path() + "_c02.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, m_texture.Path() + "_c03.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, m_texture.Path() + "_c04.png");
+    LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, m_texture.Path() + "_c05.png");
+}
+
+void GlTexture::InitialiseFromFile()
+{
+    LoadTexture(GL_TEXTURE_2D, m_texture.Path());
+}
+
+void GlTexture::InitialiseFromPixels()
+{
+    const int size = m_texture.Size();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + m_texture.Name() + " texture");
+    }
+
+    ReloadPixels();
 }
 
 void GlTexture::LoadTexture(GLenum type, const std::string& path)
@@ -90,5 +112,22 @@ GLuint GlTexture::GetID() const
 
 bool GlTexture::IsCubeMap() const
 {
-    return m_isCubeMap;
+    return m_texture.IsCubeMap();
+}
+
+void GlTexture::ReloadPixels()
+{
+    assert(!m_texture.HasPixels());
+
+    glBindTexture(GL_TEXTURE_2D, m_id);
+
+    //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 
+    //    m_texture.Size, m_texture.Size, GL_RGBA, GL_UNSIGNED_BYTE, 
+    //    static_cast<unsigned int*>(&m_texture.Pixels[0]));
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed " + 
+            m_texture.Name() + " reloading");
+    }
 }

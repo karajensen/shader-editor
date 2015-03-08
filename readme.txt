@@ -1,7 +1,12 @@
 
-- Make slower caustics
-- Add SSAO
-- SSAO to compute shader?
+- Create proc textures in scene class
+- Loading in textures with set pixels
+- Load in random texture to pre effects shader
+- Reloading pixels with guid support
+- Generate random normals texture
+- SSAO Shader
+
+- OpenGL Half size RT blurring?
 - Fix DirectX frame rate drop?
 
 - Create 3D scene

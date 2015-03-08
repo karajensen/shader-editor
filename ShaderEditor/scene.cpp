@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include "textureAnimated.h"
 #include "diagnostic.h"
 #include "fragmentlinker.h"
 #include "renderdata.h"
@@ -165,30 +166,15 @@ bool Scene::InitialiseTextures()
     const std::string BLANK_TEXTURE("blank.png");
     m_textures.emplace_back(BLANK_TEXTURE, TEXTURE_PATH + "//" + BLANK_TEXTURE);
 
-    m_caustics = std::make_unique<AnimatedTexture>();
-    const std::string CAUSTICS("Caustics//CausticsRender_0");
-
-    int frame = 0;
-    bool loadingCaustics = true;
-    while (loadingCaustics)
+    m_caustics = std::make_unique<AnimatedTexture>(
+        TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp");
+    
+    for (const std::string& path : m_caustics->Paths())
     {
-        ++frame;
-        const std::string number(boost::lexical_cast<std::string>(frame));
-        const std::string name(CAUSTICS + (frame < 10 ? "0" : "") + number + ".bmp");
-        const std::string path(TEXTURE_PATH + "//" + name);
-
-        if (boost::filesystem::exists(path))
-        {
-            m_caustics->AddFrame(static_cast<int>(m_textures.size()));
-            m_textures.emplace_back(name, path);
-        }
-        else
-        {
-            loadingCaustics = false;
-        }
+        m_caustics->AddFrame(static_cast<int>(m_textures.size()));
+        m_textures.emplace_back(path, path);
     }
 
-    Logger::LogInfo("Textures: Successfully initialised");
     return true;
 }
 
@@ -603,7 +589,7 @@ void Scene::Tick(float deltatime)
         }
     }
 
-    // Temporary to test specularity
+    // Temporary to test scene
     static float timePassed = 0.0f;
     timePassed += deltatime;
     m_meshes[1].Instances()[0].position.y += cos(timePassed) * 0.05f;

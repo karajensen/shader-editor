@@ -72,8 +72,8 @@ struct DirectxData
 
 DirectxData::DirectxData() :
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
-    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
+    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false, true),
+    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false, true),
     preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
     backBuffer("BackBuffer"),
     quad("SceneQuad")
@@ -358,7 +358,7 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     for(const Texture& texture : scene.Textures())
     {
         m_data->textures.push_back(std::unique_ptr<DxTexture>(
-            new DxTexture(texture.Path())));
+            new DxTexture(texture)));
     }
 
     m_data->shaders.reserve(scene.Shaders().size());

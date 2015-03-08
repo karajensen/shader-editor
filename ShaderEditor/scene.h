@@ -7,6 +7,7 @@
 #include "boost/property_tree/ptree.hpp"
 #include "sceneInterface.h"
 
+class AnimatedTexture;
 class FragmentLinker;
 class Diagnostic;
 
