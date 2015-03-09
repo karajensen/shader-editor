@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "opengltexture.h"
-#include "opengl/soil/SOIL.h"
+#include "soil/SOIL.h"
 
 GlTexture::GlTexture(const Texture& texture) :
     m_texture(texture)
@@ -133,9 +133,4 @@ void GlTexture::ReloadPixels()
         Logger::LogError("OpenGL: Failed " + 
             m_texture.Name() + " reloading");
     }
-}
-
-void GlTexture::SaveTexture()
-{
-
 }

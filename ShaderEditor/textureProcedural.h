@@ -48,6 +48,11 @@ public:
     */
     virtual bool HasPixels() const override;
 
+    /**
+    * Saves the texture to file
+    */
+    void SaveTexture();
+
 private:
 
     /**

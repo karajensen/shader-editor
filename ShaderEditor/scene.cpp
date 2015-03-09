@@ -39,7 +39,7 @@ namespace
     const std::string LIGHTS_PATH(ASSETS_PATH + LIGHTS_NAME);
     const std::string POST_PATH(ASSETS_PATH + POST_NAME);
     const std::string TEXTURE_PATH(ASSETS_PATH + "Textures");
-    const std::string GENERATED_TEXTURES(TEXTURE_PATH + "//Generated");
+    const std::string GENERATED_TEXTURES(TEXTURE_PATH + "//Generated//");
     const std::string SAVED("_saved");
     const std::string XML(".xml");
 }
@@ -167,7 +167,7 @@ bool Scene::InitialiseTextures()
     {
         m_proceduralTextures.push_back(m_textures.size());
         m_textures.push_back(std::make_unique<ProceduralTexture>(
-            name, GENERATED_TEXTURES + "//" + name + ".png", size, type));
+            name, GENERATED_TEXTURES + name + ".png", size, type));
     };
 
     assert(m_textures.empty());
@@ -512,6 +512,9 @@ void Scene::SaveSceneToFile()
     SaveMeshesToFile();
     SaveLightsToFile();
     SavePostProcessingtoFile();
+
+    // Temporary testing saving out texture
+    SaveTextureToFile(0);
 }
 
 void Scene::SaveParticlesToFile()
@@ -580,6 +583,16 @@ void Scene::SavePostProcessingtoFile()
     boost::property_tree::ptree root, tree;
     m_postProcessing->Write(tree);
     SaveXMLFile(root, tree, POST_NAME, POST_PATH + SAVED + XML);
+}
+
+void Scene::SaveTextureToFile(int ID)
+{
+    if (!boost::filesystem::exists(GENERATED_TEXTURES))
+    {
+        boost::filesystem::create_directory(GENERATED_TEXTURES);
+    }
+    const int texture = m_proceduralTextures[ID];
+    static_cast<ProceduralTexture&>(*m_textures[texture]).SaveTexture();
 }
 
 void Scene::Tick(float deltatime)

@@ -1,6 +1,6 @@
 
-- Saving texture to file
-- Qt reload and save buttons
+- Hook up Qt selected texture, reload and save buttons
+- DirectX textures
 
 
 - SSAO Shader

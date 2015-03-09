@@ -42,7 +42,6 @@ void main(void)
     out_Color[ID_EFFECTS].rgb = clamp(out_Color[ID_EFFECTS].rgb, 0.0, 1.0);
     out_Color[ID_EFFECTS].rgb *= bloomIntensity;
 
-    // Testing procedural textures
+    // Ambient Occlusion
     vec4 random = texture(RandomSampler, ex_UVs);
-    out_Color[ID_EFFECTS] = random;
 }

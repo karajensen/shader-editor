@@ -50,11 +50,6 @@ public:
     */
     void ReloadPixels();
 
-    /**
-    * Save the texture to file
-    */
-    void SaveTexture();
-
 private:
 
     /**

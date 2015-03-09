@@ -16,6 +16,7 @@ ShaderEditor/qt/build/
 ShaderEditor/Debug/
 ShaderEditor/Release/
 ShaderEditor/Assets/Reference/
+ShaderEditor/Assets/Textures/Generated/
 ShaderEditor/Assets/Shaders/Generated/
 ShaderEditor/Assets/Lights_saved.xml
 ShaderEditor/Assets/Meshes_saved.xml
