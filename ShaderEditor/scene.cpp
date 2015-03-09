@@ -170,14 +170,11 @@ bool Scene::InitialiseTextures()
             name, GENERATED_TEXTURES + "//" + name + ".png", size, type));
     };
 
-    auto MakeTexture = [this](const char* name)
-    {
-        m_textures.push_back(std::make_unique<Texture>(
-            name, TEXTURE_PATH + "//" + name + ".png"));
-    };
-
     assert(m_textures.empty());
-    MakeTexture("blank");
+
+    m_textures.push_back(std::make_unique<Texture>(
+        "Blank", TEXTURE_PATH + "//blank.png"));
+
     MakeProcedural("random", 128, ProceduralTexture::RANDOM);
 
     m_caustics = std::make_unique<AnimatedTexture>(

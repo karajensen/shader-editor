@@ -28,7 +28,6 @@
   <ItemGroup>
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="colour.cpp" />
     <ClCompile Include="diagnostic.cpp" />
     <ClCompile Include="directxemitter.cpp" />
     <ClCompile Include="directxengine.cpp" />

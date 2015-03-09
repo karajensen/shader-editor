@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 /**
 * Colour with red, green, blue and alpha components
 */
@@ -21,61 +23,97 @@ struct Colour
     float g = 0.0f;
     float b = 0.0f;
     float a = 0.0f;
-};
 
-/**
-* Single pixel (texel) for a texture
-*/
-class Pixel
-{
-public:
-
-    union
+    static void SetRed(unsigned int& colour, int value)
     {
-        unsigned int color;
-        struct
-        {
-            unsigned char r, g, b, a;
-        };
-    };
+        SetColour(colour, value, GreenAsInt(colour), BlueAsInt(colour), AlphaAsInt(colour));
+    }
 
-    /**
-    * Constructor
-    */
-    Pixel();
+    static void SetGreen(unsigned int& colour, int value)
+    {
+        SetColour(colour, RedAsInt(colour), value, BlueAsInt(colour), AlphaAsInt(colour));
+    }
 
-    /**
-    * Get the color component as a float 
-    */
-    float Red() const;
-    float Green() const;
-    float Blue() const;
-    float Alpha() const;
+    static void SetBlue(unsigned int& colour, int value)
+    {
+        SetColour(colour, RedAsInt(colour), GreenAsInt(colour), value, AlphaAsInt(colour));
+    }
 
-    /**
-    * Set the color component as a float 
-    */
-    void Red(float red);
-    void Green(float green);
-    void Blue(float blue);
-    void Alpha(float alpha);
+    static void SetAlpha(unsigned int& colour, int value)
+    {
+        SetColour(colour, RedAsInt(colour), GreenAsInt(colour), BlueAsInt(colour), value);
+    }
 
-    /**
-    * Add to a particular colour component
-    * Prevents going beyond the bounds of 0->255
-    * @param amount the amount to add to the component
-    */
-    void AddRed(float amount);
-    void AddGreen(float amount);
-    void AddBlue(float amount);
-    void AddAlpha(float amount);
+    static void SetRed(unsigned int& colour, float value)
+    {
+        SetRed(colour, static_cast<int>(value * 255));
+    }
 
-private:
+    static void SetGreen(unsigned int& colour, float value)
+    {
+        SetGreen(colour, static_cast<int>(value * 255));
+    }
 
-    /**
-    * Adds an amount and prevents going beyond the bounds of 0->255 and 0.0->1.0
-    * @param component the color component to add to
-    * @param amount the amount to add to the component
-    */
-    void AddToComponent(float amount, unsigned char& component);
+    static void SetBlue(unsigned int& colour, float value)
+    {
+        SetBlue(colour, static_cast<int>(value * 255));
+    }
+
+    static void SetAlpha(unsigned int& colour, float value)
+    {
+        SetAlpha(colour, static_cast<int>(value * 255));
+    }
+
+    static void SetColour(unsigned int& colour, int r, int g, int b, int a)
+    {
+        using namespace std;
+        r = min(255, max(0, r));
+        g = min(255, max(0, g));
+        b = min(255, max(0, b));
+        a = min(255, max(0, a));
+        colour = ((a & 0xFF) << 24) + 
+            ((b & 0xFF) << 16) + 
+            ((g & 0xFF) << 8) + 
+            (r & 0xFF);
+    }
+
+    static int RedAsInt(unsigned int colour)
+    {
+        return colour & 0xFF;
+    }
+
+    static int GreenAsInt(unsigned int colour)
+    {
+        return (colour >> 8) & 0xFF;
+    }
+
+    static int BlueAsInt(unsigned int colour)
+    {
+        return (colour >> 16) & 0xFF;
+    }
+
+    static int AlphaAsInt(unsigned int colour)
+    {
+        return (colour >> 24) & 0xFF;
+    }
+
+    static float RedAsFlt(unsigned int colour)
+    {
+        return static_cast<float>(RedAsInt(colour)) / 255.0f;
+    }
+
+    static float GreenAsFlt(unsigned int colour)
+    {
+        return static_cast<float>(GreenAsInt(colour)) / 255.0f;
+    }
+
+    static float BlueAsFlt(unsigned int colour)
+    {
+        return static_cast<float>(BlueAsInt(colour)) / 255.0f;
+    }
+
+    static float AlphaAsFlt(unsigned int colour)
+    {
+        return static_cast<float>(AlphaAsInt(colour)) / 255.0f;
+    }
 };

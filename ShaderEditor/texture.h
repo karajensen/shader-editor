@@ -6,7 +6,6 @@
 
 #include <string>
 #include <vector>
-#include "colour.h"
 
 /**
 * Texture rendered on a mesh
@@ -37,9 +36,9 @@ public:
     Texture(const std::string& name, const std::string& path);
 
     /**
-    * @return whether this texture has explicitly set pixels
+    * Destructor
     */
-    bool HasPixels() const;
+    virtual ~Texture() = default;
 
     /**
     * @return whether this texture is a cube map
@@ -59,12 +58,17 @@ public:
     /**
     * @return the pixels of the texture or nullptr if empty
     */
-    const unsigned int* Pixels() const;
+    virtual const unsigned int* Pixels() const;
 
     /**
     * @return the size of the texture if set
     */
-    int Size() const;
+    virtual int Size() const;
+
+    /**
+    * @return whether this texture has explicitly set pixels
+    */
+    virtual bool HasPixels() const;
 
     /**
     * Gets a text description of the texture type
@@ -80,10 +84,8 @@ public:
     */
     static bool IsAnimatedType(unsigned int type);
 
-protected:
+private:
 
-    std::vector<unsigned int> m_pixels; ///< Optional pixels of the texture
-    int m_size;                  ///< Optional dimensions of the texture
-    std::string m_name;          ///< Name of the texture
-    std::string m_path;          ///< Path to the texture
+    std::string m_name; ///< Name of the texture
+    std::string m_path; ///< Path to the texture
 };

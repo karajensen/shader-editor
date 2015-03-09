@@ -180,9 +180,6 @@
     <ClCompile Include="textureProcedural.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
-    <ClCompile Include="colour.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">

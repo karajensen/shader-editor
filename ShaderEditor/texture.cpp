@@ -3,14 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "texture.h"
+#include "common.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem.hpp"
 
 Texture::Texture(const std::string& name, const std::string& path) :
     m_name(name),
-    m_path(path),
-    m_size(0)
+    m_path(path)
 {
 }
 
@@ -55,16 +55,17 @@ bool Texture::IsCubeMap() const
 
 const unsigned int* Texture::Pixels() const
 {
-    return &(m_pixels[0]);
+    Logger::LogError("Texture::Pixels No Implemented");
+    return nullptr;
 }
 
 bool Texture::HasPixels() const
 {
-    return !m_pixels.empty();
+    return false;
 }
 
 int Texture::Size() const
 {
-    assert(!m_pixels.empty());
-    return m_size;
+    Logger::LogError("Texture::Size No Implemented");
+    return 0;
 }

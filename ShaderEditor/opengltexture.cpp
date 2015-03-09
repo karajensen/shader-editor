@@ -134,3 +134,8 @@ void GlTexture::ReloadPixels()
             m_texture.Name() + " reloading");
     }
 }
+
+void GlTexture::SaveTexture()
+{
+
+}
