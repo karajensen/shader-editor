@@ -114,8 +114,14 @@ public:
     */
     static int GetMaxWaves();
 
+    /**
+    * @return The saturation of the bump
+    */
+    const float& Bump() const;
+
 private:
 
+    float m_bump = 1.0f;               ///< Saturation of bump
     Float2 m_bumpVelocity;             ///< Velocity of the bump movement
     float m_speed = 0.0f;              ///< Overall speed of the wave
     Float2 m_uvScale;                  ///< Scale of the water texture

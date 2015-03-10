@@ -61,6 +61,14 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
         container.emplace_back(attribute, name, step, precision, callbacks[attribute]);
     };
 
+    std::vector<ComboEntry> terrain;
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_BUMP, 0.01, 3, "Bump");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_AMBIENCE, 0.01, 3, "Ambience");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_CAUSTICS, 0.01, 3, "Caustics");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SPECULARITY, 0.01, 3, "Specularity");
+    m_terrain.Initialise(m_ui.terrainAttributes_box, 
+        m_ui.terrainAttributes_value, m_ui.terrainAttributes_dial, terrain);
+
     std::vector<ComboEntry> post;
     AddEntry(post, m_callbacks.SetPost, POST_DEPTH_NEAR, 0.1, 2, "Depth Near");
     AddEntry(post, m_callbacks.SetPost, POST_DEPTH_FAR, 10.0, 1, "Depth Far");
@@ -222,6 +230,24 @@ void Tweaker::SetMeshInstanceCount(const std::string& count)
     m_ui.instances_text->update();
 }
 
+void Tweaker::SetTerrainShaderName(const std::string& name)
+{
+    m_ui.terrainShader_text->setText(QString(name.c_str()));
+    m_ui.terrainShader_text->update();
+}
+
+void Tweaker::SetTexturePath(const std::string& path)
+{
+    if (!path.empty())
+    {
+        const int buffer = 10;
+        const int width = m_ui.displayTexture_btn->width();
+        const int height = m_ui.displayTexture_btn->height();
+        m_ui.displayTexture_btn->setIcon(QIcon(path.c_str()));
+        m_ui.displayTexture_btn->setIconSize(QSize(width-buffer, height-buffer));
+    }
+}
+
 void Tweaker::SetMeshShaderName(const std::string& name)
 {
     m_ui.shader_text->setText(QString(name.c_str()));
@@ -231,6 +257,11 @@ void Tweaker::SetMeshShaderName(const std::string& name)
 void Tweaker::SetCamera(CameraAttribute attribute, float value)
 {
     m_camera.at(attribute).Set(value);
+}
+
+void Tweaker::SetTerrain(TerrainAttribute attribute, float value)
+{
+    m_terrain.SetValue(attribute, value);
 }
 
 void Tweaker::SetPost(PostAttribute attribute, float value)
@@ -284,6 +315,26 @@ void Tweaker::SetSelectedPostMap(int selected)
 void Tweaker::SetSelectedEngine(int selected)
 {
     m_renderEngine.SetSelected(selected);
+}
+
+void Tweaker::InitialiseTerrain(int selected, 
+                                const std::vector<std::string>& terrain)
+{
+    if (!terrain.empty())
+    {
+        m_selectedTerrain.Initialise(m_ui.selectedTerrain_box,
+            selected, terrain, m_callbacks.SetSelectedTerrain);
+    }
+}
+
+void Tweaker::InitialiseTextures(int selected, 
+                                 const std::vector<std::string>& textures)
+{
+    if (!textures.empty())
+    {
+        m_selectedTexture.Initialise(m_ui.selectedTexture_box,
+            selected, textures, m_callbacks.SetSelectedTexture);
+    }
 }
 
 void Tweaker::InitialiseEmitters(int selected,
@@ -362,6 +413,11 @@ void Tweaker::InitialiseLights(int selected,
     }
 }
 
+bool Tweaker::HasTerrain() const
+{
+    return m_selectedTerrain.IsInitialised();
+}
+
 bool Tweaker::HasPostMaps() const
 {
     return m_postMap.IsInitialised();
@@ -380,6 +436,11 @@ bool Tweaker::HasLights() const
 bool Tweaker::HasEmitters() const
 {
     return m_selectedEmitter.IsInitialised();
+}
+
+bool Tweaker::HasTextures() const
+{
+    return m_selectedTexture.IsInitialised();
 }
 
 bool Tweaker::HasWater() const

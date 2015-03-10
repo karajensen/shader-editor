@@ -159,34 +159,38 @@ struct Cache
     {
     }
 
-    Lockable<bool> ApplicationRunning;  ///< Whether the application is running
-    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui            
+    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui  
+    Lockable<bool> ApplicationRunning;  ///< Whether the application is running          
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
     Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics
     Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
     Lockable<bool> RenderLightsOnly;    ///< Request to render only the lights
-                                        
+    
+    Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
+    Lockable<float> Timer;              ///< The time passed in seconds from start
+    
+    Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
+    Lockable<int> EngineSelected;       ///< The selected render engine to use
+    Lockable<int> LightSelected;        ///< Index of the currently selected light                                           
+    Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
+    Lockable<int> WaterSelected;        ///< Index of the currently selected water  
+    Lockable<int> WaveSelected;         ///< Index of the currently selected wave
+    Lockable<int> TextureSelected;      ///< Index of the currently selected texture
+    Lockable<int> EmitterSelected;      ///< Index of the currently selected emitter
+    Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
+    Lockable<int> TerrainSelected;      ///< Index of the currently selected terrain
+    Lockable<int> ParticleAmount;       ///< The amount of particles to spawn
+    Lockable<int> WaveAmount;           ///< The amount of waves for the selected water
+
+    LockableString TexturePath;         ///< Path to the currently selected texture
+    LockableString TerrainShader;       ///< Shader used for the selected terrain
+    LockableString MeshShader;          ///< Shader used for the selected mesh
+    LockableString MeshInstances;       ///< Number of instances of the selected mesh
     LockableString ShaderText;          ///< Text for the selected shader
     LockableString ShaderAsm;           ///< Assembly for the selected shader
     LockableString CompileShader;       ///< Text to request to be compiled
-                                        
-    Lockable<int> EngineSelected;       ///< The selected render engine to use
-    Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
-    Lockable<float> Timer;              ///< The time passed in seconds from start
-    Lockable<int> FramesPerSec;         ///< The frames per second for the application
-                                        
-    Lockable<int> LightSelected;        ///< Index of the currently selected light                                           
-    Lockable<int> MeshSelected;         ///< Index of the currently selected mesh
-    LockableString MeshShader;          ///< Shader used for the selected mesh
-    LockableString MeshInstances;       ///< Number of instances of the selected mesh
-    Lockable<int> WaterSelected;        ///< Index of the currently selected water  
-    Lockable<int> WaveSelected;         ///< Index of the currently selected wave
-    Lockable<int> WaveAmount;           ///< The amount of waves for the selected water
-    Lockable<int> EmitterSelected;      ///< Index of the currently selected emitter
-    Lockable<int> ParticleAmount;       ///< The amount of particles to spawn
-    Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
 
     std::array<Lockable<float>, CAMERA_ATTRIBUTES> Camera;      ///< Camera attributes
     std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;        ///< Selected light attributes
@@ -195,6 +199,7 @@ struct Cache
     std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes
     std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
     std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
+    std::array<Lockable<float>, TERRAIN_ATTRIBUTES> Terrain;    ///< Terrain attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
@@ -203,4 +208,6 @@ struct Cache
     Lockable<std::vector<std::string>> Waters;    ///< Container of all waters
     Lockable<std::vector<std::string>> PostMaps;  ///< Container of all post maps
     Lockable<std::vector<std::string>> Emitters;  ///< Container of all emitters
+    Lockable<std::vector<std::string>> Textures;  ///< Container of all editable textures
+    Lockable<std::vector<std::string>> Terrains;  ///< Container of all terrain
 };

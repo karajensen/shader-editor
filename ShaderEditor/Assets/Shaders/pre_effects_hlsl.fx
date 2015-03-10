@@ -22,8 +22,10 @@ struct Outputs
     float4 effects : SV_TARGET2;
 };
 
+SamplerState Sampler;
 Texture2DMS<float4,SAMPLES> SceneSampler  : register(t0);
 Texture2DMS<float4,SAMPLES> NormalSampler : register(t1);
+Texture2D RandomSampler : register(t2);
 
 float4 GetMultisampled(Texture2DMS<float4, SAMPLES> samplerName, int3 uvs)
 {
@@ -60,6 +62,10 @@ Outputs PShader(Attributes input)
     output.effects.rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
     output.effects.rgb = saturate(output.effects.rgb);
     output.effects.rgb *= bloomIntensity;
+
+    // Ambient Occlusion
+    float4 random = RandomSampler.Sample(Sampler, input.uvs);
+    output.effects = random;
 
     return output;
 }

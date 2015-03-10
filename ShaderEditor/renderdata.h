@@ -11,6 +11,7 @@
 #include "textureProcedural.h"
 #include "postprocessing.h"
 #include "emitter.h"
+#include "terrain.h"
 #include "light.h"
 
 const int WINDOW_WIDTH = 800;

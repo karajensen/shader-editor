@@ -54,6 +54,11 @@ public:
     virtual const std::vector<Light>& Lights() const override;
 
     /**
+    * @return the terrain in the scene
+    */
+    virtual const std::vector<Terrain>& Terrains() const override;
+
+    /**
     * @return the textures in the scene
     */
     virtual const std::vector<std::unique_ptr<Texture>>& Textures() const override;
@@ -67,36 +72,6 @@ public:
     * @return the post processing for the final image
     */
     virtual const PostProcessing& Post() const override;
-
-    /**
-    * @return the names of the lights in the scene
-    */
-    std::vector<std::string> GetLightNames() const;
-
-    /**
-    * @return the names of the meshes in the scene
-    */
-    std::vector<std::string> GetMeshNames() const;
-
-    /**
-    * @return the names of the waters in the scene
-    */
-    std::vector<std::string> GetWaterNames() const;
-
-    /**
-    * @return the names of the emitters in the scene
-    */
-    std::vector<std::string> GetEmitterNames() const;
-
-    /**
-    * @return the names of the shaders in the scene
-    */
-    std::vector<std::string> GetShaderNames() const;
-
-    /**
-    * @return the names of the post maps in the scene
-    */
-    std::vector<std::string> GetPostMapNames() const;
 
     /**
     * @param index The index of the light to get
@@ -115,6 +90,18 @@ public:
     * @return the water 
     */
     Water& GetWater(int index);
+
+    /**
+    * @param index The index of the terrain to get
+    * @return the terrain 
+    */
+    Terrain& GetTerrain(int index);
+
+    /**
+    * @param index The index of the texture to get
+    * @return the texture 
+    */
+    ProceduralTexture& GetProceduralTexture(int index);
 
     /**
     * @param index The index of the emitter to get
@@ -150,26 +137,6 @@ public:
     * @return the name of the texture
     */
     std::string GetTexture(int index);
-
-    /**
-    * @return the number of meshes available
-    */
-    int GetMeshCount() const;
-
-    /**
-    * @return the number of water available
-    */
-    int GetWaterCount() const;
-
-    /**
-    * @return the number of emitters available
-    */
-    int GetEmitterCount() const;
-
-    /**
-    * @return the number of lights available
-    */
-    int GetLightCount() const;
 
     /**
     * Outputs the scene to an xml file
@@ -315,6 +282,7 @@ private:
     
     std::vector<Shader> m_shaders;                    ///< All shaders in the scene
     std::vector<Mesh> m_meshes;                       ///< All meshes in the scene
+    std::vector<Terrain> m_terrain;                   ///< All terrain in the scene
     std::vector<Light> m_lights;                      ///< All lights in the scene
     std::vector<Water> m_water;                       ///< All water in the scene
     std::vector<Emitter> m_emitters;                  ///< All particle emitters in the scene

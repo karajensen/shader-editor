@@ -6,6 +6,8 @@
 
 #include "texture.h"
 
+struct Cache;
+
 /**
 * Manages generating textures 
 */
@@ -32,6 +34,18 @@ public:
                       const std::string& path,
                       int size,
                       Type type);
+
+    /**
+    * Writes to the data in the cache
+    * @param cache The cache of data from the GUI
+    */
+    void Write(Cache& cache);
+
+    /**
+    * Reads the data from the cache
+    * @param cache The cache of data from the GUI
+    */
+    void Read(Cache& cache);
 
     /**
     * @return the pixels of the texture or nullptr if empty
@@ -63,5 +77,6 @@ private:
     Type m_type;                        ///< The type of texture this is
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture
     int m_size;                         ///< Dimensions of the texture
+    std::string m_savePath;             ///< Path the generated texture is saved to
 
 };

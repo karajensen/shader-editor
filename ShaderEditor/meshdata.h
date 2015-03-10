@@ -47,11 +47,6 @@ public:
                     bool requiresTangents);
 
     /**
-    * @return The saturation of the bump
-    */
-    const float& Bump() const;
-
-    /**
     * @return The name of the mesh
     */
     const std::string& Name() const;
@@ -109,10 +104,6 @@ public:
     * @param ID The ID of the texture to use
     */
     void SetTexture(Texture::Type type, int ID);
-
-protected:
-
-    float m_bump = 1.0f;  ///< Saturation of bump
 
 private:
 

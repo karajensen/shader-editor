@@ -509,6 +509,7 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
     m_data->sceneTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->sceneTarget.SendTexture(m_data->context, 1, NORMAL_ID);
+    m_data->textures[RANDOM_TEXTURE_ID]->SendTexture(m_data->context, 2);
     
     m_data->quad.Render(m_data->context);
 

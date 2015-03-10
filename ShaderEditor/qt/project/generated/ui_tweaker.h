@@ -78,8 +78,28 @@ public:
     QSpacerItem *_sceneSpacer;
     QWidget *Area;
     QWidget *layoutWidget1;
-    QVBoxLayout *lightLayout;
-    QSpacerItem *_lightSpacer;
+    QVBoxLayout *areaLayout;
+    QFrame *selectedTexture;
+    QLabel *selectedTexture_lbl;
+    QComboBox *selectedTexture_box;
+    QFrame *displayTexture;
+    QPushButton *displayTexture_btn;
+    QFrame *textureAttributes;
+    QDoubleSpinBox *textureAttributes_value;
+    QDial *textureAttributes_dial;
+    QComboBox *textureAttributes_box;
+    QSpacerItem *_meshSpacer_5;
+    QFrame *selectedTerrain;
+    QLabel *selectedTerrain_lbl;
+    QComboBox *selectedTerrain_box;
+    QFrame *terrainShader;
+    QLabel *terrainShader_lbl;
+    QLabel *terrainShader_text;
+    QFrame *terrainAttributes;
+    QDoubleSpinBox *terrainAttributes_value;
+    QDial *terrainAttributes_dial;
+    QComboBox *terrainAttributes_box;
+    QSpacerItem *_areaSpacer;
     QWidget *Mesh;
     QWidget *layoutWidget2;
     QVBoxLayout *meshLayout;
@@ -296,8 +316,6 @@ public:
         fps_text->setFrameShadow(QFrame::Plain);
         fps_text->setLineWidth(0);
         fps_text->setMargin(3);
-        fps_lbl->raise();
-        fps_text->raise();
 
         sceneLayout->addWidget(fps);
 
@@ -741,14 +759,273 @@ public:
         Area->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget1 = new QWidget(Area);
         layoutWidget1->setObjectName(QStringLiteral("layoutWidget1"));
-        layoutWidget1->setGeometry(QRect(0, 0, 230, 561));
-        lightLayout = new QVBoxLayout(layoutWidget1);
-        lightLayout->setSpacing(2);
-        lightLayout->setObjectName(QStringLiteral("lightLayout"));
-        lightLayout->setContentsMargins(4, 4, 0, 0);
-        _lightSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        layoutWidget1->setGeometry(QRect(0, 0, 260, 626));
+        areaLayout = new QVBoxLayout(layoutWidget1);
+        areaLayout->setSpacing(2);
+        areaLayout->setObjectName(QStringLiteral("areaLayout"));
+        areaLayout->setContentsMargins(4, 4, 0, 0);
+        selectedTexture = new QFrame(layoutWidget1);
+        selectedTexture->setObjectName(QStringLiteral("selectedTexture"));
+        sizePolicy.setHeightForWidth(selectedTexture->sizePolicy().hasHeightForWidth());
+        selectedTexture->setSizePolicy(sizePolicy);
+        selectedTexture->setMinimumSize(QSize(225, 35));
+        selectedTexture->setMaximumSize(QSize(225, 35));
+        selectedTexture->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        selectedTexture->setFrameShape(QFrame::Panel);
+        selectedTexture->setFrameShadow(QFrame::Raised);
+        selectedTexture_lbl = new QLabel(selectedTexture);
+        selectedTexture_lbl->setObjectName(QStringLiteral("selectedTexture_lbl"));
+        selectedTexture_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(selectedTexture_lbl->sizePolicy().hasHeightForWidth());
+        selectedTexture_lbl->setSizePolicy(sizePolicy);
+        selectedTexture_lbl->setMinimumSize(QSize(100, 30));
+        selectedTexture_lbl->setMaximumSize(QSize(100, 30));
+        selectedTexture_lbl->setFont(font);
+        selectedTexture_lbl->setMargin(1);
+        selectedTexture_box = new QComboBox(selectedTexture);
+        selectedTexture_box->setObjectName(QStringLiteral("selectedTexture_box"));
+        selectedTexture_box->setGeometry(QRect(104, 6, 115, 22));
+        sizePolicy.setHeightForWidth(selectedTexture_box->sizePolicy().hasHeightForWidth());
+        selectedTexture_box->setSizePolicy(sizePolicy);
+        selectedTexture_box->setMinimumSize(QSize(115, 22));
+        selectedTexture_box->setMaximumSize(QSize(115, 22));
+        selectedTexture_box->setBaseSize(QSize(115, 25));
+        selectedTexture_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        selectedTexture_box->setEditable(false);
+        selectedTexture_box->setMinimumContentsLength(0);
+        selectedTexture_box->setFrame(false);
 
-        lightLayout->addItem(_lightSpacer);
+        areaLayout->addWidget(selectedTexture);
+
+        displayTexture = new QFrame(layoutWidget1);
+        displayTexture->setObjectName(QStringLiteral("displayTexture"));
+        sizePolicy.setHeightForWidth(displayTexture->sizePolicy().hasHeightForWidth());
+        displayTexture->setSizePolicy(sizePolicy);
+        displayTexture->setMinimumSize(QSize(225, 225));
+        displayTexture->setMaximumSize(QSize(225, 225));
+        displayTexture->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        displayTexture->setFrameShape(QFrame::Panel);
+        displayTexture->setFrameShadow(QFrame::Raised);
+        displayTexture_btn = new QPushButton(displayTexture);
+        displayTexture_btn->setObjectName(QStringLiteral("displayTexture_btn"));
+        displayTexture_btn->setGeometry(QRect(5, 5, 216, 216));
+        displayTexture_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        displayTexture_btn->setDefault(false);
+
+        areaLayout->addWidget(displayTexture);
+
+        textureAttributes = new QFrame(layoutWidget1);
+        textureAttributes->setObjectName(QStringLiteral("textureAttributes"));
+        textureAttributes->setMinimumSize(QSize(225, 35));
+        textureAttributes->setMaximumSize(QSize(225, 35));
+        textureAttributes->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        textureAttributes->setFrameShape(QFrame::NoFrame);
+        textureAttributes->setFrameShadow(QFrame::Plain);
+        textureAttributes->setLineWidth(0);
+        textureAttributes_value = new QDoubleSpinBox(textureAttributes);
+        textureAttributes_value->setObjectName(QStringLiteral("textureAttributes_value"));
+        textureAttributes_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(textureAttributes_value->sizePolicy().hasHeightForWidth());
+        textureAttributes_value->setSizePolicy(sizePolicy);
+        textureAttributes_value->setMinimumSize(QSize(86, 25));
+        textureAttributes_value->setMaximumSize(QSize(86, 25));
+        textureAttributes_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        textureAttributes_value->setFrame(false);
+        textureAttributes_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        textureAttributes_value->setDecimals(3);
+        textureAttributes_value->setMinimum(-9999);
+        textureAttributes_value->setMaximum(9999);
+        textureAttributes_value->setSingleStep(0.05);
+        textureAttributes_dial = new QDial(textureAttributes);
+        textureAttributes_dial->setObjectName(QStringLiteral("textureAttributes_dial"));
+        textureAttributes_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(textureAttributes_dial->sizePolicy().hasHeightForWidth());
+        textureAttributes_dial->setSizePolicy(sizePolicy);
+        textureAttributes_dial->setMinimumSize(QSize(30, 30));
+        textureAttributes_dial->setMaximumSize(QSize(30, 30));
+        textureAttributes_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        textureAttributes_dial->setMinimum(-10000);
+        textureAttributes_dial->setMaximum(10000);
+        textureAttributes_box = new QComboBox(textureAttributes);
+        textureAttributes_box->setObjectName(QStringLiteral("textureAttributes_box"));
+        textureAttributes_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(textureAttributes_box->sizePolicy().hasHeightForWidth());
+        textureAttributes_box->setSizePolicy(sizePolicy);
+        textureAttributes_box->setMinimumSize(QSize(95, 22));
+        textureAttributes_box->setMaximumSize(QSize(90, 22));
+        textureAttributes_box->setBaseSize(QSize(90, 25));
+        textureAttributes_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        textureAttributes_box->setFrame(false);
+
+        areaLayout->addWidget(textureAttributes);
+
+        _meshSpacer_5 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+        areaLayout->addItem(_meshSpacer_5);
+
+        selectedTerrain = new QFrame(layoutWidget1);
+        selectedTerrain->setObjectName(QStringLiteral("selectedTerrain"));
+        sizePolicy.setHeightForWidth(selectedTerrain->sizePolicy().hasHeightForWidth());
+        selectedTerrain->setSizePolicy(sizePolicy);
+        selectedTerrain->setMinimumSize(QSize(225, 35));
+        selectedTerrain->setMaximumSize(QSize(225, 35));
+        selectedTerrain->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        selectedTerrain->setFrameShape(QFrame::Panel);
+        selectedTerrain->setFrameShadow(QFrame::Raised);
+        selectedTerrain_lbl = new QLabel(selectedTerrain);
+        selectedTerrain_lbl->setObjectName(QStringLiteral("selectedTerrain_lbl"));
+        selectedTerrain_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(selectedTerrain_lbl->sizePolicy().hasHeightForWidth());
+        selectedTerrain_lbl->setSizePolicy(sizePolicy);
+        selectedTerrain_lbl->setMinimumSize(QSize(100, 30));
+        selectedTerrain_lbl->setMaximumSize(QSize(100, 30));
+        selectedTerrain_lbl->setFont(font);
+        selectedTerrain_lbl->setMargin(1);
+        selectedTerrain_box = new QComboBox(selectedTerrain);
+        selectedTerrain_box->setObjectName(QStringLiteral("selectedTerrain_box"));
+        selectedTerrain_box->setGeometry(QRect(104, 6, 115, 22));
+        sizePolicy.setHeightForWidth(selectedTerrain_box->sizePolicy().hasHeightForWidth());
+        selectedTerrain_box->setSizePolicy(sizePolicy);
+        selectedTerrain_box->setMinimumSize(QSize(115, 22));
+        selectedTerrain_box->setMaximumSize(QSize(115, 22));
+        selectedTerrain_box->setBaseSize(QSize(115, 25));
+        selectedTerrain_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        selectedTerrain_box->setEditable(false);
+        selectedTerrain_box->setMinimumContentsLength(0);
+        selectedTerrain_box->setFrame(false);
+
+        areaLayout->addWidget(selectedTerrain);
+
+        terrainShader = new QFrame(layoutWidget1);
+        terrainShader->setObjectName(QStringLiteral("terrainShader"));
+        sizePolicy.setHeightForWidth(terrainShader->sizePolicy().hasHeightForWidth());
+        terrainShader->setSizePolicy(sizePolicy);
+        terrainShader->setMinimumSize(QSize(225, 35));
+        terrainShader->setMaximumSize(QSize(225, 35));
+        terrainShader->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        terrainShader->setFrameShape(QFrame::Panel);
+        terrainShader->setFrameShadow(QFrame::Raised);
+        terrainShader_lbl = new QLabel(terrainShader);
+        terrainShader_lbl->setObjectName(QStringLiteral("terrainShader_lbl"));
+        terrainShader_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(terrainShader_lbl->sizePolicy().hasHeightForWidth());
+        terrainShader_lbl->setSizePolicy(sizePolicy);
+        terrainShader_lbl->setMinimumSize(QSize(100, 30));
+        terrainShader_lbl->setMaximumSize(QSize(100, 30));
+        terrainShader_lbl->setFont(font1);
+        terrainShader_text = new QLabel(terrainShader);
+        terrainShader_text->setObjectName(QStringLiteral("terrainShader_text"));
+        terrainShader_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(terrainShader_text->sizePolicy().hasHeightForWidth());
+        terrainShader_text->setSizePolicy(sizePolicy1);
+        terrainShader_text->setMinimumSize(QSize(115, 25));
+        terrainShader_text->setMaximumSize(QSize(115, 25));
+        terrainShader_text->setAutoFillBackground(false);
+        terrainShader_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        terrainShader_text->setFrameShape(QFrame::NoFrame);
+        terrainShader_text->setFrameShadow(QFrame::Plain);
+        terrainShader_text->setLineWidth(0);
+        terrainShader_text->setMargin(3);
+
+        areaLayout->addWidget(terrainShader);
+
+        terrainAttributes = new QFrame(layoutWidget1);
+        terrainAttributes->setObjectName(QStringLiteral("terrainAttributes"));
+        terrainAttributes->setMinimumSize(QSize(225, 35));
+        terrainAttributes->setMaximumSize(QSize(225, 35));
+        terrainAttributes->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        terrainAttributes->setFrameShape(QFrame::NoFrame);
+        terrainAttributes->setFrameShadow(QFrame::Plain);
+        terrainAttributes->setLineWidth(0);
+        terrainAttributes_value = new QDoubleSpinBox(terrainAttributes);
+        terrainAttributes_value->setObjectName(QStringLiteral("terrainAttributes_value"));
+        terrainAttributes_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(terrainAttributes_value->sizePolicy().hasHeightForWidth());
+        terrainAttributes_value->setSizePolicy(sizePolicy);
+        terrainAttributes_value->setMinimumSize(QSize(86, 25));
+        terrainAttributes_value->setMaximumSize(QSize(86, 25));
+        terrainAttributes_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        terrainAttributes_value->setFrame(false);
+        terrainAttributes_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        terrainAttributes_value->setDecimals(3);
+        terrainAttributes_value->setMinimum(-9999);
+        terrainAttributes_value->setMaximum(9999);
+        terrainAttributes_value->setSingleStep(0.05);
+        terrainAttributes_dial = new QDial(terrainAttributes);
+        terrainAttributes_dial->setObjectName(QStringLiteral("terrainAttributes_dial"));
+        terrainAttributes_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(terrainAttributes_dial->sizePolicy().hasHeightForWidth());
+        terrainAttributes_dial->setSizePolicy(sizePolicy);
+        terrainAttributes_dial->setMinimumSize(QSize(30, 30));
+        terrainAttributes_dial->setMaximumSize(QSize(30, 30));
+        terrainAttributes_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        terrainAttributes_dial->setMinimum(-10000);
+        terrainAttributes_dial->setMaximum(10000);
+        terrainAttributes_box = new QComboBox(terrainAttributes);
+        terrainAttributes_box->setObjectName(QStringLiteral("terrainAttributes_box"));
+        terrainAttributes_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(terrainAttributes_box->sizePolicy().hasHeightForWidth());
+        terrainAttributes_box->setSizePolicy(sizePolicy);
+        terrainAttributes_box->setMinimumSize(QSize(95, 22));
+        terrainAttributes_box->setMaximumSize(QSize(90, 22));
+        terrainAttributes_box->setBaseSize(QSize(90, 25));
+        terrainAttributes_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        terrainAttributes_box->setFrame(false);
+
+        areaLayout->addWidget(terrainAttributes);
+
+        _areaSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        areaLayout->addItem(_areaSpacer);
 
         TabMenu->addTab(Area, QString());
         Mesh = new QWidget();
@@ -1872,10 +2149,6 @@ public:
 "border-width: 2px;"));
         light_position_box->setMaxVisibleItems(30);
         light_position_box->setFrame(false);
-        light_position_value->raise();
-        light_position_dial->raise();
-        light_position_box->raise();
-        light_active_lbl->raise();
 
         postLayout->addWidget(light_position);
 
@@ -2056,7 +2329,9 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(1);
+        selectedTexture_box->setCurrentIndex(-1);
+        selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
 
 
@@ -2082,6 +2357,11 @@ public:
         reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", 0));
         saveScene_btn->setText(QApplication::translate("Tweaker", "Save Scene to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
+        selectedTexture_lbl->setText(QApplication::translate("Tweaker", "Texture", 0));
+        displayTexture_btn->setText(QString());
+        selectedTerrain_lbl->setText(QApplication::translate("Tweaker", "Terrain", 0));
+        terrainShader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
+        terrainShader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "Area", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));

@@ -15,12 +15,14 @@ Mesh::Mesh(const boost::property_tree::ptree& node) :
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
     m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
+    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
 }
 
 void Mesh::Write(boost::property_tree::ptree& node) const
 {
     MeshData::Write(node);
 
+    AddValueOptional(node, "Bump", m_bump, 0.0f);
     AddValueOptional(node, "Caustics", m_caustics, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
@@ -53,6 +55,11 @@ std::vector<Mesh::Instance>& Mesh::Instances()
 const std::vector<Mesh::Instance>& Mesh::Instances() const
 {
     return m_instances;
+}
+
+const float& Mesh::Bump() const
+{
+    return m_bump;
 }
 
 const float& Mesh::Specularity() const

@@ -95,6 +95,16 @@ private:
     void UpdateMesh();
 
     /**
+    * Updates the terrain shared cache between the gui and application
+    */
+    void UpdateTerrain();
+
+    /**
+    * Updates the texture shared cache between the gui and application
+    */
+    void UpdateTexture();
+
+    /**
     * Updates the water shared cache between the gui and application
     */
     void UpdateWater();
@@ -123,6 +133,46 @@ private:
     */
     bool ReCompileShader(const std::string& text, RenderEngine& engine);
 
+    /**
+    * @return the names of the terrain in the scene
+    */
+    std::vector<std::string> GetTerrainNames() const;
+
+    /**
+    * @return the names of the editable textures in the scene
+    */
+    std::vector<std::string> GetTextureNames() const;
+
+    /**
+    * @return the names of the lights in the scene
+    */
+    std::vector<std::string> GetLightNames() const;
+
+    /**
+    * @return the names of the meshes in the scene
+    */
+    std::vector<std::string> GetMeshNames() const;
+
+    /**
+    * @return the names of the waters in the scene
+    */
+    std::vector<std::string> GetWaterNames() const;
+
+    /**
+    * @return the names of the emitters in the scene
+    */
+    std::vector<std::string> GetEmitterNames() const;
+
+    /**
+    * @return the names of the shaders in the scene
+    */
+    std::vector<std::string> GetShaderNames() const;
+
+    /**
+    * @return the names of the post maps in the scene
+    */
+    std::vector<std::string> GetPostMapNames() const;
+
     Scene& m_scene;                   ///< The scene object to manipulate
     Timer& m_timer;                   ///< The timer for the scene
     Camera& m_camera;                 ///< The camera for the scene
@@ -133,6 +183,8 @@ private:
     int m_selectedMap = NO_INDEX;     ///< Current post map selected
     int m_selectedShader = NO_INDEX;  ///< Current shader selected
     int m_selectedEmitter = NO_INDEX; ///< Current emitter selected
+    int m_selectedTexture = NO_INDEX; ///< Current texture selected
+    int m_selectedTerrain = NO_INDEX; ///< Current terrain selected
     int m_engineAmount = 0;           ///< Number of engines that can be selected
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
 };

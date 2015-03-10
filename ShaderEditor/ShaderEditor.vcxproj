@@ -49,6 +49,7 @@
     <ClCompile Include="opengltexture.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="postprocessing.cpp" />
+    <ClCompile Include="terrain.cpp" />
     <ClCompile Include="textureProcedural.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
     <ClCompile Include="qt\project\generated\moc\moc_editor.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="opengltexture.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="postprocessing.h" />
+    <ClInclude Include="terrain.h" />
     <ClInclude Include="textureProcedural.h" />
     <ClInclude Include="ptree_utilities.h" />
     <ClInclude Include="qt\project\editor.h" />

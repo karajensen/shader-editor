@@ -365,6 +365,11 @@ const std::vector<Light>& Scene::Lights() const
     return m_lights;
 }
 
+const std::vector<Terrain>& Scene::Terrains() const
+{
+    return m_terrain;
+}
+
 const std::vector<std::unique_ptr<Texture>>& Scene::Textures() const
 {
     return m_textures;
@@ -405,6 +410,17 @@ Water& Scene::GetWater(int index)
     return m_water[index];
 }
 
+Terrain& Scene::GetTerrain(int index)
+{
+    return m_terrain[index];
+}
+
+ProceduralTexture& Scene::GetProceduralTexture(int index)
+{
+    const int ID = m_proceduralTextures[index];
+    return static_cast<ProceduralTexture&>(*m_textures[ID]);
+}
+
 Shader& Scene::GetShader(int index)
 {
     return m_shaders[index];
@@ -423,87 +439,6 @@ Diagnostic& Scene::GetDiagnostics()
 void Scene::SetPostMap(int index)
 {
     m_postProcessing->SetPostMap(static_cast<PostProcessing::Map>(index));
-}
-
-int Scene::GetMeshCount() const
-{
-    return static_cast<int>(m_meshes.size());
-}
-
-int Scene::GetEmitterCount() const
-{
-    return static_cast<int>(m_emitters.size());
-}
-
-int Scene::GetWaterCount() const
-{
-    return static_cast<int>(m_water.size());
-}
-
-int Scene::GetLightCount() const
-{
-    return static_cast<int>(m_lights.size());
-}
-
-std::vector<std::string> Scene::GetLightNames() const
-{
-    std::vector<std::string> lights;
-    for(const Light& light : m_lights)
-    {
-        lights.push_back(light.Name());
-    }
-    return lights;
-}
-
-std::vector<std::string> Scene::GetEmitterNames() const
-{
-    std::vector<std::string> emitters;
-    for(const Emitter& emitter : m_emitters)
-    {
-        emitters.push_back(emitter.Name());
-    }
-    return emitters;
-}
-
-std::vector<std::string> Scene::GetMeshNames() const
-{
-    std::vector<std::string> meshes;
-    for(const Mesh& mesh : m_meshes)
-    {
-        meshes.push_back(mesh.Name());
-    }
-    return meshes;
-}
-
-std::vector<std::string> Scene::GetWaterNames() const
-{
-    std::vector<std::string> waters;
-    for(const Water& water : m_water)
-    {
-        waters.push_back(water.Name());
-    }
-    return waters;
-}
-
-std::vector<std::string> Scene::GetPostMapNames() const
-{
-    std::vector<std::string> maps;
-    for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
-    {
-        maps.push_back(PostProcessing::GetMapName(
-            static_cast<PostProcessing::Map>(i)));
-    }
-    return maps;
-}
-
-std::vector<std::string> Scene::GetShaderNames() const
-{
-    std::vector<std::string> shaders;
-    for(const Shader& shader : m_shaders)
-    {
-        shaders.push_back(shader.Name());
-    }
-    return shaders;
 }
 
 void Scene::SaveSceneToFile()
@@ -591,8 +526,7 @@ void Scene::SaveTextureToFile(int ID)
     {
         boost::filesystem::create_directory(GENERATED_TEXTURES);
     }
-    const int texture = m_proceduralTextures[ID];
-    static_cast<ProceduralTexture&>(*m_textures[texture]).SaveTexture();
+    GetProceduralTexture(ID).SaveTexture();
 }
 
 void Scene::Tick(float deltatime)

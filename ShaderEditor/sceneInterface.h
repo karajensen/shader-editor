@@ -37,6 +37,11 @@ public:
     virtual const std::vector<Light>& Lights() const = 0;
 
     /**
+    * @return the terrain in the scene
+    */
+    virtual const std::vector<Terrain>& Terrains() const = 0;
+
+    /**
     * @return the textures in the scene
     */
     virtual const std::vector<std::unique_ptr<Texture>>& Textures() const = 0;

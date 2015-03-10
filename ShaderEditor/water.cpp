@@ -8,6 +8,7 @@
 Water::Water(const boost::property_tree::ptree& node) :
     MeshData(node)
 {
+    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_bumpVelocity.x = GetAttribute<float>(node, "BumpVelocity", "x");
     m_bumpVelocity.y = GetAttribute<float>(node, "BumpVelocity", "y");
     m_fresnal.x = GetAttribute<float>(node, "Fresnal", "scale");
@@ -58,6 +59,7 @@ void Water::Write(boost::property_tree::ptree& node,
 {
     MeshData::Write(node);
 
+    AddValueOptional(node, "Bump", m_bump, 0.0f);
     node.add("Speed", m_speed);
     node.add("BumpVelocity.<xmlattr>.x", m_bumpVelocity.x);
     node.add("BumpVelocity.<xmlattr>.y", m_bumpVelocity.y);
@@ -200,6 +202,11 @@ const Colour& Water::Deep() const
 const Colour& Water::ReflectionTint() const
 {
     return m_reflectionTint;
+}
+
+const float& Water::Bump() const
+{
+    return m_bump;
 }
 
 const float& Water::ReflectionIntensity() const

@@ -20,6 +20,18 @@ enum MeshAttribute
 };
 
 /**
+* Tweakable terrain values
+*/
+enum TerrainAttribute
+{
+    TERRAIN_AMBIENCE,
+    TERRAIN_BUMP,
+    TERRAIN_CAUSTICS,
+    TERRAIN_SPECULARITY,
+    TERRAIN_ATTRIBUTES
+};
+
+/**
 * Tweakable water values
 */
 enum WaterAttribute
@@ -171,15 +183,7 @@ typedef std::vector<FloatSignal> FloatSignals;
 */
 struct SignalCallbacks
 {
-    FloatSignal SetDepthNear;      ///< Sets the depth near value
-    FloatSignal SetDepthFar;       ///< Sets the depth far value
-    FloatSignal SetDOFDistance;    ///< Sets when depth of field kicks in
-    FloatSignal SetDOFFade;        ///< Sets how quickly depth of field fades to the scene
-    FloatSignal SetBlurStep;       ///< Sets the amount of step between samples for blurring
-    FloatSignal SetBloomIntensity; ///< Sets the amount of bloom on the scene
-    FloatSignal SetBloomStart;     ///< Sets the threshold when the bloom will start
-    FloatSignal SetContrast;       ///< Sets the contrast of the final scene
-    FloatSignal SetSaturation;     ///< Sets the saturation of the final scene
+    FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
     FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
     FloatSignals SetCamera;        ///< Sets the camera tweakable attributes
     FloatSignals SetLight;         ///< Sets the light tweakable attributes
@@ -188,13 +192,15 @@ struct SignalCallbacks
     FloatSignals SetWater;         ///< Sets the water tweakable attributes
     FloatSignals SetWave;          ///< Sets the water wave tweakable attributes
     FloatSignals SetEmitter;       ///< Sets the emitter tweakable attributes
-    FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
+    FloatSignals SetTerrain;       ///< Sets the terrain tweakable attributes
     IntSignal SetSelectedEngine;   ///< Sets the selected engine to render
     IntSignal SetSelectedLight;    ///< Sets the selected light to display
     IntSignal SetSelectedMesh;     ///< Sets the selected mesh to display
     IntSignal SetSelectedWater;    ///< Sets the selected water to display
     IntSignal SetSelectedShader;   ///< Sets the selected shader to edit
     IntSignal SetSelectedEmitter;  ///< Sets the selected emitter to edit
+    IntSignal SetSelectedTexture;  ///< Sets the selected texture to edit
+    IntSignal SetSelectedTerrain;  ///< Sets the selected terrain to edit
     IntSignal SetPostMap;          ///< Sets the selected post map to display
     VoidSignal LightDiagnostics;   ///< Sends a request to toggle the light diagnostics
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
@@ -215,6 +221,8 @@ struct SignalCallbacks
         SetSelectedShader(nullptr),
         SetSelectedEmitter(nullptr),
         SetSelectedWave(nullptr),
+        SetSelectedTexture(nullptr),
+        SetSelectedTerrain(nullptr),
         SetPostMap(nullptr),
         ReloadScene(nullptr),
         LightDiagnostics(nullptr),
@@ -243,5 +251,8 @@ struct SignalCallbacks
 
         SetPost.resize(POST_ATTRIBUTES);
         SetPost.assign(POST_ATTRIBUTES, nullptr);
+
+        SetTerrain.resize(TERRAIN_ATTRIBUTES);
+        SetTerrain.assign(TERRAIN_ATTRIBUTES, nullptr);
     }
 };

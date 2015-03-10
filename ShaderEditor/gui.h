@@ -55,13 +55,13 @@ private:
     void UpdateScene(Tweaker& tweaker);
 
     /**
-    * Updates the cache and gui for the light page
+    * Updates the light tweakable entries
     * @param tweaker The gui for tweaking the application
     */
     void UpdateLight(Tweaker& tweaker);
 
     /**
-    * Updates the cache and gui for the mesh page
+    * Updates the mesh tweakable entries
     * @param tweaker The gui for tweaking the application
     */
     void UpdateMesh(Tweaker& tweaker);
@@ -77,6 +77,18 @@ private:
     * @param tweaker The gui for tweaking the application
     */
     void UpdateEmitter(Tweaker& tweaker);
+
+    /**
+    * Updates the texture tweakable entries
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateTextures(Tweaker& tweaker);
+
+    /**
+    * Updates the terrain tweakable entries
+    * @param tweaker The gui for tweaking the application
+    */
+    void UpdateTerrain(Tweaker& tweaker);
 
     /**
     * Updates the cache and gui for the post page

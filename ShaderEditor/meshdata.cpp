@@ -16,7 +16,6 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
     m_textureIDs.resize(Texture::MAX_TYPES);
     m_textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
     m_name = GetValue<std::string>(node, "Name");
-    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
@@ -37,8 +36,6 @@ void MeshData::Write(boost::property_tree::ptree& node) const
             node.add(Texture::GetTypeDescription(i), m_textureNames[i]);
         }
     }
-
-    AddValueOptional(node, "Bump", m_bump, 0.0f);
 }
 
 bool MeshData::Initialise(const std::string& path, bool requiresNormals, bool requiresTangents)
@@ -171,13 +168,8 @@ bool MeshData::Initialise(const std::string& path, bool requiresNormals, bool re
         }
     }
 
-    Logger::LogInfo("Mesh: " + path + " created");
+    Logger::LogInfo("Mesh: " + m_name + " created");
     return true;
-}
-
-const float& MeshData::Bump() const
-{
-    return m_bump;
 }
 
 const std::string& MeshData::Name() const

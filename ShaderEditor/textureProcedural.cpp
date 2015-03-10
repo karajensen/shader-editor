@@ -5,7 +5,10 @@
 #include "textureProcedural.h"
 #include "common.h"
 #include "colour.h"
+#include "cache.h"
 #include "soil/SOIL.h"
+#include "boost/filesystem.hpp"
+#include "boost/algorithm/string.hpp"
 
 ProceduralTexture::ProceduralTexture(const std::string& name, 
                                      const std::string& path,
@@ -16,6 +19,12 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
 {
     m_size = size;
     m_pixels.resize(size * size);
+
+    m_savePath = boost::filesystem::initial_path().string();
+    m_savePath += std::string(path.begin() + 1, path.end()); // Remove .
+    boost::algorithm::ireplace_all(m_savePath, R"(\)", R"(/)");
+    boost::algorithm::ireplace_all(m_savePath, R"(//)", R"(/)");
+    boost::ireplace_all(m_savePath, boost::filesystem::path(path).extension().string(), ".bmp");
 
     switch (type)
     {
@@ -69,7 +78,7 @@ void ProceduralTexture::SaveTexture()
         data[j+2] = Colour::BlueAsChar(colour);
     }
 
-    if (SOIL_save_image(Path().c_str(), SOIL_SAVE_TYPE_BMP, 
+    if (SOIL_save_image(m_savePath.c_str(), SOIL_SAVE_TYPE_BMP, 
         m_size, m_size, channels, &data[0]) == 0)
     {
         Logger::LogError("Failed to save " + Path());
@@ -78,4 +87,13 @@ void ProceduralTexture::SaveTexture()
     {
         Logger::LogInfo("Saved texture " + Path());
     }
+}
+
+void ProceduralTexture::Write(Cache& cache)
+{
+    cache.TexturePath.SetUpdated(m_savePath);
+}
+
+void ProceduralTexture::Read(Cache& cache)
+{
 }

@@ -57,6 +57,12 @@ void Gui::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Emitter[i].Set(value); };
     }
 
+    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    {
+        callbacks.SetTerrain[i] = 
+            [this, i](float value){ m_cache->Terrain[i].Set(value); };
+    }
+
     for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
         callbacks.SetPost[i] = 
@@ -70,7 +76,9 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedWater =   [this](int index){ m_cache->WaterSelected.Set(index); };
     callbacks.SetSelectedLight =   [this](int index){ m_cache->LightSelected.Set(index); };
     callbacks.SetSelectedShader =  [this](int index){ m_cache->ShaderSelected.Set(index); };
+    callbacks.SetSelectedTexture = [this](int index){ m_cache->TextureSelected.Set(index); };
     callbacks.SetSelectedEmitter = [this](int index){ m_cache->EmitterSelected.Set(index); };
+    callbacks.SetSelectedTerrain = [this](int index){ m_cache->TerrainSelected.Set(index); };
     callbacks.SetPostMap =         [this](int index){ m_cache->PostMapSelected.Set(index); };
     callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
     callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
@@ -113,6 +121,8 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
         UpdateScene(tweaker);
         break;
     case PAGE_AREA:
+        UpdateTextures(tweaker);
+        UpdateTerrain(tweaker);
         break;
     case PAGE_MESH:
         UpdateMesh(tweaker);
@@ -217,6 +227,47 @@ void Gui::UpdateScene(Tweaker& tweaker)
             tweaker.SetCamera(static_cast<CameraAttribute>(i), 
                 m_cache->Camera[i].GetUpdated());
         }
+    }
+}
+
+void Gui::UpdateTerrain(Tweaker& tweaker)
+{
+    bool initialisedTerrain = false;
+    if(!tweaker.HasTerrain())
+    {
+        initialisedTerrain = true;
+        tweaker.InitialiseTextures(
+            m_cache->TerrainSelected.Get(), m_cache->Terrains.Get());
+    }
+
+    if (initialisedTerrain || m_cache->TerrainShader.RequiresUpdate())
+    {
+        tweaker.SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
+    }
+
+    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    {
+        if (initialisedTerrain || m_cache->Terrain[i].RequiresUpdate())
+        {
+            tweaker.SetTerrain(static_cast<TerrainAttribute>(i), 
+                m_cache->Terrain[i].GetUpdated());
+        }
+    }
+}
+
+void Gui::UpdateTextures(Tweaker& tweaker)
+{
+    bool initialisedTextures = false;
+    if(!tweaker.HasTextures())
+    {
+        initialisedTextures = true;
+        tweaker.InitialiseTextures(
+            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
+    }
+
+    if (initialisedTextures || m_cache->TexturePath.RequiresUpdate())
+    {
+        tweaker.SetTexturePath(m_cache->TexturePath.GetUpdated());
     }
 }
 

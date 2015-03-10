@@ -1,8 +1,5 @@
 
-- Hook up Qt selected texture, reload and save buttons
-- DirectX textures
-
-
+- DirectX loading pixels
 - SSAO Shader
 - OpenGL Half size RT blurring?
 - Fix DirectX frame rate drop?

@@ -180,6 +180,9 @@
     <ClCompile Include="textureProcedural.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -336,6 +339,9 @@
       <Filter>Elements</Filter>
     </ClInclude>
     <ClInclude Include="textureProcedural.h">
+      <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
       <Filter>Elements</Filter>
     </ClInclude>
   </ItemGroup>

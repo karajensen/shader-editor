@@ -36,6 +36,8 @@ void SceneModifier::Tick(RenderEngine& engine)
         UpdateScene();
         break;
     case PAGE_AREA:
+        UpdateTerrain();
+        UpdateTexture();
         break;
     case PAGE_MESH:
         UpdateMesh();
@@ -171,7 +173,8 @@ void SceneModifier::UpdateMesh()
         m_selectedMesh = selectedMesh;
         m_scene.GetMesh(m_selectedMesh).Write(*m_cache);
     }
-    else if (m_selectedMesh >= 0 && m_selectedMesh < m_scene.GetMeshCount())
+    else if (m_selectedMesh >= 0 && 
+             m_selectedMesh < static_cast<int>(m_scene.Meshes().size()))
     {
         auto& mesh = m_scene.GetMesh(m_selectedMesh);
         mesh.Read(*m_cache);
@@ -189,7 +192,8 @@ void SceneModifier::UpdateWater()
         m_selectedWater = selectedWater;
         m_scene.GetWater(m_selectedWater).Write(*m_cache);
     }
-    else if(m_selectedWater >= 0 && m_selectedWater < m_scene.GetWaterCount())
+    else if(m_selectedWater >= 0 && 
+            m_selectedWater < static_cast<int>(m_scene.Waters().size()))
     {
         m_scene.GetWater(m_selectedWater).Read(*m_cache);
     }
@@ -212,6 +216,38 @@ void SceneModifier::UpdateWater()
     }
 }
 
+void SceneModifier::UpdateTerrain()
+{
+    const int selectedTerrain = m_cache->TerrainSelected.Get();
+    if(selectedTerrain != m_selectedTerrain)
+    {
+        m_selectedTerrain = selectedTerrain;
+        //m_scene.GetTerrain(m_selectedTerrain).Write(*m_cache);
+    }
+    else if(m_selectedTerrain >= 0 && 
+            m_selectedTerrain < static_cast<int>(m_scene.Terrains().size()))
+    {
+        //m_scene.GetTerrain(m_selectedTerrain).Read(*m_cache);
+    }
+}
+
+void SceneModifier::UpdateTexture()
+{
+    const int selectedTexture = m_cache->TextureSelected.Get();
+    if(selectedTexture != m_selectedTexture)
+    {
+        m_selectedTexture = selectedTexture;
+        auto& texture = m_scene.GetProceduralTexture(m_selectedTexture);
+        texture.Write(*m_cache);
+        texture.SaveTexture();
+    }
+    else if(m_selectedTexture >= 0 && 
+            m_selectedTexture < static_cast<int>(m_scene.Textures().size()))
+    {
+        m_scene.GetProceduralTexture(m_selectedTexture).Read(*m_cache);
+    }
+}
+
 void SceneModifier::UpdateEmitter()
 {
     const int selectedEmitter = m_cache->EmitterSelected.Get();
@@ -220,7 +256,8 @@ void SceneModifier::UpdateEmitter()
         m_selectedEmitter = selectedEmitter;
         m_scene.GetEmitter(m_selectedEmitter).Write(*m_cache);
     }
-    else if(m_selectedEmitter >= 0 && m_selectedEmitter < m_scene.GetEmitterCount())
+    else if(m_selectedEmitter >= 0 && 
+            m_selectedEmitter < static_cast<int>(m_scene.Emitters().size()))
     {
         m_scene.GetEmitter(m_selectedEmitter).Read(*m_cache);
     }
@@ -252,7 +289,8 @@ void SceneModifier::UpdateLight()
         m_selectedLight = selectedLight;
         m_scene.GetLight(m_selectedLight).Write(*m_cache);
     }
-    else if(m_selectedLight >= 0 && m_selectedLight < m_scene.GetLightCount())
+    else if(m_selectedLight >= 0 && 
+            m_selectedLight < static_cast<int>(m_scene.Lights().size()))
     {
         m_scene.GetLight(m_selectedLight).Read(*m_cache);
     }
@@ -280,12 +318,14 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
     m_cache->EngineSelected.Set(selectedEngine);
 
     m_cache->Engines.Set(engineNames);
-    m_cache->Lights.Set(m_scene.GetLightNames());
-    m_cache->Meshes.Set(m_scene.GetMeshNames());
-    m_cache->Shaders.Set(m_scene.GetShaderNames());
-    m_cache->PostMaps.Set(m_scene.GetPostMapNames());
-    m_cache->Waters.Set(m_scene.GetWaterNames());
-    m_cache->Emitters.Set(m_scene.GetEmitterNames());
+    m_cache->Lights.Set(GetLightNames());
+    m_cache->Meshes.Set(GetMeshNames());
+    m_cache->Shaders.Set(GetShaderNames());
+    m_cache->PostMaps.Set(GetPostMapNames());
+    m_cache->Waters.Set(GetWaterNames());
+    m_cache->Emitters.Set(GetEmitterNames());
+    m_cache->Textures.Set(GetTextureNames());
+    m_cache->Terrains.Set(GetTerrainNames());
 
     m_scene.GetPost().Write(*m_cache);
 
@@ -306,4 +346,88 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
 
     m_cache->Camera[CAMERA_ROLL].SetUpdated(
         m_camera.GetCamera(Camera::ROTATION_ROLL));
+}
+
+std::vector<std::string> SceneModifier::GetLightNames() const
+{
+    std::vector<std::string> lights;
+    for(const Light& light : m_scene.Lights())
+    {
+        lights.push_back(light.Name());
+    }
+    return lights;
+}
+
+std::vector<std::string> SceneModifier::GetEmitterNames() const
+{
+    std::vector<std::string> emitters;
+    for(const Emitter& emitter : m_scene.Emitters())
+    {
+        emitters.push_back(emitter.Name());
+    }
+    return emitters;
+}
+
+std::vector<std::string> SceneModifier::GetMeshNames() const
+{
+    std::vector<std::string> meshes;
+    for(const Mesh& mesh : m_scene.Meshes())
+    {
+        meshes.push_back(mesh.Name());
+    }
+    return meshes;
+}
+
+std::vector<std::string> SceneModifier::GetWaterNames() const
+{
+    std::vector<std::string> waters;
+    for(const Water& water : m_scene.Waters())
+    {
+        waters.push_back(water.Name());
+    }
+    return waters;
+}
+
+std::vector<std::string> SceneModifier::GetPostMapNames() const
+{
+    std::vector<std::string> maps;
+    for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
+    {
+        maps.push_back(PostProcessing::GetMapName(
+            static_cast<PostProcessing::Map>(i)));
+    }
+    return maps;
+}
+
+std::vector<std::string> SceneModifier::GetTerrainNames() const
+{
+    std::vector<std::string> terrainNames;
+    for (const Terrain& terrain : m_scene.Terrains())
+    {
+        terrainNames.push_back(terrain.Name());
+    }
+    return terrainNames;
+}
+
+std::vector<std::string> SceneModifier::GetTextureNames() const
+{
+    std::vector<std::string> textures;
+    for (const auto& texture : m_scene.Textures())
+    {
+        if (texture->HasPixels())
+        {
+            textures.push_back(texture->Name());
+        }
+    }
+    return textures;
+}
+
+std::vector<std::string> SceneModifier::GetShaderNames() const
+{
+    std::vector<std::string> shaders;
+    for(const Shader& shader : m_scene.Shaders())
+    {
+        shaders.push_back(shader.Name());
+    }
+    return shaders;
 }

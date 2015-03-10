@@ -39,7 +39,7 @@ void DxTexture::Initialise(ID3D11Device* device)
 
 void DxTexture::InitialiseFromPixels(ID3D11Device* device)
 {
-
+    //D3DX11CreateTextureFromMemory   
 
 }
 

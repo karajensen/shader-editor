@@ -70,6 +70,11 @@ public:
     const float& Specularity() const;
 
     /**
+    * @return The saturation of the bump
+    */
+    const float& Bump() const;
+
+    /**
     * @return Ambient light multiplier
     */
     const float& Ambience() const;
@@ -86,6 +91,7 @@ public:
 
 private:
 
+    float m_bump = 1.0f;               ///< Saturation of bump
     float m_caustics = 1.0f;           ///< How much of the caustics are visible
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
