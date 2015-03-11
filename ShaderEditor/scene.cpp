@@ -6,7 +6,6 @@
 #include "textureAnimated.h"
 #include "diagnostic.h"
 #include "sceneBuilder.h"
-#include "renderdata.h"
 
 /**
 * Internal data for the scene

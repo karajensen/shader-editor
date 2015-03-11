@@ -44,8 +44,9 @@ public:
 
     /**
     * Reloads the texture from pixels
+    * @param device The DirectX device interface
     */
-    void ReloadPixels();
+    void ReloadPixels(ID3D11Device* device);
 
 private:
 

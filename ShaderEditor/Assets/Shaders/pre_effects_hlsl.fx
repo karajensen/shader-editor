@@ -65,6 +65,7 @@ Outputs PShader(Attributes input)
 
     // Ambient Occlusion
     float4 random = RandomSampler.Sample(Sampler, input.uvs);
+    output.effects.a = 1.0;
     output.effects = random;
 
     return output;

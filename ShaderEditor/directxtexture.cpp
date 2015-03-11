@@ -88,13 +88,51 @@ void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot)
     context->PSSetShaderResources(slot, 1, &m_view);
 }
 
-void DxTexture::ReloadPixels()
+void DxTexture::ReloadPixels(ID3D11Device* device)
 {
+    Release();
 
+    ID3D11Texture2D* texture = nullptr;
+    const int channels = 4;
+    const int size = m_texture.Size();
+
+    D3D11_SUBRESOURCE_DATA data;
+    data.pSysMem = (void*)m_texture.Pixels();
+    data.SysMemPitch = size*channels;
+
+    D3D11_TEXTURE2D_DESC desc;
+    desc.Width  = size;
+    desc.Height = size;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    desc.CPUAccessFlags = 0;
+    desc.MiscFlags = 0;
+
+    if (FAILED(device->CreateTexture2D(&desc, &data, &texture)))
+    {
+        Logger::LogError("DirectX: Failed to create texture from pixels");
+    }
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = desc.Format;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	viewDesc.TextureCube.MipLevels = 1;
+	viewDesc.TextureCube.MostDetailedMip = 0;
+
+    if (FAILED(device->CreateShaderResourceView(texture, &viewDesc, &m_view)))
+    {
+        Logger::LogError("DirectX: Failed to resource view " + m_texture.Name());
+    }
+
+    texture->Release();
 }
 
 void DxTexture::InitialiseFromPixels(ID3D11Device* device)
 {
-    
-
+    ReloadPixels(device);
 }

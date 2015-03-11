@@ -1,8 +1,7 @@
 
-- DirectX loading pixels
-- SSAO Shader
-- OpenGL Half size RT blurring?
-- Fix DirectX frame rate drop?
+- DirectX Texture Reload
+- Fix DirectX frame rate drop
+- SSOA Shader
 
 - Create 3D scene
 - Optimise/clean shaders

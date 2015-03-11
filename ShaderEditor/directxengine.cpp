@@ -72,8 +72,8 @@ struct DirectxData
 
 DirectxData::DirectxData() :
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false, true),
-    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false, true),
+    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
+    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
     preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
     backBuffer("BackBuffer"),
     quad("SceneQuad")
