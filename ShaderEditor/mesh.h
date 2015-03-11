@@ -14,7 +14,7 @@
 /**
 * Mesh object rendered in the scene
 */
-struct Mesh : public MeshData
+class Mesh : public MeshData
 {
 public:
 

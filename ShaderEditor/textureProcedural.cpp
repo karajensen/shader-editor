@@ -24,7 +24,6 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
     m_savePath += std::string(path.begin() + 1, path.end()); // Remove .
     boost::algorithm::ireplace_all(m_savePath, R"(\)", R"(/)");
     boost::algorithm::ireplace_all(m_savePath, R"(//)", R"(/)");
-    boost::ireplace_all(m_savePath, boost::filesystem::path(path).extension().string(), ".bmp");
 
     switch (type)
     {

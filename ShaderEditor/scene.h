@@ -10,6 +10,8 @@
 class AnimatedTexture;
 class FragmentLinker;
 class Diagnostic;
+class SceneBuilder;
+struct SceneData;
 
 /**
 * Manager and owner of all objects and diagnostics
@@ -22,12 +24,6 @@ public:
     ~Scene();
 
     /**
-    * Initialises the scene
-    * @return Whether the initialization was successful
-    */
-    bool Initialise();
-
-    /**
     * Ticks the scene
     * @param deltatime The time passed between ticks
     */
@@ -36,27 +32,27 @@ public:
     /**
     * @return the meshes in the scene
     */
-    virtual const std::vector<Mesh>& Meshes() const override;
+    virtual const std::vector<std::unique_ptr<Mesh>>& Meshes() const override;
 
     /**
     * @return the water in the scene
     */
-    virtual const std::vector<Water>& Waters() const override;
+    virtual const std::vector<std::unique_ptr<Water>>& Waters() const override;
 
     /**
     * @return the shaders in the scene
     */
-    virtual const std::vector<Shader>& Shaders() const override;
+    virtual const std::vector<std::unique_ptr<Shader>>& Shaders() const override;
 
     /**
     * @return the lights in the scene
     */
-    virtual const std::vector<Light>& Lights() const override;
+    virtual const std::vector<std::unique_ptr<Light>>& Lights() const override;
 
     /**
     * @return the terrain in the scene
     */
-    virtual const std::vector<Terrain>& Terrains() const override;
+    virtual const std::vector<std::unique_ptr<Terrain>>& Terrains() const override;
 
     /**
     * @return the textures in the scene
@@ -66,7 +62,7 @@ public:
     /**
     * @return the emitters in the scene
     */
-    virtual const std::vector<Emitter>& Emitters() const override;
+    virtual const std::vector<std::unique_ptr<Emitter>>& Emitters() const override;
 
     /**
     * @return the post processing for the final image
@@ -139,6 +135,73 @@ public:
     std::string GetTexture(int index);
 
     /**
+    * Adds a shader to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Shader> element);
+
+    /**
+    * Adds a mesh to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Mesh> element);
+
+    /**
+    * Adds terrain to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Terrain> element);
+
+    /**
+    * Adds a light to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Light> element);
+
+    /**
+    * Adds a water to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Water> element);
+
+    /**
+    * Adds an emitter to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Emitter> element);
+
+    /**
+    * Adds a texture to the scene
+    * @param element The element to add to the scene
+    * @param isProcedural Whether this texture can be edited
+    */
+    void Add(std::unique_ptr<Texture> element, bool isProcedural = false);
+
+    /**
+    * Adds post processing to the scene
+    * @param post The post processing to add to the scene
+    */
+    void Add(std::unique_ptr<PostProcessing> post);
+
+    /**
+    * Adds diagnostics to the scene
+    * @param diagnostics The diagnostics to add to the scene
+    */
+    void Add(std::unique_ptr<Diagnostic> diagnostics);
+
+    /**
+    * Adds caustics to the scene
+    * @param caustics The animated texture to add to the scene
+    */
+    void Add(std::unique_ptr<AnimatedTexture> caustics);
+
+    /**
+    * Initialises the scene
+    * @return whether initialisation was successful
+    */
+    bool Initialise();
+
+    /**
     * Outputs the scene to an xml file
     */
     void SaveSceneToFile();
@@ -151,144 +214,6 @@ public:
 
 private:
 
-    /**
-    * Outputs post processing to an xml file
-    */
-    void SavePostProcessingtoFile();
-
-    /**
-    * Outputs the meshes and emitters to an xml file
-    */
-    void SaveMeshesToFile();
-
-    /**
-    * Outputs the lights to an xml file
-    */
-    void SaveLightsToFile();
-
-    /**
-    * Outputs particle emitters to an xml file
-    */
-    void SaveParticlesToFile();
-
-    /**
-    * Initiliases any stand-alone and shared shaders explicitly
-    * @param linker The fragment linker used to generate shaders
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseShaders(FragmentLinker& linker);
-
-    /**
-    * Initialises the post processing for the final image
-    */
-    bool InitialisePost();
-
-    /**
-    * Initialises the lighting for the scene
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseLighting();
-
-    /**
-    * Initialises the emitters for the scene
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseEmitters();
-
-    /**
-    * Initialises the diagnostics in the scene
-    */
-    bool InitialiseDiagnostics();
-
-    /**
-    * Initialises any special textures not attached to a mesh
-    */
-    bool InitialiseTextures();
-
-    /**
-    * Initialises the meshes for the scene
-    * @param linker The fragment linker used to generate shaders
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseMeshes(FragmentLinker& linker);
-
-    /**
-    * Initialises a mesh shader for the scene
-    * @param mesh The mesh to initialise
-    * @param linker The fragment linker used to generate shaders
-    * @param node The node for the mesh config file
-    */
-    void InitialiseMeshShader(Mesh& mesh,
-                              FragmentLinker& linker,
-                              const boost::property_tree::ptree& node);
-
-    /**
-    * Initialises any textures requires for the mesh
-    * @param mesh The mesh to initialise
-    */
-    void InitialiseMeshTextures(MeshData& mesh);
-
-    /**
-    * Initialises a mesh for the scene
-    * @param mesh The mesh to initialise
-    * @param linker The fragment linker used to generate shaders
-    * @param node The node for the mesh config file
-    * @return if initialization was successfull
-    */
-    bool InitialiseMesh(Mesh& mesh, 
-                        FragmentLinker& linker,
-                        const boost::property_tree::ptree& node);
-
-    /**
-    * Initialises a water mesh for the scene
-    * @param water The water to initialise
-    * @param node The node for the mesh config file
-    * @return if initialization was successfull
-    */
-    bool InitialiseWater(Water& water, const 
-                         boost::property_tree::ptree& node);
-
-    /**
-    * Creates the mesh buffers
-    * @param mesh The mesh to create
-    * @param hasNormals Whether this mesh requires normals in the buffer
-    */
-    bool CreateMesh(MeshData& mesh, bool hasNormals);
-
-    /**
-    * Adds a texture from a mesh if it doesn't already exist
-    * @param name The name of the texture to add
-    * @return The unique id of the texture added
-    */
-    int AddTexture(const std::string& name);
-
-    /**
-    * Gets the index for the shader if possible
-    * @param shadername The name of the shader
-    * @return the index for the shader or -1 if can't find
-    */
-    int GetShaderIndex(const std::string& shadername);
-
-    /**
-    * Gets the index for the shader
-    * @param linker The fragment linker
-    * @param shaderName The name of the shader to get the index for
-    * @param meshName The name ofthe mesh the shader will be used for
-    * @return the index for the shader
-    */
-    int GetShaderIndex(FragmentLinker& linker, 
-                       const std::string& shadername, 
-                       const std::string& meshName);
-    
-    std::vector<Shader> m_shaders;                    ///< All shaders in the scene
-    std::vector<Mesh> m_meshes;                       ///< All meshes in the scene
-    std::vector<Terrain> m_terrain;                   ///< All terrain in the scene
-    std::vector<Light> m_lights;                      ///< All lights in the scene
-    std::vector<Water> m_water;                       ///< All water in the scene
-    std::vector<Emitter> m_emitters;                  ///< All particle emitters in the scene
-    std::unique_ptr<Diagnostic> m_diagnostic;         ///< Diagnostics for the scene
-    std::unique_ptr<PostProcessing> m_postProcessing; ///< Post processing for the final image
-    std::unique_ptr<AnimatedTexture> m_caustics;      ///< Caustic animated texture
-    std::vector<std::unique_ptr<Texture>> m_textures; ///< All textures in the scene
-    std::vector<unsigned int> m_proceduralTextures;   ///< Indices of all editable textures
+    std::unique_ptr<SceneData> m_data;         ///< Elements of the scene
+    std::unique_ptr<SceneBuilder> m_builder;   ///< Creates meshes, lighting and shader data
 };                     

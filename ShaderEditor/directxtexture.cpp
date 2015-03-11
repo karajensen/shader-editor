@@ -37,12 +37,6 @@ void DxTexture::Initialise(ID3D11Device* device)
     SetDebugName(m_view, m_texture.Name() + "_view");
 }
 
-void DxTexture::InitialiseFromPixels(ID3D11Device* device)
-{
-    //D3DX11CreateTextureFromMemory   
-
-}
-
 void DxTexture::InitialiseFromFile(ID3D11Device* device)
 {
     if(FAILED(D3DX11CreateShaderResourceViewFromFile(device,
@@ -96,5 +90,11 @@ void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot)
 
 void DxTexture::ReloadPixels()
 {
+
+}
+
+void DxTexture::InitialiseFromPixels(ID3D11Device* device)
+{
+    
 
 }

@@ -19,27 +19,27 @@ public:
     /**
     * @return the meshes in the scene
     */
-    virtual const std::vector<Mesh>& Meshes() const = 0;
+    virtual const std::vector<std::unique_ptr<Mesh>>& Meshes() const = 0;
 
     /**
     * @return the water in the scene
     */
-    virtual const std::vector<Water>& Waters() const = 0;
+    virtual const std::vector<std::unique_ptr<Water>>& Waters() const = 0;
 
     /**
     * @return the shaders in the scene
     */
-    virtual const std::vector<Shader>& Shaders() const = 0;
+    virtual const std::vector<std::unique_ptr<Shader>>& Shaders() const = 0;
 
     /**
     * @return the lights in the scene
     */
-    virtual const std::vector<Light>& Lights() const = 0;
+    virtual const std::vector<std::unique_ptr<Light>>& Lights() const = 0;
 
     /**
     * @return the terrain in the scene
     */
-    virtual const std::vector<Terrain>& Terrains() const = 0;
+    virtual const std::vector<std::unique_ptr<Terrain>>& Terrains() const = 0;
 
     /**
     * @return the textures in the scene
@@ -54,5 +54,5 @@ public:
     /**
     * @return the emitters in the scene
     */
-    virtual const std::vector<Emitter>& Emitters() const = 0;
+    virtual const std::vector<std::unique_ptr<Emitter>>& Emitters() const = 0;
 };                     

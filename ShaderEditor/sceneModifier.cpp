@@ -351,9 +351,9 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
 std::vector<std::string> SceneModifier::GetLightNames() const
 {
     std::vector<std::string> lights;
-    for(const Light& light : m_scene.Lights())
+    for(const auto& light : m_scene.Lights())
     {
-        lights.push_back(light.Name());
+        lights.push_back(light->Name());
     }
     return lights;
 }
@@ -361,9 +361,9 @@ std::vector<std::string> SceneModifier::GetLightNames() const
 std::vector<std::string> SceneModifier::GetEmitterNames() const
 {
     std::vector<std::string> emitters;
-    for(const Emitter& emitter : m_scene.Emitters())
+    for(const auto& emitter : m_scene.Emitters())
     {
-        emitters.push_back(emitter.Name());
+        emitters.push_back(emitter->Name());
     }
     return emitters;
 }
@@ -371,9 +371,9 @@ std::vector<std::string> SceneModifier::GetEmitterNames() const
 std::vector<std::string> SceneModifier::GetMeshNames() const
 {
     std::vector<std::string> meshes;
-    for(const Mesh& mesh : m_scene.Meshes())
+    for(const auto& mesh : m_scene.Meshes())
     {
-        meshes.push_back(mesh.Name());
+        meshes.push_back(mesh->Name());
     }
     return meshes;
 }
@@ -381,9 +381,9 @@ std::vector<std::string> SceneModifier::GetMeshNames() const
 std::vector<std::string> SceneModifier::GetWaterNames() const
 {
     std::vector<std::string> waters;
-    for(const Water& water : m_scene.Waters())
+    for(const auto& water : m_scene.Waters())
     {
-        waters.push_back(water.Name());
+        waters.push_back(water->Name());
     }
     return waters;
 }
@@ -402,9 +402,9 @@ std::vector<std::string> SceneModifier::GetPostMapNames() const
 std::vector<std::string> SceneModifier::GetTerrainNames() const
 {
     std::vector<std::string> terrainNames;
-    for (const Terrain& terrain : m_scene.Terrains())
+    for (const auto& terrain : m_scene.Terrains())
     {
-        terrainNames.push_back(terrain.Name());
+        terrainNames.push_back(terrain->Name());
     }
     return terrainNames;
 }
@@ -425,9 +425,9 @@ std::vector<std::string> SceneModifier::GetTextureNames() const
 std::vector<std::string> SceneModifier::GetShaderNames() const
 {
     std::vector<std::string> shaders;
-    for(const Shader& shader : m_scene.Shaders())
+    for(const auto& shader : m_scene.Shaders())
     {
-        shaders.push_back(shader.Name());
+        shaders.push_back(shader->Name());
     }
     return shaders;
 }

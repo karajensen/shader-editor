@@ -5,7 +5,7 @@
 #pragma once
 
 #include "openglcommon.h"
-struct Mesh;
+class Mesh;
 
 /**
 * Base data for any polygons to be rendered

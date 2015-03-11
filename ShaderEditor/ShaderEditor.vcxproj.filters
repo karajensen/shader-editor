@@ -183,6 +183,9 @@
     <ClCompile Include="terrain.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
+    <ClCompile Include="sceneBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -343,6 +346,9 @@
     </ClInclude>
     <ClInclude Include="terrain.h">
       <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneBuilder.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

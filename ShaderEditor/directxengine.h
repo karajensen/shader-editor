@@ -178,7 +178,7 @@ private:
     /**
     * Sends light information to the selected shader
     */
-    void SendLights(const std::vector<Light>& lights);
+    void SendLights(const std::vector<std::unique_ptr<Light>>& lights);
 
     /**
     * Sends all textures to the selected shader

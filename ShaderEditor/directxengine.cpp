@@ -362,29 +362,29 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     }
 
     m_data->shaders.reserve(scene.Shaders().size());
-    for(const Shader& shader : scene.Shaders())
+    for(const auto& shader : scene.Shaders())
     {
         m_data->shaders.push_back(std::unique_ptr<DxShader>(
-            new DxShader(shader)));
+            new DxShader(*shader)));
     }
 
     m_data->meshes.reserve(scene.Meshes().size());
-    for(const Mesh& mesh : scene.Meshes())
+    for(const auto& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(mesh,
+        m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(*mesh,
             [this](const D3DXMATRIX& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
-    for(const Water& water : scene.Waters())
+    for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(water)));
+        m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(*water)));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
-    for(const Emitter& emitter : scene.Emitters())
+    for(const auto& emitter : scene.Emitters())
     {
-        m_data->emitters.push_back(std::unique_ptr<DxEmitter>(new DxEmitter(emitter,
+        m_data->emitters.push_back(std::unique_ptr<DxEmitter>(new DxEmitter(*emitter,
             [this](const D3DXMATRIX& world, const Particle& data){ UpdateShader(world, data); })));
     }
 
@@ -727,18 +727,18 @@ void DirectxEngine::SendWaves(const std::vector<Water::Wave>& waves)
     }
 }
 
-void DirectxEngine::SendLights(const std::vector<Light>& lights)
+void DirectxEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     for (unsigned int i = 0; i < lights.size(); ++i)
     {
         const int offset = i*4; // Arrays pack in buffer of float4
-        shader->UpdateConstantFloat("lightSpecularity", &lights[i].Specularity(), 1, offset);
-        shader->UpdateConstantFloat("lightAttenuation", &lights[i].Attenuation().x, 3, offset);
-        shader->UpdateConstantFloat("lightPosition", &lights[i].Position().x, 3, offset);
-        shader->UpdateConstantFloat("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
-        shader->UpdateConstantFloat("lightSpecular", &lights[i].Specular().r, 3, offset);
-        shader->UpdateConstantFloat("lightActive", &lights[i].Active(), 1, offset);
+        shader->UpdateConstantFloat("lightSpecularity", &lights[i]->Specularity(), 1, offset);
+        shader->UpdateConstantFloat("lightAttenuation", &lights[i]->Attenuation().x, 3, offset);
+        shader->UpdateConstantFloat("lightPosition", &lights[i]->Position().x, 3, offset);
+        shader->UpdateConstantFloat("lightDiffuse", &lights[i]->Diffuse().r, 3, offset);
+        shader->UpdateConstantFloat("lightSpecular", &lights[i]->Specular().r, 3, offset);
+        shader->UpdateConstantFloat("lightActive", &lights[i]->Active(), 1, offset);
     }
 }
 

@@ -330,29 +330,29 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     }
 
     m_data->shaders.reserve(scene.Shaders().size());
-    for(const Shader& shader : scene.Shaders())
+    for(const auto& shader : scene.Shaders())
     {
         m_data->shaders.push_back(std::unique_ptr<GlShader>(
-            new GlShader(shader)));
+            new GlShader(*shader)));
     }
 
     m_data->meshes.reserve(scene.Meshes().size());
-    for(const Mesh& mesh : scene.Meshes())
+    for(const auto& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(mesh,
+        m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(*mesh,
             [this](const glm::mat4& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
-    for(const Water& water : scene.Waters())
+    for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(water)));
+        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(*water)));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
-    for(const Emitter& emitter : scene.Emitters())
+    for(const auto& emitter : scene.Emitters())
     {
-        m_data->emitters.push_back(std::unique_ptr<GlEmitter>(new GlEmitter(emitter,
+        m_data->emitters.push_back(std::unique_ptr<GlEmitter>(new GlEmitter(*emitter,
             [this](const glm::mat4& world, const Particle& data){ UpdateShader(world, data); })));
     }
 
@@ -698,18 +698,18 @@ bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float t
     return false;
 }
 
-void OpenglEngine::SendLights(const std::vector<Light>& lights)
+void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     for (unsigned int i = 0; i < lights.size(); ++i)
     {
         const int offset = i*3; // Arrays pack tightly
-        shader->UpdateUniformArray("lightSpecularity", &lights[i].Specularity(), 1, i);
-        shader->UpdateUniformArray("lightActive", &lights[i].Active(), 1, i);
-        shader->UpdateUniformArray("lightAttenuation", &lights[i].Attenuation().x, 3, offset);
-        shader->UpdateUniformArray("lightPosition", &lights[i].Position().x, 3, offset);
-        shader->UpdateUniformArray("lightDiffuse", &lights[i].Diffuse().r, 3, offset);
-        shader->UpdateUniformArray("lightSpecular", &lights[i].Specular().r, 3, offset);
+        shader->UpdateUniformArray("lightSpecularity", &lights[i]->Specularity(), 1, i);
+        shader->UpdateUniformArray("lightActive", &lights[i]->Active(), 1, i);
+        shader->UpdateUniformArray("lightAttenuation", &lights[i]->Attenuation().x, 3, offset);
+        shader->UpdateUniformArray("lightPosition", &lights[i]->Position().x, 3, offset);
+        shader->UpdateUniformArray("lightDiffuse", &lights[i]->Diffuse().r, 3, offset);
+        shader->UpdateUniformArray("lightSpecular", &lights[i]->Specular().r, 3, offset);
     }
 }
 
