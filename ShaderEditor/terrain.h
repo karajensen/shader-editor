@@ -10,7 +10,7 @@
 /**
 * Procedurally generated mesh
 */
-struct Terrain : public MeshData
+class Terrain : public MeshData
 {
 public:
 

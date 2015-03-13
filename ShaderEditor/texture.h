@@ -16,7 +16,7 @@ public:
 
     /**
     * Type of texture
-    * Ordering must much usage in shader body
+    * Ordering must match usage in shader body
     */
     enum Type
     {

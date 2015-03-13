@@ -45,5 +45,4 @@ void main(void)
     // Ambient Occlusion
     vec4 random = texture(RandomSampler, ex_UVs);
     out_Color[ID_EFFECTS].a = 1.0;
-    out_Color[ID_EFFECTS] = random;
 }

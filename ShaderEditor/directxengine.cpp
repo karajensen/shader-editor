@@ -14,6 +14,19 @@
 #include <fstream>
 
 /**
+* Draw states available for rendering
+*/
+enum RasterizerState
+{
+    NO_STATE,
+    BACKFACE_CULL,
+    BACKFACE_CULL_WIRE,
+    NO_CULL,
+    NO_CULL_WIRE,
+    MAX_STATES
+};
+
+/**
 * Internal data for the directx rendering engine
 */
 struct DirectxData
@@ -35,14 +48,14 @@ struct DirectxData
 
     ID3D11BlendState* alphaBlendState = nullptr;     ///< State for alpha blending
     ID3D11BlendState* noBlendState = nullptr;        ///< State for no alpha blending
-    ID3D11RasterizerState* cullState = nullptr;      ///< Normal state of the rasterizer
-    ID3D11RasterizerState* noCullState = nullptr;    ///< No face culling state of the rasterizer
     ID3D11DepthStencilState* writeState = nullptr;   ///< State for writing to the depth buffer
     ID3D11DepthStencilState* noWriteState = nullptr; ///< State for not writing to the depth buffer
     IDXGISwapChain* swapchain = nullptr;             ///< Collection of buffers for displaying frames
     ID3D11Device* device = nullptr;                  ///< Direct3D device interface
     ID3D11DeviceContext* context = nullptr;          ///< Direct3D device context
     ID3D11Debug* debug = nullptr;                    ///< Direct3D debug interface, only created in debug
+    std::vector<ID3D11RasterizerState*> drawStates;  ///< Rasterizer states
+    RasterizerState drawState;                       ///< The current state of the rasterizer
 
     DxQuad quad;                         ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;           ///< Render target for the back buffer
@@ -58,6 +71,7 @@ struct DirectxData
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
+    bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
@@ -76,8 +90,11 @@ DirectxData::DirectxData() :
     blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
     preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
     backBuffer("BackBuffer"),
-    quad("SceneQuad")
+    quad("SceneQuad"),
+    drawState(NO_STATE)
 {
+    drawStates.resize(MAX_STATES);
+    drawStates.assign(MAX_STATES, nullptr);
 }
 
 DirectxData::~DirectxData()
@@ -122,10 +139,13 @@ void DirectxData::Release()
     backBuffer.Release();
     preEffectsTarget.Release();
 
+    for (unsigned int i = 0; i < drawStates.size(); ++i)
+    {
+        SafeRelease(&drawStates[i]);
+    }
+
     SafeRelease(&noBlendState);
     SafeRelease(&alphaBlendState);
-    SafeRelease(&cullState);
-    SafeRelease(&noCullState);
     SafeRelease(&writeState);
     SafeRelease(&noWriteState);
     SafeRelease(&swapchain);
@@ -202,7 +222,44 @@ bool DirectxEngine::Initialize()
     // Create the post processing quad
     m_data->quad.Initialise(m_data->device, m_data->context);
 
-	// Create the Blending states
+    InitialiseBlendStates();
+    InitialiseDrawStates();
+    InitialiseDepthStates();
+
+    // Setup the directX environment
+    m_data->drawState = NO_STATE;
+    m_data->isAlphaBlend = true;
+    m_data->isDepthWrite = false;
+    m_data->isWireframe = false;
+    SetRenderState(true, false);
+    EnableAlphaBlending(false);
+    EnableDepthWrite(true);
+
+    D3D11_VIEWPORT viewport;
+    ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = WINDOW_WIDTH;
+    viewport.Height = WINDOW_HEIGHT;
+    viewport.MinDepth = 0.0;
+    viewport.MaxDepth = 1.0;
+    m_data->context->RSSetViewports(1, &viewport);
+
+    D3DXMatrixPerspectiveFovLH(&m_data->projection,
+        (FLOAT)D3DXToRadian(FIELD_OF_VIEW),
+        (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
+        FRUSTRUM_NEAR, FRUSTRUM_FAR);
+
+    SetDebugName(m_data->device, "Device");
+    SetDebugName(m_data->context, "Context");
+    SetDebugName(m_data->swapchain, "SwapChain");
+
+    Logger::LogInfo("DirectX: D3D11 sucessful");
+    return true;
+}
+
+bool DirectxEngine::InitialiseBlendStates()
+{
     D3D11_BLEND_DESC blendDesc = {};
     blendDesc.AlphaToCoverageEnable = FALSE;
 
@@ -236,33 +293,13 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    // Create the rasterizer state
-    D3D11_RASTERIZER_DESC rasterDesc;
-    rasterDesc.AntialiasedLineEnable = false;
-    rasterDesc.DepthBias = 0;
-    rasterDesc.DepthBiasClamp = 0.0f;
-    rasterDesc.DepthClipEnable = true;
-    rasterDesc.FillMode = D3D11_FILL_SOLID;
-    rasterDesc.FrontCounterClockwise = false;
-    rasterDesc.MultisampleEnable = true;
-    rasterDesc.ScissorEnable = false;
-    rasterDesc.SlopeScaledDepthBias = 0.0f;
+    SetDebugName(m_data->noBlendState, "NoBlendState");
+    SetDebugName(m_data->alphaBlendState, "AlphaBlendState");
+    return true;
+}
 
-    rasterDesc.CullMode = D3D11_CULL_FRONT; // for Maya vert winding order
-    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->cullState)))
-    {
-        Logger::LogError("DirectX: Failed to create cull rasterizer state");
-        return false;
-    }
-
-    rasterDesc.CullMode = D3D11_CULL_NONE;
-    if(FAILED(m_data->device->CreateRasterizerState(&rasterDesc, &m_data->noCullState)))
-    {
-        Logger::LogError("DirectX: Failed to create no cull rasterizer state");
-        return false;
-    }
-
-    // Create the depth buffer state
+bool DirectxEngine::InitialiseDepthStates()
+{
     D3D11_DEPTH_STENCIL_DESC depthDesc;
     depthDesc.DepthEnable = true;
     depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -282,40 +319,61 @@ bool DirectxEngine::Initialize()
         return false;
     }
 
-    // Setup the directX environment
-    m_data->isBackfaceCull = false;
-    m_data->isAlphaBlend = true;
-    m_data->isDepthWrite = false;
-    EnableBackfaceCull(true);
-    EnableAlphaBlending(false);
-    EnableDepthWrite(true);
-
-    D3D11_VIEWPORT viewport;
-    ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = WINDOW_WIDTH;
-    viewport.Height = WINDOW_HEIGHT;
-    viewport.MinDepth = 0.0;
-    viewport.MaxDepth = 1.0;
-    m_data->context->RSSetViewports(1, &viewport);
-
-    D3DXMatrixPerspectiveFovLH(&m_data->projection,
-        (FLOAT)D3DXToRadian(FIELD_OF_VIEW),
-        (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
-        FRUSTRUM_NEAR, FRUSTRUM_FAR);
-
-    SetDebugName(m_data->noBlendState, "NoBlendState");
-    SetDebugName(m_data->alphaBlendState, "AlphaBlendState");
-    SetDebugName(m_data->cullState, "CullState");
-    SetDebugName(m_data->noCullState, "NoCullState");
     SetDebugName(m_data->writeState, "DepthWriteState");
     SetDebugName(m_data->noWriteState, "NoDepthWriteState");
-    SetDebugName(m_data->device, "Device");
-    SetDebugName(m_data->context, "Context");
-    SetDebugName(m_data->swapchain, "SwapChain");
+    return true;
+}
 
-    Logger::LogInfo("DirectX: D3D11 sucessful");
+bool DirectxEngine::InitialiseDrawStates()
+{
+    // Create the rasterizer state
+    D3D11_RASTERIZER_DESC rasterDesc;
+    rasterDesc.AntialiasedLineEnable = false;
+    rasterDesc.DepthBias = 0;
+    rasterDesc.DepthBiasClamp = 0.0f;
+    rasterDesc.DepthClipEnable = true;
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    rasterDesc.FrontCounterClockwise = false;
+    rasterDesc.MultisampleEnable = true;
+    rasterDesc.ScissorEnable = false;
+    rasterDesc.SlopeScaledDepthBias = 0.0f;
+    rasterDesc.CullMode = D3D11_CULL_FRONT; // for Maya vert winding order
+
+    if(FAILED(m_data->device->CreateRasterizerState(
+        &rasterDesc, &m_data->drawStates[BACKFACE_CULL])))
+    {
+        Logger::LogError("DirectX: Failed to create cull rasterizer state");
+        return false;
+    }
+
+    rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+    if(FAILED(m_data->device->CreateRasterizerState(
+        &rasterDesc, &m_data->drawStates[BACKFACE_CULL_WIRE])))
+    {
+        Logger::LogError("DirectX: Failed to create cull wire rasterizer state");
+        return false;
+    }
+
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    if (FAILED(m_data->device->CreateRasterizerState(
+        &rasterDesc, &m_data->drawStates[NO_CULL_WIRE])))
+    {
+        Logger::LogError("DirectX: Failed to create no cull wire rasterizer state");
+        return false;
+    }
+
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    if (FAILED(m_data->device->CreateRasterizerState(
+        &rasterDesc, &m_data->drawStates[NO_CULL])))
+    {
+        Logger::LogError("DirectX: Failed to create no cull rasterizer state");
+        return false;
+    }
+
+    SetDebugName(m_data->drawStates[BACKFACE_CULL], "BACKFACE_CULL");
+    SetDebugName(m_data->drawStates[BACKFACE_CULL_WIRE], "BACKFACE_CULL_WIRE");
+    SetDebugName(m_data->drawStates[NO_CULL], "NO_CULL");
+    SetDebugName(m_data->drawStates[NO_CULL_WIRE], "NO_CULL_WIRE");
     return true;
 }
 
@@ -495,7 +553,7 @@ void DirectxEngine::RenderEmitters()
 
 void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 {
-    EnableBackfaceCull(false);
+    SetRenderState(false, false);
     EnableAlphaBlending(false);
 
     auto& preShader = m_data->shaders[PRE_SHADER];
@@ -519,7 +577,7 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
 void DirectxEngine::RenderBlur(const PostProcessing& post)
 {
-    EnableBackfaceCull(false);
+    SetRenderState(false, false);
     EnableAlphaBlending(false);
 
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
@@ -561,7 +619,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 {
     m_data->useDiffuseTextures = post.UseDiffuseTextures();
 
-    EnableBackfaceCull(false);
+    SetRenderState(false, false);
     EnableAlphaBlending(false);
 
     auto& postShader = m_data->shaders[POST_SHADER];
@@ -635,7 +693,7 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
         shader->SendConstants(m_data->context);
 
         SendTextures(mesh.TextureIDs());
-        EnableBackfaceCull(mesh.BackfaceCull());
+        SetRenderState(mesh.BackfaceCull(), m_data->isWireframe);
         EnableAlphaBlending(false);
 
         return true;
@@ -674,7 +732,7 @@ bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float 
 
         shader->SendConstants(m_data->context);
 
-        EnableBackfaceCull(true);
+        SetRenderState(false, m_data->isWireframe);
         EnableAlphaBlending(true);
         SendTextures(water.TextureIDs());
 
@@ -696,7 +754,7 @@ bool DirectxEngine::UpdateShader(const Emitter& emitter)
 
         shader->UpdateConstantFloat("tint", &emitter.Tint().r, 4);
 
-        EnableBackfaceCull(false);
+        SetRenderState(false, m_data->isWireframe);
         EnableAlphaBlending(true);
 
         return true;
@@ -871,12 +929,20 @@ void DirectxEngine::EnableAlphaBlending(bool enable)
     }
 }
 
-void DirectxEngine::EnableBackfaceCull(bool enable)
+void DirectxEngine::SetRenderState(bool cull, bool wireframe)
 {
-    if(enable != m_data->isBackfaceCull)
+    const RasterizerState state = cull ?
+        (wireframe ? BACKFACE_CULL_WIRE : BACKFACE_CULL) :
+        (wireframe ? NO_CULL_WIRE : NO_CULL);
+
+    if (m_data->drawState != state)
     {
-        m_data->isBackfaceCull = enable;
-        m_data->context->RSSetState(
-            enable ? m_data->cullState : m_data->noCullState);
+        m_data->drawState = state;
+        m_data->context->RSSetState(m_data->drawStates[state]);
     }
+}
+
+void DirectxEngine::ToggleWireframe()
+{
+    m_data->isWireframe = !m_data->isWireframe;
 }

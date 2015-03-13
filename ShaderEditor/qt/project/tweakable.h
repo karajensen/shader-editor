@@ -205,6 +205,7 @@ struct SignalCallbacks
     VoidSignal LightDiagnostics;   ///< Sends a request to toggle the light diagnostics
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
+    VoidSignal ToggleWireframe;    ///< Sends a request to toggle wireframe rendering
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
     VoidSignal RenderLightsOnly;   ///< Sends a request to render only the lights
     StrSignal CompileShader;       ///< Sends a compile request
@@ -229,7 +230,8 @@ struct SignalCallbacks
         SaveScene(nullptr),
         PauseEmission(nullptr),
         RenderLightsOnly(nullptr),
-        CompileShader(nullptr)
+        CompileShader(nullptr),
+        ToggleWireframe(nullptr)
     {
         SetLight.resize(LIGHT_ATTRIBUTES);
         SetLight.assign(LIGHT_ATTRIBUTES, nullptr);

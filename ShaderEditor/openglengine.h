@@ -108,6 +108,11 @@ public:
     virtual void SetFade(float value) override;
 
     /**
+    * Toggles whether meshes are rendered in wireframe
+    */
+    virtual void ToggleWireframe() override;
+
+    /**
     * Writes the shader text file
     * @param name The name of the shader to write over
     * @param text The new text for the shader
@@ -120,7 +125,7 @@ private:
     /**
     * Updates and switches to main shader the mesh requires
     * @param mesh The mesh currently rendering
-    * @param lights All lighting in the scene
+    * @param scene The data for the scene
     * @return whether the mesh can now be rendered
     */
     bool UpdateShader(const Mesh& mesh, const IScene& scene);
@@ -149,8 +154,8 @@ private:
 
     /**
     * Updates the shader for a mesh per instance
-    * @param world The world matrix for the particle
-    * @param particle The data for the particle
+    * @param world The world matrix for the mesh
+    * @param color The vertex colour of the mesh
     */
     void UpdateShader(const glm::mat4& world, const Colour& colour);
 

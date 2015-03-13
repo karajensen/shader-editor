@@ -35,7 +35,7 @@ public:
     void PreRender();
 
     /**
-    * Initialises the mesh
+    * Initialises the emitter
     * @return whether initialisation succeeded
     */
     bool Initialise();

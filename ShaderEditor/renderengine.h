@@ -100,6 +100,11 @@ public:
     virtual void SetFade(float value) = 0;
 
     /**
+    * Toggles whether meshes are rendered in wireframe
+    */
+    virtual void ToggleWireframe() = 0;
+
+    /**
     * Writes the shader text file
     * @param name The name of the shader to write over
     * @param text The new text for the shader

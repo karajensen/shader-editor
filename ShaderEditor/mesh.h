@@ -12,7 +12,7 @@
 #include "meshdata.h"
 
 /**
-* Mesh object rendered in the scene
+* Mesh loaded from file to be rendered in the scene
 */
 class Mesh : public MeshData
 {
@@ -88,6 +88,17 @@ public:
     * @return Whether back facing polygons are culled
     */
     bool BackfaceCull() const;
+
+    /**
+    * Initialises the mesh data buffer containers from file
+    * @param path The full path to the mesh file
+    * @param requiresNormals Whether this mesh requires normals
+    * @param requiresTangents Whether this mesh requires tangents/bitangents
+    * @return Whether creation was successful
+    */
+    bool InitialiseFromFile(const std::string& path, 
+                            bool requiresNormals, 
+                            bool requiresTangents);
 
 private:
 

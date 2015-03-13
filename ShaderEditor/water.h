@@ -121,14 +121,17 @@ public:
 
 private:
 
-    float m_bump = 1.0f;               ///< Saturation of bump
-    Float2 m_bumpVelocity;             ///< Velocity of the bump movement
-    float m_speed = 0.0f;              ///< Overall speed of the wave
-    Float2 m_uvScale;                  ///< Scale of the water texture
-    Float3 m_fresnal;                  ///< The fresnal scale, bias and power
-    Colour m_shallowColour;            ///< Colour intensity of the shallow water
-    Colour m_deepColour;               ///< Colour intensity of the deep water
-    Colour m_reflectionTint;           ///< Colour of the reflections
-    float m_reflection = 0.0f;         ///< Intensity of the reflections
-    std::vector<Wave> m_waves;         ///< Wave infomation
+    Float3 m_position;            ///< The center of the water patch
+    float m_spacing;              ///< The spacing between vertices
+    int m_rows;                   ///< How many vertices per row
+    float m_bump = 1.0f;          ///< Saturation of bump
+    Float2 m_bumpVelocity;        ///< Velocity of the bump movement
+    float m_speed = 0.0f;         ///< Overall speed of the wave
+    Float2 m_uvScale;             ///< Scale of the water texture
+    Float3 m_fresnal;             ///< The fresnal scale, bias and power
+    Colour m_shallowColour;       ///< Colour intensity of the shallow water
+    Colour m_deepColour;          ///< Colour intensity of the deep water
+    Colour m_reflectionTint;      ///< Colour of the reflections
+    float m_reflection = 0.0f;    ///< Intensity of the reflections
+    std::vector<Wave> m_waves;    ///< Wave infomation
 };

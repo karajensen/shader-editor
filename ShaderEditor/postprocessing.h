@@ -14,7 +14,7 @@ struct Cache;
 /**
 * Holds data for post processing the final image
 */
-struct PostProcessing
+class PostProcessing
 {
 public:
 

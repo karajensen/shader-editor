@@ -23,15 +23,7 @@ namespace
     const std::string VERTEX_MODEL("glsl_vs");
     const std::string FRAGMENT_MODEL("glsl_fs");
     const std::string GLSL_HEADER("#version");
-    const std::string GLSL_FLT("float");
-    const std::string GLSL_VEC_PREFIX("vec");
-    const std::string GLSL_VEC2(GLSL_VEC_PREFIX + "2");
-    const std::string GLSL_VEC3(GLSL_VEC_PREFIX + "3");
-    const std::string GLSL_VEC4(GLSL_VEC_PREFIX + "4");
-    const std::string GLSL_MAT4("mat4");
     const std::string GLSL_IN_POSITION("in_Position");
-    const std::string GLSL_OUT_COLOR("outColor");
-    const std::string GLSL_IN("in");
 }
 
 GlShader::GlShader(const Shader& shader) :
@@ -322,10 +314,10 @@ std::string GlShader::BindShaderAttributes()
         return VS + errorBuffer;
     }
 
-    glBindFragDataLocation(m_program, 0, GLSL_OUT_COLOR.c_str());
+    glBindFragDataLocation(m_program, 0, "");
     if(HasCallFailed())
     {
-        return FS + "Failed to bind " + GLSL_OUT_COLOR;
+        return FS + "Failed to bind fragment location";
     }
 
     return errorBuffer;
@@ -333,64 +325,48 @@ std::string GlShader::BindShaderAttributes()
 
 std::string GlShader::BindVertexAttributes()
 {
-    // GLSL will optimise out any unused attributes which reflection
-    // cannot obtain. Need to read the shader code to retrieve these
-    // as the vertex stride of the buffers cannot be changed.
+    int maxLength;
+    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
 
-    m_stride = 0;
-    int index = 0;
-    int location = 0;
-
-    // Split the shader text into words
-    auto deliminator = boost::is_any_of(";\n\r\t ");
-    std::vector<std::string> text;
-    boost::split(text, m_vertexText, deliminator, boost::token_compress_on);
-
-    // Ordering of input attributes is assumed to be: 'in type name'
-    while(text[index] != MAIN_ENTRY)
+    int attributeCount;
+    glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
+    
+    if(HasCallFailed())
     {
-        if(text[index] == GLSL_IN)
-        {
-            AttributeData data;
-            data.name = text[index+2];
-            const std::string type = text[index+1];
-
-            // Pass position as a vec3 into a vec4 slot to use the optimization 
-            // where the 'w' component is automatically set as 1.0
-            if(type == GLSL_VEC3 || data.name == GLSL_IN_POSITION)
-            {
-                data.components = 3;
-            }
-            else if(type == GLSL_VEC2)
-            {
-                data.components = 2;
-            }
-            else if(type == GLSL_VEC4)
-            {
-                data.components = 4;
-            }
-            else
-            {
-                return "Unknown attribute type for " + data.name;
-            }
-
-            data.location = location++;
-            m_stride += data.components;
-            index += 2;
-
-            m_attributes.push_back(data);
-            glBindAttribLocation(m_program, data.location, data.name.c_str());
-            if(HasCallFailed())
-            {
-                return "Failed to bind attribute " + data.name;
-            }
-        }
-        else
-        {
-            ++index;
-        }
+        return "Could not get attribute count for shader " + m_shader.Name();
     }
 
+    m_stride = 0;
+    for (int i = 0; i < attributeCount; ++i)
+    {
+        int size;
+        GLenum type;
+        std::string name(maxLength,'\0');
+        glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
+        name = std::string(name.begin(), name.begin() + name.find('\0'));
+        
+        if(HasCallFailed())
+        {
+            return "Could not get attribute " + boost::lexical_cast<std::string>(i);
+        }
+
+        m_attributes.emplace_back();
+        m_attributes[i].location = i;
+        m_attributes[i].name = name;
+
+        // Pass position as a vec3 into a vec4 slot to use the optimization
+        // where the 'w' component is automatically set as 1.0
+        const bool isPosition = boost::iequals(m_attributes[i].name, GLSL_IN_POSITION);
+        m_attributes[i].components = GetComponents(isPosition ? GL_FLOAT_VEC3 : type);
+
+        m_stride += m_attributes[i].components;
+        glBindAttribLocation(m_program, i, name.c_str());
+
+        if(HasCallFailed())
+        {
+            return "Failed to bind attribute " + name;
+        }
+    }
     return std::string();
 }
 
@@ -431,31 +407,12 @@ std::string GlShader::FindShaderUniforms()
         }
         else
         {   
-            int floatsUsed = 0;
-            switch(type)
-            {
-            case GL_FLOAT_MAT4:
-                floatsUsed = 0;
-                break;
-            case GL_FLOAT:
-                floatsUsed = 1;
-                break;
-            case GL_FLOAT_VEC2:
-                floatsUsed = 2;
-                break;
-            case GL_FLOAT_VEC3:
-                floatsUsed = 3;
-                break;
-            case GL_FLOAT_VEC4:
-                floatsUsed = 4;
-                break;
-            default:
-                Logger::LogError("Unknown uniform type " + name);
-            }
+            // Scratch buffer not allocated for matrices
+            const bool isMatrix = type == GL_FLOAT_MAT4;
+            const int scratchBufferSize = isMatrix ? 0 : GetComponents(type) * size;
 
-            floatsUsed *= size;
-            m_uniforms[name].scratch.resize(floatsUsed);
-            m_uniforms[name].scratch.assign(floatsUsed, 0.0f);
+            m_uniforms[name].scratch.resize(scratchBufferSize);
+            m_uniforms[name].scratch.assign(scratchBufferSize, 0.0f);
             m_uniforms[name].location = location;
             m_uniforms[name].type = type;
             m_uniforms[name].size = size;
@@ -705,6 +662,26 @@ unsigned int GlShader::GetTexture(int slot)
         return GL_TEXTURE8;
     default:
         Logger::LogError("Unknown texture slot");
+        return 0;
+    }
+}
+
+int GlShader::GetComponents(GLenum type)
+{
+    switch(type)
+    {
+    case GL_FLOAT_MAT4:
+        return 16;
+    case GL_FLOAT:
+        return 1;
+    case GL_FLOAT_VEC2:
+        return 2;
+    case GL_FLOAT_VEC3:
+        return 3;
+    case GL_FLOAT_VEC4:
+        return 4;
+    default:
+        Logger::LogError("Unknown type");
         return 0;
     }
 }

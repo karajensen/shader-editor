@@ -115,6 +115,11 @@ public:
     virtual void SetFade(float value) override;
 
     /**
+    * Toggles whether meshes are rendered in wireframe
+    */
+    virtual void ToggleWireframe() override;
+
+    /**
     * Writes the shader text file
     * @param name The name of the shader to write over
     * @param text The new text for the shader
@@ -123,6 +128,24 @@ public:
                                const std::string& text) override;
 
 private:
+
+    /**
+    * Initialises the rasterizer states
+    * @return whether initialisation was successful
+    */
+    bool InitialiseDrawStates();
+
+    /**
+    * Initialises the blending states
+    * @return whether initialisation was successful
+    */
+    bool InitialiseBlendStates();
+
+    /**
+    * Initialises the depth buffer states
+    * @return whether initialisation was successful
+    */
+    bool InitialiseDepthStates();
 
     /**
     * Updates and switches to the main shader the mesh requires
@@ -240,10 +263,12 @@ private:
     void EnableDepthWrite(bool enable);
 
     /**
-    * Sets whether directx should cull backfaces or not
-    * @param enable whether to cull or not
+    * Sets the rasterizer state
+    * @param cull Whether to enable backface culling
+    * @param wireframe Whether to enable wireframe rendering
     */
-    void EnableBackfaceCull(bool enable);
+    void SetRenderState(bool cull, bool wireframe);
+
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX

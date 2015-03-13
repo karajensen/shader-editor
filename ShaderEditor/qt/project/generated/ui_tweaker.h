@@ -201,6 +201,8 @@ public:
     QPushButton *light_render_only_btn;
     QFrame *light_diagnostics;
     QPushButton *light_diagnostics_btn;
+    QFrame *toggleWireframe;
+    QPushButton *toggleWireframe_btn;
     QSpacerItem *_postSpacer;
 
     void setupUi(QWidget *Tweaker)
@@ -2318,6 +2320,30 @@ public:
 
         postLayout->addWidget(light_diagnostics);
 
+        toggleWireframe = new QFrame(layoutWidget3);
+        toggleWireframe->setObjectName(QStringLiteral("toggleWireframe"));
+        sizePolicy.setHeightForWidth(toggleWireframe->sizePolicy().hasHeightForWidth());
+        toggleWireframe->setSizePolicy(sizePolicy);
+        toggleWireframe->setMinimumSize(QSize(225, 35));
+        toggleWireframe->setMaximumSize(QSize(225, 35));
+        toggleWireframe->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        toggleWireframe->setFrameShape(QFrame::Panel);
+        toggleWireframe->setFrameShadow(QFrame::Raised);
+        toggleWireframe_btn = new QPushButton(toggleWireframe);
+        toggleWireframe_btn->setObjectName(QStringLiteral("toggleWireframe_btn"));
+        toggleWireframe_btn->setGeometry(QRect(5, 4, 216, 25));
+        toggleWireframe_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        toggleWireframe_btn->setDefault(false);
+
+        postLayout->addWidget(toggleWireframe);
+
         _postSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         postLayout->addItem(_postSpacer);
@@ -2329,7 +2355,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(3);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2379,6 +2405,7 @@ public:
         light_active_lbl->setText(QApplication::translate("Tweaker", "Activity", 0));
         light_render_only_btn->setText(QApplication::translate("Tweaker", "Render Lights Only", 0));
         light_diagnostics_btn->setText(QApplication::translate("Tweaker", "Toggle Light Diagnostics", 0));
+        toggleWireframe_btn->setText(QApplication::translate("Tweaker", "Toggle Wireframe", 0));
         TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", 0));
     } // retranslateUi
 

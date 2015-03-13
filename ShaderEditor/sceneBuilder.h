@@ -75,6 +75,7 @@ private:
 
     /**
     * Initialises the post processing for the final image
+    * @return Whether the initialization was successful
     */
     bool InitialisePost();
 
@@ -92,11 +93,13 @@ private:
 
     /**
     * Initialises the diagnostics in the scene
+    * @return Whether the initialization was successful
     */
     bool InitialiseDiagnostics();
 
     /**
-    * Initialises any special textures not attached to a mesh
+    * Initialises all textures required
+    * @return Whether the initialization was successful
     */
     bool InitialiseTextures();
 
@@ -142,13 +145,6 @@ private:
     */
     bool InitialiseWater(Water& water, const 
                          boost::property_tree::ptree& node);
-
-    /**
-    * Creates the mesh buffers
-    * @param mesh The mesh to create
-    * @param hasNormals Whether this mesh requires normals in the buffer
-    */
-    bool CreateMesh(MeshData& mesh, bool hasNormals);
 
     /**
     * Adds a texture from a mesh if it doesn't already exist

@@ -50,6 +50,7 @@ struct OpenglData
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
+    bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< Currently active shader for rendering
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
@@ -296,6 +297,7 @@ bool OpenglEngine::Initialize()
     m_data->isBackfaceCull = false;
     m_data->isAlphaBlend = true;
     m_data->isDepthWrite = false;
+    m_data->isWireframe = false;
     EnableBackfaceCull(true);
     EnableAlphaBlending(false);
     EnableDepthWrite(true);
@@ -442,6 +444,11 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive();
 
+    if (m_data->isWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   
+    }
+
     for (auto& mesh : m_data->meshes)
     {
         if (UpdateShader(mesh->GetMesh(), scene))
@@ -463,6 +470,11 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
     }
 
     RenderEmitters();
+
+    if (m_data->isWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   
+    }
 }
 
 void OpenglEngine::RenderEmitters()
@@ -529,10 +541,10 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     blurHorizontal->ClearTexture(1, m_data->preEffectsTarget);
 
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
-   blurVertical->SetActive();
-   blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-   blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-   blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
+    blurVertical->SetActive();
+    blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
+    blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
+    blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
     m_data->blurVerticalTarget.SetActive();
 
     blurVertical->SendTexture(0, m_data->blurHorizontalTarget, BLUR_SCENE_ID);
@@ -690,7 +702,7 @@ bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float t
 
         shader->SendUniformArrays();
     
-        EnableBackfaceCull(true);
+        EnableBackfaceCull(false);
         EnableAlphaBlending(true);
         SendTextures(water.TextureIDs());
         return true;
@@ -849,14 +861,7 @@ void OpenglEngine::EnableAlphaBlending(bool enable)
     if (enable != m_data->isAlphaBlend)
     {
         m_data->isAlphaBlend = enable;
-        if (enable)
-        {
-            glEnablei(GL_BLEND, 0);
-        }
-        else
-        {
-            glDisablei(GL_BLEND, 0);
-        }
+        enable ? glEnablei(GL_BLEND, 0) : glDisablei(GL_BLEND, 0);
     }
 }
 
@@ -881,4 +886,9 @@ void OpenglEngine::EnableDepthWrite(bool enable)
 void OpenglEngine::EnableAttributes()
 {
     m_data->shaders[m_data->selectedShader]->EnableAttributes();
+}
+
+void OpenglEngine::ToggleWireframe()
+{
+    m_data->isWireframe = !m_data->isWireframe;
 }

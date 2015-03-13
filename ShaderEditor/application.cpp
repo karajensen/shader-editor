@@ -13,9 +13,9 @@
 #include "sceneModifier.h"
 #include <windowsx.h>
 
-#define SELECTED_ENGINE DIRECTX
-//#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::BLOOM_MAP
+//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE OPENGL
+#define SELECTED_MAP PostProcessing::SCENE_MAP
 
 namespace
 {
@@ -143,6 +143,7 @@ void Application::HandleMouseMovement(const MSG& msg)
 void Application::TickApplication()
 {
     m_modifier->Tick(*GetEngine());
+
     if (m_modifier->RequiresReload())
     {
         ForceRenderEngine(m_selectedEngine);

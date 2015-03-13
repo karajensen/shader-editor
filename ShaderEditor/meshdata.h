@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include "float3.h"
 #include "texture.h"
 #include "ptree_utilities.h"
 
@@ -36,17 +37,6 @@ public:
     virtual void Write(boost::property_tree::ptree& node) const;
 
     /**
-    * Initialises the mesh data buffer containers from file
-    * @param path The full path to the mesh file
-    * @param requiresNormals Whether this mesh requires normals
-    * @param requiresTangents Whether this mesh requires tangents/bitangents
-    * @return Whether creation was successful
-    */
-    bool Initialise(const std::string& path, 
-                    bool requiresNormals, 
-                    bool requiresTangents);
-
-    /**
     * @return The name of the mesh
     */
     const std::string& Name() const;
@@ -60,11 +50,6 @@ public:
     * @return The ID of the shader to render with
     */
     int ShaderID() const;
-
-    /**
-    * @return The ID of the normal shader to render with
-    */
-    int NormalID() const;
 
     /**
     * @return The vertices constructing this mesh
@@ -105,14 +90,25 @@ public:
     */
     void SetTexture(Texture::Type type, int ID);
 
+protected:
+
+    /**
+    * Loads a grid into the buffers
+    * @param position The center of the grid
+    * @param spacing The spacing between vertices
+    * @param rows How many vertices per row
+    */
+    void CreateGrid(const Float3& position, float spacing, int rows);
+
+    std::vector<float> m_vertices;           ///< The vertices constructing this mesh
+    std::vector<unsigned long> m_indices;    ///< The indices constructing this mesh
+    int m_vertexComponentCount = 1;          ///< Number of components that make up a vertex
+
 private:
 
     std::string m_name;                      ///< Name of the mesh
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
-    std::vector<float> m_vertices;           ///< The vertices constructing this mesh
-    std::vector<unsigned long> m_indices;    ///< The indices constructing this mesh
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
     std::vector<std::string> m_textureNames; ///< Names for each texture used
-    int m_vertexComponentCount = 1;          ///< Number of components that make up a vertex
 };

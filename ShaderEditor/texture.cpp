@@ -55,7 +55,7 @@ bool Texture::IsCubeMap() const
 
 const unsigned int* Texture::Pixels() const
 {
-    Logger::LogError("Texture::Pixels No Implemented");
+    Logger::LogError("Texture::Pixels Not Implemented");
     return nullptr;
 }
 
@@ -66,6 +66,6 @@ bool Texture::HasPixels() const
 
 int Texture::Size() const
 {
-    Logger::LogError("Texture::Size No Implemented");
+    Logger::LogError("Texture::Size Not Implemented");
     return 0;
 }

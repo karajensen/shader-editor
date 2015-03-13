@@ -280,6 +280,7 @@ private:
 
     TweakableButton m_lightDiag;         ///< Button to toggle light diagnostics
     TweakableButton m_reloadScene;       ///< Button to reload the application
+    TweakableButton m_toggleWireframe;   ///< Button to toggle rendering wireframe
     TweakableButton m_saveScene;         ///< Button to save all scene to xml
     TweakableButton m_pauseEmission;     ///< Button to pause the selected emitter
     TweakableButton m_lightsOnly;        ///< Button to render the lights only

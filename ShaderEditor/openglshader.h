@@ -227,6 +227,13 @@ private:
     static unsigned int GetTexture(int slot);
 
     /**
+    * Determines the amount of float components from the OpenGL type
+    * @param type The type of object (ie. float, vec2)
+    * @return the number of floats in the object
+    */
+    static int GetComponents(GLenum type);
+
+    /**
     * Information for each vertex input attribute
     */
     struct AttributeData

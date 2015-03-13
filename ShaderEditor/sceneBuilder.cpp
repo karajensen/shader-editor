@@ -204,18 +204,12 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
     return true;
 }
 
-bool SceneBuilder::CreateMesh(MeshData& mesh, bool hasNormals)
-{
-    return mesh.Initialise(MESHES_PATH + "//" + mesh.Name(), hasNormals, 
-        m_scene.GetShader(mesh.ShaderID()).HasComponent(Shader::BUMP));
-}
-
 bool SceneBuilder::InitialiseWater(Water& water, 
                                    const boost::property_tree::ptree& node)
 {
     InitialiseMeshTextures(water);
     water.SetShaderID(m_scene.GetShader(WATER_SHADER).Name(), WATER_SHADER);
-    return CreateMesh(water, false);
+    return true;
 }
 
 bool SceneBuilder::InitialiseMesh(Mesh& mesh, 
@@ -224,7 +218,8 @@ bool SceneBuilder::InitialiseMesh(Mesh& mesh,
 {                                
     InitialiseMeshTextures(mesh);
     InitialiseMeshShader(mesh, linker, node);
-    return CreateMesh(mesh, true);
+    return mesh.InitialiseFromFile(MESHES_PATH + "//" + mesh.Name(), true, 
+        m_scene.GetShader(mesh.ShaderID()).HasComponent(Shader::BUMP));
 }
 
 void SceneBuilder::InitialiseMeshTextures(MeshData& mesh)

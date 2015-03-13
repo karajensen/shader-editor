@@ -4,6 +4,10 @@
 
 #include "mesh.h"
 #include "cache.h"
+#include "boost/lexical_cast.hpp"
+#include "assimp/include/scene.h"
+#include "assimp/include/Importer.hpp"
+#include "assimp/include/postprocess.h"
 
 Mesh::Mesh(const boost::property_tree::ptree& node) :
     MeshData(node)
@@ -80,4 +84,138 @@ bool Mesh::BackfaceCull() const
 const float& Mesh::Caustics() const
 {
     return m_caustics;
+}
+
+bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, bool requiresTangents)
+{
+    const int maxTextures = TextureIDs().size() - 
+        std::count(TextureIDs().begin(), TextureIDs().end(), NO_INDEX);
+
+    const bool requiresUVs = maxTextures > 0;
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
+        aiProcess_Triangulate|aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
+        aiProcess_CalcTangentSpace|aiProcess_JoinIdenticalVertices|aiProcess_GenSmoothNormals|
+        aiProcess_LimitBoneWeights|aiProcess_RemoveRedundantMaterials|aiProcess_OptimizeMeshes);
+
+    if(!scene)
+    {
+        Logger::LogError("Assimp import error for mesh " + path + ": " + importer.GetErrorString());
+        return false;
+    }
+
+    if (requiresTangents && !requiresNormals)
+    {
+        Logger::LogError(path + " requies normals for bump mapping");
+        return false;
+    }
+
+    unsigned int numMeshes = scene->mNumMeshes;
+    aiMesh** meshes = scene->mMeshes;
+
+    // For each submesh
+    bool generatedComponentCount = false;
+    for(unsigned int i = 0; i < numMeshes; ++i)
+    {
+        aiMesh* pMesh = meshes[i];
+
+        const unsigned int indexOffset = m_vertices.size() / m_vertexComponentCount;
+
+        if(!pMesh->HasPositions())
+        {
+            Logger::LogError(Name() + " requires positions for requested shader");
+            return false;
+        }
+        if(requiresUVs && !pMesh->HasTextureCoords(0))
+        {
+            Logger::LogError(Name() + " requires uvs for requested shader");
+            return false;
+        }
+        if(requiresNormals && !pMesh->HasNormals())
+        {
+            Logger::LogError(Name() + " requires normals for requested shader");
+            return false;
+        }
+
+        // For each vertex
+        int componentCount = 0;
+        for(unsigned int vert = 0; vert < pMesh->mNumVertices; ++vert)
+        {
+            m_vertices.push_back(pMesh->mVertices[vert].x);
+            m_vertices.push_back(pMesh->mVertices[vert].y);
+            m_vertices.push_back(pMesh->mVertices[vert].z);
+            componentCount = 3;
+
+            if (requiresUVs)
+            {
+                m_vertices.push_back(pMesh->mTextureCoords[0][vert].x);
+                m_vertices.push_back(pMesh->mTextureCoords[0][vert].y);
+                componentCount += 2;
+            }
+
+            if (requiresNormals)
+            {
+                m_vertices.push_back(pMesh->mNormals[vert].x);
+                m_vertices.push_back(pMesh->mNormals[vert].y);
+                m_vertices.push_back(pMesh->mNormals[vert].z);
+                componentCount += 3;
+            }
+
+            // Add any bitangents/tangents for the mesh
+            if(requiresTangents)
+            {
+                if(pMesh->HasTangentsAndBitangents())
+                {
+                    m_vertices.push_back(pMesh->mTangents[vert].x);
+                    m_vertices.push_back(pMesh->mTangents[vert].y);
+                    m_vertices.push_back(pMesh->mTangents[vert].z);
+                    m_vertices.push_back(pMesh->mBitangents[vert].x);
+                    m_vertices.push_back(pMesh->mBitangents[vert].y);
+                    m_vertices.push_back(pMesh->mBitangents[vert].z);
+                    componentCount += 6;
+                }
+                else
+                {
+                    Logger::LogError(Name() + " requires tangents for requested shader");
+                    return false;
+                }
+            }
+        }
+
+        // Make sure vertex layout is consistant between submeshes
+        if(generatedComponentCount)
+        {
+            if(componentCount != m_vertexComponentCount)
+            {
+                Logger::LogError("Assimp error for mesh " + path + ": " + 
+                    boost::lexical_cast<std::string>(componentCount) + " does not match " +
+                    boost::lexical_cast<std::string>(m_vertexComponentCount));
+                return false;
+            }
+        }
+        else
+        {
+            m_vertexComponentCount = componentCount;
+            generatedComponentCount = true;
+        }
+
+        // For each face
+        for(unsigned int face = 0; face < pMesh->mNumFaces; ++face)
+        {
+            aiFace *pFace = &pMesh->mFaces[face];
+            if(pFace->mNumIndices != 3)
+            {
+                Logger::LogError("Assimp error for mesh " + path + ": not all faces are triangles");
+                return false;
+            }
+
+            m_indices.push_back(indexOffset + pFace->mIndices[0]);
+            m_indices.push_back(indexOffset + pFace->mIndices[1]);
+            m_indices.push_back(indexOffset + pFace->mIndices[2]);
+        }
+    }
+
+    Logger::LogInfo("Mesh: " + Name() + " created");
+    return true;
 }

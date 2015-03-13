@@ -29,19 +29,6 @@ public:
     };
 
     /**
-    * Vertex Shader Attribute ordering
-    */
-    enum VertexAttribute
-    {
-        POSITION,
-        UVS,
-        NORMAL,
-        COLOUR,
-        TANGENT,
-        BITANGENT
-    };
-
-    /**
     * Constructor
     */
     Shader() = default;

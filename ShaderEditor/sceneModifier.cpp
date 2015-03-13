@@ -46,7 +46,7 @@ void SceneModifier::Tick(RenderEngine& engine)
         break;
     case PAGE_POST:
         UpdateLight();
-        UpdatePost();
+        UpdatePost(engine);
         break;
     }
 }
@@ -269,7 +269,7 @@ void SceneModifier::UpdateEmitter()
     }
 }
 
-void SceneModifier::UpdatePost()
+void SceneModifier::UpdatePost(RenderEngine& engine)
 {
     const int selectedMap = m_cache->PostMapSelected.Get();
     if (selectedMap != m_selectedMap)
@@ -279,6 +279,12 @@ void SceneModifier::UpdatePost()
     }
 
     m_scene.GetPost().Read(*m_cache);
+
+    if (m_cache->ToggleWireframe.Get())
+    {
+        engine.ToggleWireframe();
+        m_cache->ToggleWireframe.Set(false);
+    }
 }
 
 void SceneModifier::UpdateLight()

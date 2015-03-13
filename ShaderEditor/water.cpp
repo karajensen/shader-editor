@@ -28,7 +28,12 @@ Water::Water(const boost::property_tree::ptree& node) :
     m_shallowColour.a = GetAttribute<float>(node, "ShallowColour", "a");
     m_reflectionTint.r = GetAttribute<float>(node, "ReflectionTint", "r");
     m_reflectionTint.g = GetAttribute<float>(node, "ReflectionTint", "g");
-    m_reflectionTint.b = GetAttribute<float>(node, "ReflectionTint", "b");    
+    m_reflectionTint.b = GetAttribute<float>(node, "ReflectionTint", "b");
+    m_position.x = GetAttribute<float>(node, "Position", "x");
+    m_position.y = GetAttribute<float>(node, "Position", "y");
+    m_position.z = GetAttribute<float>(node, "Position", "z");
+    m_spacing = GetValue<float>(node, "Spacing");
+    m_rows = GetValue<int>(node, "Rows");
 
     for (auto itr = node.begin(); itr != node.end(); ++itr)
     {
@@ -52,6 +57,8 @@ Water::Water(const boost::property_tree::ptree& node) :
         Logger::LogError("Water: " + Name() + 
             " Did not have required amount of waves");
     }
+
+    CreateGrid(m_position, m_spacing, m_rows);
 }
 
 void Water::Write(boost::property_tree::ptree& node,
@@ -80,6 +87,11 @@ void Water::Write(boost::property_tree::ptree& node,
     node.add("ReflectionTint.<xmlattr>.r", m_reflectionTint.r);
     node.add("ReflectionTint.<xmlattr>.g", m_reflectionTint.g);
     node.add("ReflectionTint.<xmlattr>.b", m_reflectionTint.b);
+    node.add("Position.<xmlattr>.x", m_position.x);
+    node.add("Position.<xmlattr>.y", m_position.y);
+    node.add("Position.<xmlattr>.z", m_position.z);
+    node.add("Spacing", m_spacing);
+    node.add("Rows", m_rows);
 
     for (const Wave& wave : m_waves)
     {

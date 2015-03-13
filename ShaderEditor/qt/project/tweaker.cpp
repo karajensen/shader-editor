@@ -21,6 +21,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     m_lightDiag.Initialise(m_ui.light_diagnostics_btn, m_callbacks.LightDiagnostics);
     m_reloadScene.Initialise(m_ui.reloadScene_btn, m_callbacks.ReloadScene);
+    m_toggleWireframe.Initialise(m_ui.toggleWireframe_btn, m_callbacks.ToggleWireframe);
     m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_pauseEmission.Initialise(m_ui.pauseEmission_btn, m_callbacks.PauseEmission);
     m_lightsOnly.Initialise(m_ui.light_render_only_btn, m_callbacks.RenderLightsOnly);

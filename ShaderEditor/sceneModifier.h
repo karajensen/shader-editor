@@ -116,8 +116,9 @@ private:
 
     /**
     * Updates the post shared cache between the gui and application
+    * @param engine The selected render engine
     */
-    void UpdatePost();
+    void UpdatePost(RenderEngine& engine);
 
     /**
     * Updates the shader shared cache between the gui and application

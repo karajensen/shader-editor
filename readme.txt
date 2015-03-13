@@ -1,7 +1,4 @@
 
-- DirectX Texture Reload
-- Fix DirectX frame rate drop
-- SSOA Shader
 
 - Create 3D scene
 - Optimise/clean shaders
