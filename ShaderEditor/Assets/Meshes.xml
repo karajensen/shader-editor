@@ -61,16 +61,15 @@
 	</Mesh>
 	<Water>
 		<Shader>water</Shader>
-		<Name>mock_water.obj</Name>
+		<Name>water</Name>
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
 		<Bump>1</Bump>
 		<Speed>1</Speed>
 		<BumpVelocity x="0" y="0"/>
-    <Position x="0" y="0" z="0"/>
-    <Spacing>10.0</Spacing>
-    <Rows>2</Rows>
+    <Position x="0" y="-5" z="0"/>
+    <Grid rows="10" columns="20" spacing="10.0"></Grid>
 		<Fresnal scale="1" bias="0.5" power="2"/>
 		<ReflectionIntensity>1</ReflectionIntensity>
 		<UVScale u="1" v="1"/>

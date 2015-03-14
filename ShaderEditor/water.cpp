@@ -32,8 +32,9 @@ Water::Water(const boost::property_tree::ptree& node) :
     m_position.x = GetAttribute<float>(node, "Position", "x");
     m_position.y = GetAttribute<float>(node, "Position", "y");
     m_position.z = GetAttribute<float>(node, "Position", "z");
-    m_spacing = GetValue<float>(node, "Spacing");
-    m_rows = GetValue<int>(node, "Rows");
+    m_spacing = GetAttribute<float>(node, "Grid", "spacing");
+    m_rows = GetAttribute<int>(node, "Grid", "rows");
+    m_columns = GetAttribute<int>(node, "Grid", "columns");
 
     for (auto itr = node.begin(); itr != node.end(); ++itr)
     {
@@ -58,7 +59,7 @@ Water::Water(const boost::property_tree::ptree& node) :
             " Did not have required amount of waves");
     }
 
-    CreateGrid(m_position, m_spacing, m_rows);
+    CreateGrid(m_position, m_spacing, m_rows, m_columns);
 }
 
 void Water::Write(boost::property_tree::ptree& node,
@@ -90,8 +91,9 @@ void Water::Write(boost::property_tree::ptree& node,
     node.add("Position.<xmlattr>.x", m_position.x);
     node.add("Position.<xmlattr>.y", m_position.y);
     node.add("Position.<xmlattr>.z", m_position.z);
-    node.add("Spacing", m_spacing);
-    node.add("Rows", m_rows);
+    node.add("Grid.<xmlattr>.spacing", m_spacing);
+    node.add("Grid.<xmlattr>.rows", m_rows);
+    node.add("Grid.<xmlattr>.columns", m_columns);
 
     for (const Wave& wave : m_waves)
     {

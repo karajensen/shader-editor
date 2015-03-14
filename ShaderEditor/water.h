@@ -123,7 +123,8 @@ private:
 
     Float3 m_position;            ///< The center of the water patch
     float m_spacing;              ///< The spacing between vertices
-    int m_rows;                   ///< How many vertices per row
+    int m_rows;                   ///< How many rows for the grid
+    int m_columns;                ///< How many columns for the grid
     float m_bump = 1.0f;          ///< Saturation of bump
     Float2 m_bumpVelocity;        ///< Velocity of the bump movement
     float m_speed = 0.0f;         ///< Overall speed of the wave

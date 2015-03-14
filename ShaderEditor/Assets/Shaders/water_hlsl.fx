@@ -87,8 +87,8 @@ Attributes VShader(float4 position  : POSITION,
         waveDerivative += waveFrequency[i] * waveAmplitude[i] * cos(component) * direction;
     }
 
-    output.position = mul(viewProjection, position);
-    output.positionWorld = position.xyz;
+    output.position = mul(viewProjection, wavePosition);
+    output.positionWorld = wavePosition.xyz;
     output.bitangent = float3(1, waveDerivative.x, 0);
     output.tangent = float3(0, waveDerivative.y, 1);
     output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);

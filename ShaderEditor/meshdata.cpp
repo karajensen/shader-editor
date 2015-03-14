@@ -22,8 +22,8 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
 
 void MeshData::Write(boost::property_tree::ptree& node) const
 {
-    node.add("Shader", m_shaderName);
     node.add("Name", m_name);
+    node.add("Shader", m_shaderName);
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
@@ -85,37 +85,34 @@ const std::string& MeshData::ShaderName() const
     return m_shaderName;
 }
 
-void MeshData::CreateGrid(const Float3& position, float spacing, int rows)
+void MeshData::CreateGrid(const Float3& position, float spacing, int rows, int columns)
 {
-    const int vertices = rows * rows;
+    const int vertices = rows * columns;
     const int trianglesPerQuad = 2;
     const int pointsInFace = 3;
-    const int triangleNumber = ((rows-1)*(rows-1)) * trianglesPerQuad;
+    const int triangleNumber = ((rows-1)*(columns-1)) * trianglesPerQuad;
 
     m_vertexComponentCount = 5;
     m_indices.resize(triangleNumber * pointsInFace);
     m_vertices.resize(m_vertexComponentCount * vertices);
 
-    const int mininum = -rows/2;
-    const int maximum = rows/2;
-    Float3 currentPosition = position;
+    Float3 initialPosition = position;
+    initialPosition.x -= spacing * (rows * 0.5f);
+    initialPosition.z -= spacing * (columns * 0.5f);
 
     float u = 0;
     float v = 0;
     int index = 0;
 
-    for(int x = mininum; x < maximum; ++x)
+    for(int r = 0; r < rows; ++r)
     {
-        for(int z = mininum; z < maximum; ++z)
+        for(int c = 0; c < columns; ++c)
         {
-            m_vertices[index] = currentPosition.x;
-            m_vertices[index+1] = currentPosition.y;
-            m_vertices[index+2] = currentPosition.z;
-            m_vertices[index+3] = u;
-            m_vertices[index+4] = v;
-
-            currentPosition.x += x * spacing;
-            currentPosition.z += z * spacing;
+            m_vertices[index] = initialPosition.x + (r * spacing);
+            m_vertices[index + 1] = initialPosition.y;
+            m_vertices[index + 2] = initialPosition.z + (c * spacing);
+            m_vertices[index + 3] = u;
+            m_vertices[index + 4] = v;
 
             index += m_vertexComponentCount;
             u += 0.5;
@@ -125,17 +122,17 @@ void MeshData::CreateGrid(const Float3& position, float spacing, int rows)
     }
 
     index = 0;
-    for(int x = 0; x < rows-1; ++x)
+    for(int r = 0; r < rows-1; ++r)
     {
-        for(int y = 0; y < rows-1; ++y)
+        for(int c = 0; c < columns-1; ++c)
         {
-            m_indices[index] = (x * rows) + y;
-            m_indices[index+1] = (x * rows) + y + 1;
-            m_indices[index+2] = ((x + 1) * rows) + y;
+            m_indices[index] = r * columns + c;
+            m_indices[index + 1] = (r + 1) * columns + c;
+            m_indices[index + 2] = (r + 1) * columns + (c + 1);
 
-            m_indices[index+3] = ((x + 1) * rows) + y;
-            m_indices[index+4] = (x * rows) + y + 1;
-            m_indices[index+5] = ((x + 1) * rows)+ y + 1;
+            m_indices[index + 3] = r * columns + c;
+            m_indices[index + 4] = (r + 1) * columns + (c + 1);
+            m_indices[index + 5] = r * columns + (c + 1);
         
             index += 6;
         }

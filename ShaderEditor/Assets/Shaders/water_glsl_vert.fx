@@ -49,8 +49,8 @@ void main(void)
         waveDerivative += waveFrequency[i] * waveAmplitude[i] * cos(component) * direction;
     }
 
-    gl_Position = viewProjection * in_Position;
-    ex_PositionWorld = in_Position.xyz;
+    gl_Position = viewProjection * wavePosition;
+    ex_PositionWorld = wavePosition.xyz;
     ex_Bitangent = vec3(1, waveDerivative.x, 0);
     ex_Tangent = vec3(0, waveDerivative.y, 1);
     ex_Normal = vec3(-waveDerivative.x, 1, -waveDerivative.y);
