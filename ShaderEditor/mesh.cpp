@@ -88,10 +88,10 @@ const float& Mesh::Caustics() const
 
 bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, bool requiresTangents)
 {
-    const int maxTextures = TextureIDs().size() - 
+    const int usedTextures = TextureIDs().size() - 
         std::count(TextureIDs().begin(), TextureIDs().end(), NO_INDEX);
 
-    const bool requiresUVs = maxTextures > 0;
+    const bool requiresUVs = usedTextures > 0;
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|

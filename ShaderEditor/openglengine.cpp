@@ -599,8 +599,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-    postShader->ClearTexture(0, m_data->sceneTarget);
-    postShader->ClearTexture(1, m_data->sceneTarget);
+    postShader->ClearTexture(0, m_data->preEffectsTarget);
+    postShader->ClearTexture(1, m_data->preEffectsTarget);
     postShader->ClearTexture(2, m_data->blurVerticalTarget);
     postShader->ClearTexture(3, m_data->blurVerticalTarget);
 }
