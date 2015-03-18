@@ -39,8 +39,7 @@ struct OpenglData
     GlRenderTarget backBuffer;           ///< Render target for the back buffer
     GlRenderTarget sceneTarget;          ///< Render target for the main scene
     GlRenderTarget preEffectsTarget;     ///< Render target for pre-rendering effects
-    GlRenderTarget blurHorizontalTarget; ///< Render target for blurring the scene (pass1)
-    GlRenderTarget blurVerticalTarget;   ///< Render target for blurring the scene (pass2)
+    GlRenderTarget blurTarget;           ///< Render target for blurring the scene
     GlQuad quad;                         ///< Quad to render the final post processed scene onto
     glm::vec3 cameraPosition;            ///< Position of the camera
     glm::vec3 cameraUp;                  ///< The up vector of the camera
@@ -67,8 +66,7 @@ OpenglData::OpenglData() :
     quad("ScreenQuad"),
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
     preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
-    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
-    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
+    blurTarget("BlurTarget", BLUR_TEXTURES, false, true),
     backBuffer("BackBuffer")
 {
 }
@@ -111,8 +109,7 @@ void OpenglData::Release()
     backBuffer.Release();
     sceneTarget.Release();
     preEffectsTarget.Release();
-    blurHorizontalTarget.Release();
-    blurVerticalTarget.Release();
+    blurTarget.Release();
     quad.Release();
 
     wglMakeCurrent(nullptr, nullptr);
@@ -270,8 +267,7 @@ bool OpenglEngine::Initialize()
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
        !m_data->preEffectsTarget.Initialise() ||
-       !m_data->blurHorizontalTarget.Initialise() ||
-       !m_data->blurVerticalTarget.Initialise())
+       !m_data->blurTarget.Initialise())
     {
         Logger::LogError("OpenGL: Could not create render targets");
         return false;
@@ -523,12 +519,14 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
+    m_data->blurTarget.SetActive();
+    m_data->blurTarget.SwitchTextures();
+
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive();
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
     blurHorizontal->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
-    m_data->blurHorizontalTarget.SetActive();
 
     blurHorizontal->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     blurHorizontal->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
@@ -545,17 +543,17 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
     blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
     blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
-    m_data->blurVerticalTarget.SetActive();
 
-    blurVertical->SendTexture(0, m_data->blurHorizontalTarget, BLUR_SCENE_ID);
-    blurVertical->SendTexture(1, m_data->blurHorizontalTarget, BLUR_EFFECTS_ID);
+    blurVertical->SendTexture(0, m_data->blurTarget, BLUR_SCENE_ID);
+    blurVertical->SendTexture(1, m_data->blurTarget, BLUR_EFFECTS_ID);
+    m_data->blurTarget.SwitchTextures();
 
     m_data->quad.PreRender();
     blurVertical->EnableAttributes();
     m_data->quad.Render();
 
-    blurVertical->ClearTexture(0, m_data->blurHorizontalTarget);
-    blurVertical->ClearTexture(1, m_data->blurHorizontalTarget);
+    blurVertical->ClearTexture(0, m_data->blurTarget);
+    blurVertical->ClearTexture(1, m_data->blurTarget);
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -592,8 +590,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture(1, m_data->preEffectsTarget, NORMAL_ID);
-    postShader->SendTexture(2, m_data->blurVerticalTarget, BLUR_EFFECTS_ID);
-    postShader->SendTexture(3, m_data->blurVerticalTarget, BLUR_SCENE_ID);
+    postShader->SendTexture(2, m_data->blurTarget, BLUR_EFFECTS_ID);
+    postShader->SendTexture(3, m_data->blurTarget, BLUR_SCENE_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -601,8 +599,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->ClearTexture(0, m_data->preEffectsTarget);
     postShader->ClearTexture(1, m_data->preEffectsTarget);
-    postShader->ClearTexture(2, m_data->blurVerticalTarget);
-    postShader->ClearTexture(3, m_data->blurVerticalTarget);
+    postShader->ClearTexture(2, m_data->blurTarget);
+    postShader->ClearTexture(3, m_data->blurTarget);
 }
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)
