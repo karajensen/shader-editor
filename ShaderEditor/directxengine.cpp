@@ -61,8 +61,7 @@ struct DirectxData
     DxRenderTarget backBuffer;           ///< Render target for the back buffer
     DxRenderTarget sceneTarget;          ///< Render target for the main scene
     DxRenderTarget preEffectsTarget;     ///< Render target for pre-rendering effects
-    DxRenderTarget blurHorizontalTarget; ///< Render target for blurring the main scene pass 1
-    DxRenderTarget blurVerticalTarget;   ///< Render target for blurring the main scene pass 2
+    DxRenderTarget blurTarget;           ///< Render target for blurring the main scene
     D3DXMATRIX view;                     ///< View matrix
     D3DXMATRIX projection;               ///< Projection matrix
     D3DXMATRIX viewProjection;           ///< View projection matrix
@@ -86,8 +85,7 @@ struct DirectxData
 
 DirectxData::DirectxData() :
     sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    blurHorizontalTarget("BlurHorizontalTarget", BLUR_TEXTURES, false),
-    blurVerticalTarget("BlurVerticalTarget", BLUR_TEXTURES, false),
+    blurTarget("BlurTarget", BLUR_TEXTURES, false, true),
     preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
     backBuffer("BackBuffer"),
     quad("SceneQuad"),
@@ -134,8 +132,7 @@ void DirectxData::Release()
 
     quad.Release();
     sceneTarget.Release();
-    blurHorizontalTarget.Release();
-    blurVerticalTarget.Release();
+    blurTarget.Release();
     backBuffer.Release();
     preEffectsTarget.Release();
 
@@ -212,8 +209,7 @@ bool DirectxEngine::Initialize()
     if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
        !m_data->sceneTarget.Initialise(m_data->device) ||
        !m_data->preEffectsTarget.Initialise(m_data->device) ||
-       !m_data->blurHorizontalTarget.Initialise(m_data->device) ||
-       !m_data->blurVerticalTarget.Initialise(m_data->device))
+       !m_data->blurTarget.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
@@ -587,7 +583,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurHorizontal->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurHorizontal->SendConstants(m_data->context);
 
-    m_data->blurHorizontalTarget.SetActive(m_data->context);
+    m_data->blurTarget.SetActive(m_data->context);
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
@@ -604,15 +600,15 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurVertical->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurVertical->SendConstants(m_data->context);
 
-    m_data->blurVerticalTarget.SetActive(m_data->context);
+    m_data->blurTarget.CopyTextures(m_data->context);
 
-    m_data->blurHorizontalTarget.SendTexture(m_data->context, 0, BLUR_SCENE_ID);
-    m_data->blurHorizontalTarget.SendTexture(m_data->context, 1, BLUR_EFFECTS_ID);
-
+    m_data->blurTarget.SendCopiedTexture(m_data->context, 0, BLUR_SCENE_ID);
+    m_data->blurTarget.SendCopiedTexture(m_data->context, 1, BLUR_EFFECTS_ID);
+    
     m_data->quad.Render(m_data->context);
-
-    m_data->blurHorizontalTarget.RemoveTexture(m_data->context, 0);
-    m_data->blurHorizontalTarget.RemoveTexture(m_data->context, 1);
+    
+    m_data->blurTarget.RemoveTexture(m_data->context, 0);
+    m_data->blurTarget.RemoveTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -628,8 +624,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->preEffectsTarget.SendTexture(m_data->context, 1, NORMAL_ID);
-    m_data->blurVerticalTarget.SendTexture(m_data->context, 2, BLUR_EFFECTS_ID);
-    m_data->blurVerticalTarget.SendTexture(m_data->context, 3, BLUR_SCENE_ID);
+    m_data->blurTarget.SendTexture(m_data->context, 2, BLUR_EFFECTS_ID);
+    m_data->blurTarget.SendTexture(m_data->context, 3, BLUR_SCENE_ID);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
@@ -657,8 +653,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
-    m_data->blurVerticalTarget.RemoveTexture(m_data->context, 2);
-    m_data->blurVerticalTarget.RemoveTexture(m_data->context, 3);
+    m_data->blurTarget.RemoveTexture(m_data->context, 2);
+    m_data->blurTarget.RemoveTexture(m_data->context, 3);
 }
 
 void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)

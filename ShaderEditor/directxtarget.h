@@ -24,10 +24,12 @@ public:
     * @param name Name of the render target
     * @param textures The number of textures bound to this target
     * @param multisampled Whether this target uses multisampling
+    * @param readWrite Whether this target both read/writes to itself
     */
     DxRenderTarget(const std::string& name, 
                    int textures, 
-                   bool multisampled);
+                   bool multisampled,
+                   bool readWrite = false);
 
     /**
     * Destructor
@@ -63,6 +65,15 @@ public:
     void SendTexture(ID3D11DeviceContext* context, int slot, int ID = 0);
 
     /**
+    * Sends the copied texture to the currently active shader
+    * @param context Direct3D device context
+    * @param slot The shader slot the texture should send to
+    * @param ID The texture index attached to the target to send
+    * @note requires clearing before render target can use again
+    */
+    void SendCopiedTexture(ID3D11DeviceContext* context, int slot, int ID = 0);
+
+    /**
     * Clears the texture sent to the currently active shader
     * @param context Direct3D device context
     * @param slot The shader slot the texture should clear from
@@ -71,7 +82,19 @@ public:
     */
     void RemoveTexture(ID3D11DeviceContext* context, int slot);
 
+    /**
+    * Copies the textures to the copied cache
+    * @param context Direct3D device context
+    */
+    void CopyTextures(ID3D11DeviceContext* context);
+
 private:
+
+    /**
+    * Clears the render target
+    * @param context Direct3D device context
+    */
+    void ClearTarget(ID3D11DeviceContext* context);
 
     /**
     * Initialises the containers that hold the buffers
@@ -101,13 +124,16 @@ private:
     */
     bool InitialiseBackBuffer(ID3D11Device* device, IDXGISwapChain* swapchain);
 
-    const int m_count = 0;                              ///< The number of textures bound to this target
-    const bool m_isBackBuffer = false;                  ///< Whether this render target is the back buffer
-    const bool m_multisampled = false;                  ///< Whether this render target uses multisampling
-    const std::string m_name;                           ///< Name of the render target
-    std::vector<ID3D11Texture2D*> m_textures;           ///< Textures to render to
-    std::vector<ID3D11RenderTargetView*> m_targets;     ////< Render target buffers
-    std::vector<ID3D11ShaderResourceView*> m_views;     ///< Shader views for the textures
-    ID3D11DepthStencilView* m_depthBuffer = nullptr;    ///< Depth buffer for the render target
-    static D3D11_TEXTURE2D_DESC sm_textureDesc;         ///< Base description of the render target textures
+    const bool m_readWrite = false;                       ///< Whether this target both read/writes to itself
+    const int m_count = 0;                                ///< The number of textures bound to this target
+    const bool m_isBackBuffer = false;                    ///< Whether this render target is the back buffer
+    const bool m_multisampled = false;                    ///< Whether this render target uses multisampling
+    const std::string m_name;                             ///< Name of the render target
+    std::vector<ID3D11Texture2D*> m_textures;             ///< Textures to render to
+    std::vector<ID3D11Texture2D*> m_copiedTextures;       ///< Copied textures to render to
+    std::vector<ID3D11RenderTargetView*> m_targets;       ////< Render target buffers
+    std::vector<ID3D11ShaderResourceView*> m_views;       ///< Shader views for the textures
+    std::vector<ID3D11ShaderResourceView*> m_copiedViews; ///< Shader views for the textures
+    ID3D11DepthStencilView* m_depthBuffer = nullptr;      ///< Depth buffer for the render target
+    static D3D11_TEXTURE2D_DESC sm_textureDesc;           ///< Base description of the render target textures
 };

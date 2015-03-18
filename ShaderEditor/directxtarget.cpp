@@ -8,18 +8,21 @@ D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 
 DxRenderTarget::DxRenderTarget(const std::string& name) :
     m_isBackBuffer(true),
-    m_multisampled(false),
     m_name(name),
     m_count(1)
 {
     InitialiseContainers();
 }
 
-DxRenderTarget::DxRenderTarget(const std::string& name, int textures, bool multisampled) :
-    m_isBackBuffer(false),
+DxRenderTarget::DxRenderTarget(const std::string& name, 
+                               int textures, 
+                               bool multisampled, 
+                               bool readWrite) :
+
     m_multisampled(multisampled),
     m_name(name),
-    m_count(textures)
+    m_count(textures),
+    m_readWrite(readWrite)
 {
     InitialiseContainers();
 }
@@ -27,12 +30,22 @@ DxRenderTarget::DxRenderTarget(const std::string& name, int textures, bool multi
 void DxRenderTarget::InitialiseContainers()
 {
     m_views.resize(m_count);
-    m_textures.resize(m_count);
-    m_targets.resize(m_count);
-
     m_views.assign(m_count, nullptr);
+    
+    m_textures.resize(m_count);
     m_textures.assign(m_count, nullptr);
+
+    m_targets.resize(m_count);
     m_targets.assign(m_count, nullptr);
+
+    if (m_readWrite)
+    {
+        m_copiedViews.resize(m_count);
+        m_copiedViews.assign(m_count, nullptr);
+
+        m_copiedTextures.resize(m_count);
+        m_copiedTextures.assign(m_count, nullptr);
+    }
 }
 
 DxRenderTarget::~DxRenderTarget()
@@ -47,6 +60,11 @@ void DxRenderTarget::Release()
         SafeRelease(&(m_textures[i]));
     }
 
+    for (unsigned int i = 0; i < m_copiedTextures.size(); ++i)
+    {
+        SafeRelease(&(m_copiedTextures[i]));
+    }
+
     for (unsigned int i = 0; i < m_targets.size(); ++i)
     {
         SafeRelease(&(m_targets[i]));
@@ -55,6 +73,11 @@ void DxRenderTarget::Release()
     for (unsigned int i = 0; i < m_views.size(); ++i)
     {
         SafeRelease(&(m_views[i]));
+    }
+
+    for (unsigned int i = 0; i < m_copiedViews.size(); ++i)
+    {
+        SafeRelease(&(m_copiedViews[i]));
     }
 
     SafeRelease(&m_depthBuffer);
@@ -121,8 +144,7 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
 
-    if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_textures[ID]))) ||
-        m_textures[ID] == nullptr)
+    if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_textures[ID]))))
     {
         Logger::LogError("DirectX: Failed to create texture for " + name);
         return false;
@@ -135,8 +157,7 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     renderTargetDesc.ViewDimension = m_multisampled ? 
         D3D11_RTV_DIMENSION_TEXTURE2DMS : D3D11_RTV_DIMENSION_TEXTURE2D;
 
-    if (FAILED(device->CreateRenderTargetView(m_textures[ID], &renderTargetDesc, &(m_targets[ID]))) ||
-        m_targets[ID] == nullptr)
+    if (FAILED(device->CreateRenderTargetView(m_textures[ID], &renderTargetDesc, &(m_targets[ID]))))
     {
         Logger::LogError("DirectX: Failed to create render target for " + name);
         return false;
@@ -150,16 +171,34 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     textureViewDesc.ViewDimension = m_multisampled ? 
         D3D11_SRV_DIMENSION_TEXTURE2DMS : D3D11_SRV_DIMENSION_TEXTURE2D;
 
-    if (FAILED(device->CreateShaderResourceView(m_textures[ID], &textureViewDesc, &(m_views[ID]))) ||
-        m_views[ID] == nullptr)
+    if (FAILED(device->CreateShaderResourceView(m_textures[ID], &textureViewDesc, &(m_views[ID]))))
     {
         Logger::LogError("DirectX: Failed to create texture view for " + name);
         return false;
     }
 
     SetDebugName(m_textures[ID], name + "_Texture");
-    SetDebugName(m_views[ID], name + "_TextureView");
     SetDebugName(m_targets[ID], name + "_RenderTarget");
+    SetDebugName(m_views[ID], name + "_TextureView");
+
+    if (m_readWrite)
+    {
+        textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_copiedTextures[ID]))))
+        {
+            Logger::LogError("DirectX: Failed to create copy texture for " + name);
+            return false;
+        }
+
+        if (FAILED(device->CreateShaderResourceView(m_copiedTextures[ID], &textureViewDesc, &(m_copiedViews[ID]))))
+        {
+            Logger::LogError("DirectX: Failed to create copy texture view for " + name);
+            return false;
+        }
+
+        SetDebugName(m_copiedTextures[ID], name + "_CopyTexture");
+        SetDebugName(m_copiedViews[ID], name + "_CopyTextureView");
+    }
 
     return true;
 }
@@ -198,6 +237,15 @@ void DxRenderTarget::SetActive(ID3D11DeviceContext* context)
     else
     {
         context->OMSetRenderTargets(m_count, &m_targets[0], m_depthBuffer);
+    }
+
+    ClearTarget(context);
+}
+
+void DxRenderTarget::ClearTarget(ID3D11DeviceContext* context)
+{
+    if (!m_isBackBuffer)
+    {
         context->ClearDepthStencilView(m_depthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
     }
 
@@ -205,6 +253,11 @@ void DxRenderTarget::SetActive(ID3D11DeviceContext* context)
     {
         context->ClearRenderTargetView(m_targets[i], D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f));
     }
+}
+
+void DxRenderTarget::SendCopiedTexture(ID3D11DeviceContext* context, int slot, int ID)
+{
+    context->PSSetShaderResources(slot, 1, &m_copiedViews[ID]);
 }
 
 void DxRenderTarget::SendTexture(ID3D11DeviceContext* context, int slot, int ID)
@@ -216,4 +269,16 @@ void DxRenderTarget::RemoveTexture(ID3D11DeviceContext* context, int slot)
 {
     ID3D11ShaderResourceView* nullView = nullptr;
     context->PSSetShaderResources(slot, 1, &nullView);
+}
+
+void DxRenderTarget::CopyTextures(ID3D11DeviceContext* context)
+{
+    assert(m_readWrite);
+
+    for (unsigned int i = 0; i < m_textures.size(); ++i)
+    {
+        context->CopyResource(m_copiedTextures[i], m_textures[i]);
+    }
+
+    ClearTarget(context);
 }
