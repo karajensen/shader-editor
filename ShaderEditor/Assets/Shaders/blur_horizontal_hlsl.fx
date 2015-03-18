@@ -25,30 +25,6 @@ SamplerState Sampler;
 Texture2D SceneSampler;
 Texture2D EffectsSampler;
 
-float4 Blur(Texture2D samplerName, float2 uvs)
-{
-    float4 uvSteps = float4(blurStep, blurStep * 2.0, blurStep * 3.0, blurStep * 4.0);
-    float2 uvs1p = float2(uvs.x + uvSteps.x, uvs.y);
-    float2 uvs1n = float2(uvs.x - uvSteps.x, uvs.y);
-    float2 uvs2p = float2(uvs.x + uvSteps.y, uvs.y);
-    float2 uvs2n = float2(uvs.x - uvSteps.y, uvs.y);
-    float2 uvs3p = float2(uvs.x + uvSteps.z, uvs.y);
-    float2 uvs3n = float2(uvs.x - uvSteps.z, uvs.y);
-    float2 uvs4p = float2(uvs.x + uvSteps.w, uvs.y);
-    float2 uvs4n = float2(uvs.x - uvSteps.w, uvs.y);
-
-    float4 colour = samplerName.Sample(Sampler, uvs) * weightMain;
-    colour += samplerName.Sample(Sampler, uvs1p) * weightOffset.x;
-    colour += samplerName.Sample(Sampler, uvs1n) * weightOffset.x;
-    colour += samplerName.Sample(Sampler, uvs2p) * weightOffset.y;
-    colour += samplerName.Sample(Sampler, uvs2n) * weightOffset.y;
-    colour += samplerName.Sample(Sampler, uvs3p) * weightOffset.z;
-    colour += samplerName.Sample(Sampler, uvs3n) * weightOffset.z;
-    colour += samplerName.Sample(Sampler, uvs4p) * weightOffset.w;
-    colour += samplerName.Sample(Sampler, uvs4n) * weightOffset.w;
-    return colour;
-}
-
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
 {
@@ -61,7 +37,36 @@ Attributes VShader(float4 position  : POSITION,
 Outputs PShader(Attributes input)
 {
     Outputs output;
-    output.scene = Blur(SceneSampler, input.uvs);
-    output.effects = Blur(EffectsSampler, input.uvs);
+
+    float4 uvSteps = float4(blurStep, blurStep * 2.0, blurStep * 3.0, blurStep * 4.0);
+    float2 uvs1p = float2(input.uvs.x + uvSteps.x, input.uvs.y);
+    float2 uvs1n = float2(input.uvs.x - uvSteps.x, input.uvs.y);
+    float2 uvs2p = float2(input.uvs.x + uvSteps.y, input.uvs.y);
+    float2 uvs2n = float2(input.uvs.x - uvSteps.y, input.uvs.y);
+    float2 uvs3p = float2(input.uvs.x + uvSteps.z, input.uvs.y);
+    float2 uvs3n = float2(input.uvs.x - uvSteps.z, input.uvs.y);
+    float2 uvs4p = float2(input.uvs.x + uvSteps.w, input.uvs.y);
+    float2 uvs4n = float2(input.uvs.x - uvSteps.w, input.uvs.y);
+
+    output.scene =  SceneSampler.Sample(Sampler, input.uvs) * weightMain;
+    output.scene += SceneSampler.Sample(Sampler, uvs1p) * weightOffset.x;
+    output.scene += SceneSampler.Sample(Sampler, uvs1n) * weightOffset.x;
+    output.scene += SceneSampler.Sample(Sampler, uvs2p) * weightOffset.y;
+    output.scene += SceneSampler.Sample(Sampler, uvs2n) * weightOffset.y;
+    output.scene += SceneSampler.Sample(Sampler, uvs3p) * weightOffset.z;
+    output.scene += SceneSampler.Sample(Sampler, uvs3n) * weightOffset.z;
+    output.scene += SceneSampler.Sample(Sampler, uvs4p) * weightOffset.w;
+    output.scene += SceneSampler.Sample(Sampler, uvs4n) * weightOffset.w;
+
+    output.effects =  EffectsSampler.Sample(Sampler, input.uvs) * weightMain;
+    output.effects += EffectsSampler.Sample(Sampler, uvs1p) * weightOffset.x;
+    output.effects += EffectsSampler.Sample(Sampler, uvs1n) * weightOffset.x;
+    output.effects += EffectsSampler.Sample(Sampler, uvs2p) * weightOffset.y;
+    output.effects += EffectsSampler.Sample(Sampler, uvs2n) * weightOffset.y;
+    output.effects += EffectsSampler.Sample(Sampler, uvs3p) * weightOffset.z;
+    output.effects += EffectsSampler.Sample(Sampler, uvs3n) * weightOffset.z;
+    output.effects += EffectsSampler.Sample(Sampler, uvs4p) * weightOffset.w;
+    output.effects += EffectsSampler.Sample(Sampler, uvs4n) * weightOffset.w;
+
     return output;
 }

@@ -16,24 +16,18 @@ uniform sampler2DMS SceneSampler;
 uniform sampler2DMS NormalSampler;
 uniform sampler2D RandomSampler;
 
-vec4 GetMultisampled(sampler2DMS samplerName, ivec2 uvs)
-{
-    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-    for (int i = 0; i < SAMPLES; ++i)
-    {
-        color += texelFetch(samplerName, uvs, i);
-    }
-    return  color * (1.0 / SAMPLES);
-}
-
 void main(void)
 {
     ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
-    vec4 scene = GetMultisampled(SceneSampler, uvs);
-    vec4 normal = GetMultisampled(NormalSampler, uvs);
+    vec4 scene = vec4(0.0, 0.0, 0.0, 0.0);
+    for (int i = 0; i < SAMPLES; ++i)
+    {
+        scene += texelFetch(SceneSampler, uvs, i);
+    }
+    scene *= (1.0 / SAMPLES);
 
     out_Color[ID_COLOUR] = scene;
-    out_Color[ID_NORMAL] = normal;
+    out_Color[ID_NORMAL] = texelFetch(NormalSampler, uvs, 0);
 
     // Create the Bloom
     // map range from end->start to 0->1

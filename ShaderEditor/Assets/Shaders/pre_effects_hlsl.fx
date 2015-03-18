@@ -27,16 +27,6 @@ Texture2DMS<float4,SAMPLES> SceneSampler  : register(t0);
 Texture2DMS<float4,SAMPLES> NormalSampler : register(t1);
 Texture2D RandomSampler : register(t2);
 
-float4 GetMultisampled(Texture2DMS<float4, SAMPLES> samplerName, int3 uvs)
-{
-    float4 color = float4(0.0, 0.0, 0.0, 0.0);
-    for (int i = 0; i < SAMPLES; ++i)
-    {
-        color += samplerName.Load(uvs, i);
-    }
-    return color * (1.0 / SAMPLES);
-}
-
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
 {
@@ -49,12 +39,16 @@ Attributes VShader(float4 position  : POSITION,
 Outputs PShader(Attributes input)
 {
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-    float4 scene = GetMultisampled(SceneSampler, uvs);
-    float4 normal = GetMultisampled(NormalSampler, uvs);
+    float4 scene = float4(0.0, 0.0, 0.0, 0.0);
+    for (int i = 0; i < SAMPLES; ++i)
+    {
+        scene += SceneSampler.Load(uvs, i);
+    }
+    scene *= (1.0 / SAMPLES);
 
     Outputs output;
     output.scene = scene;
-    output.normal = normal;
+    output.normal = NormalSampler.Load(uvs, 0);
 
     // Create the Bloom
     // map range from end->start to 0->1
