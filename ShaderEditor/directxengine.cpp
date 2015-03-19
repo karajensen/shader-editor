@@ -584,12 +584,10 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     m_data->blurTarget.SetActive(m_data->context);
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
 
     m_data->quad.Render(m_data->context);
 
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
-    m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
 
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive(m_data->context);
@@ -598,13 +596,11 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->blurTarget.CopyTextures(m_data->context);
 
-    m_data->blurTarget.SendCopiedTexture(m_data->context, 0, BLUR_SCENE_ID);
-    m_data->blurTarget.SendCopiedTexture(m_data->context, 1, BLUR_EFFECTS_ID);
+    m_data->blurTarget.SendCopiedTexture(m_data->context, 0);
     
     m_data->quad.Render(m_data->context);
     
     m_data->blurTarget.RemoveTexture(m_data->context, 0);
-    m_data->blurTarget.RemoveTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -620,8 +616,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
     m_data->preEffectsTarget.SendTexture(m_data->context, 1, NORMAL_ID);
-    m_data->blurTarget.SendTexture(m_data->context, 2, BLUR_EFFECTS_ID);
-    m_data->blurTarget.SendTexture(m_data->context, 3, BLUR_SCENE_ID);
+    m_data->preEffectsTarget.SendTexture(m_data->context, 2, EFFECTS_ID);
+    m_data->blurTarget.SendTexture(m_data->context, 3, BLUR_ID);
 
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
@@ -649,7 +645,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
-    m_data->blurTarget.RemoveTexture(m_data->context, 2);
+    m_data->preEffectsTarget.RemoveTexture(m_data->context, 2);
     m_data->blurTarget.RemoveTexture(m_data->context, 3);
 }
 

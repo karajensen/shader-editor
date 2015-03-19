@@ -171,7 +171,7 @@ bool SceneBuilder::InitialiseTextures()
 
     m_scene.Add(std::make_unique<ProceduralTexture>(
         "Random", GENERATED_TEXTURES + "//random.bmp", 
-        128, ProceduralTexture::RANDOM), true);
+        RANDOM_TEXTURE_SIZE, ProceduralTexture::RANDOM), true);
 
     m_scene.Add(std::make_unique<AnimatedTexture>(
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp"));

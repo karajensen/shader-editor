@@ -527,21 +527,18 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
 
     blurHorizontal->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
-    blurHorizontal->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
 
     m_data->quad.PreRender();
     blurHorizontal->EnableAttributes();
     m_data->quad.Render();
 
     blurHorizontal->ClearTexture(0, m_data->preEffectsTarget);
-    blurHorizontal->ClearTexture(1, m_data->preEffectsTarget);
 
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive();
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
 
-    blurVertical->SendTexture(0, m_data->blurTarget, BLUR_SCENE_ID);
-    blurVertical->SendTexture(1, m_data->blurTarget, BLUR_EFFECTS_ID);
+    blurVertical->SendTexture(0, m_data->blurTarget);
     m_data->blurTarget.SwitchTextures();
 
     m_data->quad.PreRender();
@@ -549,7 +546,6 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     m_data->quad.Render();
 
     blurVertical->ClearTexture(0, m_data->blurTarget);
-    blurVertical->ClearTexture(1, m_data->blurTarget);
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -586,8 +582,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture(1, m_data->preEffectsTarget, NORMAL_ID);
-    postShader->SendTexture(2, m_data->blurTarget, BLUR_EFFECTS_ID);
-    postShader->SendTexture(3, m_data->blurTarget, BLUR_SCENE_ID);
+    postShader->SendTexture(2, m_data->preEffectsTarget, EFFECTS_ID);
+    postShader->SendTexture(3, m_data->blurTarget, BLUR_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -595,7 +591,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->ClearTexture(0, m_data->preEffectsTarget);
     postShader->ClearTexture(1, m_data->preEffectsTarget);
-    postShader->ClearTexture(2, m_data->blurTarget);
+    postShader->ClearTexture(2, m_data->preEffectsTarget);
     postShader->ClearTexture(3, m_data->blurTarget);
 }
 

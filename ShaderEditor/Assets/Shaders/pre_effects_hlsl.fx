@@ -58,7 +58,7 @@ Outputs PShader(Attributes input)
     output.effects.rgb *= bloomIntensity;
 
     // Ambient Occlusion
-    float4 random = RandomSampler.Sample(Sampler, input.uvs);
+    float4 random = RandomSampler.Sample(Sampler, input.uvs * float2(RANDOM_UVS));
     output.effects.a = 1.0;
 
     return output;

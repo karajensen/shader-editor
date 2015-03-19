@@ -16,12 +16,10 @@ struct Attributes
 struct Outputs
 {
     float4 scene    : SV_TARGET0;
-    float4 effects  : SV_TARGET1;
 };                  
 
 SamplerState Sampler;
 Texture2D SceneSampler;
-Texture2D EffectsSampler;
 
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
@@ -55,16 +53,6 @@ Outputs PShader(Attributes input)
     output.scene += SceneSampler.Sample(Sampler, uvs3n) * WEIGHT3;
     output.scene += SceneSampler.Sample(Sampler, uvs4p) * WEIGHT4;
     output.scene += SceneSampler.Sample(Sampler, uvs4n) * WEIGHT4;
-
-    output.effects =  EffectsSampler.Sample(Sampler, input.uvs) * WEIGHT0;
-    output.effects += EffectsSampler.Sample(Sampler, uvs1p) * WEIGHT1;
-    output.effects += EffectsSampler.Sample(Sampler, uvs1n) * WEIGHT1;
-    output.effects += EffectsSampler.Sample(Sampler, uvs2p) * WEIGHT2;
-    output.effects += EffectsSampler.Sample(Sampler, uvs2n) * WEIGHT2;
-    output.effects += EffectsSampler.Sample(Sampler, uvs3p) * WEIGHT3;
-    output.effects += EffectsSampler.Sample(Sampler, uvs3n) * WEIGHT3;
-    output.effects += EffectsSampler.Sample(Sampler, uvs4p) * WEIGHT4;
-    output.effects += EffectsSampler.Sample(Sampler, uvs4n) * WEIGHT4;
 
     return output;
 }

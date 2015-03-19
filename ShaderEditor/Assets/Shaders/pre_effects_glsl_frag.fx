@@ -37,6 +37,6 @@ void main(void)
     out_Color[ID_EFFECTS].rgb *= bloomIntensity;
 
     // Ambient Occlusion
-    vec4 random = texture(RandomSampler, ex_UVs);
+    vec4 random = texture(RandomSampler, ex_UVs * vec2(RANDOM_UVS));
     out_Color[ID_EFFECTS].a = 1.0;
 }

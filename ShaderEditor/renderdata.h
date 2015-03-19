@@ -18,6 +18,7 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
+const int RANDOM_TEXTURE_SIZE = 128;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 2000.0f;
 const float FIELD_OF_VIEW = 60.0f;
@@ -40,12 +41,11 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 */
 const int EFFECTS_TEXTURES = 3;
 const int SCENE_TEXTURES = 2;
-const int BLUR_TEXTURES = 2;
+const int BLUR_TEXTURES = 1;
 const int SCENE_ID = 0;
 const int NORMAL_ID = 1;
 const int EFFECTS_ID = 2;
-const int BLUR_SCENE_ID = 0;
-const int BLUR_EFFECTS_ID = 1;
+const int BLUR_ID = 0;
 
 /**
 * Available render engines

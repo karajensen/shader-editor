@@ -6,10 +6,9 @@
 
 in vec2 ex_UVs;
 
-out vec4 out_Color[BLUR_TEXTURES];
+out vec4 out_Color;
 
 uniform sampler2D SceneSampler;
-uniform sampler2D EffectsSampler;
 
 uniform float blurStep;
 
@@ -25,23 +24,13 @@ void main(void)
     vec2 uvs4p = vec2(ex_UVs.x + uvSteps.w, ex_UVs.y);
     vec2 uvs4n = vec2(ex_UVs.x - uvSteps.w, ex_UVs.y);
 
-    out_Color[ID_BLUR_SCENE] =  texture(SceneSampler, ex_UVs) * WEIGHT0;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs1p) * WEIGHT1;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs1n) * WEIGHT1;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs2p) * WEIGHT2;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs2n) * WEIGHT2;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs3p) * WEIGHT3;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs3n) * WEIGHT3;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs4p) * WEIGHT4;
-    out_Color[ID_BLUR_SCENE] += texture(SceneSampler, uvs4n) * WEIGHT4;
-
-    out_Color[ID_BLUR_EFFECTS] =  texture(EffectsSampler, ex_UVs) * WEIGHT0;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs1p) * WEIGHT1;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs1n) * WEIGHT1;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs2p) * WEIGHT2;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs2n) * WEIGHT2;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs3p) * WEIGHT3;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs3n) * WEIGHT3;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs4p) * WEIGHT4;
-    out_Color[ID_BLUR_EFFECTS] += texture(EffectsSampler, uvs4n) * WEIGHT4;
+    out_Color =  texture(SceneSampler, ex_UVs) * WEIGHT0;
+    out_Color += texture(SceneSampler, uvs1p) * WEIGHT1;
+    out_Color += texture(SceneSampler, uvs1n) * WEIGHT1;
+    out_Color += texture(SceneSampler, uvs2p) * WEIGHT2;
+    out_Color += texture(SceneSampler, uvs2n) * WEIGHT2;
+    out_Color += texture(SceneSampler, uvs3p) * WEIGHT3;
+    out_Color += texture(SceneSampler, uvs3n) * WEIGHT3;
+    out_Color += texture(SceneSampler, uvs4p) * WEIGHT4;
+    out_Color += texture(SceneSampler, uvs4n) * WEIGHT4;
 }
