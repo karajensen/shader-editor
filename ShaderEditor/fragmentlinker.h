@@ -8,6 +8,7 @@
 #include "common.h"
 
 class Shader;
+class PostProcessing;
 
 /**
 * Generates a shader with the required components from a set of base shader fragments
@@ -19,9 +20,10 @@ public:
     /**
     * Initialises the fragment linker
     * @param maxLights The amount of lights the shader will consider
+    * @param post The post processing data
     * @return Whether initialisation was successful
     */
-    bool Initialise(unsigned int maxLights);
+    bool Initialise(unsigned int maxLights, const PostProcessing& post);
 
     /**
     * Generates a shader from base shader fragments

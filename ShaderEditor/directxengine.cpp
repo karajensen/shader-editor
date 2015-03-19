@@ -579,8 +579,6 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive(m_data->context);
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
-    blurHorizontal->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
-    blurHorizontal->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurHorizontal->SendConstants(m_data->context);
 
     m_data->blurTarget.SetActive(m_data->context);
@@ -596,8 +594,6 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive(m_data->context);
     blurVertical->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
-    blurVertical->UpdateConstantFloat("weightMain", &post.BlurWeight(0), 1);
-    blurVertical->UpdateConstantFloat("weightOffset", &post.BlurWeight(1), 4);
     blurVertical->SendConstants(m_data->context);
 
     m_data->blurTarget.CopyTextures(m_data->context);

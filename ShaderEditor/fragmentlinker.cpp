@@ -22,7 +22,7 @@ namespace
     const std::string ENDIF("endif");
 }
 
-bool FragmentLinker::Initialise(unsigned int maxLights)
+bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& post)
 {
     m_defines["MAX_LIGHTS"] = boost::lexical_cast<std::string>(maxLights);
     m_defines["SAMPLES"] = boost::lexical_cast<std::string>(MULTISAMPLING_COUNT);
@@ -38,6 +38,11 @@ bool FragmentLinker::Initialise(unsigned int maxLights)
     m_defines["ID_BLUR_SCENE"] = boost::lexical_cast<std::string>(BLUR_SCENE_ID);
     m_defines["ID_BLUR_EFFECTS"] = boost::lexical_cast<std::string>(BLUR_EFFECTS_ID);
     m_defines["DIAGNOSTIC_LIGHT"] = "10.0, 10.0, 0.0";
+    m_defines["WEIGHT0"] = boost::lexical_cast<std::string>(post.BlurWeight(0));
+    m_defines["WEIGHT1"] = boost::lexical_cast<std::string>(post.BlurWeight(1));
+    m_defines["WEIGHT2"] = boost::lexical_cast<std::string>(post.BlurWeight(2));
+    m_defines["WEIGHT3"] = boost::lexical_cast<std::string>(post.BlurWeight(3));
+    m_defines["WEIGHT4"] = boost::lexical_cast<std::string>(post.BlurWeight(4));
 
     return CreateGeneratedFolder();
 }

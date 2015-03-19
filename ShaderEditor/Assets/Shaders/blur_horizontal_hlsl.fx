@@ -5,8 +5,6 @@
 cbuffer PixelBuffer : register(b0)
 {
     float blurStep;
-    float weightMain;
-    float4 weightOffset;
 };
 
 struct Attributes
@@ -48,25 +46,25 @@ Outputs PShader(Attributes input)
     float2 uvs4p = float2(input.uvs.x + uvSteps.w, input.uvs.y);
     float2 uvs4n = float2(input.uvs.x - uvSteps.w, input.uvs.y);
 
-    output.scene =  SceneSampler.Sample(Sampler, input.uvs) * weightMain;
-    output.scene += SceneSampler.Sample(Sampler, uvs1p) * weightOffset.x;
-    output.scene += SceneSampler.Sample(Sampler, uvs1n) * weightOffset.x;
-    output.scene += SceneSampler.Sample(Sampler, uvs2p) * weightOffset.y;
-    output.scene += SceneSampler.Sample(Sampler, uvs2n) * weightOffset.y;
-    output.scene += SceneSampler.Sample(Sampler, uvs3p) * weightOffset.z;
-    output.scene += SceneSampler.Sample(Sampler, uvs3n) * weightOffset.z;
-    output.scene += SceneSampler.Sample(Sampler, uvs4p) * weightOffset.w;
-    output.scene += SceneSampler.Sample(Sampler, uvs4n) * weightOffset.w;
+    output.scene =  SceneSampler.Sample(Sampler, input.uvs) * WEIGHT0;
+    output.scene += SceneSampler.Sample(Sampler, uvs1p) * WEIGHT1;
+    output.scene += SceneSampler.Sample(Sampler, uvs1n) * WEIGHT1;
+    output.scene += SceneSampler.Sample(Sampler, uvs2p) * WEIGHT2;
+    output.scene += SceneSampler.Sample(Sampler, uvs2n) * WEIGHT2;
+    output.scene += SceneSampler.Sample(Sampler, uvs3p) * WEIGHT3;
+    output.scene += SceneSampler.Sample(Sampler, uvs3n) * WEIGHT3;
+    output.scene += SceneSampler.Sample(Sampler, uvs4p) * WEIGHT4;
+    output.scene += SceneSampler.Sample(Sampler, uvs4n) * WEIGHT4;
 
-    output.effects =  EffectsSampler.Sample(Sampler, input.uvs) * weightMain;
-    output.effects += EffectsSampler.Sample(Sampler, uvs1p) * weightOffset.x;
-    output.effects += EffectsSampler.Sample(Sampler, uvs1n) * weightOffset.x;
-    output.effects += EffectsSampler.Sample(Sampler, uvs2p) * weightOffset.y;
-    output.effects += EffectsSampler.Sample(Sampler, uvs2n) * weightOffset.y;
-    output.effects += EffectsSampler.Sample(Sampler, uvs3p) * weightOffset.z;
-    output.effects += EffectsSampler.Sample(Sampler, uvs3n) * weightOffset.z;
-    output.effects += EffectsSampler.Sample(Sampler, uvs4p) * weightOffset.w;
-    output.effects += EffectsSampler.Sample(Sampler, uvs4n) * weightOffset.w;
+    output.effects =  EffectsSampler.Sample(Sampler, input.uvs) * WEIGHT0;
+    output.effects += EffectsSampler.Sample(Sampler, uvs1p) * WEIGHT1;
+    output.effects += EffectsSampler.Sample(Sampler, uvs1n) * WEIGHT1;
+    output.effects += EffectsSampler.Sample(Sampler, uvs2p) * WEIGHT2;
+    output.effects += EffectsSampler.Sample(Sampler, uvs2n) * WEIGHT2;
+    output.effects += EffectsSampler.Sample(Sampler, uvs3p) * WEIGHT3;
+    output.effects += EffectsSampler.Sample(Sampler, uvs3n) * WEIGHT3;
+    output.effects += EffectsSampler.Sample(Sampler, uvs4p) * WEIGHT4;
+    output.effects += EffectsSampler.Sample(Sampler, uvs4n) * WEIGHT4;
 
     return output;
 }

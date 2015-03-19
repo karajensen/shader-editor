@@ -525,8 +525,6 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive();
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurHorizontal->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-    blurHorizontal->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
 
     blurHorizontal->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     blurHorizontal->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
@@ -541,8 +539,6 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive();
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurVertical->SendUniformFloat("weightMain", &post.BlurWeight(0), 1);
-    blurVertical->SendUniformFloat("weightOffset", &post.BlurWeight(1), 4);
 
     blurVertical->SendTexture(0, m_data->blurTarget, BLUR_SCENE_ID);
     blurVertical->SendTexture(1, m_data->blurTarget, BLUR_EFFECTS_ID);

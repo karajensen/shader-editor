@@ -58,7 +58,6 @@ bool SceneBuilder::Initialise()
     return InitialiseTextures() &&
            InitialisePost() &&
            InitialiseLighting() &&
-           linker.Initialise(m_scene.Lights().size()) &&
            InitialiseShaders(linker) &&
            InitialiseMeshes(linker) &&
            InitialiseEmitters() && 
@@ -67,6 +66,11 @@ bool SceneBuilder::Initialise()
 
 bool SceneBuilder::InitialiseShaders(FragmentLinker& linker)
 {
+    if (!linker.Initialise(m_scene.Lights().size(), m_scene.Post()))
+    {
+        return false;
+    }
+
     bool success = true;
     assert(m_scene.Shaders().empty());
     std::vector<std::unique_ptr<Shader>> shaders(SPECIAL_SHADERS.size());
