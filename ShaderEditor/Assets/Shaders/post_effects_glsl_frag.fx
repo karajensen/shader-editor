@@ -8,10 +8,10 @@ in vec2 ex_UVs;
 out vec4 out_Color;
 
 uniform sampler2D SceneSampler;
-uniform sampler2D NormalSampler;
 uniform sampler2D EffectsSampler;
 uniform sampler2D BlurSampler;
 
+uniform float bloomIntensity;
 uniform float finalMask;
 uniform float sceneMask;
 uniform float normalMask;
@@ -36,15 +36,13 @@ uniform vec3 maximumColor;
 void main(void)
 {
     vec4 scene = texture(SceneSampler, ex_UVs);
-    vec4 normal = texture(NormalSampler, ex_UVs);
     vec4 effects = texture(EffectsSampler, ex_UVs);
     vec4 blur = texture(BlurSampler, ex_UVs);
     vec3 postScene = scene.rgb;
-    float depth = normal.a;
+    float depth = effects.a;
 
     // Ambient Occlusion
-    vec3 ambience = effects.aaa;
-    postScene.rgb *= ambience;
+    vec3 ambience = effects.rgb;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;
@@ -61,7 +59,7 @@ void main(void)
     postScene += fog;
 
     // Bloom
-    vec3 bloom = effects.rgb;
+    vec3 bloom = blur.rgb * blur.a * bloomIntensity;
     postScene += bloom;
 
     // Colour Correction
@@ -78,8 +76,8 @@ void main(void)
     // Masking the selected texture
     out_Color.rgb = postScene * finalMask;
     out_Color.rgb += scene.rgb * sceneMask;
-    out_Color.rgb += normal.rgb * normalMask;
-    out_Color.rgb += normal.aaa * depthMask;
+    out_Color.rgb += effects.rgb * normalMask;
+    out_Color.rgb += effects.aaa * depthMask;
     out_Color.rgb += blur.rgb * blurSceneMask;
     out_Color.rgb += depthOfField * depthOfFieldMask;
     out_Color.rgb += fog * fogMask;

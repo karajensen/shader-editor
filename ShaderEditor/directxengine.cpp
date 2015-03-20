@@ -554,7 +554,8 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive(m_data->context);
-    preShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
+    
+    preShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
     preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
     preShader->SendConstants(m_data->context);
@@ -615,10 +616,10 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->backBuffer.SetActive(m_data->context);
 
     m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 1, NORMAL_ID);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 2, EFFECTS_ID);
-    m_data->blurTarget.SendTexture(m_data->context, 3, BLUR_ID);
+    m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
+    m_data->blurTarget.SendTexture(m_data->context, 2);
 
+    postShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->UpdateConstantFloat("contrast", &post.Contrast(), 1);
     postShader->UpdateConstantFloat("saturation", &post.Saturation(), 1);
@@ -645,8 +646,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
     m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
-    m_data->preEffectsTarget.RemoveTexture(m_data->context, 2);
-    m_data->blurTarget.RemoveTexture(m_data->context, 3);
+    m_data->blurTarget.RemoveTexture(m_data->context, 2);
 }
 
 void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)

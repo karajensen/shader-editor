@@ -8,7 +8,7 @@ in vec2 ex_UVs;
 
 out vec4 out_Color[EFFECTS_TEXTURES];
 
-uniform float bloomIntensity;
+uniform float normalMask;
 uniform float bloomStart;
 uniform float bloomFade;
 
@@ -25,18 +25,20 @@ void main(void)
         scene += texelFetch(SceneSampler, uvs, i);
     }
     scene *= (1.0 / SAMPLES);
-
     out_Color[ID_COLOUR] = scene;
-    out_Color[ID_NORMAL] = texelFetch(NormalSampler, uvs, 0);
 
     // Create the Bloom
     // map range from end->start to 0->1
     vec3 bloom = vec3(bloomStart, bloomStart - bloomFade, 1.0);
-    out_Color[ID_EFFECTS].rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
-    out_Color[ID_EFFECTS].rgb = clamp(out_Color[ID_EFFECTS].rgb, 0.0, 1.0);
-    out_Color[ID_EFFECTS].rgb *= bloomIntensity;
+    bloom = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
+    bloom = clamp(bloom, 0.0, 1.0);
+    out_Color[ID_COLOUR].a = max(bloom.r, max(bloom.b, bloom.g));
 
     // Ambient Occlusion
+    vec4 normals = texelFetch(NormalSampler, uvs, 0);
     vec4 random = texture(RandomSampler, ex_UVs * vec2(RANDOM_UVS));
-    out_Color[ID_EFFECTS].a = 1.0;
+
+    out_Color[ID_EFFECTS].rgb = random.rgb * (1.0 - normalMask);
+    out_Color[ID_EFFECTS].rgb += normals.rgb * normalMask;
+    out_Color[ID_EFFECTS].a = normals.a;
 }

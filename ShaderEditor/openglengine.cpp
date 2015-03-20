@@ -497,7 +497,8 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
 
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive();
-    preShader->SendUniformFloat("bloomIntensity", &post.BloomIntensity(), 1);
+
+    preShader->SendUniformFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->SendUniformFloat("bloomStart", &post.BloomStart(), 1);
     preShader->SendUniformFloat("bloomFade", &post.BloomFade(), 1);
 
@@ -559,6 +560,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SetActive();
     m_data->backBuffer.SetActive();
 
+    postShader->SendUniformFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
     postShader->SendUniformFloat("contrast", &post.Contrast(), 1);
     postShader->SendUniformFloat("saturation", &post.Saturation(), 1);
@@ -581,9 +583,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("ambienceMask", &post.Mask(PostProcessing::AMBIENCE_MAP), 1);
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
-    postShader->SendTexture(1, m_data->preEffectsTarget, NORMAL_ID);
-    postShader->SendTexture(2, m_data->preEffectsTarget, EFFECTS_ID);
-    postShader->SendTexture(3, m_data->blurTarget, BLUR_ID);
+    postShader->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
+    postShader->SendTexture(2, m_data->blurTarget);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -591,8 +592,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->ClearTexture(0, m_data->preEffectsTarget);
     postShader->ClearTexture(1, m_data->preEffectsTarget);
-    postShader->ClearTexture(2, m_data->preEffectsTarget);
-    postShader->ClearTexture(3, m_data->blurTarget);
+    postShader->ClearTexture(2, m_data->blurTarget);
 }
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)

@@ -4,7 +4,7 @@
 
 cbuffer ScenePixelBuffer : register(b0)
 {
-    float bloomIntensity;
+    float normalMask;
     float bloomStart;
     float bloomFade;
 };
@@ -18,8 +18,7 @@ struct Attributes
 struct Outputs
 {
     float4 scene   : SV_TARGET0;
-    float4 normal  : SV_TARGET1;
-    float4 effects : SV_TARGET2;
+    float4 effects : SV_TARGET1;
 };
 
 SamplerState Sampler;
@@ -48,18 +47,21 @@ Outputs PShader(Attributes input)
 
     Outputs output;
     output.scene = scene;
-    output.normal = NormalSampler.Load(uvs, 0);
 
     // Create the Bloom
     // map range from end->start to 0->1
     float3 bloom = float3(bloomStart, bloomStart - bloomFade, 1.0);
-    output.effects.rgb = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
-    output.effects.rgb = saturate(output.effects.rgb);
-    output.effects.rgb *= bloomIntensity;
+    bloom = (scene.rgb-bloom.ggg)*(bloom.bbb/(bloom.rrr-bloom.ggg));
+    bloom = saturate(bloom);
+    output.scene.a = max(bloom.r, max(bloom.b, bloom.g));
 
     // Ambient Occlusion
+    float4 normals = NormalSampler.Load(uvs, 0);
     float4 random = RandomSampler.Sample(Sampler, input.uvs * float2(RANDOM_UVS));
-    output.effects.a = 1.0;
+
+    output.effects.rgb = random.rgb * (1.0 - normalMask);
+    output.effects.rgb += normals.rgb * normalMask;
+    output.effects.a = normals.a;
 
     return output;
 }

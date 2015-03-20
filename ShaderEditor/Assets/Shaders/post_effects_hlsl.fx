@@ -14,6 +14,7 @@ cbuffer PixelBuffer : register(b0)
     float bloomMask;
     float ambienceMask;
 
+    float bloomIntensity;
     float contrast;
     float saturation;
     float fadeAmount;
@@ -39,9 +40,8 @@ struct Outputs
 
 SamplerState Sampler;
 Texture2D SceneSampler   : register(t0);
-Texture2D NormalSampler  : register(t1);
-Texture2D EffectsSampler : register(t2);
-Texture2D BlurSampler    : register(t3);
+Texture2D EffectsSampler : register(t1);
+Texture2D BlurSampler    : register(t2);
 
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
@@ -55,15 +55,13 @@ Attributes VShader(float4 position  : POSITION,
 Outputs PShader(Attributes input)
 {
     float4 scene = SceneSampler.Sample(Sampler, input.uvs);
-    float4 normal = NormalSampler.Sample(Sampler, input.uvs);
     float4 effects = EffectsSampler.Sample(Sampler, input.uvs);
     float4 blur = BlurSampler.Sample(Sampler, input.uvs);
     float3 postScene = scene.rgb;
-    float depth = normal.a;
+    float depth = effects.a;
 
     // Ambient Occlusion
-    float3 ambience = effects.aaa;
-    postScene.rgb *= ambience;
+    float3 ambience = effects.rgb;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;
@@ -80,7 +78,7 @@ Outputs PShader(Attributes input)
     postScene += fog;
 
     // Bloom
-    float3 bloom = effects.rgb;
+    float3 bloom = blur.rgb * blur.a * bloomIntensity;
     postScene += bloom;
 
     // Colour Correction
@@ -98,8 +96,8 @@ Outputs PShader(Attributes input)
     Outputs output;
     output.colour.rgb = postScene * finalMask;
     output.colour.rgb += scene.rgb * sceneMask;
-    output.colour.rgb += normal.rgb * normalMask;
-    output.colour.rgb += normal.aaa * depthMask;
+    output.colour.rgb += effects.rgb * normalMask;
+    output.colour.rgb += effects.aaa * depthMask;
     output.colour.rgb += blur.rgb * blurSceneMask;
     output.colour.rgb += depthOfField * depthOfFieldMask;
     output.colour.rgb += fog * fogMask;
