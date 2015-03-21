@@ -46,9 +46,10 @@ public:
     void RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed);
 
     /**
-    * @return Whether the mouse has affected the camera this tick
+    * @return Whether the application has moved the camera this tick
+    * @note used by the gui to deterimine if it should update
     */
-    bool HasMouseRotatedCamera() const;
+    bool HasCameraMoved() const;
 
     /**
     * Sets the given component of the camera
@@ -61,6 +62,21 @@ public:
     * @return the component of the camera
     */
     float GetCamera(Component component) const;
+
+    /**
+    * Translates the camera on its forward vector
+    */
+    void Forward(float value);
+
+    /**
+    * Translates the camera on its up vector
+    */
+    void Up(float value);
+
+    /**
+    * Translates the camera on its right vector
+    */
+    void Right(float value);
 
     /**
     * @return the camera world matrix
@@ -80,5 +96,5 @@ private:
     Float3 m_target;                    ///< Camera Look target
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
-    bool m_mouseRotatedCamera = false;  ///< Whether the mouse has updated the camera this tick
+    bool m_hasCameraMoved = false;      ///< Whether the application has updated the camera this tick
 };

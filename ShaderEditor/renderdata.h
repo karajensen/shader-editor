@@ -38,10 +38,11 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 
 /**
 * Number of textures attached to the render targets
-* Render Pipeline involves:
-* SCENE_TEXTURES: scene (rgb) / normals (rgb) / depth (a)
-* EFFECTS_TEXTURES: scene (rgb) / normals or ambience (rgb) / depth (a)
-* BLUR_TEXTURES: scene (rgb)
+* Scene Target 0: scene (rgb)
+* Scene Target 1: normals (rgb) / depth (a)
+* Effects Target 0: scene (rgb) / bloom (a)
+* Effects Target 1: normals or ambience (rgb) / depth (a)
+* Blur Target 0: scene (rgb) / bloom (a)
 */
 const int EFFECTS_TEXTURES = 2;
 const int SCENE_TEXTURES = 2;

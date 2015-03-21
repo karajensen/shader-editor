@@ -136,7 +136,7 @@ void SceneModifier::UpdateScene()
 
 void SceneModifier::UpdateCamera()
 {
-    if (m_camera.HasMouseRotatedCamera())
+    if (m_camera.HasCameraMoved())
     {
         m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.GetCamera(Camera::POSITION_X));
         m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.GetCamera(Camera::POSITION_Y));

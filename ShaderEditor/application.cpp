@@ -19,9 +19,8 @@
 
 namespace
 {
-    const float CAMERA_MOVE_SPEED = 75.0f; ///< Speed the camera will translate
+    const float CAMERA_MOVE_SPEED = 45.0f; ///< Speed the camera will translate
     const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
-    const float CAMERA_SIDE_SPEED = 50.0f; ///< Speed the camera will strafe
     const float FADE_AMOUNT = 0.02f;       ///< Speed to fade the engine in/out
 }
 
@@ -59,6 +58,7 @@ void Application::Run()
         else
         {
             m_timer->UpdateTimer();
+            HandleKeyDown();
             TickApplication();
         }
     }
@@ -79,6 +79,41 @@ void Application::HandleKeyPress(const WPARAM& keypress)
             index = 0;
         }
         ForceRenderEngine(index);
+    }
+}
+
+void Application::HandleKeyDown()
+{
+    const float deltaTime = m_timer->GetDeltaTime();
+
+    if(IsKeyDown(VK_MENU))
+    {
+        m_camera->RotateCamera(m_mouseDirection, 
+            m_mousePressed, deltaTime * CAMERA_ROT_SPEED);
+    }
+    if (IsKeyDown('W'))
+    {
+        m_camera->Forward(-deltaTime * CAMERA_MOVE_SPEED);
+    }
+    if (IsKeyDown('S'))
+    {
+        m_camera->Forward(deltaTime * CAMERA_MOVE_SPEED);
+    }
+    if (IsKeyDown('A'))
+    {
+        m_camera->Right(deltaTime * CAMERA_MOVE_SPEED);
+    }
+    if (IsKeyDown('D'))
+    {
+        m_camera->Right(-deltaTime * CAMERA_MOVE_SPEED);
+    }
+    if (IsKeyDown('Q'))
+    {
+        m_camera->Up(deltaTime * CAMERA_MOVE_SPEED);
+    }
+    if (IsKeyDown('E'))
+    {
+        m_camera->Up(-deltaTime * CAMERA_MOVE_SPEED);
     }
 }
 
@@ -127,13 +162,6 @@ void Application::HandleMouseMovement(const MSG& msg)
     {
         m_mouseDirection.x /= length;
         m_mouseDirection.y /= length;
-    }
-
-    // Adjust camera according to the movement
-    if(IsKeyDown(VK_MENU))
-    {
-        m_camera->RotateCamera(m_mouseDirection, m_mousePressed,
-            m_timer->GetDeltaTime()*CAMERA_ROT_SPEED);
     }
 
     m_mousePosition.x = x;

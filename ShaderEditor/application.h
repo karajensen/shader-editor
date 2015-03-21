@@ -87,6 +87,11 @@ private:
     void HandleKeyPress(const WPARAM& keypress);
 
     /**
+    * Handles any keys that are currently down
+    */
+    void HandleKeyDown();
+
+    /**
     * Determines the direction and position of movement for the mouse
     * @param msg The windows event message
     */

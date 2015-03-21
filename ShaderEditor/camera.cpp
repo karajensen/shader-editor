@@ -4,9 +4,32 @@
 
 #include "Camera.h"
 
-Camera::Camera()
+Camera::Camera() :
+    m_initialPos(15.0f, 1.0f, 3.0f),
+    m_rotation(0.0f, DegToRad(-75.0f), 0.0f)
 {
     Reset();
+}
+
+void Camera::Forward(float value)
+{
+    m_cameraNeedsUpdate = true;
+    m_hasCameraMoved = true;
+    m_position += m_world.Forward() * value;
+}
+
+void Camera::Up(float value)
+{
+    m_cameraNeedsUpdate = true;
+    m_hasCameraMoved = true;
+    m_position += m_world.Up() * value;
+}
+
+void Camera::Right(float value)
+{
+    m_cameraNeedsUpdate = true;
+    m_hasCameraMoved = true;
+    m_position += m_world.Right() * value;
 }
 
 void Camera::SetCamera(Component component, float value)
@@ -55,9 +78,9 @@ float Camera::GetCamera(Component component) const
     return 0.0f;
 }
 
-bool Camera::HasMouseRotatedCamera() const
+bool Camera::HasCameraMoved() const
 {
-    return m_mouseRotatedCamera;
+    return m_hasCameraMoved;
 }
 
 void Camera::RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed)
@@ -68,33 +91,29 @@ void Camera::RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed)
         {
             m_rotation.y += mouseDir.x < 0.0f ? speed : -speed;
             m_cameraNeedsUpdate = true;
-            m_mouseRotatedCamera = true;
+            m_hasCameraMoved = true;
         }
 
         if(mouseDir.y != 0.0f)
         {
             m_rotation.x += mouseDir.y < 0.0f ? speed : -speed;
             m_cameraNeedsUpdate = true;
-            m_mouseRotatedCamera = true;
+            m_hasCameraMoved = true;
         }
     }
 }
 
 void Camera::Reset()
 {
-    m_mouseRotatedCamera = false;
+    m_hasCameraMoved = false;
     m_cameraNeedsUpdate = true;
-    m_initialPos.x = 15.0f;
-    m_initialPos.y = 1.0f;
-    m_initialPos.z = 3.0f;
     m_position = m_initialPos;
-    m_rotation.y = 5.0f; 
 }
 
 void Camera::Update()
 {
     m_cameraNeedsUpdate = false;
-    m_mouseRotatedCamera = false;
+    m_hasCameraMoved = false;
 
     m_world.MakeIdentity();
     m_world.SetPosition(m_position);
