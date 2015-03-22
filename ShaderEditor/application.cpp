@@ -218,9 +218,9 @@ void Application::TickApplication()
 
     m_scene->Tick(m_timer->GetDeltaTime());
 
-    FadeRenderEngine();
-
     engine.Render(*m_scene, m_timer->GetTotalTime());
+
+    FadeRenderEngine();
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;

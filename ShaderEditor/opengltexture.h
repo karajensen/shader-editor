@@ -53,6 +53,12 @@ public:
 private:
 
     /**
+    * Creates the mipmaps for the texture
+    * @return whether creation was successful
+    */
+    bool CreateMipMaps();
+
+    /**
     * Sets the filtering for the texture
     */
     void SetFiltering();

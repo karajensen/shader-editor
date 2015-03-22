@@ -45,13 +45,7 @@ bool GlTexture::Initialise()
         InitialiseFromFile();
     }
 
-    if(HasCallFailed())
-    {
-        Logger::LogError("OpenGL: Failed " + m_texture.Path() + " texture");
-        return false;
-    }
-
-    return true;
+    return CreateMipMaps() && !HasCallFailed();
 }
 
 void GlTexture::InitialiseCubeMap()
@@ -81,29 +75,8 @@ void GlTexture::InitialiseFromPixels()
         Logger::LogError("OpenGL: Failed to load " + m_texture.Name());
     }
 
-    SetFiltering();
-
-    if(HasCallFailed())
-    {
-        Logger::LogError("OpenGL: Failed to set filtering for " + m_texture.Name());
-    }
-
     ReloadPixels();
-}
-
-void GlTexture::SetFiltering()
-{
-    auto type = IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
-    auto filtering = m_texture.Filtering() == Texture::NEAREST ? GL_NEAREST : GL_LINEAR;
-
-    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, filtering);
-    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, filtering);
-
-    if (m_texture.Filtering() == Texture::ANISOTROPIC)
-    {
-        glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
-            static_cast<float>(MAX_ANISOTROPY));
-    }
+    SetFiltering();
 }
 
 void GlTexture::LoadTexture(GLenum type, const std::string& path)
@@ -124,11 +97,46 @@ void GlTexture::LoadTexture(GLenum type, const std::string& path)
     }
 
     SetFiltering();
+}
+
+void GlTexture::SetFiltering()
+{
+    const auto type = IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+
+    const auto filter = m_texture.Filtering();
+    const auto magFilter = filter == Texture::NEAREST ? GL_NEAREST : GL_LINEAR;
+    const auto minFilter = filter == Texture::NEAREST ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
+
+    glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
+
+    if (filter == Texture::ANISOTROPIC)
+    {
+        glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
+            static_cast<float>(MAX_ANISOTROPY));
+    }
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed to set filtering for " + path + " texture");
+        Logger::LogError("OpenGL: Failed filtering for " + m_texture.Name());
     }
+}
+
+bool GlTexture::CreateMipMaps()
+{
+    if (m_texture.Filtering() != Texture::NEAREST)
+    {
+        glGenerateMipmap(IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+        if(HasCallFailed())
+        {
+            Logger::LogError("OpenGL: Mipmap creation failed for " + m_texture.Name());
+            return false;
+        }
+    }
+    return true;
 }
 
 GLuint GlTexture::GetID() const

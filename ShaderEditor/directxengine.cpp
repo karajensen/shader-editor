@@ -352,7 +352,7 @@ bool DirectxEngine::InitialiseSamplerStates()
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
-    samplerDesc.MaxAnisotropy = MAX_ANISOTROPY;
+    samplerDesc.MaxAnisotropy = 1.0f;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     samplerDesc.BorderColor[0] = 0;
     samplerDesc.BorderColor[1] = 0;
@@ -894,7 +894,7 @@ bool DirectxEngine::SendTexture(int slot, int ID)
         switch (texture->Filtering())
         {
         case Texture::LINEAR:
-            state = NEAREST;
+            state = LINEAR;
             break;
         case Texture::ANISOTROPIC:
             state = ANISOTROPIC;

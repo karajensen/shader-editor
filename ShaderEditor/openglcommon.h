@@ -30,6 +30,9 @@ inline bool HasCallFailed()
     {
     case GL_NO_ERROR:
         return false;
+    case GL_INVALID_ENUM:
+        Logger::LogError("OpenGL: Invalid Enum");
+        return true;
     case GL_INVALID_VALUE:
         Logger::LogError("OpenGL: Invalid Value");
         return true;
