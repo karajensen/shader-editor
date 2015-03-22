@@ -39,11 +39,10 @@ public:
 
     /**
     * Generates rotation for the camera around the camera position
-    * @param isMouseDown Whether the mouse is pressed or not
     * @param mouseDir The direction the mouse has moved
     * @param speed The speed for the movement (negative for reverse)
     */
-    void RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed);
+    void Rotate(const Float2& mouseDir, float speed);
 
     /**
     * @return Whether the application has moved the camera this tick

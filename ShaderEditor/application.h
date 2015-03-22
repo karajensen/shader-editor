@@ -26,9 +26,8 @@ public:
 
     /**
     * Constructor
-    * @param cache Shared data between the gui and application
     */
-    Application(std::shared_ptr<Cache> cache);
+    Application();
 
     /**
     * Destructor
@@ -44,9 +43,12 @@ public:
     * Initialise the world
     * @param hwnd The handle to the window
     * @param hinstance Handle to the current instance of the application
+    * @param cache Shared data between the gui and application
     * @return whether or not initialisation succeeded
     */
-    bool Initialise(HWND hwnd, HINSTANCE hinstance);
+    bool Initialise(HWND hwnd,
+                    HINSTANCE hinstance, 
+                    std::shared_ptr<Cache> cache);
 
 private: 
 
@@ -108,12 +110,12 @@ private:
     * @param engine the Engine to intialise
     * @return whether initialisation succeeded
     */
-    bool InitialiseEngine(RenderEngine* engine);
+    bool InitialiseEngine(RenderEngine& engine);
 
     /**
     * @return the currently selected render engine
     */
-    RenderEngine* GetEngine() const;
+    RenderEngine& GetEngine() const;
 
     /**
     * State for fading in/out the selected engine

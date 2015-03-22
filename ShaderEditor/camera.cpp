@@ -4,6 +4,12 @@
 
 #include "Camera.h"
 
+namespace
+{
+    const float MOVE_SPEED = 45.0f; ///< Speed the camera will translate
+    const float ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
+}
+
 Camera::Camera() :
     m_initialPos(15.0f, 1.0f, 3.0f),
     m_rotation(0.0f, DegToRad(-75.0f), 0.0f)
@@ -15,21 +21,21 @@ void Camera::Forward(float value)
 {
     m_cameraNeedsUpdate = true;
     m_hasCameraMoved = true;
-    m_position += m_world.Forward() * value;
+    m_position += m_world.Forward() * value * MOVE_SPEED;
 }
 
 void Camera::Up(float value)
 {
     m_cameraNeedsUpdate = true;
     m_hasCameraMoved = true;
-    m_position += m_world.Up() * value;
+    m_position += m_world.Up() * value * MOVE_SPEED;
 }
 
 void Camera::Right(float value)
 {
     m_cameraNeedsUpdate = true;
     m_hasCameraMoved = true;
-    m_position += m_world.Right() * value;
+    m_position += m_world.Right() * value * MOVE_SPEED;
 }
 
 void Camera::SetCamera(Component component, float value)
@@ -83,29 +89,28 @@ bool Camera::HasCameraMoved() const
     return m_hasCameraMoved;
 }
 
-void Camera::RotateCamera(const Float2& mouseDir, bool isMouseDown, float speed)
+void Camera::Rotate(const Float2& mouseDir, float speed)
 {
-    if(isMouseDown)
-    {
-        if(mouseDir.x != 0.0f)
-        {
-            m_rotation.y += mouseDir.x < 0.0f ? speed : -speed;
-            m_cameraNeedsUpdate = true;
-            m_hasCameraMoved = true;
-        }
+    speed *= ROT_SPEED;
 
-        if(mouseDir.y != 0.0f)
-        {
-            m_rotation.x += mouseDir.y < 0.0f ? speed : -speed;
-            m_cameraNeedsUpdate = true;
-            m_hasCameraMoved = true;
-        }
+    if(mouseDir.x != 0.0f)
+    {
+        m_rotation.y += mouseDir.x < 0.0f ? speed : -speed;
+        m_cameraNeedsUpdate = true;
+        m_hasCameraMoved = true;
+    }
+
+    if(mouseDir.y != 0.0f)
+    {
+        m_rotation.x += mouseDir.y < 0.0f ? speed : -speed;
+        m_cameraNeedsUpdate = true;
+        m_hasCameraMoved = true;
     }
 }
 
 void Camera::Reset()
 {
-    m_hasCameraMoved = false;
+    m_hasCameraMoved = true;
     m_cameraNeedsUpdate = true;
     m_position = m_initialPos;
 }

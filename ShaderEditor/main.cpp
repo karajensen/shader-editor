@@ -71,10 +71,10 @@ int main(int argc, char *argv[])
     HINSTANCE hInstance;
     InitializeWindow(&hInstance, &hWnd);
 
-    std::shared_ptr<Cache> cache(new Cache());
-    std::unique_ptr<Application> game(new Application(cache));
+    auto cache = std::make_shared<Cache>();
+    auto game = std::make_unique<Application>();
 
-    if(game->Initialise(hWnd, hInstance))
+    if(game->Initialise(hWnd, hInstance, cache))
     {
         std::thread thread(&qtmain, argc, argv, cache);
     

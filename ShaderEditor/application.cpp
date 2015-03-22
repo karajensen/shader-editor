@@ -13,27 +13,19 @@
 #include "sceneModifier.h"
 #include <windowsx.h>
 
-#define SELECTED_ENGINE DIRECTX
-//#define SELECTED_ENGINE OPENGL
+//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE OPENGL
 #define SELECTED_MAP PostProcessing::SCENE_MAP
 
-namespace
+Application::Application() :
+    m_selectedEngine(SELECTED_ENGINE),
+    m_camera(std::make_unique<Camera>()),
+    m_timer(std::make_unique<Timer>()),
+    m_scene(std::make_unique<Scene>())
 {
-    const float CAMERA_MOVE_SPEED = 45.0f; ///< Speed the camera will translate
-    const float CAMERA_ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
-    const float FADE_AMOUNT = 0.02f;       ///< Speed to fade the engine in/out
 }
 
 Application::~Application() = default;
-
-Application::Application(std::shared_ptr<Cache> cache) :
-    m_selectedEngine(SELECTED_ENGINE),
-    m_camera(new Camera()),
-    m_timer(new Timer()),
-    m_scene(new Scene()),
-    m_modifier(new SceneModifier(*m_scene, *m_timer, *m_camera, cache, SELECTED_MAP))
-{
-}
 
 void Application::Run()
 {
@@ -80,40 +72,79 @@ void Application::HandleKeyPress(const WPARAM& keypress)
         }
         ForceRenderEngine(index);
     }
+    else if (keypress == '1')
+    {
+        m_scene->SetPostMap(PostProcessing::FINAL_MAP);
+    }
+    else if (keypress == '2')
+    {
+        m_scene->SetPostMap(PostProcessing::SCENE_MAP);
+    }
+    else if (keypress == '3')
+    {
+        m_scene->SetPostMap(PostProcessing::NORMAL_MAP);
+    }
+    else if (keypress == '4')
+    {
+        m_scene->SetPostMap(PostProcessing::DEPTH_MAP);
+    }
+    else if (keypress == '5')
+    {
+        m_scene->SetPostMap(PostProcessing::BLUR_MAP);
+    }
+    else if (keypress == '6')
+    {
+        m_scene->SetPostMap(PostProcessing::BLOOM_MAP);
+    }
+    else if (keypress == '7')
+    {
+        m_scene->SetPostMap(PostProcessing::AMBIENCE_MAP);
+    }
+    else if (keypress == '8')
+    {
+        m_scene->SetPostMap(PostProcessing::FOG_MAP);
+    }
+    else if (keypress == '9')
+    {
+        m_scene->SetPostMap(PostProcessing::DOF_MAP);
+    }
+    else if (keypress == '0')
+    {
+        GetEngine().ToggleWireframe();
+    }
 }
 
 void Application::HandleKeyDown()
 {
     const float deltaTime = m_timer->GetDeltaTime();
 
-    if(IsKeyDown(VK_MENU))
+    if(m_mousePressed)
     {
-        m_camera->RotateCamera(m_mouseDirection, 
-            m_mousePressed, deltaTime * CAMERA_ROT_SPEED);
+        m_camera->Rotate(m_mouseDirection, deltaTime);
     }
     if (IsKeyDown('W'))
     {
-        m_camera->Forward(-deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Forward(-deltaTime);
     }
     if (IsKeyDown('S'))
     {
-        m_camera->Forward(deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Forward(deltaTime);
     }
     if (IsKeyDown('A'))
     {
-        m_camera->Right(deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Right(deltaTime);
     }
     if (IsKeyDown('D'))
     {
-        m_camera->Right(-deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Right(-deltaTime);
     }
     if (IsKeyDown('Q'))
     {
-        m_camera->Up(deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Up(deltaTime);
     }
     if (IsKeyDown('E'))
     {
-        m_camera->Up(-deltaTime * CAMERA_MOVE_SPEED);
+        m_camera->Up(-deltaTime);
     }
 }
 
@@ -170,7 +201,9 @@ void Application::HandleMouseMovement(const MSG& msg)
 
 void Application::TickApplication()
 {
-    m_modifier->Tick(*GetEngine());
+    auto& engine = GetEngine();
+
+    m_modifier->Tick(engine);
 
     if (m_modifier->RequiresReload())
     {
@@ -180,21 +213,26 @@ void Application::TickApplication()
     if(m_camera->RequiresUpdate())
     {
         m_camera->Update();
-        GetEngine()->UpdateView(m_camera->GetWorld());
+        engine.UpdateView(m_camera->GetWorld());
     }
 
     m_scene->Tick(m_timer->GetDeltaTime());
 
     FadeRenderEngine();
 
-    GetEngine()->Render(*m_scene, m_timer->GetTotalTime());
+    engine.Render(*m_scene, m_timer->GetTotalTime());
 
     m_mouseDirection.x = 0;
     m_mouseDirection.y = 0;
 }
 
-bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
+bool Application::Initialise(HWND hwnd, 
+                             HINSTANCE hinstance, 
+                             std::shared_ptr<Cache> cache)
 {    
+    m_modifier = std::make_unique<SceneModifier>(
+        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP);
+
     if(!m_scene->Initialise())
     {
         Logger::LogError("Scene: Failed to initialise");
@@ -213,7 +251,7 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
         engineNames.push_back(m_engines[i]->GetName());
         if(i != m_selectedEngine)
         {
-            failed |= !InitialiseEngine(m_engines[i].get());
+            failed |= !InitialiseEngine(*m_engines[i]);
             m_engines[i]->Release();
         }
     }
@@ -230,22 +268,22 @@ bool Application::Initialise(HWND hwnd, HINSTANCE hinstance)
     return true;
 }
 
-RenderEngine* Application::GetEngine() const
+RenderEngine& Application::GetEngine() const
 {
-    return m_engines[m_selectedEngine].get();
+    return *m_engines[m_selectedEngine];
 }
 
-bool Application::InitialiseEngine(RenderEngine* engine)
+bool Application::InitialiseEngine(RenderEngine& engine)
 {
-    if(!engine->Initialize())
+    if(!engine.Initialize())
     {
-        Logger::LogError(engine->GetName() + ": Failed to initialise");
+        Logger::LogError(engine.GetName() + ": Failed to initialise");
         return false;
     }
 
-    if(!engine->InitialiseScene(*m_scene))
+    if(!engine.InitialiseScene(*m_scene))
     {
-        Logger::LogError(engine->GetName() + ": Scene failed to initialise");
+        Logger::LogError(engine.GetName() + ": Scene failed to initialise");
         return false;
     }
 
@@ -255,13 +293,15 @@ bool Application::InitialiseEngine(RenderEngine* engine)
 void Application::FadeRenderEngine()
 {
     const int selectedEngine = m_modifier->GetSelectedEngine();
+    const float fadeAmount = 0.02f;
+
     if (selectedEngine != m_selectedEngine)
     {
         m_fadeState = FADE_OUT;
     }
 
     if(m_fadeState != NO_FADE &&
-       GetEngine()->FadeView(m_fadeState == FADE_IN, FADE_AMOUNT))
+       GetEngine().FadeView(m_fadeState == FADE_IN, fadeAmount))
     {
         if(m_fadeState == FADE_OUT)
         {
@@ -279,14 +319,15 @@ void Application::SwitchRenderEngine(int index)
 {
     m_engines[m_selectedEngine]->Release();
     m_selectedEngine = index;
+    auto& engine = GetEngine();
 
-    if (!GetEngine()->Initialize() || !GetEngine()->ReInitialiseScene())
+    if (!engine.Initialize() || !engine.ReInitialiseScene())
     {
-        Logger::LogError(GetEngine()->GetName() + ": Failed to reinitialise");
+        Logger::LogError(engine.GetName() + ": Failed to reinitialise");
     }
 
-    GetEngine()->UpdateView(m_camera->GetWorld());
-    GetEngine()->SetFade(0.0f);
+    engine.UpdateView(m_camera->GetWorld());
+    engine.SetFade(0.0f);
 }
 
 void Application::ForceRenderEngine(int index)
