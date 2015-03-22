@@ -136,6 +136,12 @@ private:
     bool InitialiseDrawStates();
 
     /**
+    * Initialises the texture sampler states
+    * @return whether initialisation was successful
+    */
+    bool InitialiseSamplerStates();
+
+    /**
     * Initialises the blending states
     * @return whether initialisation was successful
     */

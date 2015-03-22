@@ -50,6 +50,7 @@ const int BLUR_TEXTURES = 1;
 const int SCENE_ID = 0;
 const int NORMAL_ID = 1;
 const int EFFECTS_ID = 1;
+const int BLUR_ID = 0;
 
 /**
 * Available render engines

@@ -98,6 +98,26 @@ public:
     */
     const std::string& GetName() const;
 
+    /**
+    * Sends a texture to the shader
+    * @param context Direct3D device context
+    * @param slot The slot to put the texture in
+    * @param view The texture shader view to send
+    * @param state The sampler state to use
+    */
+    void SendTexture(ID3D11DeviceContext* context, 
+                     int slot, 
+                     ID3D11ShaderResourceView** view,
+                     ID3D11SamplerState** state);
+
+    /**
+    * Clears a texture from the shader
+    * @param context Direct3D device context
+    * @param slot The slot to put the texture in
+    */
+    void ClearTexture(ID3D11DeviceContext* context, 
+                      int slot);
+
 private:
 
     /**
@@ -164,13 +184,6 @@ private:
     * @return how many components 
     */
     int GetAttributeCompononts(D3D11_SIGNATURE_PARAMETER_DESC& description) const;
-
-    /**
-    * Creates the state of the sampler
-    * @param device The DirectX device interface
-    * @return Error message if failed or empty if succeeded
-    */
-    std::string CreateSamplerState(ID3D11Device* device);
 
     /**
     * Generates the constant buffer which holds all non-attribute uniforms
@@ -247,7 +260,6 @@ private:
     ID3D11ShaderReflection* m_psReflection = nullptr; ///< Interface for obtaining pixel shader details
     ID3D10Blob* m_vsBlob = nullptr;                   ///< Vertex shader data
     ID3D10Blob* m_psBlob = nullptr;                   ///< Pixel shader data
-    ID3D11SamplerState* m_samplerState = nullptr;     ///< Texture Sampler state
     int m_textureSlots = 0;                           ///< Number of textures allowed for this mesh
 
     std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader

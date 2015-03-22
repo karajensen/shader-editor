@@ -255,20 +255,14 @@ void DxRenderTarget::ClearTarget(ID3D11DeviceContext* context)
     }
 }
 
-void DxRenderTarget::SendCopiedTexture(ID3D11DeviceContext* context, int slot, int ID)
+ID3D11ShaderResourceView** DxRenderTarget::Get(int ID)
 {
-    context->PSSetShaderResources(slot, 1, &m_copiedViews[ID]);
+    return &(m_views[ID]);
 }
 
-void DxRenderTarget::SendTexture(ID3D11DeviceContext* context, int slot, int ID)
+ID3D11ShaderResourceView** DxRenderTarget::GetCopied(int ID)
 {
-    context->PSSetShaderResources(slot, 1, &m_views[ID]);
-}
-
-void DxRenderTarget::RemoveTexture(ID3D11DeviceContext* context, int slot)
-{
-    ID3D11ShaderResourceView* nullView = nullptr;
-    context->PSSetShaderResources(slot, 1, &nullView);
+    return &(m_copiedViews[ID]);
 }
 
 void DxRenderTarget::CopyTextures(ID3D11DeviceContext* context)

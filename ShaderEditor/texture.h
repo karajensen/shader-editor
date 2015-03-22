@@ -29,11 +29,22 @@ public:
     };
 
     /**
+    * Type of filtering for this texture
+    */
+    enum Filter
+    {
+        NEAREST,
+        LINEAR,
+        ANISOTROPIC
+    };
+
+    /**
     * Constructor
     * @param name The filename of the texture
     * @param path The full path to the texture
+    * @param filter The filtering to use
     */
-    Texture(const std::string& name, const std::string& path);
+    Texture(const std::string& name, const std::string& path, Filter filter);
 
     /**
     * Destructor
@@ -44,6 +55,16 @@ public:
     * @return whether this texture is a cube map
     */
     bool IsCubeMap() const;
+
+    /**
+    * @return whether this texture is a cube map
+    */
+    static bool IsCubeMap(const std::string& path);
+
+    /**
+    * @return the type of filtering used
+    */
+    Filter Filtering() const;
 
     /**
     * @return the filename of the texture
@@ -86,6 +107,7 @@ public:
 
 private:
 
+    Filter m_filter;    ///< The type of filtering to use
     std::string m_name; ///< Name of the texture
     std::string m_path; ///< Path to the texture
 };

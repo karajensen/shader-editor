@@ -85,7 +85,7 @@ void Scene::Add(std::unique_ptr<AnimatedTexture> caustics)
     for (const std::string& path : m_data->caustics->Paths())
     {
         m_data->caustics->AddFrame(static_cast<int>(m_data->textures.size()));
-        m_data->textures.push_back(std::make_unique<Texture>(path, path));
+        m_data->textures.push_back(std::make_unique<Texture>(path, path, Texture::LINEAR));
     }
 }
 

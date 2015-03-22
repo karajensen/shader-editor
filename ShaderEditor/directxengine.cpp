@@ -23,7 +23,18 @@ enum RasterizerState
     BACKFACE_CULL_WIRE,
     NO_CULL,
     NO_CULL_WIRE,
-    MAX_STATES
+    MAX_DRAW_STATES
+};
+
+/**
+* Samplers states available for textures
+*/
+enum SamplerState
+{
+    NEAREST,
+    LINEAR,
+    ANISOTROPIC,
+    MAX_SAMPLER_STATES,
 };
 
 /**
@@ -55,6 +66,7 @@ struct DirectxData
     ID3D11DeviceContext* context = nullptr;          ///< Direct3D device context
     ID3D11Debug* debug = nullptr;                    ///< Direct3D debug interface, only created in debug
     std::vector<ID3D11RasterizerState*> drawStates;  ///< Rasterizer states
+    std::vector<ID3D11SamplerState*> samplers;       ///< Texture sampler states
     RasterizerState drawState;                       ///< The current state of the rasterizer
 
     DxQuad quad;                         ///< Quad to render the final post processed scene onto
@@ -74,7 +86,6 @@ struct DirectxData
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
-    float blendFactor = 1.0f;            ///< Alpha blend modifier
     
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
@@ -91,8 +102,11 @@ DirectxData::DirectxData() :
     quad("SceneQuad"),
     drawState(NO_STATE)
 {
-    drawStates.resize(MAX_STATES);
-    drawStates.assign(MAX_STATES, nullptr);
+    samplers.resize(MAX_SAMPLER_STATES);
+    samplers.assign(MAX_SAMPLER_STATES, nullptr);
+
+    drawStates.resize(MAX_DRAW_STATES);
+    drawStates.assign(MAX_DRAW_STATES, nullptr);
 }
 
 DirectxData::~DirectxData()
@@ -141,6 +155,11 @@ void DirectxData::Release()
         SafeRelease(&drawStates[i]);
     }
 
+    for (unsigned int i = 0; i < samplers.size(); ++i)
+    {
+        SafeRelease(&samplers[i]);
+    }
+
     SafeRelease(&noBlendState);
     SafeRelease(&alphaBlendState);
     SafeRelease(&writeState);
@@ -180,23 +199,23 @@ bool DirectxEngine::Initialize()
 {
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; 
-    scd.BufferCount = 1;                                
-    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; 
-    scd.OutputWindow = m_hwnd;                     
-    scd.SampleDesc.Count = MULTISAMPLING_COUNT;                           
-    scd.Windowed = TRUE; 
+    scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    scd.BufferCount = 1;
+    scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    scd.OutputWindow = m_hwnd;
+    scd.SampleDesc.Count = MULTISAMPLING_COUNT;
+    scd.Windowed = TRUE;
     scd.BufferDesc.Width = WINDOW_WIDTH;
     scd.BufferDesc.Height = WINDOW_HEIGHT;
 
-    #ifdef _DEBUG
+#ifdef _DEBUG
     unsigned int deviceFlags = D3D11_CREATE_DEVICE_DEBUG;
-    #else
+#else
     unsigned int deviceFlags = 0;
-    #endif
+#endif
 
-    if(FAILED(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
-        nullptr, deviceFlags, nullptr, 0, D3D11_SDK_VERSION, &scd, 
+    if (FAILED(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
+        nullptr, deviceFlags, nullptr, 0, D3D11_SDK_VERSION, &scd,
         &m_data->swapchain, &m_data->device, nullptr, &m_data->context)))
     {
         Logger::LogError("DirectX: Device creation failed");
@@ -206,10 +225,10 @@ bool DirectxEngine::Initialize()
     InitialiseDebugging();
 
     // Create the render targets. Back buffer must be initialised first.
-    if(!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
-       !m_data->sceneTarget.Initialise(m_data->device) ||
-       !m_data->preEffectsTarget.Initialise(m_data->device) ||
-       !m_data->blurTarget.Initialise(m_data->device))
+    if (!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
+        !m_data->sceneTarget.Initialise(m_data->device) ||
+        !m_data->preEffectsTarget.Initialise(m_data->device) ||
+        !m_data->blurTarget.Initialise(m_data->device))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
@@ -218,9 +237,14 @@ bool DirectxEngine::Initialize()
     // Create the post processing quad
     m_data->quad.Initialise(m_data->device, m_data->context);
 
-    InitialiseBlendStates();
-    InitialiseDrawStates();
-    InitialiseDepthStates();
+    if (!InitialiseBlendStates() ||
+        !InitialiseDrawStates() ||
+        !InitialiseSamplerStates() ||
+        !InitialiseDepthStates())
+    {
+        Logger::LogError("DirectX: Failed to initialise states");
+        return false;
+    }
 
     // Setup the directX environment
     m_data->drawState = NO_STATE;
@@ -320,9 +344,52 @@ bool DirectxEngine::InitialiseDepthStates()
     return true;
 }
 
+bool DirectxEngine::InitialiseSamplerStates()
+{
+    D3D11_SAMPLER_DESC samplerDesc;
+    samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.MipLODBias = 0.0f;
+    samplerDesc.MaxAnisotropy = MAX_ANISOTROPY;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    samplerDesc.BorderColor[0] = 0;
+    samplerDesc.BorderColor[1] = 0;
+    samplerDesc.BorderColor[2] = 0;
+    samplerDesc.BorderColor[3] = 0;
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    if(FAILED(m_data->device->CreateSamplerState(
+        &samplerDesc, &m_data->samplers[ANISOTROPIC])))
+    {
+        Logger::LogError("Failed to create anisotropic texture sampler");
+        return false;
+    }
+
+    samplerDesc.MaxAnisotropy = 0;
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    if(FAILED(m_data->device->CreateSamplerState(
+        &samplerDesc, &m_data->samplers[LINEAR])))
+    {
+        Logger::LogError("Failed to create linear texture sampler");
+        return false;
+    }
+
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    if(FAILED(m_data->device->CreateSamplerState(
+        &samplerDesc, &m_data->samplers[NEAREST])))
+    {
+        Logger::LogError("Failed to create nearest texture sampler");
+        return false;
+    }
+
+    return true;
+}
+
 bool DirectxEngine::InitialiseDrawStates()
 {
-    // Create the rasterizer state
     D3D11_RASTERIZER_DESC rasterDesc;
     rasterDesc.AntialiasedLineEnable = false;
     rasterDesc.DepthBias = 0;
@@ -554,22 +621,26 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive(m_data->context);
+    m_data->preEffectsTarget.SetActive(m_data->context);
     
     preShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
     preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
     preShader->SendConstants(m_data->context);
 
-    m_data->preEffectsTarget.SetActive(m_data->context);
+    preShader->SendTexture(m_data->context, 0, 
+        m_data->sceneTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
 
-    m_data->sceneTarget.SendTexture(m_data->context, 0, SCENE_ID);
-    m_data->sceneTarget.SendTexture(m_data->context, 1, NORMAL_ID);
-    m_data->textures[RANDOM_TEXTURE_ID]->SendTexture(m_data->context, 2);
+    preShader->SendTexture(m_data->context, 1,
+        m_data->sceneTarget.Get(NORMAL_ID), &m_data->samplers[LINEAR]);
+
+    preShader->SendTexture(m_data->context, 2,
+        m_data->textures[RANDOM_TEXTURE_ID]->Get(), &m_data->samplers[NEAREST]);
     
     m_data->quad.Render(m_data->context);
 
-    m_data->sceneTarget.RemoveTexture(m_data->context, 0);
-    m_data->sceneTarget.RemoveTexture(m_data->context, 1);
+    preShader->ClearTexture(m_data->context, 0);
+    preShader->ClearTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderBlur(const PostProcessing& post)
@@ -577,18 +648,19 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     SetRenderState(false, false);
     EnableAlphaBlending(false);
 
+    m_data->blurTarget.SetActive(m_data->context);
+
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive(m_data->context);
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendConstants(m_data->context);
 
-    m_data->blurTarget.SetActive(m_data->context);
-
-    m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
+    blurHorizontal->SendTexture(m_data->context, 0, 
+        m_data->preEffectsTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
 
     m_data->quad.Render(m_data->context);
 
-    m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
+    blurHorizontal->ClearTexture(m_data->context, 0);
 
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive(m_data->context);
@@ -596,12 +668,13 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurVertical->SendConstants(m_data->context);
 
     m_data->blurTarget.CopyTextures(m_data->context);
-
-    m_data->blurTarget.SendCopiedTexture(m_data->context, 0);
+    
+    blurVertical->SendTexture(m_data->context, 0, 
+        m_data->blurTarget.GetCopied(), &m_data->samplers[LINEAR]);
     
     m_data->quad.Render(m_data->context);
     
-    m_data->blurTarget.RemoveTexture(m_data->context, 0);
+    blurHorizontal->ClearTexture(m_data->context, 0);
 }
 
 void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
@@ -615,9 +688,14 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
 
-    m_data->preEffectsTarget.SendTexture(m_data->context, 0, SCENE_ID);
-    m_data->preEffectsTarget.SendTexture(m_data->context, 1, EFFECTS_ID);
-    m_data->blurTarget.SendTexture(m_data->context, 2);
+    postShader->SendTexture(m_data->context, 0, 
+        m_data->preEffectsTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
+
+    postShader->SendTexture(m_data->context, 1, 
+        m_data->preEffectsTarget.Get(EFFECTS_ID), &m_data->samplers[LINEAR]);
+
+    postShader->SendTexture(m_data->context, 2, 
+        m_data->blurTarget.Get(), &m_data->samplers[LINEAR]);
 
     postShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
@@ -644,9 +722,9 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
 
-    m_data->preEffectsTarget.RemoveTexture(m_data->context, 0);
-    m_data->preEffectsTarget.RemoveTexture(m_data->context, 1);
-    m_data->blurTarget.RemoveTexture(m_data->context, 2);
+    postShader->ClearTexture(m_data->context, 0);
+    postShader->ClearTexture(m_data->context, 1);
+    postShader->ClearTexture(m_data->context, 2);
 }
 
 void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
@@ -700,7 +778,6 @@ bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float 
             SetSelectedShader(index);
             shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
             shader->UpdateConstantFloat("timer", &timer, 1);
-            shader->UpdateConstantFloat("blendFactor", &m_data->blendFactor, 1);
             shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
             shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
@@ -811,7 +888,22 @@ bool DirectxEngine::SendTexture(int slot, int ID)
     auto& shader = m_data->shaders[m_data->selectedShader];
     if(ID != NO_INDEX && shader->HasTextureSlot(slot))
     {
-        m_data->textures[ID]->SendTexture(m_data->context, slot);
+        auto& texture = m_data->textures[ID];
+
+        SamplerState state = NEAREST;
+        switch (texture->Filtering())
+        {
+        case Texture::LINEAR:
+            state = NEAREST;
+            break;
+        case Texture::ANISOTROPIC:
+            state = ANISOTROPIC;
+            break;
+        }
+
+        shader->SendTexture(m_data->context, slot, 
+            texture->Get(), &m_data->samplers[state]);
+
         return true;
     }
     return false;

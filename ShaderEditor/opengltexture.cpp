@@ -45,11 +45,6 @@ bool GlTexture::Initialise()
         InitialiseFromFile();
     }
 
-    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
-        static_cast<float>(MAX_ANISOTROPY));
-
     if(HasCallFailed())
     {
         Logger::LogError("OpenGL: Failed " + m_texture.Path() + " texture");
@@ -83,11 +78,32 @@ void GlTexture::InitialiseFromPixels()
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + 
-            m_texture.Name() + " texture");
+        Logger::LogError("OpenGL: Failed to load " + m_texture.Name());
+    }
+
+    SetFiltering();
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed to set filtering for " + m_texture.Name());
     }
 
     ReloadPixels();
+}
+
+void GlTexture::SetFiltering()
+{
+    auto type = IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    auto filtering = m_texture.Filtering() == Texture::NEAREST ? GL_NEAREST : GL_LINEAR;
+
+    glTexParameteri(type, GL_TEXTURE_MIN_FILTER, filtering);
+    glTexParameteri(type, GL_TEXTURE_MAG_FILTER, filtering);
+
+    if (m_texture.Filtering() == Texture::ANISOTROPIC)
+    {
+        glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
+            static_cast<float>(MAX_ANISOTROPY));
+    }
 }
 
 void GlTexture::LoadTexture(GLenum type, const std::string& path)
@@ -104,7 +120,14 @@ void GlTexture::LoadTexture(GLenum type, const std::string& path)
 
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + path + " texture");
+        Logger::LogError("OpenGL: Failed to load " + path + " texture");
+    }
+
+    SetFiltering();
+
+    if(HasCallFailed())
+    {
+        Logger::LogError("OpenGL: Failed to set filtering for " + path + " texture");
     }
 }
 

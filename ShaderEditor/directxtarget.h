@@ -56,31 +56,16 @@ public:
     void SetActive(ID3D11DeviceContext* context);
 
     /**
-    * Sends the texture to the currently active shader
-    * @param context Direct3D device context
-    * @param slot The shader slot the texture should send to
-    * @param ID The texture index attached to the target to send
-    * @note requires clearing before render target can use again
+    * Gets the render target texture
+    * @param ID The texture index attached to the target
     */
-    void SendTexture(ID3D11DeviceContext* context, int slot, int ID = 0);
+    ID3D11ShaderResourceView** Get(int ID = 0);
 
     /**
-    * Sends the copied texture to the currently active shader
-    * @param context Direct3D device context
-    * @param slot The shader slot the texture should send to
-    * @param ID The texture index attached to the target to send
-    * @note requires clearing before render target can use again
+    * Gets the copied render target texture
+    * @param ID The texture index attached to the target
     */
-    void SendCopiedTexture(ID3D11DeviceContext* context, int slot, int ID = 0);
-
-    /**
-    * Clears the texture sent to the currently active shader
-    * @param context Direct3D device context
-    * @param slot The shader slot the texture should clear from
-    * @note Required as texture needs to be unbound from the 
-    *       shader before render target is activated
-    */
-    void RemoveTexture(ID3D11DeviceContext* context, int slot);
+    ID3D11ShaderResourceView** GetCopied(int ID = 0);
 
     /**
     * Copies the textures to the copied cache

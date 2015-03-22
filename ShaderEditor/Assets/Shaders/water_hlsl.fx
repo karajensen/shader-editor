@@ -18,7 +18,6 @@ cbuffer ScenePixelBuffer : register(b1)
     float3 lightAttenuation[MAX_LIGHTS];
     float3 lightDiffuse[MAX_LIGHTS];
     float lightActive[MAX_LIGHTS];
-    float blendFactor;
 };
 
 cbuffer MeshVertexBuffer : register(b2)
@@ -154,7 +153,6 @@ Outputs PShader(Attributes input)
     output.colour.a = 1.0;
     output.colour *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     output.colour.rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    output.colour.a *= blendFactor;
 
     return output;
 }

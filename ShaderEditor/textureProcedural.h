@@ -29,11 +29,13 @@ public:
     * @param path The full path to the texture
     * @param size The dimensions of the texture
     * @param type The type of texture to make
+    * @param filter The filtering to use
     */
     ProceduralTexture(const std::string& name, 
                       const std::string& path,
                       int size,
-                      Type type);
+                      Type type,
+                      Filter filter);
 
     /**
     * Writes to the data in the cache

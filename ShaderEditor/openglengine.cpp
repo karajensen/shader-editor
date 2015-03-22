@@ -53,7 +53,6 @@ struct OpenglData
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< Currently active shader for rendering
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
-    float blendFactor = 0.540f;          ///< Alpha blend modifier
                                         
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
@@ -539,7 +538,7 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     blurVertical->SetActive();
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
 
-    blurVertical->SendTexture(0, m_data->blurTarget);
+    blurVertical->SendTexture(0, m_data->blurTarget, BLUR_ID);
     m_data->blurTarget.SwitchTextures();
 
     m_data->quad.PreRender();
@@ -584,7 +583,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
-    postShader->SendTexture(2, m_data->blurTarget);
+    postShader->SendTexture(2, m_data->blurTarget, BLUR_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -674,7 +673,6 @@ bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float t
             shader->SendUniformFloat("timer", &timer, 1);
             shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
-            shader->SendUniformFloat("blendFactor", &m_data->blendFactor, 1);
             shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
             SendLights(scene.Lights());
         }

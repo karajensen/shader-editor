@@ -83,11 +83,6 @@ void DxTexture::InitialiseCubeMap(ID3D11Device* device)
     texture->Release();
 }
 
-void DxTexture::SendTexture(ID3D11DeviceContext* context, int slot)
-{
-    context->PSSetShaderResources(slot, 1, &m_view);
-}
-
 void DxTexture::ReloadPixels(ID3D11Device* device)
 {
     Release();
@@ -135,4 +130,14 @@ void DxTexture::ReloadPixels(ID3D11Device* device)
 void DxTexture::InitialiseFromPixels(ID3D11Device* device)
 {
     ReloadPixels(device);
+}
+
+ID3D11ShaderResourceView** DxTexture::Get()
+{
+    return &m_view;
+}
+
+Texture::Filter DxTexture::Filtering() const
+{
+    return m_texture.Filtering();
 }

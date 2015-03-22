@@ -8,9 +8,10 @@
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem.hpp"
 
-Texture::Texture(const std::string& name, const std::string& path) :
+Texture::Texture(const std::string& name, const std::string& path, Filter filter) :
     m_name(name),
-    m_path(path)
+    m_path(path),
+    m_filter(filter)
 {
 }
 
@@ -43,14 +44,24 @@ std::string Texture::GetTypeDescription(unsigned int type)
     };
 }
 
+Texture::Filter Texture::Filtering() const
+{
+    return m_filter;
+}
+
 bool Texture::IsAnimatedType(unsigned int type)
 {
     return type == CAUSTICS;
 }
 
+bool Texture::IsCubeMap(const std::string& path)
+{
+    return boost::filesystem::path(path).extension().string().empty();
+}
+
 bool Texture::IsCubeMap() const
 {
-    return boost::filesystem::path(m_path).extension().string().empty();
+    return IsCubeMap(m_path);
 }
 
 const unsigned int* Texture::Pixels() const

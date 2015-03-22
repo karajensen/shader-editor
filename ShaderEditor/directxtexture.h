@@ -36,17 +36,20 @@ public:
     void Initialise(ID3D11Device* device);
 
     /**
-    * Sends the texture to the currently active shader
-    * @param context Direct3D device context
-    * @param slot The slot to put the texture into
-    */
-    void SendTexture(ID3D11DeviceContext* context, int slot);
-
-    /**
     * Reloads the texture from pixels
     * @param device The DirectX device interface
     */
     void ReloadPixels(ID3D11Device* device);
+
+    /**
+    * Gets the texture
+    */
+    ID3D11ShaderResourceView** Get();
+
+    /**
+    * @return the type of filtering for this texture
+    */
+    Texture::Filter Filtering() const;
 
 private:
 

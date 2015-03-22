@@ -166,12 +166,12 @@ bool SceneBuilder::InitialiseTextures()
 {
     assert(m_scene.Textures().empty());
 
-    m_scene.Add(std::make_unique<Texture>(
-        "Blank", TEXTURE_PATH + "//blank.png"));
+    m_scene.Add(std::make_unique<Texture>("Blank", 
+        TEXTURE_PATH + "//blank.png", Texture::NEAREST));
 
-    m_scene.Add(std::make_unique<ProceduralTexture>(
-        "Random", GENERATED_TEXTURES + "//random.bmp", 
-        RANDOM_TEXTURE_SIZE, ProceduralTexture::RANDOM), true);
+    m_scene.Add(std::make_unique<ProceduralTexture>("Random", 
+        GENERATED_TEXTURES + "//random.bmp", RANDOM_TEXTURE_SIZE, 
+        ProceduralTexture::RANDOM, Texture::NEAREST), true);
 
     m_scene.Add(std::make_unique<AnimatedTexture>(
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp"));
@@ -334,8 +334,12 @@ int SceneBuilder::AddTexture(const std::string& name)
         }
     }
 
+    const std::string path = TEXTURE_PATH + "//" + name;
+    Texture::Filter filter = Texture::IsCubeMap(path) ? 
+        Texture::ANISOTROPIC : Texture::LINEAR;
+
     const int index = size;
-    m_scene.Add(std::make_unique<Texture>(name, TEXTURE_PATH + "//" + name));
+    m_scene.Add(std::make_unique<Texture>(name, path, filter));
     return index;
 }
 

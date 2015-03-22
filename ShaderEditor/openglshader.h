@@ -105,7 +105,7 @@ public:
     * @param target The render target to send
     * @param ID the id of the target texture to send
     */
-    void SendTexture(int slot, const GlRenderTarget& target, int ID = 0);
+    void SendTexture(int slot, const GlRenderTarget& target, int ID);
 
     /**
     * Clears the render target texture from the shader

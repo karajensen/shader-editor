@@ -53,6 +53,11 @@ public:
 private:
 
     /**
+    * Sets the filtering for the texture
+    */
+    void SetFiltering();
+
+    /**
     * Initialises a cube map
     */
     void InitialiseCubeMap();

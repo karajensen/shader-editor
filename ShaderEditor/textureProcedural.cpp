@@ -13,8 +13,9 @@
 ProceduralTexture::ProceduralTexture(const std::string& name, 
                                      const std::string& path,
                                      int size,
-                                     Type type) :
-    Texture(name, path),
+                                     Type type,
+                                     Filter filter) :
+    Texture(name, path, filter),
     m_type(type)
 {
     m_size = size;

@@ -28,7 +28,6 @@ uniform vec3 reflectionTint;
 uniform float reflectionIntensity;
 uniform vec4 deepColor;
 uniform vec4 shallowColor;
-uniform float blendFactor;
 
 uniform vec3 lightPosition[MAX_LIGHTS];
 uniform vec3 lightDiffuse[MAX_LIGHTS];
@@ -80,7 +79,6 @@ void main(void)
     out_Color[ID_COLOUR] = vec4(diffuseTex * diffuse, 1.0);
     out_Color[ID_COLOUR] *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     out_Color[ID_COLOUR].rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-    out_Color[ID_COLOUR].a *= blendFactor;
 
     out_Color[ID_NORMAL].rgb = normal;
     out_Color[ID_NORMAL].a = ex_Depth;

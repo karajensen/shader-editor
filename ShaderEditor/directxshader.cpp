@@ -52,7 +52,6 @@ void DxShader::Release()
 
     SafeRelease(&m_vsReflection);
     SafeRelease(&m_psReflection);
-    SafeRelease(&m_samplerState);
     SafeRelease(&m_vs);
     SafeRelease(&m_ps);
     SafeRelease(&m_layout);
@@ -126,13 +125,9 @@ std::string DxShader::CompileShader(ID3D11Device* device)
         return PS + errorBuffer;
     }
 
-    errorBuffer = CreateSamplerState(device);
-    if(!errorBuffer.empty())
-    {
-        return PS + errorBuffer;
-    }
-
+    m_textureSlots = m_pixelDesc.BoundResources;
     SetDebugNames();
+
     return std::string();
 }
 
@@ -492,41 +487,11 @@ std::string DxShader::CreateConstantBuffer(ID3D11Device* device,
     return std::string();
 }
 
-
-std::string DxShader::CreateSamplerState(ID3D11Device* device)
-{
-    m_textureSlots = m_pixelDesc.BoundResources;
-    if(m_textureSlots > 0)
-    {
-        D3D11_SAMPLER_DESC samplerDesc;
-        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-        samplerDesc.MipLODBias = 0.0f;
-        samplerDesc.MaxAnisotropy = MAX_ANISOTROPY;
-        samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-        samplerDesc.BorderColor[0] = 0;
-        samplerDesc.BorderColor[1] = 0;
-        samplerDesc.BorderColor[2] = 0;
-        samplerDesc.BorderColor[3] = 0;
-        samplerDesc.MinLOD = 0;
-        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-        if(FAILED(device->CreateSamplerState(&samplerDesc, &m_samplerState)))
-        {
-            return "Failed to create texture sampler";
-        }
-    }
-    return std::string();
-}
-
 void DxShader::SetDebugNames()
 {
     SetDebugName(m_vs, m_shader.Name() + "_Vertex");
     SetDebugName(m_ps, m_shader.Name() + "_Pixel");
     SetDebugName(m_layout, m_shader.Name() + "_Layout");
-    SetDebugName(m_samplerState, m_shader.Name() + "_Sampler");
 
     for(const auto& constantBuffer : m_cbuffers)
     {
@@ -552,11 +517,22 @@ void DxShader::SetActive(ID3D11DeviceContext* context)
             context->PSSetConstantBuffers(cbuffer->startSlot, 1, &cbuffer->buffer);
         }
     }
+}
 
-    if(m_samplerState)
-    {
-        context->PSSetSamplers(0, 1, &m_samplerState);
-    }
+void DxShader::SendTexture(ID3D11DeviceContext* context,
+                           int slot,
+                           ID3D11ShaderResourceView** view,
+                           ID3D11SamplerState** state)
+{
+    context->PSSetShaderResources(slot, 1, view);
+    context->PSSetSamplers(slot, 1, state);
+}
+
+void DxShader::ClearTexture(ID3D11DeviceContext* context,
+                            int slot)
+{
+    ID3D11ShaderResourceView* nullView = nullptr;
+    context->PSSetShaderResources(slot, 1, &nullView);
 }
 
 void DxShader::UpdateConstantFloat(const std::string& name, const float* value, int size, int offset)
