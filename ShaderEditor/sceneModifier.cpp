@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "renderengine.h"
 #include "diagnostic.h"
+#include "textureAnimated.h"
 #include "timer.h"
 #include "boost/lexical_cast.hpp"
 
@@ -291,6 +292,9 @@ void SceneModifier::UpdatePost(RenderEngine& engine)
 
     m_scene.GetPost().Read(*m_cache);
 
+    m_scene.GetCaustics().SetSpeed(
+        m_cache->Post[POST_CAUSTIC_SPEED].Get());
+
     if (m_cache->ToggleWireframe.Get())
     {
         engine.ToggleWireframe();
@@ -345,6 +349,9 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
     m_cache->Terrains.Set(GetTerrainNames());
 
     m_scene.GetPost().Write(*m_cache);
+
+    m_cache->Post[POST_CAUSTIC_SPEED].SetUpdated(
+        m_scene.GetCaustics().GetSpeed());
 
     m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
         m_camera.GetCamera(Camera::POSITION_X));

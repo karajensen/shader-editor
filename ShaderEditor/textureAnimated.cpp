@@ -53,12 +53,20 @@ int AnimatedTexture::GetFrame() const
 void AnimatedTexture::Tick(float deltatime)
 {
     m_timePassed += deltatime;
-
-    const float secondsUntilSwitch = 0.065f;
-    if (m_timePassed >= secondsUntilSwitch)
+    if (m_timePassed >= m_speed)
     {
         const int maxFrame = static_cast<int>(m_frames.size())-1;
         m_selectedFrame = m_selectedFrame == maxFrame ? 0 : m_selectedFrame + 1;
         m_timePassed = 0.0f;
     }
+}
+
+void AnimatedTexture::SetSpeed(float speed)
+{
+    m_speed = speed;
+}
+
+float AnimatedTexture::GetSpeed() const
+{
+    return m_speed;
 }

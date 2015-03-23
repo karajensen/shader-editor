@@ -117,6 +117,11 @@ public:
     PostProcessing& GetPost();
 
     /**
+    * @return the caustics
+    */
+    AnimatedTexture& GetCaustics();
+
+    /**
     * @return the diagnostics for the scene
     */
     Diagnostic& GetDiagnostics();

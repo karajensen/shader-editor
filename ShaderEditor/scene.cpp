@@ -175,6 +175,11 @@ PostProcessing& Scene::GetPost()
     return *m_data->postProcessing;
 }
 
+AnimatedTexture& Scene::GetCaustics()
+{
+    return *m_data->caustics;
+}
+
 Diagnostic& Scene::GetDiagnostics()
 {
     return *m_data->diagnostic;
