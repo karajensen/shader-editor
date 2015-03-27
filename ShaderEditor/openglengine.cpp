@@ -537,6 +537,7 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     EnableBackfaceCull(false);
     EnableAlphaBlending(false);
 
+    SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive();
 
@@ -565,6 +566,7 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     m_data->blurTarget.SetActive();
     m_data->blurTarget.SwitchTextures();
 
+    SetSelectedShader(BLUR_HORIZONTAL_SHADER);
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive();
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
@@ -577,6 +579,7 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
 
     blurHorizontal->ClearTexture(0, m_data->preEffectsTarget);
 
+    SetSelectedShader(BLUR_VERTICAL_SHADER);
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive();
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
@@ -598,6 +601,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     EnableAlphaBlending(false);
     EnableBackfaceCull(false);
 
+    SetSelectedShader(POST_SHADER);
     auto& postShader = m_data->shaders[POST_SHADER];
     postShader->SetActive();
     m_data->backBuffer.SetActive();

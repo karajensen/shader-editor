@@ -657,6 +657,7 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     SetRenderState(false, false);
     EnableAlphaBlending(false);
 
+    SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
     preShader->SetActive(m_data->context);
     m_data->preEffectsTarget.SetActive(m_data->context);
@@ -683,6 +684,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->blurTarget.SetActive(m_data->context);
 
+    SetSelectedShader(BLUR_HORIZONTAL_SHADER);
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
     blurHorizontal->SetActive(m_data->context);
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
@@ -694,6 +696,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     blurHorizontal->ClearTexture(m_data->context, 0);
 
+    SetSelectedShader(BLUR_VERTICAL_SHADER);
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     blurVertical->SetActive(m_data->context);
     blurVertical->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
@@ -715,6 +718,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     SetRenderState(false, false);
     EnableAlphaBlending(false);
 
+    SetSelectedShader(POST_SHADER);
     auto& postShader = m_data->shaders[POST_SHADER];
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
