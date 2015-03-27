@@ -4,13 +4,12 @@
 
 #pragma once
 
-#include <vector>
-#include "meshdata.h"
+#include "grid.h"
 
 /**
 * Procedurally generated mesh
 */
-class Terrain : public MeshData
+class Terrain : public Grid
 {
 public:
 
@@ -39,6 +38,12 @@ public:
     void Read(Cache& cache);
 
     /**
+    * Initialises the terrain
+    * @return whether call was successful
+    */
+    bool Initialise();
+
+    /**
     * @return Brightness of the specular highlights
     */
     const float& Specularity() const;
@@ -58,13 +63,19 @@ public:
     */
     const float& Caustics() const;
 
-    /**
-    * @return Whether back facing polygons are culled
-    */
-    bool BackfaceCull() const;
-
 private:
 
+    /**
+    * Generates terrain using the given type
+    */
+    void GenerateTerrain();
+
+    /**
+    * Generates terrain using the seamless diamond square algorithm
+    */
+    void GenerateDiamondSquareTerrain();
+
+    std::string m_type;          ///< The type of terrain to generate
     float m_bump = 1.0f;         ///< Saturation of bump
     float m_caustics = 1.0f;     ///< How much of the caustics are visible
     float m_specularity = 1.0f;  ///< Brightness of the specular highlights

@@ -125,10 +125,31 @@ private:
     /**
     * Updates and switches to main shader the mesh requires
     * @param mesh The mesh currently rendering
+    * @param scene The scene to render
+    * @param alphaBlend Whether to use alpha blending
+    * @param timer The timer to send or -1 if not to send
+    * @return whether the mesh can now be rendered
+    */
+    bool UpdateShader(const MeshData& mesh, 
+                      const IScene& scene,
+                      bool alphaBlend, 
+                      float timer = -1.0f);
+
+    /**
+    * Updates and switches to main shader the mesh requires
+    * @param mesh The mesh currently rendering
     * @param scene The data for the scene
     * @return whether the mesh can now be rendered
     */
     bool UpdateShader(const Mesh& mesh, const IScene& scene);
+
+    /**
+    * Updates and switches to main shader the terrain requires
+    * @param terrain The terrain currently rendering
+    * @param scene The data for the scene
+    * @return whether the terrain can now be rendered
+    */
+    bool UpdateShader(const Terrain& terrain, const IScene& scene);
 
     /**
     * Updates and switches to main shader the water requires
@@ -163,11 +184,6 @@ private:
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
-
-    /**
-    * Sends wave information to the selected shader
-    */
-    void SendWaves(const std::vector<Water::Wave>& waves);
 
     /**
     * Sends light information to the selected shader
@@ -216,6 +232,24 @@ private:
     * Renders all emitters
     */
     void RenderEmitters();
+
+    /**
+    * Renders the scene meshes
+    * @param scene The scene to render
+    */
+    void RenderMeshes(const IScene& scene);
+
+    /**
+    * Renders the scene terrain
+    * @param scene The scene to render
+    */
+    void RenderTerrain(const IScene& scene);
+
+    /**
+    * Renders the scene water
+    * @param timer The time passed since scene start
+    */
+    void RenderWater(const IScene& scene, float timer);
 
     /**
     * Sets whether alpha blending is enabled or not

@@ -57,6 +57,7 @@ struct OpenglData
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
+    std::vector<std::unique_ptr<GlTerrain>> terrain;     ///< Each terrain in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<GlEmitter>> emitters; ///< Emitters holding particles
 };
@@ -86,6 +87,11 @@ void OpenglData::Release()
     }
 
     for(auto& mesh : meshes)
+    {
+        mesh->Release();
+    }
+
+    for(auto& mesh : terrain)
     {
         mesh->Release();
     }
@@ -340,6 +346,12 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
             [this](const glm::mat4& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
+    m_data->terrain.reserve(scene.Terrains().size());
+    for(const auto& terrain : scene.Terrains())
+    {
+        m_data->terrain.push_back(std::unique_ptr<GlTerrain>(new GlTerrain(*terrain)));
+    }
+
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
@@ -374,6 +386,15 @@ bool OpenglEngine::ReInitialiseScene()
         if(!mesh->Initialise())
         {
             Logger::LogError("OpenGL: Failed to re-initialise mesh");
+            return false;
+        }
+    }
+
+    for(auto& terrain : m_data->terrain)
+    {
+        if(!terrain->Initialise())
+        {
+            Logger::LogError("OpenGL: Failed to re-initialise terrain");
             return false;
         }
     }
@@ -444,6 +465,19 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   
     }
 
+    RenderTerrain(scene);
+    RenderMeshes(scene);
+    RenderWater(scene, timer);
+    RenderEmitters();
+
+    if (m_data->isWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   
+    }
+}
+
+void OpenglEngine::RenderMeshes(const IScene& scene)
+{
     for (auto& mesh : m_data->meshes)
     {
         if (UpdateShader(mesh->GetMesh(), scene))
@@ -453,22 +487,31 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
             mesh->Render();
         }
     }
-    
-    for (auto& mesh : m_data->waters)
+}
+
+void OpenglEngine::RenderTerrain(const IScene& scene)
+{
+    for (auto& terrain : m_data->terrain)
     {
-        if (UpdateShader(mesh->GetWater(), scene, timer))
+        if (UpdateShader(terrain->GetTerrain(), scene))
         {
-            mesh->PreRender();
+            terrain->PreRender();
             EnableAttributes();
-            mesh->Render();
+            terrain->Render();
         }
     }
+}
 
-    RenderEmitters();
-
-    if (m_data->isWireframe)
+void OpenglEngine::RenderWater(const IScene& scene, float timer)
+{
+    for (auto& water : m_data->waters)
     {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);   
+        if (UpdateShader(water->GetWater(), scene, timer))
+        {
+            water->PreRender();
+            EnableAttributes();
+            water->Render();
+        }
     }
 }
 
@@ -503,7 +546,7 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
 
     preShader->SendTexture(0, m_data->sceneTarget, SCENE_ID);
     preShader->SendTexture(1, m_data->sceneTarget, NORMAL_ID);
-    preShader->SendTexture(2, m_data->textures[RANDOM_TEXTURE_ID]->GetID(), false);
+    SendTexture(2, RANDOM_TEXTURE_ID);
     
     m_data->preEffectsTarget.SetActive();
     m_data->quad.PreRender();
@@ -629,7 +672,10 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Colour& colour)
     shader->SendUniformFloat("meshColour", &colour.r, 3);
 }
 
-bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
+bool OpenglEngine::UpdateShader(const MeshData& mesh,
+                                const IScene& scene,
+                                bool alphaBlend,
+                                float timer)
 {
     const int index = mesh.ShaderID();
     if (index != NO_INDEX)
@@ -638,23 +684,51 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
         if(index != m_data->selectedShader)
         {
             SetSelectedShader(index);
+            SendLights(scene.Lights());
             shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
             shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
             shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
-            SendLights(scene.Lights());
+
+            if (timer >= 0.0f)
+            {
+                shader->SendUniformFloat("timer", &timer, 1);
+            }
         }
     
+        SendTextures(mesh.TextureIDs());
+        EnableBackfaceCull(mesh.BackfaceCull());
+        EnableAlphaBlending(alphaBlend);
+        return true;
+    }
+    return false;
+}
+
+bool OpenglEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
+{
+    if (UpdateShader(terrain, scene, false))
+    {
+        auto& shader = m_data->shaders[terrain.ShaderID()];
+        shader->SendUniformFloat("meshCaustics", &terrain.Caustics(), 1);
+        shader->SendUniformFloat("meshAmbience", &terrain.Ambience(), 1);
+        shader->SendUniformFloat("meshBump", &terrain.Bump(), 1);
+        shader->SendUniformFloat("meshSpecularity", &terrain.Specularity(), 1);
+        shader->SendUniformArrays();
+        return true;
+    }
+    return false;
+}
+
+bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
+{
+    if (UpdateShader(mesh, scene, false))
+    {
+        auto& shader = m_data->shaders[mesh.ShaderID()];
         shader->SendUniformFloat("meshCaustics", &mesh.Caustics(), 1);
         shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &mesh.Specularity(), 1);
-
         shader->SendUniformArrays();
-
-        SendTextures(mesh.TextureIDs());
-        EnableBackfaceCull(mesh.BackfaceCull());
-        EnableAlphaBlending(false);
         return true;
     }
     return false;
@@ -662,21 +736,9 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 
 bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
 {
-    const int index = water.ShaderID();
-    if (index != NO_INDEX)
+    if (UpdateShader(water, scene, true, timer))
     {
-        auto& shader = m_data->shaders[index];
-        if(index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
-            shader->SendUniformFloat("timer", &timer, 1);
-            shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
-            shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
-            shader->SendUniformFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            SendLights(scene.Lights());
-        }
-
+        auto& shader = m_data->shaders[water.ShaderID()];
         shader->SendUniformFloat("speed", &water.Speed(), 1);
         shader->SendUniformFloat("bumpIntensity", &water.Bump(), 1);
         shader->SendUniformFloat("bumpVelocity", &water.BumpVelocity().x, 2);
@@ -686,13 +748,18 @@ bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float t
         shader->SendUniformFloat("reflectionTint", &water.ReflectionTint().r, 3);
         shader->SendUniformFloat("reflectionIntensity", &water.ReflectionIntensity(), 1);
         shader->SendUniformFloat("fresnal", &water.Fresnal().x, 3);
-        SendWaves(water.Waves());
+
+        const auto& waves = water.Waves();
+        for (unsigned int i = 0; i < waves.size(); ++i)
+        {
+            shader->UpdateUniformArray("waveFrequency", &waves[i].amplitude, 1, i);
+            shader->UpdateUniformArray("waveAmplitude", &waves[i].amplitude, 1, i);
+            shader->UpdateUniformArray("wavePhase", &waves[i].phase, 1, i);
+            shader->UpdateUniformArray("waveDirectionX", &waves[i].directionX, 1, i);
+            shader->UpdateUniformArray("waveDirectionZ", &waves[i].directionZ, 1, i);
+        }
 
         shader->SendUniformArrays();
-    
-        EnableBackfaceCull(false);
-        EnableAlphaBlending(true);
-        SendTextures(water.TextureIDs());
         return true;
     }
     return false;
@@ -710,19 +777,6 @@ void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
         shader->UpdateUniformArray("lightPosition", &lights[i]->Position().x, 3, offset);
         shader->UpdateUniformArray("lightDiffuse", &lights[i]->Diffuse().r, 3, offset);
         shader->UpdateUniformArray("lightSpecular", &lights[i]->Specular().r, 3, offset);
-    }
-}
-
-void OpenglEngine::SendWaves(const std::vector<Water::Wave>& waves)
-{
-    auto& shader = m_data->shaders[m_data->selectedShader];
-    for (unsigned int i = 0; i < waves.size(); ++i)
-    {
-        shader->UpdateUniformArray("waveFrequency", &waves[i].amplitude, 1, i);
-        shader->UpdateUniformArray("waveAmplitude", &waves[i].amplitude, 1, i);
-        shader->UpdateUniformArray("wavePhase", &waves[i].phase, 1, i);
-        shader->UpdateUniformArray("waveDirectionX", &waves[i].directionX, 1, i);
-        shader->UpdateUniformArray("waveDirectionZ", &waves[i].directionZ, 1, i);
     }
 }
 

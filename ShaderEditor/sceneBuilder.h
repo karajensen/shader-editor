@@ -15,6 +15,7 @@ class Light;
 class Texture;
 class Shader;
 class Water;
+class Terrain;
 class MeshData;
 
 /**
@@ -116,7 +117,7 @@ private:
     * @param linker The fragment linker used to generate shaders
     * @param node The node for the mesh config file
     */
-    void InitialiseMeshShader(Mesh& mesh,
+    void InitialiseMeshShader(MeshData& mesh,
                               FragmentLinker& linker,
                               const boost::property_tree::ptree& node);
 
@@ -136,6 +137,17 @@ private:
     bool InitialiseMesh(Mesh& mesh, 
                         FragmentLinker& linker,
                         const boost::property_tree::ptree& node);
+
+    /**
+    * Initialises terrain for the scene
+    * @param terrain The terrain to initialise
+    * @param linker The fragment linker used to generate shaders
+    * @param node The node for the mesh config file
+    * @return if initialization was successfull
+    */
+    bool InitialiseTerrain(Terrain& terrain, 
+                           FragmentLinker& linker,
+                           const boost::property_tree::ptree& node);
 
     /**
     * Initialises a water mesh for the scene

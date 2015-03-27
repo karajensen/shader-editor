@@ -20,7 +20,8 @@ public:
     */
     enum Type
     {
-        RANDOM
+        RANDOM,
+        DIAMOND_SQUARE
     };
 
     /**
@@ -75,6 +76,81 @@ private:
     * Creates a texture of random normals used for ambient occlusion
     */
     void MakeRandomNormals();
+
+    /**
+    * Creates a fractal texture using the diamond square algorithm
+    */
+    void MakeDiamondSquareFractal();
+
+    /**
+    * @return the colour from the row and column value
+    */
+    unsigned int Get(int row, int column) const;
+
+    /**
+    * @return the index from the row and column value
+    */
+    unsigned int GetIndex(int row, int column) const;
+
+    /**
+    * @return whether the row and colunn are inside the texture
+    */
+    bool Valid(int row, int column) const;
+
+    /**
+    * @return whether the index is inside the texture
+    */
+    bool Valid(unsigned int index) const;
+
+    /**
+    * Sets the colour from each component
+    */
+    void Set(unsigned int index, int r, int g, int b, int a);
+
+    /**
+    * Sets the colour from each component
+    */
+    void Set(unsigned int index, float r, float g, float b, float a);
+
+    /**
+    * Sets the colour component as an int
+    */
+    void SetRed(unsigned int index, int value);
+    void SetGreen(unsigned int index, int value);
+    void SetBlue(unsigned int index, int value);
+    void SetAlpha(unsigned int index, int value);
+
+    /**
+    * Sets the colour component as a float
+    */
+    void SetRed(unsigned int index, float value);
+    void SetGreen(unsigned int index, float value);
+    void SetBlue(unsigned int index, float value);
+    void SetAlpha(unsigned int index, float value);
+
+    /**
+    * Gets the colour component as a char
+    */
+    unsigned char RedAsChar(unsigned int index);
+    unsigned char GreenAsChar(unsigned int index);
+    unsigned char BlueAsChar(unsigned int index);
+    unsigned char AlphaAsChar(unsigned int index);
+
+    /**
+    * Gets the colour component as an int
+    */
+    int RedAsInt(unsigned int index);
+    int GreenAsInt(unsigned int index);
+    int BlueAsInt(unsigned int index);
+    int AlphaAsInt(unsigned int index);
+
+    /**
+    * Gets the colour component as a float
+    */
+    float RedAsFlt(unsigned int index);
+    float GreenAsFlt(unsigned int index);
+    float BlueAsFlt(unsigned int index);
+    float AlphaAsFlt(unsigned int index);
 
     Type m_type;                        ///< The type of texture this is
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture

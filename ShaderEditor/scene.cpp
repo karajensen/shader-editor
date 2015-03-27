@@ -28,37 +28,43 @@ struct SceneData
 Scene::Scene() = default;
 Scene::~Scene() = default;
 
-void Scene::Add(std::unique_ptr<Shader> element)
+unsigned int Scene::Add(std::unique_ptr<Shader> element)
 {
     m_data->shaders.push_back(std::move(element));
+    return m_data->shaders.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Mesh> element)
+unsigned int Scene::Add(std::unique_ptr<Mesh> element)
 {
     m_data->meshes.push_back(std::move(element));
+    return m_data->meshes.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Terrain> element)
+unsigned int Scene::Add(std::unique_ptr<Terrain> element)
 {
     m_data->terrain.push_back(std::move(element));
+    return m_data->terrain.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Light> element)
+unsigned int Scene::Add(std::unique_ptr<Light> element)
 {
     m_data->lights.push_back(std::move(element));
+    return m_data->lights.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Water> element)
+unsigned int Scene::Add(std::unique_ptr<Water> element)
 {
     m_data->water.push_back(std::move(element));
+    return m_data->water.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Emitter> element)
+unsigned int Scene::Add(std::unique_ptr<Emitter> element)
 {
     m_data->emitters.push_back(std::move(element));
+    return m_data->emitters.size()-1;
 }
 
-void Scene::Add(std::unique_ptr<Texture> element, bool isProcedural)
+unsigned int Scene::Add(std::unique_ptr<Texture> element, bool isProcedural)
 {
     const unsigned int index = m_data->textures.size();
     m_data->textures.push_back(std::move(element));
@@ -67,6 +73,7 @@ void Scene::Add(std::unique_ptr<Texture> element, bool isProcedural)
     {
         m_data->proceduralTextures.push_back(index);
     }
+    return index;
 }
 
 void Scene::Add(std::unique_ptr<PostProcessing> post)

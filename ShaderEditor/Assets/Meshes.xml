@@ -59,16 +59,25 @@
 		<Normal>bump.png</Normal>
 		<Bump>20</Bump>
 	</Mesh>
-	<Water>
+  <Terrain>
+    <Shader>diffuse</Shader>
+    <Name>sand</Name>
+    <Type>diamond_square</Type>
+    <Diffuse>ground.png</Diffuse>
+    <Position x="0" y="-5" z="0"/>
+    <Grid rows="100" columns="100" spacing="1.0"></Grid>
+  </Terrain>
+  <Water>
 		<Shader>water</Shader>
 		<Name>water</Name>
+    <BackfaceCulling>0</BackfaceCulling>
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
 		<Bump>1</Bump>
 		<Speed>1</Speed>
 		<BumpVelocity x="0" y="0"/>
-    <Position x="0" y="-5" z="0"/>
+    <Position x="0" y="5" z="0"/>
     <Grid rows="10" columns="20" spacing="10.0"></Grid>
 		<Fresnal scale="1" bias="0.5" power="2"/>
 		<ReflectionIntensity>1</ReflectionIntensity>

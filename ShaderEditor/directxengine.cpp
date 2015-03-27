@@ -90,6 +90,7 @@ struct DirectxData
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<DxWater>> waters;     ///< Each water in the scene
+    std::vector<std::unique_ptr<DxTerrain>> terrain;  ///< Each terrain in the scene
     std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<DxEmitter>> emitters; ///< Particle emitters
 };
@@ -125,6 +126,11 @@ void DirectxData::Release()
     }
 
     for(auto& mesh : meshes)
+    {
+        mesh->Release();
+    }
+
+    for(auto& mesh : terrain)
     {
         mesh->Release();
     }
@@ -224,25 +230,26 @@ bool DirectxEngine::Initialize()
 
     InitialiseDebugging();
 
-    // Create the render targets. Back buffer must be initialised first.
-    if (!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
-        !m_data->sceneTarget.Initialise(m_data->device) ||
-        !m_data->preEffectsTarget.Initialise(m_data->device) ||
-        !m_data->blurTarget.Initialise(m_data->device))
-    {
-        Logger::LogError("DirectX: Failed to create render targets");
-        return false;
-    }
-
     // Create the post processing quad
     m_data->quad.Initialise(m_data->device, m_data->context);
 
+    // Initialise all states
     if (!InitialiseBlendStates() ||
         !InitialiseDrawStates() ||
         !InitialiseSamplerStates() ||
         !InitialiseDepthStates())
     {
         Logger::LogError("DirectX: Failed to initialise states");
+        return false;
+    }
+
+    // Create the render targets. Back buffer must be initialised first.
+    if (!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
+        !m_data->sceneTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
+        !m_data->preEffectsTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
+        !m_data->blurTarget.Initialise(m_data->device, m_data->samplers[LINEAR]))
+    {
+        Logger::LogError("DirectX: Failed to create render targets");
         return false;
     }
 
@@ -352,7 +359,7 @@ bool DirectxEngine::InitialiseSamplerStates()
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
-    samplerDesc.MaxAnisotropy = 1.0f;
+    samplerDesc.MaxAnisotropy = MAX_ANISOTROPY;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     samplerDesc.BorderColor[0] = 0;
     samplerDesc.BorderColor[1] = 0;
@@ -496,6 +503,12 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
             [this](const D3DXMATRIX& world, const Colour& colour){ UpdateShader(world, colour); })));
     }
 
+    m_data->terrain.reserve(scene.Terrains().size());
+    for(const auto& terrain : scene.Terrains())
+    {
+        m_data->terrain.push_back(std::unique_ptr<DxTerrain>(new DxTerrain(*terrain)));
+    }
+
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
@@ -533,6 +546,11 @@ bool DirectxEngine::ReInitialiseScene()
     for(auto& water : m_data->waters)
     {
         water->Initialise(m_data->device, m_data->context);
+    }
+
+    for(auto& terrain : m_data->terrain)
+    {
+        terrain->Initialise(m_data->device, m_data->context);
     }
 
     for(auto& texture : m_data->textures)
@@ -579,6 +597,14 @@ void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
 {
     m_data->sceneTarget.SetActive(m_data->context);
 
+    RenderTerrain(scene);
+    RenderMeshes(scene);
+    RenderWater(scene, timer);
+    RenderEmitters();
+}
+
+void DirectxEngine::RenderMeshes(const IScene& scene)
+{
     for (auto& mesh : m_data->meshes)
     {
         if (UpdateShader(mesh->GetMesh(), scene))
@@ -586,7 +612,21 @@ void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
             mesh->Render(m_data->context);
         }
     }
+}
 
+void DirectxEngine::RenderTerrain(const IScene& scene)
+{
+    for (auto& terrain : m_data->terrain)
+    {
+        if (UpdateShader(terrain->GetTerrain(), scene))
+        {
+            terrain->Render(m_data->context);
+        }
+    }
+}
+
+void DirectxEngine::RenderWater(const IScene& scene, float timer)
+{
     for (auto& mesh : m_data->waters)
     {
         if (UpdateShader(mesh->GetWater(), scene, timer))
@@ -594,8 +634,6 @@ void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
             mesh->Render(m_data->context);
         }
     }
-    
-    RenderEmitters();
 }
 
 void DirectxEngine::RenderEmitters()
@@ -628,14 +666,9 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
     preShader->SendConstants(m_data->context);
 
-    preShader->SendTexture(m_data->context, 0, 
-        m_data->sceneTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
-
-    preShader->SendTexture(m_data->context, 1,
-        m_data->sceneTarget.Get(NORMAL_ID), &m_data->samplers[LINEAR]);
-
-    preShader->SendTexture(m_data->context, 2,
-        m_data->textures[RANDOM_TEXTURE_ID]->Get(), &m_data->samplers[NEAREST]);
+    preShader->SendTexture(m_data->context, 0, m_data->sceneTarget, SCENE_ID);
+    preShader->SendTexture(m_data->context, 1, m_data->sceneTarget, NORMAL_ID);
+    SendTexture(2, RANDOM_TEXTURE_ID);
     
     m_data->quad.Render(m_data->context);
 
@@ -655,8 +688,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendConstants(m_data->context);
 
-    blurHorizontal->SendTexture(m_data->context, 0, 
-        m_data->preEffectsTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
+    blurHorizontal->SendTexture(m_data->context, 0, m_data->preEffectsTarget);
 
     m_data->quad.Render(m_data->context);
 
@@ -669,8 +701,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->blurTarget.CopyTextures(m_data->context);
     
-    blurVertical->SendTexture(m_data->context, 0, 
-        m_data->blurTarget.GetCopied(), &m_data->samplers[LINEAR]);
+    blurVertical->SendCopiedTexture(m_data->context, 0, m_data->blurTarget);
     
     m_data->quad.Render(m_data->context);
     
@@ -688,14 +719,9 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SetActive(m_data->context);
     m_data->backBuffer.SetActive(m_data->context);
 
-    postShader->SendTexture(m_data->context, 0, 
-        m_data->preEffectsTarget.Get(SCENE_ID), &m_data->samplers[LINEAR]);
-
-    postShader->SendTexture(m_data->context, 1, 
-        m_data->preEffectsTarget.Get(EFFECTS_ID), &m_data->samplers[LINEAR]);
-
-    postShader->SendTexture(m_data->context, 2, 
-        m_data->blurTarget.Get(), &m_data->samplers[LINEAR]);
+    postShader->SendTexture(m_data->context, 0, m_data->preEffectsTarget, SCENE_ID);
+    postShader->SendTexture(m_data->context, 1, m_data->preEffectsTarget, EFFECTS_ID);
+    postShader->SendTexture(m_data->context, 2, m_data->blurTarget);
 
     postShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
@@ -735,7 +761,10 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
     shader->SendConstants(m_data->context);
 }
 
-bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
+bool DirectxEngine::UpdateShader(const MeshData& mesh, 
+                                 const IScene& scene,
+                                 bool alphaBlend, 
+                                 float timer)
 {
     const int index = mesh.ShaderID();
     if (index != NO_INDEX)
@@ -744,24 +773,51 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
         if(index != m_data->selectedShader)
         {
             SetSelectedShader(index);
+            SendLights(scene.Lights());
             shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
             shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
             shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
-            SendLights(scene.Lights());
+
+            if (timer >= 0.0f)
+            {
+                shader->UpdateConstantFloat("timer", &timer, 1);
+            }
         }
 
+        SendTextures(mesh.TextureIDs());
+        SetRenderState(mesh.BackfaceCull(), m_data->isWireframe);
+        EnableAlphaBlending(alphaBlend);
+        return true;
+    }
+    return false;
+}
+
+bool DirectxEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
+{
+    if (UpdateShader(terrain, scene, false))
+    {
+        auto& shader = m_data->shaders[terrain.ShaderID()];
+        shader->UpdateConstantFloat("meshCaustics", &terrain.Caustics(), 1);
+        shader->UpdateConstantFloat("meshAmbience", &terrain.Ambience(), 1);
+        shader->UpdateConstantFloat("meshBump", &terrain.Bump(), 1);
+        shader->UpdateConstantFloat("meshSpecularity", &terrain.Specularity(), 1);
+        shader->SendConstants(m_data->context);
+        return true;
+    }
+    return false;
+}
+
+bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
+{
+    if (UpdateShader(mesh, scene, false))
+    {
+        auto& shader = m_data->shaders[mesh.ShaderID()];
         shader->UpdateConstantFloat("meshCaustics", &mesh.Caustics(), 1);
         shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);
-
         shader->SendConstants(m_data->context);
-
-        SendTextures(mesh.TextureIDs());
-        SetRenderState(mesh.BackfaceCull(), m_data->isWireframe);
-        EnableAlphaBlending(false);
-
         return true;
     }
     return false;
@@ -769,21 +825,9 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 
 bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
 {
-    const int index = water.ShaderID();
-    if (index != NO_INDEX)
+    if (UpdateShader(water, scene, true, timer))
     {
-        auto& shader = m_data->shaders[index];
-        if(index != m_data->selectedShader)
-        {
-            SetSelectedShader(index);
-            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
-            shader->UpdateConstantFloat("timer", &timer, 1);
-            shader->UpdateConstantFloat("cameraPosition", &m_data->cameraPosition.x, 3);
-            shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
-            shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
-            SendLights(scene.Lights());
-        }
-
+        auto& shader = m_data->shaders[water.ShaderID()];
         shader->UpdateConstantFloat("speed", &water.Speed(), 1);
         shader->UpdateConstantFloat("bumpIntensity", &water.Bump(), 1);
         shader->UpdateConstantFloat("bumpVelocity", &water.BumpVelocity().x, 2);
@@ -793,14 +837,19 @@ bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float 
         shader->UpdateConstantFloat("reflectionTint", &water.ReflectionTint().r, 3);
         shader->UpdateConstantFloat("reflectionIntensity", &water.ReflectionIntensity(), 1);
         shader->UpdateConstantFloat("fresnal", &water.Fresnal().x, 3);
-        SendWaves(water.Waves());
+
+        const auto& waves = water.Waves();
+        for (unsigned int i = 0; i < waves.size(); ++i)
+        {
+            const int offset = i*4; // Arrays pack in buffer of float4
+            shader->UpdateConstantFloat("waveFrequency", &waves[i].amplitude, 1, offset);
+            shader->UpdateConstantFloat("waveAmplitude", &waves[i].amplitude, 1, offset);
+            shader->UpdateConstantFloat("wavePhase", &waves[i].phase, 1, offset);
+            shader->UpdateConstantFloat("waveDirectionX", &waves[i].directionX, 1, offset);
+            shader->UpdateConstantFloat("waveDirectionZ", &waves[i].directionZ, 1, offset);
+        }
 
         shader->SendConstants(m_data->context);
-
-        SetRenderState(false, m_data->isWireframe);
-        EnableAlphaBlending(true);
-        SendTextures(water.TextureIDs());
-
         return true;
     }
     return false;
@@ -834,20 +883,6 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Particle& partic
     shader->UpdateConstantFloat("alpha", &particle.Alpha(), 1);
     shader->SendConstants(m_data->context);
     SendTexture(0, particle.Texture());
-}
-
-void DirectxEngine::SendWaves(const std::vector<Water::Wave>& waves)
-{
-    auto& shader = m_data->shaders[m_data->selectedShader];
-    for (unsigned int i = 0; i < waves.size(); ++i)
-    {
-        const int offset = i*4; // Arrays pack in buffer of float4
-        shader->UpdateConstantFloat("waveFrequency", &waves[i].amplitude, 1, offset);
-        shader->UpdateConstantFloat("waveAmplitude", &waves[i].amplitude, 1, offset);
-        shader->UpdateConstantFloat("wavePhase", &waves[i].phase, 1, offset);
-        shader->UpdateConstantFloat("waveDirectionX", &waves[i].directionX, 1, offset);
-        shader->UpdateConstantFloat("waveDirectionZ", &waves[i].directionZ, 1, offset);
-    }
 }
 
 void DirectxEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)

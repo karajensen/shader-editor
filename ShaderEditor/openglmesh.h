@@ -15,7 +15,14 @@ class GlMeshData : boost::noncopyable
 public:
 
     /**
-    * Constructor
+    * Constructor for predefined buffers
+    * @param data Information for the mesh buffers
+    */
+    GlMeshData(const MeshData& data);
+
+    /**
+    * Constructor for empty buffers
+    * @param name The name of the mesh
     */
     GlMeshData(const std::string& name);
 
@@ -48,8 +55,6 @@ public:
 protected:
 
     int m_shaderID = NO_INDEX;      ///< ID of the shader to use
-    GLsizei m_vertexCount = 0;      ///< Number of vertices for the mesh
-    GLsizei m_indexCount = 0;       ///< Number of indices for the mesh
     GLuint m_vaoID = 0;             ///< An unique ID for Vertex Array Object (VAO)
     GLuint m_vboID = 0;             ///< Unique ID for the Vertex Buffer Object (VBO)   
     GLuint m_iboID = 0;             ///< Unique ID for the Index Buffer Object (IBO)
@@ -124,4 +129,27 @@ public:
 private:
 
     const Water& m_water; ///< Water information
+};
+
+/**
+* OpenGL Terrain mesh
+*/
+class GlTerrain : public GlMeshData
+{
+public:
+
+    /**
+    * Constructor for a complex mesh
+    * @param mesh The mesh to use as a template
+    */
+    GlTerrain(const Terrain& terrain);
+
+    /**
+    * @return the terrain information for the mesh
+    */
+    const Terrain& GetTerrain() const;
+
+private:
+
+    const Terrain& m_terrain; ///< Terrain information
 };

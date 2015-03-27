@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directxshader.h"
+#include "directxtarget.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
 #include "boost/bimap.hpp"
@@ -526,6 +527,24 @@ void DxShader::SendTexture(ID3D11DeviceContext* context,
 {
     context->PSSetShaderResources(slot, 1, view);
     context->PSSetSamplers(slot, 1, state);
+}
+
+void DxShader::SendTexture(ID3D11DeviceContext* context, 
+                           int slot, 
+                           const DxRenderTarget& target,
+                           int ID)
+{
+    context->PSSetShaderResources(slot, 1, target.Get(ID));
+    context->PSSetSamplers(slot, 1, target.State());
+}
+
+void DxShader::SendCopiedTexture(ID3D11DeviceContext* context, 
+                                 int slot, 
+                                 const DxRenderTarget& target,
+                                 int ID)
+{
+    context->PSSetShaderResources(slot, 1, target.GetCopied(ID));
+    context->PSSetSamplers(slot, 1, target.State());
 }
 
 void DxShader::ClearTexture(ID3D11DeviceContext* context,

@@ -142,45 +142,52 @@ public:
     /**
     * Adds a shader to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Shader> element);
+    unsigned int Add(std::unique_ptr<Shader> element);
 
     /**
     * Adds a mesh to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Mesh> element);
+    unsigned int Add(std::unique_ptr<Mesh> element);
 
     /**
     * Adds terrain to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Terrain> element);
+    unsigned int Add(std::unique_ptr<Terrain> element);
 
     /**
     * Adds a light to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Light> element);
+    unsigned int Add(std::unique_ptr<Light> element);
 
     /**
     * Adds a water to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Water> element);
+    unsigned int Add(std::unique_ptr<Water> element);
 
     /**
     * Adds an emitter to the scene
     * @param element The element to add to the scene
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Emitter> element);
+    unsigned int Add(std::unique_ptr<Emitter> element);
 
     /**
     * Adds a texture to the scene
     * @param element The element to add to the scene
     * @param isProcedural Whether this texture can be edited
+    * @return the index where the element was added
     */
-    void Add(std::unique_ptr<Texture> element, bool isProcedural = false);
+    unsigned int Add(std::unique_ptr<Texture> element, bool isProcedural = false);
 
     /**
     * Adds post processing to the scene

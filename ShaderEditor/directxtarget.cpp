@@ -205,10 +205,16 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
 
 bool DxRenderTarget::Initialise(ID3D11Device* device, IDXGISwapChain* swapchain)
 {
-    if (m_isBackBuffer)
-    {
-        return InitialiseBackBuffer(device, swapchain);
-    }
+    assert(m_isBackBuffer);
+
+    return InitialiseBackBuffer(device, swapchain);
+}
+
+bool DxRenderTarget::Initialise(ID3D11Device* device, ID3D11SamplerState* state)
+{
+    assert(!m_isBackBuffer);
+
+    m_state = state;
 
     if (!InitialiseDepthBuffer(device))
     {
@@ -255,12 +261,12 @@ void DxRenderTarget::ClearTarget(ID3D11DeviceContext* context)
     }
 }
 
-ID3D11ShaderResourceView** DxRenderTarget::Get(int ID)
+ID3D11ShaderResourceView* const* DxRenderTarget::Get(int ID) const
 {
     return &(m_views[ID]);
 }
 
-ID3D11ShaderResourceView** DxRenderTarget::GetCopied(int ID)
+ID3D11ShaderResourceView* const* DxRenderTarget::GetCopied(int ID) const
 {
     return &(m_copiedViews[ID]);
 }
@@ -275,4 +281,9 @@ void DxRenderTarget::CopyTextures(ID3D11DeviceContext* context)
     }
 
     ClearTarget(context);
+}
+
+ID3D11SamplerState* const* DxRenderTarget::State() const
+{
+    return &m_state;
 }

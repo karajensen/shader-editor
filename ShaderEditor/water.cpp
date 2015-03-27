@@ -6,7 +6,7 @@
 #include "cache.h"
 
 Water::Water(const boost::property_tree::ptree& node) :
-    MeshData(node)
+    Grid(node)
 {
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_bumpVelocity.x = GetAttribute<float>(node, "BumpVelocity", "x");
@@ -29,12 +29,6 @@ Water::Water(const boost::property_tree::ptree& node) :
     m_reflectionTint.r = GetAttribute<float>(node, "ReflectionTint", "r");
     m_reflectionTint.g = GetAttribute<float>(node, "ReflectionTint", "g");
     m_reflectionTint.b = GetAttribute<float>(node, "ReflectionTint", "b");
-    m_position.x = GetAttribute<float>(node, "Position", "x");
-    m_position.y = GetAttribute<float>(node, "Position", "y");
-    m_position.z = GetAttribute<float>(node, "Position", "z");
-    m_spacing = GetAttribute<float>(node, "Grid", "spacing");
-    m_rows = GetAttribute<int>(node, "Grid", "rows");
-    m_columns = GetAttribute<int>(node, "Grid", "columns");
 
     for (auto itr = node.begin(); itr != node.end(); ++itr)
     {
@@ -59,13 +53,13 @@ Water::Water(const boost::property_tree::ptree& node) :
             " Did not have required amount of waves");
     }
 
-    CreateGrid(m_position, m_spacing, m_rows, m_columns);
+    CreateGrid(false);
 }
 
 void Water::Write(boost::property_tree::ptree& node,
                   std::function<boost::property_tree::ptree&()> createNode) const
 {
-    MeshData::Write(node);
+    Grid::Write(node);
 
     AddValueOptional(node, "Bump", m_bump, 0.0f);
     node.add("Speed", m_speed);
@@ -88,12 +82,6 @@ void Water::Write(boost::property_tree::ptree& node,
     node.add("ReflectionTint.<xmlattr>.r", m_reflectionTint.r);
     node.add("ReflectionTint.<xmlattr>.g", m_reflectionTint.g);
     node.add("ReflectionTint.<xmlattr>.b", m_reflectionTint.b);
-    node.add("Position.<xmlattr>.x", m_position.x);
-    node.add("Position.<xmlattr>.y", m_position.y);
-    node.add("Position.<xmlattr>.z", m_position.z);
-    node.add("Grid.<xmlattr>.spacing", m_spacing);
-    node.add("Grid.<xmlattr>.rows", m_rows);
-    node.add("Grid.<xmlattr>.columns", m_columns);
 
     for (const Wave& wave : m_waves)
     {

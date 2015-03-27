@@ -154,6 +154,19 @@ private:
     bool InitialiseDepthStates();
 
     /**
+    * Updates and switches to main shader the mesh requires
+    * @param mesh The mesh currently rendering
+    * @param scene The scene to render
+    * @param alphaBlend Whether to use alpha blending
+    * @param timer The timer to send or -1 if not to send
+    * @return whether the mesh can now be rendered
+    */
+    bool UpdateShader(const MeshData& mesh, 
+                      const IScene& scene,
+                      bool alphaBlend, 
+                      float timer = -1.0f);
+
+    /**
     * Updates and switches to the main shader the mesh requires
     * @param world The world matrix for the mesh
     * @param mesh The mesh currently rendering
@@ -161,6 +174,16 @@ private:
     * @return whether the mesh can now be rendered
     */
     bool UpdateShader(const Mesh& mesh,
+                      const IScene& scene);
+
+    /**
+    * Updates and switches to the main shader the terrain requires
+    * @param terrain The world matrix for the terrain
+    * @param terrain The terrain currently rendering
+    * @param scene All elements in the scene
+    * @return whether the terrain can now be rendered
+    */
+    bool UpdateShader(const Terrain& terrain,
                       const IScene& scene);
 
     /**
@@ -198,11 +221,6 @@ private:
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
-
-    /**
-    * Sends wave information to the selected shader
-    */
-    void SendWaves(const std::vector<Water::Wave>& waves);
 
     /**
     * Sends light information to the selected shader
@@ -252,6 +270,24 @@ private:
     * @param postProcessing values for the final image
     */
     void RenderBlur(const PostProcessing& post);
+
+    /**
+    * Renders the scene meshes
+    * @param scene The scene to render
+    */
+    void RenderMeshes(const IScene& scene);
+
+    /**
+    * Renders the scene terrain
+    * @param scene The scene to render
+    */
+    void RenderTerrain(const IScene& scene);
+
+    /**
+    * Renders the scene water
+    * @param timer The time passed since scene start
+    */
+    void RenderWater(const IScene& scene, float timer);
 
     /**
     * Renders all emitters

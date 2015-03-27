@@ -42,12 +42,20 @@ public:
     void Release();
 
     /**
-    * Initialises the render target
+    * Initialises the back buffer
     * @param device The DirectX device interface
     * @param swapchain Collection of buffers for displaying frames
     * @return whether initialises succeeded or not
     */
-    bool Initialise(ID3D11Device* device, IDXGISwapChain* swapchain = nullptr);
+    bool Initialise(ID3D11Device* device, IDXGISwapChain* swapchain);
+
+    /**
+    * Initialises a render target
+    * @param device The DirectX device interface
+    * @param state The sampler state to render this target
+    * @return whether initialises succeeded or not
+    */
+    bool Initialise(ID3D11Device* device, ID3D11SamplerState* state);
 
     /**
     * Sets the render target as activated and clears it
@@ -59,13 +67,18 @@ public:
     * Gets the render target texture
     * @param ID The texture index attached to the target
     */
-    ID3D11ShaderResourceView** Get(int ID = 0);
+    ID3D11ShaderResourceView* const* Get(int ID = 0) const;
 
     /**
     * Gets the copied render target texture
     * @param ID The texture index attached to the target
     */
-    ID3D11ShaderResourceView** GetCopied(int ID = 0);
+    ID3D11ShaderResourceView* const* GetCopied(int ID = 0) const;
+
+    /**
+    * @return the sampler state of this render target
+    */
+    ID3D11SamplerState* const* State() const;
 
     /**
     * Copies the textures to the copied cache
@@ -121,4 +134,5 @@ private:
     std::vector<ID3D11ShaderResourceView*> m_copiedViews; ///< Shader views for the textures
     ID3D11DepthStencilView* m_depthBuffer = nullptr;      ///< Depth buffer for the render target
     static D3D11_TEXTURE2D_DESC sm_textureDesc;           ///< Base description of the render target textures
+    ID3D11SamplerState* m_state = nullptr;                ///< The sampler state for rendering the target
 };

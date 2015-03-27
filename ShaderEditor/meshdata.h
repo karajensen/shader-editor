@@ -52,6 +52,11 @@ public:
     int ShaderID() const;
 
     /**
+    * @return Whether back facing polygons are culled
+    */
+    bool BackfaceCull() const;
+
+    /**
     * @return The vertices constructing this mesh
     */
     const std::vector<float>& Vertices() const;
@@ -92,19 +97,11 @@ public:
 
 protected:
 
-    /**
-    * Loads a grid into the buffers
-    * @param position The center of the grid
-    * @param spacing The spacing between vertices
-    * @param rows How many rows for the grid
-    * @param columns How many columns for the grid
-    */
-    void CreateGrid(const Float3& position, float spacing, int rows, int columns);
-
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
     std::vector<unsigned long> m_indices;    ///< The indices constructing this mesh
     int m_vertexComponentCount = 1;          ///< Number of components that make up a vertex
     std::string m_name;                      ///< Name of the mesh
+    bool m_backfacecull = true;              ///< Whether back facing polygons are culled
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<int> m_textureIDs;           ///< IDs for each texture used

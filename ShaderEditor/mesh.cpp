@@ -18,7 +18,6 @@ Mesh::Mesh(const boost::property_tree::ptree& node) :
     m_caustics = GetValueOptional<float>(node, 1.0f, "Caustics");
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
-    m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
 }
 
@@ -30,7 +29,6 @@ void Mesh::Write(boost::property_tree::ptree& node) const
     AddValueOptional(node, "Caustics", m_caustics, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
-    AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
     AddValueOptional(node, "Instances", m_initialInstances, 1);
 }
 
@@ -74,13 +72,8 @@ const float& Mesh::Specularity() const
 const float& Mesh::Ambience() const
 {
     return m_ambience;
-}
 
-bool Mesh::BackfaceCull() const
-{
-    return m_backfacecull;
 }
-
 const float& Mesh::Caustics() const
 {
     return m_caustics;

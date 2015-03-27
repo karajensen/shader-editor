@@ -234,12 +234,12 @@ void SceneModifier::UpdateTerrain()
     if(selectedTerrain != m_selectedTerrain)
     {
         m_selectedTerrain = selectedTerrain;
-        //m_scene.GetTerrain(m_selectedTerrain).Write(*m_cache);
+        m_scene.GetTerrain(m_selectedTerrain).Write(*m_cache);
     }
     else if(m_selectedTerrain >= 0 && 
             m_selectedTerrain < static_cast<int>(m_scene.Terrains().size()))
     {
-        //m_scene.GetTerrain(m_selectedTerrain).Read(*m_cache);
+        m_scene.GetTerrain(m_selectedTerrain).Read(*m_cache);
     }
 }
 

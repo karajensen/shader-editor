@@ -4,32 +4,36 @@
 
 #include "directxmesh.h"
 
+DxMeshData::DxMeshData(const MeshData& data) :
+    m_name(data.Name()),
+    m_vertexStride(sizeof(float) * data.VertexComponentCount()),
+    m_vertices(data.Vertices()),
+    m_indices(data.Indices())
+{
+}
+
 DxMeshData::DxMeshData(const std::string& name) :
     m_name(name)
 {
 }
 
 DxWater::DxWater(const Water& water) :
-    DxMeshData(water.Name()),
+    DxMeshData(water),
     m_water(water)
 {
-    m_vertexStride = sizeof(float) * water.VertexComponentCount();
-    m_vertexCount = water.Vertices().size();
-    m_indexCount = water.Indices().size();
-    m_vertices = water.Vertices();
-    m_indices = water.Indices();
+}
+
+DxTerrain::DxTerrain(const Terrain& terrain) :
+    DxMeshData(terrain),
+    m_terrain(terrain)
+{
 }
 
 DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    DxMeshData(mesh.Name()),
+    DxMeshData(mesh),
     m_mesh(mesh),
     m_preRender(preRender)
 {
-    m_vertexStride = sizeof(float) * mesh.VertexComponentCount();
-    m_vertexCount = mesh.Vertices().size();
-    m_indexCount = mesh.Indices().size();
-    m_vertices = mesh.Vertices();
-    m_indices = mesh.Indices();
 }
 
 DxQuad::DxQuad(const std::string& name) :
@@ -73,8 +77,6 @@ DxQuad::DxQuad(const std::string& name) :
 
     // 3 floats in position, 2 floats in uvs
     m_vertexStride = sizeof(float) * 5;
-    m_vertexCount = m_vertices.size();
-    m_indexCount = m_indices.size();
 }
 
 DxMeshData::~DxMeshData()
@@ -94,7 +96,7 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     D3D11_BUFFER_DESC vbd;
     ZeroMemory(&vbd, sizeof(vbd));
     vbd.Usage = D3D11_USAGE_DYNAMIC;
-    vbd.ByteWidth = m_vertexStride * m_vertexCount;
+    vbd.ByteWidth = m_vertexStride * m_vertices.size();
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     device->CreateBuffer(&vbd, 0, &m_vertexBuffer);
@@ -108,7 +110,7 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     // Create the index buffer
     D3D11_BUFFER_DESC ibd;
     ibd.Usage = D3D11_USAGE_DYNAMIC;
-    ibd.ByteWidth = sizeof(DWORD) * m_indexCount;
+    ibd.ByteWidth = sizeof(DWORD) * m_indices.size();
     ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
     ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     ibd.MiscFlags = 0;
@@ -130,7 +132,7 @@ void DxMeshData::Render(ID3D11DeviceContext* context)
     context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_vertexStride, &offset);
     context->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
     context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    context->DrawIndexed(m_indexCount, 0, 0);
+    context->DrawIndexed(m_indices.size(), 0, 0);
 }
 
 const Mesh& DxMesh::GetMesh() const
@@ -141,6 +143,11 @@ const Mesh& DxMesh::GetMesh() const
 const Water& DxWater::GetWater() const
 {
     return m_water;
+}
+
+const Terrain& DxTerrain::GetTerrain() const
+{
+    return m_terrain;
 }
 
 void DxMesh::Render(ID3D11DeviceContext* context)

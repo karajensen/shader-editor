@@ -186,6 +186,9 @@
     <ClCompile Include="sceneBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -349,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="sceneBuilder.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

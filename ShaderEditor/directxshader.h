@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 class Shader;
+class DxRenderTarget;
 
 /**
 * Holds information for a directx shader
@@ -109,6 +110,30 @@ public:
                      int slot, 
                      ID3D11ShaderResourceView** view,
                      ID3D11SamplerState** state);
+
+    /**
+    * Sends the texture attached to the target to the shader
+    * @param context Direct3D device context
+    * @param slot The slot to put the texture in
+    * @param target The render target to send
+    * @param ID The ID of the render target texture to send
+    */
+    void SendTexture(ID3D11DeviceContext* context, 
+                     int slot, 
+                     const DxRenderTarget& target,
+                     int ID = 0);
+
+    /**
+    * Sends the copied texture attached to the target to the shader
+    * @param context Direct3D device context
+    * @param slot The slot to put the texture in
+    * @param target The render target to send
+    * @param ID The ID of the render target texture to send
+    */
+    void SendCopiedTexture(ID3D11DeviceContext* context, 
+                           int slot, 
+                           const DxRenderTarget& target,
+                           int ID = 0);
 
     /**
     * Clears a texture from the shader

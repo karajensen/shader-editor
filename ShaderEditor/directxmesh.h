@@ -14,7 +14,14 @@ class DxMeshData : boost::noncopyable
 public:
 
     /**
-    * Constructor
+    * Constructor for predefined buffers
+    * @param data Information for the mesh buffers
+    */
+    DxMeshData(const MeshData& data);
+
+    /**
+    * Constructor for empty buffers
+    * @param name The name of the mesh
     */
     DxMeshData(const std::string& name);
 
@@ -43,8 +50,6 @@ public:
 
 protected:
 
-    UINT m_indexCount = 0;                   ///< Number of indices for the mesh
-    UINT m_vertexCount = 0;                  ///< Number of vertices for the mesh
     UINT m_vertexStride = 0;                 ///< Size of the vertex structure
     ID3D11Buffer* m_vertexBuffer = nullptr;  ///< Buffer of vertex data for the mesh
     ID3D11Buffer* m_indexBuffer = nullptr;   ///< Buffer of index data for the mesh
@@ -118,5 +123,28 @@ public:
 private:
 
     const Water& m_water; ///< Water information
+};
+
+/**
+* DirectX Terrain mesh
+*/
+class DxTerrain : public DxMeshData
+{
+public:
+
+    /**
+    * Constructor for a complex mesh
+    * @param mesh The mesh to use as a template
+    */
+    DxTerrain(const Terrain& terrain);
+
+    /**
+    * @return the water information for the mesh
+    */
+    const Terrain& GetTerrain() const;
+
+private:
+
+    const Terrain& m_terrain; ///< Terrain information
 };
                                                                              

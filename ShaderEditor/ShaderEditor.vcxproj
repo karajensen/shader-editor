@@ -37,6 +37,7 @@
     <ClCompile Include="directxtexture.cpp" />
     <ClCompile Include="emitter.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
+    <ClCompile Include="grid.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="emitter.h" />
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="cache.h" />
+    <ClInclude Include="grid.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />

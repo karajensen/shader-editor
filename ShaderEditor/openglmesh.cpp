@@ -9,27 +9,30 @@ GlMeshData::GlMeshData(const std::string& name) :
 {
 }
 
+GlMeshData::GlMeshData(const MeshData& data) :
+    m_name(data.Name()),
+    m_vertices(data.Vertices()),
+    m_indices(data.Indices())
+{
+}
+
 GlWater::GlWater(const Water& water) :
-    GlMeshData(water.Name()),
+    GlMeshData(water),
     m_water(water)
 {
-    m_vertexCount = water.Vertices().size();
-    m_indexCount = water.Indices().size();
-    m_vertices = water.Vertices();
-    m_indices = water.Indices();
-    m_name = water.Name();
+}
+
+GlTerrain::GlTerrain(const Terrain& terrain) :
+    GlMeshData(terrain),
+    m_terrain(terrain)
+{
 }
 
 GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    GlMeshData(mesh.Name()),
+    GlMeshData(mesh),
     m_mesh(mesh),
     m_preRender(preRender)
 {
-    m_vertexCount = mesh.Vertices().size();
-    m_indexCount = mesh.Indices().size();
-    m_vertices = mesh.Vertices();
-    m_indices = mesh.Indices();
-    m_name = mesh.Name();
 }
 
 GlQuad::GlQuad(const std::string& name) :
@@ -70,9 +73,6 @@ GlQuad::GlQuad(const std::string& name) :
     m_indices.emplace_back(1);
     m_indices.emplace_back(3);
     m_indices.emplace_back(2);
-
-    m_vertexCount = m_vertices.size();
-    m_indexCount = m_indices.size();
 }
 
 GlMeshData::~GlMeshData()
@@ -126,7 +126,7 @@ void GlMeshData::PreRender()
 void GlMeshData::Render()
 {
     assert(m_initialised);
-    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 const Mesh& GlMesh::GetMesh() const
@@ -137,6 +137,11 @@ const Mesh& GlMesh::GetMesh() const
 const Water& GlWater::GetWater() const
 {
     return m_water;
+}
+
+const Terrain& GlTerrain::GetTerrain() const
+{
+    return m_terrain;
 }
 
 void GlMesh::Render()

@@ -85,11 +85,6 @@ public:
     const float& Caustics() const;
 
     /**
-    * @return Whether back facing polygons are culled
-    */
-    bool BackfaceCull() const;
-
-    /**
     * Initialises the mesh data buffer containers from file
     * @param path The full path to the mesh file
     * @param requiresNormals Whether this mesh requires normals
@@ -106,7 +101,6 @@ private:
     float m_caustics = 1.0f;           ///< How much of the caustics are visible
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
-    bool m_backfacecull = true;        ///< Whether back facing polygons are culled
     int m_initialInstances = 0;        ///< The number of instances on load
     std::vector<Instance> m_instances; ///< Instances of this mesh
 };

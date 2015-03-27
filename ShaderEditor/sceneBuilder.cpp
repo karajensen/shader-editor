@@ -188,18 +188,24 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
 
         if (itr->first == "Water")
         {
-            m_scene.Add(std::make_unique<Water>(node));
-            auto& water = m_scene.GetWater(m_scene.Waters().size()-1);
-            if (!InitialiseWater(water, node))
+            const auto index = m_scene.Add(std::make_unique<Water>(node));
+            if (!InitialiseWater(m_scene.GetWater(index), node))
             {
                 return false;
             }
         }
         else if (itr->first == "Mesh")
         {
-            m_scene.Add(std::make_unique<Mesh>(node));
-            auto& mesh = m_scene.GetMesh(m_scene.Meshes().size()-1);
-            if(!InitialiseMesh(mesh, linker, node))
+            const auto index = m_scene.Add(std::make_unique<Mesh>(node));
+            if(!InitialiseMesh(m_scene.GetMesh(index), linker, node))
+            {
+                return false;
+            }
+        }
+        else if (itr->first == "Terrain")
+        {
+            const auto index = m_scene.Add(std::make_unique<Terrain>(node));
+            if(!InitialiseTerrain(m_scene.GetTerrain(index), linker, node))
             {
                 return false;
             }
@@ -214,6 +220,15 @@ bool SceneBuilder::InitialiseWater(Water& water,
     InitialiseMeshTextures(water);
     water.SetShaderID(m_scene.GetShader(WATER_SHADER).Name(), WATER_SHADER);
     return true;
+}
+
+bool SceneBuilder::InitialiseTerrain(Terrain& terrain, 
+                                     FragmentLinker& linker,
+                                     const boost::property_tree::ptree& node)
+{                                
+    InitialiseMeshTextures(terrain);
+    InitialiseMeshShader(terrain, linker, node);
+    return terrain.Initialise();
 }
 
 bool SceneBuilder::InitialiseMesh(Mesh& mesh, 
@@ -239,7 +254,7 @@ void SceneBuilder::InitialiseMeshTextures(MeshData& mesh)
     }
 }
 
-void SceneBuilder::InitialiseMeshShader(Mesh& mesh, 
+void SceneBuilder::InitialiseMeshShader(MeshData& mesh, 
                                         FragmentLinker& linker,
                                         const boost::property_tree::ptree& node)
 {
