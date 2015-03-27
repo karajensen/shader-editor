@@ -46,13 +46,13 @@ void Terrain::Read(Cache& cache)
 
 bool Terrain::Initialise()
 {
-    CreateGrid(true);
-
-    GenerateTerrain();
-
-    RecalculateNormals();
-
-    return true;
+    if (CreateGrid(true, false))
+    {
+        GenerateTerrain();
+        RecalculateNormals();
+        return true;
+    }
+    return false;
 }
 
 void Terrain::GenerateTerrain()

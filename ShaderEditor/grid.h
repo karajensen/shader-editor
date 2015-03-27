@@ -11,7 +11,7 @@
 */
 class Grid : public MeshData
 {
-public:
+protected:
 
     /**
     * Constructor
@@ -28,8 +28,10 @@ public:
     /**
     * Loads a grid into the buffers
     * @param normals Whether to generate normals
+    * @param tangents Whether to generate tangent/bitangents
+    * @return whether creation was successful
     */
-    void CreateGrid(bool normals);
+    bool CreateGrid(bool normals, bool tangents);
                    
     /**
     * Resets the grid to default
@@ -73,10 +75,17 @@ public:
 
 private:
 
-    float m_spacing = 0.0f;                     ///< The spacing between vertices
-    int m_columns = 0;                          ///< The number of columns of this mesh
-    int m_rows = 0;                             ///< The number of rows of this mesh
-    bool m_hasNormals = false;                  ///< Whether to generate normals
-    Float3 m_position;                          ///< The initial position of the grid
-    std::vector<std::vector<float*>> m_heights; ///< Row x columns of the vertices
+    /**
+    * @return the index of the start of the vertex
+    * @param row The row of the vertex
+    * @param column The column of the vertex
+    */
+    unsigned int GetIndex(int row, int column) const;
+
+    float m_spacing = 0.0f;      ///< The spacing between vertices
+    int m_columns = 0;           ///< The number of columns of this mesh
+    int m_rows = 0;              ///< The number of rows of this mesh
+    bool m_hasNormals = false;   ///< Whether to generate normals
+    bool m_hasTangents = false;  ///< Whether to generate tangent/bitangents
+    Float3 m_position;           ///< The initial position of the grid
 };
