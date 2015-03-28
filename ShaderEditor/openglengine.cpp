@@ -46,6 +46,7 @@ struct OpenglData
     glm::mat4 projection;                ///< Projection matrix
     glm::mat4 view;                      ///< View matrix
     glm::mat4 viewProjection;            ///< View projection matrix
+    glm::mat4 identity;                  ///< Identity matrix
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
@@ -715,6 +716,7 @@ bool OpenglEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
         shader->SendUniformFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &terrain.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &terrain.Specularity(), 1);
+        shader->SendUniformMatrix("world", m_data->identity);
         shader->SendUniformArrays();
         return true;
     }

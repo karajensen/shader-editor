@@ -77,6 +77,7 @@ struct DirectxData
     D3DXMATRIX view;                     ///< View matrix
     D3DXMATRIX projection;               ///< Projection matrix
     D3DXMATRIX viewProjection;           ///< View projection matrix
+    D3DXMATRIX identity;                 ///< Identity matrix
     D3DXVECTOR3 cameraPosition;          ///< Position of the camera
     D3DXVECTOR3 cameraUp;                ///< Up vector of the camera
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
@@ -103,6 +104,8 @@ DirectxData::DirectxData() :
     quad("SceneQuad"),
     drawState(NO_STATE)
 {
+    D3DXMatrixIdentity(&identity);
+
     samplers.resize(MAX_SAMPLER_STATES);
     samplers.assign(MAX_SAMPLER_STATES, nullptr);
 
@@ -806,6 +809,7 @@ bool DirectxEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
         shader->UpdateConstantFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &terrain.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &terrain.Specularity(), 1);
+        shader->UpdateConstantMatrix("world", m_data->identity);
         shader->SendConstants(m_data->context);
         return true;
     }

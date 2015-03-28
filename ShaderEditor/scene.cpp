@@ -207,11 +207,21 @@ void Scene::Tick(float deltatime)
         emitter->Tick(deltatime);
     }
 
+    const auto caustics = m_data->caustics->GetFrame();
+
     for (auto& mesh : m_data->meshes)
     {
         if (m_data->shaders[mesh->ShaderID()]->HasComponent(Shader::CAUSTICS))
         {
-            mesh->SetTexture(Texture::CAUSTICS, m_data->caustics->GetFrame());
+            mesh->SetTexture(Texture::CAUSTICS, caustics);
+        }
+    }
+
+    for (auto& terrain : m_data->terrain)
+    {
+        if (m_data->shaders[terrain->ShaderID()]->HasComponent(Shader::CAUSTICS))
+        {
+            terrain->SetTexture(Texture::CAUSTICS, caustics);
         }
     }
 
