@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Meshes>
 	<Mesh>
-		<Shader>diagnostic</Shader>
 		<Name>sphere.obj</Name>
+		<Shader>diagnostic</Shader>
 		<Instances>0</Instances>
 	</Mesh>
 	<Mesh>
-		<Shader>bump|specular|caustics</Shader>
 		<Name>sphere.obj</Name>
+		<Shader>bump|specular|caustics</Shader>
 		<Diffuse>ground.png</Diffuse>
 		<Normal>bump.png</Normal>
 		<Specular>specular.jpg</Specular>
@@ -15,70 +15,36 @@
 		<Specularity>5</Specularity>
 	</Mesh>
 	<Mesh>
-		<Shader>diffuse|caustics</Shader>
 		<Name>sphere.obj</Name>
+		<Shader>diffuse|caustics</Shader>
 		<Diffuse>blank.png</Diffuse>
 	</Mesh>
 	<Mesh>
-		<Shader>diffuse</Shader>
-		<Name>mock_bridge.obj</Name>
-		<Diffuse>bridge.bmp</Diffuse>
-		<BackfaceCulling>0</BackfaceCulling>
-	</Mesh>
-	<Mesh>
-		<Shader>flat</Shader>
 		<Name>mock_skybox.obj</Name>
-		<Diffuse>sky.png</Diffuse>
+		<Shader>flat</Shader>
 		<BackfaceCulling>0</BackfaceCulling>
+		<Diffuse>sky.png</Diffuse>
 	</Mesh>
-	<Mesh>
-		<Shader>bump</Shader>
-		<Name>mock_ground1.obj</Name>
+	<Terrain>
+		<Name>sand</Name>
+		<Shader>diffuse</Shader>
 		<Diffuse>ground.png</Diffuse>
-		<Normal>bump.png</Normal>
-		<Bump>20</Bump>
-	</Mesh>
-	<Mesh>
-		<Shader>bump</Shader>
-		<Name>mock_ground2.obj</Name>
-		<Diffuse>ground.png</Diffuse>
-		<Normal>bump.png</Normal>
-		<Bump>20</Bump>
-	</Mesh>
-	<Mesh>
-		<Shader>bump</Shader>
-		<Name>mock_hill1.obj</Name>
-		<Diffuse>ground.png</Diffuse>
-		<Normal>bump.png</Normal>
-		<Bump>20</Bump>
-	</Mesh>
-	<Mesh>
-		<Shader>bump</Shader>
-		<Name>mock_hill2.obj</Name>
-		<Diffuse>ground.png</Diffuse>
-		<Normal>bump.png</Normal>
-		<Bump>20</Bump>
-	</Mesh>
-  <Terrain>
-    <Shader>diffuse</Shader>
-    <Name>sand</Name>
-    <Type>diamond_square</Type>
-    <Diffuse>ground.png</Diffuse>
-    <Position x="0" y="-5" z="0"/>
-    <Grid rows="100" columns="100" spacing="1.0"></Grid>
-  </Terrain>
-  <Water>
-		<Shader>water</Shader>
+		<Position x="0" y="-5" z="0"/>
+		<Grid spacing="1" rows="100" columns="100"/>
+		<Type>diamond_square</Type>
+	</Terrain>
+	<Water>
 		<Name>water</Name>
-    <BackfaceCulling>0</BackfaceCulling>
+		<Shader/>
+		<BackfaceCulling>0</BackfaceCulling>
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
+		<Position x="0" y="5" z="0"/>
+		<Grid spacing="10" rows="10" columns="20"/>
 		<Bump>1</Bump>
 		<Speed>1</Speed>
 		<BumpVelocity x="0" y="0"/>
-    <Position x="0" y="5" z="0"/>
-    <Grid rows="10" columns="20" spacing="10.0"></Grid>
 		<Fresnal scale="1" bias="0.5" power="2"/>
 		<ReflectionIntensity>1</ReflectionIntensity>
 		<UVScale u="1" v="1"/>

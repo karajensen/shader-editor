@@ -189,7 +189,7 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
         if (itr->first == "Water")
         {
             const auto index = m_scene.Add(std::make_unique<Water>(node));
-            if (!InitialiseWater(m_scene.GetWater(index), node))
+            if (!InitialiseWater(m_scene.GetWater(index)))
             {
                 return false;
             }
@@ -197,7 +197,7 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
         else if (itr->first == "Mesh")
         {
             const auto index = m_scene.Add(std::make_unique<Mesh>(node));
-            if(!InitialiseMesh(m_scene.GetMesh(index), linker, node))
+            if(!InitialiseMesh(m_scene.GetMesh(index), linker))
             {
                 return false;
             }
@@ -205,7 +205,7 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
         else if (itr->first == "Terrain")
         {
             const auto index = m_scene.Add(std::make_unique<Terrain>(node));
-            if(!InitialiseTerrain(m_scene.GetTerrain(index), linker, node))
+            if(!InitialiseTerrain(m_scene.GetTerrain(index), linker))
             {
                 return false;
             }
@@ -214,29 +214,24 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
     return true;
 }
 
-bool SceneBuilder::InitialiseWater(Water& water, 
-                                   const boost::property_tree::ptree& node)
+bool SceneBuilder::InitialiseWater(Water& water)
 {
     InitialiseMeshTextures(water);
-    water.SetShaderID(m_scene.GetShader(WATER_SHADER).Name(), WATER_SHADER);
+    water.SetShaderID(WATER_SHADER);
     return true;
 }
 
-bool SceneBuilder::InitialiseTerrain(Terrain& terrain, 
-                                     FragmentLinker& linker,
-                                     const boost::property_tree::ptree& node)
+bool SceneBuilder::InitialiseTerrain(Terrain& terrain, FragmentLinker& linker)
 {                                
     InitialiseMeshTextures(terrain);
-    InitialiseMeshShader(terrain, linker, node);
+    InitialiseMeshShader(terrain, linker);
     return terrain.Initialise();
 }
 
-bool SceneBuilder::InitialiseMesh(Mesh& mesh, 
-                                  FragmentLinker& linker,
-                                  const boost::property_tree::ptree& node)
+bool SceneBuilder::InitialiseMesh(Mesh& mesh, FragmentLinker& linker)
 {                                
     InitialiseMeshTextures(mesh);
-    InitialiseMeshShader(mesh, linker, node);
+    InitialiseMeshShader(mesh, linker);
     return mesh.InitialiseFromFile(MESHES_PATH + "//" + mesh.Name(), true, 
         m_scene.GetShader(mesh.ShaderID()).HasComponent(Shader::BUMP));
 }
@@ -254,12 +249,10 @@ void SceneBuilder::InitialiseMeshTextures(MeshData& mesh)
     }
 }
 
-void SceneBuilder::InitialiseMeshShader(MeshData& mesh, 
-                                        FragmentLinker& linker,
-                                        const boost::property_tree::ptree& node)
+void SceneBuilder::InitialiseMeshShader(MeshData& mesh, FragmentLinker& linker)
 {
     // Get the shader used by the mesh
-    std::string shader = GetValue<std::string>(node, "Shader");
+    std::string shader = mesh.ShaderName();
     boost::algorithm::replace_all(shader, "|", "");
 
     // Ensure not asking for a specialised shader
@@ -284,7 +277,7 @@ void SceneBuilder::InitialiseMeshShader(MeshData& mesh,
         shaderIndex = GetShaderIndex(linker, shader, mesh.Name());
     }
 
-    mesh.SetShaderID(m_scene.GetShader(shaderIndex).Name(), shaderIndex);
+    mesh.SetShaderID(shaderIndex);
 }
 
 int SceneBuilder::GetShaderIndex(const std::string& shadername)
@@ -393,6 +386,14 @@ void SceneBuilder::SaveMeshesToFile()
         mesh->Write(entry);
         entries.push_back(entry);
         tree.add_child("Mesh", entries[entries.size()-1]);
+    }
+
+    for(const auto& terrain : m_scene.Terrains())
+    {
+        boost::property_tree::ptree entry;
+        terrain->Write(entry);
+        entries.push_back(entry);
+        tree.add_child("Terrain", entries[entries.size()-1]);
     }
 
     auto createNode = [&entries]() -> boost::property_tree::ptree&

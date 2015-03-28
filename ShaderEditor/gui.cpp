@@ -237,7 +237,7 @@ void Gui::UpdateTerrain(Tweaker& tweaker)
     if(!tweaker.HasTerrain())
     {
         initialisedTerrain = true;
-        tweaker.InitialiseTextures(
+        tweaker.InitialiseTerrain(
             m_cache->TerrainSelected.Get(), m_cache->Terrains.Get());
     }
 

@@ -657,10 +657,10 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     SetRenderState(false, false);
     EnableAlphaBlending(false);
 
+    m_data->preEffectsTarget.SetActive(m_data->context);
+
     SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
-    preShader->SetActive(m_data->context);
-    m_data->preEffectsTarget.SetActive(m_data->context);
     
     preShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
@@ -686,7 +686,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     SetSelectedShader(BLUR_HORIZONTAL_SHADER);
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
-    blurHorizontal->SetActive(m_data->context);
+
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendConstants(m_data->context);
 
@@ -698,7 +698,7 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     SetSelectedShader(BLUR_VERTICAL_SHADER);
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
-    blurVertical->SetActive(m_data->context);
+
     blurVertical->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurVertical->SendConstants(m_data->context);
 
@@ -720,7 +720,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     SetSelectedShader(POST_SHADER);
     auto& postShader = m_data->shaders[POST_SHADER];
-    postShader->SetActive(m_data->context);
+
     m_data->backBuffer.SetActive(m_data->context);
 
     postShader->SendTexture(m_data->context, 0, m_data->preEffectsTarget, SCENE_ID);

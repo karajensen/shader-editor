@@ -115,11 +115,8 @@ private:
     * Initialises a mesh shader for the scene
     * @param mesh The mesh to initialise
     * @param linker The fragment linker used to generate shaders
-    * @param node The node for the mesh config file
     */
-    void InitialiseMeshShader(MeshData& mesh,
-                              FragmentLinker& linker,
-                              const boost::property_tree::ptree& node);
+    void InitialiseMeshShader(MeshData& mesh, FragmentLinker& linker);
 
     /**
     * Initialises any textures requires for the mesh
@@ -131,32 +128,24 @@ private:
     * Initialises a mesh for the scene
     * @param mesh The mesh to initialise
     * @param linker The fragment linker used to generate shaders
-    * @param node The node for the mesh config file
     * @return if initialization was successfull
     */
-    bool InitialiseMesh(Mesh& mesh, 
-                        FragmentLinker& linker,
-                        const boost::property_tree::ptree& node);
+    bool InitialiseMesh(Mesh& mesh, FragmentLinker& linker);
 
     /**
     * Initialises terrain for the scene
     * @param terrain The terrain to initialise
     * @param linker The fragment linker used to generate shaders
-    * @param node The node for the mesh config file
     * @return if initialization was successfull
     */
-    bool InitialiseTerrain(Terrain& terrain, 
-                           FragmentLinker& linker,
-                           const boost::property_tree::ptree& node);
+    bool InitialiseTerrain(Terrain& terrain, FragmentLinker& linker);
 
     /**
     * Initialises a water mesh for the scene
     * @param water The water to initialise
-    * @param node The node for the mesh config file
     * @return if initialization was successfull
     */
-    bool InitialiseWater(Water& water, const 
-                         boost::property_tree::ptree& node);
+    bool InitialiseWater(Water& water);
 
     /**
     * Adds a texture from a mesh if it doesn't already exist

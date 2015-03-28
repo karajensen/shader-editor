@@ -83,10 +83,9 @@ public:
 
     /**
     * Sets the shaders used by the mesh to render
-    * @param shaderName The name of the shader to render with
     * @param shaderID The ID of the shader to render with
     */
-    void SetShaderID(const std::string& shaderName, int shaderID);
+    void SetShaderID(int shaderID);
 
     /**
     * Sets the ID of the texture to use

@@ -13,6 +13,7 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
     m_textureIDs.assign(Texture::MAX_TYPES, NO_INDEX);
     m_name = GetValue<std::string>(node, "Name");
     m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
+    m_shaderName = GetValueOptional<std::string>(node, "", "Shader");
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
     {
@@ -24,7 +25,7 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
 void MeshData::Write(boost::property_tree::ptree& node) const
 {
     node.add("Name", m_name);
-    node.add("Shader", m_shaderName);
+    AddValueOptional(node, "Shader", m_shaderName.c_str(), "");
     AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
@@ -76,9 +77,8 @@ int MeshData::VertexComponentCount() const
     return m_vertexComponentCount;
 }
 
-void MeshData::SetShaderID(const std::string& shaderName, int shaderID)
+void MeshData::SetShaderID(int shaderID)
 {
-    m_shaderName = shaderName;
     m_shaderIndex = shaderID;
 }
 

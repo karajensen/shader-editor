@@ -50,6 +50,7 @@ bool Terrain::Initialise()
     {
         GenerateTerrain();
         RecalculateNormals();
+        Logger::LogInfo("Terrain: " + Name() + " generated");
         return true;
     }
     return false;
