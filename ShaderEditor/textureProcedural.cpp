@@ -73,9 +73,9 @@ void ProceduralTexture::SaveTexture()
 
     for (unsigned int i = 0, j = 0; i < m_pixels.size(); ++i, j+=channels)
     {
-        data[j] = RedAsChar(m_pixels[i]);
-        data[j+1] = GreenAsChar(m_pixels[i]);
-        data[j+2] = BlueAsChar(m_pixels[i]);
+        data[j] = RedAsChar(i);
+        data[j+1] = GreenAsChar(i);
+        data[j+2] = BlueAsChar(i);
     }
 
     if (SOIL_save_image(m_savePath.c_str(), SOIL_SAVE_TYPE_BMP, 
@@ -246,84 +246,4 @@ bool ProceduralTexture::Valid(unsigned int index) const
 
 void ProceduralTexture::MakeDiamondSquareFractal()
 {
-    const int minSize = 1;
-    const int maxSize = m_size;
-    const int maxIndex = maxSize - 1;
-    const float max = 1.0f;
-
-    auto SetPoint = [&](unsigned int p, 
-                        unsigned int p1, 
-                        unsigned int p2, 
-                        unsigned int p3, 
-                        unsigned int p4)
-    {
-        Float3 average;
-        int count = 0;
-
-        if (Valid(p1))
-        {
-            average.x += RedAsFlt(p1);
-            average.y += GreenAsFlt(p1);
-            average.z += BlueAsFlt(p1);
-            ++count;
-        }
-        if (Valid(p2))
-        {
-            average.x += RedAsFlt(p2);
-            average.y += GreenAsFlt(p2);
-            average.z += BlueAsFlt(p2);
-            ++count;
-        }
-        if (Valid(p3))
-        {
-            average.x += RedAsFlt(p3);
-            average.y += GreenAsFlt(p3);
-            average.z += BlueAsFlt(p3);
-            ++count;
-        }
-        if (Valid(p4))
-        {
-            average.x += RedAsFlt(p4);
-            average.y += GreenAsFlt(p4);
-            average.z += BlueAsFlt(p4);
-            ++count;
-        }
-
-        average /= static_cast<float>(count);
-        Set(p, average.x, average.y, average.z, 0.0f);
-    };
-
-    int size = maxSize;
-    int half = size / 2;
-
-    while (half >= minSize)
-    {
-        // Set the midpoint of the sections
-        for (int r = half; r < maxIndex; r += size) 
-        {
-            for (int c = half; c < maxIndex; c += size)
-            {
-                SetPoint(GetIndex(r, c),
-                    GetIndex(r - half, c - half),  // Top left corner
-                    GetIndex(r + half, c - half),  // Top right corner
-                    GetIndex(r - half, c + half),  // Bot left corner
-                    GetIndex(r + half, c + half)); // Bot left corner
-            }
-        }
-
-        for (int r = 0; r <= maxIndex; r += half)
-        {
-            for (int c = (r + half) % size; c <= maxIndex; c += size)
-            {
-                SetPoint(GetIndex(r, c),
-                    GetIndex(r, c - half),  // Top 
-                    GetIndex(r, c + half),  // Bottom 
-                    GetIndex(r - half, c),  // Left 
-                    GetIndex(r + half, c)); // Right 
-            }
-        }
-
-        size = half;
-        half = size / 2;
-    }    
 }
