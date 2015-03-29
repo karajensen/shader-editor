@@ -44,9 +44,9 @@ void Terrain::Read(Cache& cache)
     m_ambience = cache.Mesh[TERRAIN_AMBIENCE].Get();
 }
 
-bool Terrain::Initialise()
+bool Terrain::Initialise(bool hasNormals, bool hasTangents)
 {
-    if (CreateGrid(true, false))
+    if (CreateGrid(hasNormals, hasTangents))
     {
         GenerateTerrain();
         RecalculateNormals();

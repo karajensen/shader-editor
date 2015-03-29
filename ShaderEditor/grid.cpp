@@ -16,7 +16,13 @@ namespace
         TEXTURE_V,
         NORMAL_X, 
         NORMAL_Y, 
-        NORMAL_Z
+        NORMAL_Z,
+        TANGENT_X,
+        TANGENT_Y,
+        TANGENT_Z,
+        BITANGENT_X,
+        BITANGENT_Y,
+        BITANGENT_Z
     };
 }
 
@@ -29,6 +35,8 @@ Grid::Grid(const boost::property_tree::ptree& node) :
     m_spacing = GetAttribute<float>(node, "Grid", "spacing");
     m_rows = GetAttribute<int>(node, "Grid", "rows");
     m_columns = GetAttribute<int>(node, "Grid", "columns");
+    m_uvStretch.x = GetAttributeOptional<float>(node, "UVStretch", "u", 1.0f);
+    m_uvStretch.y = GetAttributeOptional<float>(node, "UVStretch", "v", 1.0f);
 }
 
 void Grid::Write(boost::property_tree::ptree& node) const
@@ -41,6 +49,8 @@ void Grid::Write(boost::property_tree::ptree& node) const
     node.add("Grid.<xmlattr>.spacing", m_spacing);
     node.add("Grid.<xmlattr>.rows", m_rows);
     node.add("Grid.<xmlattr>.columns", m_columns);
+    AddValueOptional(node, "UVStretch.<xmlattr>.u", m_uvStretch.x, 1.0f);
+    AddValueOptional(node, "UVStretch.<xmlattr>.v", m_uvStretch.y, 1.0f);
 }
 
 bool Grid::CreateGrid(bool normals, bool tangents)
@@ -96,12 +106,22 @@ void Grid::ResetGrid()
                 m_vertices[index + NORMAL_Z] = 0.0f;
             }
 
+            if (m_hasTangents)
+            {
+                m_vertices[index + TANGENT_X] = 1.0f;
+                m_vertices[index + TANGENT_Y] = 0.0f;
+                m_vertices[index + TANGENT_Z] = 0.0f;
+                m_vertices[index + BITANGENT_X] = 0.0f;
+                m_vertices[index + BITANGENT_Y] = 0.0f;
+                m_vertices[index + BITANGENT_Z] = 1.0f;
+            }
+
             index += m_vertexComponentCount;
-            u += 0.5;
+            u += 0.5f * m_uvStretch.x;
         }
 
         u = 0;
-        v += 0.5;
+        v += 0.5f * m_uvStretch.y;
     }
 
     index = 0;

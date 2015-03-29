@@ -132,11 +132,11 @@ void Application::HandleKeyDown()
     }
     if (IsKeyDown('A'))
     {
-        m_camera->Right(deltaTime);
+        m_camera->Right(-deltaTime);
     }
     if (IsKeyDown('D'))
     {
-        m_camera->Right(-deltaTime);
+        m_camera->Right(deltaTime);
     }
     if (IsKeyDown('Q'))
     {

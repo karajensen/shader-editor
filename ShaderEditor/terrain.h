@@ -39,9 +39,11 @@ public:
 
     /**
     * Initialises the terrain
+    * @param hasNormals Whether the terrain requires normals
+    * @param hasTangents Whether the terrain requires tangents
     * @return whether call was successful
     */
-    bool Initialise();
+    bool Initialise(bool hasNormals, bool hasTangents);
 
     /**
     * @return Brightness of the specular highlights

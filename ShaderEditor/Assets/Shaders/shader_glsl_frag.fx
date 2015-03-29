@@ -25,7 +25,6 @@ uniform vec3 lightAttenuation[MAX_LIGHTS];
 ifdef: SPECULAR
     uniform vec3 lightSpecular[MAX_LIGHTS];
     uniform float lightSpecularity[MAX_LIGHTS];
-    uniform float meshSpecularity;
 endif
 
 uniform float meshAmbience;
@@ -34,6 +33,9 @@ ifdef: BUMP
 endif
 ifdef: CAUSTICS
     uniform float meshCaustics;
+endif
+ifdef: SPECULAR
+    uniform float meshSpecularity;
 endif
 
 uniform sampler2D DiffuseSampler;

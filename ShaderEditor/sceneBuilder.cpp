@@ -225,7 +225,8 @@ bool SceneBuilder::InitialiseTerrain(Terrain& terrain, FragmentLinker& linker)
 {                                
     InitialiseMeshTextures(terrain);
     InitialiseMeshShader(terrain, linker);
-    return terrain.Initialise();
+    return terrain.Initialise(true, 
+        m_scene.GetShader(terrain.ShaderID()).HasComponent(Shader::BUMP));
 }
 
 bool SceneBuilder::InitialiseMesh(Mesh& mesh, FragmentLinker& linker)

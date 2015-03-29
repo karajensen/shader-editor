@@ -88,4 +88,5 @@ private:
     bool m_hasNormals = false;   ///< Whether to generate normals
     bool m_hasTangents = false;  ///< Whether to generate tangent/bitangents
     Float3 m_position;           ///< The initial position of the grid
+    Float2 m_uvStretch;          ///< Texture stretch multiplier
 };

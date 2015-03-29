@@ -27,10 +27,13 @@
 	</Mesh>
 	<Terrain>
 		<Name>sand</Name>
-		<Shader>diffuse</Shader>
-		<Diffuse>ground.png</Diffuse>
+		<Shader>bump</Shader>
+		<Diffuse>blank.png</Diffuse>
+    <Normal>bump.png</Normal>
+    <Bump>20</Bump>
 		<Position x="0" y="-5" z="0"/>
 		<Grid spacing="1" rows="100" columns="100"/>
+    <UVStretch u="0.25" v="0.25"/>
 		<Type>diamond_square</Type>
 	</Terrain>
 	<Water>
