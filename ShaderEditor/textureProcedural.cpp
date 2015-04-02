@@ -30,10 +30,13 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
     {
     case RANDOM:
         MakeRandomNormals();
+        break;
     case DIAMOND_SQUARE:
         MakeDiamondSquareFractal();
         break;
     }
+
+    Logger::LogInfo("Texture: " + Name() + " generated");
 }
 
 void ProceduralTexture::MakeRandomNormals()
@@ -51,9 +54,9 @@ void ProceduralTexture::MakeRandomNormals()
     }
 }
 
-const unsigned int* ProceduralTexture::Pixels() const
+const std::vector<unsigned int>& ProceduralTexture::Pixels() const
 {
-    return &m_pixels[0];
+    return m_pixels;
 }
 
 int ProceduralTexture::Size() const
@@ -164,6 +167,11 @@ void ProceduralTexture::Set(unsigned int index, int r, int g, int b, int a)
                       (r & 0xFF);
 }
 
+void ProceduralTexture::Set(int row, int column, float value)
+{
+    Set(Index(row, column), value, value, value, value);
+}
+
 unsigned char ProceduralTexture::RedAsChar(unsigned int index)
 {
     return m_pixels[index] & 0xFF;
@@ -226,24 +234,127 @@ float ProceduralTexture::AlphaAsFlt(unsigned int index)
 
 unsigned int ProceduralTexture::Get(int row, int column) const
 {
-    return m_pixels[GetIndex(row, column)];
+    return m_pixels[Index(row, column)];
 }
 
-unsigned int ProceduralTexture::GetIndex(int row, int column) const
+unsigned int ProceduralTexture::Index(int row, int column) const
 {
     return row * m_size + column;
 }
 
-bool ProceduralTexture::Valid(int row, int column) const
-{
-    return row >= 0 && column >= 0 && row < m_size && column < m_size;
-}
-
-bool ProceduralTexture::Valid(unsigned int index) const
-{
-    return index >= 0 && index < m_pixels.size();
-}
-
 void ProceduralTexture::MakeDiamondSquareFractal()
 {
+    // Diamond Square Fractal References:
+    // http://www.gameprogrammer.com/fractal.html 
+    // http://www.playfuljs.com/realistic-terrain-in-130-lines/
+
+    const int maxSize = m_size;
+    const int maxIndex = maxSize - 1;
+    int size = maxSize;
+    int half = size / 2;
+    float scale = 2.0f;
+
+    // All four corners must have the same point to allow tiling
+    const float initial = 0.0f;
+    Set(0, 0, initial);
+    Set(maxIndex, 0, initial);
+    Set(maxIndex, maxIndex, initial);
+    Set(0, maxIndex, initial);
+
+    /**
+    * Averages the value of the four points in a square
+    * o  .  o
+    * .  .  .
+    * o  .  o
+    */
+    auto AverageSquare = [&](int row, int column) -> float
+    {
+        return (RedAsFlt(Index(row-half, column-half)) +
+            RedAsFlt(Index(row+half-1, column+half-1)) +
+            RedAsFlt(Index(row-half, column+half-1)) +
+            RedAsFlt(Index(row+half-1, column-half))) * 0.25f;
+    };
+
+    /**
+    * Averages the value of the four points in a diamond
+    * If row/column is on edge of texture looks at opposite side to support tiling
+    * .  o  .
+    * o  .  o
+    * .  o  .
+    */
+    auto AverageDiamond = [&](int row, int column) -> float
+    {
+        const auto top = Index(row, column-half);
+        const auto bot = Index(row, column+half-1);
+        const auto left = Index(row-half, column);
+        const auto right = Index(row+half-1, column);
+
+        if (row == 0)
+        {
+            return (RedAsFlt(top) + RedAsFlt(bot) + RedAsFlt(right)
+                + RedAsFlt(Index(maxIndex-half, column))) * 0.25f;
+        }
+        else if (row == maxIndex)
+        {
+            return (RedAsFlt(top) + RedAsFlt(bot) + RedAsFlt(left) 
+                + RedAsFlt(Index(half, column))) * 0.25f;
+        }
+        else if (column == 0)
+        {
+            return (RedAsFlt(right) + RedAsFlt(left) + RedAsFlt(bot) 
+                + RedAsFlt(Index(row, maxIndex-half))) * 0.25f;
+        }
+        else if (column == maxIndex)
+        {
+            return (RedAsFlt(right) + RedAsFlt(left) + RedAsFlt(bot) 
+                + RedAsFlt(Index(row, half))) * 0.25f;
+        }
+
+        return (RedAsFlt(right) + RedAsFlt(left) 
+            + RedAsFlt(top) + RedAsFlt(bot)) * 0.25f;
+    };
+
+    // Terminate loop when power of 2 texture halves to reach 0.5
+    while (half >= 1)
+    {
+        /**
+        * Set the midpoint of the sections
+        * .  .  .
+        * .  o  .
+        * .  .  .
+        */
+        for (int r = half; r < maxSize; r += size) 
+        {
+            for (int c = half; c < maxSize; c += size)
+            {
+                Set(r, c, AverageSquare(r, c) + scale * Random::Generate(-0.5f, 0.5f));
+            }
+        }
+
+        /**
+        * Set the four corners of the diamond surrounding the midpoint
+        * .  o  .
+        * o  .  o
+        * .  o  .
+        */
+        for (int r = 0; r <= maxIndex; r += half)
+        {
+            for (int c = (r + half) % size; c <= maxIndex; c += size)
+            {
+                Set(r, c, AverageDiamond(r, c) + scale * Random::Generate(-0.5f, 0.5f));
+        
+                if (r == 0) // Ensure opposite side has matching value for wrapping
+                {
+                    m_pixels[Index(maxIndex, c)] = m_pixels[Index(r, c)];
+                }
+                if (c == 0) // Ensure opposite side has matching value for wrapping
+                {
+                    m_pixels[Index(r, maxIndex)] = m_pixels[Index(r, c)];
+                }
+            }
+        }
+
+        size = half;
+        half = size / 2;
+    }   
 }

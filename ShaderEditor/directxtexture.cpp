@@ -92,7 +92,7 @@ void DxTexture::ReloadPixels(ID3D11Device* device)
     const int size = m_texture.Size();
 
     D3D11_SUBRESOURCE_DATA data;
-    data.pSysMem = (void*)m_texture.Pixels();
+    data.pSysMem = (void*)(&m_texture.Pixels()[0]);
     data.SysMemPitch = size*channels;
 
     D3D11_TEXTURE2D_DESC desc;

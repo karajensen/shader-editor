@@ -53,7 +53,12 @@ public:
     /**
     * @return the pixels of the texture or nullptr if empty
     */
-    virtual const unsigned int* Pixels() const override;
+    virtual const std::vector<unsigned int>& Pixels() const override;
+
+    /**
+    * @return the pixels of the texture
+    */
+    const std::vector<unsigned int>& PixelBuffer() const;
 
     /**
     * @return the size of the texture if set
@@ -90,17 +95,7 @@ private:
     /**
     * @return the index from the row and column value
     */
-    unsigned int GetIndex(int row, int column) const;
-
-    /**
-    * @return whether the row and colunn are inside the texture
-    */
-    bool Valid(int row, int column) const;
-
-    /**
-    * @return whether the index is inside the texture
-    */
-    bool Valid(unsigned int index) const;
+    unsigned int Index(int row, int column) const;
 
     /**
     * Sets the colour from each component
@@ -111,6 +106,12 @@ private:
     * Sets the colour from each component
     */
     void Set(unsigned int index, float r, float g, float b, float a);
+
+    /**
+    * Sets the colour as a float
+    */
+    void Set(int row, int column, float value);
+
 
     /**
     * Sets the colour component as an int

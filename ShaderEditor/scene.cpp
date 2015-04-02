@@ -64,15 +64,17 @@ unsigned int Scene::Add(std::unique_ptr<Emitter> element)
     return m_data->emitters.size()-1;
 }
 
-unsigned int Scene::Add(std::unique_ptr<Texture> element, bool isProcedural)
+void Scene::Add(std::unique_ptr<ProceduralTexture> element)
 {
     const unsigned int index = m_data->textures.size();
     m_data->textures.push_back(std::move(element));
+    m_data->proceduralTextures.push_back(index);
+}
 
-    if (isProcedural)
-    {
-        m_data->proceduralTextures.push_back(index);
-    }
+unsigned int Scene::Add(std::unique_ptr<Texture> element)
+{
+    const unsigned int index = m_data->textures.size();
+    m_data->textures.push_back(std::move(element));
     return index;
 }
 

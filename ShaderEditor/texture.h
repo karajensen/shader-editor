@@ -79,7 +79,7 @@ public:
     /**
     * @return the pixels of the texture or nullptr if empty
     */
-    virtual const unsigned int* Pixels() const;
+    virtual const std::vector<unsigned int>& Pixels() const;
 
     /**
     * @return the size of the texture if set

@@ -148,14 +148,9 @@ unsigned int Grid::GetIndex(int row, int column) const
         + (column * m_vertexComponentCount);
 }
 
-void Grid::Set(int row, int column, float height)
+void Grid::SetHeight(int row, int column, float height)
 {
-    m_vertices[GetIndex(row, column)] = height;
-}
-
-float Grid::Get(int row, int column) const
-{
-    return m_vertices[GetIndex(row, column)];
+    m_vertices[GetIndex(row, column) + POS_Y] = m_position.y + height;
 }
 
 bool Grid::Valid(int row, int column) const
@@ -278,10 +273,10 @@ void Grid::RecalculateNormals()
 
                 const Float3 q1(p1 - p0);
                 const Float3 q2(p2 - p0);
-                const double s1 = uv1.x - uv0.x;
-                const double s2 = uv2.x - uv0.x;
-                const double t1 = uv1.y - uv0.y;
-                const double t2 = uv2.y - uv0.y;
+                const float s1 = uv1.x - uv0.x;
+                const float s2 = uv2.x - uv0.x;
+                const float t1 = uv1.y - uv0.y;
+                const float t2 = uv2.y - uv0.y;
 
                 // Mathematics for 3D Game Programming and Computer Graphics p184
                 // Plane Equation is p - p0 = sT + tB

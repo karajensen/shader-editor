@@ -41,12 +41,7 @@ protected:
     /**
     * Sets the height at the given row/column
     */
-    void Set(int row, int column, float height);
-
-    /**
-    * @return the value at the given row/column
-    */
-    float Get(int row, int column) const;
+    void SetHeight(int row, int column, float height);
 
     /**
     * @return whether the given row/column is valid

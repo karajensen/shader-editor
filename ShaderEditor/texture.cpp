@@ -64,10 +64,9 @@ bool Texture::IsCubeMap() const
     return IsCubeMap(m_path);
 }
 
-const unsigned int* Texture::Pixels() const
+const std::vector<unsigned int>& Texture::Pixels() const
 {
-    Logger::LogError("Texture::Pixels Not Implemented");
-    return nullptr;
+    throw std::exception("Texture::Pixels not implemented");
 }
 
 bool Texture::HasPixels() const
@@ -77,6 +76,5 @@ bool Texture::HasPixels() const
 
 int Texture::Size() const
 {
-    Logger::LogError("Texture::Size Not Implemented");
-    return 0;
+    throw std::exception("Texture::Size not implemented");
 }

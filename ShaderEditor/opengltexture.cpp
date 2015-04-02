@@ -157,7 +157,7 @@ void GlTexture::ReloadPixels()
     glBindTexture(GL_TEXTURE_2D, m_id);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture.Size(), 
-        m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, m_texture.Pixels());
+        m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, &m_texture.Pixels()[0]);
 
     if(HasCallFailed())
     {

@@ -184,10 +184,15 @@ public:
     /**
     * Adds a texture to the scene
     * @param element The element to add to the scene
-    * @param isProcedural Whether this texture can be edited
     * @return the index where the element was added
     */
-    unsigned int Add(std::unique_ptr<Texture> element, bool isProcedural = false);
+    unsigned int Add(std::unique_ptr<Texture> element);
+
+    /**
+    * Adds a texture to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<ProceduralTexture> element);
 
     /**
     * Adds post processing to the scene

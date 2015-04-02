@@ -171,7 +171,11 @@ bool SceneBuilder::InitialiseTextures()
 
     m_scene.Add(std::make_unique<ProceduralTexture>("Random", 
         GENERATED_TEXTURES + "//random.bmp", RANDOM_TEXTURE_SIZE, 
-        ProceduralTexture::RANDOM, Texture::NEAREST), true);
+        ProceduralTexture::RANDOM, Texture::NEAREST));
+
+    m_scene.Add(std::make_unique<ProceduralTexture>("heightmap", 
+        GENERATED_TEXTURES + "//heightmap.bmp", 256, 
+        ProceduralTexture::DIAMOND_SQUARE, Texture::NEAREST));
 
     m_scene.Add(std::make_unique<AnimatedTexture>(
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp"));
@@ -225,8 +229,16 @@ bool SceneBuilder::InitialiseTerrain(Terrain& terrain, FragmentLinker& linker)
 {                                
     InitialiseMeshTextures(terrain);
     InitialiseMeshShader(terrain, linker);
-    return terrain.Initialise(true, 
-        m_scene.GetShader(terrain.ShaderID()).HasComponent(Shader::BUMP));
+    for (const auto& texture : m_scene.Textures())
+    {
+        if (boost::iequals(texture->Name(), terrain.HeightMap()))
+        {
+            return terrain.Initialise(texture->Pixels(), true, 
+                m_scene.GetShader(terrain.ShaderID()).HasComponent(Shader::BUMP));            
+        }
+    }
+    Logger::LogError("Could not find texture " + terrain.HeightMap());
+    return false;
 }
 
 bool SceneBuilder::InitialiseMesh(Mesh& mesh, FragmentLinker& linker)

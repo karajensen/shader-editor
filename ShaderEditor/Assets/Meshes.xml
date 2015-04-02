@@ -34,7 +34,8 @@
 		<Position x="0" y="-5" z="0"/>
 		<Grid spacing="1" rows="100" columns="100"/>
     <UVStretch u="0.25" v="0.25"/>
-		<Type>diamond_square</Type>
+    <Height min="0.0" max="0.25"></Height>
+    <HeightMap>heightmap</HeightMap>
 	</Terrain>
 	<Water>
 		<Name>water</Name>
