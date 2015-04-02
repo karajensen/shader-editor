@@ -19,6 +19,7 @@
     </None>
     <None Include="Assets\Meshes.xml">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </None>
     <None Include="qt\project\editor.ui" />
     <None Include="qt\project\tweaker.ui">
