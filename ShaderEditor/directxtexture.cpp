@@ -83,7 +83,7 @@ void DxTexture::InitialiseCubeMap(ID3D11Device* device)
     texture->Release();
 }
 
-void DxTexture::ReloadPixels(ID3D11Device* device)
+bool DxTexture::ReloadPixels(ID3D11Device* device)
 {
     Release();
 
@@ -111,6 +111,7 @@ void DxTexture::ReloadPixels(ID3D11Device* device)
     if (FAILED(device->CreateTexture2D(&desc, &data, &texture)))
     {
         Logger::LogError("DirectX: Failed to create texture from pixels");
+        return false;
     }
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
@@ -122,9 +123,11 @@ void DxTexture::ReloadPixels(ID3D11Device* device)
     if (FAILED(device->CreateShaderResourceView(texture, &viewDesc, &m_view)))
     {
         Logger::LogError("DirectX: Failed to resource view " + m_texture.Name());
+        return false;
     }
 
     texture->Release();
+    return true;
 }
 
 void DxTexture::InitialiseFromPixels(ID3D11Device* device)

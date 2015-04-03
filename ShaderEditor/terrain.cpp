@@ -6,8 +6,12 @@
 #include "cache.h"
 #include "boost/algorithm/string.hpp"
 
-Terrain::Terrain(const boost::property_tree::ptree& node) :
-    Grid(node)
+Terrain::Terrain(const boost::property_tree::ptree& node, 
+                 const std::vector<unsigned int>& pixels,
+                 const std::string& heightmap) :
+    Grid(node),
+    m_pixels(pixels),
+    m_heightmap(heightmap)
 {
     m_caustics = GetValueOptional<float>(node, 1.0f, "Caustics");
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
@@ -15,7 +19,6 @@ Terrain::Terrain(const boost::property_tree::ptree& node) :
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_minHeight = GetAttribute<float>(node, "Height", "min");
     m_maxHeight = GetAttribute<float>(node, "Height", "max");
-    m_heightmap = boost::to_lower_copy(GetValue<std::string>(node, "HeightMap"));
 }
 
 void Terrain::Write(boost::property_tree::ptree& node) const
@@ -52,18 +55,12 @@ void Terrain::Read(Cache& cache)
     m_maxHeight = cache.Terrain[TERRAIN_MAX_HEIGHT].Get();
 }
 
-const std::string& Terrain::HeightMap() const
-{
-    return m_heightmap;
-}
-
-bool Terrain::Initialise(const std::vector<unsigned int>& pixels, 
-                         bool hasNormals, 
+bool Terrain::Initialise(bool hasNormals, 
                          bool hasTangents)
 {
     if (CreateGrid(hasNormals, hasTangents))
     {
-        GenerateTerrain(pixels);
+        GenerateTerrain();
         RecalculateNormals();
         Logger::LogInfo("Terrain: " + Name() + " generated");
         return true;
@@ -71,12 +68,19 @@ bool Terrain::Initialise(const std::vector<unsigned int>& pixels,
     return false;
 }
 
-void Terrain::GenerateTerrain(const std::vector<unsigned int>& pixels)
+void Terrain::Reload()
+{
+    ResetGrid();
+    GenerateTerrain();
+    RecalculateNormals();
+}
+
+void Terrain::GenerateTerrain()
 {
     assert(Rows() == Columns());
 
     const int gridSize = Rows();
-    const int mapSize = static_cast<int>(sqrt(static_cast<double>(pixels.size())));
+    const int mapSize = static_cast<int>(sqrt(static_cast<double>(m_pixels.size())));
     const double stepIncrease = static_cast<double>(mapSize / gridSize);
     double step = 0.0;
 
@@ -85,7 +89,7 @@ void Terrain::GenerateTerrain(const std::vector<unsigned int>& pixels)
         for (int c = 0; c < gridSize; ++c)
         {
             const int index = static_cast<int>(std::round(step));
-            const float colour = Clamp((pixels[index] & 0xFF) / 255.0f, 0.0f, 1.0f);
+            const float colour = Clamp((m_pixels[index] & 0xFF) / 255.0f, 0.0f, 1.0f);
             const float height = ConvertRange(colour, 0.0f, 1.0f, m_minHeight, m_maxHeight);
             SetHeight(r, c, height);
             step += stepIncrease;

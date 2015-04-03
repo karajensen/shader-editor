@@ -142,44 +142,43 @@ public:
     /**
     * Adds a shader to the scene
     * @param element The element to add to the scene
-    * @return the index where the element was added
+    * @return the element added
     */
-    unsigned int Add(std::unique_ptr<Shader> element);
+    Shader& Add(std::unique_ptr<Shader> element);
 
     /**
     * Adds a mesh to the scene
     * @param element The element to add to the scene
-    * @return the index where the element was added
+    * @return the element added
     */
-    unsigned int Add(std::unique_ptr<Mesh> element);
+    Mesh& Add(std::unique_ptr<Mesh> element);
 
     /**
     * Adds terrain to the scene
     * @param element The element to add to the scene
-    * @return the index where the element was added
+    * @return the element added
     */
-    unsigned int Add(std::unique_ptr<Terrain> element);
-
-    /**
-    * Adds a light to the scene
-    * @param element The element to add to the scene
-    * @return the index where the element was added
-    */
-    unsigned int Add(std::unique_ptr<Light> element);
+    Terrain& Add(std::unique_ptr<Terrain> element);
 
     /**
     * Adds a water to the scene
     * @param element The element to add to the scene
-    * @return the index where the element was added
+    * @return the element added
     */
-    unsigned int Add(std::unique_ptr<Water> element);
+    Water& Add(std::unique_ptr<Water> element);
 
     /**
     * Adds an emitter to the scene
     * @param element The element to add to the scene
-    * @return the index where the element was added
+    * @return the element added
     */
-    unsigned int Add(std::unique_ptr<Emitter> element);
+    Emitter& Add(std::unique_ptr<Emitter> element);
+
+    /**
+    * Adds a light to the scene
+    * @param element The element to add to the scene
+    */
+    void Add(std::unique_ptr<Light> element);
 
     /**
     * Adds a texture to the scene
@@ -228,6 +227,23 @@ public:
     * @param ID The ID of the texture to save
     */
     void SaveTextureToFile(int ID);
+
+    /**
+    * Reloads the scene
+    */
+    void Reload();
+
+    /**
+    * Reloads the procedural texture
+    * @param ID The ID of the texture to reload
+    */
+    void ReloadTexture(int ID);
+
+    /**
+    * Reloads the terrain
+    * @param ID the ID of the terrain to reload
+    */
+    void ReloadTerrain(int ID);
 
 private:
 

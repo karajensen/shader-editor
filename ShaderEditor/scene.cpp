@@ -28,40 +28,39 @@ struct SceneData
 Scene::Scene() = default;
 Scene::~Scene() = default;
 
-unsigned int Scene::Add(std::unique_ptr<Shader> element)
+Shader& Scene::Add(std::unique_ptr<Shader> element)
 {
     m_data->shaders.push_back(std::move(element));
-    return m_data->shaders.size()-1;
+    return *m_data->shaders[m_data->shaders.size()-1];
 }
 
-unsigned int Scene::Add(std::unique_ptr<Mesh> element)
+Mesh& Scene::Add(std::unique_ptr<Mesh> element)
 {
     m_data->meshes.push_back(std::move(element));
-    return m_data->meshes.size()-1;
+    return *m_data->meshes[m_data->meshes.size()-1];
 }
 
-unsigned int Scene::Add(std::unique_ptr<Terrain> element)
+Terrain& Scene::Add(std::unique_ptr<Terrain> element)
 {
     m_data->terrain.push_back(std::move(element));
-    return m_data->terrain.size()-1;
+    return *m_data->terrain[m_data->terrain.size()-1];
 }
 
-unsigned int Scene::Add(std::unique_ptr<Light> element)
+void Scene::Add(std::unique_ptr<Light> element)
 {
     m_data->lights.push_back(std::move(element));
-    return m_data->lights.size()-1;
 }
 
-unsigned int Scene::Add(std::unique_ptr<Water> element)
+Water& Scene::Add(std::unique_ptr<Water> element)
 {
     m_data->water.push_back(std::move(element));
-    return m_data->water.size()-1;
+    return *m_data->water[m_data->water.size()-1];
 }
 
-unsigned int Scene::Add(std::unique_ptr<Emitter> element)
+Emitter& Scene::Add(std::unique_ptr<Emitter> element)
 {
     m_data->emitters.push_back(std::move(element));
-    return m_data->emitters.size()-1;
+    return *m_data->emitters[m_data->emitters.size()-1];
 }
 
 void Scene::Add(std::unique_ptr<ProceduralTexture> element)
@@ -250,6 +249,7 @@ bool Scene::Initialise()
 
     if (m_builder->Initialise())
     {
+        // Add light positions for diagnostics
         const float scale = 0.25f;
         for (const auto& light : Lights())
         {
@@ -266,4 +266,27 @@ bool Scene::Initialise()
         return true;
     }
     return false;
+}
+
+void Scene::Reload()
+{
+    for (int ID : m_data->proceduralTextures)
+    {
+        GetProceduralTexture(ID).Reload();
+    }
+
+    for (auto& terrain : m_data->terrain)
+    {
+        terrain->Reload();
+    }
+}
+
+void Scene::ReloadTexture(int ID)
+{
+    GetProceduralTexture(ID).Reload();
+}
+
+void Scene::ReloadTerrain(int ID)
+{
+    m_data->terrain[ID]->Reload();
 }

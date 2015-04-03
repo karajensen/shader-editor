@@ -126,26 +126,26 @@ private:
 
     /**
     * Initialises a mesh for the scene
-    * @param mesh The mesh to initialise
+    * @param node The mesh data to initialise
     * @param linker The fragment linker used to generate shaders
     * @return if initialization was successfull
     */
-    bool InitialiseMesh(Mesh& mesh, FragmentLinker& linker);
+    bool InitialiseMesh(const boost::property_tree::ptree& node, FragmentLinker& linker);
 
     /**
     * Initialises terrain for the scene
-    * @param terrain The terrain to initialise
+    * @param node The terrain data to initialise
     * @param linker The fragment linker used to generate shaders
     * @return if initialization was successfull
     */
-    bool InitialiseTerrain(Terrain& terrain, FragmentLinker& linker);
+    bool InitialiseTerrain(const boost::property_tree::ptree& node, FragmentLinker& linker);
 
     /**
     * Initialises a water mesh for the scene
-    * @param water The water to initialise
+    * @param node The water data to initialise
     * @return if initialization was successfull
     */
-    bool InitialiseWater(Water& water);
+    bool InitialiseWater(const boost::property_tree::ptree& node);
 
     /**
     * Adds a texture from a mesh if it doesn't already exist

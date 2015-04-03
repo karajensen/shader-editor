@@ -129,8 +129,7 @@ bool SceneBuilder::InitialiseEmitters()
     boost::property_tree::ptree tree = ReadXMLFile(EMITTERS_NAME, EMITTERS_PATH + XML);
     for (boost::property_tree::ptree::iterator it = tree.begin(); it != tree.end(); ++it)
     {
-        m_scene.Add(std::make_unique<Emitter>(it->second, PARTICLE_SHADER));
-        Emitter& emitter = m_scene.GetEmitter(m_scene.Emitters().size()-1);
+        Emitter& emitter = m_scene.Add(std::make_unique<Emitter>(it->second, PARTICLE_SHADER));
         for (const auto& name : emitter.TextureNames())
         {
             emitter.AddTexture(AddTexture(name));
@@ -166,19 +165,31 @@ bool SceneBuilder::InitialiseTextures()
 {
     assert(m_scene.Textures().empty());
 
-    m_scene.Add(std::make_unique<Texture>("Blank", 
+    auto MakeProcedural = [this](const std::string& name,
+                                 Texture::Filter filter,
+                                 ProceduralTexture::Type type,
+                                 int size)
+    {
+        m_scene.Add(std::make_unique<ProceduralTexture>(name, 
+            GENERATED_TEXTURES + "//" + name + ".bmp", size, 
+            type, filter));
+    };
+
+    m_scene.Add(std::make_unique<Texture>("blank", 
         TEXTURE_PATH + "//blank.png", Texture::NEAREST));
 
-    m_scene.Add(std::make_unique<ProceduralTexture>("Random", 
-        GENERATED_TEXTURES + "//random.bmp", RANDOM_TEXTURE_SIZE, 
-        ProceduralTexture::RANDOM, Texture::NEAREST));
+    MakeProcedural("random", Texture::NEAREST, 
+        ProceduralTexture::RANDOM, RANDOM_TEXTURE_SIZE);
 
-    m_scene.Add(std::make_unique<ProceduralTexture>("heightmap", 
-        GENERATED_TEXTURES + "//heightmap.bmp", 256, 
-        ProceduralTexture::DIAMOND_SQUARE, Texture::NEAREST));
+    MakeProcedural("heightmap", Texture::NEAREST, 
+        ProceduralTexture::DIAMOND_SQUARE, 256);
 
     m_scene.Add(std::make_unique<AnimatedTexture>(
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp"));
+
+    // Ensure special texture IDS match
+    assert(boost::iequals(m_scene.GetTexture(BLANK_TEXTURE_ID), "blank"));
+    assert(boost::iequals(m_scene.GetTexture(RANDOM_TEXTURE_ID), "Random"));
 
     return true;
 }
@@ -192,24 +203,21 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
 
         if (itr->first == "Water")
         {
-            const auto index = m_scene.Add(std::make_unique<Water>(node));
-            if (!InitialiseWater(m_scene.GetWater(index)))
+            if (!InitialiseWater(node))
             {
                 return false;
             }
         }
         else if (itr->first == "Mesh")
         {
-            const auto index = m_scene.Add(std::make_unique<Mesh>(node));
-            if(!InitialiseMesh(m_scene.GetMesh(index), linker))
+            if(!InitialiseMesh(node, linker))
             {
                 return false;
             }
         }
         else if (itr->first == "Terrain")
         {
-            const auto index = m_scene.Add(std::make_unique<Terrain>(node));
-            if(!InitialiseTerrain(m_scene.GetTerrain(index), linker))
+            if(!InitialiseTerrain(node, linker))
             {
                 return false;
             }
@@ -218,31 +226,40 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
     return true;
 }
 
-bool SceneBuilder::InitialiseWater(Water& water)
+bool SceneBuilder::InitialiseWater(const boost::property_tree::ptree& node)
 {
+    auto& water = m_scene.Add(std::make_unique<Water>(node));
     InitialiseMeshTextures(water);
     water.SetShaderID(WATER_SHADER);
     return true;
 }
 
-bool SceneBuilder::InitialiseTerrain(Terrain& terrain, FragmentLinker& linker)
-{                                
-    InitialiseMeshTextures(terrain);
-    InitialiseMeshShader(terrain, linker);
+bool SceneBuilder::InitialiseTerrain(const boost::property_tree::ptree& node, FragmentLinker& linker)
+{                
+    const std::string heightMap = boost::to_lower_copy(GetValue<std::string>(node, "HeightMap"));
+
     for (const auto& texture : m_scene.Textures())
     {
-        if (boost::iequals(texture->Name(), terrain.HeightMap()))
+        if (boost::iequals(texture->Name(), heightMap))
         {
-            return terrain.Initialise(texture->Pixels(), true, 
-                m_scene.GetShader(terrain.ShaderID()).HasComponent(Shader::BUMP));            
+            auto& terrain = m_scene.Add(
+                std::make_unique<Terrain>(node, texture->Pixels(), heightMap));
+
+            InitialiseMeshTextures(terrain);
+            InitialiseMeshShader(terrain, linker);
+
+            return terrain.Initialise(true,
+                m_scene.GetShader(terrain.ShaderID()).HasComponent(Shader::BUMP));
         }
     }
-    Logger::LogError("Could not find texture " + terrain.HeightMap());
-    return false;
+
+    Logger::LogError("Could not find height map " + heightMap);
+    return false;         
 }
 
-bool SceneBuilder::InitialiseMesh(Mesh& mesh, FragmentLinker& linker)
+bool SceneBuilder::InitialiseMesh(const boost::property_tree::ptree& node, FragmentLinker& linker)
 {                                
+    auto& mesh = m_scene.Add(std::make_unique<Mesh>(node));
     InitialiseMeshTextures(mesh);
     InitialiseMeshShader(mesh, linker);
     return mesh.InitialiseFromFile(MESHES_PATH + "//" + mesh.Name(), true, 
@@ -317,8 +334,7 @@ int SceneBuilder::GetShaderIndex(FragmentLinker& linker,
     {
         // Shader does not exist, create from fragments
         const int index = shaders.size();
-        m_scene.Add(std::make_unique<Shader>(name, index));
-        Shader& shader = m_scene.GetShader(index);
+        Shader& shader = m_scene.Add(std::make_unique<Shader>(name, index));
 
         if(!linker.GenerateWithFragments(shader))
         {

@@ -81,6 +81,9 @@ void Gui::Run(int argc, char *argv[])
     callbacks.SetSelectedTerrain = [this](int index){ m_cache->TerrainSelected.Set(index); };
     callbacks.SetPostMap =         [this](int index){ m_cache->PostMapSelected.Set(index); };
     callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
+    callbacks.ReloadEngine =       [this](){ m_cache->ReloadEngine.Set(true); };
+    callbacks.ReloadTerrain =      [this](){ m_cache->ReloadTerrain.Set(true); };
+    callbacks.ReloadTexture =      [this](){ m_cache->ReloadTexture.Set(true); };
     callbacks.ToggleWireframe =    [this](){ m_cache->ToggleWireframe.Set(true); };
     callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
     callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };

@@ -152,6 +152,9 @@ struct Cache
         ApplicationRunning(true),
         PageSelected(PAGE_NONE),
         ReloadScene(false),
+        ReloadEngine(false),
+        ReloadTerrain(false),
+        ReloadTexture(false),
         ToggleWireframe(false),
         RenderLightsOnly(false),
         LightDiagnostics(false),
@@ -163,6 +166,9 @@ struct Cache
     Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui  
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running          
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
+    Lockable<bool> ReloadEngine;        ///< Request to reload the engine
+    Lockable<bool> ReloadTexture;       ///< Request to reload the selected texture
+    Lockable<bool> ReloadTerrain;       ///< Request to reload the selected terrain
     Lockable<bool> ToggleWireframe;     ///< Request to toggle the wireframe
     Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics

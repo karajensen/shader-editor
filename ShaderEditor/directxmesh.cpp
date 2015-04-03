@@ -90,6 +90,29 @@ void DxMeshData::Release()
     SafeRelease(&m_indexBuffer);
 }
 
+bool DxMeshData::Reload(ID3D11DeviceContext* context)
+{
+    // Copy the mesh vertices to the directx mesh
+    D3D11_MAPPED_SUBRESOURCE vms;
+    if (FAILED(context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vms)))
+    {
+        return false;
+    }
+    memcpy(vms.pData, &m_vertices[0], sizeof(float)*m_vertices.size());
+    context->Unmap(m_vertexBuffer, 0); 
+    
+    // Copy the mesh indicies to the directx mesh
+    D3D11_MAPPED_SUBRESOURCE ims;
+    if(FAILED(context->Map(m_indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ims)))
+    {
+        return false;
+    }
+    memcpy(ims.pData, &m_indices[0], sizeof(DWORD)*m_indices.size());
+    context->Unmap(m_indexBuffer, 0);
+
+    return true;
+}
+
 void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
 {
     // Create the vertex buffer
@@ -100,13 +123,8 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     device->CreateBuffer(&vbd, 0, &m_vertexBuffer);
+    SetDebugName(m_vertexBuffer, m_name + "_VertexBuffer");
 
-    // Copy the mesh vertices to the directx mesh
-    D3D11_MAPPED_SUBRESOURCE vms;
-    context->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &vms);
-    memcpy(vms.pData, &m_vertices[0], sizeof(float)*m_vertices.size());
-    context->Unmap(m_vertexBuffer, 0); 
-    
     // Create the index buffer
     D3D11_BUFFER_DESC ibd;
     ibd.Usage = D3D11_USAGE_DYNAMIC;
@@ -115,15 +133,12 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     ibd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     ibd.MiscFlags = 0;
     device->CreateBuffer(&ibd, 0, &m_indexBuffer);
-
-    // Copy the mesh indicies to the directx mesh
-    D3D11_MAPPED_SUBRESOURCE ims;
-    context->Map(m_indexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ims); 
-    memcpy(ims.pData, &m_indices[0], sizeof(DWORD)*m_indices.size());
-    context->Unmap(m_indexBuffer, 0);
-
     SetDebugName(m_indexBuffer, m_name + "_IndexBuffer");
-    SetDebugName(m_vertexBuffer, m_name + "_VertexBuffer");
+
+    if (!Reload(context))
+    {
+        Logger::LogError("DirectX: Could not load mesh buffers");
+    }
 }
 
 void DxMeshData::Render(ID3D11DeviceContext* context)

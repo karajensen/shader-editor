@@ -62,6 +62,18 @@ public:
     virtual bool ReInitialiseScene() override;
 
     /**
+    * Reloads the texture at the given index
+    * @return whether reloading was successful
+    */
+    virtual bool ReloadTexture(int index) override;
+
+    /**
+    * Reloads the terrain at the given index
+    * @return whether reloading was successful
+    */
+    virtual bool ReloadTerrain(int index) override;
+
+    /**
     * Generates the shader for the engine
     * @param index An unique index for the shader
     * @return an error message if compilation failed

@@ -208,6 +208,9 @@ struct SignalCallbacks
     IntSignal SetPostMap;          ///< Sets the selected post map to display
     VoidSignal LightDiagnostics;   ///< Sends a request to toggle the light diagnostics
     VoidSignal ReloadScene;        ///< Sends a request to reload the scene
+    VoidSignal ReloadEngine;       ///< Sends a request to reload the engine
+    VoidSignal ReloadTexture;      ///< Sends a request to reload the selected texture
+    VoidSignal ReloadTerrain;      ///< Sends a request to reload the selected terrain
     VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
     VoidSignal ToggleWireframe;    ///< Sends a request to toggle wireframe rendering
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
@@ -230,6 +233,9 @@ struct SignalCallbacks
         SetSelectedTerrain(nullptr),
         SetPostMap(nullptr),
         ReloadScene(nullptr),
+        ReloadEngine(nullptr),
+        ReloadTexture(nullptr),
+        ReloadTerrain(nullptr),
         LightDiagnostics(nullptr),
         SaveScene(nullptr),
         PauseEmission(nullptr),

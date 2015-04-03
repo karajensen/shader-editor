@@ -938,3 +938,13 @@ void OpenglEngine::ToggleWireframe()
 {
     m_data->isWireframe = !m_data->isWireframe;
 }
+
+bool OpenglEngine::ReloadTexture(int index)
+{
+    return m_data->terrain[index]->Reload();
+}
+
+bool OpenglEngine::ReloadTerrain(int index)
+{
+    return m_data->textures[index]->ReloadPixels();
+}

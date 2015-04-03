@@ -38,8 +38,9 @@ public:
     /**
     * Reloads the texture from pixels
     * @param device The DirectX device interface
+    * @return whether reloading was successful
     */
-    void ReloadPixels(ID3D11Device* device);
+    bool ReloadPixels(ID3D11Device* device);
 
     /**
     * Gets the texture

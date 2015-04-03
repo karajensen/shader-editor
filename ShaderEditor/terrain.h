@@ -16,8 +16,12 @@ public:
     /**
     * Constructor
     * @param node The data to intialize the mesh with
+    * @param pixels The height map to modify the terrain with
+    * @param heightmap The name of the height map texture
     */
-    Terrain(const boost::property_tree::ptree& node);
+    Terrain(const boost::property_tree::ptree& node, 
+            const std::vector<unsigned int>& pixels,
+            const std::string& heightmap);
 
     /**
     * Writes the data to a property tree
@@ -39,19 +43,16 @@ public:
 
     /**
     * Initialises the terrain
-    * @param pixels The pixels of the heightmap
     * @param hasNormals Whether the terrain requires normals
     * @param hasTangents Whether the terrain requires tangents
     * @return whether call was successful
     */
-    bool Initialise(const std::vector<unsigned int>& pixels,
-                    bool hasNormals, 
-                    bool hasTangents);
+    bool Initialise(bool hasNormals, bool hasTangents);
 
     /**
-    * @return the name of the height map to use
+    * Reloads the terrain
     */
-    const std::string& HeightMap() const;
+    void Reload();
 
     /**
     * @return Brightness of the specular highlights
@@ -77,9 +78,8 @@ private:
 
     /**
     * Generates terrain using the given type
-    * @param pixels The pixels of the height map
     */
-    void GenerateTerrain(const std::vector<unsigned int>& pixels);
+    void GenerateTerrain();
 
     std::string m_heightmap;     ///< The name of the heightmap to use
     float m_maxHeight = 1.0f;    ///< The maximum height of the terrain
@@ -88,4 +88,6 @@ private:
     float m_caustics = 1.0f;     ///< How much of the caustics are visible
     float m_specularity = 1.0f;  ///< Brightness of the specular highlights
     float m_ambience = 1.0f;     ///< Ambient light multiplier
+
+    const std::vector<unsigned int>& m_pixels; ///< Pixels of the height map
 };

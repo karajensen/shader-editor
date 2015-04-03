@@ -52,6 +52,12 @@ public:
     */
     bool Initialise();
 
+    /**
+    * Reloads the mesh
+    * @return whether reloading was successful
+    */
+    bool Reload();
+
 protected:
 
     int m_shaderID = NO_INDEX;      ///< ID of the shader to use

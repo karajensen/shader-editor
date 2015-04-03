@@ -47,8 +47,9 @@ public:
 
     /**
     * Reloads the texture from pixels
+    * @return whether reloading was successful
     */
-    void ReloadPixels();
+    bool ReloadPixels();
 
 private:
 

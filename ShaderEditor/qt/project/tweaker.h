@@ -279,7 +279,10 @@ private:
     TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
     TweakableButton m_lightDiag;         ///< Button to toggle light diagnostics
-    TweakableButton m_reloadScene;       ///< Button to reload the application
+    TweakableButton m_reloadScene;       ///< Button to reload the scene
+    TweakableButton m_reloadEngine;      ///< Button to reload the engine
+    TweakableButton m_reloadTexture;     ///< Button to reload the selected texture
+    TweakableButton m_reloadTerrain;     ///< Button to reload the selected terrain
     TweakableButton m_toggleWireframe;   ///< Button to toggle rendering wireframe
     TweakableButton m_saveScene;         ///< Button to save all scene to xml
     TweakableButton m_pauseEmission;     ///< Button to pause the selected emitter

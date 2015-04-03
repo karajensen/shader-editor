@@ -26,7 +26,12 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
     boost::algorithm::ireplace_all(m_savePath, R"(\)", R"(/)");
     boost::algorithm::ireplace_all(m_savePath, R"(//)", R"(/)");
 
-    switch (type)
+    Reload();
+}
+
+void ProceduralTexture::Reload()
+{
+    switch (m_type)
     {
     case RANDOM:
         MakeRandomNormals();
@@ -35,8 +40,6 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
         MakeDiamondSquareFractal();
         break;
     }
-
-    Logger::LogInfo("Texture: " + Name() + " generated");
 }
 
 void ProceduralTexture::MakeRandomNormals()

@@ -34,11 +34,11 @@ void SceneModifier::Tick(RenderEngine& engine)
     switch (m_cache->PageSelected.Get())
     {
     case PAGE_SCENE:
-        UpdateScene();
+        UpdateScene(engine);
         break;
     case PAGE_AREA:
-        UpdateTerrain();
-        UpdateTexture();
+        UpdateTerrain(engine);
+        UpdateTexture(engine);
         break;
     case PAGE_MESH:
         UpdateMesh();
@@ -110,17 +110,7 @@ void SceneModifier::SetSelectedEngine(int engine)
     m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 }
 
-bool SceneModifier::RequiresReload()
-{
-    if (m_cache->ReloadScene.Get())
-    {
-        m_cache->ReloadScene.Set(false);
-        return true;
-    }
-    return false;
-}
-
-void SceneModifier::UpdateScene()
+void SceneModifier::UpdateScene(RenderEngine& engine)
 {
     UpdateCamera();
 
@@ -132,6 +122,20 @@ void SceneModifier::UpdateScene()
     {
         m_scene.SaveSceneToFile();
         m_cache->SaveScene.Set(false);
+    }
+
+    if (m_cache->ReloadScene.Get())
+    {
+        m_scene.Reload();
+        m_cache->ReloadScene.Set(false);
+    }
+
+    if (m_cache->ReloadEngine.Get())
+    {
+        engine.Release();
+        engine.Initialize();
+        engine.ReInitialiseScene();
+        m_cache->ReloadEngine.Set(false);
     }
 }
 
@@ -228,7 +232,7 @@ void SceneModifier::UpdateWater()
     }
 }
 
-void SceneModifier::UpdateTerrain()
+void SceneModifier::UpdateTerrain(RenderEngine& engine)
 {
     const int selectedTerrain = m_cache->TerrainSelected.Get();
     if(selectedTerrain != m_selectedTerrain)
@@ -241,9 +245,18 @@ void SceneModifier::UpdateTerrain()
     {
         m_scene.GetTerrain(m_selectedTerrain).Read(*m_cache);
     }
+
+    if (m_cache->ReloadTerrain.Get())
+    {
+        m_cache->ReloadTerrain.Set(false);
+        m_scene.ReloadTerrain(m_selectedTerrain);
+        engine.ReloadTerrain(m_selectedTerrain) ?
+            Logger::LogInfo("Terrain: Reload failed") :
+            Logger::LogError("Terrain: Reload success");
+    }
 }
 
-void SceneModifier::UpdateTexture()
+void SceneModifier::UpdateTexture(RenderEngine& engine)
 {
     const int selectedTexture = m_cache->TextureSelected.Get();
     if(selectedTexture != m_selectedTexture)
@@ -257,6 +270,15 @@ void SceneModifier::UpdateTexture()
             m_selectedTexture < static_cast<int>(m_scene.Textures().size()))
     {
         m_scene.GetProceduralTexture(m_selectedTexture).Read(*m_cache);
+    }
+
+    if (m_cache->ReloadTexture.Get())
+    {
+        m_cache->ReloadTexture.Set(false);
+        m_scene.ReloadTexture(m_selectedTexture);
+        engine.ReloadTexture(m_selectedTexture) ?
+            Logger::LogInfo("Texture: Reload failed") :
+            Logger::LogError("Texture: Reload success");
     }
 }
 

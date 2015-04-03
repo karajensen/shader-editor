@@ -48,6 +48,13 @@ public:
     */
     void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);
 
+    /**
+    * Reloads the mesh
+    * @return whether reloading was successful
+    * @param context Direct3D device context
+    */
+    bool Reload(ID3D11DeviceContext* context);
+
 protected:
 
     UINT m_vertexStride = 0;                 ///< Size of the vertex structure

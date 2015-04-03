@@ -67,17 +67,13 @@ public:
     */
     void Initialise(const std::vector<std::string>& engineNames, int selectedEngine);
 
-    /**
-    * @return whether the scene requires a reload
-    */
-    bool RequiresReload();
-
 private:
 
     /**
     * Updates the scene shared cache between the gui and application
+    * @param engine The selected Render Engine
     */
-    void UpdateScene();
+    void UpdateScene(RenderEngine& engine);
 
     /**
     * Updates the scene camera from the shared cache
@@ -96,13 +92,15 @@ private:
 
     /**
     * Updates the terrain shared cache between the gui and application
+    * @param engine The selected Render Engine
     */
-    void UpdateTerrain();
+    void UpdateTerrain(RenderEngine& engine);
 
     /**
     * Updates the texture shared cache between the gui and application
+    * @param engine The selected Render Engine
     */
-    void UpdateTexture();
+    void UpdateTexture(RenderEngine& engine);
 
     /**
     * Updates the water shared cache between the gui and application

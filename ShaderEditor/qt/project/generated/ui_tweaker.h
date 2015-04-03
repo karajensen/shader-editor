@@ -73,6 +73,8 @@ public:
     QDial *cameraRoll_dial;
     QFrame *reloadScene;
     QPushButton *reloadScene_btn;
+    QFrame *reloadEngine;
+    QPushButton *reloadEngine_btn;
     QFrame *saveScene;
     QPushButton *saveScene_btn;
     QSpacerItem *_sceneSpacer;
@@ -88,6 +90,8 @@ public:
     QDoubleSpinBox *textureAttributes_value;
     QDial *textureAttributes_dial;
     QComboBox *textureAttributes_box;
+    QFrame *reloadTexture;
+    QPushButton *reloadTexture_btn;
     QSpacerItem *_meshSpacer_5;
     QFrame *selectedTerrain;
     QLabel *selectedTerrain_lbl;
@@ -99,6 +103,8 @@ public:
     QDoubleSpinBox *terrainAttributes_value;
     QDial *terrainAttributes_dial;
     QComboBox *terrainAttributes_box;
+    QFrame *reloadTerrain;
+    QPushButton *reloadTerrain_btn;
     QSpacerItem *_areaSpacer;
     QWidget *Mesh;
     QWidget *layoutWidget2;
@@ -727,6 +733,30 @@ public:
 
         sceneLayout->addWidget(reloadScene);
 
+        reloadEngine = new QFrame(layoutWidget);
+        reloadEngine->setObjectName(QStringLiteral("reloadEngine"));
+        sizePolicy.setHeightForWidth(reloadEngine->sizePolicy().hasHeightForWidth());
+        reloadEngine->setSizePolicy(sizePolicy);
+        reloadEngine->setMinimumSize(QSize(225, 35));
+        reloadEngine->setMaximumSize(QSize(225, 35));
+        reloadEngine->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        reloadEngine->setFrameShape(QFrame::Panel);
+        reloadEngine->setFrameShadow(QFrame::Raised);
+        reloadEngine_btn = new QPushButton(reloadEngine);
+        reloadEngine_btn->setObjectName(QStringLiteral("reloadEngine_btn"));
+        reloadEngine_btn->setGeometry(QRect(5, 4, 216, 25));
+        reloadEngine_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        reloadEngine_btn->setDefault(false);
+
+        sceneLayout->addWidget(reloadEngine);
+
         saveScene = new QFrame(layoutWidget);
         saveScene->setObjectName(QStringLiteral("saveScene"));
         sizePolicy.setHeightForWidth(saveScene->sizePolicy().hasHeightForWidth());
@@ -826,6 +856,7 @@ public:
 "border-left-color: rgb(180, 180, 180);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
+        displayTexture_btn->setAutoRepeat(true);
         displayTexture_btn->setDefault(false);
 
         areaLayout->addWidget(displayTexture);
@@ -887,6 +918,30 @@ public:
         textureAttributes_box->setFrame(false);
 
         areaLayout->addWidget(textureAttributes);
+
+        reloadTexture = new QFrame(layoutWidget1);
+        reloadTexture->setObjectName(QStringLiteral("reloadTexture"));
+        sizePolicy.setHeightForWidth(reloadTexture->sizePolicy().hasHeightForWidth());
+        reloadTexture->setSizePolicy(sizePolicy);
+        reloadTexture->setMinimumSize(QSize(225, 35));
+        reloadTexture->setMaximumSize(QSize(225, 35));
+        reloadTexture->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        reloadTexture->setFrameShape(QFrame::Panel);
+        reloadTexture->setFrameShadow(QFrame::Raised);
+        reloadTexture_btn = new QPushButton(reloadTexture);
+        reloadTexture_btn->setObjectName(QStringLiteral("reloadTexture_btn"));
+        reloadTexture_btn->setGeometry(QRect(5, 4, 216, 25));
+        reloadTexture_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        reloadTexture_btn->setDefault(false);
+
+        areaLayout->addWidget(reloadTexture);
 
         _meshSpacer_5 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
@@ -1024,6 +1079,30 @@ public:
         terrainAttributes_box->setFrame(false);
 
         areaLayout->addWidget(terrainAttributes);
+
+        reloadTerrain = new QFrame(layoutWidget1);
+        reloadTerrain->setObjectName(QStringLiteral("reloadTerrain"));
+        sizePolicy.setHeightForWidth(reloadTerrain->sizePolicy().hasHeightForWidth());
+        reloadTerrain->setSizePolicy(sizePolicy);
+        reloadTerrain->setMinimumSize(QSize(225, 35));
+        reloadTerrain->setMaximumSize(QSize(225, 35));
+        reloadTerrain->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        reloadTerrain->setFrameShape(QFrame::Panel);
+        reloadTerrain->setFrameShadow(QFrame::Raised);
+        reloadTerrain_btn = new QPushButton(reloadTerrain);
+        reloadTerrain_btn->setObjectName(QStringLiteral("reloadTerrain_btn"));
+        reloadTerrain_btn->setGeometry(QRect(5, 4, 216, 25));
+        reloadTerrain_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        reloadTerrain_btn->setDefault(false);
+
+        areaLayout->addWidget(reloadTerrain);
 
         _areaSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2355,7 +2434,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(0);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2381,14 +2460,17 @@ public:
         cameraYaw_lbl->setText(QApplication::translate("Tweaker", "Camera Yaw", 0));
         cameraRoll_lbl->setText(QApplication::translate("Tweaker", "Camera Roll", 0));
         reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", 0));
+        reloadEngine_btn->setText(QApplication::translate("Tweaker", "Reload Engine", 0));
         saveScene_btn->setText(QApplication::translate("Tweaker", "Save Scene to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         selectedTexture_lbl->setText(QApplication::translate("Tweaker", "Texture", 0));
         displayTexture_btn->setText(QString());
+        reloadTexture_btn->setText(QApplication::translate("Tweaker", "Reload Texture", 0));
         selectedTerrain_lbl->setText(QApplication::translate("Tweaker", "Terrain", 0));
         terrainShader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         terrainShader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "Area", 0));
+        reloadTerrain_btn->setText(QApplication::translate("Tweaker", "Reload Terrain", 0));
+        TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "PGT", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));

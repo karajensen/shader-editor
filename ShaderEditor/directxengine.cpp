@@ -1069,3 +1069,13 @@ void DirectxEngine::ToggleWireframe()
 {
     m_data->isWireframe = !m_data->isWireframe;
 }
+
+bool DirectxEngine::ReloadTexture(int index)
+{
+    return m_data->terrain[index]->Reload(m_data->context);
+}
+
+bool DirectxEngine::ReloadTerrain(int index)
+{
+    return m_data->textures[index]->ReloadPixels(m_data->device);
+}

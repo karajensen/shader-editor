@@ -201,24 +201,17 @@ void Application::HandleMouseMovement(const MSG& msg)
 
 void Application::TickApplication()
 {
-    auto& engine = GetEngine();
-
-    m_modifier->Tick(engine);
-
-    if (m_modifier->RequiresReload())
-    {
-        ForceRenderEngine(m_selectedEngine);
-    }
+    m_modifier->Tick(GetEngine());
 
     if(m_camera->RequiresUpdate())
     {
         m_camera->Update();
-        engine.UpdateView(m_camera->GetWorld());
+        GetEngine().UpdateView(m_camera->GetWorld());
     }
 
     m_scene->Tick(m_timer->GetDeltaTime());
 
-    engine.Render(*m_scene, m_timer->GetTotalTime());
+    GetEngine().Render(*m_scene, m_timer->GetTotalTime());
 
     FadeRenderEngine();
 

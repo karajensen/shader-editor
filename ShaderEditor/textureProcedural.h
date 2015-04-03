@@ -75,6 +75,11 @@ public:
     */
     void SaveTexture();
 
+    /**
+    * Reloads the texture
+    */
+    void Reload();
+
 private:
 
     /**
@@ -111,7 +116,6 @@ private:
     * Sets the colour as a float
     */
     void Set(int row, int column, float value);
-
 
     /**
     * Sets the colour component as an int
@@ -157,5 +161,4 @@ private:
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture
     int m_size;                         ///< Dimensions of the texture
     std::string m_savePath;             ///< Path the generated texture is saved to
-
 };

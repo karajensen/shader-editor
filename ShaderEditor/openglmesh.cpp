@@ -91,28 +91,39 @@ void GlMeshData::Release()
     }
 }
 
-bool GlMeshData::Initialise()
+bool GlMeshData::Reload()
 {
-    glGenVertexArrays(1, &m_vaoID);
     glBindVertexArray(m_vaoID);
 
-    glGenBuffers(1, &m_vboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*m_vertices.size(), 
         &m_vertices[0], GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_iboID);
+    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(DWORD)*m_indices.size(), 
         &m_indices[0], GL_STATIC_DRAW);
 
+    return !HasCallFailed();
+}
+
+bool GlMeshData::Initialise()
+{
+    glGenVertexArrays(1, &m_vaoID);
+    glGenBuffers(1, &m_vboID);
+    glGenBuffers(1, &m_iboID);
+    m_initialised = true;
+
     if(HasCallFailed())
     {
-        Logger::LogError("OpenGL: Failed " + m_name + " buffers");
+        Logger::LogError("OpenGL: " + m_name + " Failed to generate buffers");
         return false;
     }
 
-    m_initialised = true;
+    if (!Reload())
+    {
+        Logger::LogError("OpenGL: " + m_name + " Failed buffers");
+        return false;
+    }
     return true;
 }
 

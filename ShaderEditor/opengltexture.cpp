@@ -75,7 +75,12 @@ void GlTexture::InitialiseFromPixels()
         Logger::LogError("OpenGL: Failed to load " + m_texture.Name());
     }
 
-    ReloadPixels();
+    if (!ReloadPixels())
+    {
+        Logger::LogError("OpenGL: Failed " + 
+            m_texture.Name() + " reloading");
+    }
+
     SetFiltering();
 }
 
@@ -150,7 +155,7 @@ bool GlTexture::IsCubeMap() const
     return m_texture.IsCubeMap();
 }
 
-void GlTexture::ReloadPixels()
+bool GlTexture::ReloadPixels()
 {
     assert(m_texture.HasPixels());
 
@@ -159,9 +164,5 @@ void GlTexture::ReloadPixels()
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture.Size(), 
         m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, &m_texture.Pixels()[0]);
 
-    if(HasCallFailed())
-    {
-        Logger::LogError("OpenGL: Failed " + 
-            m_texture.Name() + " reloading");
-    }
+    return !HasCallFailed();
 }
