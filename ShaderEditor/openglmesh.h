@@ -23,8 +23,12 @@ public:
     /**
     * Constructor for empty buffers
     * @param name The name of the mesh
+    * @param vertices The vertex buffer
+    * @param indices The index buffer
     */
-    GlMeshData(const std::string& name);
+    GlMeshData(const std::string& name, 
+               const std::vector<float>& vertices,
+               const std::vector<unsigned int>& indices);
 
     /**
     * Destructor
@@ -52,22 +56,22 @@ public:
     */
     bool Initialise();
 
-    /**
-    * Reloads the mesh
-    * @return whether reloading was successful
-    */
-    bool Reload();
-
 protected:
 
-    int m_shaderID = NO_INDEX;      ///< ID of the shader to use
-    GLuint m_vaoID = 0;             ///< An unique ID for Vertex Array Object (VAO)
-    GLuint m_vboID = 0;             ///< Unique ID for the Vertex Buffer Object (VBO)   
-    GLuint m_iboID = 0;             ///< Unique ID for the Index Buffer Object (IBO)
-    bool m_initialised = false;     ///< Whether the vertex buffer object is initialised or not
-    std::vector<float> m_vertices;  ///< Mesh Vertex information
-    std::vector<DWORD> m_indices;   ///< Mesh Index information
-    std::string m_name;             ///< Name of the mesh
+    /**
+    * Fills the vertex and index buffers
+    * @return whether call was successful
+    */
+    bool FillBuffers();
+
+    int m_shaderID = NO_INDEX;                  ///< ID of the shader to use
+    GLuint m_vaoID = 0;                         ///< An unique ID for Vertex Array Object
+    GLuint m_vboID = 0;                         ///< Unique ID for the Vertex Buffer Object
+    GLuint m_iboID = 0;                         ///< Unique ID for the Index Buffer Object
+    bool m_initialised = false;                 ///< Whether the vertex buffer object is initialised or not
+    std::string m_name;                         ///< Name of the mesh
+    const std::vector<float>& m_vertices;       ///< Vertex buffer data
+    const std::vector<unsigned int>& m_indices; ///< Index buffer data
 };
 
 /**
@@ -82,6 +86,11 @@ public:
     * @param name A unique name for the quad
     */
     GlQuad(const std::string& name);
+
+private:
+
+    std::vector<float> m_vertices;        ///< Vertex information
+    std::vector<unsigned int> m_indices;  ///< Index information
 };
 
 /**
@@ -154,6 +163,12 @@ public:
     * @return the terrain information for the mesh
     */
     const Terrain& GetTerrain() const;
+
+    /**
+    * Reloads the terrain
+    * @return whether reloading was successful
+    */
+    bool Reload();
 
 private:
 

@@ -57,7 +57,7 @@ const std::vector<float>& MeshData::Vertices() const
     return m_vertices;
 }
 
-const std::vector<unsigned long>& MeshData::Indices() const
+const std::vector<unsigned int>& MeshData::Indices() const
 {
     return m_indices;
 }

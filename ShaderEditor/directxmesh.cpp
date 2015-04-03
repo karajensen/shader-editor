@@ -12,8 +12,12 @@ DxMeshData::DxMeshData(const MeshData& data) :
 {
 }
 
-DxMeshData::DxMeshData(const std::string& name) :
-    m_name(name)
+DxMeshData::DxMeshData(const std::string& name,
+                       const std::vector<float>& vertices,
+                       const std::vector<unsigned int>& indices) :
+    m_name(name),
+    m_vertices(vertices),
+    m_indices(indices)
 {
 }
 
@@ -37,7 +41,7 @@ DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
 }
 
 DxQuad::DxQuad(const std::string& name) :
-    DxMeshData(name)
+    DxMeshData(name, m_vertices, m_indices)
 {
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
@@ -90,7 +94,7 @@ void DxMeshData::Release()
     SafeRelease(&m_indexBuffer);
 }
 
-bool DxMeshData::Reload(ID3D11DeviceContext* context)
+bool DxMeshData::FillBuffers(ID3D11DeviceContext* context)
 {
     // Copy the mesh vertices to the directx mesh
     D3D11_MAPPED_SUBRESOURCE vms;
@@ -135,7 +139,7 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     device->CreateBuffer(&ibd, 0, &m_indexBuffer);
     SetDebugName(m_indexBuffer, m_name + "_IndexBuffer");
 
-    if (!Reload(context))
+    if (!FillBuffers(context))
     {
         Logger::LogError("DirectX: Could not load mesh buffers");
     }
@@ -163,6 +167,11 @@ const Water& DxWater::GetWater() const
 const Terrain& DxTerrain::GetTerrain() const
 {
     return m_terrain;
+}
+
+bool DxTerrain::Reload(ID3D11DeviceContext* context)
+{
+    return FillBuffers(context);
 }
 
 void DxMesh::Render(ID3D11DeviceContext* context)

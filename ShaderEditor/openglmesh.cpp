@@ -4,8 +4,12 @@
 
 #include "openglmesh.h"
 
-GlMeshData::GlMeshData(const std::string& name) :
-    m_name(name)
+GlMeshData::GlMeshData(const std::string& name,
+                       const std::vector<float>& vertices,
+                       const std::vector<unsigned int>& indices) :
+    m_name(name),
+    m_vertices(vertices),
+    m_indices(indices)
 {
 }
 
@@ -36,7 +40,7 @@ GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
 }
 
 GlQuad::GlQuad(const std::string& name) :
-    GlMeshData(name)
+    GlMeshData(name, m_vertices, m_indices)
 {
     // Top left corner
     m_vertices.emplace_back(-1.0f); // x
@@ -91,7 +95,7 @@ void GlMeshData::Release()
     }
 }
 
-bool GlMeshData::Reload()
+bool GlMeshData::FillBuffers()
 {
     glBindVertexArray(m_vaoID);
 
@@ -119,7 +123,7 @@ bool GlMeshData::Initialise()
         return false;
     }
 
-    if (!Reload())
+    if (!FillBuffers())
     {
         Logger::LogError("OpenGL: " + m_name + " Failed buffers");
         return false;
@@ -153,6 +157,11 @@ const Water& GlWater::GetWater() const
 const Terrain& GlTerrain::GetTerrain() const
 {
     return m_terrain;
+}
+
+bool GlTerrain::Reload()
+{
+    return FillBuffers();
 }
 
 void GlMesh::Render()

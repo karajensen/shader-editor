@@ -64,7 +64,7 @@ public:
     /**
     * @return The indicies constructing this mesh
     */
-    const std::vector<unsigned long>& Indices() const;
+    const std::vector<unsigned int>& Indices() const;
 
     /**
     * @return The ID for each texture type used
@@ -97,7 +97,7 @@ public:
 protected:
 
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
-    std::vector<unsigned long> m_indices;    ///< The indices constructing this mesh
+    std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
     int m_vertexComponentCount = 1;          ///< Number of components that make up a vertex
     std::string m_name;                      ///< Name of the mesh
     bool m_backfacecull = true;              ///< Whether back facing polygons are culled
