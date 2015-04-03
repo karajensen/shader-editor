@@ -94,12 +94,6 @@ public:
     Terrain& GetTerrain(int index);
 
     /**
-    * @param index The index of the texture to get
-    * @return the texture 
-    */
-    ProceduralTexture& GetProceduralTexture(int index);
-
-    /**
     * @param index The index of the emitter to get
     * @return the emitter 
     */
@@ -127,17 +121,24 @@ public:
     Diagnostic& GetDiagnostics();
 
     /**
+    * Gets the texture
+    * @param index The index of the texture
+    * @return the texture
+    */
+    Texture& GetTexture(int index);
+
+    /**
+    * Gets the texture ID from the procedural texture index
+    * @param index The index of the procedural texture
+    * @return the ID of the texture
+    */
+    int GetTextureID(int index) const;
+
+    /**
     * Sets which post map will currently be rendered
     * @param index The index for the map to render
     */
     void SetPostMap(int index);
-
-    /**
-    * Gets the name of the texture
-    * @param index The index of the texture
-    * @return the name of the texture
-    */
-    std::string GetTexture(int index);
 
     /**
     * Adds a shader to the scene
@@ -223,18 +224,12 @@ public:
     void SaveSceneToFile();
 
     /**
-    * Outputs the procedural texture to file
-    * @param ID The ID of the texture to save
-    */
-    void SaveTextureToFile(int ID);
-
-    /**
     * Reloads the scene
     */
     void Reload();
 
     /**
-    * Reloads the procedural texture
+    * Reloads the texture
     * @param ID The ID of the texture to reload
     */
     void ReloadTexture(int ID);

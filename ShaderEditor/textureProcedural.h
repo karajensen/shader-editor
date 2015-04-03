@@ -6,8 +6,6 @@
 
 #include "texture.h"
 
-struct Cache;
-
 /**
 * Manages generating textures 
 */
@@ -42,23 +40,18 @@ public:
     * Writes to the data in the cache
     * @param cache The cache of data from the GUI
     */
-    void Write(Cache& cache);
+    virtual void Write(Cache& cache) override;
 
     /**
     * Reads the data from the cache
     * @param cache The cache of data from the GUI
     */
-    void Read(Cache& cache);
+    virtual void Read(Cache& cache) override;
 
     /**
     * @return the pixels of the texture or nullptr if empty
     */
     virtual const std::vector<unsigned int>& Pixels() const override;
-
-    /**
-    * @return the pixels of the texture
-    */
-    const std::vector<unsigned int>& PixelBuffer() const;
 
     /**
     * @return the size of the texture if set
@@ -73,12 +66,12 @@ public:
     /**
     * Saves the texture to file
     */
-    void SaveTexture();
+    virtual void Save() override;
 
     /**
     * Reloads the texture
     */
-    void Reload();
+    virtual void Reload() override;
 
 private:
 

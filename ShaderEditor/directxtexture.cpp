@@ -144,3 +144,8 @@ Texture::Filter DxTexture::Filtering() const
 {
     return m_texture.Filtering();
 }
+
+const std::string& DxTexture::Name() const
+{
+    return m_texture.Name();
+}

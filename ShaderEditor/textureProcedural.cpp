@@ -72,7 +72,7 @@ bool ProceduralTexture::HasPixels() const
     return true;
 }
 
-void ProceduralTexture::SaveTexture()
+void ProceduralTexture::Save()
 {
     const int channels = 3;
     std::vector<unsigned char> data(m_pixels.size() * channels);
@@ -97,11 +97,12 @@ void ProceduralTexture::SaveTexture()
 
 void ProceduralTexture::Write(Cache& cache)
 {
-    cache.TexturePath.SetUpdated(m_savePath);
+    Texture::Write(cache);
 }
 
 void ProceduralTexture::Read(Cache& cache)
 {
+    Texture::Read(cache);
 }
 
 void ProceduralTexture::SetRed(unsigned int index, int value)

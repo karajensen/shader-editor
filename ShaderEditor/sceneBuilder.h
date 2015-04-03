@@ -39,12 +39,6 @@ public:
     */
     void SaveSceneToFile();
 
-    /**
-    * Outputs the procedural texture to file
-    * @param ID The ID of the texture to save
-    */
-    void SaveTextureToFile(int ID);
-
 private:
 
     /**

@@ -19,12 +19,14 @@ SceneModifier::SceneModifier(Scene& scene,
                              Timer& timer,
                              Camera& camera,
                              std::shared_ptr<Cache> cache, 
-                             int selectedMap) :
+                             int selectedMap,
+                             std::function<void(void)> reloadEngine) :
     m_scene(scene),
     m_timer(timer),
     m_cache(cache),
     m_camera(camera),
-    m_selectedMap(selectedMap)
+    m_selectedMap(selectedMap),
+    m_reloadEngine(reloadEngine)
 {
 }
 
@@ -120,21 +122,31 @@ void SceneModifier::UpdateScene(RenderEngine& engine)
 
     if (m_cache->SaveScene.Get())
     {
-        m_scene.SaveSceneToFile();
         m_cache->SaveScene.Set(false);
+        m_scene.SaveSceneToFile();
     }
 
     if (m_cache->ReloadScene.Get())
     {
-        m_scene.Reload();
         m_cache->ReloadScene.Set(false);
+        m_scene.Reload();
+
+        const auto maxTextures = m_cache->Textures.Get().size();
+        for (unsigned int i = 0; i < maxTextures; ++i)
+        {
+            engine.ReloadTexture(m_scene.GetTextureID(i));
+        }
+
+        const auto maxTerrain = m_cache->Terrains.Get().size();
+        for (unsigned int i = 0; i < maxTerrain; ++i)
+        {
+            engine.ReloadTerrain(i);
+        }
     }
 
     if (m_cache->ReloadEngine.Get())
     {
-        engine.Release();
-        engine.Initialize();
-        engine.ReInitialiseScene();
+        m_reloadEngine();
         m_cache->ReloadEngine.Set(false);
     }
 }
@@ -250,9 +262,7 @@ void SceneModifier::UpdateTerrain(RenderEngine& engine)
     {
         m_cache->ReloadTerrain.Set(false);
         m_scene.ReloadTerrain(m_selectedTerrain);
-        engine.ReloadTerrain(m_selectedTerrain) ?
-            Logger::LogInfo("Terrain: Reload failed") :
-            Logger::LogError("Terrain: Reload success");
+        engine.ReloadTerrain(m_selectedTerrain);
     }
 }
 
@@ -262,23 +272,26 @@ void SceneModifier::UpdateTexture(RenderEngine& engine)
     if(selectedTexture != m_selectedTexture)
     {
         m_selectedTexture = selectedTexture;
-        auto& texture = m_scene.GetProceduralTexture(m_selectedTexture);
-        texture.Write(*m_cache);
-        texture.SaveTexture();
+        const int ID = m_scene.GetTextureID(m_selectedTexture);
+        m_scene.GetTexture(ID).Write(*m_cache);
+        m_scene.GetTexture(ID).Save();
+        m_cache->TexturePath.SetUpdated(m_scene.GetTexture(ID).Path());
     }
     else if(m_selectedTexture >= 0 && 
             m_selectedTexture < static_cast<int>(m_scene.Textures().size()))
     {
-        m_scene.GetProceduralTexture(m_selectedTexture).Read(*m_cache);
+        const int ID = m_scene.GetTextureID(m_selectedTexture);
+        m_scene.GetTexture(ID).Read(*m_cache);
     }
 
     if (m_cache->ReloadTexture.Get())
     {
+        const int ID = m_scene.GetTextureID(m_selectedTexture);
+        m_scene.ReloadTexture(ID);
+        engine.ReloadTexture(ID);
+        m_scene.GetTexture(ID).Save();
+        m_cache->TexturePath.SetUpdated(m_scene.GetTexture(ID).Path());
         m_cache->ReloadTexture.Set(false);
-        m_scene.ReloadTexture(m_selectedTexture);
-        engine.ReloadTexture(m_selectedTexture) ?
-            Logger::LogInfo("Texture: Reload failed") :
-            Logger::LogError("Texture: Reload success");
     }
 }
 

@@ -41,6 +41,11 @@ public:
     GLuint GetID() const;
 
     /**
+    * @return the filename of the texture
+    */
+    const std::string& Name() const;
+
+    /**
     * @return whether this texture is a cube map
     */
     bool IsCubeMap() const;

@@ -166,3 +166,8 @@ bool GlTexture::ReloadPixels()
 
     return !HasCallFailed();
 }
+
+const std::string& GlTexture::Name() const
+{
+    return m_texture.Name();
+}

@@ -165,6 +165,11 @@ bool SceneBuilder::InitialiseTextures()
 {
     assert(m_scene.Textures().empty());
 
+    if (!boost::filesystem::exists(GENERATED_TEXTURES))
+    {
+        boost::filesystem::create_directory(GENERATED_TEXTURES);
+    }
+
     auto MakeProcedural = [this](const std::string& name,
                                  Texture::Filter filter,
                                  ProceduralTexture::Type type,
@@ -188,8 +193,8 @@ bool SceneBuilder::InitialiseTextures()
         TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp"));
 
     // Ensure special texture IDS match
-    assert(boost::iequals(m_scene.GetTexture(BLANK_TEXTURE_ID), "blank"));
-    assert(boost::iequals(m_scene.GetTexture(RANDOM_TEXTURE_ID), "Random"));
+    assert(boost::iequals(m_scene.GetTexture(BLANK_TEXTURE_ID).Name(), "blank"));
+    assert(boost::iequals(m_scene.GetTexture(RANDOM_TEXTURE_ID).Name(), "Random"));
 
     return true;
 }
@@ -462,13 +467,4 @@ void SceneBuilder::SavePostProcessingtoFile()
     boost::property_tree::ptree root, tree;
     m_scene.Post().Write(tree);
     SaveXMLFile(root, tree, POST_NAME, POST_PATH + SAVED + XML);
-}
-
-void SceneBuilder::SaveTextureToFile(int ID)
-{
-    if (!boost::filesystem::exists(GENERATED_TEXTURES))
-    {
-        boost::filesystem::create_directory(GENERATED_TEXTURES);
-    }
-    m_scene.GetProceduralTexture(ID).SaveTexture();
 }

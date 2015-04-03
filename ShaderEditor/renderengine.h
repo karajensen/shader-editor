@@ -62,15 +62,13 @@ public:
 
     /**
     * Reloads the texture at the given index
-    * @return whether reloading was successful
     */
-    virtual bool ReloadTexture(int index) = 0;
+    virtual void ReloadTexture(int index) = 0;
 
     /**
     * Reloads the terrain at the given index
-    * @return whether reloading was successful
     */
-    virtual bool ReloadTerrain(int index) = 0;
+    virtual void ReloadTerrain(int index) = 0;
 
     /**
     * @return the name of the render engine

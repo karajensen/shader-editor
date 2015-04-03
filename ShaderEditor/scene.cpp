@@ -147,9 +147,14 @@ Light& Scene::GetLight(int index)
     return *m_data->lights[index];
 }
 
-std::string Scene::GetTexture(int index)
+Texture& Scene::GetTexture(int index)
 {
-    return index == NO_INDEX ? "None" : m_data->textures[index]->Name();
+    return *m_data->textures[index];
+}
+
+int Scene::GetTextureID(int index) const
+{
+    return m_data->proceduralTextures[index];
 }
 
 Mesh& Scene::GetMesh(int index)
@@ -165,12 +170,6 @@ Water& Scene::GetWater(int index)
 Terrain& Scene::GetTerrain(int index)
 {
     return *m_data->terrain[index];
-}
-
-ProceduralTexture& Scene::GetProceduralTexture(int index)
-{
-    const int ID = m_data->proceduralTextures[index];
-    return static_cast<ProceduralTexture&>(*m_data->textures[ID]);
 }
 
 Shader& Scene::GetShader(int index)
@@ -237,11 +236,6 @@ void Scene::SaveSceneToFile()
     m_builder->SaveSceneToFile();
 }
 
-void Scene::SaveTextureToFile(int ID)
-{
-    m_builder->SaveTextureToFile(ID);
-}
-
 bool Scene::Initialise()
 {
     m_data = std::make_unique<SceneData>();
@@ -272,7 +266,7 @@ void Scene::Reload()
 {
     for (int ID : m_data->proceduralTextures)
     {
-        GetProceduralTexture(ID).Reload();
+        m_data->textures[ID]->Reload();
     }
 
     for (auto& terrain : m_data->terrain)
@@ -283,7 +277,7 @@ void Scene::Reload()
 
 void Scene::ReloadTexture(int ID)
 {
-    GetProceduralTexture(ID).Reload();
+    m_data->textures[ID]->Reload();
 }
 
 void Scene::ReloadTerrain(int ID)

@@ -153,12 +153,6 @@ void Grid::SetHeight(int row, int column, float height)
     m_vertices[GetIndex(row, column) + POS_Y] = m_position.y + height;
 }
 
-bool Grid::Valid(int row, int column) const
-{
-    const auto index = GetIndex(row, column);
-    return index >= 0 && index < m_vertices.size();
-}
-
 int Grid::Rows() const
 {
     return m_rows;

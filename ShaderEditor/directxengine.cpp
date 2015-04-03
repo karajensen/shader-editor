@@ -1070,12 +1070,18 @@ void DirectxEngine::ToggleWireframe()
     m_data->isWireframe = !m_data->isWireframe;
 }
 
-bool DirectxEngine::ReloadTexture(int index)
+void DirectxEngine::ReloadTerrain(int index)
 {
-    return m_data->terrain[index]->Reload(m_data->context);
+    const auto& name = m_data->terrain[index]->GetTerrain().Name();
+    m_data->terrain[index]->Reload(m_data->context) ?
+        Logger::LogInfo("Terrain: " + name + " reload successful") :
+        Logger::LogError("Terrain: " + name + " reload failed");
 }
 
-bool DirectxEngine::ReloadTerrain(int index)
+void DirectxEngine::ReloadTexture(int index)
 {
-    return m_data->textures[index]->ReloadPixels(m_data->device);
+    const auto& name = m_data->textures[index]->Name();
+    m_data->textures[index]->ReloadPixels(m_data->device) ?
+        Logger::LogInfo("Texture: " + name + " reload successful") :
+        Logger::LogError("Texture: " + name + " reload failed");
 }

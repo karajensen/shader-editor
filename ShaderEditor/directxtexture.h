@@ -52,6 +52,11 @@ public:
     */
     Texture::Filter Filtering() const;
 
+    /**
+    * @return the filename of the texture
+    */
+    const std::string& Name() const;
+
 private:
 
     /**

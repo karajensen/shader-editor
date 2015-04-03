@@ -15,6 +15,14 @@ Texture::Texture(const std::string& name, const std::string& path, Filter filter
 {
 }
 
+void Texture::Write(Cache& cache)
+{
+}
+
+void Texture::Read(Cache& cache)
+{
+}
+
 const std::string& Texture::Name() const
 {
     return m_name;
@@ -77,4 +85,14 @@ bool Texture::HasPixels() const
 int Texture::Size() const
 {
     throw std::exception("Texture::Size not implemented");
+}
+
+void Texture::Reload()
+{
+    throw std::exception("Texture::Reload not implemented");
+}
+
+void Texture::Save()
+{
+    throw std::exception("Texture::Save not implemented");
 }

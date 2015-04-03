@@ -224,7 +224,8 @@ bool Application::Initialise(HWND hwnd,
                              std::shared_ptr<Cache> cache)
 {    
     m_modifier = std::make_unique<SceneModifier>(
-        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP);
+        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP,
+        [this](){ ForceRenderEngine(m_selectedEngine); });
 
     if(!m_scene->Initialise())
     {
@@ -258,6 +259,7 @@ bool Application::Initialise(HWND hwnd,
     }
 
     m_modifier->Initialise(engineNames, m_selectedEngine);
+
     return true;
 }
 

@@ -939,12 +939,18 @@ void OpenglEngine::ToggleWireframe()
     m_data->isWireframe = !m_data->isWireframe;
 }
 
-bool OpenglEngine::ReloadTexture(int index)
+void OpenglEngine::ReloadTexture(int index)
 {
-    return m_data->terrain[index]->Reload();
+    const auto& name = m_data->textures[index]->Name();
+    m_data->textures[index]->ReloadPixels() ?
+        Logger::LogInfo("Texture: " + name + " reload successful") :
+        Logger::LogError("Texture: " + name + " reload failed");
 }
 
-bool OpenglEngine::ReloadTerrain(int index)
+void OpenglEngine::ReloadTerrain(int index)
 {
-    return m_data->textures[index]->ReloadPixels();
+    const auto& name = m_data->terrain[index]->GetTerrain().Name();
+    m_data->terrain[index]->Reload() ?
+        Logger::LogInfo("Terrain: " + name + " reload successful") :
+        Logger::LogError("Terrain: " + name + " reload failed");
 }

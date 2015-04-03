@@ -44,11 +44,6 @@ protected:
     void SetHeight(int row, int column, float height);
 
     /**
-    * @return whether the given row/column is valid
-    */
-    bool Valid(int row, int column) const;
-
-    /**
     * @return the number of rows of the grid
     */
     int Rows() const;

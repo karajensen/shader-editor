@@ -26,12 +26,14 @@ public:
     * @param camera The camera for the scene
     * @param cache Shared data between the gui and application
     * @param selectedMap The initial post map selected
+    * @param reloadEngine Callback to reload the render engine
     */
     SceneModifier(Scene& scene, 
                   Timer& timer,
                   Camera& camera,
                   std::shared_ptr<Cache> cache,
-                  int selectedMap);
+                  int selectedMap,
+                  std::function<void(void)> reloadEngine);
 
     /**
     * Destructor
@@ -65,7 +67,8 @@ public:
     * @param engineNames The names of all engines supported
     * @param selectedEngine The engine currently selected
     */
-    void Initialise(const std::vector<std::string>& engineNames, int selectedEngine);
+    void Initialise(const std::vector<std::string>& engineNames, 
+                    int selectedEngine);
 
 private:
 
@@ -186,4 +189,6 @@ private:
     int m_selectedTerrain = NO_INDEX; ///< Current terrain selected
     int m_engineAmount = 0;           ///< Number of engines that can be selected
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
+
+    std::function<void(void)> m_reloadEngine = nullptr; ///< Callback to reload the engine
 };
