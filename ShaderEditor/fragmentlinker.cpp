@@ -24,27 +24,20 @@ namespace
 
 bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& post)
 {
-    const float randomU = WINDOW_WIDTH / static_cast<float>(RANDOM_TEXTURE_SIZE);
-    const float randomV = WINDOW_HEIGHT / static_cast<float>(RANDOM_TEXTURE_SIZE);
-
     m_defines["MAX_LIGHTS"] = std::to_string(maxLights);
     m_defines["SAMPLES"] = std::to_string(MULTISAMPLING_COUNT);
     m_defines["WINDOW_WIDTH"] = std::to_string(WINDOW_WIDTH);
     m_defines["WINDOW_HEIGHT"] = std::to_string(WINDOW_HEIGHT);
     m_defines["MAX_WAVES"] = std::to_string(Water::GetMaxWaves());
     m_defines["SCENE_TEXTURES"] = std::to_string(SCENE_TEXTURES);
-    m_defines["EFFECTS_TEXTURES"] = std::to_string(EFFECTS_TEXTURES);
     m_defines["ID_COLOUR"] = std::to_string(SCENE_ID);
     m_defines["ID_NORMAL"] = std::to_string(NORMAL_ID);
-    m_defines["ID_EFFECTS"] = std::to_string(EFFECTS_ID);
     m_defines["DIAGNOSTIC_LIGHT"] = "10.0, 10.0, 0.0";
     m_defines["WEIGHT0"] = std::to_string(post.BlurWeight(0));
     m_defines["WEIGHT1"] = std::to_string(post.BlurWeight(1));
     m_defines["WEIGHT2"] = std::to_string(post.BlurWeight(2));
     m_defines["WEIGHT3"] = std::to_string(post.BlurWeight(3));
     m_defines["WEIGHT4"] = std::to_string(post.BlurWeight(4));
-    m_defines["RANDOM_UVS"] = std::to_string(randomU) + "," + std::to_string(randomV);
-                              
     return CreateGeneratedFolder();
 }
 

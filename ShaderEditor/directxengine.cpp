@@ -665,19 +665,15 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
     SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
     
-    preShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
     preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
     preShader->SendConstants(m_data->context);
 
     preShader->SendTexture(m_data->context, 0, m_data->sceneTarget, SCENE_ID);
-    preShader->SendTexture(m_data->context, 1, m_data->sceneTarget, NORMAL_ID);
-    SendTexture(2, RANDOM_TEXTURE_ID);
     
     m_data->quad.Render(m_data->context);
 
     preShader->ClearTexture(m_data->context, 0);
-    preShader->ClearTexture(m_data->context, 1);
 }
 
 void DirectxEngine::RenderBlur(const PostProcessing& post)
@@ -727,8 +723,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->backBuffer.SetActive(m_data->context);
 
     postShader->SendTexture(m_data->context, 0, m_data->preEffectsTarget, SCENE_ID);
-    postShader->SendTexture(m_data->context, 1, m_data->preEffectsTarget, EFFECTS_ID);
-    postShader->SendTexture(m_data->context, 2, m_data->blurTarget);
+    postShader->SendTexture(m_data->context, 1, m_data->blurTarget, BLUR_ID);
+    postShader->SendTexture(m_data->context, 2, m_data->sceneTarget, NORMAL_ID);
 
     postShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
@@ -750,7 +746,6 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
     postShader->UpdateConstantFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
-    postShader->UpdateConstantFloat("ambienceMask", &post.Mask(PostProcessing::AMBIENCE_MAP), 1);
 
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);

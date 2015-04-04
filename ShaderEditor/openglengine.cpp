@@ -541,13 +541,10 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
 
-    preShader->SendUniformFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     preShader->SendUniformFloat("bloomStart", &post.BloomStart(), 1);
     preShader->SendUniformFloat("bloomFade", &post.BloomFade(), 1);
 
     preShader->SendTexture(0, m_data->sceneTarget, SCENE_ID);
-    preShader->SendTexture(1, m_data->sceneTarget, NORMAL_ID);
-    SendTexture(2, RANDOM_TEXTURE_ID);
     
     m_data->preEffectsTarget.SetActive();
     m_data->quad.PreRender();
@@ -555,7 +552,6 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     m_data->quad.Render();
 
     preShader->ClearTexture(0, m_data->sceneTarget);
-    preShader->ClearTexture(1, m_data->sceneTarget);
 }
 
 void OpenglEngine::RenderBlur(const PostProcessing& post)
@@ -625,19 +621,18 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
     postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
-    postShader->SendUniformFloat("ambienceMask", &post.Mask(PostProcessing::AMBIENCE_MAP), 1);
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
-    postShader->SendTexture(1, m_data->preEffectsTarget, EFFECTS_ID);
-    postShader->SendTexture(2, m_data->blurTarget, BLUR_ID);
+    postShader->SendTexture(1, m_data->blurTarget, BLUR_ID);
+    postShader->SendTexture(2, m_data->sceneTarget, NORMAL_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
     postShader->ClearTexture(0, m_data->preEffectsTarget);
-    postShader->ClearTexture(1, m_data->preEffectsTarget);
-    postShader->ClearTexture(2, m_data->blurTarget);
+    postShader->ClearTexture(1, m_data->blurTarget);
+    postShader->ClearTexture(2, m_data->sceneTarget);
 }
 
 bool OpenglEngine::UpdateShader(const Emitter& emitter)

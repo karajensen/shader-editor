@@ -183,9 +183,6 @@ bool SceneBuilder::InitialiseTextures()
     m_scene.Add(std::make_unique<Texture>("blank", 
         TEXTURE_PATH + "//blank.png", Texture::NEAREST));
 
-    MakeProcedural("random", Texture::NEAREST, 
-        ProceduralTexture::RANDOM, RANDOM_TEXTURE_SIZE);
-
     MakeProcedural("heightmap", Texture::NEAREST, 
         ProceduralTexture::DIAMOND_SQUARE, 256);
 
@@ -194,7 +191,6 @@ bool SceneBuilder::InitialiseTextures()
 
     // Ensure special texture IDS match
     assert(boost::iequals(m_scene.GetTexture(BLANK_TEXTURE_ID).Name(), "blank"));
-    assert(boost::iequals(m_scene.GetTexture(RANDOM_TEXTURE_ID).Name(), "Random"));
 
     return true;
 }

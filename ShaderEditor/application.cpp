@@ -98,13 +98,9 @@ void Application::HandleKeyPress(const WPARAM& keypress)
     }
     else if (keypress == '7')
     {
-        m_scene->SetPostMap(PostProcessing::AMBIENCE_MAP);
-    }
-    else if (keypress == '8')
-    {
         m_scene->SetPostMap(PostProcessing::FOG_MAP);
     }
-    else if (keypress == '9')
+    else if (keypress == '8')
     {
         m_scene->SetPostMap(PostProcessing::DOF_MAP);
     }

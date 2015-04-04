@@ -18,7 +18,6 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
-const int RANDOM_TEXTURE_SIZE = 128;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 2000.0f;
 const float FIELD_OF_VIEW = 60.0f;
@@ -41,16 +40,17 @@ const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 * Scene Target 0: scene (rgb)
 * Scene Target 1: normals (rgb) / depth (a)
 * Effects Target 0: scene (rgb) / bloom (a)
-* Effects Target 1: normals or ambience (rgb) / depth (a)
 * Blur Target 0: scene (rgb) / bloom (a)
 */
-const int EFFECTS_TEXTURES = 2;
-const int SCENE_TEXTURES = 2;
-const int BLUR_TEXTURES = 1;
-const int SCENE_ID = 0;
-const int NORMAL_ID = 1;
-const int EFFECTS_ID = 1;
-const int BLUR_ID = 0;
+enum TargetTextures
+{
+    SCENE_TEXTURES = 2,
+    EFFECTS_TEXTURES = 1,
+    BLUR_TEXTURES = 1,
+    SCENE_ID = 0,
+    NORMAL_ID = 1,
+    BLUR_ID = 0,
+};
 
 /**
 * Available render engines
@@ -67,8 +67,7 @@ enum RenderingEngine
 */
 enum TextureIndex
 {
-    BLANK_TEXTURE_ID,
-    RANDOM_TEXTURE_ID
+    BLANK_TEXTURE_ID
 };
 
 /**
