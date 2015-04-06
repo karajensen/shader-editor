@@ -31,8 +31,6 @@ Grid::Grid(const boost::property_tree::ptree& node) :
 {
     m_spacing = GetAttribute<float>(node, "Grid", "spacing");
     m_rows = m_columns = GetAttribute<int>(node, "Grid", "size");
-    m_uvStretch.x = GetAttributeOptional<float>(node, "UVStretch", "u", 1.0f);
-    m_uvStretch.y = GetAttributeOptional<float>(node, "UVStretch", "v", 1.0f);
 }
 
 void Grid::Write(boost::property_tree::ptree& node) const
@@ -41,11 +39,9 @@ void Grid::Write(boost::property_tree::ptree& node) const
 
     node.add("Grid.<xmlattr>.spacing", m_spacing);
     node.add("Grid.<xmlattr>.size", m_rows);
-    AddValueOptional(node, "UVStretch.<xmlattr>.u", m_uvStretch.x, 1.0f);
-    AddValueOptional(node, "UVStretch.<xmlattr>.v", m_uvStretch.y, 1.0f);
 }
 
-bool Grid::CreateGrid(bool normals, bool tangents)
+bool Grid::CreateGrid(const Float2& uvScale, bool normals, bool tangents)
 {
     if (!normals && tangents)
     {
@@ -57,10 +53,10 @@ bool Grid::CreateGrid(bool normals, bool tangents)
     m_hasNormals = normals;
     m_hasTangents = tangents;
 
-    ResetGrid();
+    ResetGrid(uvScale);
     return true;
 }
-void Grid::ResetGrid()
+void Grid::ResetGrid(const Float2& uvScale)
 {
     const int vertices = m_rows * m_columns;
     const int trianglesPerQuad = 2;
@@ -109,11 +105,11 @@ void Grid::ResetGrid()
             }
 
             index += m_vertexComponentCount;
-            u += 0.5f * m_uvStretch.x;
+            u += 0.5f * uvScale.x;
         }
 
         u = 0;
-        v += 0.5f * m_uvStretch.y;
+        v += 0.5f * uvScale.y;
     }
 
     index = 0;

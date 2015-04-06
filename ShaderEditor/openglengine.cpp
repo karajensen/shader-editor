@@ -707,7 +707,8 @@ bool OpenglEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
     if (UpdateShader(terrain, scene, false))
     {
         auto& shader = m_data->shaders[terrain.ShaderID()];
-        shader->SendUniformFloat("meshCaustics", &terrain.Caustics(), 1);
+        shader->SendUniformFloat("meshCausticAmount", &terrain.CausticsAmount(), 1);
+        shader->SendUniformFloat("meshCausticScale", &terrain.CausticsScale(), 1);
         shader->SendUniformFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &terrain.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &terrain.Specularity(), 1);
@@ -722,7 +723,8 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
     if (UpdateShader(mesh, scene, false))
     {
         auto& shader = m_data->shaders[mesh.ShaderID()];
-        shader->SendUniformFloat("meshCaustics", &mesh.Caustics(), 1);
+        shader->SendUniformFloat("meshCausticAmount", &mesh.CausticsAmount(), 1);
+        shader->SendUniformFloat("meshCausticScale", &mesh.CausticsScale(), 1);
         shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &mesh.Specularity(), 1);

@@ -799,7 +799,8 @@ bool DirectxEngine::UpdateShader(const Terrain& terrain,
     if (UpdateShader(terrain, scene, false))
     {
         auto& shader = m_data->shaders[terrain.ShaderID()];
-        shader->UpdateConstantFloat("meshCaustics", &terrain.Caustics(), 1);
+        shader->UpdateConstantFloat("meshCausticAmount", &terrain.CausticsAmount(), 1);
+        shader->UpdateConstantFloat("meshCausticScale", &terrain.CausticsScale(), 1);
         shader->UpdateConstantFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &terrain.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &terrain.Specularity(), 1);
@@ -813,7 +814,8 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
     if (UpdateShader(mesh, scene, false))
     {
         auto& shader = m_data->shaders[mesh.ShaderID()];
-        shader->UpdateConstantFloat("meshCaustics", &mesh.Caustics(), 1);
+        shader->UpdateConstantFloat("meshCausticAmount", &mesh.CausticsAmount(), 1);
+        shader->UpdateConstantFloat("meshCausticScale", &mesh.CausticsScale(), 1);
         shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);

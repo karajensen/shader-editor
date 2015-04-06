@@ -72,7 +72,12 @@ public:
     /**
     * @return Caustics multiplier
     */
-    const float& Caustics() const;
+    const float& CausticsAmount() const;
+
+    /**
+    * @return Caustics scale
+    */
+    const float& CausticsScale() const;
 
     /**
     * Adds a new instance of the terrain
@@ -94,14 +99,16 @@ private:
     */
     void GenerateTerrain();
 
-    std::string m_heightmap;     ///< The name of the heightmap to use
-    float m_height = 0.0f;       ///< The starting height of the terrain
-    float m_maxHeight = 1.0f;    ///< The maximum height offset of the terrain
-    float m_minHeight = 0.0f;    ///< The minimum height offset of the terrain
-    float m_bump = 1.0f;         ///< Saturation of bump
-    float m_caustics = 1.0f;     ///< How much of the caustics are visible
-    float m_specularity = 1.0f;  ///< Brightness of the specular highlights
-    float m_ambience = 1.0f;     ///< Ambient light multiplier
+    std::string m_heightmap;       ///< The name of the heightmap to use
+    float m_height = 0.0f;         ///< The starting height of the terrain
+    float m_maxHeight = 1.0f;      ///< The maximum height offset of the terrain
+    float m_minHeight = 0.0f;      ///< The minimum height offset of the terrain
+    float m_bump = 1.0f;           ///< Saturation of bump
+    float m_causticsAmount = 1.0f; ///< How much of the caustics are visible
+    float m_causticsScale = 1.0f;  ///< Scale of the caustics texture
+    float m_specularity = 1.0f;    ///< Brightness of the specular highlights
+    float m_ambience = 1.0f;       ///< Ambient light multiplier
+    Float2 m_uvScale;              ///< Texture stretch multiplier
 
     const std::vector<unsigned int>& m_pixels; ///< Pixels of the height map
 };

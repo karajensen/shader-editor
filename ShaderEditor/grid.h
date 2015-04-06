@@ -27,16 +27,18 @@ protected:
 
     /**
     * Loads a grid into the buffers
+    * @param uvScale The scale for the UVs
     * @param normals Whether to generate normals
     * @param tangents Whether to generate tangent/bitangents
     * @return whether creation was successful
     */
-    bool CreateGrid(bool normals, bool tangents);
+    bool CreateGrid(const Float2& uvScale, bool normals, bool tangents);
                    
     /**
     * Resets the grid to default
+    * @param uvScale The scale for the UVs
     */
-    void ResetGrid();
+    void ResetGrid(const Float2& uvScale);
 
     /**
     * Sets the height at the given row/column
@@ -108,5 +110,4 @@ private:
     int m_rows = 0;              ///< The number of rows of this mesh
     bool m_hasNormals = false;   ///< Whether to generate normals
     bool m_hasTangents = false;  ///< Whether to generate tangent/bitangents
-    Float2 m_uvStretch;          ///< Texture stretch multiplier
 };

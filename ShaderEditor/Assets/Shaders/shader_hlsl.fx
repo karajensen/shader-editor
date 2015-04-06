@@ -40,7 +40,8 @@ cbuffer MeshPixelBuffer : register(b3)
         float meshSpecularity;
     endif
     ifdef: CAUSTICS
-        float meshCaustics;
+        float meshCausticAmount;
+        float meshCausticScale;
     endif
 };
 
@@ -158,7 +159,8 @@ Outputs PShader(Attributes input)
     }
 
     ifdef: CAUSTICS
-        float3 caustics = CausticsSampler.Sample(Sampler, input.uvs).rgb * max(normal.y, 0.0);
+        float3 caustics = CausticsSampler.Sample(
+            Sampler, input.uvs * meshCausticScale).rgb * max(normal.y, 0.0);
     endif
 
     Outputs output;
@@ -170,7 +172,7 @@ Outputs PShader(Attributes input)
         output.colour.rgb += specularTex.rgb * specular;
     endif
     ifdef: CAUSTICS
-        output.colour.rgb += caustics * meshCaustics;
+        output.colour.rgb += caustics * meshCausticAmount;
     endif
     output.colour.rgb *= meshAmbience;
     output.colour.a = 1.0;

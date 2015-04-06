@@ -54,7 +54,7 @@ Water::Water(const boost::property_tree::ptree& node) :
             " Did not have required amount of waves");
     }
 
-    CreateGrid(false, false);
+    CreateGrid(Float2(1.0f, 1.0f), false, false);
 }
 
 void Water::Write(boost::property_tree::ptree& node,

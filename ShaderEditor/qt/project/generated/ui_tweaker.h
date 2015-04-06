@@ -179,10 +179,6 @@ public:
     QDoubleSpinBox *fog_value;
     QDial *fog_dial;
     QComboBox *fog_box;
-    QFrame *ambience;
-    QDoubleSpinBox *ambience_value;
-    QDial *ambience_dial;
-    QComboBox *ambience_box;
     QSpacerItem *_meshSpacer_4;
     QFrame *lightSelected;
     QLabel *lightSelected_lbl;
@@ -2020,64 +2016,6 @@ public:
 
         postLayout->addWidget(fog);
 
-        ambience = new QFrame(layoutWidget3);
-        ambience->setObjectName(QStringLiteral("ambience"));
-        ambience->setMinimumSize(QSize(225, 35));
-        ambience->setMaximumSize(QSize(225, 35));
-        ambience->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        ambience->setFrameShape(QFrame::NoFrame);
-        ambience->setFrameShadow(QFrame::Plain);
-        ambience->setLineWidth(0);
-        ambience_value = new QDoubleSpinBox(ambience);
-        ambience_value->setObjectName(QStringLiteral("ambience_value"));
-        ambience_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(ambience_value->sizePolicy().hasHeightForWidth());
-        ambience_value->setSizePolicy(sizePolicy);
-        ambience_value->setMinimumSize(QSize(86, 25));
-        ambience_value->setMaximumSize(QSize(86, 25));
-        ambience_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        ambience_value->setFrame(false);
-        ambience_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        ambience_value->setDecimals(3);
-        ambience_value->setMinimum(-9999);
-        ambience_value->setMaximum(9999);
-        ambience_value->setSingleStep(0.05);
-        ambience_dial = new QDial(ambience);
-        ambience_dial->setObjectName(QStringLiteral("ambience_dial"));
-        ambience_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(ambience_dial->sizePolicy().hasHeightForWidth());
-        ambience_dial->setSizePolicy(sizePolicy);
-        ambience_dial->setMinimumSize(QSize(30, 30));
-        ambience_dial->setMaximumSize(QSize(30, 30));
-        ambience_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        ambience_dial->setMinimum(-10000);
-        ambience_dial->setMaximum(10000);
-        ambience_box = new QComboBox(ambience);
-        ambience_box->setObjectName(QStringLiteral("ambience_box"));
-        ambience_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(ambience_box->sizePolicy().hasHeightForWidth());
-        ambience_box->setSizePolicy(sizePolicy);
-        ambience_box->setMinimumSize(QSize(95, 22));
-        ambience_box->setMaximumSize(QSize(90, 22));
-        ambience_box->setBaseSize(QSize(90, 25));
-        ambience_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        ambience_box->setFrame(false);
-
-        postLayout->addWidget(ambience);
-
         _meshSpacer_4 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         postLayout->addItem(_meshSpacer_4);
@@ -2434,7 +2372,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(3);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);

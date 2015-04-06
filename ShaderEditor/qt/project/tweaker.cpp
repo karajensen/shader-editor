@@ -68,10 +68,13 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     std::vector<ComboEntry> terrain;
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_BUMP, 0.01, 3, "Bump");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_AMBIENCE, 0.01, 3, "Ambience");
-    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_CAUSTICS, 0.01, 3, "Caustics");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_CAUSTICS_AMOUNT, 0.01, 3, "Caustics");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_CAUSTICS_SCALE, 0.01, 3, "Caustic Scale");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SPECULARITY, 0.01, 3, "Specularity");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_MIN_HEIGHT, 0.01, 3, "Min Height");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_MAX_HEIGHT, 0.01, 3, "Max Height");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SCALE_U, 0.01, 3, "Scale U");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SCALE_V, 0.01, 3, "Scale V");
     m_terrain.Initialise(m_ui.terrainAttributes_box, 
         m_ui.terrainAttributes_value, m_ui.terrainAttributes_dial, terrain);
 
@@ -134,7 +137,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
     std::vector<ComboEntry> mesh;
     AddEntry(mesh, m_callbacks.SetMesh, MESH_AMBIENCE, 0.01, 3, "Ambience");
-    AddEntry(mesh, m_callbacks.SetMesh, MESH_CAUSTICS, 0.01, 3, "Caustics");
+    AddEntry(mesh, m_callbacks.SetMesh, MESH_CAUSTICS_AMOUNT, 0.01, 3, "Caustics");
+    AddEntry(mesh, m_callbacks.SetMesh, MESH_CAUSTICS_SCALE, 0.01, 3, "Caustic Scale");
     AddEntry(mesh, m_callbacks.SetMesh, MESH_BUMP, 0.01, 3, "Bump");
     AddEntry(mesh, m_callbacks.SetMesh, MESH_SPECULARITY, 0.01, 3, "Specularity");
     m_mesh.Initialise(m_ui.meshAttributes_box, 

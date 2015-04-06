@@ -13,13 +13,16 @@ Terrain::Terrain(const boost::property_tree::ptree& node,
     m_pixels(pixels),
     m_heightmap(heightmap)
 {
-    m_caustics = GetValueOptional<float>(node, 1.0f, "Caustics");
+    m_causticsAmount = GetAttributeOptional<float>(node, "Caustics", "amount", 1.0f);
+    m_causticsScale = GetAttributeOptional<float>(node, "Caustics", "scale", 1.0f);
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_minHeight = GetAttribute<float>(node, "Height", "min");
     m_maxHeight = GetAttribute<float>(node, "Height", "max");
     m_height = GetAttribute<float>(node, "Height", "start");
+    m_uvScale.x = GetAttributeOptional<float>(node, "UVScale", "u", 1.0f);
+    m_uvScale.y = GetAttributeOptional<float>(node, "UVScale", "v", 1.0f);
 }
 
 void Terrain::Write(boost::property_tree::ptree& node) const
@@ -31,36 +34,45 @@ void Terrain::Write(boost::property_tree::ptree& node) const
     node.add("Height.<xmlattr>.max", m_maxHeight);
     node.add("Height.<xmlattr>.start", m_height);
     AddValueOptional(node, "Bump", m_bump, 0.0f);
-    AddValueOptional(node, "Caustics", m_caustics, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
+    AddValueOptional(node, "Caustics.<xmlattr>.amount", m_causticsAmount, 1.0f);
+    AddValueOptional(node, "Caustics.<xmlattr>.scale", m_causticsScale, 1.0f);
+    AddValueOptional(node, "UVScale.<xmlattr>.u", m_uvScale.x, 1.0f);
+    AddValueOptional(node, "UVScale.<xmlattr>.v", m_uvScale.y, 1.0f);
 }
 
 void Terrain::Write(Cache& cache)
 {
-    cache.Terrain[TERRAIN_CAUSTICS].SetUpdated(m_caustics);
+    cache.Terrain[TERRAIN_CAUSTICS_AMOUNT].SetUpdated(m_causticsAmount);
+    cache.Terrain[TERRAIN_CAUSTICS_SCALE].SetUpdated(m_causticsScale);
     cache.Terrain[TERRAIN_BUMP].SetUpdated(m_bump);
     cache.Terrain[TERRAIN_AMBIENCE].SetUpdated(m_ambience);
     cache.Terrain[TERRAIN_SPECULARITY].SetUpdated(m_specularity);
     cache.Terrain[TERRAIN_MIN_HEIGHT].SetUpdated(m_minHeight);
     cache.Terrain[TERRAIN_MAX_HEIGHT].SetUpdated(m_maxHeight);
+    cache.Terrain[TERRAIN_SCALE_U].SetUpdated(m_uvScale.x);
+    cache.Terrain[TERRAIN_SCALE_V].SetUpdated(m_uvScale.y);
     cache.TerrainShader.SetUpdated(ShaderName());
 }
 
 void Terrain::Read(Cache& cache)
 {
-    m_caustics = cache.Terrain[TERRAIN_CAUSTICS].Get();
+    m_causticsAmount = cache.Terrain[TERRAIN_CAUSTICS_AMOUNT].Get();
+    m_causticsScale = cache.Terrain[TERRAIN_CAUSTICS_SCALE].Get();
     m_bump = cache.Terrain[TERRAIN_BUMP].Get();
     m_specularity = cache.Terrain[TERRAIN_SPECULARITY].Get();
     m_ambience = cache.Terrain[TERRAIN_AMBIENCE].Get();
     m_minHeight = cache.Terrain[TERRAIN_MIN_HEIGHT].Get();
     m_maxHeight = cache.Terrain[TERRAIN_MAX_HEIGHT].Get();
+    m_uvScale.x = cache.Terrain[TERRAIN_SCALE_U].Get();
+    m_uvScale.y = cache.Terrain[TERRAIN_SCALE_V].Get();
 }
 
 bool Terrain::Initialise(bool hasNormals, 
                          bool hasTangents)
 {
-    if (CreateGrid(hasNormals, hasTangents))
+    if (CreateGrid(m_uvScale, hasNormals, hasTangents))
     {
         GenerateTerrain();
         RecalculateNormals();
@@ -72,7 +84,7 @@ bool Terrain::Initialise(bool hasNormals,
 
 void Terrain::Reload()
 {
-    ResetGrid();
+    ResetGrid(m_uvScale);
     GenerateTerrain();
     RecalculateNormals();
 }
@@ -114,9 +126,14 @@ const float& Terrain::Bump() const
     return m_bump;
 }
 
-const float& Terrain::Caustics() const
+const float& Terrain::CausticsScale() const
 {
-    return m_caustics;
+    return m_causticsScale;
+}
+
+const float& Terrain::CausticsAmount() const
+{
+    return m_causticsAmount;
 }
 
 void Terrain::SetInstance(int index, const Float2& position)

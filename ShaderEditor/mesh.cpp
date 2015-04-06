@@ -15,7 +15,8 @@ Mesh::Mesh(const boost::property_tree::ptree& node) :
     m_initialInstances = GetValueOptional(node, 1, "Instances");
     m_instances.resize(m_initialInstances);
 
-    m_caustics = GetValueOptional<float>(node, 1.0f, "Caustics");
+    m_causticsAmount = GetAttributeOptional<float>(node, "Caustics", "amount", 1.0f);
+    m_causticsScale = GetAttributeOptional<float>(node, "Caustics", "scale", 1.0f);
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
     m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
@@ -26,15 +27,17 @@ void Mesh::Write(boost::property_tree::ptree& node) const
     MeshData::Write(node);
 
     AddValueOptional(node, "Bump", m_bump, 0.0f);
-    AddValueOptional(node, "Caustics", m_caustics, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
     AddValueOptional(node, "Instances", m_initialInstances, 1);
+    AddValueOptional(node, "Caustics.<xmlattr>.amount", m_causticsAmount, 1.0f);
+    AddValueOptional(node, "Caustics.<xmlattr>.scale", m_causticsScale, 1.0f);
 }
 
 void Mesh::Write(Cache& cache)
 {
-    cache.Mesh[MESH_CAUSTICS].SetUpdated(m_caustics);
+    cache.Mesh[MESH_CAUSTICS_AMOUNT].SetUpdated(m_causticsAmount);
+    cache.Mesh[MESH_CAUSTICS_SCALE].SetUpdated(m_causticsScale);
     cache.Mesh[MESH_BUMP].SetUpdated(m_bump);
     cache.Mesh[MESH_AMBIENCE].SetUpdated(m_ambience);
     cache.Mesh[MESH_SPECULARITY].SetUpdated(m_specularity);
@@ -43,7 +46,8 @@ void Mesh::Write(Cache& cache)
 
 void Mesh::Read(Cache& cache)
 {
-    m_caustics = cache.Mesh[MESH_CAUSTICS].Get();
+    m_causticsAmount = cache.Mesh[MESH_CAUSTICS_AMOUNT].Get();
+    m_causticsScale = cache.Mesh[MESH_CAUSTICS_SCALE].Get();
     m_bump = cache.Mesh[MESH_BUMP].Get();
     m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
@@ -64,9 +68,15 @@ const float& Mesh::Ambience() const
     return m_ambience;
 
 }
-const float& Mesh::Caustics() const
+
+const float& Mesh::CausticsAmount() const
 {
-    return m_caustics;
+    return m_causticsAmount;
+}
+
+const float& Mesh::CausticsScale() const
+{
+    return m_causticsScale;
 }
 
 bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, bool requiresTangents)

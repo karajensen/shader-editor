@@ -60,7 +60,12 @@ public:
     /**
     * @return Caustics multiplier
     */
-    const float& Caustics() const;
+    const float& CausticsAmount() const;
+
+    /**
+    * @return Caustics scale
+    */
+    const float& CausticsScale() const;
 
     /**
     * Initialises the mesh data buffer containers from file
@@ -76,7 +81,8 @@ public:
 private:
 
     float m_bump = 1.0f;               ///< Saturation of bump
-    float m_caustics = 1.0f;           ///< How much of the caustics are visible
+    float m_causticsAmount = 1.0f;     ///< How much of the caustics are visible
+    float m_causticsScale = 1.0f;      ///< Scale of the caustics texture
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
     int m_initialInstances = 0;        ///< The number of instances on load

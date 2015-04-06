@@ -32,7 +32,8 @@ ifdef: BUMP
     uniform float meshBump;
 endif
 ifdef: CAUSTICS
-    uniform float meshCaustics;
+    uniform float meshCausticAmount;
+    uniform float meshCausticScale;
 endif
 ifdef: SPECULAR
     uniform float meshSpecularity;
@@ -94,7 +95,8 @@ void main(void)
     }
 
     ifdef: CAUSTICS
-        vec3 caustics = texture(CausticsSampler, ex_UVs).rgb * max(normal.y, 0.0);
+        vec3 caustics = texture(CausticsSampler, 
+            ex_UVs * meshCausticScale).rgb * max(normal.y, 0.0);
     endif
 
     out_Color[ID_COLOUR].rgb = diffuseTex.rgb * diffuse;
@@ -102,7 +104,7 @@ void main(void)
         out_Color[ID_COLOUR].rgb += specularTex.rgb * specular;
     endif
     ifdef: CAUSTICS
-        out_Color[ID_COLOUR].rgb += caustics * meshCaustics;
+        out_Color[ID_COLOUR].rgb += caustics * meshCausticAmount;
     endif
     out_Color[ID_COLOUR].rgb *= meshAmbience;
     out_Color[ID_COLOUR].a = 1.0;
