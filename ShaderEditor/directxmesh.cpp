@@ -4,11 +4,12 @@
 
 #include "directxmesh.h"
 
-DxMeshData::DxMeshData(const MeshData& data) :
+DxMeshData::DxMeshData(const MeshData& data, PreRenderMesh preRender) :
     m_name(data.Name()),
     m_vertexStride(sizeof(float) * data.VertexComponentCount()),
     m_vertices(data.Vertices()),
-    m_indices(data.Indices())
+    m_indices(data.Indices()),
+    m_preRender(preRender)
 {
 }
 
@@ -21,22 +22,21 @@ DxMeshData::DxMeshData(const std::string& name,
 {
 }
 
-DxWater::DxWater(const Water& water) :
-    DxMeshData(water),
+DxWater::DxWater(const Water& water, PreRenderMesh preRender) :
+    DxMeshData(water, preRender),
     m_water(water)
 {
 }
 
-DxTerrain::DxTerrain(const Terrain& terrain) :
-    DxMeshData(terrain),
+DxTerrain::DxTerrain(const Terrain& terrain, PreRenderMesh preRender) :
+    DxMeshData(terrain, preRender),
     m_terrain(terrain)
 {
 }
 
 DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    DxMeshData(mesh),
-    m_mesh(mesh),
-    m_preRender(preRender)
+    DxMeshData(mesh, preRender),
+    m_mesh(mesh)
 {
 }
 
@@ -145,15 +145,6 @@ void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
     }
 }
 
-void DxMeshData::Render(ID3D11DeviceContext* context)
-{
-    UINT offset = 0;
-    context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_vertexStride, &offset);
-    context->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-    context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    context->DrawIndexed(m_indices.size(), 0, 0);
-}
-
 const Mesh& DxMesh::GetMesh() const
 {
     return m_mesh;
@@ -174,17 +165,42 @@ bool DxTerrain::Reload(ID3D11DeviceContext* context)
     return FillBuffers(context);
 }
 
+void DxMeshData::Render(ID3D11DeviceContext* context)
+{
+    UINT offset = 0;
+    context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_vertexStride, &offset);
+    context->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    context->DrawIndexed(m_indices.size(), 0, 0);
+}
+
 void DxMesh::Render(ID3D11DeviceContext* context)
 {
-    for (const Mesh::Instance& instance : m_mesh.Instances())
+    RenderInstances(context, m_mesh.Instances());
+}
+
+void DxTerrain::Render(ID3D11DeviceContext* context)
+{
+    RenderInstances(context, m_terrain.Instances());
+}
+
+void DxWater::Render(ID3D11DeviceContext* context)
+{
+    RenderInstances(context, m_water.Instances());
+}
+
+void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
+                                 const std::vector<MeshData::Instance>& instances)
+{
+    for (const Mesh::Instance& instance : instances)
     {
         if (instance.shouldRender)
         {
             D3DXMATRIX scale;
             D3DXMatrixIdentity(&scale);
-            scale._11 = instance.scale;
-            scale._22 = instance.scale;
-            scale._33 = instance.scale;
+            scale._11 = instance.scale.x;
+            scale._22 = instance.scale.y;
+            scale._33 = instance.scale.z;
 
             D3DXMATRIX translate;
             D3DXMatrixIdentity(&translate);
@@ -203,8 +219,8 @@ void DxMesh::Render(ID3D11DeviceContext* context)
                 rotate = rotateZ * rotateX * rotateY;
             }
             
-            m_preRender(scale * rotate * translate, instance.colour);
-            DxMeshData::Render(context);
+            m_preRender(scale * rotate * translate);
+            Render(context);
         }
     }
 }

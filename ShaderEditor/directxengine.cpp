@@ -77,7 +77,6 @@ struct DirectxData
     D3DXMATRIX view;                     ///< View matrix
     D3DXMATRIX projection;               ///< Projection matrix
     D3DXMATRIX viewProjection;           ///< View projection matrix
-    D3DXMATRIX identity;                 ///< Identity matrix
     D3DXVECTOR3 cameraPosition;          ///< Position of the camera
     D3DXVECTOR3 cameraUp;                ///< Up vector of the camera
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
@@ -104,8 +103,6 @@ DirectxData::DirectxData() :
     quad("SceneQuad"),
     drawState(NO_STATE)
 {
-    D3DXMatrixIdentity(&identity);
-
     samplers.resize(MAX_SAMPLER_STATES);
     samplers.assign(MAX_SAMPLER_STATES, nullptr);
 
@@ -503,19 +500,21 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     for(const auto& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(*mesh,
-            [this](const D3DXMATRIX& world, const Colour& colour){ UpdateShader(world, colour); })));
+            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
     }
 
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
-        m_data->terrain.push_back(std::unique_ptr<DxTerrain>(new DxTerrain(*terrain)));
+        m_data->terrain.push_back(std::unique_ptr<DxTerrain>(new DxTerrain(*terrain,
+            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(*water)));
+        m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(*water,
+            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
@@ -630,11 +629,11 @@ void DirectxEngine::RenderTerrain(const IScene& scene)
 
 void DirectxEngine::RenderWater(const IScene& scene, float timer)
 {
-    for (auto& mesh : m_data->waters)
+    for (auto& water : m_data->waters)
     {
-        if (UpdateShader(mesh->GetWater(), scene, timer))
+        if (UpdateShader(water->GetWater(), scene, timer))
         {
-            mesh->Render(m_data->context);
+            water->Render(m_data->context);
         }
     }
 }
@@ -755,11 +754,10 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(m_data->context, 2);
 }
 
-void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Colour& colour)
+void DirectxEngine::UpdateShader(const D3DXMATRIX& world)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->UpdateConstantMatrix("world", world);
-    shader->UpdateConstantFloat("meshColour", &colour.r, 3);
     shader->SendConstants(m_data->context);
 }
 
@@ -795,7 +793,8 @@ bool DirectxEngine::UpdateShader(const MeshData& mesh,
     return false;
 }
 
-bool DirectxEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
+bool DirectxEngine::UpdateShader(const Terrain& terrain, 
+                                 const IScene& scene)
 {
     if (UpdateShader(terrain, scene, false))
     {
@@ -804,8 +803,6 @@ bool DirectxEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
         shader->UpdateConstantFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &terrain.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &terrain.Specularity(), 1);
-        shader->UpdateConstantMatrix("world", m_data->identity);
-        shader->SendConstants(m_data->context);
         return true;
     }
     return false;
@@ -820,13 +817,14 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
         shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
         shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
         shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);
-        shader->SendConstants(m_data->context);
         return true;
     }
     return false;
 }
 
-bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
+bool DirectxEngine::UpdateShader(const Water& water, 
+                                 const IScene& scene, 
+                                 float timer)
 {
     if (UpdateShader(water, scene, true, timer))
     {
@@ -851,8 +849,6 @@ bool DirectxEngine::UpdateShader(const Water& water, const IScene& scene, float 
             shader->UpdateConstantFloat("waveDirectionX", &waves[i].directionX, 1, offset);
             shader->UpdateConstantFloat("waveDirectionZ", &waves[i].directionZ, 1, offset);
         }
-
-        shader->SendConstants(m_data->context);
         return true;
     }
     return false;

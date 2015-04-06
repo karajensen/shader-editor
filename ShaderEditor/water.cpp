@@ -8,6 +8,7 @@
 Water::Water(const boost::property_tree::ptree& node) :
     Grid(node)
 {
+    m_height = GetValue<float>(node, "Height");
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_bumpVelocity.x = GetAttribute<float>(node, "BumpVelocity", "x");
     m_bumpVelocity.y = GetAttribute<float>(node, "BumpVelocity", "y");
@@ -63,6 +64,7 @@ void Water::Write(boost::property_tree::ptree& node,
 
     AddValueOptional(node, "Bump", m_bump, 0.0f);
     node.add("Speed", m_speed);
+    node.add("Height", m_height);
     node.add("BumpVelocity.<xmlattr>.x", m_bumpVelocity.x);
     node.add("BumpVelocity.<xmlattr>.y", m_bumpVelocity.y);
     node.add("Fresnal.<xmlattr>.scale", m_fresnal.x);
@@ -219,4 +221,19 @@ const float& Water::ReflectionIntensity() const
 int Water::GetMaxWaves()
 {
     return 2;
+}
+
+void Water::SetInstance(int index, const Float2& position, bool flippedX, bool flippedZ)
+{
+    m_instances[index].position.x = position.x;
+    m_instances[index].position.y = m_height;
+    m_instances[index].position.z = position.y;
+    m_instances[index].scale.x = flippedX ? -1.0f : 1.0f;
+    m_instances[index].scale.z = flippedZ ? -1.0f : 1.0f;
+}
+
+void Water::AddInstance(const Float2& position, bool flippedX, bool flippedZ)
+{
+    m_instances.emplace_back();
+    SetInstance(static_cast<int>(m_instances.size()-1), position, flippedX, flippedZ);
 }

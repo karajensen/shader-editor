@@ -39,7 +39,7 @@
     <ClCompile Include="emitter.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="grid.cpp" />
-    <ClCompile Include="gui.cpp" />
+    <ClCompile Include="qtGUI.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
@@ -52,6 +52,7 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="sceneBuilder.cpp" />
+    <ClCompile Include="sceneUpdater.cpp" />
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="textureProcedural.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
@@ -69,7 +70,7 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="openglengine.cpp" />
-    <ClCompile Include="sceneModifier.cpp" />
+    <ClCompile Include="appGUI.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="textureAnimated.cpp" />
@@ -93,7 +94,7 @@
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="cache.h" />
     <ClInclude Include="grid.h" />
-    <ClInclude Include="gui.h" />
+    <ClInclude Include="qtGUI.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="meshdata.h" />
@@ -106,6 +107,8 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="postprocessing.h" />
     <ClInclude Include="sceneBuilder.h" />
+    <ClInclude Include="sceneData.h" />
+    <ClInclude Include="sceneUpdater.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="textureProcedural.h" />
     <ClInclude Include="ptree_utilities.h" />
@@ -125,7 +128,7 @@
     <ClInclude Include="openglengine.h" />
     <ClInclude Include="renderengine.h" />
     <ClInclude Include="sceneInterface.h" />
-    <ClInclude Include="sceneModifier.h" />
+    <ClInclude Include="appGUI.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="textureAnimated.h" />

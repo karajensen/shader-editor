@@ -20,6 +20,17 @@ class MeshData : boost::noncopyable
 public:
 
     /**
+    * Holds information for a single instance of a mesh
+    */
+    struct Instance
+    {
+        Float3 position = Float3(0,0,0); ///< Position offset
+        Float3 rotation = Float3(0,0,0); ///< Degress rotated around each axis
+        Float3 scale = Float3(1,1,1);    ///< Scaling of the mesh
+        bool shouldRender = true;        ///< Whether to render this instance
+    };
+
+    /**
     * Constructor
     * @param node The data to intialize the data with
     */
@@ -94,6 +105,16 @@ public:
     */
     void SetTexture(Texture::Type type, int ID);
 
+    /**
+    * @return The instances of this mesh
+    */
+    std::vector<Instance>& Instances();
+
+    /**
+    * @return The instances of this mesh
+    */
+    const std::vector<Instance>& Instances() const;
+
 protected:
 
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
@@ -105,4 +126,5 @@ protected:
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
     std::vector<std::string> m_textureNames; ///< Names for each texture used
+    std::vector<Instance> m_instances;       ///< Current instances of this mesh
 };

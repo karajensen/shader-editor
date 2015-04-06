@@ -6,16 +6,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
-class AnimatedTexture;
+struct SceneData;
 class FragmentLinker;
-class Diagnostic;
-class Scene;
-class Mesh;
-class Light;
-class Texture;
-class Shader;
-class Water;
-class Terrain;
 class MeshData;
 
 /**
@@ -25,7 +17,15 @@ class SceneBuilder
 {
 public:
 
-    SceneBuilder(Scene& scene);
+    /**
+    * Constructor
+    * @param data Data for manipulating the scene
+    */
+    SceneBuilder(SceneData& data);
+
+    /**
+    * Destructor
+    */
     ~SceneBuilder();
 
     /**
@@ -99,6 +99,12 @@ private:
     bool InitialiseTextures();
 
     /**
+    * Initialises the caustics textures
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseCaustics();
+
+    /**
     * Initialises the meshes for the scene
     * @param linker The fragment linker used to generate shaders
     * @return Whether the initialization was successful
@@ -132,7 +138,8 @@ private:
     * @param linker The fragment linker used to generate shaders
     * @return if initialization was successfull
     */
-    bool InitialiseTerrain(const boost::property_tree::ptree& node, FragmentLinker& linker);
+    bool InitialiseTerrain(const boost::property_tree::ptree& node, 
+                           FragmentLinker& linker);
 
     /**
     * Initialises a water mesh for the scene
@@ -166,5 +173,5 @@ private:
                        const std::string& shadername, 
                        const std::string& meshName);
 
-    Scene& m_scene; ///< The scene to build
+    SceneData& m_data;         ///< The scene to build
 };                     

@@ -13,29 +13,29 @@ GlMeshData::GlMeshData(const std::string& name,
 {
 }
 
-GlMeshData::GlMeshData(const MeshData& data) :
+GlMeshData::GlMeshData(const MeshData& data, PreRenderMesh preRender) :
     m_name(data.Name()),
     m_vertices(data.Vertices()),
-    m_indices(data.Indices())
+    m_indices(data.Indices()),
+    m_preRender(preRender)
 {
 }
 
-GlWater::GlWater(const Water& water) :
-    GlMeshData(water),
+GlWater::GlWater(const Water& water, PreRenderMesh preRender) :
+    GlMeshData(water, preRender),
     m_water(water)
 {
 }
 
-GlTerrain::GlTerrain(const Terrain& terrain) :
-    GlMeshData(terrain),
+GlTerrain::GlTerrain(const Terrain& terrain, PreRenderMesh preRender) :
+    GlMeshData(terrain, preRender),
     m_terrain(terrain)
 {
 }
 
 GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    GlMeshData(mesh),
-    m_mesh(mesh),
-    m_preRender(preRender)
+    GlMeshData(mesh, preRender),
+    m_mesh(mesh)
 {
 }
 
@@ -166,14 +166,29 @@ bool GlTerrain::Reload()
 
 void GlMesh::Render()
 {
-    for (const Mesh::Instance& instance : m_mesh.Instances())
+    RenderInstances(m_mesh.Instances());
+}
+
+void GlWater::Render()
+{
+    RenderInstances(m_water.Instances());
+}
+
+void GlTerrain::Render()
+{
+    RenderInstances(m_terrain.Instances());
+}
+
+void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instances)
+{
+    for (const Mesh::Instance& instance : instances)
     {
         if (instance.shouldRender)
         {
             glm::mat4 scale;
-            scale[0][0] = instance.scale;
-            scale[1][1] = instance.scale;
-            scale[2][2] = instance.scale;
+            scale[0][0] = instance.scale.x;
+            scale[1][1] = instance.scale.y;
+            scale[2][2] = instance.scale.z;
 
             glm::mat4 translate;
             translate[3][0] = instance.position.x;
@@ -190,7 +205,7 @@ void GlMesh::Render()
                 rotate = rotateZ * rotateX * rotateY;
             }
 
-            m_preRender(translate * rotate * scale, instance.colour);
+            m_preRender(translate * rotate * scale);
             GlMeshData::Render();
         }
     }

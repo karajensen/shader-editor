@@ -1,27 +1,28 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - sceneModifier.cpp
+// Kara Jensen - mail@karajensen.com - appGUI.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sceneModifier.h"
+#include "appGUI.h"
 #include "renderdata.h"
+#include "sceneData.h"
 #include "scene.h"
 #include "cache.h"
 #include "camera.h"
 #include "renderengine.h"
-#include "diagnostic.h"
-#include "textureAnimated.h"
 #include "timer.h"
 #include "boost/lexical_cast.hpp"
 
-SceneModifier::~SceneModifier() = default;
+AppGUI::~AppGUI() = default;
 
-SceneModifier::SceneModifier(Scene& scene, 
-                             Timer& timer,
-                             Camera& camera,
-                             std::shared_ptr<Cache> cache, 
-                             int selectedMap,
-                             std::function<void(void)> reloadEngine) :
+AppGUI::AppGUI(Scene& scene, 
+               Timer& timer,
+               Camera& camera,
+               std::shared_ptr<Cache> cache, 
+               int selectedMap,
+               std::function<void(void)> reloadEngine) :
+
     m_scene(scene),
+    m_data(scene.GetData()),
     m_timer(timer),
     m_cache(cache),
     m_camera(camera),
@@ -30,7 +31,7 @@ SceneModifier::SceneModifier(Scene& scene,
 {
 }
 
-void SceneModifier::Tick(RenderEngine& engine)
+void AppGUI::Tick(RenderEngine& engine)
 {
     UpdateShader(engine);
     switch (m_cache->PageSelected.Get())
@@ -54,14 +55,14 @@ void SceneModifier::Tick(RenderEngine& engine)
     }
 }
 
-void SceneModifier::SetApplicationRunning(bool run)
+void AppGUI::SetApplicationRunning(bool run)
 {
     m_cache->ApplicationRunning.Set(run);
 }
 
-bool SceneModifier::ReCompileShader(const std::string& text, RenderEngine& engine)
+bool AppGUI::ReCompileShader(const std::string& text, RenderEngine& engine)
 {
-    const std::string& name = m_scene.GetShader(m_selectedShader).Name();
+    const std::string& name = m_data.shaders[m_selectedShader]->Name();
     m_cache->CompileShader.Clear();
     engine.WriteToShader(name, text);
 
@@ -79,7 +80,7 @@ bool SceneModifier::ReCompileShader(const std::string& text, RenderEngine& engin
     }
 }
 
-void SceneModifier::UpdateShader(RenderEngine& engine)
+void AppGUI::UpdateShader(RenderEngine& engine)
 {   
     const int selectedShader = m_cache->ShaderSelected.Get();
     bool changedShader = selectedShader != m_selectedShader;
@@ -99,12 +100,12 @@ void SceneModifier::UpdateShader(RenderEngine& engine)
     }
 }
 
-int SceneModifier::GetSelectedEngine() const
+int AppGUI::GetSelectedEngine() const
 {
     return m_cache->EngineSelected.Get();
 }
 
-void SceneModifier::SetSelectedEngine(int engine)
+void AppGUI::SetSelectedEngine(int engine)
 {
     m_cache->EngineSelected.SetUpdated(engine);
 
@@ -112,7 +113,7 @@ void SceneModifier::SetSelectedEngine(int engine)
     m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 }
 
-void SceneModifier::UpdateScene(RenderEngine& engine)
+void AppGUI::UpdateScene(RenderEngine& engine)
 {
     UpdateCamera();
 
@@ -134,7 +135,7 @@ void SceneModifier::UpdateScene(RenderEngine& engine)
         const auto maxTextures = m_cache->Textures.Get().size();
         for (unsigned int i = 0; i < maxTextures; ++i)
         {
-            engine.ReloadTexture(m_scene.GetTextureID(i));
+            engine.ReloadTexture(m_data.proceduralTextures[i]);
         }
 
         const auto maxTerrain = m_cache->Terrains.Get().size();
@@ -151,7 +152,7 @@ void SceneModifier::UpdateScene(RenderEngine& engine)
     }
 }
 
-void SceneModifier::UpdateCamera()
+void AppGUI::UpdateCamera()
 {
     if (m_camera.HasCameraMoved())
     {
@@ -192,19 +193,19 @@ void SceneModifier::UpdateCamera()
     }
 }
 
-void SceneModifier::UpdateMesh()
+void AppGUI::UpdateMesh()
 {
     const int selectedMesh = m_cache->MeshSelected.Get();
 
     if (selectedMesh != m_selectedMesh)
     {
         m_selectedMesh = selectedMesh;
-        m_scene.GetMesh(m_selectedMesh).Write(*m_cache);
+        m_data.meshes[m_selectedMesh]->Write(*m_cache);
     }
     else if (m_selectedMesh >= 0 && 
              m_selectedMesh < static_cast<int>(m_scene.Meshes().size()))
     {
-        auto& mesh = m_scene.GetMesh(m_selectedMesh);
+        auto& mesh = *m_data.meshes[m_selectedMesh];
         mesh.Read(*m_cache);
 
         m_cache->MeshInstances.SetUpdated(
@@ -212,23 +213,23 @@ void SceneModifier::UpdateMesh()
     }
 }
 
-void SceneModifier::UpdateWater()
+void AppGUI::UpdateWater()
 {
     const int selectedWater = m_cache->WaterSelected.Get();
     if(selectedWater != m_selectedWater)
     {
         m_selectedWater = selectedWater;
-        m_scene.GetWater(m_selectedWater).Write(*m_cache);
+        m_data.water[m_selectedWater]->Write(*m_cache);
     }
     else if(m_selectedWater >= 0 && 
             m_selectedWater < static_cast<int>(m_scene.Waters().size()))
     {
-        m_scene.GetWater(m_selectedWater).Read(*m_cache);
+        m_data.water[m_selectedWater]->Read(*m_cache);
     }
 
     if (m_selectedWater != NO_INDEX)
     {
-        auto& water = m_scene.GetWater(m_selectedWater);
+        auto& water = *m_data.water[m_selectedWater];
         const int selectedWave = m_cache->WaveSelected.Get();
         const int waveCount = static_cast<int>(water.Waves().size());
 
@@ -244,18 +245,18 @@ void SceneModifier::UpdateWater()
     }
 }
 
-void SceneModifier::UpdateTerrain(RenderEngine& engine)
+void AppGUI::UpdateTerrain(RenderEngine& engine)
 {
     const int selectedTerrain = m_cache->TerrainSelected.Get();
     if(selectedTerrain != m_selectedTerrain)
     {
         m_selectedTerrain = selectedTerrain;
-        m_scene.GetTerrain(m_selectedTerrain).Write(*m_cache);
+        m_data.terrain[m_selectedTerrain]->Write(*m_cache);
     }
     else if(m_selectedTerrain >= 0 && 
             m_selectedTerrain < static_cast<int>(m_scene.Terrains().size()))
     {
-        m_scene.GetTerrain(m_selectedTerrain).Read(*m_cache);
+        m_data.terrain[m_selectedTerrain]->Read(*m_cache);
     }
 
     if (m_cache->ReloadTerrain.Get())
@@ -266,57 +267,57 @@ void SceneModifier::UpdateTerrain(RenderEngine& engine)
     }
 }
 
-void SceneModifier::UpdateTexture(RenderEngine& engine)
+void AppGUI::UpdateTexture(RenderEngine& engine)
 {
     const int selectedTexture = m_cache->TextureSelected.Get();
     if(selectedTexture != m_selectedTexture)
     {
         m_selectedTexture = selectedTexture;
-        const int ID = m_scene.GetTextureID(m_selectedTexture);
-        m_scene.GetTexture(ID).Write(*m_cache);
-        m_scene.GetTexture(ID).Save();
-        m_cache->TexturePath.SetUpdated(m_scene.GetTexture(ID).Path());
+        const int ID = m_data.proceduralTextures[m_selectedTexture];
+        m_data.textures[ID]->Write(*m_cache);
+        m_data.textures[ID]->Save();
+        m_cache->TexturePath.SetUpdated(m_data.textures[ID]->Path());
     }
     else if(m_selectedTexture >= 0 && 
             m_selectedTexture < static_cast<int>(m_scene.Textures().size()))
     {
-        const int ID = m_scene.GetTextureID(m_selectedTexture);
-        m_scene.GetTexture(ID).Read(*m_cache);
+        const int ID = m_data.proceduralTextures[m_selectedTexture];
+        m_data.textures[ID]->Read(*m_cache);
     }
 
     if (m_cache->ReloadTexture.Get())
     {
-        const int ID = m_scene.GetTextureID(m_selectedTexture);
+        const int ID = m_data.proceduralTextures[m_selectedTexture];
         m_scene.ReloadTexture(ID);
         engine.ReloadTexture(ID);
-        m_scene.GetTexture(ID).Save();
-        m_cache->TexturePath.SetUpdated(m_scene.GetTexture(ID).Path());
+        m_data.textures[ID]->Save();
+        m_cache->TexturePath.SetUpdated(m_data.textures[ID]->Path());
         m_cache->ReloadTexture.Set(false);
     }
 }
 
-void SceneModifier::UpdateEmitter()
+void AppGUI::UpdateEmitter()
 {
     const int selectedEmitter = m_cache->EmitterSelected.Get();
     if(selectedEmitter != m_selectedEmitter)
     {
         m_selectedEmitter = selectedEmitter;
-        m_scene.GetEmitter(m_selectedEmitter).Write(*m_cache);
+        m_data.emitters[m_selectedEmitter]->Write(*m_cache);
     }
     else if(m_selectedEmitter >= 0 && 
             m_selectedEmitter < static_cast<int>(m_scene.Emitters().size()))
     {
-        m_scene.GetEmitter(m_selectedEmitter).Read(*m_cache);
+        m_data.emitters[m_selectedEmitter]->Read(*m_cache);
     }
 
     if (m_cache->PauseEmission.Get() && m_selectedEmitter != NO_INDEX)
     {
-        m_scene.GetEmitter(m_selectedEmitter).TogglePaused();
+        m_data.emitters[m_selectedEmitter]->TogglePaused();
         m_cache->PauseEmission.Set(false);
     }
 }
 
-void SceneModifier::UpdatePost(RenderEngine& engine)
+void AppGUI::UpdatePost(RenderEngine& engine)
 {
     const int selectedMap = m_cache->PostMapSelected.Get();
     if (selectedMap != m_selectedMap)
@@ -325,9 +326,9 @@ void SceneModifier::UpdatePost(RenderEngine& engine)
         m_scene.SetPostMap(selectedMap);
     }
 
-    m_scene.GetPost().Read(*m_cache);
+    m_data.post->Read(*m_cache);
 
-    m_scene.GetCaustics().SetSpeed(
+    m_data.caustics->SetSpeed(
         m_cache->Post[POST_CAUSTIC_SPEED].Get());
 
     if (m_cache->ToggleWireframe.Get())
@@ -337,34 +338,34 @@ void SceneModifier::UpdatePost(RenderEngine& engine)
     }
 }
 
-void SceneModifier::UpdateLight()
+void AppGUI::UpdateLight()
 {
     const int selectedLight = m_cache->LightSelected.Get();
     if(selectedLight != m_selectedLight)
     {
         m_selectedLight = selectedLight;
-        m_scene.GetLight(m_selectedLight).Write(*m_cache);
+        m_data.lights[m_selectedLight]->Write(*m_cache);
     }
     else if(m_selectedLight >= 0 && 
             m_selectedLight < static_cast<int>(m_scene.Lights().size()))
     {
-        m_scene.GetLight(m_selectedLight).Read(*m_cache);
+        m_data.lights[m_selectedLight]->Read(*m_cache);
     }
 
     if (m_cache->LightDiagnostics.Get())
     {
-        m_scene.GetDiagnostics().ToggleLightDiagnostics();
+        m_data.diagnostics->ToggleLightDiagnostics();
         m_cache->LightDiagnostics.Set(false);
     }
 
     if (m_cache->RenderLightsOnly.Get())
     {
-        m_scene.GetPost().ToggleDiffuseTextures();
+        m_data.post->ToggleDiffuseTextures();
         m_cache->RenderLightsOnly.Set(false);
     }
 }
 
-void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
+void AppGUI::Initialise(const std::vector<std::string>& engineNames,
                                int selectedEngine)
 {
     m_scene.SetPostMap(m_selectedMap);
@@ -383,10 +384,10 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
     m_cache->Textures.Set(GetTextureNames());
     m_cache->Terrains.Set(GetTerrainNames());
 
-    m_scene.GetPost().Write(*m_cache);
+    m_data.post->Write(*m_cache);
 
     m_cache->Post[POST_CAUSTIC_SPEED].SetUpdated(
-        m_scene.GetCaustics().GetSpeed());
+        m_data.caustics->GetSpeed());
 
     m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
         m_camera.GetCamera(Camera::POSITION_X));
@@ -407,7 +408,7 @@ void SceneModifier::Initialise(const std::vector<std::string>& engineNames,
         m_camera.GetCamera(Camera::ROTATION_ROLL));
 }
 
-std::vector<std::string> SceneModifier::GetLightNames() const
+std::vector<std::string> AppGUI::GetLightNames() const
 {
     std::vector<std::string> lights;
     for(const auto& light : m_scene.Lights())
@@ -417,7 +418,7 @@ std::vector<std::string> SceneModifier::GetLightNames() const
     return lights;
 }
 
-std::vector<std::string> SceneModifier::GetEmitterNames() const
+std::vector<std::string> AppGUI::GetEmitterNames() const
 {
     std::vector<std::string> emitters;
     for(const auto& emitter : m_scene.Emitters())
@@ -427,7 +428,7 @@ std::vector<std::string> SceneModifier::GetEmitterNames() const
     return emitters;
 }
 
-std::vector<std::string> SceneModifier::GetMeshNames() const
+std::vector<std::string> AppGUI::GetMeshNames() const
 {
     std::vector<std::string> meshes;
     for(const auto& mesh : m_scene.Meshes())
@@ -437,17 +438,19 @@ std::vector<std::string> SceneModifier::GetMeshNames() const
     return meshes;
 }
 
-std::vector<std::string> SceneModifier::GetWaterNames() const
+std::vector<std::string> AppGUI::GetWaterNames() const
 {
+    int index = 0;
     std::vector<std::string> waters;
     for(const auto& water : m_scene.Waters())
     {
         waters.push_back(water->Name());
+        ++index;
     }
     return waters;
 }
 
-std::vector<std::string> SceneModifier::GetPostMapNames() const
+std::vector<std::string> AppGUI::GetPostMapNames() const
 {
     std::vector<std::string> maps;
     for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
@@ -458,17 +461,19 @@ std::vector<std::string> SceneModifier::GetPostMapNames() const
     return maps;
 }
 
-std::vector<std::string> SceneModifier::GetTerrainNames() const
+std::vector<std::string> AppGUI::GetTerrainNames() const
 {
+    int index = 0;
     std::vector<std::string> terrainNames;
     for (const auto& terrain : m_scene.Terrains())
     {
         terrainNames.push_back(terrain->Name());
+        ++index;
     }
     return terrainNames;
 }
 
-std::vector<std::string> SceneModifier::GetTextureNames() const
+std::vector<std::string> AppGUI::GetTextureNames() const
 {
     std::vector<std::string> textures;
     for (const auto& texture : m_scene.Textures())
@@ -481,7 +486,7 @@ std::vector<std::string> SceneModifier::GetTextureNames() const
     return textures;
 }
 
-std::vector<std::string> SceneModifier::GetShaderNames() const
+std::vector<std::string> AppGUI::GetShaderNames() const
 {
     std::vector<std::string> shaders;
     for(const auto& shader : m_scene.Shaders())

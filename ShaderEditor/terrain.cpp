@@ -19,6 +19,7 @@ Terrain::Terrain(const boost::property_tree::ptree& node,
     m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_minHeight = GetAttribute<float>(node, "Height", "min");
     m_maxHeight = GetAttribute<float>(node, "Height", "max");
+    m_height = GetAttribute<float>(node, "Height", "start");
 }
 
 void Terrain::Write(boost::property_tree::ptree& node) const
@@ -28,6 +29,7 @@ void Terrain::Write(boost::property_tree::ptree& node) const
     node.add("HeightMap", m_heightmap);
     node.add("Height.<xmlattr>.min", m_minHeight);
     node.add("Height.<xmlattr>.max", m_maxHeight);
+    node.add("Height.<xmlattr>.start", m_height);
     AddValueOptional(node, "Bump", m_bump, 0.0f);
     AddValueOptional(node, "Caustics", m_caustics, 1.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
@@ -115,4 +117,17 @@ const float& Terrain::Bump() const
 const float& Terrain::Caustics() const
 {
     return m_caustics;
+}
+
+void Terrain::SetInstance(int index, const Float2& position)
+{
+    m_instances[index].position.x = position.x;
+    m_instances[index].position.y = m_height;
+    m_instances[index].position.z = position.y;
+}
+
+void Terrain::AddInstance(const Float2& position)
+{
+    m_instances.emplace_back();
+    SetInstance(static_cast<int>(m_instances.size()-1), position);
 }

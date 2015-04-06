@@ -16,8 +16,10 @@ public:
     /**
     * Constructor for predefined buffers
     * @param data Information for the mesh buffers
+    * @param preRender Callback to prerender an instance
     */
-    DxMeshData(const MeshData& data);
+    DxMeshData(const MeshData& data,
+               PreRenderMesh preRender);
 
     /**
     * Constructor for empty buffers
@@ -55,6 +57,14 @@ public:
 protected:
 
     /**
+    * Renders the data for each instance
+    * @param context Direct3D device context
+    * @param instances The mesh instances to render
+    */
+    void RenderInstances(ID3D11DeviceContext* context,
+                         const std::vector<MeshData::Instance>& instances);
+
+    /**
     * Fills the vertex and index buffers
     * @param context Direct3D device context
     * @return whether call was successful
@@ -67,6 +77,7 @@ protected:
     std::string m_name;                         ///< Name of the mesh
     const std::vector<float>& m_vertices;       ///< Vertex buffer data
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
+    PreRenderMesh m_preRender = nullptr;        ///< Callback to render a single mesh instance
 };
 
 /**
@@ -98,7 +109,7 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
-    * @param preRender Callback to render a single mesh instance
+    * @param preRender Callback to prerender an instance
     */
     DxMesh(const Mesh& mesh, PreRenderMesh preRender);
 
@@ -108,14 +119,14 @@ public:
     const Mesh& GetMesh() const;
 
     /**
-    * Renders the mesh
+    * Renders the data
+    * @param context Direct3D device context
     */
     virtual void Render(ID3D11DeviceContext* context) override;
 
 private:
 
-    const Mesh& m_mesh;        ///< Mesh information
-    PreRenderMesh m_preRender; ///< Callback to render a single mesh instance
+    const Mesh& m_mesh;  ///< Mesh information
 };                                           
 
 /**
@@ -128,13 +139,20 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
+    * @param preRender Callback to prerender an instance
     */
-    DxWater(const Water& water);
+    DxWater(const Water& water, PreRenderMesh preRender);
 
     /**
     * @return the water information for the mesh
     */
     const Water& GetWater() const;
+
+    /**
+    * Renders the data
+    * @param context Direct3D device context
+    */
+    virtual void Render(ID3D11DeviceContext* context) override;
 
 private:
 
@@ -151,13 +169,20 @@ public:
     /**
     * Constructor for a complex mesh
     * @param mesh The mesh to use as a template
+    * @param preRender Callback to prerender an instance
     */
-    DxTerrain(const Terrain& terrain);
+    DxTerrain(const Terrain& terrain, PreRenderMesh preRender);
 
     /**
     * @return the water information for the mesh
     */
     const Terrain& GetTerrain() const;
+
+    /**
+    * Renders the data
+    * @param context Direct3D device context
+    */
+    virtual void Render(ID3D11DeviceContext* context) override;
 
     /**
     * Reloads the terrain

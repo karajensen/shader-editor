@@ -23,6 +23,7 @@ uniform float depthNear;
 uniform float depthFar;
 uniform float timer;
 uniform float speed;
+uniform mat4 world;
 uniform mat4 viewProjection;
 uniform vec3 cameraPosition;
 uniform vec2 bumpVelocity;
@@ -49,6 +50,7 @@ void main(void)
         waveDerivative += waveFrequency[i] * waveAmplitude[i] * cos(component) * direction;
     }
 
+    wavePosition = world * wavePosition;
     gl_Position = viewProjection * wavePosition;
     ex_PositionWorld = wavePosition.xyz;
     ex_Bitangent = vec3(1, waveDerivative.x, 0);

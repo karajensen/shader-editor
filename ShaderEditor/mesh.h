@@ -19,18 +19,6 @@ class Mesh : public MeshData
 public:
 
     /**
-    * Holds information for a single instance of a mesh
-    */
-    struct Instance
-    {
-        Colour colour;            ///< Colouring of the mesh
-        Float3 position;          ///< Position offset
-        Float3 rotation;          ///< Degress rotated around each axis
-        float scale = 1.0f;       ///< Scaling of the mesh
-        bool shouldRender = true; ///< Whether to render this instance
-    };
-
-    /**
     * Constructor
     * @param node The data to intialize the mesh with
     */
@@ -53,16 +41,6 @@ public:
     * @param cache The cache of data from the GUI
     */
     void Read(Cache& cache);
-
-    /**
-    * @return The instances of this mesh
-    */
-    std::vector<Instance>& Instances();
-
-    /**
-    * @return The instances of this mesh
-    */
-    const std::vector<Instance>& Instances() const;
 
     /**
     * @return Brightness of the specular highlights
@@ -102,5 +80,4 @@ private:
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
     int m_initialInstances = 0;        ///< The number of instances on load
-    std::vector<Instance> m_instances; ///< Instances of this mesh
 };

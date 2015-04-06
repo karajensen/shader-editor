@@ -93,9 +93,6 @@
     <ClCompile Include="qt\project\generated\moc\moc_tweaker.cpp">
       <Filter>Qt\generated</Filter>
     </ClCompile>
-    <ClCompile Include="gui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="qt\project\tweakable_box.cpp">
       <Filter>Qt</Filter>
     </ClCompile>
@@ -119,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_button.cpp">
       <Filter>Qt\generated</Filter>
-    </ClCompile>
-    <ClCompile Include="sceneModifier.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="directxemitter.cpp">
       <Filter>Engine - DirectX</Filter>
@@ -188,6 +182,15 @@
     </ClCompile>
     <ClCompile Include="grid.cpp">
       <Filter>Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="sceneUpdater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qtGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appGUI.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -314,9 +317,6 @@
     <ClInclude Include="fragmentlinker.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="logger.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -338,9 +338,6 @@
     <ClInclude Include="sceneInterface.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="sceneModifier.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="textureAnimated.h">
       <Filter>Elements</Filter>
     </ClInclude>
@@ -355,6 +352,18 @@
     </ClInclude>
     <ClInclude Include="grid.h">
       <Filter>Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneData.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sceneUpdater.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qtGUI.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appGUI.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

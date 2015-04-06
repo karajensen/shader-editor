@@ -30,11 +30,10 @@ public:
     /**
     * Adds an instance for diagnostics
     * @param position The position to update to
-    * @param colour The colour to update to
     * @param scale The scale of the diagnostic
     * @return an index for the diagnostic
     */
-    int AddInstance(const Float3& position, const Colour& colour, float scale);
+    int AddInstance(const Float3& position, float scale);
 
     /**
     * Adds an instance for diagnostics
@@ -62,9 +61,8 @@ private:
         /**
         * Constructor
         */
-        InstanceUpdater(const Float3& Position, const Colour& Colour);
+        InstanceUpdater(const Float3& Position);
 
-        const Colour& colour;
         const Float3& position;
     };
 

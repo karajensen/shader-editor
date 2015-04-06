@@ -29,12 +29,8 @@ namespace
 Grid::Grid(const boost::property_tree::ptree& node) :
     MeshData(node)
 {
-    m_position.x = GetAttribute<float>(node, "Position", "x");
-    m_position.y = GetAttribute<float>(node, "Position", "y");
-    m_position.z = GetAttribute<float>(node, "Position", "z");
     m_spacing = GetAttribute<float>(node, "Grid", "spacing");
-    m_rows = GetAttribute<int>(node, "Grid", "rows");
-    m_columns = GetAttribute<int>(node, "Grid", "columns");
+    m_rows = m_columns = GetAttribute<int>(node, "Grid", "size");
     m_uvStretch.x = GetAttributeOptional<float>(node, "UVStretch", "u", 1.0f);
     m_uvStretch.y = GetAttributeOptional<float>(node, "UVStretch", "v", 1.0f);
 }
@@ -43,12 +39,8 @@ void Grid::Write(boost::property_tree::ptree& node) const
 {
     MeshData::Write(node);
 
-    node.add("Position.<xmlattr>.x", m_position.x);
-    node.add("Position.<xmlattr>.y", m_position.y);
-    node.add("Position.<xmlattr>.z", m_position.z);
     node.add("Grid.<xmlattr>.spacing", m_spacing);
-    node.add("Grid.<xmlattr>.rows", m_rows);
-    node.add("Grid.<xmlattr>.columns", m_columns);
+    node.add("Grid.<xmlattr>.size", m_rows);
     AddValueOptional(node, "UVStretch.<xmlattr>.u", m_uvStretch.x, 1.0f);
     AddValueOptional(node, "UVStretch.<xmlattr>.v", m_uvStretch.y, 1.0f);
 }
@@ -81,7 +73,7 @@ void Grid::ResetGrid()
     m_indices.resize(triangleNumber * pointsInFace);
     m_vertices.resize(m_vertexComponentCount * vertices);
 
-    Float3 initialPosition = m_position;
+    Float3 initialPosition;
     initialPosition.x -= m_spacing * (m_rows * 0.5f);
     initialPosition.z -= m_spacing * (m_columns * 0.5f);
 
@@ -150,7 +142,7 @@ unsigned int Grid::GetIndex(int row, int column) const
 
 void Grid::SetHeight(int row, int column, float height)
 {
-    m_vertices[GetIndex(row, column) + POS_Y] = m_position.y + height;
+    m_vertices[GetIndex(row, column) + POS_Y] = height;
 }
 
 int Grid::Rows() const
@@ -163,9 +155,10 @@ int Grid::Columns() const
     return m_columns;
 }
 
-const Float3& Grid::Position() const
+float Grid::Size() const
 {
-    return m_position;
+    assert(Rows() == Columns());
+    return m_spacing * (Rows() - 1);
 }
 
 Float3 Grid::GetPosition(int index) const

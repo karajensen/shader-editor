@@ -83,6 +83,11 @@ public:
     const Matrix& GetWorld() const { return m_world; }
 
     /**
+    * @return the position of the camera
+    */
+    const Float3& Position() const { return m_position; }
+
+    /**
     * @return whether the camera requires an update
     */
     bool RequiresUpdate() const { return m_cameraNeedsUpdate; }

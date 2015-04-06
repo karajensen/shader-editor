@@ -74,6 +74,19 @@ public:
     */
     const float& Caustics() const;
 
+    /**
+    * Adds a new instance of the terrain
+    * @param position The position of the instance
+    */
+    void AddInstance(const Float2& position);
+
+    /**
+    * Sets the instance of the terrain
+    * @param index The index of the instance to set
+    * @param position The position of the instance
+    */
+    void SetInstance(int index, const Float2& position);
+
 private:
 
     /**
@@ -82,8 +95,9 @@ private:
     void GenerateTerrain();
 
     std::string m_heightmap;     ///< The name of the heightmap to use
-    float m_maxHeight = 1.0f;    ///< The maximum height of the terrain
-    float m_minHeight = 0.0f;    ///< The minimum height of the terrain
+    float m_height = 0.0f;       ///< The starting height of the terrain
+    float m_maxHeight = 1.0f;    ///< The maximum height offset of the terrain
+    float m_minHeight = 0.0f;    ///< The minimum height offset of the terrain
     float m_bump = 1.0f;         ///< Saturation of bump
     float m_caustics = 1.0f;     ///< How much of the caustics are visible
     float m_specularity = 1.0f;  ///< Brightness of the specular highlights

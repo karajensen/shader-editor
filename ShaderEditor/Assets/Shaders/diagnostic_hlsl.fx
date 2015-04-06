@@ -12,11 +12,6 @@ cbuffer MeshVertexBuffer : register(b1)
     float4x4 world;
 };
 
-cbuffer MeshPixelBuffer : register(b2)
-{
-    float3 meshColour;
-};
-
 struct Attributes
 {
     float4 position        : SV_POSITION;
@@ -45,7 +40,9 @@ Outputs PShader(Attributes input)
     float diffuse = ((dot(normalize(vertToLight), normalize(input.normal))+1.0)*0.5);
 
     Outputs output;
-    output.colour.rgb = meshColour * diffuse;
+    output.colour.r = diffuse;
+    output.colour.g = diffuse;
+    output.colour.b = diffuse;
     output.colour.a = 0.0;
     return output;
 }

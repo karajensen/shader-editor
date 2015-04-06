@@ -25,27 +25,25 @@
 		<BackfaceCulling>0</BackfaceCulling>
 		<Diffuse>sky.png</Diffuse>
 	</Mesh>
-	<Terrain>
+	<Sand>
 		<Name>sand</Name>
 		<Shader>bump</Shader>
 		<Diffuse>blank.png</Diffuse>
     <Normal>bump.png</Normal>
     <Bump>20</Bump>
-		<Position x="0" y="-5" z="0"/>
-		<Grid spacing="1" rows="100" columns="100"/>
+		<Grid spacing="5" size="20"/>
     <UVStretch u="0.25" v="0.25"/>
-    <Height min="0.0" max="0.25"></Height>
+    <Height start="-15.0" min="0.0" max="0.25"></Height>
     <HeightMap>heightmap</HeightMap>
-	</Terrain>
+	</Sand>
 	<Water>
 		<Name>water</Name>
-		<Shader/>
 		<BackfaceCulling>0</BackfaceCulling>
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
-		<Position x="0" y="5" z="0"/>
-		<Grid spacing="10" rows="10" columns="20"/>
+		<Grid spacing="10" size="10"/>
+    <Height>15.0</Height>
 		<Bump>1</Bump>
 		<Speed>1</Speed>
 		<BumpVelocity x="0" y="0"/>

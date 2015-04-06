@@ -25,7 +25,7 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
 void MeshData::Write(boost::property_tree::ptree& node) const
 {
     node.add("Name", m_name);
-    AddValueOptional(node, "Shader", m_shaderName.c_str(), "");
+    AddValueOptional(node, "Shader", m_shaderName, std::string());
     AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
 
     for (int i = 0; i < Texture::MAX_TYPES; ++i)
@@ -90,4 +90,14 @@ void MeshData::SetTexture(Texture::Type type, int ID)
 const std::string& MeshData::ShaderName() const
 {
     return m_shaderName;
+}
+
+std::vector<Mesh::Instance>& MeshData::Instances()
+{
+    return m_instances;
+}
+
+const std::vector<Mesh::Instance>& MeshData::Instances() const
+{
+    return m_instances;
 }

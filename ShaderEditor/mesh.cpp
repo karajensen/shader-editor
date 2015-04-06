@@ -49,16 +49,6 @@ void Mesh::Read(Cache& cache)
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
 }
 
-std::vector<Mesh::Instance>& Mesh::Instances()
-{
-    return m_instances;
-}
-
-const std::vector<Mesh::Instance>& Mesh::Instances() const
-{
-    return m_instances;
-}
-
 const float& Mesh::Bump() const
 {
     return m_bump;
@@ -212,3 +202,4 @@ bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, boo
     Logger::LogInfo("Mesh: " + Name() + " created");
     return true;
 }
+

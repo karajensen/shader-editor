@@ -54,14 +54,17 @@ protected:
     int Columns() const;
 
     /**
-    * @return the initial position of the center of the grid
-    */
-    const Float3& Position() const;
-
-    /**
     * Determines the normals for the grid
     */
     void RecalculateNormals();
+
+public:
+
+    /**
+    * @return the size of the grid
+    * @note only valid for grids with the same rows/column size
+    */
+    float Size() const;
 
 private:
 
@@ -105,6 +108,5 @@ private:
     int m_rows = 0;              ///< The number of rows of this mesh
     bool m_hasNormals = false;   ///< Whether to generate normals
     bool m_hasTangents = false;  ///< Whether to generate tangent/bitangents
-    Float3 m_position;           ///< The initial position of the grid
     Float2 m_uvStretch;          ///< Texture stretch multiplier
 };

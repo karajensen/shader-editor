@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - gui.cpp
+// Kara Jensen - mail@karajensen.com - qtGUI.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "gui.h"
+#include "qtGUI.h"
 #include "qt/project/editor.h"
 #include "qt/project/tweaker.h"
 #include "qt/include/QtWidgets/qapplication.h"
 #include "boost/lexical_cast.hpp"
 
-Gui::~Gui() = default;
+QtGUI::~QtGUI() = default;
 
-Gui::Gui(std::shared_ptr<Cache> cache) :
+QtGUI::QtGUI(std::shared_ptr<Cache> cache) :
     m_cache(cache)
 {
 }
 
-void Gui::Run(int argc, char *argv[])
+void QtGUI::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
     QApplication app(argc, argv);
@@ -110,7 +110,7 @@ void Gui::Run(int argc, char *argv[])
     Logger::LogInfo("Exiting Qt");
 }
 
-void Gui::UpdateTweaker(Tweaker& tweaker)
+void QtGUI::UpdateTweaker(Tweaker& tweaker)
 {
     const auto page = ConvertStringToPage(tweaker.GetSelectedPage());
     if(page != m_page)
@@ -140,7 +140,7 @@ void Gui::UpdateTweaker(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateEditor(Editor& editor)
+void QtGUI::UpdateEditor(Editor& editor)
 {
     bool initialisedShaders = false;
     if(!editor.HasShaders())
@@ -161,7 +161,7 @@ void Gui::UpdateEditor(Editor& editor)
     }
 }
 
-GuiPage Gui::ConvertStringToPage(const std::string& page)
+GuiPage QtGUI::ConvertStringToPage(const std::string& page)
 {
     if(page == "Scene")
     {
@@ -182,7 +182,7 @@ GuiPage Gui::ConvertStringToPage(const std::string& page)
     return PAGE_NONE;
 }
 
-void Gui::UpdatePost(Tweaker& tweaker)
+void QtGUI::UpdatePost(Tweaker& tweaker)
 {
     if (!tweaker.HasPostMaps())
     {
@@ -204,7 +204,7 @@ void Gui::UpdatePost(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateScene(Tweaker& tweaker)
+void QtGUI::UpdateScene(Tweaker& tweaker)
 {
     if(!tweaker.HasEngines())
     {
@@ -234,7 +234,7 @@ void Gui::UpdateScene(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateTerrain(Tweaker& tweaker)
+void QtGUI::UpdateTerrain(Tweaker& tweaker)
 {
     bool initialisedTerrain = false;
     if(!tweaker.HasTerrain())
@@ -259,7 +259,7 @@ void Gui::UpdateTerrain(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateTextures(Tweaker& tweaker)
+void QtGUI::UpdateTextures(Tweaker& tweaker)
 {
     bool initialisedTextures = false;
     if(!tweaker.HasTextures())
@@ -275,7 +275,7 @@ void Gui::UpdateTextures(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateLight(Tweaker& tweaker)
+void QtGUI::UpdateLight(Tweaker& tweaker)
 {
     bool initialisedLights = false;
     if(!tweaker.HasLights())
@@ -295,7 +295,7 @@ void Gui::UpdateLight(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateMesh(Tweaker& tweaker)
+void QtGUI::UpdateMesh(Tweaker& tweaker)
 {
     bool initialisedMeshes = false;
     if (!tweaker.HasMeshes())
@@ -322,7 +322,7 @@ void Gui::UpdateMesh(Tweaker& tweaker)
     tweaker.SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
 }
 
-void Gui::UpdateEmitter(Tweaker& tweaker)
+void QtGUI::UpdateEmitter(Tweaker& tweaker)
 {
     bool initialisedEmitter = false;
     if(!tweaker.HasEmitters())
@@ -347,7 +347,7 @@ void Gui::UpdateEmitter(Tweaker& tweaker)
     }
 }
 
-void Gui::UpdateWater(Tweaker& tweaker)
+void QtGUI::UpdateWater(Tweaker& tweaker)
 {
     bool initialisedWater = false;
     if(!tweaker.HasWater())

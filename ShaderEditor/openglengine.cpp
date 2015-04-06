@@ -46,7 +46,6 @@ struct OpenglData
     glm::mat4 projection;                ///< Projection matrix
     glm::mat4 view;                      ///< View matrix
     glm::mat4 viewProjection;            ///< View projection matrix
-    glm::mat4 identity;                  ///< Identity matrix
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
@@ -58,7 +57,7 @@ struct OpenglData
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
     std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
-    std::vector<std::unique_ptr<GlTerrain>> terrain;     ///< Each terrain in the scene
+    std::vector<std::unique_ptr<GlTerrain>> terrain;  ///< Each terrain in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<GlEmitter>> emitters; ///< Emitters holding particles
 };
@@ -344,19 +343,21 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     for(const auto& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(*mesh,
-            [this](const glm::mat4& world, const Colour& colour){ UpdateShader(world, colour); })));
+            [this](const glm::mat4& world){ UpdateShader(world); })));
     }
 
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
-        m_data->terrain.push_back(std::unique_ptr<GlTerrain>(new GlTerrain(*terrain)));
+        m_data->terrain.push_back(std::unique_ptr<GlTerrain>(new GlTerrain(*terrain,
+            [this](const glm::mat4& world){ UpdateShader(world); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(*water)));
+        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(*water,
+            [this](const glm::mat4& world){ UpdateShader(world); })));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
@@ -663,11 +664,10 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Particle& particle
     SendTexture(0, particle.Texture());
 }
 
-void OpenglEngine::UpdateShader(const glm::mat4& world, const Colour& colour)
+void OpenglEngine::UpdateShader(const glm::mat4& world)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("world", world);
-    shader->SendUniformFloat("meshColour", &colour.r, 3);
 }
 
 bool OpenglEngine::UpdateShader(const MeshData& mesh,
@@ -711,7 +711,6 @@ bool OpenglEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
         shader->SendUniformFloat("meshAmbience", &terrain.Ambience(), 1);
         shader->SendUniformFloat("meshBump", &terrain.Bump(), 1);
         shader->SendUniformFloat("meshSpecularity", &terrain.Specularity(), 1);
-        shader->SendUniformMatrix("world", m_data->identity);
         shader->SendUniformArrays();
         return true;
     }
@@ -733,7 +732,9 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
     return false;
 }
 
-bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float timer)
+bool OpenglEngine::UpdateShader(const Water& water, 
+                                const IScene& scene, 
+                                float timer)
 {
     if (UpdateShader(water, scene, true, timer))
     {
@@ -747,7 +748,7 @@ bool OpenglEngine::UpdateShader(const Water& water, const IScene& scene, float t
         shader->SendUniformFloat("reflectionTint", &water.ReflectionTint().r, 3);
         shader->SendUniformFloat("reflectionIntensity", &water.ReflectionIntensity(), 1);
         shader->SendUniformFloat("fresnal", &water.Fresnal().x, 3);
-
+        
         const auto& waves = water.Waves();
         for (unsigned int i = 0; i < waves.size(); ++i)
         {

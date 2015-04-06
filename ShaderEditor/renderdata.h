@@ -67,7 +67,8 @@ enum RenderingEngine
 */
 enum TextureIndex
 {
-    BLANK_TEXTURE_ID
+    BLANK_TEXTURE_ID,
+    MAX_TEXTURES
 };
 
 /**

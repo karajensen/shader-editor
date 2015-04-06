@@ -3,99 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
-#include "textureAnimated.h"
-#include "diagnostic.h"
+#include "sceneData.h"
+#include "sceneUpdater.h"
 #include "sceneBuilder.h"
-
-/**
-* Internal data for the scene
-*/
-struct SceneData
-{
-    std::vector<std::unique_ptr<Shader>> shaders;   ///< All shaders in the scene
-    std::vector<std::unique_ptr<Mesh>> meshes;      ///< All meshes in the scene
-    std::vector<std::unique_ptr<Terrain>> terrain;  ///< All terrain in the scene
-    std::vector<std::unique_ptr<Light>> lights;     ///< All lights in the scene
-    std::vector<std::unique_ptr<Water>> water;      ///< All water in the scene
-    std::vector<std::unique_ptr<Emitter>> emitters; //< All particle emitters in the scene
-    std::vector<std::unique_ptr<Texture>> textures; ///< All textures in the scene
-    std::vector<unsigned int> proceduralTextures;   ///< Indices of all editable textures
-    std::unique_ptr<Diagnostic> diagnostic;         ///< Diagnostics for the scene
-    std::unique_ptr<PostProcessing> postProcessing; ///< Post processing for the final image
-    std::unique_ptr<AnimatedTexture> caustics;      ///< Caustic animated texture
-};
 
 Scene::Scene() = default;
 Scene::~Scene() = default;
-
-Shader& Scene::Add(std::unique_ptr<Shader> element)
-{
-    m_data->shaders.push_back(std::move(element));
-    return *m_data->shaders[m_data->shaders.size()-1];
-}
-
-Mesh& Scene::Add(std::unique_ptr<Mesh> element)
-{
-    m_data->meshes.push_back(std::move(element));
-    return *m_data->meshes[m_data->meshes.size()-1];
-}
-
-Terrain& Scene::Add(std::unique_ptr<Terrain> element)
-{
-    m_data->terrain.push_back(std::move(element));
-    return *m_data->terrain[m_data->terrain.size()-1];
-}
-
-void Scene::Add(std::unique_ptr<Light> element)
-{
-    m_data->lights.push_back(std::move(element));
-}
-
-Water& Scene::Add(std::unique_ptr<Water> element)
-{
-    m_data->water.push_back(std::move(element));
-    return *m_data->water[m_data->water.size()-1];
-}
-
-Emitter& Scene::Add(std::unique_ptr<Emitter> element)
-{
-    m_data->emitters.push_back(std::move(element));
-    return *m_data->emitters[m_data->emitters.size()-1];
-}
-
-void Scene::Add(std::unique_ptr<ProceduralTexture> element)
-{
-    const unsigned int index = m_data->textures.size();
-    m_data->textures.push_back(std::move(element));
-    m_data->proceduralTextures.push_back(index);
-}
-
-unsigned int Scene::Add(std::unique_ptr<Texture> element)
-{
-    const unsigned int index = m_data->textures.size();
-    m_data->textures.push_back(std::move(element));
-    return index;
-}
-
-void Scene::Add(std::unique_ptr<PostProcessing> post)
-{
-    m_data->postProcessing = std::move(post);
-}
-
-void Scene::Add(std::unique_ptr<Diagnostic> diagnostics)
-{
-    m_data->diagnostic = std::move(diagnostics);
-}
-
-void Scene::Add(std::unique_ptr<AnimatedTexture> caustics)
-{
-    m_data->caustics = std::move(caustics);
-    for (const std::string& path : m_data->caustics->Paths())
-    {
-        m_data->caustics->AddFrame(static_cast<int>(m_data->textures.size()));
-        m_data->textures.push_back(std::make_unique<Texture>(path, path, Texture::LINEAR));
-    }
-}
 
 const std::vector<std::unique_ptr<Water>>& Scene::Waters() const
 {
@@ -134,72 +47,17 @@ const std::vector<std::unique_ptr<Emitter>>& Scene::Emitters() const
 
 const PostProcessing& Scene::Post() const
 {
-    return *m_data->postProcessing;
-}
-
-Emitter& Scene::GetEmitter(int index)
-{
-    return *m_data->emitters[index];
-}
-
-Light& Scene::GetLight(int index)
-{
-    return *m_data->lights[index];
-}
-
-Texture& Scene::GetTexture(int index)
-{
-    return *m_data->textures[index];
-}
-
-int Scene::GetTextureID(int index) const
-{
-    return m_data->proceduralTextures[index];
-}
-
-Mesh& Scene::GetMesh(int index)
-{
-    return *m_data->meshes[index];
-}
-
-Water& Scene::GetWater(int index)
-{
-    return *m_data->water[index];
-}
-
-Terrain& Scene::GetTerrain(int index)
-{
-    return *m_data->terrain[index];
-}
-
-Shader& Scene::GetShader(int index)
-{
-    return *m_data->shaders[index];
-}
-
-PostProcessing& Scene::GetPost()
-{
-    return *m_data->postProcessing;
-}
-
-AnimatedTexture& Scene::GetCaustics()
-{
-    return *m_data->caustics;
-}
-
-Diagnostic& Scene::GetDiagnostics()
-{
-    return *m_data->diagnostic;
+    return *m_data->post;
 }
 
 void Scene::SetPostMap(int index)
 {
-    m_data->postProcessing->SetPostMap(static_cast<PostProcessing::Map>(index));
+    m_data->post->SetPostMap(static_cast<PostProcessing::Map>(index));
 }
 
 void Scene::Tick(float deltatime)
 {
-    m_data->diagnostic->Tick();
+    m_data->diagnostics->Tick();
     m_data->caustics->Tick(deltatime);
 
     for (auto& emitter : m_data->emitters)
@@ -236,18 +94,26 @@ void Scene::SaveSceneToFile()
     m_builder->SaveSceneToFile();
 }
 
-bool Scene::Initialise()
+SceneData& Scene::GetData()
+{
+    return *m_data;
+}
+
+bool Scene::Initialise(const Float3& camera)
 {
     m_data = std::make_unique<SceneData>();
-    m_builder = std::make_unique<SceneBuilder>(*this);
+    m_builder = std::make_unique<SceneBuilder>(*m_data);
+    m_updater = std::make_unique<SceneUpdater>(*m_data);
 
     if (m_builder->Initialise())
     {
+        m_updater->Initialise(camera);
+
         // Add light positions for diagnostics
         const float scale = 0.25f;
         for (const auto& light : Lights())
         {
-            m_data->diagnostic->AddInstance(*light, scale);
+            m_data->diagnostics->AddInstance(*light, scale);
         }
 
         // To prevent unnecessary shader switching, sort by shader used

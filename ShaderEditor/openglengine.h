@@ -159,7 +159,8 @@ private:
     * @param scene The data for the scene
     * @return whether the terrain can now be rendered
     */
-    bool UpdateShader(const Terrain& terrain, const IScene& scene);
+    bool UpdateShader(const Terrain& terrain, 
+                      const IScene& scene);
 
     /**
     * Updates and switches to main shader the water requires
@@ -168,7 +169,9 @@ private:
     * @param timer The time passed since scene start
     * @return whether the mesh can now be rendered
     */
-    bool UpdateShader(const Water& water, const IScene& scene, float timer);
+    bool UpdateShader(const Water& water, 
+                      const IScene& scene, 
+                      float timer);
 
     /**
     * Updates and switches to the shader for an emitter
@@ -186,9 +189,8 @@ private:
     /**
     * Updates the shader for a mesh per instance
     * @param world The world matrix for the mesh
-    * @param color The vertex colour of the mesh
     */
-    void UpdateShader(const glm::mat4& world, const Colour& colour);
+    void UpdateShader(const glm::mat4& world);
 
     /**
     * Sets the shader at the given index as selected

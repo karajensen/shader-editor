@@ -10,7 +10,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "cache.h"
-#include "sceneModifier.h"
+#include "appGUI.h"
 #include <windowsx.h>
 
 //#define SELECTED_ENGINE DIRECTX
@@ -219,11 +219,7 @@ bool Application::Initialise(HWND hwnd,
                              HINSTANCE hinstance, 
                              std::shared_ptr<Cache> cache)
 {    
-    m_modifier = std::make_unique<SceneModifier>(
-        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP,
-        [this](){ ForceRenderEngine(m_selectedEngine); });
-
-    if(!m_scene->Initialise())
+    if(!m_scene->Initialise(m_camera->Position()))
     {
         Logger::LogError("Scene: Failed to initialise");
         return false;
@@ -253,6 +249,10 @@ bool Application::Initialise(HWND hwnd,
         Logger::LogError("Render Engine: Failed to initialise");
         return false;
     }
+
+    m_modifier = std::make_unique<AppGUI>(
+        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP,
+        [this](){ ForceRenderEngine(m_selectedEngine); });
 
     m_modifier->Initialise(engineNames, m_selectedEngine);
 

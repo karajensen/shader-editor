@@ -5,7 +5,7 @@
 #include "common.h"
 #include "renderdata.h"
 #include "application.h"
-#include "gui.h"
+#include "qtGUI.h"
 #include "cache.h"
 #include <thread>
 #include <iostream>
@@ -56,7 +56,7 @@ void InitializeWindow(HINSTANCE* hInstance, HWND* hWnd)
 */
 void qtmain(int argc, char *argv[], std::shared_ptr<Cache> cache)
 {
-    std::unique_ptr<Gui> gui(new Gui(cache));
+    std::unique_ptr<QtGUI> gui(new QtGUI(cache));
     gui->Run(argc, argv);
 }
 

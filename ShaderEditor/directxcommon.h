@@ -15,7 +15,7 @@
 * Callbacks for pre-rendering elements
 */
 typedef std::function<void(const D3DXMATRIX&, const Particle&)> PreRenderParticle;
-typedef std::function<void(const D3DXMATRIX&, const Colour&)> PreRenderMesh;
+typedef std::function<void(const D3DXMATRIX&)> PreRenderMesh;
 
 /**
 * Sets the name of the directx object for debugging

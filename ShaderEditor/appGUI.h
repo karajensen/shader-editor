@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - SceneModifier.h
+// Kara Jensen - mail@karajensen.com - AppGUI.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -7,6 +7,7 @@
 #include "common.h"
 #include "cache.h"
 
+struct SceneData;
 class Scene;
 class RenderEngine;
 class Timer;
@@ -15,30 +16,30 @@ class Camera;
 /**
 * Allows manipulation oft the scene elements through the tweak bar
 */
-class SceneModifier
+class AppGUI
 {
 public:
 
     /**
     * Constructor
-    * @param scene The scene to modifer
+    * @param scene The scene to modify
     * @param timer The timer for the scene
     * @param camera The camera for the scene
     * @param cache Shared data between the gui and application
     * @param selectedMap The initial post map selected
     * @param reloadEngine Callback to reload the render engine
     */
-    SceneModifier(Scene& scene, 
-                  Timer& timer,
-                  Camera& camera,
-                  std::shared_ptr<Cache> cache,
-                  int selectedMap,
-                  std::function<void(void)> reloadEngine);
+    AppGUI(Scene& scene, 
+           Timer& timer,
+           Camera& camera,
+           std::shared_ptr<Cache> cache,
+           int selectedMap,
+           std::function<void(void)> reloadEngine);
 
     /**
     * Destructor
     */
-    ~SceneModifier();
+    ~AppGUI();
 
     /**
     * Ticks the modifier to recieve information from the gui cache
@@ -176,6 +177,7 @@ private:
     std::vector<std::string> GetPostMapNames() const;
 
     Scene& m_scene;                   ///< The scene object to manipulate
+    SceneData& m_data;                ///< Data for the scene to manipulate
     Timer& m_timer;                   ///< The timer for the scene
     Camera& m_camera;                 ///< The camera for the scene
     int m_selectedLight = NO_INDEX;   ///< Current light selected

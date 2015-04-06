@@ -188,7 +188,6 @@ private:
 
     /**
     * Updates and switches to the main shader the terrain requires
-    * @param terrain The world matrix for the terrain
     * @param terrain The terrain currently rendering
     * @param scene All elements in the scene
     * @return whether the terrain can now be rendered
@@ -223,9 +222,8 @@ private:
     /**
     * Updates the shader for a mesh per instance
     * @param world The world matrix for the particle
-    * @param particle The data for the particle
     */
-    void UpdateShader(const D3DXMATRIX& world, const Colour& colour);
+    void UpdateShader(const D3DXMATRIX& world);
 
     /**
     * Sets the shader at the given index as selected

@@ -22,6 +22,7 @@ cbuffer ScenePixelBuffer : register(b1)
 
 cbuffer MeshVertexBuffer : register(b2)
 {
+    float4x4 world;
     float2 bumpVelocity;
     float2 uvScale;
     float speed;
@@ -86,6 +87,7 @@ Attributes VShader(float4 position  : POSITION,
         waveDerivative += waveFrequency[i] * waveAmplitude[i] * cos(component) * direction;
     }
 
+    wavePosition = mul(world, wavePosition);
     output.position = mul(viewProjection, wavePosition);
     output.positionWorld = wavePosition.xyz;
     output.bitangent = float3(1, waveDerivative.x, 0);

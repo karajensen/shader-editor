@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - gui.h
+// Kara Jensen - mail@karajensen.com - qtGUI.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -12,7 +12,7 @@ class Editor;
 /**
 * Manages qt for the gui
 */
-class Gui
+class QtGUI
 {
 public:
 
@@ -20,12 +20,12 @@ public:
     * Constructor
     * @param cache Shared data between the gui and application
     */
-    Gui(std::shared_ptr<Cache> cache);
+    QtGUI(std::shared_ptr<Cache> cache);
 
     /**
     * Destructor
     */
-    ~Gui();
+    ~QtGUI();
 
     /**
     * Ticks the gui

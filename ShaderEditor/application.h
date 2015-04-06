@@ -13,7 +13,7 @@ class DirectxEngine;
 class RenderEngine;
 class Timer;
 class Scene;
-class SceneModifier;
+class AppGUI;
 class Camera;
 struct Cache;
 
@@ -135,7 +135,7 @@ private:
     std::unique_ptr<Camera> m_camera;            ///< Scene camera for generating view matrix
     std::unique_ptr<Scene> m_scene;              ///< Holds meshes, lighting and shader data
     std::unique_ptr<Timer> m_timer;              ///< For measure change in frame time
-    std::unique_ptr<SceneModifier> m_modifier;   ///< Manipulates meshes, lighting and shader data
+    std::unique_ptr<AppGUI> m_modifier;   ///< Manipulates meshes, lighting and shader data
     
     std::vector<std::unique_ptr<RenderEngine>> m_engines; ///< Available render engines
 };

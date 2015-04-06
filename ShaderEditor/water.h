@@ -120,8 +120,26 @@ public:
     */
     const float& Bump() const;
 
+    /**
+    * Adds a new instance for the water
+    * @param position The world position of the center
+    * @param flippedX Whether to flip the water in the x axis for tiling
+    * @param flippedZ Whether to flip the water in the z axis for tiling
+    */
+    void AddInstance(const Float2& position, bool flippedX, bool flippedZ);
+
+    /**
+    * Sets the instance of the water
+    * @param index The index of the instance to set
+    * @param position The world position of the center
+    * @param flippedX Whether to flip the water in the x axis for tiling
+    * @param flippedZ Whether to flip the water in the z axis for tiling
+    */
+    void SetInstance(int index, const Float2& position, bool flippedX, bool flippedZ);
+
 private:
 
+    float m_height = 0.0f;        ///< The starting height of the water
     float m_bump = 1.0f;          ///< Saturation of bump
     Float2 m_bumpVelocity;        ///< Velocity of the bump movement
     float m_speed = 0.0f;         ///< Overall speed of the wave
