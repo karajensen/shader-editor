@@ -109,6 +109,16 @@ void Terrain::GenerateTerrain()
             step += stepIncrease;
         }
     }
+
+    // Ensure sides are matching for tiling
+    for (int c = 0; c < gridSize; ++c)
+    {
+        SetHeight(0, c, GetHeight(gridSize-1, c));
+    }
+    for (int r = 0; r < gridSize; ++r)
+    {
+        SetHeight(r, 0, GetHeight(r, gridSize-1));
+    }
 }
 
 const float& Terrain::Specularity() const

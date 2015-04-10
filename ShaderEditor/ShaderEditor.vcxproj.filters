@@ -365,6 +365,9 @@
     <ClInclude Include="appGUI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="int2.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Shaders\shader_glsl_frag.fx">

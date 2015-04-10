@@ -26,8 +26,9 @@ public:
     /**
     * Ticks the scene
     * @param deltatime The time passed between ticks
+    * @param camera The world position of the camera
     */
-    void Tick(float deltatime);
+    void Tick(float deltatime, const Float3& camera);
 
     /**
     * @return the meshes in the scene

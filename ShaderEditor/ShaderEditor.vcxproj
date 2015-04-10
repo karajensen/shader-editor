@@ -94,6 +94,7 @@
     <ClInclude Include="fragmentlinker.h" />
     <ClInclude Include="cache.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="int2.h" />
     <ClInclude Include="qtGUI.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />

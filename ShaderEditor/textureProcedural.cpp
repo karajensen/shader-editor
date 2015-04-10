@@ -346,15 +346,6 @@ void ProceduralTexture::MakeDiamondSquareFractal()
             for (int c = (r + half) % size; c <= maxIndex; c += size)
             {
                 Set(r, c, AverageDiamond(r, c) + scale * Random::Generate(-0.5f, 0.5f));
-        
-                if (r == 0) // Ensure opposite side has matching value for wrapping
-                {
-                    m_pixels[Index(maxIndex, c)] = m_pixels[Index(r, c)];
-                }
-                if (c == 0) // Ensure opposite side has matching value for wrapping
-                {
-                    m_pixels[Index(r, maxIndex)] = m_pixels[Index(r, c)];
-                }
             }
         }
 

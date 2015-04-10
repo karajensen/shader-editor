@@ -101,3 +101,8 @@ const std::vector<Mesh::Instance>& MeshData::Instances() const
 {
     return m_instances;
 }
+
+const MeshData::Instance& MeshData::GetInstance(int index) const
+{
+    return m_instances.at(index);
+}

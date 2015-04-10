@@ -31,7 +31,7 @@
 		<Diffuse>blank.png</Diffuse>
     <Normal>bump.png</Normal>
     <Bump>20</Bump>
-		<Grid spacing="5" size="20"/>
+		<Grid spacing="10" size="11"/>
     <UVScale u="0.25" v="0.25"/>
     <Height start="-15.0" min="0.0" max="0.25"></Height>
     <HeightMap>heightmap</HeightMap>
@@ -42,7 +42,7 @@
 		<Diffuse>water.png</Diffuse>
 		<Normal>water_normal.png</Normal>
 		<Environment>water_environment</Environment>
-		<Grid spacing="10" size="10"/>
+		<Grid spacing="10" size="11"/>
     <Height>15.0</Height>
 		<Bump>1</Bump>
 		<Speed>1</Speed>

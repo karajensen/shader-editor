@@ -55,10 +55,11 @@ void Scene::SetPostMap(int index)
     m_data->post->SetPostMap(static_cast<PostProcessing::Map>(index));
 }
 
-void Scene::Tick(float deltatime)
+void Scene::Tick(float deltatime, const Float3& camera)
 {
     m_data->diagnostics->Tick();
     m_data->caustics->Tick(deltatime);
+    m_updater->Update(camera);
 
     for (auto& emitter : m_data->emitters)
     {
@@ -107,8 +108,6 @@ bool Scene::Initialise(const Float3& camera)
 
     if (m_builder->Initialise())
     {
-        m_updater->Initialise(camera);
-
         // Add light positions for diagnostics
         const float scale = 0.25f;
         for (const auto& light : Lights())
@@ -123,7 +122,7 @@ bool Scene::Initialise(const Float3& camera)
                 return m1->ShaderID() < m2->ShaderID();
             });
 
-        return true;
+        return m_updater->Initialise(camera);
     }
     return false;
 }

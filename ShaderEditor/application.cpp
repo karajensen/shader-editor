@@ -205,7 +205,7 @@ void Application::TickApplication()
         GetEngine().UpdateView(m_camera->GetWorld());
     }
 
-    m_scene->Tick(m_timer->GetDeltaTime());
+    m_scene->Tick(m_timer->GetDeltaTime(), m_camera->Position());
 
     GetEngine().Render(*m_scene, m_timer->GetTotalTime());
 

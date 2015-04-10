@@ -115,6 +115,13 @@ public:
     */
     const std::vector<Instance>& Instances() const;
 
+    /**
+    * Gets the instance at the index
+    * @param index The index of the instance to get
+    * @return the instance
+    */
+    const Instance& GetInstance(int index) const;
+
 protected:
 
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh

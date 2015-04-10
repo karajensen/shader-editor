@@ -46,6 +46,11 @@ protected:
     void SetHeight(int row, int column, float height);
 
     /**
+    * @return the height at the given row/column
+    */
+    float GetHeight(int row, int column) const;
+
+    /**
     * @return the number of rows of the grid
     */
     int Rows() const;

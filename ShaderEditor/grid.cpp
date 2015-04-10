@@ -70,8 +70,8 @@ void Grid::ResetGrid(const Float2& uvScale)
     m_vertices.resize(m_vertexComponentCount * vertices);
 
     Float3 initialPosition;
-    initialPosition.x -= m_spacing * (m_rows * 0.5f);
-    initialPosition.z -= m_spacing * (m_columns * 0.5f);
+    initialPosition.x -= m_spacing * ((m_rows - 1) * 0.5f);
+    initialPosition.z -= m_spacing * ((m_columns - 1) * 0.5f);
 
     float u = 0;
     float v = 0;
@@ -134,6 +134,11 @@ unsigned int Grid::GetIndex(int row, int column) const
 {
     return (row * m_columns * m_vertexComponentCount)
         + (column * m_vertexComponentCount);
+}
+
+float Grid::GetHeight(int row, int column) const
+{
+    return m_vertices[GetIndex(row, column) + POS_Y];
 }
 
 void Grid::SetHeight(int row, int column, float height)
