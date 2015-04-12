@@ -59,7 +59,7 @@
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <property name="movable">
       <bool>true</bool>
@@ -644,7 +644,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -656,30 +656,28 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -692,43 +690,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraX_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -808,7 +769,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -820,30 +781,28 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -856,43 +815,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraY_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -972,7 +894,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -984,30 +906,25 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -1020,43 +937,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraZ_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -1136,7 +1016,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -1148,30 +1028,28 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -1184,43 +1062,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraPitch_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -1300,7 +1141,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -1312,30 +1153,28 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -1348,43 +1187,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraYaw_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>
@@ -1464,7 +1266,7 @@ border-radius: 4px;</string>
             <rect>
              <x>104</x>
              <y>5</y>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </rect>
            </property>
@@ -1476,30 +1278,28 @@ border-radius: 4px;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>86</width>
+             <width>116</width>
              <height>25</height>
             </size>
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(230, 230, 230);
-border-top-color: rgb(180, 180, 180);
-border-left-color: rgb(180, 180, 180);
-border-bottom-color: rgb(255, 255, 255);
-border-right-color: rgb(255, 255, 255);
-border-style: solid;
-border-width: 2px;</string>
+</string>
            </property>
            <property name="frame">
             <bool>false</bool>
            </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
            <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
+            <enum>QAbstractSpinBox::NoButtons</enum>
            </property>
            <property name="decimals">
             <number>3</number>
@@ -1512,43 +1312,6 @@ border-width: 2px;</string>
            </property>
            <property name="singleStep">
             <double>0.050000000000000</double>
-           </property>
-          </widget>
-          <widget class="QDial" name="cameraRoll_dial">
-           <property name="geometry">
-            <rect>
-             <x>192</x>
-             <y>2</y>
-             <width>30</width>
-             <height>30</height>
-            </rect>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>30</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">border-width: 0px;</string>
-           </property>
-           <property name="minimum">
-            <number>-10000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
            </property>
           </widget>
          </widget>

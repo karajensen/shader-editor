@@ -174,23 +174,6 @@ void AppGUI::UpdateCamera()
         m_cache->Camera[CAMERA_ROLL].SetUpdated(
             m_camera.GetCamera(Camera::ROTATION_ROLL));
     }
-    else
-    {
-        auto updateCamera = [this](CameraAttribute attribute, Camera::Component component)
-        {
-            if (!m_cache->Camera[attribute].RequiresUpdate())
-            {
-                m_camera.SetCamera(component, m_cache->Camera[attribute].Get());
-            }
-        };
-
-        updateCamera(CAMERA_POSITION_X, Camera::POSITION_X);
-        updateCamera(CAMERA_POSITION_Y, Camera::POSITION_Y);
-        updateCamera(CAMERA_POSITION_Z, Camera::POSITION_Z);
-        updateCamera(CAMERA_PITCH, Camera::ROTATION_PITCH);
-        updateCamera(CAMERA_ROLL, Camera::ROTATION_ROLL);
-        updateCamera(CAMERA_YAW, Camera::ROTATION_YAW);
-    }
 }
 
 void AppGUI::UpdateMesh()

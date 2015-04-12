@@ -20,6 +20,7 @@ LIBRARIES: Assimp 3.0, Boost 1.55, vld 2.2.3, Qt 5.3.0 with opengl
 INPUT:
 1 -> 9     Render a specific layer
 0          Toggle Wireframe
+F1         Toggle Camera Auto Move
 F2         Switch the engine
 WASDQE     Move the camera
 LMC        Rotate the camera

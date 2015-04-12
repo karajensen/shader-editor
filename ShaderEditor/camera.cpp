@@ -38,32 +38,6 @@ void Camera::Right(float value)
     m_position += m_world.Right() * value * MOVE_SPEED;
 }
 
-void Camera::SetCamera(Component component, float value)
-{
-    m_cameraNeedsUpdate = true;
-    switch (component)
-    {
-    case POSITION_X:
-        m_position.x = value;
-        break;
-    case POSITION_Y:
-        m_position.y = value;
-        break;
-    case POSITION_Z:
-        m_position.z = value;
-        break;
-    case ROTATION_PITCH:
-        m_rotation.x = value;
-        break;
-    case ROTATION_YAW:
-        m_rotation.y = value;
-        break;
-    case ROTATION_ROLL:
-        m_rotation.z = value;
-        break;
-    }
-}
-
 float Camera::GetCamera(Component component) const
 {
     switch (component)
@@ -115,16 +89,32 @@ void Camera::Reset()
     m_position = m_initialPos;
 }
 
-void Camera::Update()
+void Camera::ToggleAutoMove()
 {
-    m_cameraNeedsUpdate = false;
-    m_hasCameraMoved = false;
+    m_autoMove = !m_autoMove;
+}
 
-    m_world.MakeIdentity();
-    m_world.SetPosition(m_position);
+bool Camera::Update(float deltatime)
+{
+    if (m_autoMove)
+    {
+        Forward(-deltatime);
+    }
 
-    Matrix pitch = Matrix::CreateRotateX(m_rotation.x);
-    Matrix yaw = Matrix::CreateRotateY(m_rotation.y);
-    Matrix roll = Matrix::CreateRotateZ(m_rotation.z);
-    m_world *= roll * yaw * pitch;
+    if (m_cameraNeedsUpdate)
+    {
+        m_cameraNeedsUpdate = false;
+        m_hasCameraMoved = false;
+
+        m_world.MakeIdentity();
+        m_world.SetPosition(m_position);
+
+        Matrix pitch = Matrix::CreateRotateX(m_rotation.x);
+        Matrix yaw = Matrix::CreateRotateY(m_rotation.y);
+        Matrix roll = Matrix::CreateRotateZ(m_rotation.z);
+        m_world *= roll * yaw * pitch;
+
+        return true;
+    }
+    return false;
 }

@@ -38,23 +38,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_selectedWave.Initialise(1.0, 0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
 
-    m_camera[CAMERA_POSITION_X].Initialise(0.1, 3, m_ui.cameraX_value,
-        m_ui.cameraX_dial, m_callbacks.SetCamera[CAMERA_POSITION_X]);
-
-    m_camera[CAMERA_POSITION_Y].Initialise(0.1, 3, m_ui.cameraY_value,
-        m_ui.cameraY_dial, m_callbacks.SetCamera[CAMERA_POSITION_Y]);
-
-    m_camera[CAMERA_POSITION_Z].Initialise(0.1, 3, m_ui.cameraZ_value,
-        m_ui.cameraZ_dial, m_callbacks.SetCamera[CAMERA_POSITION_Z]);
-
-    m_camera[CAMERA_PITCH].Initialise(0.01, 3, m_ui.cameraPitch_value,
-        m_ui.cameraPitch_dial, m_callbacks.SetCamera[CAMERA_PITCH]);
-
-    m_camera[CAMERA_YAW].Initialise(0.01, 3, m_ui.cameraYaw_value,
-        m_ui.cameraYaw_dial, m_callbacks.SetCamera[CAMERA_YAW]);
-
-    m_camera[CAMERA_ROLL].Initialise(0.01, 3, m_ui.cameraRoll_value,
-        m_ui.cameraRoll_dial, m_callbacks.SetCamera[CAMERA_ROLL]);
+    m_camera[CAMERA_POSITION_X].Initialise(0.1, 3, m_ui.cameraX_value, nullptr, nullptr);
+    m_camera[CAMERA_POSITION_Y].Initialise(0.1, 3, m_ui.cameraY_value, nullptr, nullptr);
+    m_camera[CAMERA_POSITION_Z].Initialise(0.1, 3, m_ui.cameraZ_value, nullptr, nullptr);
+    m_camera[CAMERA_PITCH].Initialise(0.01, 3, m_ui.cameraPitch_value, nullptr, nullptr);
+    m_camera[CAMERA_YAW].Initialise(0.01, 3, m_ui.cameraYaw_value, nullptr, nullptr);
+    m_camera[CAMERA_ROLL].Initialise(0.01, 3, m_ui.cameraRoll_value, nullptr, nullptr);
 
     m_light[LIGHT_ACTIVE].Initialise(0.1, 3, m_ui.light_active_value,
         m_ui.light_active_dial, m_callbacks.SetLight[LIGHT_ACTIVE]);

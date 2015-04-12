@@ -53,13 +53,19 @@ void TweakableBoxedValue::Initialise(QComboBox* comboBox,
     connect(m_box, SIGNAL(valueChanged(double)),
         this, SLOT(UpdateValue(double)));
 
-    connect(m_dial, SIGNAL(sliderMoved(int)),
-        this, SLOT(DialValue(int)));
+    if (m_dial)
+    {
+        connect(m_dial, SIGNAL(sliderMoved(int)),
+            this, SLOT(DialValue(int)));
+    }
 }
 
 void TweakableBoxedValue::UpdateValue(double value)
 {
-    m_entries[m_selectedIndex].callback(value);
+    if (m_entries[m_selectedIndex].callback)
+    {
+        m_entries[m_selectedIndex].callback(value);
+    }
 }
 
 void TweakableBoxedValue::DialValue(int value)
@@ -81,7 +87,11 @@ void TweakableBoxedValue::UpdateSelected(int index)
     m_box->setValue(m_entries[index].value);
 
     m_box->update();
-    m_dial->update();
+
+    if (m_dial)
+    {
+        m_dial->update();
+    }
 }
 
 bool TweakableBoxedValue::SetValue(int attribute, double value)

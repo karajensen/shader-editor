@@ -28,9 +28,11 @@ public:
     Camera();
 
     /**
-    * Updates the view matrix
+    * Updates the view matrix if needed
+    * @param deltatime The time passed between ticks
+    * @return whether the camera was updated
     */
-    void Update();
+    bool Update(float deltatime);
 
     /**
     * Resets the camera to the initial state
@@ -49,13 +51,6 @@ public:
     * @note used by the gui to deterimine if it should update
     */
     bool HasCameraMoved() const;
-
-    /**
-    * Sets the given component of the camera
-    * @param component The component to set
-    * @param value The value to set the component to
-    */
-    void SetCamera(Component component, float value);
 
     /**
     * @return the component of the camera
@@ -86,11 +81,11 @@ public:
     * @return the position of the camera
     */
     const Float3& Position() const { return m_position; }
-
+    
     /**
-    * @return whether the camera requires an update
+    * Toggles whether the camera moves forward automatically
     */
-    bool RequiresUpdate() const { return m_cameraNeedsUpdate; }
+    void ToggleAutoMove();
 
 private:
 
@@ -99,6 +94,7 @@ private:
     Float3 m_position;                  ///< Camera position in world space
     Float3 m_target;                    ///< Camera Look target
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
+    bool m_autoMove = false;            ///< Whether to automatically move the camera
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
     bool m_hasCameraMoved = false;      ///< Whether the application has updated the camera this tick
 };

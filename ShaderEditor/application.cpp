@@ -63,7 +63,11 @@ bool Application::IsKeyDown(unsigned int key) const
 
 void Application::HandleKeyPress(const WPARAM& keypress)
 {
-    if(keypress == VK_F2)
+    if (keypress == VK_F1)
+    {
+        m_camera->ToggleAutoMove();
+    }
+    if (keypress == VK_F2)
     {
         int index = m_selectedEngine + 1;
         if(index >= static_cast<int>(m_engines.size()))
@@ -199,9 +203,8 @@ void Application::TickApplication()
 {
     m_modifier->Tick(GetEngine());
 
-    if(m_camera->RequiresUpdate())
+    if(m_camera->Update(m_timer->GetDeltaTime()))
     {
-        m_camera->Update();
         GetEngine().UpdateView(m_camera->GetWorld());
     }
 

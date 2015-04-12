@@ -50,27 +50,21 @@ public:
     QFrame *cameraX;
     QLabel *cameraX_lbl;
     QDoubleSpinBox *cameraX_value;
-    QDial *cameraX_dial;
     QFrame *cameraY;
     QLabel *cameraY_lbl;
     QDoubleSpinBox *cameraY_value;
-    QDial *cameraY_dial;
     QFrame *cameraZ;
     QLabel *cameraZ_lbl;
     QDoubleSpinBox *cameraZ_value;
-    QDial *cameraZ_dial;
     QFrame *cameraPitch;
     QLabel *cameraPitch_lbl;
     QDoubleSpinBox *cameraPitch_value;
-    QDial *cameraPitch_dial;
     QFrame *cameraYaw;
     QLabel *cameraYaw_lbl;
     QDoubleSpinBox *cameraYaw_value;
-    QDial *cameraYaw_dial;
     QFrame *cameraRoll;
     QLabel *cameraRoll_lbl;
     QDoubleSpinBox *cameraRoll_value;
-    QDial *cameraRoll_dial;
     QFrame *reloadScene;
     QPushButton *reloadScene_btn;
     QFrame *reloadEngine;
@@ -414,34 +408,20 @@ public:
         cameraX_lbl->setMargin(1);
         cameraX_value = new QDoubleSpinBox(cameraX);
         cameraX_value->setObjectName(QStringLiteral("cameraX_value"));
-        cameraX_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraX_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraX_value->sizePolicy().hasHeightForWidth());
         cameraX_value->setSizePolicy(sizePolicy);
-        cameraX_value->setMinimumSize(QSize(86, 25));
-        cameraX_value->setMaximumSize(QSize(86, 25));
+        cameraX_value->setMinimumSize(QSize(116, 25));
+        cameraX_value->setMaximumSize(QSize(116, 25));
         cameraX_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraX_value->setFrame(false);
-        cameraX_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraX_value->setReadOnly(true);
+        cameraX_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraX_value->setDecimals(3);
         cameraX_value->setMinimum(-9999);
         cameraX_value->setMaximum(9999);
         cameraX_value->setSingleStep(0.05);
-        cameraX_dial = new QDial(cameraX);
-        cameraX_dial->setObjectName(QStringLiteral("cameraX_dial"));
-        cameraX_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraX_dial->sizePolicy().hasHeightForWidth());
-        cameraX_dial->setSizePolicy(sizePolicy);
-        cameraX_dial->setMinimumSize(QSize(30, 30));
-        cameraX_dial->setMaximumSize(QSize(30, 30));
-        cameraX_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraX_dial->setMinimum(-10000);
-        cameraX_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraX);
 
@@ -466,34 +446,20 @@ public:
         cameraY_lbl->setMargin(1);
         cameraY_value = new QDoubleSpinBox(cameraY);
         cameraY_value->setObjectName(QStringLiteral("cameraY_value"));
-        cameraY_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraY_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraY_value->sizePolicy().hasHeightForWidth());
         cameraY_value->setSizePolicy(sizePolicy);
-        cameraY_value->setMinimumSize(QSize(86, 25));
-        cameraY_value->setMaximumSize(QSize(86, 25));
+        cameraY_value->setMinimumSize(QSize(116, 25));
+        cameraY_value->setMaximumSize(QSize(116, 25));
         cameraY_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraY_value->setFrame(false);
-        cameraY_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraY_value->setReadOnly(true);
+        cameraY_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraY_value->setDecimals(3);
         cameraY_value->setMinimum(-9999);
         cameraY_value->setMaximum(9999);
         cameraY_value->setSingleStep(0.05);
-        cameraY_dial = new QDial(cameraY);
-        cameraY_dial->setObjectName(QStringLiteral("cameraY_dial"));
-        cameraY_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraY_dial->sizePolicy().hasHeightForWidth());
-        cameraY_dial->setSizePolicy(sizePolicy);
-        cameraY_dial->setMinimumSize(QSize(30, 30));
-        cameraY_dial->setMaximumSize(QSize(30, 30));
-        cameraY_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraY_dial->setMinimum(-10000);
-        cameraY_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraY);
 
@@ -518,34 +484,19 @@ public:
         cameraZ_lbl->setMargin(1);
         cameraZ_value = new QDoubleSpinBox(cameraZ);
         cameraZ_value->setObjectName(QStringLiteral("cameraZ_value"));
-        cameraZ_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraZ_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraZ_value->sizePolicy().hasHeightForWidth());
         cameraZ_value->setSizePolicy(sizePolicy);
-        cameraZ_value->setMinimumSize(QSize(86, 25));
-        cameraZ_value->setMaximumSize(QSize(86, 25));
+        cameraZ_value->setMinimumSize(QSize(116, 25));
+        cameraZ_value->setMaximumSize(QSize(116, 25));
         cameraZ_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraZ_value->setFrame(false);
-        cameraZ_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraZ_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraZ_value->setDecimals(3);
         cameraZ_value->setMinimum(-9999);
         cameraZ_value->setMaximum(9999);
         cameraZ_value->setSingleStep(0.05);
-        cameraZ_dial = new QDial(cameraZ);
-        cameraZ_dial->setObjectName(QStringLiteral("cameraZ_dial"));
-        cameraZ_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraZ_dial->sizePolicy().hasHeightForWidth());
-        cameraZ_dial->setSizePolicy(sizePolicy);
-        cameraZ_dial->setMinimumSize(QSize(30, 30));
-        cameraZ_dial->setMaximumSize(QSize(30, 30));
-        cameraZ_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraZ_dial->setMinimum(-10000);
-        cameraZ_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraZ);
 
@@ -570,34 +521,20 @@ public:
         cameraPitch_lbl->setMargin(1);
         cameraPitch_value = new QDoubleSpinBox(cameraPitch);
         cameraPitch_value->setObjectName(QStringLiteral("cameraPitch_value"));
-        cameraPitch_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraPitch_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraPitch_value->sizePolicy().hasHeightForWidth());
         cameraPitch_value->setSizePolicy(sizePolicy);
-        cameraPitch_value->setMinimumSize(QSize(86, 25));
-        cameraPitch_value->setMaximumSize(QSize(86, 25));
+        cameraPitch_value->setMinimumSize(QSize(116, 25));
+        cameraPitch_value->setMaximumSize(QSize(116, 25));
         cameraPitch_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraPitch_value->setFrame(false);
-        cameraPitch_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraPitch_value->setReadOnly(true);
+        cameraPitch_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraPitch_value->setDecimals(3);
         cameraPitch_value->setMinimum(-9999);
         cameraPitch_value->setMaximum(9999);
         cameraPitch_value->setSingleStep(0.05);
-        cameraPitch_dial = new QDial(cameraPitch);
-        cameraPitch_dial->setObjectName(QStringLiteral("cameraPitch_dial"));
-        cameraPitch_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraPitch_dial->sizePolicy().hasHeightForWidth());
-        cameraPitch_dial->setSizePolicy(sizePolicy);
-        cameraPitch_dial->setMinimumSize(QSize(30, 30));
-        cameraPitch_dial->setMaximumSize(QSize(30, 30));
-        cameraPitch_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraPitch_dial->setMinimum(-10000);
-        cameraPitch_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraPitch);
 
@@ -622,34 +559,20 @@ public:
         cameraYaw_lbl->setMargin(1);
         cameraYaw_value = new QDoubleSpinBox(cameraYaw);
         cameraYaw_value->setObjectName(QStringLiteral("cameraYaw_value"));
-        cameraYaw_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraYaw_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraYaw_value->sizePolicy().hasHeightForWidth());
         cameraYaw_value->setSizePolicy(sizePolicy);
-        cameraYaw_value->setMinimumSize(QSize(86, 25));
-        cameraYaw_value->setMaximumSize(QSize(86, 25));
+        cameraYaw_value->setMinimumSize(QSize(116, 25));
+        cameraYaw_value->setMaximumSize(QSize(116, 25));
         cameraYaw_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraYaw_value->setFrame(false);
-        cameraYaw_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraYaw_value->setReadOnly(true);
+        cameraYaw_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraYaw_value->setDecimals(3);
         cameraYaw_value->setMinimum(-9999);
         cameraYaw_value->setMaximum(9999);
         cameraYaw_value->setSingleStep(0.05);
-        cameraYaw_dial = new QDial(cameraYaw);
-        cameraYaw_dial->setObjectName(QStringLiteral("cameraYaw_dial"));
-        cameraYaw_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraYaw_dial->sizePolicy().hasHeightForWidth());
-        cameraYaw_dial->setSizePolicy(sizePolicy);
-        cameraYaw_dial->setMinimumSize(QSize(30, 30));
-        cameraYaw_dial->setMaximumSize(QSize(30, 30));
-        cameraYaw_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraYaw_dial->setMinimum(-10000);
-        cameraYaw_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraYaw);
 
@@ -674,34 +597,20 @@ public:
         cameraRoll_lbl->setMargin(1);
         cameraRoll_value = new QDoubleSpinBox(cameraRoll);
         cameraRoll_value->setObjectName(QStringLiteral("cameraRoll_value"));
-        cameraRoll_value->setGeometry(QRect(104, 5, 86, 25));
+        cameraRoll_value->setGeometry(QRect(104, 5, 116, 25));
         sizePolicy.setHeightForWidth(cameraRoll_value->sizePolicy().hasHeightForWidth());
         cameraRoll_value->setSizePolicy(sizePolicy);
-        cameraRoll_value->setMinimumSize(QSize(86, 25));
-        cameraRoll_value->setMaximumSize(QSize(86, 25));
+        cameraRoll_value->setMinimumSize(QSize(116, 25));
+        cameraRoll_value->setMaximumSize(QSize(116, 25));
         cameraRoll_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
+""));
         cameraRoll_value->setFrame(false);
-        cameraRoll_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraRoll_value->setReadOnly(true);
+        cameraRoll_value->setButtonSymbols(QAbstractSpinBox::NoButtons);
         cameraRoll_value->setDecimals(3);
         cameraRoll_value->setMinimum(-9999);
         cameraRoll_value->setMaximum(9999);
         cameraRoll_value->setSingleStep(0.05);
-        cameraRoll_dial = new QDial(cameraRoll);
-        cameraRoll_dial->setObjectName(QStringLiteral("cameraRoll_dial"));
-        cameraRoll_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(cameraRoll_dial->sizePolicy().hasHeightForWidth());
-        cameraRoll_dial->setSizePolicy(sizePolicy);
-        cameraRoll_dial->setMinimumSize(QSize(30, 30));
-        cameraRoll_dial->setMaximumSize(QSize(30, 30));
-        cameraRoll_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        cameraRoll_dial->setMinimum(-10000);
-        cameraRoll_dial->setMaximum(10000);
 
         sceneLayout->addWidget(cameraRoll);
 
@@ -2372,7 +2281,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(0);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
