@@ -27,12 +27,14 @@ void TweakableValue::Initialise(double step,
 
     connect(box, SIGNAL(valueChanged(double)), 
         this, SLOT(UpdateValue(double)));  
-
-    connect(dial, SIGNAL(sliderMoved(int)), 
-        this, SLOT(DialValue(int)));  
-
     box->update();
-    dial->update();
+
+    if (dial)
+    {
+        connect(dial, SIGNAL(sliderMoved(int)), 
+            this, SLOT(DialValue(int))); 
+        dial->update();
+    }
 }
 
 void TweakableValue::Set(double value)
@@ -42,7 +44,10 @@ void TweakableValue::Set(double value)
 
 void TweakableValue::UpdateValue(double value)
 {
-    m_signalCallback(value);
+    if (m_signalCallback)
+    {
+        m_signalCallback(value);
+    }
 }
 
 void TweakableValue::DialValue(int value)
