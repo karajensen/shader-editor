@@ -47,12 +47,6 @@ public:
     void Rotate(const Float2& mouseDir, float speed);
 
     /**
-    * @return Whether the application has moved the camera this tick
-    * @note used by the gui to deterimine if it should update
-    */
-    bool HasCameraMoved() const;
-
-    /**
     * @return the component of the camera
     */
     float GetCamera(Component component) const;
@@ -96,5 +90,4 @@ private:
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
     bool m_autoMove = false;            ///< Whether to automatically move the camera
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
-    bool m_hasCameraMoved = false;      ///< Whether the application has updated the camera this tick
 };

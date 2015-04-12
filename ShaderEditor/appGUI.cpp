@@ -154,26 +154,23 @@ void AppGUI::UpdateScene(RenderEngine& engine)
 
 void AppGUI::UpdateCamera()
 {
-    if (m_camera.HasCameraMoved())
-    {
-        m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
-            m_camera.GetCamera(Camera::POSITION_X));
+    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_X));
 
-        m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(
-            m_camera.GetCamera(Camera::POSITION_Y));
+    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_Y));
 
-        m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(
-            m_camera.GetCamera(Camera::POSITION_Z));
+    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(
+        m_camera.GetCamera(Camera::POSITION_Z));
 
-        m_cache->Camera[CAMERA_PITCH].SetUpdated(
-            m_camera.GetCamera(Camera::ROTATION_PITCH));
+    m_cache->Camera[CAMERA_PITCH].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_PITCH));
 
-        m_cache->Camera[CAMERA_YAW].SetUpdated(
-            m_camera.GetCamera(Camera::ROTATION_YAW));
+    m_cache->Camera[CAMERA_YAW].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_YAW));
 
-        m_cache->Camera[CAMERA_ROLL].SetUpdated(
-            m_camera.GetCamera(Camera::ROTATION_ROLL));
-    }
+    m_cache->Camera[CAMERA_ROLL].SetUpdated(
+        m_camera.GetCamera(Camera::ROTATION_ROLL));
 }
 
 void AppGUI::UpdateMesh()

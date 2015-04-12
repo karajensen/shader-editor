@@ -20,21 +20,18 @@ Camera::Camera() :
 void Camera::Forward(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_hasCameraMoved = true;
     m_position += m_world.Forward() * value * MOVE_SPEED;
 }
 
 void Camera::Up(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_hasCameraMoved = true;
     m_position += m_world.Up() * value * MOVE_SPEED;
 }
 
 void Camera::Right(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_hasCameraMoved = true;
     m_position += m_world.Right() * value * MOVE_SPEED;
 }
 
@@ -58,11 +55,6 @@ float Camera::GetCamera(Component component) const
     return 0.0f;
 }
 
-bool Camera::HasCameraMoved() const
-{
-    return m_hasCameraMoved;
-}
-
 void Camera::Rotate(const Float2& mouseDir, float speed)
 {
     speed *= ROT_SPEED;
@@ -71,20 +63,17 @@ void Camera::Rotate(const Float2& mouseDir, float speed)
     {
         m_rotation.y += mouseDir.x < 0.0f ? speed : -speed;
         m_cameraNeedsUpdate = true;
-        m_hasCameraMoved = true;
     }
 
     if(mouseDir.y != 0.0f)
     {
         m_rotation.x += mouseDir.y < 0.0f ? speed : -speed;
         m_cameraNeedsUpdate = true;
-        m_hasCameraMoved = true;
     }
 }
 
 void Camera::Reset()
 {
-    m_hasCameraMoved = true;
     m_cameraNeedsUpdate = true;
     m_position = m_initialPos;
 }
@@ -104,7 +93,6 @@ bool Camera::Update(float deltatime)
     if (m_cameraNeedsUpdate)
     {
         m_cameraNeedsUpdate = false;
-        m_hasCameraMoved = false;
 
         m_world.MakeIdentity();
         m_world.SetPosition(m_position);
