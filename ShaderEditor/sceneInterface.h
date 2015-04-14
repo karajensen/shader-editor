@@ -4,8 +4,16 @@
 
 #pragma once
 
-#include "common.h"
-#include "renderdata.h"
+#include <vector>
+
+class Mesh;
+class Water;
+class Light;
+class Shader;
+class Terrain;
+class Texture;
+class PostProcessing;
+class Emitter;
 
 /**
 * Allows access to the elements of the scene

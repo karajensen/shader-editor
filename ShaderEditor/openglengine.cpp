@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "openglengine.h"
+#include "openglcommon.h"
 #include "openglshader.h"
 #include "openglmesh.h"
 #include "opengltexture.h"
@@ -288,7 +289,7 @@ bool OpenglEngine::Initialize()
     // Initialise the opengl environment
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
     glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.22f, 0.49f, 0.85f, 0.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearDepth(1.0f);
     glDepthFunc(GL_LEQUAL);
@@ -304,8 +305,7 @@ bool OpenglEngine::Initialize()
     EnableDepthWrite(true);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
-        WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT),
-        FRUSTRUM_NEAR, FRUSTRUM_FAR);
+        RATIO, FRUSTRUM_NEAR, FRUSTRUM_FAR);
 
     if(!HasCallFailed())
     {
@@ -523,7 +523,8 @@ void OpenglEngine::RenderEmitters()
 
     for (auto& emitter : m_data->emitters)
     {
-        if (UpdateShader(emitter->GetEmitter()))
+        if (emitter->GetEmitter().ShouldRender() &&
+            UpdateShader(emitter->GetEmitter()))
         {
             emitter->PreRender();
             EnableAttributes();
@@ -787,8 +788,8 @@ void OpenglEngine::SendTextures(const std::vector<int>& textures)
     auto& shader = m_data->shaders[m_data->selectedShader];
     for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
-        const Texture::Type type = static_cast<Texture::Type>(i);
-        const bool isDiffuse = type == Texture::DIFFUSE;
+        const auto type = static_cast<TextureSlot>(i);
+        const bool isDiffuse = type == SLOT_DIFFUSE;
 
         const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
             BLANK_TEXTURE_ID : textures[type];

@@ -196,6 +196,8 @@ struct Cache
     LockableString TerrainShader;       ///< Shader used for the selected terrain
     LockableString MeshShader;          ///< Shader used for the selected mesh
     LockableString MeshInstances;       ///< Number of instances of the selected mesh
+    LockableString TerrainInstances;    ///< Number of instances of the selected terrain
+    LockableString WaterInstances;      ///< Number of instances of the selected water
     LockableString ShaderText;          ///< Text for the selected shader
     LockableString ShaderAsm;           ///< Assembly for the selected shader
     LockableString CompileShader;       ///< Text to request to be compiled

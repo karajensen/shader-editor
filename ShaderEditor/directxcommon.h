@@ -8,8 +8,18 @@
 #include "directx/include/d3d11.h"
 #include "directx/include/d3dx11.h"
 #include "directx/include/d3dx10.h"
+
 #include "common.h"
 #include "renderdata.h"
+#include "mesh.h"
+#include "water.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureProcedural.h"
+#include "postprocessing.h"
+#include "emitter.h"
+#include "terrain.h"
+#include "light.h"
 
 /**
 * Callbacks for pre-rendering elements

@@ -6,8 +6,9 @@
 
 #include "boost/property_tree/ptree.hpp"
 #include "sceneInterface.h"
+#include "float3.h"
 
-class FragmentLinker;
+class Camera;
 class SceneBuilder;
 class SceneModifier;
 class SceneUpdater;
@@ -26,9 +27,9 @@ public:
     /**
     * Ticks the scene
     * @param deltatime The time passed between ticks
-    * @param camera The world position of the camera
+    * @param camera For updating the viewable area
     */
-    void Tick(float deltatime, const Float3& camera);
+    void Tick(float deltatime, const Camera& camera);
 
     /**
     * @return the meshes in the scene

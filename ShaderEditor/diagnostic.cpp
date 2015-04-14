@@ -22,7 +22,7 @@ void Diagnostic::Tick()
 
     for (unsigned int i = 0; i < m_diagnostics.size(); ++i)
     {
-        if (m_diagnostics[i].shouldRender)
+        if (m_diagnostics[i].enabled)
         {
             m_diagnostics[i].position = m_updater[i].position;
         }
@@ -49,7 +49,7 @@ void Diagnostic::AddInstance(const Light& light, float scale)
 
 void Diagnostic::EnableInstance(int index, bool enabled)
 {
-    m_diagnostics[index].shouldRender = enabled;
+    m_diagnostics[index].enabled = enabled;
 }
 
 void Diagnostic::ToggleLightDiagnostics()

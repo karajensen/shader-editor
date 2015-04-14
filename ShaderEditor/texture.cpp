@@ -33,33 +33,9 @@ const std::string& Texture::Path() const
     return m_path;
 }
 
-std::string Texture::GetTypeDescription(unsigned int type)
-{
-    switch (type)
-    {
-    case DIFFUSE:
-        return "Diffuse";
-    case NORMAL:
-        return "Normal";
-    case SPECULAR:
-        return "Specular";
-    case ENVIRONMENT:
-        return "Environment";
-    case CAUSTICS:
-        return "Caustics";
-    default:
-        return "None";
-    };
-}
-
 Texture::Filter Texture::Filtering() const
 {
     return m_filter;
-}
-
-bool Texture::IsAnimatedType(unsigned int type)
-{
-    return type == CAUSTICS;
 }
 
 bool Texture::IsCubeMap(const std::string& path)

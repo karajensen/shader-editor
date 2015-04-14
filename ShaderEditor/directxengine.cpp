@@ -274,8 +274,7 @@ bool DirectxEngine::Initialize()
 
     D3DXMatrixPerspectiveFovLH(&m_data->projection,
         (FLOAT)D3DXToRadian(FIELD_OF_VIEW),
-        (FLOAT)WINDOW_WIDTH / (FLOAT)WINDOW_HEIGHT, 
-        FRUSTRUM_NEAR, FRUSTRUM_FAR);
+        RATIO, FRUSTRUM_NEAR, FRUSTRUM_FAR);
 
     SetDebugName(m_data->device, "Device");
     SetDebugName(m_data->context, "Context");
@@ -644,7 +643,8 @@ void DirectxEngine::RenderEmitters()
 
     for (auto& emitter : m_data->emitters)
     {
-        if (UpdateShader(emitter->GetEmitter()))
+        if (emitter->GetEmitter().ShouldRender() &&
+            UpdateShader(emitter->GetEmitter()))
         {
             emitter->Render(m_data->context, 
                 m_data->cameraPosition, m_data->cameraUp);
@@ -906,8 +906,8 @@ void DirectxEngine::SendTextures(const std::vector<int>& textures)
     auto& shader = m_data->shaders[m_data->selectedShader];
     for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
     {
-        const Texture::Type type = static_cast<Texture::Type>(i);
-        const bool isDiffuse = type == Texture::DIFFUSE;
+        const auto type = static_cast<TextureSlot>(i);
+        const bool isDiffuse = type == SLOT_DIFFUSE;
 
         const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
             BLANK_TEXTURE_ID : textures[type];

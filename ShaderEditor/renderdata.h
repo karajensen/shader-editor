@@ -4,15 +4,7 @@
 
 #pragma once
 
-#include "mesh.h"
-#include "water.h"
-#include "shader.h"
-#include "texture.h"
-#include "textureProcedural.h"
-#include "postprocessing.h"
-#include "emitter.h"
-#include "terrain.h"
-#include "light.h"
+#include <string>
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -21,6 +13,7 @@ const int MAX_ANISOTROPY = 16;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 2000.0f;
 const float FIELD_OF_VIEW = 60.0f;
+const float RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT);
 
 const std::string SHADER_EXTENSION(".fx");
 const std::string ASM_EXTENSION(".as");
@@ -83,4 +76,27 @@ enum ShaderIndex
     WATER_SHADER,
     PARTICLE_SHADER,
     DIAGNOSTIC_SHADER
+};
+
+/**
+* Type of texture to send to the mesh shader
+* Ordering must match usage in shader body
+*/
+enum TextureSlot
+{
+    SLOT_DIFFUSE,
+    SLOT_NORMAL,
+    SLOT_SPECULAR,
+    SLOT_ENVIRONMENT,
+    SLOT_CAUSTICS,
+    MAX_SLOTS
+};
+
+/**
+* Bounding area data
+*/
+struct BoundingArea
+{
+    Float3 center;
+    float radius = 0.0f;
 };

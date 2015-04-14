@@ -144,15 +144,11 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_X, 0.1, 3, "Position X");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_Y, 0.1, 3, "Position Y");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_Z, 0.1, 3, "Position Z");
+    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_R, 0.01, 3, "Tint R");
+    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_G, 0.01, 3, "Tint G");
+    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_B, 0.01, 3, "Tint B");
     m_emitter.Initialise(m_ui.emitter_box, 
         m_ui.emitter_value, m_ui.emitter_dial, emitter);
-
-    std::vector<ComboEntry> emitterColor;
-    AddEntry(emitterColor, m_callbacks.SetEmitter, EMITTER_TINT_R, 0.01, 3, "Tint R");
-    AddEntry(emitterColor, m_callbacks.SetEmitter, EMITTER_TINT_G, 0.01, 3, "Tint G");
-    AddEntry(emitterColor, m_callbacks.SetEmitter, EMITTER_TINT_B, 0.01, 3, "Tint B");
-    m_emitterColour.Initialise(m_ui.emitterColour_box,
-        m_ui.emitterColour_value, m_ui.emitterColour_dial, emitterColor);
 
     std::vector<ComboEntry> emitterMinMax;
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_SPEED, 0.01, 3, "Max Speed");
@@ -226,8 +222,20 @@ void Tweaker::SetFramesPerSec(const std::string& fps)
 
 void Tweaker::SetMeshInstanceCount(const std::string& count)
 {
-    m_ui.instances_text->setText(QString(count.c_str()));
-    m_ui.instances_text->update();
+    m_ui.instancesMesh_text->setText(QString(count.c_str()));
+    m_ui.instancesMesh_text->update();
+}
+
+void Tweaker::SetWaterInstanceCount(const std::string& count)
+{
+    m_ui.instancesWater_text->setText(QString(count.c_str()));
+    m_ui.instancesWater_text->update();
+}
+
+void Tweaker::SetTerrainInstanceCount(const std::string& count)
+{
+    m_ui.instancesTerrain_text->setText(QString(count.c_str()));
+    m_ui.instancesTerrain_text->update();
 }
 
 void Tweaker::SetTerrainShaderName(const std::string& name)
@@ -296,8 +304,7 @@ void Tweaker::SetWave(WaveAttribute attribute, float value)
 
 void Tweaker::SetEmitter(EmitterAttribute attribute, float value)
 {
-    if (!m_emitterColour.SetValue(attribute, value) &&
-        !m_emitterMinMax.SetValue(attribute, value))
+    if (!m_emitterMinMax.SetValue(attribute, value))
     {
         m_emitter.SetValue(attribute, value);
     }

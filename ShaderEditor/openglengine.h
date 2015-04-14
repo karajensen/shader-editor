@@ -8,6 +8,14 @@
 #include "opengl/glm/glm.hpp"
 #include <Windows.h>
 
+class MeshData;
+class Particle;
+class Mesh;
+class Water;
+class Light;
+class Terrain;
+class PostProcessing;
+class Emitter;
 struct OpenglData;
 
 /**

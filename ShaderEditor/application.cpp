@@ -4,6 +4,7 @@
 
 #include "application.h"
 #include "common.h"
+#include "postprocessing.h"
 #include "timer.h"
 #include "openglengine.h"
 #include "directxengine.h"
@@ -15,7 +16,7 @@
 
 //#define SELECTED_ENGINE DIRECTX
 #define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::SCENE_MAP
+#define SELECTED_MAP PostProcessing::FINAL_MAP
 
 Application::Application() :
     m_selectedEngine(SELECTED_ENGINE),
@@ -208,7 +209,7 @@ void Application::TickApplication()
         GetEngine().UpdateView(m_camera->GetWorld());
     }
 
-    m_scene->Tick(m_timer->GetDeltaTime(), m_camera->Position());
+    m_scene->Tick(m_timer->GetDeltaTime(), *m_camera);
 
     GetEngine().Render(*m_scene, m_timer->GetTotalTime());
 

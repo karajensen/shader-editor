@@ -11,6 +11,7 @@
 #include "ptree_utilities.h"
 
 struct Cache;
+struct BoundingArea;
 
 /**
 * Data for a particle emitter
@@ -54,8 +55,12 @@ public:
     /**
     * Ticks the emitter
     * @param deltatime The time passed between ticks
+    * @param cameraPosition The world coordinates of the camera
+    * @param cameraBounds Bounding area in front of the camera
     */
-    void Tick(float deltatime);
+    void Tick(float deltatime, 
+              const Float3& cameraPosition,
+              const BoundingArea& cameraBounds);
 
     /**
     * Toggles whether the emitter is paused
@@ -98,7 +103,20 @@ public:
     */
     void AddTexture(int ID);
 
+    /**
+    * @return whether this emitter should be rendered
+    */
+    bool ShouldRender() const;
+
 private:
+
+    /**
+    * Determines whether the emitter should be rendered
+    * @param position The position of the camera
+    * @param cameraBounds Bounding area in front of the camera
+    */
+    bool ShouldRender(const Float3& position, 
+                      const BoundingArea& bounds);
 
     float m_width = 0.0f;                    ///< The width of the emitter
     float m_length = 0.0f;                   ///< The length of the emitter
@@ -123,4 +141,5 @@ private:
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to render with
     std::string m_name;                      ///< Name of this emitter
     bool m_paused = false;                   ///< Whether emission is paused
+    bool m_render = true;                    ///< Whether to render this emitter
 };

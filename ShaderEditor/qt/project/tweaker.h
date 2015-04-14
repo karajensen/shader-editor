@@ -143,6 +143,18 @@ public:
     void SetMeshInstanceCount(const std::string& count);
 
     /**
+    * Sets the readonly selected terrain instance count
+    * @param count The number of instances
+    */
+    void SetTerrainInstanceCount(const std::string& count);
+
+    /**
+    * Sets the readonly selected water instance count
+    * @param count The number of instances
+    */
+    void SetWaterInstanceCount(const std::string& count);
+
+    /**
     * Sets the selected engine
     * @param selected The selected engine
     */
@@ -302,7 +314,6 @@ private:
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
     TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
     TweakableBoxedValue m_terrain;       ///< Tweakable values for terrain attributes
-    TweakableBoxedValue m_emitterColour; ///< Tweakable values for emitter colour attributes
     TweakableBoxedValue m_emitterMinMax; ///< Tweakable values for emitter min/max attributes
     TweakableBoxedValue m_correction;    ///< Post processing colour correction
     TweakableBoxedValue m_fog;           ///< Tweakable values for fog

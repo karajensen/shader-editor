@@ -5,12 +5,12 @@
 	<DepthNear>1</DepthNear>
 	<DOFStart>1</DOFStart>
 	<DOFFade>0.01</DOFFade>
-	<FogColour r="0" g="0" b="1"/>
-	<FogStart>-1.46</FogStart>
-	<FogFade>2.4</FogFade>
-	<BloomIntensity>1</BloomIntensity>
-	<BloomStart>0.9</BloomStart>
-	<BloomFade>0.1</BloomFade>
+	<FogColour r="0.0" g="0.27" b="1.0"/>
+	<FogStart>0.39</FogStart>
+	<FogFade>0.61</FogFade>
+	<BloomIntensity>0.5</BloomIntensity>
+	<BloomStart>0.95</BloomStart>
+	<BloomFade>0.35</BloomFade>
 	<Contrast>0</Contrast>
 	<Saturation>1</Saturation>
 	<MaximumColour r="1" g="1" b="1"/>

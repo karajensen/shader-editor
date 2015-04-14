@@ -17,20 +17,6 @@ class Texture
 public:
 
     /**
-    * Type of texture
-    * Ordering must match usage in shader body
-    */
-    enum Type
-    {
-        DIFFUSE,
-        NORMAL,
-        SPECULAR,
-        ENVIRONMENT,
-        CAUSTICS,
-        MAX_TYPES
-    };
-
-    /**
     * Type of filtering for this texture
     */
     enum Filter
@@ -118,20 +104,6 @@ public:
     * @return whether this texture has explicitly set pixels
     */
     virtual bool HasPixels() const;
-
-    /**
-    * Gets a text description of the texture type
-    * @param type The type to query for text
-    * @return the text description of the type
-    */
-    static std::string GetTypeDescription(unsigned int type);
-
-    /**
-    * Determines whether this texture type is animated
-    * @param type The type to query
-    * @return whether it is animated
-    */
-    static bool IsAnimatedType(unsigned int type);
 
 private:
 

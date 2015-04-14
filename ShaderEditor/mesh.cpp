@@ -107,8 +107,10 @@ bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, boo
     unsigned int numMeshes = scene->mNumMeshes;
     aiMesh** meshes = scene->mMeshes;
 
-    // For each submesh
     bool generatedComponentCount = false;
+    m_vertexComponentCount = 1;
+
+    // For each submesh
     for(unsigned int i = 0; i < numMeshes; ++i)
     {
         aiMesh* pMesh = meshes[i];
@@ -209,6 +211,7 @@ bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, boo
         }
     }
 
+    InitialiseMeshData();
     Logger::LogInfo("Mesh: " + Name() + " created");
     return true;
 }

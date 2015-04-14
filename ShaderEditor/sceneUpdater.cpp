@@ -8,13 +8,13 @@
 namespace
 {
     const int WATER_ID = 0;
-    const bool USE_DIAGNOSTICS = true;
+    const bool USE_DIAGNOSTICS = false;
 }
 
 SceneUpdater::SceneUpdater(SceneData& data) :
     m_data(data)
 {
-    const int patchAmount = 9;
+    const int patchAmount = 36;
     const int minPatchAmount = 9;
     double unused = 0.0;
     if (std::modf(std::sqrt(static_cast<double>(patchAmount)), &unused) != 0.0 ||

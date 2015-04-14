@@ -4,14 +4,24 @@
 
 #pragma once
 
-#include "common.h"
-#include "renderdata.h"
 #include "opengl/include/glew.h"
 #include "opengl/include/wglew.h"
 #include "opengl/include/GL.h"
 #include "opengl/include/GLU.h"
 #include "opengl/glm/glm.hpp"
 #include "opengl/glm/gtc/matrix_transform.hpp"
+
+#include "common.h"
+#include "renderdata.h"
+#include "mesh.h"
+#include "water.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureProcedural.h"
+#include "postprocessing.h"
+#include "emitter.h"
+#include "terrain.h"
+#include "light.h"
 
 /**
 * Callbacks for pre-rendering elements

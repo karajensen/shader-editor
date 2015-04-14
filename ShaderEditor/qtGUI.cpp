@@ -257,6 +257,8 @@ void QtGUI::UpdateTerrain(Tweaker& tweaker)
                 m_cache->Terrain[i].GetUpdated());
         }
     }
+
+    tweaker.SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
 }
 
 void QtGUI::UpdateTextures(Tweaker& tweaker)
@@ -379,4 +381,6 @@ void QtGUI::UpdateWater(Tweaker& tweaker)
                 m_cache->Wave[i].GetUpdated());
         }
     }
+
+    tweaker.SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
 }

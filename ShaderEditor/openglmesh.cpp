@@ -183,7 +183,7 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
 {
     for (const Mesh::Instance& instance : instances)
     {
-        if (instance.shouldRender)
+        if (instance.enabled && instance.render)
         {
             glm::mat4 scale;
             scale[0][0] = instance.scale.x;

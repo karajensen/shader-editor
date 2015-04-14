@@ -55,6 +55,7 @@ Water::Water(const boost::property_tree::ptree& node) :
     }
 
     CreateGrid(Float2(1.0f, 1.0f), false, false);
+    InitialiseMeshData();
 }
 
 void Water::Write(boost::property_tree::ptree& node,

@@ -3,7 +3,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "appGUI.h"
-#include "renderdata.h"
+#include "mesh.h"
+#include "water.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureProcedural.h"
+#include "postprocessing.h"
+#include "emitter.h"
+#include "terrain.h"
+#include "light.h"
 #include "sceneData.h"
 #include "scene.h"
 #include "cache.h"
@@ -154,23 +162,12 @@ void AppGUI::UpdateScene(RenderEngine& engine)
 
 void AppGUI::UpdateCamera()
 {
-    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_X));
-
-    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_Y));
-
-    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_Z));
-
-    m_cache->Camera[CAMERA_PITCH].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_PITCH));
-
-    m_cache->Camera[CAMERA_YAW].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_YAW));
-
-    m_cache->Camera[CAMERA_ROLL].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_ROLL));
+    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.Position().x);
+    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.Position().y);
+    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(m_camera.Position().z);
+    m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.Rotation().x);
+    m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.Rotation().y);
+    m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.Rotation().z);
 }
 
 void AppGUI::UpdateMesh()
@@ -187,9 +184,7 @@ void AppGUI::UpdateMesh()
     {
         auto& mesh = *m_data.meshes[m_selectedMesh];
         mesh.Read(*m_cache);
-
-        m_cache->MeshInstances.SetUpdated(
-            boost::lexical_cast<std::string>(mesh.Instances().size()));
+        m_cache->MeshInstances.SetUpdated(mesh.GetRenderedInstances());
     }
 }
 
@@ -204,7 +199,9 @@ void AppGUI::UpdateWater()
     else if(m_selectedWater >= 0 && 
             m_selectedWater < static_cast<int>(m_scene.Waters().size()))
     {
-        m_data.water[m_selectedWater]->Read(*m_cache);
+        auto& water = *m_data.water[m_selectedWater];
+        water.Read(*m_cache);
+        m_cache->WaterInstances.SetUpdated(water.GetRenderedInstances());
     }
 
     if (m_selectedWater != NO_INDEX)
@@ -236,7 +233,9 @@ void AppGUI::UpdateTerrain(RenderEngine& engine)
     else if(m_selectedTerrain >= 0 && 
             m_selectedTerrain < static_cast<int>(m_scene.Terrains().size()))
     {
-        m_data.terrain[m_selectedTerrain]->Read(*m_cache);
+        auto& terrain = *m_data.terrain[m_selectedTerrain];
+        terrain.Read(*m_cache);
+        m_cache->TerrainInstances.SetUpdated(terrain.GetRenderedInstances());
     }
 
     if (m_cache->ReloadTerrain.Get())
@@ -368,24 +367,6 @@ void AppGUI::Initialise(const std::vector<std::string>& engineNames,
 
     m_cache->Post[POST_CAUSTIC_SPEED].SetUpdated(
         m_data.caustics->GetSpeed());
-
-    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_X));
-
-    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_Y));
-
-    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(
-        m_camera.GetCamera(Camera::POSITION_Z));
-
-    m_cache->Camera[CAMERA_PITCH].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_PITCH));
-
-    m_cache->Camera[CAMERA_YAW].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_YAW));
-
-    m_cache->Camera[CAMERA_ROLL].SetUpdated(
-        m_camera.GetCamera(Camera::ROTATION_ROLL));
 }
 
 std::vector<std::string> AppGUI::GetLightNames() const

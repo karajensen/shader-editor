@@ -5,22 +5,14 @@
 #pragma once
 #include "common.h"
 
+struct BoundingArea;
+
 /**
 * Maya styled camera class 
 */
 class Camera
 {
 public:
-
-    enum Component
-    {
-        POSITION_X,
-        POSITION_Y,
-        POSITION_Z,
-        ROTATION_PITCH,
-        ROTATION_YAW,
-        ROTATION_ROLL
-    };
 
     /**
     * Constructor
@@ -47,11 +39,6 @@ public:
     void Rotate(const Float2& mouseDir, float speed);
 
     /**
-    * @return the component of the camera
-    */
-    float GetCamera(Component component) const;
-
-    /**
     * Translates the camera on its forward vector
     */
     void Forward(float value);
@@ -75,13 +62,28 @@ public:
     * @return the position of the camera
     */
     const Float3& Position() const { return m_position; }
+
+    /**
+    * @return the position of the camera
+    */
+    const Float3& Rotation() const { return m_rotation; }
     
     /**
     * Toggles whether the camera moves forward automatically
     */
     void ToggleAutoMove();
 
+    /**
+    * @return the bounding area in front of the area
+    */
+    const BoundingArea& GetBounds() const;
+
 private:
+
+    /**
+    * Determines the bounding area in front of the camera
+    */
+    void GenerateBounds();
 
     Matrix m_world;                     ///< World Matrix for the camera
     Float3 m_initialPos;                ///< Camera initial position in world space
@@ -90,4 +92,5 @@ private:
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
     bool m_autoMove = false;            ///< Whether to automatically move the camera
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
+    std::unique_ptr<BoundingArea> m_bounds; ///< The bounding area in front of the area
 };

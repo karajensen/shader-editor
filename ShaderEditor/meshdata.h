@@ -7,10 +7,11 @@
 #include <string>
 #include <vector>
 #include "float3.h"
-#include "texture.h"
+#include "renderdata.h"
 #include "ptree_utilities.h"
 
 struct Cache;
+struct BoundingArea;
 
 /**
 * Base Mesh Information
@@ -27,7 +28,8 @@ public:
         Float3 position = Float3(0,0,0); ///< Position offset
         Float3 rotation = Float3(0,0,0); ///< Degress rotated around each axis
         Float3 scale = Float3(1,1,1);    ///< Scaling of the mesh
-        bool shouldRender = true;        ///< Whether to render this instance
+        bool enabled = true;             ///< Whether to render this instance
+        bool render = true;              ///< Whether this mesh is visible
     };
 
     /**
@@ -42,10 +44,25 @@ public:
     virtual ~MeshData() = default;
 
     /**
+    * Ticks the mesh
+    * @param cameraPosition The world position of the camera
+    * @param cameraBounds Bounding area in front of the camera
+    * @param causticsTexture The ID of the current texture for caustics
+    */
+    void Tick(const Float3& cameraPosition, 
+              const BoundingArea& cameraBounds,
+              int causticsTexture);
+
+    /**
     * Writes the data to a property tree
     * @param node The node to write to
     */
     virtual void Write(boost::property_tree::ptree& node) const;
+
+    /**
+    * Initialises the mesh data
+    */
+    void InitialiseMeshData();
 
     /**
     * @return The name of the mesh
@@ -99,13 +116,6 @@ public:
     void SetShaderID(int shaderID);
 
     /**
-    * Sets the ID of the texture to use
-    * @param type The type of texture to set
-    * @param ID The ID of the texture to use
-    */
-    void SetTexture(Texture::Type type, int ID);
-
-    /**
     * @return The instances of this mesh
     */
     std::vector<Instance>& Instances();
@@ -122,11 +132,51 @@ public:
     */
     const Instance& GetInstance(int index) const;
 
+    /**
+    * Sets the ID of the texture to use
+    * @param slot The type of texture to set
+    * @param ID The ID of the texture to use
+    */
+    void SetTexture(TextureSlot slot, int ID);
+
+    /**
+    * @return a description of what instances are rendered
+    */
+    std::string GetRenderedInstances() const;
+
 protected:
+
+    /**
+    * Determines the radius surrounding this mesh
+    * This is the based on the furthest vertex from the mesh center
+    */
+    void GenerateRadius();
+
+    /**
+    * Determines whether the instance should be rendered
+    * @param instance The instance to check
+    * @param position The position of the camera
+    * @param cameraBounds Bounding area in front of the camera
+    */
+    bool ShouldRender(const Instance& instance,
+                      const Float3& position, 
+                      const BoundingArea& bounds);
+
+    /**
+    * @return whether this mesh renders with caustics
+    */
+    bool UsesCaustics() const;
+
+    /**
+    * Gets a text description of the texture type
+    * @param type The type to query for text
+    * @return the text description of the type
+    */
+    static std::string GetTypeDescription(unsigned int type);
 
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
     std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
-    int m_vertexComponentCount = 1;          ///< Number of components that make up a vertex
+    int m_vertexComponentCount = 0;          ///< Number of components that make up a vertex
     std::string m_name;                      ///< Name of the mesh
     bool m_backfacecull = true;              ///< Whether back facing polygons are culled
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
@@ -134,4 +184,8 @@ protected:
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
     std::vector<std::string> m_textureNames; ///< Names for each texture used
     std::vector<Instance> m_instances;       ///< Current instances of this mesh
+    int m_visibleInstances = 0;              ///< Number of instances visible this tick
+    bool m_skybox = false;                   ///< Whether this mesh is a skybox
+    bool m_usesCaustics = false;             ///< Whether this mesh supports caustics
+    float m_radius = 0.0f;                   ///< The radius of the sphere surrounding the mesh
 };

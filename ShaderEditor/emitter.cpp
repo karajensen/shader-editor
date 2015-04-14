@@ -4,6 +4,7 @@
 
 #include "emitter.h"
 #include "common.h"
+#include "renderdata.h"
 #include "cache.h"
 
 namespace
@@ -238,34 +239,52 @@ void Emitter::AddTexture(int ID)
     m_textures.push_back(ID);
 }
 
-void Emitter::Tick(float deltatime)
+bool Emitter::ShouldRender() const
 {
-    if (m_paused)
+    return m_render;
+}
+
+bool Emitter::ShouldRender(const Float3& position, 
+                           const BoundingArea& bounds)
+{
+    // Radius requires a buffer as particles can move outside bounds
+    const float radius = std::max(m_width, m_length) * m_maxAmplitude * 2.0f;
+    const Float3 centerToMesh = m_position - bounds.center;
+    return centerToMesh.Length() <= radius + bounds.radius;
+}
+
+void Emitter::Tick(float deltatime,
+                   const Float3& cameraPosition,
+                   const BoundingArea& cameraBounds)
+{
+    m_render = ShouldRender(cameraPosition, cameraBounds);
+
+    if (!m_render || m_paused)
     {
         return;
     }
 
-   for (Particle& particle : m_particles)
-   {
-       if (!particle.Tick(deltatime, m_direction))
-       {
-            Float3 particlePosition(m_position);
-            particlePosition.x += Random::Generate(-m_width, m_width) * 0.5f;
-            particlePosition.z += Random::Generate(-m_length, m_length) * 0.5f;
-
-            const int textureID = m_textures[Random::Generate(
-                0, static_cast<int>(m_textures.size()-1))];
-
-            particle.Reset(m_lifeTime, 
-                           m_lifeFade,
-                           Random::Generate(m_minSpeed, m_maxSpeed),
-                           Random::Generate(m_minWaveSpeed, m_maxWaveSpeed),
-                           Random::Generate(m_minSize, m_maxSize),
-                           Random::Generate(m_minAmplitude, m_maxAmplitude),
-                           Random::Generate(m_minFrequency, m_maxFrequency),
-                           textureID,
-                           particlePosition);
-
-       }
-   }
+    for (Particle& particle : m_particles)
+    {
+        if (!particle.Tick(deltatime, m_direction))
+        {
+             Float3 particlePosition(m_position);
+             particlePosition.x += Random::Generate(-m_width, m_width) * 0.5f;
+             particlePosition.z += Random::Generate(-m_length, m_length) * 0.5f;
+    
+             const int textureID = m_textures[Random::Generate(
+                 0, static_cast<int>(m_textures.size()-1))];
+    
+             particle.Reset(m_lifeTime, 
+                            m_lifeFade,
+                            Random::Generate(m_minSpeed, m_maxSpeed),
+                            Random::Generate(m_minWaveSpeed, m_maxWaveSpeed),
+                            Random::Generate(m_minSize, m_maxSize),
+                            Random::Generate(m_minAmplitude, m_maxAmplitude),
+                            Random::Generate(m_minFrequency, m_maxFrequency),
+                            textureID,
+                            particlePosition);
+    
+        }
+    }
 }

@@ -194,7 +194,7 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
 {
     for (const Mesh::Instance& instance : instances)
     {
-        if (instance.shouldRender)
+        if (instance.enabled && instance.render)
         {
             D3DXMATRIX scale;
             D3DXMatrixIdentity(&scale);
@@ -220,7 +220,7 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
             }
             
             m_preRender(scale * rotate * translate);
-            Render(context);
+            DxMeshData::Render(context);
         }
     }
 }

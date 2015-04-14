@@ -3,6 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "fragmentlinker.h"
+#include "postprocessing.h"
+#include "water.h"
+#include "shader.h"
 #include "renderdata.h"
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>

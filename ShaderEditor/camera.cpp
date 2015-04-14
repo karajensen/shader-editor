@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Camera.h"
+#include "renderdata.h"
 
 namespace
 {
@@ -12,7 +13,8 @@ namespace
 
 Camera::Camera() :
     m_initialPos(15.0f, 1.0f, 3.0f),
-    m_rotation(0.0f, DegToRad(-75.0f), 0.0f)
+    m_rotation(0.0f, DegToRad(-75.0f), 0.0f),
+    m_bounds(std::make_unique<BoundingArea>())
 {
     Reset();
 }
@@ -33,26 +35,6 @@ void Camera::Right(float value)
 {
     m_cameraNeedsUpdate = true;
     m_position += m_world.Right() * value * MOVE_SPEED;
-}
-
-float Camera::GetCamera(Component component) const
-{
-    switch (component)
-    {
-    case POSITION_X:
-        return m_position.x;
-    case POSITION_Y:
-        return m_position.y;
-    case POSITION_Z:
-        return m_position.z;
-    case ROTATION_PITCH:
-        return m_rotation.x;
-    case ROTATION_YAW:
-        return m_rotation.y;
-    case ROTATION_ROLL:
-        return m_rotation.z;
-    }
-    return 0.0f;
 }
 
 void Camera::Rotate(const Float2& mouseDir, float speed)
@@ -102,7 +84,32 @@ bool Camera::Update(float deltatime)
         Matrix roll = Matrix::CreateRotateZ(m_rotation.z);
         m_world *= roll * yaw * pitch;
 
+        GenerateBounds();
+
         return true;
     }
     return false;
+}
+
+void Camera::GenerateBounds()
+{
+    // Determine the largest forward bounding area based on the far plane
+    // http://www.lighthouse3d.com/tutorials/view-frustum-culling/view-frustums-shape/
+
+    const float height = 2.0f * std::tan(DegToRad(FIELD_OF_VIEW) * 0.5f) * FRUSTRUM_FAR;
+	const float width = height * RATIO;
+    const float halfHeight = height * 0.5f;
+    const float halfWidth = width * 0.5f;
+
+    const Float3 forward = m_world.Forward();
+    const Float3 nearPoint = m_position + (forward * FRUSTRUM_NEAR);
+    const Float3 farPoint = m_position + (forward * FRUSTRUM_FAR);
+
+    m_bounds->radius = std::max(halfWidth, halfHeight);
+    m_bounds->center = (farPoint + nearPoint) * 0.5f;
+}
+
+const BoundingArea& Camera::GetBounds() const
+{
+    return *m_bounds;
 }

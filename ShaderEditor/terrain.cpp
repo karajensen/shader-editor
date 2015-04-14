@@ -76,6 +76,7 @@ bool Terrain::Initialise(bool hasNormals,
     {
         GenerateTerrain();
         RecalculateNormals();
+        InitialiseMeshData();
         Logger::LogInfo("Terrain: " + Name() + " generated");
         return true;
     }

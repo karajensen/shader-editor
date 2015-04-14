@@ -93,6 +93,9 @@ public:
     QFrame *terrainShader;
     QLabel *terrainShader_lbl;
     QLabel *terrainShader_text;
+    QFrame *instancesTerrain;
+    QLabel *instancesTerrain_lbl;
+    QLabel *instancesTerrain_text;
     QFrame *terrainAttributes;
     QDoubleSpinBox *terrainAttributes_value;
     QDial *terrainAttributes_dial;
@@ -109,9 +112,9 @@ public:
     QFrame *shader;
     QLabel *shader_lbl;
     QLabel *shader_text;
-    QFrame *instances;
-    QLabel *instances_lbl;
-    QLabel *instances_text;
+    QFrame *instancesMesh;
+    QLabel *instancesMesh_lbl;
+    QLabel *instancesMesh_text;
     QFrame *meshAttributes;
     QDoubleSpinBox *meshAttributes_value;
     QDial *meshAttributes_dial;
@@ -120,6 +123,9 @@ public:
     QFrame *selectedWater;
     QLabel *selectedWater_lbl;
     QComboBox *selectedWater_box;
+    QFrame *instancesWater;
+    QLabel *instancesWater_lbl;
+    QLabel *instancesWater_text;
     QFrame *waveNumber;
     QLabel *waveNumber_lbl;
     QDoubleSpinBox *waveNumber_value;
@@ -144,10 +150,6 @@ public:
     QDoubleSpinBox *emitter_value;
     QDial *emitter_dial;
     QComboBox *emitter_box;
-    QFrame *emitterColour;
-    QDoubleSpinBox *emitterColour_value;
-    QDial *emitterColour_dial;
-    QComboBox *emitterColour_box;
     QFrame *emitterMinMax;
     QDoubleSpinBox *emitterMinMax_value;
     QDial *emitterMinMax_dial;
@@ -927,6 +929,41 @@ public:
 
         areaLayout->addWidget(terrainShader);
 
+        instancesTerrain = new QFrame(layoutWidget1);
+        instancesTerrain->setObjectName(QStringLiteral("instancesTerrain"));
+        sizePolicy.setHeightForWidth(instancesTerrain->sizePolicy().hasHeightForWidth());
+        instancesTerrain->setSizePolicy(sizePolicy);
+        instancesTerrain->setMinimumSize(QSize(225, 35));
+        instancesTerrain->setMaximumSize(QSize(225, 35));
+        instancesTerrain->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        instancesTerrain->setFrameShape(QFrame::Panel);
+        instancesTerrain->setFrameShadow(QFrame::Raised);
+        instancesTerrain_lbl = new QLabel(instancesTerrain);
+        instancesTerrain_lbl->setObjectName(QStringLiteral("instancesTerrain_lbl"));
+        instancesTerrain_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(instancesTerrain_lbl->sizePolicy().hasHeightForWidth());
+        instancesTerrain_lbl->setSizePolicy(sizePolicy);
+        instancesTerrain_lbl->setMinimumSize(QSize(100, 30));
+        instancesTerrain_lbl->setMaximumSize(QSize(100, 30));
+        instancesTerrain_lbl->setFont(font1);
+        instancesTerrain_text = new QLabel(instancesTerrain);
+        instancesTerrain_text->setObjectName(QStringLiteral("instancesTerrain_text"));
+        instancesTerrain_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(instancesTerrain_text->sizePolicy().hasHeightForWidth());
+        instancesTerrain_text->setSizePolicy(sizePolicy1);
+        instancesTerrain_text->setMinimumSize(QSize(115, 25));
+        instancesTerrain_text->setMaximumSize(QSize(115, 25));
+        instancesTerrain_text->setAutoFillBackground(false);
+        instancesTerrain_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        instancesTerrain_text->setFrameShape(QFrame::NoFrame);
+        instancesTerrain_text->setFrameShadow(QFrame::Plain);
+        instancesTerrain_text->setLineWidth(0);
+        instancesTerrain_text->setMargin(3);
+
+        areaLayout->addWidget(instancesTerrain);
+
         terrainAttributes = new QFrame(layoutWidget1);
         terrainAttributes->setObjectName(QStringLiteral("terrainAttributes"));
         terrainAttributes->setMinimumSize(QSize(225, 35));
@@ -1097,40 +1134,40 @@ public:
 
         meshLayout->addWidget(shader);
 
-        instances = new QFrame(layoutWidget2);
-        instances->setObjectName(QStringLiteral("instances"));
-        sizePolicy.setHeightForWidth(instances->sizePolicy().hasHeightForWidth());
-        instances->setSizePolicy(sizePolicy);
-        instances->setMinimumSize(QSize(225, 35));
-        instances->setMaximumSize(QSize(225, 35));
-        instances->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        instancesMesh = new QFrame(layoutWidget2);
+        instancesMesh->setObjectName(QStringLiteral("instancesMesh"));
+        sizePolicy.setHeightForWidth(instancesMesh->sizePolicy().hasHeightForWidth());
+        instancesMesh->setSizePolicy(sizePolicy);
+        instancesMesh->setMinimumSize(QSize(225, 35));
+        instancesMesh->setMaximumSize(QSize(225, 35));
+        instancesMesh->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        instances->setFrameShape(QFrame::Panel);
-        instances->setFrameShadow(QFrame::Raised);
-        instances_lbl = new QLabel(instances);
-        instances_lbl->setObjectName(QStringLiteral("instances_lbl"));
-        instances_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(instances_lbl->sizePolicy().hasHeightForWidth());
-        instances_lbl->setSizePolicy(sizePolicy);
-        instances_lbl->setMinimumSize(QSize(100, 30));
-        instances_lbl->setMaximumSize(QSize(100, 30));
-        instances_lbl->setFont(font1);
-        instances_text = new QLabel(instances);
-        instances_text->setObjectName(QStringLiteral("instances_text"));
-        instances_text->setGeometry(QRect(106, 5, 115, 25));
-        sizePolicy1.setHeightForWidth(instances_text->sizePolicy().hasHeightForWidth());
-        instances_text->setSizePolicy(sizePolicy1);
-        instances_text->setMinimumSize(QSize(115, 25));
-        instances_text->setMaximumSize(QSize(115, 25));
-        instances_text->setAutoFillBackground(false);
-        instances_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+        instancesMesh->setFrameShape(QFrame::Panel);
+        instancesMesh->setFrameShadow(QFrame::Raised);
+        instancesMesh_lbl = new QLabel(instancesMesh);
+        instancesMesh_lbl->setObjectName(QStringLiteral("instancesMesh_lbl"));
+        instancesMesh_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(instancesMesh_lbl->sizePolicy().hasHeightForWidth());
+        instancesMesh_lbl->setSizePolicy(sizePolicy);
+        instancesMesh_lbl->setMinimumSize(QSize(100, 30));
+        instancesMesh_lbl->setMaximumSize(QSize(100, 30));
+        instancesMesh_lbl->setFont(font1);
+        instancesMesh_text = new QLabel(instancesMesh);
+        instancesMesh_text->setObjectName(QStringLiteral("instancesMesh_text"));
+        instancesMesh_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(instancesMesh_text->sizePolicy().hasHeightForWidth());
+        instancesMesh_text->setSizePolicy(sizePolicy1);
+        instancesMesh_text->setMinimumSize(QSize(115, 25));
+        instancesMesh_text->setMaximumSize(QSize(115, 25));
+        instancesMesh_text->setAutoFillBackground(false);
+        instancesMesh_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
 ""));
-        instances_text->setFrameShape(QFrame::NoFrame);
-        instances_text->setFrameShadow(QFrame::Plain);
-        instances_text->setLineWidth(0);
-        instances_text->setMargin(3);
+        instancesMesh_text->setFrameShape(QFrame::NoFrame);
+        instancesMesh_text->setFrameShadow(QFrame::Plain);
+        instancesMesh_text->setLineWidth(0);
+        instancesMesh_text->setMargin(3);
 
-        meshLayout->addWidget(instances);
+        meshLayout->addWidget(instancesMesh);
 
         meshAttributes = new QFrame(layoutWidget2);
         meshAttributes->setObjectName(QStringLiteral("meshAttributes"));
@@ -1231,6 +1268,41 @@ public:
         selectedWater_box->setFrame(false);
 
         meshLayout->addWidget(selectedWater);
+
+        instancesWater = new QFrame(layoutWidget2);
+        instancesWater->setObjectName(QStringLiteral("instancesWater"));
+        sizePolicy.setHeightForWidth(instancesWater->sizePolicy().hasHeightForWidth());
+        instancesWater->setSizePolicy(sizePolicy);
+        instancesWater->setMinimumSize(QSize(225, 35));
+        instancesWater->setMaximumSize(QSize(225, 35));
+        instancesWater->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        instancesWater->setFrameShape(QFrame::Panel);
+        instancesWater->setFrameShadow(QFrame::Raised);
+        instancesWater_lbl = new QLabel(instancesWater);
+        instancesWater_lbl->setObjectName(QStringLiteral("instancesWater_lbl"));
+        instancesWater_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(instancesWater_lbl->sizePolicy().hasHeightForWidth());
+        instancesWater_lbl->setSizePolicy(sizePolicy);
+        instancesWater_lbl->setMinimumSize(QSize(100, 30));
+        instancesWater_lbl->setMaximumSize(QSize(100, 30));
+        instancesWater_lbl->setFont(font1);
+        instancesWater_text = new QLabel(instancesWater);
+        instancesWater_text->setObjectName(QStringLiteral("instancesWater_text"));
+        instancesWater_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(instancesWater_text->sizePolicy().hasHeightForWidth());
+        instancesWater_text->setSizePolicy(sizePolicy1);
+        instancesWater_text->setMinimumSize(QSize(115, 25));
+        instancesWater_text->setMaximumSize(QSize(115, 25));
+        instancesWater_text->setAutoFillBackground(false);
+        instancesWater_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        instancesWater_text->setFrameShape(QFrame::NoFrame);
+        instancesWater_text->setFrameShadow(QFrame::Plain);
+        instancesWater_text->setLineWidth(0);
+        instancesWater_text->setMargin(3);
+
+        meshLayout->addWidget(instancesWater);
 
         waveNumber = new QFrame(layoutWidget2);
         waveNumber->setObjectName(QStringLiteral("waveNumber"));
@@ -1554,65 +1626,6 @@ public:
 
         meshLayout->addWidget(emitter);
 
-        emitterColour = new QFrame(layoutWidget2);
-        emitterColour->setObjectName(QStringLiteral("emitterColour"));
-        emitterColour->setMinimumSize(QSize(225, 35));
-        emitterColour->setMaximumSize(QSize(225, 35));
-        emitterColour->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        emitterColour->setFrameShape(QFrame::NoFrame);
-        emitterColour->setFrameShadow(QFrame::Plain);
-        emitterColour->setLineWidth(0);
-        emitterColour_value = new QDoubleSpinBox(emitterColour);
-        emitterColour_value->setObjectName(QStringLiteral("emitterColour_value"));
-        emitterColour_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(emitterColour_value->sizePolicy().hasHeightForWidth());
-        emitterColour_value->setSizePolicy(sizePolicy);
-        emitterColour_value->setMinimumSize(QSize(86, 25));
-        emitterColour_value->setMaximumSize(QSize(86, 25));
-        emitterColour_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        emitterColour_value->setFrame(false);
-        emitterColour_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        emitterColour_value->setDecimals(3);
-        emitterColour_value->setMinimum(-9999);
-        emitterColour_value->setMaximum(9999);
-        emitterColour_value->setSingleStep(0.05);
-        emitterColour_dial = new QDial(emitterColour);
-        emitterColour_dial->setObjectName(QStringLiteral("emitterColour_dial"));
-        emitterColour_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(emitterColour_dial->sizePolicy().hasHeightForWidth());
-        emitterColour_dial->setSizePolicy(sizePolicy);
-        emitterColour_dial->setMinimumSize(QSize(30, 30));
-        emitterColour_dial->setMaximumSize(QSize(30, 30));
-        emitterColour_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        emitterColour_dial->setMinimum(-10000);
-        emitterColour_dial->setMaximum(10000);
-        emitterColour_box = new QComboBox(emitterColour);
-        emitterColour_box->setObjectName(QStringLiteral("emitterColour_box"));
-        emitterColour_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(emitterColour_box->sizePolicy().hasHeightForWidth());
-        emitterColour_box->setSizePolicy(sizePolicy);
-        emitterColour_box->setMinimumSize(QSize(95, 22));
-        emitterColour_box->setMaximumSize(QSize(90, 22));
-        emitterColour_box->setBaseSize(QSize(90, 25));
-        emitterColour_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        emitterColour_box->setMaxVisibleItems(20);
-        emitterColour_box->setFrame(false);
-
-        meshLayout->addWidget(emitterColour);
-
         emitterMinMax = new QFrame(layoutWidget2);
         emitterMinMax->setObjectName(QStringLiteral("emitterMinMax"));
         emitterMinMax->setMinimumSize(QSize(225, 35));
@@ -1667,6 +1680,7 @@ public:
 "border-right-color: rgb(255, 255, 255);\n"
 "border-style: solid;\n"
 "border-width: 2px;"));
+        emitterMinMax_box->setMaxVisibleItems(20);
         emitterMinMax_box->setFrame(false);
 
         meshLayout->addWidget(emitterMinMax);
@@ -2281,7 +2295,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(2);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2316,14 +2330,18 @@ public:
         selectedTerrain_lbl->setText(QApplication::translate("Tweaker", "Terrain", 0));
         terrainShader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         terrainShader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
+        instancesTerrain_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
+        instancesTerrain_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         reloadTerrain_btn->setText(QApplication::translate("Tweaker", "Reload Terrain", 0));
         TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "PGT", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
         shader_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        instances_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
-        instances_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
+        instancesMesh_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
+        instancesMesh_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         selectedWater_lbl->setText(QApplication::translate("Tweaker", "Water", 0));
+        instancesWater_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
+        instancesWater_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
         particleAmount_lbl->setText(QApplication::translate("Tweaker", "Amount", 0));

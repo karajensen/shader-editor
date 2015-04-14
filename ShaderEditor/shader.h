@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "renderdata.h"
 
 /**
 * Shader used to render a mesh

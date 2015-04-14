@@ -6,6 +6,15 @@
 #include "sceneData.h"
 #include "fragmentlinker.h"
 #include "renderdata.h"
+#include "mesh.h"
+#include "water.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureProcedural.h"
+#include "postprocessing.h"
+#include "emitter.h"
+#include "terrain.h"
+#include "light.h"
 #include "ptree_utilities.h"
 #include "boost/assign.hpp"
 #include "boost/filesystem.hpp"
@@ -280,9 +289,9 @@ bool SceneBuilder::InitialiseMesh(const boost::property_tree::ptree& node, Fragm
 
 void SceneBuilder::InitialiseMeshTextures(MeshData& mesh)
 {
-    for (int i = 0; i < Texture::MAX_TYPES; ++i)
+    for (int i = 0; i < MAX_SLOTS; ++i)
     {
-        const auto type = static_cast<Texture::Type>(i);
+        const auto type = static_cast<TextureSlot>(i);
         const std::string name = mesh.TextureNames().at(type);
         if (!name.empty())
         {

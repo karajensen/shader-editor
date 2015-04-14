@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "scene.h"
+#include "camera.h"
 #include "sceneData.h"
 #include "sceneUpdater.h"
 #include "sceneBuilder.h"
@@ -55,39 +56,35 @@ void Scene::SetPostMap(int index)
     m_data->post->SetPostMap(static_cast<PostProcessing::Map>(index));
 }
 
-void Scene::Tick(float deltatime, const Float3& camera)
+void Scene::Tick(float deltatime, const Camera& camera)
 {
+    const int causticsTexture = m_data->caustics->GetFrame();
+    const Float3& position = camera.Position();
+    const BoundingArea& bounds = camera.GetBounds();
+
     m_data->diagnostics->Tick();
     m_data->caustics->Tick(deltatime);
-    m_updater->Update(camera);
+    m_updater->Update(position);
 
     for (auto& emitter : m_data->emitters)
     {
-        emitter->Tick(deltatime);
+        emitter->Tick(deltatime, position, bounds);
     }
-
-    const auto caustics = m_data->caustics->GetFrame();
 
     for (auto& mesh : m_data->meshes)
     {
-        if (m_data->shaders[mesh->ShaderID()]->HasComponent(Shader::CAUSTICS))
-        {
-            mesh->SetTexture(Texture::CAUSTICS, caustics);
-        }
+        mesh->Tick(position, bounds, causticsTexture);
     }
 
     for (auto& terrain : m_data->terrain)
     {
-        if (m_data->shaders[terrain->ShaderID()]->HasComponent(Shader::CAUSTICS))
-        {
-            terrain->SetTexture(Texture::CAUSTICS, caustics);
-        }
+        terrain->Tick(position, bounds, causticsTexture);
     }
 
-    // Temporary to test scene
-    static float timePassed = 0.0f;
-    timePassed += deltatime;
-    m_data->meshes[1]->Instances()[0].position.y += cos(timePassed) * 0.05f;
+    for (auto& water : m_data->water)
+    {
+        water->Tick(position, bounds, causticsTexture);
+    }
 }
 
 void Scene::SaveSceneToFile()
