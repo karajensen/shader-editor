@@ -90,6 +90,7 @@ private:
     Float3 m_position;                  ///< Camera position in world space
     Float3 m_target;                    ///< Camera Look target
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
+    Float2 m_heightBounds;              ///< The min/max height the camera can move
     bool m_autoMove = false;            ///< Whether to automatically move the camera
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
     std::unique_ptr<BoundingArea> m_bounds; ///< The bounding area in front of the area

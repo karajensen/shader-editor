@@ -14,6 +14,7 @@ namespace
 Camera::Camera() :
     m_initialPos(15.0f, 1.0f, 3.0f),
     m_rotation(0.0f, DegToRad(-75.0f), 0.0f),
+    m_heightBounds(-20.0f, 20.0f),
     m_bounds(std::make_unique<BoundingArea>())
 {
     Reset();
@@ -75,6 +76,9 @@ bool Camera::Update(float deltatime)
     if (m_cameraNeedsUpdate)
     {
         m_cameraNeedsUpdate = false;
+
+        m_position.y = Clamp(m_position.y, 
+            m_heightBounds.x, m_heightBounds.y);
 
         m_world.MakeIdentity();
         m_world.SetPosition(m_position);
