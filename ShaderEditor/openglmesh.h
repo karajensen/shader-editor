@@ -81,6 +81,7 @@ protected:
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
     std::vector<glm::mat4> m_world;             ///< World matrices of the instances
     PreRenderMesh m_preRender = nullptr;        ///< Callback to render instances
+    bool m_updateInstances = false;             ///< Whether a full transform update is required
 };
 
 /**

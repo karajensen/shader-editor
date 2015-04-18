@@ -117,6 +117,7 @@ bool GlMeshData::Initialise()
     glGenBuffers(1, &m_vboID);
     glGenBuffers(1, &m_iboID);
     m_initialised = true;
+    m_updateInstances = true;
 
     if(HasCallFailed())
     {
@@ -167,17 +168,23 @@ bool GlTerrain::Reload()
 
 void GlMesh::Render()
 {
+    assert(m_world.size() == m_mesh.Instances().size());
     RenderInstances(m_mesh.Instances());
-}
-
-void GlWater::Render()
-{
-    RenderInstances(m_water.Instances());
+    m_updateInstances = false;
 }
 
 void GlTerrain::Render()
 {
+    assert(m_world.size() == m_terrain.Instances().size());
     RenderInstances(m_terrain.Instances());
+    m_updateInstances = false;
+}
+
+void GlWater::Render()
+{
+    assert(m_world.size() == m_water.Instances().size());
+    RenderInstances(m_water.Instances());
+    m_updateInstances = false;
 }
 
 void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instances)
@@ -185,7 +192,7 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
     for (unsigned int i = 0; i < instances.size(); ++i)
     {
         const auto& instance = instances[i];
-        if (instance.requiresUpdate)
+        if (instance.requiresUpdate || m_updateInstances)
         {
             if (!instance.rotation.IsZero())
             {
@@ -222,12 +229,12 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
                 world[3][1] = instance.position.y;
                 world[3][2] = instance.position.z;
             }
+        }
 
-            if (instance.enabled && instance.render)
-            {
-                m_preRender(m_world[i]);
-                GlMeshData::Render();
-            }
+        if (instance.enabled && instance.render)
+        {
+            m_preRender(m_world[i]);
+            GlMeshData::Render();
         }
     }
 }

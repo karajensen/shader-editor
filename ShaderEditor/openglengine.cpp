@@ -689,7 +689,7 @@ bool OpenglEngine::UpdateShader(const MeshData& mesh,
             shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
 
-            if (timer >= 0.0f)
+            if (index == WATER_SHADER)
             {
                 shader->SendUniformFloat("timer", &timer, 1);
             }
@@ -949,7 +949,8 @@ void OpenglEngine::ReloadTexture(int index)
 void OpenglEngine::ReloadTerrain(int index)
 {
     const auto& name = m_data->terrain[index]->GetTerrain().Name();
-    m_data->terrain[index]->Reload() ?
-        Logger::LogInfo("Terrain: " + name + " reload successful") :
+    if (!m_data->terrain[index]->Reload())
+    {
         Logger::LogError("Terrain: " + name + " reload failed");
+    }
 }

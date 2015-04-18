@@ -52,7 +52,8 @@ public:
     * @param device The DirectX device interface
     * @param context Direct3D device context
     */
-    void Initialise(ID3D11Device* device, ID3D11DeviceContext* context);
+    void Initialise(ID3D11Device* device, 
+                    ID3D11DeviceContext* context);
 
 protected:
 
@@ -79,6 +80,7 @@ protected:
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
     std::vector<D3DXMATRIX> m_world;            ///< World matrices of the instances
     PreRenderMesh m_preRender = nullptr;        ///< Callback to render a single mesh instance
+    bool m_updateInstances = false;             ///< Whether a full transform update is required
 };
 
 /**

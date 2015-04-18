@@ -182,7 +182,7 @@ private:
     bool UpdateShader(const MeshData& mesh, 
                       const IScene& scene,
                       bool alphaBlend, 
-                      float timer = -1.0f);
+                      float timer = 0.0f);
 
     /**
     * Updates and switches to the main shader the mesh requires

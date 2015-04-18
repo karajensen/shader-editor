@@ -57,16 +57,27 @@ void QtGUI::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Emitter[i].Set(value); };
     }
 
-    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
-    {
-        callbacks.SetTerrain[i] = 
-            [this, i](float value){ m_cache->Terrain[i].Set(value); };
-    }
-
     for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
         callbacks.SetPost[i] = 
             [this, i](float value){ m_cache->Post[i].Set(value); };
+    }
+
+    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    {
+        if (i == TERRAIN_MAX_HEIGHT || i == TERRAIN_MIN_HEIGHT || i == TERRAIN_SCALE)
+        {
+            callbacks.SetTerrain[i] = [this, i](float value)
+            { 
+                m_cache->Terrain[i].Set(value); 
+                m_cache->ReloadTerrain.Set(true);
+            };
+        }
+        else
+        {
+            callbacks.SetTerrain[i] = 
+                [this, i](float value){ m_cache->Terrain[i].Set(value); };
+        }
     }
 
     callbacks.SetParticleAmount =  [this](float index){ m_cache->ParticleAmount.Set(static_cast<int>(index)); };

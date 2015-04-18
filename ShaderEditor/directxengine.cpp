@@ -779,7 +779,7 @@ bool DirectxEngine::UpdateShader(const MeshData& mesh,
             shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
 
-            if (timer >= 0.0f)
+            if (index == WATER_SHADER)
             {
                 shader->UpdateConstantFloat("timer", &timer, 1);
             }
@@ -1066,9 +1066,10 @@ void DirectxEngine::ToggleWireframe()
 void DirectxEngine::ReloadTerrain(int index)
 {
     const auto& name = m_data->terrain[index]->GetTerrain().Name();
-    m_data->terrain[index]->Reload(m_data->context) ?
-        Logger::LogInfo("Terrain: " + name + " reload successful") :
+    if (!m_data->terrain[index]->Reload(m_data->context))
+    {
         Logger::LogError("Terrain: " + name + " reload failed");
+    }
 }
 
 void DirectxEngine::ReloadTexture(int index)

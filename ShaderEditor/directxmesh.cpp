@@ -122,8 +122,11 @@ bool DxMeshData::FillBuffers(ID3D11DeviceContext* context)
     return true;
 }
 
-void DxMeshData::Initialise(ID3D11Device* device, ID3D11DeviceContext* context)
+void DxMeshData::Initialise(ID3D11Device* device, 
+                            ID3D11DeviceContext* context)
 {
+    m_updateInstances = true;
+
     // Create the vertex buffer
     D3D11_BUFFER_DESC vbd;
     ZeroMemory(&vbd, sizeof(vbd));
@@ -183,18 +186,21 @@ void DxMesh::Render(ID3D11DeviceContext* context)
 {
     assert(m_world.size() == m_mesh.Instances().size());
     RenderInstances(context, m_mesh.Instances());
+    m_updateInstances = false;
 }
 
 void DxTerrain::Render(ID3D11DeviceContext* context)
 {
     assert(m_world.size() == m_terrain.Instances().size());
     RenderInstances(context, m_terrain.Instances());
+    m_updateInstances = false;
 }
 
 void DxWater::Render(ID3D11DeviceContext* context)
 {
     assert(m_world.size() == m_water.Instances().size());
     RenderInstances(context, m_water.Instances());
+    m_updateInstances = false;
 }
 
 void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
@@ -203,7 +209,7 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
     for (unsigned int i = 0; i < instances.size(); ++i)
     {
         const auto& instance = instances[i];
-        if (instance.requiresUpdate)
+        if (instance.requiresUpdate || m_updateInstances)
         {
             if (!instance.rotation.IsZero())
             {

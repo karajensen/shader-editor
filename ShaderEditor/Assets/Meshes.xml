@@ -1,68 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Meshes>
-	<Mesh>
-		<Name>sphere.obj</Name>
-		<Shader>diagnostic</Shader>
-		<Instances>0</Instances>
-	</Mesh>
-	<Mesh>
-		<Name>sphere.obj</Name>
-		<Shader>bump|specular|caustics</Shader>
-		<Diffuse>ground.png</Diffuse>
-		<Normal>bump.png</Normal>
-		<Specular>specular.jpg</Specular>
+  <Mesh>
+    <Name>sphere.obj</Name>
+    <Shader>diagnostic</Shader>
+    <Instances>0</Instances>
+  </Mesh>
+  <Mesh>
+    <Name>sphere.obj</Name>
+    <Shader>bump|specular|caustics</Shader>
+    <Diffuse>ground.png</Diffuse>
+    <Normal>bump.png</Normal>
+    <Specular>specular.jpg</Specular>
     <UseCaustics>1</UseCaustics>
-		<Bump>20</Bump>
-		<Specularity>5</Specularity>
-	</Mesh>
-	<Mesh>
-		<Name>mock_skybox.obj</Name>
-		<Shader>flat</Shader>
+    <Bump>20</Bump>
+    <Specularity>5</Specularity>
+  </Mesh>
+  <Mesh>
+    <Name>mock_skybox.obj</Name>
+    <Shader>flat</Shader>
     <SkyBox>1</SkyBox>
-		<BackfaceCulling>0</BackfaceCulling>
-		<Diffuse>sky.png</Diffuse>
-	</Mesh>
-	<Sand>
-		<Name>sand</Name>
-		<Shader>bump|caustics</Shader>
-		<Diffuse>blank.png</Diffuse>
+    <BackfaceCulling>0</BackfaceCulling>
+    <Diffuse>sky.png</Diffuse>
+  </Mesh>
+  <Sand>
+    <Name>sand</Name>
+    <Shader>bump|caustics</Shader>
+    <Diffuse>blank.png</Diffuse>
     <Normal>bump.png</Normal>
     <UseCaustics>1</UseCaustics>
     <Caustics amount="0.5" scale="1.0"></Caustics>
     <Bump>20</Bump>
-		<Grid spacing="10" size="51"/>
-    <UVScale u="0.25" v="0.25"/>
+    <Grid spacing="10" size="51"/>
+    <UVScale u="4.0" v="4.0"/>
     <Height start="-25.0" min="0.0" max="0.25"></Height>
     <HeightMap>heightmap</HeightMap>
-	</Sand>
-	<Water>
-		<Name>water</Name>
-		<BackfaceCulling>0</BackfaceCulling>
-		<Diffuse>water.png</Diffuse>
-		<Normal>water_normal.png</Normal>
-		<Environment>water_environment</Environment>
-		<Grid spacing="10" size="51"/>
+  </Sand>
+  <Water>
+    <Name>water</Name>
+    <BackfaceCulling>0</BackfaceCulling>
+    <Diffuse>water.png</Diffuse>
+    <Normal>water_normal.png</Normal>
+    <Environment>water_environment</Environment>
+    <Grid spacing="10" size="51"/>
     <Height>25.0</Height>
-		<Bump>1</Bump>
-		<Speed>1</Speed>
-		<BumpVelocity x="0" y="0"/>
-		<Fresnal scale="1" bias="0.5" power="2"/>
-		<ReflectionIntensity>1</ReflectionIntensity>
-		<UVScale u="1" v="1"/>
-		<DeepColour r="0.8" g="0.8" b="0.8" a="1"/>
-		<ShallowColour r="1" g="1" b="1" a="0.5"/>
-		<ReflectionTint r="1" g="1" b="1"/>
-		<Wave>
-			<Frequency>1</Frequency>
-			<Amplitude>1</Amplitude>
-			<Phase>1</Phase>
-			<Direction x="-1" z="0"/>
-		</Wave>
-		<Wave>
-			<Frequency>2</Frequency>
-			<Amplitude>0.5</Amplitude>
-			<Phase>1</Phase>
-			<Direction x="-0.7" z="0.7"/>
-		</Wave>
-	</Water>
+    <Bump>1</Bump>
+    <Speed>1</Speed>
+    <BumpVelocity x="0" y="0"/>
+    <Fresnal scale="1" bias="0.5" power="2"/>
+    <ReflectionIntensity>1</ReflectionIntensity>
+    <UVScale u="1" v="1"/>
+    <DeepColour r="0.8" g="0.8" b="0.8" a="1"/>
+    <ShallowColour r="1" g="1" b="1" a="0.5"/>
+    <ReflectionTint r="1" g="1" b="1"/>
+    <Wave>
+      <Frequency>1</Frequency>
+      <Amplitude>1</Amplitude>
+      <Phase>1</Phase>
+      <Direction x="-1" z="0"/>
+    </Wave>
+    <Wave>
+      <Frequency>2</Frequency>
+      <Amplitude>0.5</Amplitude>
+      <Phase>1</Phase>
+      <Direction x="-0.7" z="0.7"/>
+    </Wave>
+  </Water>
 </Meshes>

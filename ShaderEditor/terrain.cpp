@@ -51,8 +51,7 @@ void Terrain::Write(Cache& cache)
     cache.Terrain[TERRAIN_SPECULARITY].SetUpdated(m_specularity);
     cache.Terrain[TERRAIN_MIN_HEIGHT].SetUpdated(m_minHeight);
     cache.Terrain[TERRAIN_MAX_HEIGHT].SetUpdated(m_maxHeight);
-    cache.Terrain[TERRAIN_SCALE_U].SetUpdated(m_uvScale.x);
-    cache.Terrain[TERRAIN_SCALE_V].SetUpdated(m_uvScale.y);
+    cache.Terrain[TERRAIN_SCALE].SetUpdated(m_uvScale.x);
     cache.TerrainShader.SetUpdated(ShaderName());
 }
 
@@ -65,8 +64,7 @@ void Terrain::Read(Cache& cache)
     m_ambience = cache.Terrain[TERRAIN_AMBIENCE].Get();
     m_minHeight = cache.Terrain[TERRAIN_MIN_HEIGHT].Get();
     m_maxHeight = cache.Terrain[TERRAIN_MAX_HEIGHT].Get();
-    m_uvScale.x = cache.Terrain[TERRAIN_SCALE_U].Get();
-    m_uvScale.y = cache.Terrain[TERRAIN_SCALE_V].Get();
+    m_uvScale.x = m_uvScale.y = cache.Terrain[TERRAIN_SCALE].Get();
 }
 
 bool Terrain::Initialise(bool hasNormals, 

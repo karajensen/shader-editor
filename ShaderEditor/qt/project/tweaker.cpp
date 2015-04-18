@@ -62,8 +62,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SPECULARITY, 0.01, 3, "Specularity");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_MIN_HEIGHT, 0.01, 3, "Min Height");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_MAX_HEIGHT, 0.01, 3, "Max Height");
-    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SCALE_U, 0.01, 3, "Scale U");
-    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SCALE_V, 0.01, 3, "Scale V");
+    AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_SCALE, 1.0, 1, "UV Scale");
     m_terrain.Initialise(m_ui.terrainAttributes_box, 
         m_ui.terrainAttributes_value, m_ui.terrainAttributes_dial, terrain);
 
