@@ -7,7 +7,6 @@
 
 namespace
 {
-    const int WATER_ID = 0;
     const bool USE_DIAGNOSTICS = false;
 }
 
@@ -40,7 +39,7 @@ bool SceneUpdater::IsInsidePatch(const Float3& position, int row, int column) co
 {
     const float halfSize = m_patchSize * 0.5f;
     const int instanceID = m_patches[Index(row, column)];
-    const auto& instance = m_data.water[WATER_ID]->Instances()[instanceID];
+    const auto& instance = m_data.water[m_data.oceanIndex]->Instances()[instanceID];
         
     return position.x < instance.position.x + halfSize &&
         position.z < instance.position.z + halfSize &&
@@ -196,7 +195,7 @@ void SceneUpdater::UpdatePatch(int row,
                                const Int2& direction)
 {
     auto& sand = *m_data.terrain[m_data.sandIndex];
-    auto& water = *m_data.water[WATER_ID];
+    auto& water = *m_data.water[m_data.oceanIndex];
 
     // Look at one pace in opposite direction
     const int backIndex = Index(row-direction.x, column-direction.y);
@@ -245,7 +244,7 @@ bool SceneUpdater::Initialise(const Float3& camera)
 
     assert(!m_data.water.empty());
     auto& sand = *m_data.terrain[m_data.sandIndex];
-    auto& water = *m_data.water[WATER_ID];
+    auto& water = *m_data.water[m_data.oceanIndex];
 
     const float sandSize = sand.Size();
     const float waterSize = water.Size();

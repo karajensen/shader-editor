@@ -150,6 +150,14 @@ bool MeshData::ShouldRender(const Instance& instance,
     return centerToMesh.Length() <= (m_radius * scale) + bounds.radius;
 }
 
+void MeshData::PostTick()
+{
+    for (auto& instance : m_instances)
+    {
+        instance.requiresUpdate = false;
+    }
+}
+
 void MeshData::Tick(const Float3& cameraPosition, 
                     const BoundingArea& cameraBounds,
                     int causticsTexture)
@@ -167,6 +175,7 @@ void MeshData::Tick(const Float3& cameraPosition,
             if (m_skybox)
             {
                 instance.position = cameraPosition;
+                instance.requiresUpdate = true;
             }
 
             instance.render = ShouldRender(

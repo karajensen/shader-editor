@@ -32,4 +32,5 @@ struct SceneData
     std::unique_ptr<PostProcessing> post;            ///< Data for post processing
     std::vector<unsigned int> proceduralTextures;    ///< Indices of all editable textures
     unsigned int sandIndex = 0;                      ///< Index for the sand terrain
+    unsigned int oceanIndex = 0;                     ///< Index for the ocean water
 };

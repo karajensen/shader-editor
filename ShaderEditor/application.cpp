@@ -213,6 +213,8 @@ void Application::TickApplication()
 
     GetEngine().Render(*m_scene, m_timer->GetTotalTime());
 
+    m_scene->PostTick();
+
     FadeRenderEngine();
 
     m_mouseDirection.x = 0;

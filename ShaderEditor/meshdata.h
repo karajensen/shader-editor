@@ -30,6 +30,7 @@ public:
         Float3 scale = Float3(1,1,1);    ///< Scaling of the mesh
         bool enabled = true;             ///< Whether to render this instance
         bool render = true;              ///< Whether this mesh is visible
+        bool requiresUpdate = false;     ///< Whether this mesh requires an update
     };
 
     /**
@@ -52,6 +53,11 @@ public:
     void Tick(const Float3& cameraPosition, 
               const BoundingArea& cameraBounds,
               int causticsTexture);
+
+    /**
+    * Post ticks the mesh
+    */
+    void PostTick();
 
     /**
     * Writes the data to a property tree

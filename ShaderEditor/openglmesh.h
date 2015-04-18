@@ -79,6 +79,7 @@ protected:
     std::string m_name;                         ///< Name of the mesh
     const std::vector<float>& m_vertices;       ///< Vertex buffer data
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
+    std::vector<glm::mat4> m_world;             ///< World matrices of the instances
     PreRenderMesh m_preRender = nullptr;        ///< Callback to render instances
 };
 

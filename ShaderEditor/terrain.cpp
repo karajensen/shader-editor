@@ -152,6 +152,7 @@ void Terrain::SetInstance(int index, const Float2& position)
     m_instances[index].position.x = position.x;
     m_instances[index].position.y = m_height;
     m_instances[index].position.z = position.y;
+    m_instances[index].requiresUpdate = true;
 }
 
 void Terrain::AddInstance(const Float2& position)

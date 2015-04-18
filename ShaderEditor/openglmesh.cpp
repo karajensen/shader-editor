@@ -19,6 +19,7 @@ GlMeshData::GlMeshData(const MeshData& data, PreRenderMesh preRender) :
     m_indices(data.Indices()),
     m_preRender(preRender)
 {
+    m_world.resize(data.Instances().size());
 }
 
 GlWater::GlWater(const Water& water, PreRenderMesh preRender) :
@@ -181,32 +182,52 @@ void GlTerrain::Render()
 
 void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instances)
 {
-    for (const Mesh::Instance& instance : instances)
+    for (unsigned int i = 0; i < instances.size(); ++i)
     {
-        if (instance.enabled && instance.render)
+        const auto& instance = instances[i];
+        if (instance.requiresUpdate)
         {
-            glm::mat4 scale;
-            scale[0][0] = instance.scale.x;
-            scale[1][1] = instance.scale.y;
-            scale[2][2] = instance.scale.z;
-
-            glm::mat4 translate;
-            translate[3][0] = instance.position.x;
-            translate[3][1] = instance.position.y;
-            translate[3][2] = instance.position.z;
-            
-            glm::mat4 rotate;
             if (!instance.rotation.IsZero())
             {
+                glm::mat4 scale;
+                scale[0][0] = instance.scale.x;
+                scale[1][1] = instance.scale.y;
+                scale[2][2] = instance.scale.z;
+
+                glm::mat4 translate;
+                translate[3][0] = instance.position.x;
+                translate[3][1] = instance.position.y;
+                translate[3][2] = instance.position.z;
+            
                 glm::mat4 rotateX, rotateY, rotateZ;
                 glm::rotate(rotateX, instance.rotation.x, glm::vec3(1,0,0));
                 glm::rotate(rotateY, instance.rotation.y, glm::vec3(0,1,0));
                 glm::rotate(rotateZ, instance.rotation.z, glm::vec3(0,0,1));
-                rotate = rotateZ * rotateX * rotateY;
+
+                m_world[i] = translate * (rotateZ * rotateX * rotateY) * scale;
+            }
+            else
+            {
+                auto& world = m_world[i];
+                world[0][0] = instance.scale.x;
+                world[0][1] = 0.0f;
+                world[0][2] = 0.0f;
+                world[1][0] = 0.0f;
+                world[1][1] = instance.scale.y;
+                world[1][2] = 0.0f;
+                world[2][0] = 0.0f;
+                world[2][1] = 0.0f;
+                world[2][2] = instance.scale.z;
+                world[3][0] = instance.position.x;
+                world[3][1] = instance.position.y;
+                world[3][2] = instance.position.z;
             }
 
-            m_preRender(translate * rotate * scale);
-            GlMeshData::Render();
+            if (instance.enabled && instance.render)
+            {
+                m_preRender(m_world[i]);
+                GlMeshData::Render();
+            }
         }
     }
 }

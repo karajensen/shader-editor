@@ -25,6 +25,7 @@ void Diagnostic::Tick()
         if (m_diagnostics[i].enabled)
         {
             m_diagnostics[i].position = m_updater[i].position;
+            m_diagnostics[i].requiresUpdate = true;
         }
     }
 }

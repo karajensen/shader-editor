@@ -11,6 +11,11 @@ DxMeshData::DxMeshData(const MeshData& data, PreRenderMesh preRender) :
     m_indices(data.Indices()),
     m_preRender(preRender)
 {
+    m_world.resize(data.Instances().size());
+    for (auto& world : m_world)
+    {
+        D3DXMatrixIdentity(&world);
+    }
 }
 
 DxMeshData::DxMeshData(const std::string& name,
@@ -176,50 +181,72 @@ void DxMeshData::Render(ID3D11DeviceContext* context)
 
 void DxMesh::Render(ID3D11DeviceContext* context)
 {
+    assert(m_world.size() == m_mesh.Instances().size());
     RenderInstances(context, m_mesh.Instances());
 }
 
 void DxTerrain::Render(ID3D11DeviceContext* context)
 {
+    assert(m_world.size() == m_terrain.Instances().size());
     RenderInstances(context, m_terrain.Instances());
 }
 
 void DxWater::Render(ID3D11DeviceContext* context)
 {
+    assert(m_world.size() == m_water.Instances().size());
     RenderInstances(context, m_water.Instances());
 }
 
 void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
                                  const std::vector<MeshData::Instance>& instances)
 {
-    for (const Mesh::Instance& instance : instances)
+    for (unsigned int i = 0; i < instances.size(); ++i)
     {
-        if (instance.enabled && instance.render)
+        const auto& instance = instances[i];
+        if (instance.requiresUpdate)
         {
-            D3DXMATRIX scale;
-            D3DXMatrixIdentity(&scale);
-            scale._11 = instance.scale.x;
-            scale._22 = instance.scale.y;
-            scale._33 = instance.scale.z;
-
-            D3DXMATRIX translate;
-            D3DXMatrixIdentity(&translate);
-            translate._41 = instance.position.x;
-            translate._42 = instance.position.y;
-            translate._43 = instance.position.z;
-
-            D3DXMATRIX rotate;
-            D3DXMatrixIdentity(&rotate);
             if (!instance.rotation.IsZero())
             {
+                D3DXMATRIX scale;
+                D3DXMatrixIdentity(&scale);
+                scale._11 = instance.scale.x;
+                scale._22 = instance.scale.y;
+                scale._33 = instance.scale.z;
+
+                D3DXMATRIX translate;
+                D3DXMatrixIdentity(&translate);
+                translate._41 = instance.position.x;
+                translate._42 = instance.position.y;
+                translate._43 = instance.position.z;
+
                 D3DXMATRIX rotateX, rotateY, rotateZ;
                 D3DXMatrixRotationX(&rotateX, DegToRad(instance.rotation.x)); 
                 D3DXMatrixRotationY(&rotateY, DegToRad(instance.rotation.y)); 
                 D3DXMatrixRotationZ(&rotateZ, DegToRad(instance.rotation.z)); 
-                rotate = rotateZ * rotateX * rotateY;
+
+                m_world[i] = scale * (rotateZ * rotateX * rotateY) * translate;
             }
-            
-            m_preRender(scale * rotate * translate);
+            else
+            {
+                auto& world = m_world[i];
+                world._11 = instance.scale.x;
+                world._12 = 0.0f;
+                world._13 = 0.0f;
+                world._21 = 0.0f;
+                world._22 = instance.scale.y;
+                world._23 = 0.0f;
+                world._31 = 0.0f;
+                world._32 = 0.0f;
+                world._33 = instance.scale.z;
+                world._41 = instance.position.x;
+                world._42 = instance.position.y;
+                world._43 = instance.position.z;
+            }
+        }
+
+        if (instance.enabled && instance.render)
+        {
+            m_preRender(m_world[i]);
             DxMeshData::Render(context);
         }
     }

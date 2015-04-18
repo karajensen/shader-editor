@@ -24,9 +24,11 @@
 	</Mesh>
 	<Sand>
 		<Name>sand</Name>
-		<Shader>bump</Shader>
+		<Shader>bump|caustics</Shader>
 		<Diffuse>blank.png</Diffuse>
     <Normal>bump.png</Normal>
+    <UseCaustics>1</UseCaustics>
+    <Caustics amount="0.5" scale="1.0"></Caustics>
     <Bump>20</Bump>
 		<Grid spacing="10" size="51"/>
     <UVScale u="0.25" v="0.25"/>

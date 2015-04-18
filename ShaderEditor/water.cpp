@@ -231,6 +231,7 @@ void Water::SetInstance(int index, const Float2& position, bool flippedX, bool f
     m_instances[index].position.z = position.y;
     m_instances[index].scale.x = flippedX ? -1.0f : 1.0f;
     m_instances[index].scale.z = flippedZ ? -1.0f : 1.0f;
+    m_instances[index].requiresUpdate = true;
 }
 
 void Water::AddInstance(const Float2& position, bool flippedX, bool flippedZ)

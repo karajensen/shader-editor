@@ -11,7 +11,7 @@ const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
 const float FRUSTRUM_NEAR = 1.0f;
-const float FRUSTRUM_FAR = 2000.0f;
+const float FRUSTRUM_FAR = 1000.0f;
 const float FIELD_OF_VIEW = 60.0f;
 const float RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT);
 

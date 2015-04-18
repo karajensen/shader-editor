@@ -87,6 +87,24 @@ void Scene::Tick(float deltatime, const Camera& camera)
     }
 }
 
+void Scene::PostTick()
+{
+    for (auto& mesh : m_data->meshes)
+    {
+        mesh->PostTick();
+    }
+
+    for (auto& terrain : m_data->terrain)
+    {
+        terrain->PostTick();
+    }
+
+    for (auto& water : m_data->water)
+    {
+        water->PostTick();
+    }
+}
+
 void Scene::SaveSceneToFile()
 {
     m_builder->SaveSceneToFile();
