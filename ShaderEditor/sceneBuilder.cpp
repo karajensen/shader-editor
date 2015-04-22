@@ -220,9 +220,9 @@ bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
                 return false;
             }
         }
-        else if (itr->first == "Mesh")
+        else if (itr->first == "Mesh" || itr->first == "Foliage")
         {
-            if(!InitialiseMesh(node, linker))
+            if(!InitialiseMesh(node, linker, itr->first == "Foliage"))
             {
                 return false;
             }
@@ -276,13 +276,28 @@ bool SceneBuilder::InitialiseTerrain(const boost::property_tree::ptree& node,
     return false;         
 }
 
-bool SceneBuilder::InitialiseMesh(const boost::property_tree::ptree& node, FragmentLinker& linker)
+bool SceneBuilder::InitialiseMesh(const boost::property_tree::ptree& node, 
+                                  FragmentLinker& linker,
+                                  bool isFoliage)
 {                            
+    const auto index = m_data.meshes.size();    
     m_data.meshes.push_back(std::make_unique<Mesh>(node));
-    auto& mesh = *m_data.meshes[m_data.meshes.size()-1];
+    auto& mesh = *m_data.meshes[index];
+
+    const int instanceCount = mesh.GetInitialInstances();
+    if (isFoliage)
+    {
+        // Instances are generated using the scene placer
+        m_data.foliage.push_back(std::make_pair(index, instanceCount));
+    }
+    else
+    {
+        mesh.AddInstances(instanceCount);
+    }
 
     InitialiseMeshTextures(mesh);
     InitialiseMeshShader(mesh, linker);
+
     return mesh.InitialiseFromFile(MESHES_PATH + "//" + mesh.Name(), true, 
         m_data.shaders[mesh.ShaderID()]->HasComponent(Shader::BUMP));
 }
@@ -425,17 +440,28 @@ void SceneBuilder::SaveParticlesToFile()
     SaveXMLFile(root, tree, EMITTERS_NAME, EMITTERS_PATH + SAVED + XML);
 }
 
+bool SceneBuilder::IsFoliage(unsigned int index) const
+{
+    auto isIndex = [index](std::pair<unsigned int, int>& pair)
+    { 
+        return index == pair.first; 
+    };
+
+    return std::find_if(m_data.foliage.begin(), m_data.foliage.end(), isIndex)
+         != m_data.foliage.end();
+}
+
 void SceneBuilder::SaveMeshesToFile()
 {
     boost::property_tree::ptree root, tree;
     std::vector<boost::property_tree::ptree> entries;
 	
-    for(const auto& mesh : m_data.meshes)
+    for (unsigned int i = 0; i < m_data.meshes.size(); ++i)
     {
         boost::property_tree::ptree entry;
-        mesh->Write(entry);
+        m_data.meshes[i]->Write(entry);
         entries.push_back(entry);
-        tree.add_child("Mesh", entries[entries.size()-1]);
+        tree.add_child(IsFoliage(i) ? "Foliage" : "Mesh", entries[entries.size()-1]);
     }
 
     for (unsigned int i = 0; i < m_data.terrain.size(); ++i)

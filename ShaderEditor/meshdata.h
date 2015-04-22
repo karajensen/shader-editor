@@ -150,7 +150,46 @@ public:
     */
     std::string GetRenderedInstances() const;
 
+    /**
+    * @return the number of instances initialised with
+    */
+    int GetInitialInstances() const;
+
+    /**
+    * Adds instances at the world center with default values
+    */
+    void AddInstances(int amount);
+    
+    /**
+    * Clears all currently created instances
+    */
+    void ClearInstances();
+
+    /**
+    * Sets an instance for this mesh
+    * @param index The ID of this instance
+    * @param position The position offset 
+    * @param rotation How much to rotate 
+    * @param scale The size of the mesh
+    */
+    void SetInstance(int index,
+                     const Float3& position,
+                     const Float3& rotation,
+                     float scale);
+
 protected:
+
+    /**
+    * @return whether this mesh renders with caustics
+    */
+    bool UsesCaustics() const;
+
+    std::vector<float> m_vertices;           ///< The vertices constructing this mesh
+    std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
+    std::vector<Instance> m_instances;       ///< Current instances of this mesh
+    int m_vertexComponentCount = 0;          ///< Number of components that make up a vertex
+
+private:
 
     /**
     * Determines the radius surrounding this mesh
@@ -169,28 +208,20 @@ protected:
                       const BoundingArea& bounds);
 
     /**
-    * @return whether this mesh renders with caustics
-    */
-    bool UsesCaustics() const;
-
-    /**
     * Gets a text description of the texture type
     * @param type The type to query for text
     * @return the text description of the type
     */
     static std::string GetTypeDescription(unsigned int type);
 
-    std::vector<float> m_vertices;           ///< The vertices constructing this mesh
-    std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
-    int m_vertexComponentCount = 0;          ///< Number of components that make up a vertex
     std::string m_name;                      ///< Name of the mesh
     bool m_backfacecull = true;              ///< Whether back facing polygons are culled
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
     std::vector<std::string> m_textureNames; ///< Names for each texture used
-    std::vector<Instance> m_instances;       ///< Current instances of this mesh
     int m_visibleInstances = 0;              ///< Number of instances visible this tick
+    int m_initialInstances = 0;              ///< The number of instances on load
     bool m_skybox = false;                   ///< Whether this mesh is a skybox
     bool m_usesCaustics = false;             ///< Whether this mesh supports caustics
     float m_radius = 0.0f;                   ///< The radius of the sphere surrounding the mesh

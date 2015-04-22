@@ -1,16 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - sceneUpdater.cpp
+// Kara Jensen - mail@karajensen.com - scenePlacer.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "sceneUpdater.h"
+#include "scenePlacer.h"
 #include "sceneData.h"
+#include "common.h"
 
 namespace
 {
     const bool USE_DIAGNOSTICS = false;
 }
 
-SceneUpdater::SceneUpdater(SceneData& data) :
+ScenePlacer::ScenePlacer(SceneData& data) :
     m_data(data)
 {
     const int patchAmount = 36;
@@ -22,20 +23,22 @@ SceneUpdater::SceneUpdater(SceneData& data) :
         Logger::LogError("Area patch size unusable");
     }
 
+    m_patchData.resize(patchAmount);
     m_patches.resize(patchAmount);
     m_previous.resize(patchAmount);
+
     m_patchPerRow = static_cast<int>(
         std::sqrt(static_cast<double>(patchAmount)));
 }
 
-SceneUpdater::~SceneUpdater() = default;
+ScenePlacer::~ScenePlacer() = default;
 
-int SceneUpdater::Index(int row, int column) const
+int ScenePlacer::Index(int row, int column) const
 {
     return row * m_patchPerRow + column;
 }
 
-bool SceneUpdater::IsInsidePatch(const Float3& position, int row, int column) const
+bool ScenePlacer::IsInsidePatch(const Float3& position, int row, int column) const
 {
     const float halfSize = m_patchSize * 0.5f;
     const int instanceID = m_patches[Index(row, column)];
@@ -47,7 +50,7 @@ bool SceneUpdater::IsInsidePatch(const Float3& position, int row, int column) co
         position.z >= instance.position.z - halfSize;
 }
 
-Int2 SceneUpdater::GetPatchInside(const Float3& position) const
+Int2 ScenePlacer::GetPatchInside(const Float3& position) const
 {
     for (int r = 0; r < m_patchPerRow; ++r)
     {
@@ -62,15 +65,15 @@ Int2 SceneUpdater::GetPatchInside(const Float3& position) const
     return Int2(NO_INDEX, NO_INDEX);
 }
 
-void SceneUpdater::Update(const Float3& camera)
+void ScenePlacer::Update(const Float3& cameraPosition)
 {
     if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
     {
-        m_patchInside = GetPatchInside(camera);
+        m_patchInside = GetPatchInside(cameraPosition);
     }
-    else if(!IsInsidePatch(camera, m_patchInside.x, m_patchInside.y))
+    else if(!IsInsidePatch(cameraPosition, m_patchInside.x, m_patchInside.y))
     {
-        const Int2 direction(m_patchInside - GetPatchInside(camera));
+        const Int2 direction(m_patchInside - GetPatchInside(cameraPosition));
 
         // Split the direction as calculations will assume 0,1 or 1,0 
         if (abs(direction.x) > 0)
@@ -82,11 +85,11 @@ void SceneUpdater::Update(const Float3& camera)
             ShiftPatches(Int2(0, direction.y));
         }
 
-        m_patchInside = GetPatchInside(camera);
+        m_patchInside = GetPatchInside(cameraPosition);
     }
 }
 
-void SceneUpdater::ShiftPatches(const Int2& direction)
+void ScenePlacer::ShiftPatches(const Int2& direction)
 {
     const int maxIndex = m_patchPerRow - 1;
     m_previous = m_patches;
@@ -185,12 +188,12 @@ void SceneUpdater::ShiftPatches(const Int2& direction)
     }
 }
 
-bool SceneUpdater::IsValid(int index) const
+bool ScenePlacer::IsValid(int index) const
 {
     return index >= 0 && index < static_cast<int>(m_patches.size());
 }
 
-void SceneUpdater::UpdatePatch(int row,
+void ScenePlacer::UpdatePatch(int row,
                                int column,
                                const Int2& direction)
 {
@@ -236,9 +239,12 @@ void SceneUpdater::UpdatePatch(int row,
     const int index = Index(row, column);
     water.SetInstance(m_patches[index], position, xFlipped, zFlipped);
     sand.SetInstance(m_patches[index], position);
+
+    // Update any foliage attached to this patch
+    PlaceFoliage(index);
 }
                                
-bool SceneUpdater::Initialise(const Float3& camera)
+bool ScenePlacer::Initialise(const Float3& camera)
 {
     const float halfPatch = m_patchPerRow / 2.0f;
 
@@ -282,7 +288,9 @@ bool SceneUpdater::Initialise(const Float3& camera)
         }
     }
 
-    // Fill the patches so the current patch is not occluded by terrain
+    // Place meshes over the patches
+    GenerateFoliage();
+
     m_patchInside = GetPatchInside(camera);
     if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
     {
@@ -290,4 +298,92 @@ bool SceneUpdater::Initialise(const Float3& camera)
     }
 
     return true;   
+}
+
+void ScenePlacer::GenerateFoliage()
+{
+    // Reset all the patch data
+    for (Patch& patch : m_patchData)
+    {
+        patch.foliage.clear();
+        patch.rocks.clear();
+    }
+
+    // Create all the instances for the foliage meshes
+    std::vector<MeshKey> meshKeys;
+    for (auto& foliage : m_data.foliage)
+    {
+        unsigned int meshID = foliage.first;
+        const int instances = foliage.second;
+
+        auto& mesh = *m_data.meshes[meshID];
+
+        const int amount = Random::Generate(std::max(0, 
+            instances - m_countRandom), instances + m_countRandom);
+
+        mesh.ClearInstances();
+        mesh.AddInstances(amount);
+
+        for (unsigned int i = 0; i < mesh.Instances().size(); ++i)
+        {
+            const auto index = meshKeys.size();
+            meshKeys.emplace_back();
+            meshKeys[index].index = meshID;
+            meshKeys[index].instance = i;
+        }
+    }
+
+    std::random_shuffle(meshKeys.begin(), meshKeys.end());
+
+    // Assign the foliage to the patches
+    for (MeshKey& key : meshKeys)
+    {
+        const int index = Random::Generate(0, m_patchData.size()-1);
+        m_patchData[index].foliage.push_back(key);
+    }
+
+    // Place the foliage on the rocks
+    for (int ID : m_patches)
+    {
+        PlaceFoliage(ID);
+    }
+}
+
+void ScenePlacer::PlaceFoliage(int ID)
+{
+    const int patchID = m_patches[ID];
+    auto& patchData = m_patchData[patchID];
+
+    const auto& sand = *m_data.terrain[m_data.sandIndex];
+    const auto& sandInstance = sand.GetInstance(patchID);
+
+    const auto& center = sandInstance.position;
+    const float halfSize = m_patchSize * 0.5f;
+    const Float2 minBounds(center.x - halfSize, center.z - halfSize);
+    const Float2 maxBounds(center.x + halfSize, center.z + halfSize);
+
+    const float minRotation = 0.0f;
+    const float maxRotation = DegToRad(360.0f);
+    const float minScale = 5.0f;
+    const float maxScale = 10.0f;
+
+    // Determines the average height at the given point
+    auto GetHeight = [&](float x, float z) -> float
+    {
+        const float localX = ConvertRange(x, minBounds.x, maxBounds.x, 0.0f, m_patchSize);
+        const float localZ = ConvertRange(z, minBounds.y, maxBounds.y, 0.0f, m_patchSize);
+        return -20.0f; //Temporary
+    };
+
+    for (MeshKey& foliage : patchData.foliage)
+    {
+        const float x = Random::Generate(minBounds.x, maxBounds.x);
+        const float z = Random::Generate(minBounds.y, maxBounds.y);
+        const Float3 position(x, GetHeight(x, z), z);
+        const Float3 rotation(0.0f, Random::Generate(minRotation, maxRotation), 0.0f);
+        const float scale = Random::Generate(minScale, maxScale);
+
+        auto& mesh = *m_data.meshes[foliage.index];
+        mesh.SetInstance(foliage.instance, position, rotation, scale);
+    }
 }

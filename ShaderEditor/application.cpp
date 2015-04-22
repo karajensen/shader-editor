@@ -125,11 +125,11 @@ void Application::HandleKeyDown()
     }
     if (IsKeyDown('W'))
     {
-        m_camera->Forward(-deltaTime);
+        m_camera->Forward(deltaTime);
     }
     if (IsKeyDown('S'))
     {
-        m_camera->Forward(deltaTime);
+        m_camera->Forward(-deltaTime);
     }
     if (IsKeyDown('A'))
     {

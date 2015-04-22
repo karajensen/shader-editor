@@ -16,7 +16,8 @@ MeshData::MeshData(const boost::property_tree::ptree& node)
     m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
     m_skybox = GetValueOptional<bool>(node, false, "SkyBox");
     m_shaderName = GetValueOptional<std::string>(node, "", "Shader");
-    m_usesCaustics = GetValueOptional<bool>(node, false, "UseCaustics");
+    m_usesCaustics = m_shaderName.find("caustic") != NO_INDEX;
+    m_initialInstances = GetValueOptional(node, 0, "Instances");
 
     for (int i = 0; i < MAX_SLOTS; ++i)
     {
@@ -31,6 +32,7 @@ void MeshData::Write(boost::property_tree::ptree& node) const
     AddValueOptional(node, "Shader", m_shaderName, std::string());
     AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
     AddValueOptional(node, "SkyBox", m_skybox ? 1 : 0, 0);
+    AddValueOptional(node, "Instances", m_initialInstances, 0);
 
     for (int i = 0; i < MAX_SLOTS; ++i)
     {
@@ -198,4 +200,35 @@ std::string MeshData::GetRenderedInstances() const
 {
     return std::to_string(m_visibleInstances) + " / " +
         std::to_string(m_instances.size());
+}
+
+void MeshData::ClearInstances()
+{
+    m_instances.clear();
+}
+
+int MeshData::GetInitialInstances() const
+{
+    return m_initialInstances;
+}
+
+void MeshData::AddInstances(int amount)
+{
+    for (int i = 0; i < amount; ++i)
+    {
+        m_instances.emplace_back();
+    }
+}
+
+void MeshData::SetInstance(int index,
+                           const Float3& position,
+                           const Float3& rotation,
+                           float scale)
+{
+    m_instances[index].position = position;
+    m_instances[index].rotation = rotation;
+    m_instances[index].scale.x = scale;
+    m_instances[index].scale.y = scale;
+    m_instances[index].scale.z = scale;
+    m_instances[index].requiresUpdate = true;
 }

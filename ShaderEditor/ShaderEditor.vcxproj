@@ -52,7 +52,7 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="sceneBuilder.cpp" />
-    <ClCompile Include="sceneUpdater.cpp" />
+    <ClCompile Include="scenePlacer.cpp" />
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="textureProcedural.cpp" />
     <ClCompile Include="qt\project\editor.cpp" />
@@ -109,7 +109,7 @@
     <ClInclude Include="postprocessing.h" />
     <ClInclude Include="sceneBuilder.h" />
     <ClInclude Include="sceneData.h" />
-    <ClInclude Include="sceneUpdater.h" />
+    <ClInclude Include="scenePlacer.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="textureProcedural.h" />
     <ClInclude Include="ptree_utilities.h" />

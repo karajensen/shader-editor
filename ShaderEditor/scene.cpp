@@ -5,7 +5,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "sceneData.h"
-#include "sceneUpdater.h"
+#include "scenePlacer.h"
 #include "sceneBuilder.h"
 
 Scene::Scene() = default;
@@ -64,7 +64,7 @@ void Scene::Tick(float deltatime, const Camera& camera)
 
     m_data->diagnostics->Tick();
     m_data->caustics->Tick(deltatime);
-    m_updater->Update(position);
+    m_placer->Update(position);
 
     for (auto& emitter : m_data->emitters)
     {
@@ -119,7 +119,7 @@ bool Scene::Initialise(const Float3& camera)
 {
     m_data = std::make_unique<SceneData>();
     m_builder = std::make_unique<SceneBuilder>(*m_data);
-    m_updater = std::make_unique<SceneUpdater>(*m_data);
+    m_placer = std::make_unique<ScenePlacer>(*m_data);
 
     if (m_builder->Initialise())
     {
@@ -129,15 +129,7 @@ bool Scene::Initialise(const Float3& camera)
         {
             m_data->diagnostics->AddInstance(*light, scale);
         }
-
-        // To prevent unnecessary shader switching, sort by shader used
-        std::sort(m_data->meshes.begin(), m_data->meshes.end(), 
-            [](const std::unique_ptr<Mesh>& m1, const std::unique_ptr<Mesh>& m2)->bool
-            {
-                return m1->ShaderID() < m2->ShaderID();
-            });
-
-        return m_updater->Initialise(camera);
+        return m_placer->Initialise(camera);
     }
     return false;
 }

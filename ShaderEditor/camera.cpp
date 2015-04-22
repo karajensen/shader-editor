@@ -23,7 +23,7 @@ Camera::Camera() :
 void Camera::Forward(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_position += m_world.Forward() * value * MOVE_SPEED;
+    m_position -= m_world.Forward() * value * MOVE_SPEED;
 }
 
 void Camera::Up(float value)
@@ -70,7 +70,7 @@ bool Camera::Update(float deltatime)
 {
     if (m_autoMove)
     {
-        Forward(-deltatime);
+        Forward(deltatime);
     }
 
     if (m_cameraNeedsUpdate)
@@ -105,7 +105,7 @@ void Camera::GenerateBounds()
     const float halfHeight = height * 0.5f;
     const float halfWidth = width * 0.5f;
 
-    const Float3 forward = m_world.Forward();
+    const Float3 forward = -m_world.Forward();
     const Float3 nearPoint = m_position + (forward * FRUSTRUM_NEAR);
     const Float3 farPoint = m_position + (forward * FRUSTRUM_FAR);
 

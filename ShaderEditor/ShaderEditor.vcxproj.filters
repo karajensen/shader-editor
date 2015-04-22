@@ -183,13 +183,13 @@
     <ClCompile Include="grid.cpp">
       <Filter>Elements</Filter>
     </ClCompile>
-    <ClCompile Include="sceneUpdater.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="qtGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="appGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scenePlacer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -356,9 +356,6 @@
     <ClInclude Include="sceneData.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="sceneUpdater.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="qtGUI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -366,6 +363,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="int2.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scenePlacer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

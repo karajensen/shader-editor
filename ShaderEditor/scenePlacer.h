@@ -1,11 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - sceneUpdater.h
+// Kara Jensen - mail@karajensen.com - scenePlacer.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #include "float3.h"
 #include "int2.h"
+#include "boost/noncopyable.hpp"
 #include <vector>
 
 struct SceneData;
@@ -15,7 +16,7 @@ struct SceneData;
 * Holds information about the area which consists of patches of tiled water/sand
 * Assumes water and sand patches are aligned and the same size
 */
-class SceneUpdater
+class ScenePlacer : boost::noncopyable
 {
 public:
 
@@ -23,12 +24,12 @@ public:
     * Constructor
     * @param data Data for manipulating the scene
     */
-    SceneUpdater(SceneData& data);
+    ScenePlacer(SceneData& data);
 
     /**
     * Destructor
     */
-    ~SceneUpdater();
+    ~ScenePlacer();
 
     /**
     * Initialises the scene
@@ -41,15 +42,9 @@ public:
     * Updates the scene
     * @param camera The position of the camera
     */
-    void Update(const Float3& camera);
+    void Update(const Float3& cameraPosition);
 
 private:
-
-    /**
-    * Prevent copying
-    */
-    SceneUpdater(const SceneUpdater&) = delete;
-    SceneUpdater& operator=(const SceneUpdater&) = delete;
 
     /**
     * Updates the patch to a new position
@@ -95,10 +90,41 @@ private:
     */
     void ShiftPatches(const Int2& direction);
 
-    SceneData& m_data;           ///< Data for manipulating the scene
-    int m_patchPerRow = 0;       ///< The number of patches per row of the area
-    std::vector<int> m_patches;  ///< The indices of the sand/water for each area patch
-    std::vector<int> m_previous; ///< Buffer for reorganising the patches
-    Int2 m_patchInside;          ///< The patch the camera is currently inside
-    float m_patchSize = 0.0f;    ///< The offset between sand/water patches
-};                     
+    /**
+    * Assigns foliage and rocks to all the patches
+    */
+    void GenerateFoliage();
+
+    /**
+    * Places the assigned foliage on the patch
+    * @param patchID The ID of the patch to update
+    */
+    void PlaceFoliage(int ID);
+
+    /**
+    * Key for obtaining the mesh instance assigned to a patch
+    */
+    struct MeshKey
+    {
+        int index = 0;       ///< Mesh ID
+        int instance = 0;    ///< Mesh Instance ID
+    };
+
+    /**
+    * Holds information on what meshes exist inside the patch
+    */
+    struct Patch
+    {
+        std::vector<MeshKey> rocks;     ///< Data for what rocks to use
+        std::vector<MeshKey> foliage;   ///< Data for what foliage to use
+    };
+
+    SceneData& m_data;              ///< Data for manipulating the scene
+    int m_patchPerRow = 0;          ///< The number of patches per row of the area
+    int m_countRandom = 5;          ///< Instance count to vary for foliage
+    float m_patchSize = 0.0f;       ///< The offset between sand/water patches
+    std::vector<int> m_patches;     ///< The current ordering of the patches
+    std::vector<int> m_previous;    ///< Buffer for reorganising the patches
+    std::vector<Patch> m_patchData; ///< Holds information about what is in a patch
+    Int2 m_patchInside;       ///< The patch the camera is currently inside
+};

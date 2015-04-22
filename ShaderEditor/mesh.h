@@ -85,5 +85,4 @@ private:
     float m_causticsScale = 1.0f;      ///< Scale of the caustics texture
     float m_specularity = 1.0f;        ///< Brightness of the specular highlights
     float m_ambience = 1.0f;           ///< Ambient light multiplier
-    int m_initialInstances = 0;        ///< The number of instances on load
 };

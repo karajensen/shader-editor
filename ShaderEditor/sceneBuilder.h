@@ -128,9 +128,12 @@ private:
     * Initialises a mesh for the scene
     * @param node The mesh data to initialise
     * @param linker The fragment linker used to generate shaders
+    * @param isFoliage whether this mesh is considered foliage in the scene
     * @return if initialization was successfull
     */
-    bool InitialiseMesh(const boost::property_tree::ptree& node, FragmentLinker& linker);
+    bool InitialiseMesh(const boost::property_tree::ptree& node, 
+                        FragmentLinker& linker, 
+                        bool isFoliage);
 
     /**
     * Initialises terrain for the scene
@@ -173,5 +176,10 @@ private:
                        const std::string& shadername, 
                        const std::string& meshName);
 
-    SceneData& m_data;         ///< The scene to build
+    /**
+    * @return whether the mesh at the given index is considered foliage
+    */
+    bool IsFoliage(unsigned int index) const;
+
+    SceneData& m_data; ///< The scene to build
 };                     

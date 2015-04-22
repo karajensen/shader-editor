@@ -12,9 +12,6 @@
 Mesh::Mesh(const boost::property_tree::ptree& node) :
     MeshData(node)
 {
-    m_initialInstances = GetValueOptional(node, 1, "Instances");
-    m_instances.resize(m_initialInstances);
-
     m_causticsAmount = GetAttributeOptional<float>(node, "Caustics", "amount", 1.0f);
     m_causticsScale = GetAttributeOptional<float>(node, "Caustics", "scale", 1.0f);
     m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
@@ -29,9 +26,12 @@ void Mesh::Write(boost::property_tree::ptree& node) const
     AddValueOptional(node, "Bump", m_bump, 0.0f);
     AddValueOptional(node, "Ambience", m_ambience, 1.0f);
     AddValueOptional(node, "Specularity", m_specularity, 0.0f);
-    AddValueOptional(node, "Instances", m_initialInstances, 1);
-    AddValueOptional(node, "Caustics.<xmlattr>.amount", m_causticsAmount, 1.0f);
-    AddValueOptional(node, "Caustics.<xmlattr>.scale", m_causticsScale, 1.0f);
+
+    if (UsesCaustics())
+    {
+        node.add("Caustics.<xmlattr>.amount", m_causticsAmount);
+        node.add("Caustics.<xmlattr>.scale", m_causticsScale);
+    }
 }
 
 void Mesh::Write(Cache& cache)
