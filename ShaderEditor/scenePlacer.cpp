@@ -116,7 +116,7 @@ void ScenePlacer::ShiftPatches(const Int2& direction)
         // Update the new position of the new top row
         for (int c = 0; c < m_patchPerRow; ++c)
         {
-            UpdatePatch(0, c, Int2(-1.0, 0.0));
+            UpdatePatch(0, c, Int2(-1, 0));
         }
     }
     else if (direction.x < 0)
@@ -139,7 +139,7 @@ void ScenePlacer::ShiftPatches(const Int2& direction)
         // Update the new position of the new top row
         for (int c = 0; c < m_patchPerRow; ++c)
         {
-            UpdatePatch(maxIndex, c, Int2(1.0, 0.0));
+            UpdatePatch(maxIndex, c, Int2(1, 0));
         }
     }
     else if (direction.y > 0)
@@ -162,7 +162,7 @@ void ScenePlacer::ShiftPatches(const Int2& direction)
         // Update the new position of the new left row
         for (int r = 0; r < m_patchPerRow; ++r)
         {
-            UpdatePatch(r, 0, Int2(0.0, -1.0));
+            UpdatePatch(r, 0, Int2(0, -1));
         }
     }
     else if (direction.y < 0) 
@@ -185,7 +185,7 @@ void ScenePlacer::ShiftPatches(const Int2& direction)
         // Update the new position of the new top row
         for (int r = 0; r < m_patchPerRow; ++r)
         {
-            UpdatePatch(r, maxIndex, Int2(0.0, 1.0));
+            UpdatePatch(r, maxIndex, Int2(0, 1));
         }
     }
 }
