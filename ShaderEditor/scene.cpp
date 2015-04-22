@@ -119,7 +119,6 @@ bool Scene::Initialise(const Float3& camera)
 {
     m_data = std::make_unique<SceneData>();
     m_builder = std::make_unique<SceneBuilder>(*m_data);
-    m_placer = std::make_unique<ScenePlacer>(*m_data);
 
     if (m_builder->Initialise())
     {
@@ -129,6 +128,8 @@ bool Scene::Initialise(const Float3& camera)
         {
             m_data->diagnostics->AddInstance(*light, scale);
         }
+
+        m_placer = std::make_unique<ScenePlacer>(*m_data);
         return m_placer->Initialise(camera);
     }
     return false;

@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "float3.h"
+#include "float3"
 #include "int2.h"
-#include "boost/noncopyable.hpp"
 #include <vector>
 
+class Terrain;
+class Water;
 struct SceneData;
 
 /**
@@ -16,7 +17,7 @@ struct SceneData;
 * Holds information about the area which consists of patches of tiled water/sand
 * Assumes water and sand patches are aligned and the same size
 */
-class ScenePlacer : boost::noncopyable
+class ScenePlacer
 {
 public:
 
@@ -44,7 +45,18 @@ public:
     */
     void Update(const Float3& cameraPosition);
 
+    /**
+    * Resets the patches including foliage and emitter placement
+    */
+    void ResetPatches();
+
 private:
+
+    /**
+    * Prevent copying
+    */
+    ScenePlacer(const ScenePlacer&) = delete;
+    ScenePlacer& operator=(const ScenePlacer&) = delete;
 
     /**
     * Updates the patch to a new position
@@ -55,11 +67,6 @@ private:
     void UpdatePatch(int row,
                      int column,
                      const Int2& direction);
-
-    /**
-    * @return whether the index is a valid patch
-    */
-    bool IsValid(int index) const;
 
     /**
     * Determines which patch the positin is inside
@@ -93,13 +100,26 @@ private:
     /**
     * Assigns foliage and rocks to all the patches
     */
-    void GenerateFoliage();
+    void GeneratePatchData();
 
     /**
     * Places the assigned foliage on the patch
-    * @param patchID The ID of the patch to update
+    * @param instance The instance ID to update
     */
-    void PlaceFoliage(int ID);
+    void PlaceFoliage(int instanceID);
+
+    /**
+    * Updates any data stored for the patch
+    * @param instance The instance ID to update
+    */
+    void UpdatePatchData(int instanceID);
+
+    /**
+    * Determines the approximate height at the given coordinates
+    * @param patchID The ID of the patch to update
+    * @param x,z The coordinates to get the height at
+    */
+    float GetPatchHeight(int instanceID, float x, float z) const;
 
     /**
     * Key for obtaining the mesh instance assigned to a patch
@@ -115,16 +135,20 @@ private:
     */
     struct Patch
     {
+        Float2 minBounds;            ///< Maximum global coordinates of the patch 
+        Float2 maxBounds;            ///< Minimum global coordinates of the patch
         std::vector<MeshKey> rocks;     ///< Data for what rocks to use
         std::vector<MeshKey> foliage;   ///< Data for what foliage to use
     };
 
     SceneData& m_data;              ///< Data for manipulating the scene
+    Terrain& m_sand;                ///< Main Sand terrain mesh
+    Water& m_ocean;                 ///< Main Ocean terran mesh
     int m_patchPerRow = 0;          ///< The number of patches per row of the area
     int m_countRandom = 5;          ///< Instance count to vary for foliage
     float m_patchSize = 0.0f;       ///< The offset between sand/water patches
-    std::vector<int> m_patches;     ///< The current ordering of the patches
-    std::vector<int> m_previous;    ///< Buffer for reorganising the patches
-    std::vector<Patch> m_patchData; ///< Holds information about what is in a patch
-    Int2 m_patchInside;       ///< The patch the camera is currently inside
+    std::vector<int> m_patches;     ///< The current ordering of the patches; holds the instance ID
+    std::vector<int> m_previous;    ///< Buffer for reorganising the patches; holds the instance ID
+    std::vector<Patch> m_patchData; ///< Holds patch data; key is the instance ID held in m_patches
+    Int2 m_patchInside;             ///< The patch the camera is currently inside
 };

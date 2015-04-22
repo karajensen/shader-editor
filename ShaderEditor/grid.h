@@ -11,13 +11,36 @@
 */
 class Grid : public MeshData
 {
-protected:
+public:
 
     /**
     * Constructor
     * @param node The data to intialize the mesh with
     */
     Grid(const boost::property_tree::ptree& node);
+
+    /**
+    * @return the size of the grid
+    * @note only valid for grids with the same rows/column size
+    */
+    float Size() const;
+
+    /**
+    * @return the height at the given row/column
+    */
+    float GetHeight(int row, int column) const;
+
+    /**
+    * @return the number of rows of the grid
+    */
+    int Rows() const;
+
+    /**
+    * @return the number of columns of the grid
+    */
+    int Columns() const;
+
+protected:
 
     /**
     * Writes the data to a property tree
@@ -46,32 +69,9 @@ protected:
     void SetHeight(int row, int column, float height);
 
     /**
-    * @return the height at the given row/column
-    */
-    float GetHeight(int row, int column) const;
-
-    /**
-    * @return the number of rows of the grid
-    */
-    int Rows() const;
-
-    /**
-    * @return the number of columns of the grid
-    */
-    int Columns() const;
-
-    /**
     * Determines the normals for the grid
     */
     void RecalculateNormals();
-
-public:
-
-    /**
-    * @return the size of the grid
-    * @note only valid for grids with the same rows/column size
-    */
-    float Size() const;
 
 private:
 
