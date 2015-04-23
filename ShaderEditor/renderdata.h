@@ -11,7 +11,9 @@ const int WINDOW_HEIGHT = 600;
 const int MULTISAMPLING_COUNT = 4;
 const int MAX_ANISOTROPY = 16;
 const float FRUSTRUM_NEAR = 1.0f;
-const float FRUSTRUM_FAR = 1000.0f;
+const float FRUSTRUM_FAR = 1500.0f; // Minimum value for skybox
+const float FRUSTRUM_BOUNDS_NEAR = 0.0f;
+const float FRUSTRUM_BOUNDS_FAR = 1000.0f;
 const float FIELD_OF_VIEW = 60.0f;
 const float RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT);
 
@@ -29,21 +31,18 @@ const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
 const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 
 /**
-* Number of textures attached to the render targets
-* Scene Target 0: scene (rgb)
-* Scene Target 1: normals (rgb) / depth (a)
-* Effects Target 0: scene (rgb) / bloom (a)
-* Blur Target 0: scene (rgb) / bloom (a)
+* Data for the render targets and attached textures
 */
-enum TargetTextures
+enum RenderTargets
 {
-    SCENE_TEXTURES = 2,
-    EFFECTS_TEXTURES = 1,
-    BLUR_TEXTURES = 1,
-    SCENE_ID = 0,
-    NORMAL_ID = 1,
-    BLUR_ID = 0,
-};
+    MAX_TARGETS = 2,      ///< Maximum used multiple textures to a target
+    SCENE_TEXTURES = 2,   ///< Number of textures attached to the scene target
+    EFFECTS_TEXTURES = 1, ///< Number of textures attached to the effects target
+    BLUR_TEXTURES = 1,    ///< Number of textures attached to the effects target
+    SCENE_ID = 0,         ///< ID of the texture displaying the scene
+    DEPTH_ID = 1,         ///< ID of the texture displaying the depth information
+    BLUR_ID = 0,          ///< ID of the texture displaying the blur
+};                        
 
 /**
 * Available render engines

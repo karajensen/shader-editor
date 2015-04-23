@@ -144,7 +144,6 @@ const MeshData::Instance& MeshData::GetInstance(int index) const
 }
 
 bool MeshData::ShouldRender(const Instance& instance,
-                            const Float3& position, 
                             const BoundingArea& bounds)
 {
     const float scale = std::max(std::max(instance.scale.x, instance.scale.y), instance.scale.z);
@@ -180,8 +179,7 @@ void MeshData::Tick(const Float3& cameraPosition,
                 instance.requiresUpdate = true;
             }
 
-            instance.render = ShouldRender(
-                instance, cameraPosition, cameraBounds);
+            instance.render = ShouldRender(instance, cameraBounds);
 
             if (instance.render)
             {

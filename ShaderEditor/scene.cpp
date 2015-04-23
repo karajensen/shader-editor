@@ -68,7 +68,7 @@ void Scene::Tick(float deltatime, const Camera& camera)
 
     for (auto& emitter : m_data->emitters)
     {
-        emitter->Tick(deltatime, position, bounds);
+        emitter->Tick(deltatime, bounds);
     }
 
     for (auto& mesh : m_data->meshes)

@@ -286,7 +286,9 @@ void AppGUI::UpdateEmitter()
     else if(m_selectedEmitter >= 0 && 
             m_selectedEmitter < static_cast<int>(m_scene.Emitters().size()))
     {
-        m_data.emitters[m_selectedEmitter]->Read(*m_cache);
+        auto& emitter = *m_data.emitters[m_selectedEmitter];
+        emitter.Read(*m_cache);
+        m_cache->EmitterInstances.SetUpdated(emitter.GetRenderedInstances());
     }
 
     if (m_cache->PauseEmission.Get() && m_selectedEmitter != NO_INDEX)

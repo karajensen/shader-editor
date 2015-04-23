@@ -173,7 +173,7 @@ private:
     /**
     * Updates and switches to main shader the water requires
     * @param water The water currently rendering
-    * @param lights All lighting in the scene
+    * @param scene Data for the scene to render
     * @param timer The time passed since scene start
     * @return whether the mesh can now be rendered
     */
@@ -183,9 +183,12 @@ private:
 
     /**
     * Updates and switches to the shader for an emitter
+    * @param emitter The emitter to render
+    * @param scene Data for the scene to render
     * @return whether the emitter can now be rendered
     */
-    bool UpdateShader(const Emitter& emitter);
+    bool UpdateShader(const Emitter& emitter,
+                      const IScene& scene);
 
     /**
     * Updates the shader for a particle per instance
@@ -250,8 +253,9 @@ private:
 
     /**
     * Renders all emitters
+    * @param scene The scene to render
     */
-    void RenderEmitters();
+    void RenderEmitters(const IScene& scene);
 
     /**
     * Renders the scene meshes

@@ -9,12 +9,11 @@ out vec4 out_Color;
 
 uniform sampler2D SceneSampler;
 uniform sampler2D BlurSampler;
-uniform sampler2DMS NormalSampler;
+uniform sampler2DMS DepthSampler;
 
 uniform float bloomIntensity;
 uniform float finalMask;
 uniform float sceneMask;
-uniform float normalMask;
 uniform float depthMask;
 uniform float blurSceneMask;
 uniform float depthOfFieldMask;
@@ -40,8 +39,7 @@ void main(void)
 
     // Normals/Depth
     ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
-    vec4 normal = texelFetch(NormalSampler, uvs, 0);
-    float depth = normal.a;
+    float depth = texelFetch(DepthSampler, uvs, 0).r;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;
@@ -75,7 +73,6 @@ void main(void)
     // Masking the selected texture
     out_Color.rgb = postScene * finalMask;
     out_Color.rgb += scene.rgb * sceneMask;
-    out_Color.rgb += normal.rgb * normalMask;
     out_Color.rgb += depth * depthMask;
     out_Color.rgb += blur.rgb * blurSceneMask;
     out_Color.rgb += depthOfField * depthOfFieldMask;

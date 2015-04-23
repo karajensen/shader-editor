@@ -25,7 +25,6 @@ public:
     {
         FINAL_MAP,
         SCENE_MAP,
-        NORMAL_MAP,
         DEPTH_MAP,
         BLUR_MAP,
         DOF_MAP,

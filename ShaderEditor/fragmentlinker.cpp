@@ -34,7 +34,7 @@ bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& po
     m_defines["MAX_WAVES"] = std::to_string(Water::GetMaxWaves());
     m_defines["SCENE_TEXTURES"] = std::to_string(SCENE_TEXTURES);
     m_defines["ID_COLOUR"] = std::to_string(SCENE_ID);
-    m_defines["ID_NORMAL"] = std::to_string(NORMAL_ID);
+    m_defines["ID_DEPTH"] = std::to_string(DEPTH_ID);
     m_defines["DIAGNOSTIC_LIGHT"] = "10.0, 10.0, 0.0";
     m_defines["WEIGHT0"] = std::to_string(post.BlurWeight(0));
     m_defines["WEIGHT1"] = std::to_string(post.BlurWeight(1));

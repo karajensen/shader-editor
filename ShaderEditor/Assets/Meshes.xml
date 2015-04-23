@@ -5,11 +5,11 @@
     <Shader>diagnostic</Shader>
   </Mesh>
   <Mesh>
-    <Name>mock_skybox.obj</Name>
+    <Name>skybox.obj</Name>
     <Shader>flat</Shader>
     <SkyBox>1</SkyBox>
     <BackfaceCulling>0</BackfaceCulling>
-    <Diffuse>sky.png</Diffuse>
+    <Diffuse>skybox.png</Diffuse>
     <Instances>1</Instances>
   </Mesh>
   <Foliage>

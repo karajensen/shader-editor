@@ -108,7 +108,5 @@ void main(void)
     endif
     out_Color[ID_COLOUR].rgb *= meshAmbience;
     out_Color[ID_COLOUR].a = 1.0;
-
-    out_Color[ID_NORMAL].rgb = normal;
-    out_Color[ID_NORMAL].a = ex_Depth;
+    out_Color[ID_DEPTH] = vec4(ex_Depth, ex_Depth, ex_Depth, 1.0);
 }

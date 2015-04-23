@@ -79,7 +79,5 @@ void main(void)
     out_Color[ID_COLOUR] = vec4(diffuseTex * diffuse, 1.0);
     out_Color[ID_COLOUR] *= (saturate(dot(vertToCamera, normal))*(deepColor-shallowColor))+shallowColor;
     out_Color[ID_COLOUR].rgb += reflectionTex.rgb * reflectionTint * reflectionIntensity * fresnalFactor;
-
-    out_Color[ID_NORMAL].rgb = normal;
-    out_Color[ID_NORMAL].a = ex_Depth;
+    out_Color[ID_DEPTH] = vec4(ex_Depth, ex_Depth, ex_Depth, 1.0);
 }

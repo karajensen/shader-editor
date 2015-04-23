@@ -29,11 +29,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_pauseEmission.Initialise(m_ui.pauseEmission_btn, m_callbacks.PauseEmission);
     m_lightsOnly.Initialise(m_ui.light_render_only_btn, m_callbacks.RenderLightsOnly);
 
-    m_ui.particleAmount_value->setMinimum(0.0);
-    m_ui.particleAmount_value->setMaximum(500.0);
-    m_particleAmount.Initialise(1.0, 0, m_ui.particleAmount_value,
-        m_ui.particleAmount_dial, m_callbacks.SetParticleAmount);
-
     m_ui.waveNumber_value->setMinimum(0.0);
     m_selectedWave.Initialise(1.0, 0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
@@ -140,9 +135,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_DIR_X, 0.01, 3, "Direction X");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_DIR_Y, 0.01, 3, "Direction Y");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_DIR_Z, 0.01, 3, "Direction Z");
-    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_X, 0.1, 3, "Position X");
-    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_Y, 0.1, 3, "Position Y");
-    AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_POS_Z, 0.1, 3, "Position Z");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_R, 0.01, 3, "Tint R");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_G, 0.01, 3, "Tint G");
     AddEntry(emitter, m_callbacks.SetEmitter, EMITTER_TINT_B, 0.01, 3, "Tint B");
@@ -160,6 +152,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_FREQ, 0.01, 3, "Min Freq");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAVE, 0.01, 3, "Max Wave Sp");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAVE, 0.01, 3, "Min Wave Sp");
+    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAIT, 0.01, 3, "Max Wait Time");
+    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAIT, 0.01, 3, "Min Wait Time");
     m_emitterMinMax.Initialise(m_ui.emitterMinMax_box, 
         m_ui.emitterMinMax_value, m_ui.emitterMinMax_dial, emitterMinMax);
 
@@ -217,6 +211,12 @@ void Tweaker::SetFramesPerSec(const std::string& fps)
 {
     m_ui.fps_text->setText(QString(fps.c_str()));
     m_ui.fps_text->update();
+}
+
+void Tweaker::SetEmitterInstanceCount(const std::string& count)
+{
+    m_ui.instancesEmitter_text->setText(QString(count.c_str()));
+    m_ui.instancesEmitter_text->update();
 }
 
 void Tweaker::SetMeshInstanceCount(const std::string& count)
@@ -382,11 +382,6 @@ void Tweaker::InitialiseMeshes(int selected,
         m_selectedMesh.Initialise(m_ui.selectedMesh_box,
             selected, meshes, m_callbacks.SetSelectedMesh);
     }
-}
-
-void Tweaker::SetParticleAmount(int amount)
-{
-    m_particleAmount.Set(static_cast<double>(amount));
 }
 
 void Tweaker::SetWaveAmount(int amount)

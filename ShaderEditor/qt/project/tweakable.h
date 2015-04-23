@@ -124,9 +124,6 @@ enum EmitterAttribute
     EMITTER_LIFEFADE,
     EMITTER_WIDTH,
     EMITTER_LENGTH,
-    EMITTER_POS_X,
-    EMITTER_POS_Y,
-    EMITTER_POS_Z,
     EMITTER_DIR_X,
     EMITTER_DIR_Y,
     EMITTER_DIR_Z,
@@ -143,6 +140,8 @@ enum EmitterAttribute
     EMITTER_MAX_SIZE,
     EMITTER_MIN_WAVE,
     EMITTER_MAX_WAVE,
+    EMITTER_MIN_WAIT,
+    EMITTER_MAX_WAIT,
     EMITTER_ATTRIBUTES
 };
 
@@ -191,7 +190,6 @@ typedef std::vector<FloatSignal> FloatSignals;
 struct SignalCallbacks
 {
     FloatSignal SetSelectedWave;   ///< Sets the selected wave to display
-    FloatSignal SetParticleAmount; ///< Sets the amount of particles the emitter spawns
     FloatSignals SetCamera;        ///< Sets the camera tweakable attributes
     FloatSignals SetLight;         ///< Sets the light tweakable attributes
     FloatSignals SetPost;          ///< Sets the post tweakable attributes
@@ -224,7 +222,6 @@ struct SignalCallbacks
     * Constructor
     */
     SignalCallbacks() :
-        SetParticleAmount(nullptr),
         SetSelectedEngine(nullptr),
         SetSelectedLight(nullptr),
         SetSelectedMesh(nullptr),

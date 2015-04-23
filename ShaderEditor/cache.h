@@ -189,7 +189,6 @@ struct Cache
     Lockable<int> EmitterSelected;      ///< Index of the currently selected emitter
     Lockable<int> PostMapSelected;      ///< Index of the currently selected post map
     Lockable<int> TerrainSelected;      ///< Index of the currently selected terrain
-    Lockable<int> ParticleAmount;       ///< The amount of particles to spawn
     Lockable<int> WaveAmount;           ///< The amount of waves for the selected water
 
     LockableString TexturePath;         ///< Path to the currently selected texture
@@ -198,6 +197,7 @@ struct Cache
     LockableString MeshInstances;       ///< Number of instances of the selected mesh
     LockableString TerrainInstances;    ///< Number of instances of the selected terrain
     LockableString WaterInstances;      ///< Number of instances of the selected water
+    LockableString EmitterInstances;    ///< Number of instances of the selected emitter
     LockableString ShaderText;          ///< Text for the selected shader
     LockableString ShaderAsm;           ///< Assembly for the selected shader
     LockableString CompileShader;       ///< Text to request to be compiled

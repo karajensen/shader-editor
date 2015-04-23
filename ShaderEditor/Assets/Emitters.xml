@@ -2,22 +2,24 @@
 <Emitters>
 	<Emitter>
 		<Name>TestEmitter</Name>
-		<Width>10</Width>
+    <Particles>10</Particles>
+    <Instances>120</Instances>
+    <Width>10</Width>
 		<Length>10</Length>
-		<Amount>10</Amount>
-		<LifeTime>2</LifeTime>
-		<LifeFade>0.25</LifeFade>
-		<MaxWaveSpeed>1</MaxWaveSpeed>
-		<MinWaveSpeed>1</MinWaveSpeed>
-		<MaxAmplitude>1</MaxAmplitude>
-		<MinAmplitude>1</MinAmplitude>
-		<MaxFrequency>1</MaxFrequency>
-		<MinFrequency>1</MinFrequency>
-		<MaxSpeed>0.5</MaxSpeed>
-		<MinSpeed>0.2</MinSpeed>
-		<MaxSize>2</MaxSize>
-		<MinSize>1</MinSize>
-		<Position x="-10" y="0" z="0"/>
+		<LifeTime>5.0</LifeTime>
+		<LifeFade>0.5</LifeFade>
+    <MinWaveSpeed>1</MinWaveSpeed>
+    <MaxWaveSpeed>1</MaxWaveSpeed>
+    <MinAmplitude>0.5</MinAmplitude>
+		<MaxAmplitude>1.5</MaxAmplitude>
+    <MinFrequency>0.5</MinFrequency>
+		<MaxFrequency>1.0</MaxFrequency>
+    <MinWaitTime>0.5</MinWaitTime>
+    <MaxWaitTime>3.0</MaxWaitTime>
+    <MinSpeed>0.2</MinSpeed>
+		<MaxSpeed>0.3</MaxSpeed>
+    <MinSize>2.0</MinSize>
+		<MaxSize>4.0</MaxSize>
 		<Direction x="0" y="1" z="0"/>
 		<Tint r="0" g="0.5" b="1" a="1"/>
 		<Texture>particle1.png</Texture>

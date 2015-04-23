@@ -6,7 +6,6 @@ cbuffer PixelBuffer : register(b0)
 {
     float finalMask;
     float sceneMask;
-    float normalMask;
     float depthMask;
     float blurSceneMask;
     float depthOfFieldMask;
@@ -40,7 +39,7 @@ struct Outputs
 SamplerState Sampler;
 Texture2D SceneSampler : register(t0);
 Texture2D BlurSampler  : register(t1);
-Texture2DMS<float4,SAMPLES> NormalSampler : register(t2);
+Texture2DMS<float4,SAMPLES> DepthSampler : register(t2);
 
 Attributes VShader(float4 position  : POSITION,
                    float2 uvs       : TEXCOORD0)
@@ -57,10 +56,9 @@ Outputs PShader(Attributes input)
     float4 blur = BlurSampler.Sample(Sampler, input.uvs);
     float3 postScene = scene.rgb;
 
-    // Normals/depth
+    // Depth information
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-    float4 normal = NormalSampler.Load(uvs, 0);
-    float depth = normal.a;
+    float depth = DepthSampler.Load(uvs, 0).r;
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;
@@ -95,7 +93,6 @@ Outputs PShader(Attributes input)
     Outputs output;
     output.colour.rgb = postScene * finalMask;
     output.colour.rgb += scene.rgb * sceneMask;
-    output.colour.rgb += normal.rgb * normalMask;
     output.colour.rgb += depth * depthMask;
     output.colour.rgb += blur.rgb * blurSceneMask;
     output.colour.rgb += depthOfField * depthOfFieldMask;

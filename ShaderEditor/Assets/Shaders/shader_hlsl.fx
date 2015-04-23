@@ -78,7 +78,7 @@ struct Attributes
 struct Outputs
 {
     float4 colour : SV_TARGET0;
-    float4 normal : SV_TARGET1;
+    float4 depth  : SV_TARGET1;
 };
 
 Attributes VShader(float4 position      : POSITION,    
@@ -164,8 +164,7 @@ Outputs PShader(Attributes input)
     endif
 
     Outputs output;
-    output.normal.rgb = normal;
-    output.normal.a = input.depth;
+    output.depth = float4(input.depth, input.depth, input.depth, 1.0);
 
     output.colour.rgb = diffuseTex.rgb * diffuse;
     ifdef: SPECULAR

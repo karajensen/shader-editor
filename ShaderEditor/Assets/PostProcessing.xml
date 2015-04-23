@@ -3,7 +3,7 @@
 	<BlurStep>0.004</BlurStep>
 	<DepthFar>1000</DepthFar>
 	<DepthNear>1</DepthNear>
-	<DOFStart>1</DOFStart>
+	<DOFStart>0.99</DOFStart>
 	<DOFFade>0.01</DOFFade>
 	<FogColour r="0.0" g="0.27" b="1.0"/>
 	<FogStart>0.39</FogStart>

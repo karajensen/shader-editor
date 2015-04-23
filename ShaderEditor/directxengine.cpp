@@ -289,8 +289,7 @@ bool DirectxEngine::InitialiseBlendStates()
     D3D11_BLEND_DESC blendDesc = {};
     blendDesc.AlphaToCoverageEnable = FALSE;
 
-    const int maxTargets = 8;
-    for (int i = 0; i < maxTargets; ++i)
+    for (int i = 0; i < MAX_TARGETS; ++i)
     {
         blendDesc.RenderTarget[i].BlendEnable = FALSE;
         blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
@@ -308,11 +307,15 @@ bool DirectxEngine::InitialiseBlendStates()
         return false;
     }
 
-    blendDesc.RenderTarget[0].BlendEnable = TRUE;
-    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; 
-    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    for (int i = 0; i < MAX_TARGETS; ++i)
+    {
+        blendDesc.RenderTarget[i].BlendEnable = TRUE;
+        blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+        blendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+        blendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE; 
+        blendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    }
+
     if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->alphaBlendState)))
     {
         Logger::LogError("DirectX: Failed to create alpha blending state");
@@ -601,7 +604,7 @@ void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
     RenderTerrain(scene);
     RenderMeshes(scene);
     RenderWater(scene, timer);
-    RenderEmitters();
+    RenderEmitters(scene);
 }
 
 void DirectxEngine::RenderMeshes(const IScene& scene)
@@ -637,14 +640,13 @@ void DirectxEngine::RenderWater(const IScene& scene, float timer)
     }
 }
 
-void DirectxEngine::RenderEmitters()
+void DirectxEngine::RenderEmitters(const IScene& scene)
 {
     EnableDepthWrite(false);
 
     for (auto& emitter : m_data->emitters)
     {
-        if (emitter->GetEmitter().ShouldRender() &&
-            UpdateShader(emitter->GetEmitter()))
+        if (UpdateShader(emitter->GetEmitter(), scene))
         {
             emitter->Render(m_data->context, 
                 m_data->cameraPosition, m_data->cameraUp);
@@ -723,7 +725,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendTexture(m_data->context, 0, m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture(m_data->context, 1, m_data->blurTarget, BLUR_ID);
-    postShader->SendTexture(m_data->context, 2, m_data->sceneTarget, NORMAL_ID);
+    postShader->SendTexture(m_data->context, 2, m_data->sceneTarget, DEPTH_ID);
 
     postShader->UpdateConstantFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->UpdateConstantFloat("fadeAmount", &m_data->fadeAmount, 1);
@@ -739,7 +741,6 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->UpdateConstantFloat("finalMask", &post.Mask(PostProcessing::FINAL_MAP), 1);
     postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
-    postShader->UpdateConstantFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
     postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
     postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
@@ -856,7 +857,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
     return false;
 }
 
-bool DirectxEngine::UpdateShader(const Emitter& emitter)
+bool DirectxEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
 {
     const int index = emitter.ShaderID();
     if (index != NO_INDEX)
@@ -865,6 +866,8 @@ bool DirectxEngine::UpdateShader(const Emitter& emitter)
         if (index != m_data->selectedShader)
         {
             SetSelectedShader(index);
+            shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
         }
 
         shader->UpdateConstantFloat("tint", &emitter.Tint().r, 4);

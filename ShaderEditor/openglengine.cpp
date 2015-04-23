@@ -470,7 +470,7 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
     RenderTerrain(scene);
     RenderMeshes(scene);
     RenderWater(scene, timer);
-    RenderEmitters();
+    RenderEmitters(scene);
 
     if (m_data->isWireframe)
     {
@@ -517,14 +517,13 @@ void OpenglEngine::RenderWater(const IScene& scene, float timer)
     }
 }
 
-void OpenglEngine::RenderEmitters()
+void OpenglEngine::RenderEmitters(const IScene& scene)
 {
     EnableDepthWrite(false);
 
     for (auto& emitter : m_data->emitters)
     {
-        if (emitter->GetEmitter().ShouldRender() &&
-            UpdateShader(emitter->GetEmitter()))
+        if (UpdateShader(emitter->GetEmitter(), scene))
         {
             emitter->PreRender();
             EnableAttributes();
@@ -617,7 +616,6 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendUniformFloat("finalMask", &post.Mask(PostProcessing::FINAL_MAP), 1);
     postShader->SendUniformFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
-    postShader->SendUniformFloat("normalMask", &post.Mask(PostProcessing::NORMAL_MAP), 1);
     postShader->SendUniformFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
     postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
     postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
@@ -626,7 +624,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture(1, m_data->blurTarget, BLUR_ID);
-    postShader->SendTexture(2, m_data->sceneTarget, NORMAL_ID);
+    postShader->SendTexture(2, m_data->sceneTarget, DEPTH_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
@@ -637,7 +635,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(2, m_data->sceneTarget);
 }
 
-bool OpenglEngine::UpdateShader(const Emitter& emitter)
+bool OpenglEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
 {
     const int index = emitter.ShaderID();
     if (index != NO_INDEX)
@@ -646,6 +644,8 @@ bool OpenglEngine::UpdateShader(const Emitter& emitter)
         if (index != m_data->selectedShader)
         {
             SetSelectedShader(index);
+            shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
+            shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
         }
 
         shader->SendUniformFloat("tint", &emitter.Tint().r, 4);
@@ -906,7 +906,10 @@ void OpenglEngine::EnableAlphaBlending(bool enable)
     if (enable != m_data->isAlphaBlend)
     {
         m_data->isAlphaBlend = enable;
-        enable ? glEnablei(GL_BLEND, 0) : glDisablei(GL_BLEND, 0);
+        for (int i = 0; i < MAX_TARGETS; ++i)
+        {
+            enable ? glEnablei(GL_BLEND, i) : glDisablei(GL_BLEND, i);
+        }
     }
 }
 

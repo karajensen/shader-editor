@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "float3.h"
-#include "int2.h"
 #include <vector>
+#include "int2.h"
+#include "float3.h"
 
 class Terrain;
 class Water;
@@ -109,6 +109,12 @@ private:
     void PlaceFoliage(int instanceID);
 
     /**
+    * Places the assigned emitters on the patch
+    * @param instance The instance ID to update
+    */
+    void PlaceEmitters(int instanceID);
+
+    /**
     * Updates any data stored for the patch
     * @param instance The instance ID to update
     */
@@ -122,12 +128,12 @@ private:
     float GetPatchHeight(int instanceID, float x, float z) const;
 
     /**
-    * Key for obtaining the mesh instance assigned to a patch
+    * Key for obtaining the instance assigned to a patch
     */
-    struct MeshKey
+    struct InstanceKey
     {
-        int index = 0;       ///< Mesh ID
-        int instance = 0;    ///< Mesh Instance ID
+        int index = 0;       ///< Scene data ID
+        int instance = 0;    ///< Instance ID
     };
 
     /**
@@ -135,10 +141,10 @@ private:
     */
     struct Patch
     {
-        Float2 minBounds;            ///< Maximum global coordinates of the patch 
-        Float2 maxBounds;            ///< Minimum global coordinates of the patch
-        std::vector<MeshKey> rocks;     ///< Data for what rocks to use
-        std::vector<MeshKey> foliage;   ///< Data for what foliage to use
+        Float2 minBounds;                ///< Maximum global coordinates of the patch 
+        Float2 maxBounds;                ///< Minimum global coordinates of the patch
+        std::vector<InstanceKey> foliage;   ///< Data for what foliage to use
+        std::vector<InstanceKey> emitters;  ///< Data for what emitters to use
     };
 
     SceneData& m_data;              ///< Data for manipulating the scene
@@ -150,5 +156,5 @@ private:
     std::vector<int> m_patches;     ///< The current ordering of the patches; holds the instance ID
     std::vector<int> m_previous;    ///< Buffer for reorganising the patches; holds the instance ID
     std::vector<Patch> m_patchData; ///< Holds patch data; key is the instance ID held in m_patches
-    Int2 m_patchInside;             ///< The patch the camera is currently inside
+    Int2 m_patchInside;       ///< The patch the camera is currently inside
 };

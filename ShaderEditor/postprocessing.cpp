@@ -140,8 +140,6 @@ std::string PostProcessing::GetMapName(PostProcessing::Map map)
         return "Final Scene";
     case SCENE_MAP:
         return "Scene Map";
-    case NORMAL_MAP:
-        return "Normal Map";
     case DEPTH_MAP:
         return "Depth Map";
     case BLUR_MAP:

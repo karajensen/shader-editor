@@ -142,10 +142,9 @@ public:
     QFrame *selectedParticles;
     QLabel *selectedParticles_lbl;
     QComboBox *selectedParticles_box;
-    QFrame *particleAmount;
-    QLabel *particleAmount_lbl;
-    QDoubleSpinBox *particleAmount_value;
-    QDial *particleAmount_dial;
+    QFrame *instancesEmitter;
+    QLabel *instancesEmitter_lbl;
+    QLabel *instancesEmitter_text;
     QFrame *emitter;
     QDoubleSpinBox *emitter_value;
     QDial *emitter_dial;
@@ -1056,7 +1055,7 @@ public:
         Mesh->setStyleSheet(QStringLiteral("background-color: rgb(230, 230, 230);"));
         layoutWidget2 = new QWidget(Mesh);
         layoutWidget2->setObjectName(QStringLiteral("layoutWidget2"));
-        layoutWidget2->setGeometry(QRect(0, 0, 230, 561));
+        layoutWidget2->setGeometry(QRect(0, 0, 230, 584));
         meshLayout = new QVBoxLayout(layoutWidget2);
         meshLayout->setSpacing(2);
         meshLayout->setObjectName(QStringLiteral("meshLayout"));
@@ -1515,57 +1514,40 @@ public:
 
         meshLayout->addWidget(selectedParticles);
 
-        particleAmount = new QFrame(layoutWidget2);
-        particleAmount->setObjectName(QStringLiteral("particleAmount"));
-        particleAmount->setMinimumSize(QSize(225, 35));
-        particleAmount->setMaximumSize(QSize(225, 35));
-        particleAmount->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+        instancesEmitter = new QFrame(layoutWidget2);
+        instancesEmitter->setObjectName(QStringLiteral("instancesEmitter"));
+        sizePolicy.setHeightForWidth(instancesEmitter->sizePolicy().hasHeightForWidth());
+        instancesEmitter->setSizePolicy(sizePolicy);
+        instancesEmitter->setMinimumSize(QSize(225, 35));
+        instancesEmitter->setMaximumSize(QSize(225, 35));
+        instancesEmitter->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
 "border-radius: 4px;"));
-        particleAmount->setFrameShape(QFrame::NoFrame);
-        particleAmount->setFrameShadow(QFrame::Plain);
-        particleAmount->setLineWidth(0);
-        particleAmount_lbl = new QLabel(particleAmount);
-        particleAmount_lbl->setObjectName(QStringLiteral("particleAmount_lbl"));
-        particleAmount_lbl->setGeometry(QRect(2, 2, 100, 30));
-        sizePolicy.setHeightForWidth(particleAmount_lbl->sizePolicy().hasHeightForWidth());
-        particleAmount_lbl->setSizePolicy(sizePolicy);
-        particleAmount_lbl->setMinimumSize(QSize(100, 30));
-        particleAmount_lbl->setMaximumSize(QSize(100, 30));
-        particleAmount_lbl->setFont(font1);
-        particleAmount_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleAmount_lbl->setMargin(1);
-        particleAmount_value = new QDoubleSpinBox(particleAmount);
-        particleAmount_value->setObjectName(QStringLiteral("particleAmount_value"));
-        particleAmount_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(particleAmount_value->sizePolicy().hasHeightForWidth());
-        particleAmount_value->setSizePolicy(sizePolicy);
-        particleAmount_value->setMinimumSize(QSize(86, 25));
-        particleAmount_value->setMaximumSize(QSize(86, 25));
-        particleAmount_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        particleAmount_value->setFrame(false);
-        particleAmount_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        particleAmount_value->setDecimals(0);
-        particleAmount_value->setMinimum(-9999);
-        particleAmount_value->setMaximum(9999);
-        particleAmount_value->setSingleStep(1);
-        particleAmount_dial = new QDial(particleAmount);
-        particleAmount_dial->setObjectName(QStringLiteral("particleAmount_dial"));
-        particleAmount_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(particleAmount_dial->sizePolicy().hasHeightForWidth());
-        particleAmount_dial->setSizePolicy(sizePolicy);
-        particleAmount_dial->setMinimumSize(QSize(30, 30));
-        particleAmount_dial->setMaximumSize(QSize(30, 30));
-        particleAmount_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        particleAmount_dial->setMinimum(-10000);
-        particleAmount_dial->setMaximum(10000);
+        instancesEmitter->setFrameShape(QFrame::Panel);
+        instancesEmitter->setFrameShadow(QFrame::Raised);
+        instancesEmitter_lbl = new QLabel(instancesEmitter);
+        instancesEmitter_lbl->setObjectName(QStringLiteral("instancesEmitter_lbl"));
+        instancesEmitter_lbl->setGeometry(QRect(3, 2, 100, 30));
+        sizePolicy.setHeightForWidth(instancesEmitter_lbl->sizePolicy().hasHeightForWidth());
+        instancesEmitter_lbl->setSizePolicy(sizePolicy);
+        instancesEmitter_lbl->setMinimumSize(QSize(100, 30));
+        instancesEmitter_lbl->setMaximumSize(QSize(100, 30));
+        instancesEmitter_lbl->setFont(font1);
+        instancesEmitter_text = new QLabel(instancesEmitter);
+        instancesEmitter_text->setObjectName(QStringLiteral("instancesEmitter_text"));
+        instancesEmitter_text->setGeometry(QRect(106, 5, 115, 25));
+        sizePolicy1.setHeightForWidth(instancesEmitter_text->sizePolicy().hasHeightForWidth());
+        instancesEmitter_text->setSizePolicy(sizePolicy1);
+        instancesEmitter_text->setMinimumSize(QSize(115, 25));
+        instancesEmitter_text->setMaximumSize(QSize(115, 25));
+        instancesEmitter_text->setAutoFillBackground(false);
+        instancesEmitter_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+""));
+        instancesEmitter_text->setFrameShape(QFrame::NoFrame);
+        instancesEmitter_text->setFrameShadow(QFrame::Plain);
+        instancesEmitter_text->setLineWidth(0);
+        instancesEmitter_text->setMargin(3);
 
-        meshLayout->addWidget(particleAmount);
+        meshLayout->addWidget(instancesEmitter);
 
         emitter = new QFrame(layoutWidget2);
         emitter->setObjectName(QStringLiteral("emitter"));
@@ -2344,7 +2326,8 @@ public:
         instancesWater_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", 0));
         selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", 0));
-        particleAmount_lbl->setText(QApplication::translate("Tweaker", "Amount", 0));
+        instancesEmitter_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
+        instancesEmitter_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         pauseEmission_btn->setText(QApplication::translate("Tweaker", "Pause Emission", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         postImage_lbl->setText(QApplication::translate("Tweaker", "Rendering", 0));

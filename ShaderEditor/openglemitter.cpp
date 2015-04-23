@@ -26,43 +26,48 @@ void GlEmitter::PreRender()
 void GlEmitter::Render(const glm::vec3& cameraPosition,
                        const glm::vec3& cameraUp)
 {
-    for (const Particle& particle : m_emitter.Particles())
+    glm::mat4 scale, rotate, translate;
+
+    for (const auto& instance : m_emitter.Instances())
     {
-        if (particle.Alive())
+        if (instance.render)
         {
-            // Particle always facing the camera
-            glm::vec3 right, up, forward;
-            forward.x = cameraPosition.x - particle.Position().x;
-            forward.y = cameraPosition.y - particle.Position().y;
-            forward.z = cameraPosition.z - particle.Position().z;
-            
-            forward = glm::normalize(forward);
-            right = glm::cross(forward, cameraUp);
-            up = glm::cross(forward, right);
+            for (const Particle& particle : instance.particles)
+            {
+                if (particle.Alive())
+                {
+                    // Particle always facing the camera
+                    glm::vec3 right, up, forward;
+                    forward.x = cameraPosition.x - particle.Position().x;
+                    forward.y = cameraPosition.y - particle.Position().y;
+                    forward.z = cameraPosition.z - particle.Position().z;
 
-            glm::mat4 scale;
-            scale[0][0] = particle.Size();  
-            scale[1][1] = particle.Size();
-            scale[2][2] = particle.Size();
-            
-            glm::mat4 rotate;
-            rotate[0][0] = right.x;  
-            rotate[0][1] = right.y;
-            rotate[0][2] = right.z;
-            rotate[1][0] = up.x;  
-            rotate[1][1] = up.y;
-            rotate[1][2] = up.z;
-            rotate[2][0] = forward.x;  
-            rotate[2][1] = forward.y;
-            rotate[2][2] = forward.z;
+                    forward = glm::normalize(forward);
+                    right = glm::cross(forward, cameraUp);
+                    up = glm::cross(forward, right);
 
-            glm::mat4 translate;
-            translate[3][0] = particle.Position().x;
-            translate[3][1] = particle.Position().y;
-            translate[3][2] = particle.Position().z;
-            
-            m_preRender(translate * rotate * scale, particle);
-            m_particle->Render();
+                    scale[0][0] = particle.Size();
+                    scale[1][1] = particle.Size();
+                    scale[2][2] = particle.Size();
+
+                    rotate[0][0] = right.x;
+                    rotate[0][1] = right.y;
+                    rotate[0][2] = right.z;
+                    rotate[1][0] = up.x;
+                    rotate[1][1] = up.y;
+                    rotate[1][2] = up.z;
+                    rotate[2][0] = forward.x;
+                    rotate[2][1] = forward.y;
+                    rotate[2][2] = forward.z;
+
+                    translate[3][0] = particle.Position().x;
+                    translate[3][1] = particle.Position().y;
+                    translate[3][2] = particle.Position().z;
+
+                    m_preRender(translate * rotate * scale, particle);
+                    m_particle->Render();
+                }
+            }
         }
     }
 }

@@ -87,25 +87,21 @@ void Application::HandleKeyPress(const WPARAM& keypress)
     }
     else if (keypress == '3')
     {
-        m_scene->SetPostMap(PostProcessing::NORMAL_MAP);
+        m_scene->SetPostMap(PostProcessing::DEPTH_MAP);
     }
     else if (keypress == '4')
     {
-        m_scene->SetPostMap(PostProcessing::DEPTH_MAP);
+        m_scene->SetPostMap(PostProcessing::BLUR_MAP);
     }
     else if (keypress == '5')
     {
-        m_scene->SetPostMap(PostProcessing::BLUR_MAP);
+        m_scene->SetPostMap(PostProcessing::BLOOM_MAP);
     }
     else if (keypress == '6')
     {
-        m_scene->SetPostMap(PostProcessing::BLOOM_MAP);
-    }
-    else if (keypress == '7')
-    {
         m_scene->SetPostMap(PostProcessing::FOG_MAP);
     }
-    else if (keypress == '8')
+    else if (keypress == '7')
     {
         m_scene->SetPostMap(PostProcessing::DOF_MAP);
     }

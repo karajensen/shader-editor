@@ -66,7 +66,7 @@ struct Attributes
 struct Outputs
 {
     float4 colour : SV_TARGET0;
-    float4 normal : SV_TARGET1;
+    float4 depth  : SV_TARGET1;
 };
 
 Attributes VShader(float4 position  : POSITION,    
@@ -148,8 +148,7 @@ Outputs PShader(Attributes input)
     float4 reflectionTex = EnvironmentTexture.Sample(Sampler, reflection);
     
     Outputs output;
-    output.normal.rgb = normal;
-    output.normal.a = input.depth;
+    output.depth = float4(input.depth, input.depth, input.depth, 1.0);
 
     output.colour.rgb = diffuseTex * diffuse;
     output.colour.a = 1.0;

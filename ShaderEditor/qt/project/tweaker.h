@@ -143,6 +143,12 @@ public:
     void SetMeshInstanceCount(const std::string& count);
 
     /**
+    * Sets the readonly selected emitter instance count
+    * @param count The number of instances
+    */
+    void SetEmitterInstanceCount(const std::string& count);
+
+    /**
     * Sets the readonly selected terrain instance count
     * @param count The number of instances
     */
@@ -235,12 +241,6 @@ public:
     void SetWaveAmount(int amount);
 
     /**
-    * Sets how many particles will spawn on the selected emitter
-    * @param amount The amount of particles to spawn
-    */
-    void SetParticleAmount(int amount);
-
-    /**
     * @return whether the terrain combo box is filled in
     */
     bool HasTerrain() const;
@@ -287,7 +287,6 @@ public:
 
 private:
 
-    TweakableValue m_particleAmount;     ///< The amount of particles to spawn
     TweakableValue m_selectedWave;       ///< Dial for selecting the wave number
 
     TweakableButton m_lightDiag;         ///< Button to toggle light diagnostics

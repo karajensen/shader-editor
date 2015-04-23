@@ -80,7 +80,6 @@ void QtGUI::Run(int argc, char *argv[])
         }
     }
 
-    callbacks.SetParticleAmount =  [this](float index){ m_cache->ParticleAmount.Set(static_cast<int>(index)); };
     callbacks.SetSelectedWave =    [this](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
     callbacks.SetSelectedEngine =  [this](int index){ m_cache->EngineSelected.Set(index); };
     callbacks.SetSelectedMesh =    [this](int index){ m_cache->MeshSelected.Set(index); };
@@ -354,10 +353,7 @@ void QtGUI::UpdateEmitter(Tweaker& tweaker)
         }
     }
 
-    if(initialisedEmitter || m_cache->ParticleAmount.RequiresUpdate())
-    {
-        tweaker.SetParticleAmount(m_cache->ParticleAmount.GetUpdated());
-    }
+    tweaker.SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
 }
 
 void QtGUI::UpdateWater(Tweaker& tweaker)

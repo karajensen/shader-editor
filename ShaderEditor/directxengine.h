@@ -216,9 +216,12 @@ private:
 
     /**
     * Updates and switches to the shader for an emitter
+    * @param emitter The emitter to render
+    * @param scene All elements in the scene
     * @return whether the emitter can now be rendered
     */
-    bool UpdateShader(const Emitter& emitter);
+    bool UpdateShader(const Emitter& emitter,
+                      const IScene& scene);
 
     /**
     * Updates the shader for a particle per instance
@@ -307,8 +310,9 @@ private:
 
     /**
     * Renders all emitters
+    * @param scene The scene to render
     */
-    void RenderEmitters();
+    void RenderEmitters(const IScene& scene);
 
     /**
     * Sets whether alpha blending is enabled or not
