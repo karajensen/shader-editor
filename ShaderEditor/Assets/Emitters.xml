@@ -2,8 +2,8 @@
 <Emitters>
 	<Emitter>
 		<Name>TestEmitter</Name>
-    <Particles>10</Particles>
-    <Instances>120</Instances>
+    <Particles>15</Particles>
+    <Instances>100</Instances>
     <Width>10</Width>
 		<Length>10</Length>
 		<LifeTime>5.0</LifeTime>
@@ -18,11 +18,12 @@
     <MaxWaitTime>3.0</MaxWaitTime>
     <MinSpeed>0.2</MinSpeed>
 		<MaxSpeed>0.3</MaxSpeed>
-    <MinSize>2.0</MinSize>
-		<MaxSize>4.0</MaxSize>
+    <MinSize>0.5</MinSize>
+		<MaxSize>1.5</MaxSize>
 		<Direction x="0" y="1" z="0"/>
 		<Tint r="0" g="0.5" b="1" a="1"/>
-		<Texture>particle1.png</Texture>
-		<Texture>particle2.png</Texture>
+		<Texture>bubble1.png</Texture>
+		<Texture>bubble2.png</Texture>
+    <Texture>bubble3.png</Texture>
 	</Emitter>
 </Emitters>
