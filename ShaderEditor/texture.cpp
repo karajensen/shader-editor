@@ -11,7 +11,8 @@
 Texture::Texture(const std::string& name, const std::string& path, Filter filter) :
     m_name(name),
     m_path(path),
-    m_filter(filter)
+    m_filter(filter),
+    m_type(IsCubeMap(path) ? CUBE : FROM_FILE)
 {
 }
 
@@ -45,7 +46,7 @@ bool Texture::IsCubeMap(const std::string& path)
 
 bool Texture::IsCubeMap() const
 {
-    return IsCubeMap(m_path);
+    return m_type == CUBE;
 }
 
 const std::vector<unsigned int>& Texture::Pixels() const
@@ -71,4 +72,14 @@ void Texture::Reload()
 void Texture::Save()
 {
     throw std::exception("Texture::Save not implemented");
+}
+
+bool Texture::IsRenderable() const
+{
+    return true;
+}
+
+void Texture::SetType(Type type)
+{
+    m_type = type;
 }

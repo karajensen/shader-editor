@@ -13,11 +13,11 @@
 ProceduralTexture::ProceduralTexture(const std::string& name, 
                                      const std::string& path,
                                      int size,
-                                     Type type,
-                                     Filter filter) :
-    Texture(name, path, filter),
-    m_type(type)
+                                     Generation generation) :
+    Texture(name, path, NEAREST),
+    m_generation(generation)
 {
+    SetType(PROCEDURAL);
     m_size = size;
     m_pixels.resize(size * size);
 
@@ -26,34 +26,19 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
     boost::algorithm::ireplace_all(m_savePath, R"(\)", R"(/)");
     boost::algorithm::ireplace_all(m_savePath, R"(//)", R"(/)");
 
-    Reload();
+    Generate();
+}
+
+bool ProceduralTexture::IsRenderable() const
+{
+    return false;
 }
 
 void ProceduralTexture::Reload()
 {
-    switch (m_type)
+    if (m_generation != FROM_FILE)
     {
-    case RANDOM:
-        MakeRandomNormals();
-        break;
-    case DIAMOND_SQUARE:
-        MakeDiamondSquareFractal();
-        break;
-    }
-}
-
-void ProceduralTexture::MakeRandomNormals()
-{
-    for (unsigned int i = 0; i < m_pixels.size(); ++i)
-    {
-        Float3 colour(Random::Generate(0.0f, 1.0f),
-                      Random::Generate(0.0f, 1.0f),
-                      Random::Generate(0.0f, 1.0f));
-
-        colour.Normalize();
-        SetRed(i, colour.x);
-        SetGreen(i, colour.y);
-        SetBlue(i, colour.z);
+        Generate();
     }
 }
 
@@ -74,6 +59,11 @@ bool ProceduralTexture::HasPixels() const
 
 void ProceduralTexture::Save()
 {
+    if (m_generation == FROM_FILE)
+    {
+        return;
+    }
+
     const int channels = 3;
     std::vector<unsigned char> data(m_pixels.size() * channels);
 
@@ -165,10 +155,15 @@ void ProceduralTexture::Set(unsigned int index, int r, int g, int b, int a)
     g = min(255, max(0, g));
     b = min(255, max(0, b));
     a = min(255, max(0, a));
-    m_pixels[index] = ((a & 0xFF) << 24) + 
-                      ((b & 0xFF) << 16) + 
-                      ((g & 0xFF) << 8) + 
-                      (r & 0xFF);
+    m_pixels[index] = Convert(r, g, b, a);
+}
+
+unsigned int ProceduralTexture::Convert(int r, int g, int b, int a) const
+{
+    return ((a & 0xFF) << 24) + 
+           ((b & 0xFF) << 16) + 
+           ((g & 0xFF) << 8) + 
+           (r & 0xFF);
 }
 
 void ProceduralTexture::Set(int row, int column, float value)
@@ -244,6 +239,42 @@ unsigned int ProceduralTexture::Get(int row, int column) const
 unsigned int ProceduralTexture::Index(int row, int column) const
 {
     return row * m_size + column;
+}
+
+void ProceduralTexture::Generate()
+{
+    switch (m_generation)
+    {
+    case FROM_FILE:
+        MakeFromFile();
+        break;
+    case DIAMOND_SQUARE:
+        MakeDiamondSquareFractal();
+        break;
+    }
+}
+
+void ProceduralTexture::MakeFromFile()
+{
+    int width, height;
+    unsigned char* image = SOIL_load_image(Path().c_str(), 
+        &width, &height, 0, SOIL_LOAD_RGBA);
+
+    assert(m_size == width);
+    assert(m_size == height);
+
+    const int channels = 4;
+    const int size = m_size * m_size * channels;
+    for (int i = 0, j = 0; i < size; i += channels, ++j)
+    {
+        const auto r = image[i];
+        const auto g = image[i+1];
+        const auto b = image[i+2];
+        const auto a = image[i+3];
+        m_pixels[j] = Convert(r, g, b, a);
+    }
+
+    SOIL_free_image_data(image);
 }
 
 void ProceduralTexture::MakeDiamondSquareFractal()

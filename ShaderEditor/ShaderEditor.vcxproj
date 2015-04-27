@@ -222,6 +222,7 @@
   <ItemGroup>
     <Xml Include="Assets\Emitters.xml">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <SubType>Designer</SubType>
     </Xml>
     <Xml Include="Assets\PostProcessing.xml">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

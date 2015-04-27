@@ -27,12 +27,24 @@ public:
     };
 
     /**
+    * The type of texture this is
+    */
+    enum Type
+    {
+        FROM_FILE,
+        CUBE,
+        PROCEDURAL
+    };
+
+    /**
     * Constructor
     * @param name The filename of the texture
     * @param path The full path to the texture
     * @param filter The filtering to use
     */
-    Texture(const std::string& name, const std::string& path, Filter filter);
+    Texture(const std::string& name, 
+            const std::string& path, 
+            Filter filter);
 
     /**
     * Destructor
@@ -105,8 +117,21 @@ public:
     */
     virtual bool HasPixels() const;
 
+    /**
+    * @return whether this texture is to be rendered
+    */
+    virtual bool IsRenderable() const;
+    
+protected:
+
+    /**
+    * Sets the type of texture this is
+    */
+    void SetType(Type type);
+
 private:
 
+    Type m_type;       ///< The type of texture this is
     Filter m_filter;    ///< The type of filtering to use
     std::string m_name; ///< Name of the texture
     std::string m_path; ///< Path to the texture

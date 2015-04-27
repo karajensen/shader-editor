@@ -16,10 +16,10 @@ public:
     /**
     * Avaliable types
     */
-    enum Type
+    enum Generation
     {
-        RANDOM,
-        DIAMOND_SQUARE
+        DIAMOND_SQUARE,
+        FROM_FILE
     };
 
     /**
@@ -27,14 +27,12 @@ public:
     * @param name The filename of the texture
     * @param path The full path to the texture
     * @param size The dimensions of the texture
-    * @param type The type of texture to make
-    * @param filter The filtering to use
+    * @param generation How to make the texture
     */
     ProceduralTexture(const std::string& name, 
                       const std::string& path,
                       int size,
-                      Type type,
-                      Filter filter);
+                      Generation generation);
 
     /**
     * Writes to the data in the cache
@@ -73,12 +71,22 @@ public:
     */
     virtual void Reload() override;
 
+    /**
+    * @return whether this texture is to be rendered
+    */
+    virtual bool IsRenderable() const override;
+
 private:
 
     /**
-    * Creates a texture of random normals used for ambient occlusion
+    * Generates the texture
     */
-    void MakeRandomNormals();
+    void Generate();
+
+    /**
+    * Creates the texture from a file
+    */
+    void MakeFromFile();
 
     /**
     * Creates a fractal texture using the diamond square algorithm
@@ -94,6 +102,11 @@ private:
     * @return the index from the row and column value
     */
     unsigned int Index(int row, int column) const;
+
+    /**
+    * Converts the colour components to an unsigned int
+    */
+    unsigned int Convert(int r, int g, int b, int a) const;
 
     /**
     * Sets the colour from each component
@@ -150,7 +163,7 @@ private:
     float BlueAsFlt(unsigned int index);
     float AlphaAsFlt(unsigned int index);
 
-    Type m_type;                        ///< The type of texture this is
+    Generation m_generation;            ///< How to make the texture
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture
     int m_size;                         ///< Dimensions of the texture
     std::string m_savePath;             ///< Path the generated texture is saved to

@@ -26,26 +26,30 @@ void GlTexture::Release()
 
 bool GlTexture::Initialise()
 {
-    glGenTextures(1, &m_id);
-    m_initialised = true;
-
-    auto type = m_texture.IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
-    glBindTexture(type, m_id);
-
-    if (m_texture.IsCubeMap())
+    if (m_texture.IsRenderable())
     {
-        InitialiseCubeMap();
-    }
-    else if (m_texture.HasPixels())
-    {
-        InitialiseFromPixels();
-    }
-    else
-    {
-        InitialiseFromFile();
-    }
+        glGenTextures(1, &m_id);
+        m_initialised = true;
 
-    return CreateMipMaps() && !HasCallFailed();
+        auto type = m_texture.IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+        glBindTexture(type, m_id);
+
+        if (m_texture.IsCubeMap())
+        {
+            InitialiseCubeMap();
+        }
+        else if (m_texture.HasPixels())
+        {
+            InitialiseFromPixels();
+        }
+        else
+        {
+            InitialiseFromFile();
+        }
+
+        return CreateMipMaps() && !HasCallFailed();
+    }
+    return true;
 }
 
 void GlTexture::InitialiseCubeMap()
@@ -157,14 +161,18 @@ bool GlTexture::IsCubeMap() const
 
 bool GlTexture::ReloadPixels()
 {
-    assert(m_texture.HasPixels());
+    if (m_texture.IsRenderable())
+    {
+        assert(m_texture.HasPixels());
 
-    glBindTexture(GL_TEXTURE_2D, m_id);
+        glBindTexture(GL_TEXTURE_2D, m_id);
 
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture.Size(), 
-        m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, &m_texture.Pixels()[0]);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_texture.Size(), 
+            m_texture.Size(), GL_RGBA, GL_UNSIGNED_BYTE, &m_texture.Pixels()[0]);
 
-    return !HasCallFailed();
+        return !HasCallFailed();        
+    }
+    return true;
 }
 
 const std::string& GlTexture::Name() const

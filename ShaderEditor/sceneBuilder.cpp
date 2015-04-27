@@ -178,17 +178,19 @@ bool SceneBuilder::InitialiseTextures()
     }
 
     auto MakeProcedural = [this](const std::string& name,
-                                 Texture::Filter filter,
-                                 ProceduralTexture::Type type,
+                                 ProceduralTexture::Generation generation,
                                  int size)
     {
+        const std::string path(generation == ProceduralTexture::FROM_FILE ?
+            TEXTURE_PATH + "//" + name + ".png" : GENERATED_TEXTURES + "//" + name + ".bmp");
+
         m_data.proceduralTextures.push_back(m_data.textures.size());
-        m_data.textures.push_back(std::make_unique<ProceduralTexture>(name, 
-            GENERATED_TEXTURES + "//" + name + ".bmp", size, type, filter));
+        m_data.textures.push_back(std::make_unique<ProceduralTexture>(
+            name, path, size, generation));
     };
 
-    MakeProcedural("heightmap", Texture::NEAREST, 
-        ProceduralTexture::DIAMOND_SQUARE, 256);
+    //MakeProcedural("heightmap", ProceduralTexture::DIAMOND_SQUARE, 256);
+    MakeProcedural("sand_height", ProceduralTexture::FROM_FILE, 128);
 
     return InitialiseCaustics();
 }

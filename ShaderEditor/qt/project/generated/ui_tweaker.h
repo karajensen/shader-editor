@@ -80,10 +80,6 @@ public:
     QComboBox *selectedTexture_box;
     QFrame *displayTexture;
     QPushButton *displayTexture_btn;
-    QFrame *textureAttributes;
-    QDoubleSpinBox *textureAttributes_value;
-    QDial *textureAttributes_dial;
-    QComboBox *textureAttributes_box;
     QFrame *reloadTexture;
     QPushButton *reloadTexture_btn;
     QSpacerItem *_meshSpacer_5;
@@ -102,6 +98,8 @@ public:
     QComboBox *terrainAttributes_box;
     QFrame *reloadTerrain;
     QPushButton *reloadTerrain_btn;
+    QFrame *reloadPlacement;
+    QPushButton *reloadPlacement_btn;
     QSpacerItem *_areaSpacer;
     QWidget *Mesh;
     QWidget *layoutWidget2;
@@ -767,64 +765,6 @@ public:
 
         areaLayout->addWidget(displayTexture);
 
-        textureAttributes = new QFrame(layoutWidget1);
-        textureAttributes->setObjectName(QStringLiteral("textureAttributes"));
-        textureAttributes->setMinimumSize(QSize(225, 35));
-        textureAttributes->setMaximumSize(QSize(225, 35));
-        textureAttributes->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        textureAttributes->setFrameShape(QFrame::NoFrame);
-        textureAttributes->setFrameShadow(QFrame::Plain);
-        textureAttributes->setLineWidth(0);
-        textureAttributes_value = new QDoubleSpinBox(textureAttributes);
-        textureAttributes_value->setObjectName(QStringLiteral("textureAttributes_value"));
-        textureAttributes_value->setGeometry(QRect(104, 5, 86, 25));
-        sizePolicy.setHeightForWidth(textureAttributes_value->sizePolicy().hasHeightForWidth());
-        textureAttributes_value->setSizePolicy(sizePolicy);
-        textureAttributes_value->setMinimumSize(QSize(86, 25));
-        textureAttributes_value->setMaximumSize(QSize(86, 25));
-        textureAttributes_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        textureAttributes_value->setFrame(false);
-        textureAttributes_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
-        textureAttributes_value->setDecimals(3);
-        textureAttributes_value->setMinimum(-9999);
-        textureAttributes_value->setMaximum(9999);
-        textureAttributes_value->setSingleStep(0.05);
-        textureAttributes_dial = new QDial(textureAttributes);
-        textureAttributes_dial->setObjectName(QStringLiteral("textureAttributes_dial"));
-        textureAttributes_dial->setGeometry(QRect(192, 2, 30, 30));
-        sizePolicy.setHeightForWidth(textureAttributes_dial->sizePolicy().hasHeightForWidth());
-        textureAttributes_dial->setSizePolicy(sizePolicy);
-        textureAttributes_dial->setMinimumSize(QSize(30, 30));
-        textureAttributes_dial->setMaximumSize(QSize(30, 30));
-        textureAttributes_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
-        textureAttributes_dial->setMinimum(-10000);
-        textureAttributes_dial->setMaximum(10000);
-        textureAttributes_box = new QComboBox(textureAttributes);
-        textureAttributes_box->setObjectName(QStringLiteral("textureAttributes_box"));
-        textureAttributes_box->setGeometry(QRect(3, 6, 95, 22));
-        sizePolicy.setHeightForWidth(textureAttributes_box->sizePolicy().hasHeightForWidth());
-        textureAttributes_box->setSizePolicy(sizePolicy);
-        textureAttributes_box->setMinimumSize(QSize(95, 22));
-        textureAttributes_box->setMaximumSize(QSize(90, 22));
-        textureAttributes_box->setBaseSize(QSize(90, 25));
-        textureAttributes_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(180, 180, 180);\n"
-"border-left-color: rgb(180, 180, 180);\n"
-"border-bottom-color: rgb(255, 255, 255);\n"
-"border-right-color: rgb(255, 255, 255);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        textureAttributes_box->setFrame(false);
-
-        areaLayout->addWidget(textureAttributes);
-
         reloadTexture = new QFrame(layoutWidget1);
         reloadTexture->setObjectName(QStringLiteral("reloadTexture"));
         sizePolicy.setHeightForWidth(reloadTexture->sizePolicy().hasHeightForWidth());
@@ -1044,6 +984,30 @@ public:
         reloadTerrain_btn->setDefault(false);
 
         areaLayout->addWidget(reloadTerrain);
+
+        reloadPlacement = new QFrame(layoutWidget1);
+        reloadPlacement->setObjectName(QStringLiteral("reloadPlacement"));
+        sizePolicy.setHeightForWidth(reloadPlacement->sizePolicy().hasHeightForWidth());
+        reloadPlacement->setSizePolicy(sizePolicy);
+        reloadPlacement->setMinimumSize(QSize(225, 35));
+        reloadPlacement->setMaximumSize(QSize(225, 35));
+        reloadPlacement->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        reloadPlacement->setFrameShape(QFrame::Panel);
+        reloadPlacement->setFrameShadow(QFrame::Raised);
+        reloadPlacement_btn = new QPushButton(reloadPlacement);
+        reloadPlacement_btn->setObjectName(QStringLiteral("reloadPlacement_btn"));
+        reloadPlacement_btn->setGeometry(QRect(5, 4, 216, 25));
+        reloadPlacement_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        reloadPlacement_btn->setDefault(false);
+
+        areaLayout->addWidget(reloadPlacement);
 
         _areaSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2277,7 +2241,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(2);
+        TabMenu->setCurrentIndex(1);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2315,6 +2279,7 @@ public:
         instancesTerrain_lbl->setText(QApplication::translate("Tweaker", "Instances", 0));
         instancesTerrain_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         reloadTerrain_btn->setText(QApplication::translate("Tweaker", "Reload Terrain", 0));
+        reloadPlacement_btn->setText(QApplication::translate("Tweaker", "Reload Placement", 0));
         TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "PGT", 0));
         selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", 0));
         shader_lbl->setText(QApplication::translate("Tweaker", "Shader", 0));
