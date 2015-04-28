@@ -77,6 +77,16 @@ public:
     */
     const float& Active() const;
 
+    /**
+    * Sets the World coordinates of the light
+    */
+    void PositionX(float x);
+    
+    /**
+    * Sets the World coordinates of the light
+    */
+    void PositionZ(float z);
+
 private:
 
     std::string m_name;          ///< Name of the light

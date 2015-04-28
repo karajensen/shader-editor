@@ -86,6 +86,12 @@ public:
     */
     void CopyTextures(ID3D11DeviceContext* context);
 
+    /**
+    * Sets the render target texture as high quality
+    * @note needs to be called before initialise
+    */
+    void SetHighQuality(int index);
+
 private:
 
     /**
@@ -132,6 +138,7 @@ private:
     std::vector<ID3D11RenderTargetView*> m_targets;       ////< Render target buffers
     std::vector<ID3D11ShaderResourceView*> m_views;       ///< Shader views for the textures
     std::vector<ID3D11ShaderResourceView*> m_copiedViews; ///< Shader views for the textures
+    std::vector<bool> m_highQuality;                      ///< Whether to use high quality textures
     ID3D11DepthStencilView* m_depthBuffer = nullptr;      ///< Depth buffer for the render target
     static D3D11_TEXTURE2D_DESC sm_textureDesc;           ///< Base description of the render target textures
     ID3D11SamplerState* m_state = nullptr;                ///< The sampler state for rendering the target

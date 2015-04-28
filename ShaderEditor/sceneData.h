@@ -35,4 +35,5 @@ struct SceneData
     std::vector<std::pair<unsigned int, int>> rocks;   ///< Scene foliage placed on rocks
     unsigned int sandIndex = 0;                        ///< Index for the sand terrain
     unsigned int oceanIndex = 0;                       ///< Index for the ocean water
+    unsigned int sunIndex = 0;                         ///< Index for the initial sun light
 };

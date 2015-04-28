@@ -244,6 +244,7 @@ bool DirectxEngine::Initialize()
     }
 
     // Create the render targets. Back buffer must be initialised first.
+    m_data->sceneTarget.SetHighQuality(DEPTH_ID); // Required for DOF
     if (!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
         !m_data->sceneTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
         !m_data->preEffectsTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
@@ -799,12 +800,7 @@ bool DirectxEngine::UpdateShader(const Terrain& terrain,
 {
     if (UpdateShader(terrain, scene, false))
     {
-        auto& shader = m_data->shaders[terrain.ShaderID()];
-        shader->UpdateConstantFloat("meshCausticAmount", &terrain.CausticsAmount(), 1);
-        shader->UpdateConstantFloat("meshCausticScale", &terrain.CausticsScale(), 1);
-        shader->UpdateConstantFloat("meshAmbience", &terrain.Ambience(), 1);
-        shader->UpdateConstantFloat("meshBump", &terrain.Bump(), 1);
-        shader->UpdateConstantFloat("meshSpecularity", &terrain.Specularity(), 1);
+        SendAttributes(terrain);
         return true;
     }
     return false;
@@ -814,12 +810,7 @@ bool DirectxEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 {
     if (UpdateShader(mesh, scene, false))
     {
-        auto& shader = m_data->shaders[mesh.ShaderID()];
-        shader->UpdateConstantFloat("meshCausticAmount", &mesh.CausticsAmount(), 1);
-        shader->UpdateConstantFloat("meshCausticScale", &mesh.CausticsScale(), 1);
-        shader->UpdateConstantFloat("meshAmbience", &mesh.Ambience(), 1);
-        shader->UpdateConstantFloat("meshBump", &mesh.Bump(), 1);
-        shader->UpdateConstantFloat("meshSpecularity", &mesh.Specularity(), 1);
+        SendAttributes(mesh);
         return true;
     }
     return false;
@@ -887,6 +878,18 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, const Particle& partic
     shader->UpdateConstantFloat("alpha", &particle.Alpha(), 1);
     shader->SendConstants(m_data->context);
     SendTexture(0, particle.Texture());
+}
+
+void DirectxEngine::SendAttributes(const MeshAttributes& attributes)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->UpdateConstantFloat("meshCausticAmount", &attributes.CausticsAmount(), 1);
+    shader->UpdateConstantFloat("meshCausticScale", &attributes.CausticsScale(), 1);
+    shader->UpdateConstantFloat("meshAmbience", &attributes.Ambience(), 1);
+    shader->UpdateConstantFloat("meshBump", &attributes.Bump(), 1);
+    shader->UpdateConstantFloat("meshSpecularity", &attributes.Specularity(), 1);
+    shader->UpdateConstantFloat("meshSpecular", &attributes.Specular(), 1);
+    shader->UpdateConstantFloat("meshDiffuse", &attributes.Diffuse(), 1);
 }
 
 void DirectxEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)

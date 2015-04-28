@@ -57,6 +57,12 @@ public:
     * @return the ID of the target texture
     */
     GLuint GetTexture(int index = 0) const;
+
+    /**
+    * Sets the render target texture as high quality
+    * @note needs to be called before initialise
+    */
+    void SetHighQuality(int index);
     
     /**
     * @return if this target is multisampled
@@ -80,9 +86,10 @@ private:
     * Creates the texture
     * @param id The ID to fill in for the new texture
     * @param type The type of texture to create
+    * @para highQuality Whether to make this texture high quality
     * @return whether create was successful
     */
-    bool CreateTexture(GLuint& id, unsigned int type);
+    bool CreateTexture(GLuint& id, unsigned int type, bool highQuality);
 
     bool m_mainAttached = false;        ///< Whether the main textures are attached
     bool m_readWrite = false;           ///< Whether this target both read/writes to itself
@@ -94,6 +101,7 @@ private:
     std::vector<GLuint> m_texturesMain; ///< Unique IDs of the main attached textures
     std::vector<GLuint> m_texturesAlt;  ///< Unique IDs of the alternative attached textures
     std::vector<GLenum> m_attachments;  ///< Container of attachment slots taken up
+    std::vector<bool> m_highQuality;    ///< Whether to use high quality textures
     GLuint m_renderBuffer = 0;          ///< Unique ID of the buffer holding the depth information
     GLuint m_frameBuffer = 0;           ///< Unique ID of the frame buffer
 };

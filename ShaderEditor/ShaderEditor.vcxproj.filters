@@ -192,6 +192,9 @@
     <ClCompile Include="scenePlacer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="meshAttributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -366,6 +369,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="scenePlacer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshAttributes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,8 +14,10 @@ endif
 
 out float ex_Depth;
 out vec2 ex_UVs;
-out vec3 ex_PositionWorld;
 out vec3 ex_Normal;
+ifdef: !FLAT
+    out vec3 ex_PositionWorld;
+endif
 ifdef: BUMP
     out vec3 ex_Tangent;
     out vec3 ex_Bitangent;
@@ -36,8 +38,11 @@ void main(void)
 {
     gl_Position = viewProjection * world * in_Position;
     ex_UVs = in_UVs;
-    ex_PositionWorld = (world * in_Position).xyz;
     ex_Normal = (world * vec4(in_Normal, 0.0)).xyz;
+
+    ifdef: !FLAT
+        ex_PositionWorld = (world * in_Position).xyz;
+    endif
 
     ifdef: BUMP
         ex_Tangent = (world * vec4(in_Tangent, 0.0)).xyz;

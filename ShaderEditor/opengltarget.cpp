@@ -13,15 +13,18 @@ GlRenderTarget::GlRenderTarget(const std::string& name) :
 GlRenderTarget::GlRenderTarget(const std::string& name, 
                                int textures, 
                                bool multisampled, 
-                               bool usesChain) :
+                               bool readWrite) :
 
     m_multisampled(multisampled),
     m_name(name),
     m_count(textures),
-    m_readWrite(usesChain)
+    m_readWrite(readWrite)
 {
     m_attachments.resize(m_count);
     m_texturesMain.resize(m_count);
+
+    m_highQuality.resize(m_count);
+    m_highQuality.assign(m_count, false);
 
     if (m_readWrite)
     {
@@ -76,7 +79,7 @@ bool GlRenderTarget::Initialise()
 
         for (unsigned int i = 0; i < m_texturesAlt.size(); ++i)
         {
-            if (!CreateTexture(m_texturesAlt[i], textureType))
+            if (!CreateTexture(m_texturesAlt[i], textureType, m_highQuality[i]))
             {
                 return false;
             }
@@ -84,7 +87,7 @@ bool GlRenderTarget::Initialise()
 
         for (unsigned int i = 0; i < m_texturesMain.size(); ++i)
         {
-            if (!CreateTexture(m_texturesMain[i], textureType))
+            if (!CreateTexture(m_texturesMain[i], textureType, m_highQuality[i]))
             {
                 return false;
             }
@@ -108,12 +111,12 @@ bool GlRenderTarget::Initialise()
         if (m_multisampled)
         {
             glRenderbufferStorageMultisample(GL_RENDERBUFFER, MULTISAMPLING_COUNT, 
-                GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+                GL_DEPTH_COMPONENT24, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
         else
         {
             glRenderbufferStorage(GL_RENDERBUFFER,
-                GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+                GL_DEPTH_COMPONENT24, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, 
@@ -137,7 +140,12 @@ bool GlRenderTarget::Initialise()
     return true;
 }
 
-bool GlRenderTarget::CreateTexture(GLuint& id, unsigned int type)
+void GlRenderTarget::SetHighQuality(int index)
+{
+    m_highQuality[index] = true;
+}
+
+bool GlRenderTarget::CreateTexture(GLuint& id, unsigned int type, bool highQuality)
 {
     glGenTextures(1, &id);
     glBindTexture(type, id);
@@ -145,7 +153,7 @@ bool GlRenderTarget::CreateTexture(GLuint& id, unsigned int type)
     if (m_multisampled)
     {
         glTexImage2DMultisample(type, MULTISAMPLING_COUNT, 
-            GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
+            highQuality ? GL_RGBA32F : GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, GL_TRUE);  
     }
     else
     {

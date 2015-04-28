@@ -111,3 +111,13 @@ const float& Light::Active() const
 {
     return m_active;
 }
+
+void Light::PositionX(float x)
+{
+    m_position.x = x;
+}
+
+void Light::PositionZ(float z)
+{
+    m_position.z = z;
+}

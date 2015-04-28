@@ -10,14 +10,10 @@ Terrain::Terrain(const boost::property_tree::ptree& node,
                  const std::vector<unsigned int>& pixels,
                  const std::string& heightmap) :
     Grid(node),
+    MeshAttributes(node),
     m_pixels(pixels),
     m_heightmap(heightmap)
 {
-    m_causticsAmount = GetAttributeOptional<float>(node, "Caustics", "amount", 1.0f);
-    m_causticsScale = GetAttributeOptional<float>(node, "Caustics", "scale", 1.0f);
-    m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
-    m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
-    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
     m_minHeight = GetAttribute<float>(node, "Height", "min");
     m_maxHeight = GetAttribute<float>(node, "Height", "max");
     m_height = GetAttribute<float>(node, "Height", "start");
@@ -28,16 +24,12 @@ Terrain::Terrain(const boost::property_tree::ptree& node,
 void Terrain::Write(boost::property_tree::ptree& node) const
 {
     Grid::Write(node);
+    MeshAttributes::Write(node);
 
     node.add("HeightMap", m_heightmap);
     node.add("Height.<xmlattr>.min", m_minHeight);
     node.add("Height.<xmlattr>.max", m_maxHeight);
     node.add("Height.<xmlattr>.start", m_height);
-    AddValueOptional(node, "Bump", m_bump, 0.0f);
-    AddValueOptional(node, "Ambience", m_ambience, 1.0f);
-    AddValueOptional(node, "Specularity", m_specularity, 0.0f);
-    AddValueOptional(node, "Caustics.<xmlattr>.amount", m_causticsAmount, 1.0f);
-    AddValueOptional(node, "Caustics.<xmlattr>.scale", m_causticsScale, 1.0f);
     AddValueOptional(node, "UVScale.<xmlattr>.u", m_uvScale.x, 1.0f);
     AddValueOptional(node, "UVScale.<xmlattr>.v", m_uvScale.y, 1.0f);
 }
@@ -118,31 +110,6 @@ void Terrain::GenerateTerrain()
     {
         SetHeight(r, 0, GetHeight(r, gridSize-1));
     }
-}
-
-const float& Terrain::Specularity() const
-{
-    return m_specularity;
-}
-
-const float& Terrain::Ambience() const
-{
-    return m_ambience;
-}
-
-const float& Terrain::Bump() const
-{
-    return m_bump;
-}
-
-const float& Terrain::CausticsScale() const
-{
-    return m_causticsScale;
-}
-
-const float& Terrain::CausticsAmount() const
-{
-    return m_causticsAmount;
 }
 
 void Terrain::SetInstance(int index, const Float2& position)

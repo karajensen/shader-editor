@@ -270,6 +270,7 @@ bool OpenglEngine::Initialize()
     }
 
     // Create the render targets
+    m_data->sceneTarget.SetHighQuality(DEPTH_ID); // Required for DOF
     if(!m_data->backBuffer.Initialise() ||
        !m_data->sceneTarget.Initialise() ||
        !m_data->preEffectsTarget.Initialise() ||
@@ -707,13 +708,8 @@ bool OpenglEngine::UpdateShader(const Terrain& terrain, const IScene& scene)
 {
     if (UpdateShader(terrain, scene, false))
     {
-        auto& shader = m_data->shaders[terrain.ShaderID()];
-        shader->SendUniformFloat("meshCausticAmount", &terrain.CausticsAmount(), 1);
-        shader->SendUniformFloat("meshCausticScale", &terrain.CausticsScale(), 1);
-        shader->SendUniformFloat("meshAmbience", &terrain.Ambience(), 1);
-        shader->SendUniformFloat("meshBump", &terrain.Bump(), 1);
-        shader->SendUniformFloat("meshSpecularity", &terrain.Specularity(), 1);
-        shader->SendUniformArrays();
+        SendAttributes(terrain);
+        m_data->shaders[m_data->selectedShader]->SendUniformArrays();
         return true;
     }
     return false;
@@ -723,13 +719,8 @@ bool OpenglEngine::UpdateShader(const Mesh& mesh, const IScene& scene)
 {
     if (UpdateShader(mesh, scene, false))
     {
-        auto& shader = m_data->shaders[mesh.ShaderID()];
-        shader->SendUniformFloat("meshCausticAmount", &mesh.CausticsAmount(), 1);
-        shader->SendUniformFloat("meshCausticScale", &mesh.CausticsScale(), 1);
-        shader->SendUniformFloat("meshAmbience", &mesh.Ambience(), 1);
-        shader->SendUniformFloat("meshBump", &mesh.Bump(), 1);
-        shader->SendUniformFloat("meshSpecularity", &mesh.Specularity(), 1);
-        shader->SendUniformArrays();
+        SendAttributes(mesh);
+        m_data->shaders[m_data->selectedShader]->SendUniformArrays();
         return true;
     }
     return false;
@@ -766,6 +757,18 @@ bool OpenglEngine::UpdateShader(const Water& water,
         return true;
     }
     return false;
+}
+
+void OpenglEngine::SendAttributes(const MeshAttributes& attributes)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->SendUniformFloat("meshCausticAmount", &attributes.CausticsAmount(), 1);
+    shader->SendUniformFloat("meshCausticScale", &attributes.CausticsScale(), 1);
+    shader->SendUniformFloat("meshAmbience", &attributes.Ambience(), 1);
+    shader->SendUniformFloat("meshBump", &attributes.Bump(), 1);
+    shader->SendUniformFloat("meshSpecularity", &attributes.Specularity(), 1);
+    shader->SendUniformFloat("meshSpecular", &attributes.Specular(), 1);
+    shader->SendUniformFloat("meshDiffuse", &attributes.Diffuse(), 1);
 }
 
 void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)

@@ -39,6 +39,7 @@
     <ClCompile Include="emitter.cpp" />
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="grid.cpp" />
+    <ClCompile Include="meshAttributes.cpp" />
     <ClCompile Include="qtGUI.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="cache.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="int2.h" />
+    <ClInclude Include="meshAttributes.h" />
     <ClInclude Include="qtGUI.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />

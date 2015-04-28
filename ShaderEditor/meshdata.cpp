@@ -48,15 +48,15 @@ std::string MeshData::GetTypeDescription(unsigned int type)
     switch (type)
     {
     case SLOT_DIFFUSE:
-        return "Diffuse";
+        return "DiffuseMap";
     case SLOT_NORMAL:
-        return "Normal";
+        return "NormalMap";
     case SLOT_SPECULAR:
-        return "Specular";
+        return "SpecularMap";
     case SLOT_ENVIRONMENT:
-        return "Environment";
+        return "EnvironmentMap";
     case SLOT_CAUSTICS:
-        return "Caustics";
+        return "CausticsMap";
     default:
         return "None";
     };

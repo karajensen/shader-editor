@@ -17,7 +17,27 @@ cbuffer MeshVertexBuffer : register(b1)
     float4x4 world;
 };
 
-cbuffer ScenePixelBuffer : register(b2)
+cbuffer MeshPixelBuffer : register(b2)
+{
+    float meshAmbience;
+    ifdef: !FLAT
+        float meshDiffuse;
+    endif
+    ifdef: BUMP
+        float meshBump;
+    endif
+    ifdef: SPECULAR
+        float meshSpecular;
+        float meshSpecularity;
+    endif
+    ifdef: CAUSTICS
+        float meshCausticAmount;
+        float meshCausticScale;
+    endif
+};
+
+#ifdef: !FLAT
+cbuffer ScenePixelBuffer : register(b3)
 {
     float lightActive[MAX_LIGHTS];
     float3 lightPosition[MAX_LIGHTS];
@@ -28,22 +48,7 @@ cbuffer ScenePixelBuffer : register(b2)
         float3 lightSpecular[MAX_LIGHTS];
     endif
 };
-
-cbuffer MeshPixelBuffer : register(b3)
-{
-    float meshAmbience;
-    float3 meshColour;
-    ifdef: BUMP
-        float meshBump;
-    endif
-    ifdef: SPECULAR
-        float meshSpecularity;
-    endif
-    ifdef: CAUSTICS
-        float meshCausticAmount;
-        float meshCausticScale;
-    endif
-};
+endif
 
 SamplerState Sampler;
 Texture2D DiffuseSampler;
@@ -63,7 +68,9 @@ struct Attributes
     float3 normal            : NORMAL;
     float  depth             : TEXCOORD0;
     float2 uvs               : TEXCOORD1;
-    float3 positionWorld     : TEXCOORD2;
+    ifdef: !FLAT
+        float3 positionWorld : TEXCOORD2;
+    endif
     ifdef: BUMP
         float3 tangent       : TEXCOORD3;
         float3 bitangent     : TEXCOORD4;
@@ -94,9 +101,11 @@ Attributes VShader(float4 position      : POSITION,
     Attributes output;
 
     output.position = mul(mul(viewProjection, world), position);
-    output.positionWorld = mul(world, position).xyz;
     output.normal = mul(world, normal);
     output.uvs = uvs;
+    ifdef: !FLAT
+        output.positionWorld = mul(world, position).xyz;
+    endif
 
     float2 depthBounds = float2(0.0, 1.0);
     output.depth = ((output.position.z - depthNear) *
@@ -117,8 +126,11 @@ Attributes VShader(float4 position      : POSITION,
 Outputs PShader(Attributes input)
 {
     float4 diffuseTex = DiffuseSampler.Sample(Sampler, input.uvs);
-    float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
-    float3 normal = normalize(input.normal);
+
+    ifdef: !FLAT
+        float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
+        float3 normal = normalize(input.normal);
+    endif
 
     ifdef: BUMP
         float4 normalTex = NormalSampler.Sample(Sampler, input.uvs);
@@ -133,30 +145,30 @@ Outputs PShader(Attributes input)
         float4 specular = float4(0.0, 0.0, 0.0, 0.0);
     endif
 
-    for (int i = 0; i < MAX_LIGHTS; ++i)
-    {
-        float3 lightColour = lightDiffuse[i];
-        float3 vertToLight = lightPosition[i] - input.positionWorld;
-        float lightLength = length(vertToLight);
+    ifdef: !FLAT
+        for (int i = 0; i < MAX_LIGHTS; ++i)
+        {
+            float3 lightColour = lightDiffuse[i];
+            float3 vertToLight = lightPosition[i] - input.positionWorld;
+            float lightLength = length(vertToLight);
         
-        float attenuation = 1.0 / (lightAttenuation[i].x 
-            + lightAttenuation[i].y * lightLength 
-            + lightAttenuation[i].z * lightLength * lightLength);
+            float attenuation = 1.0 / (lightAttenuation[i].x 
+                + lightAttenuation[i].y * lightLength 
+                + lightAttenuation[i].z * lightLength * lightLength);
 
-        ifdef: !FLAT
             vertToLight /= lightLength;
             lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-        endif
+            diffuse.rgb += lightColour * attenuation * lightActive[i] * meshDiffuse;
 
-        ifdef: SPECULAR
-            float specularity = lightSpecularity[i] * meshSpecularity;
-            float3 halfVector = normalize(vertToLight + vertToCamera);
-            float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-            specular.rgb += specularFactor * lightSpecular[i] * attenuation * lightActive[i];
-        endif
-
-        diffuse.rgb += lightColour * attenuation * lightActive[i];
-    }
+            ifdef: SPECULAR
+                float specularity = lightSpecularity[i] * meshSpecularity;
+                float3 halfVector = normalize(vertToLight + vertToCamera);
+                float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
+                specular.rgb += specularFactor * lightSpecular[i] * 
+                    attenuation * lightActive[i] * meshSpecular;
+            endif
+        }
+    endif
 
     ifdef: CAUSTICS
         float3 caustics = CausticsSampler.Sample(
@@ -166,7 +178,11 @@ Outputs PShader(Attributes input)
     Outputs output;
     output.depth = float4(input.depth, input.depth, input.depth, 1.0);
 
-    output.colour.rgb = diffuseTex.rgb * diffuse;
+    ifdef: FLAT
+        output.colour.rgb = diffuseTex.rgb;
+    else:
+        output.colour.rgb = diffuseTex.rgb * diffuse;
+    endif
     ifdef: SPECULAR
         output.colour.rgb += specularTex.rgb * specular;
     endif

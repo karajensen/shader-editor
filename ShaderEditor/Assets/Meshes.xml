@@ -9,43 +9,43 @@
     <Shader>flat</Shader>
     <SkyBox>1</SkyBox>
     <BackfaceCulling>0</BackfaceCulling>
-    <Diffuse>skybox.png</Diffuse>
+    <DiffuseMap>skybox.png</DiffuseMap>
+    <Ambience>0.85</Ambience>
     <Instances>1</Instances>
   </Mesh>
   <Foliage>
     <Name>sphere.obj</Name>
     <Shader>bump|specular|caustics</Shader>
-    <Diffuse>blank.png</Diffuse>
-    <Normal>bump.png</Normal>
-    <Specular>blank.png</Specular>
+    <DiffuseMap>blank.png</DiffuseMap>
+    <NormalMap>bump.png</NormalMap>
+    <SpecularMap>blank.png</SpecularMap>
     <Bump>20</Bump>
-    <Specularity>5</Specularity>
+    <Specularity>20</Specularity>
+    <Specular>0.1</Specular>
     <Instances>120</Instances>
   </Foliage>
   <Foliage>
     <Name>sphere.obj</Name>
     <Shader>bump|caustics</Shader>
-    <Diffuse>blank.png</Diffuse>
-    <Normal>bump.png</Normal>
+    <DiffuseMap>blank.png</DiffuseMap>
+    <NormalMap>bump.png</NormalMap>
     <Bump>20</Bump>
     <Instances>120</Instances>
   </Foliage>
   <Foliage>
     <Name>sphere.obj</Name>
     <Shader>diffuse|caustics</Shader>
-    <Diffuse>water.png</Diffuse>
+    <DiffuseMap>water.png</DiffuseMap>
     <Instances>120</Instances>
   </Foliage>  
   <Sand>
     <Name>sand</Name>
-    <Shader>bump|caustics|specular</Shader>
-    <Diffuse>sand.png</Diffuse>
-    <Normal>sand_bump.png</Normal>
-    <Specular>sand_specular.png</Specular>
+    <Shader>bump|caustics</Shader>
+    <DiffuseMap>sand.png</DiffuseMap>
+    <NormalMap>sand_bump.png</NormalMap>
     <Caustics amount="0.3" scale="1.0"></Caustics>
-    <Bump>4.0</Bump>
-    <Specularity>5.0</Specularity>
-    <Ambience>1.5</Ambience>
+    <Bump>10.0</Bump>
+    <Ambience>1.0</Ambience>
     <Grid spacing="10" size="51"/>
     <UVScale u="4.0" v="4.0"/>
     <Height start="-40.0" min="0.0" max="5.0"></Height>
@@ -54,9 +54,9 @@
   <Water>
     <Name>water</Name>
     <BackfaceCulling>0</BackfaceCulling>
-    <Diffuse>water.png</Diffuse>
-    <Normal>water_normal.png</Normal>
-    <Environment>water_environment</Environment>
+    <DiffuseMap>water.png</DiffuseMap>
+    <NormalMap>water_normal.png</NormalMap>
+    <EnvironmentMap>water_environment</EnvironmentMap>
     <Grid spacing="10" size="51"/>
     <Height>25.0</Height>
     <Bump>1</Bump>

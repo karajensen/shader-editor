@@ -10,28 +10,15 @@
 #include "assimp/include/postprocess.h"
 
 Mesh::Mesh(const boost::property_tree::ptree& node) :
-    MeshData(node)
+    MeshData(node),
+    MeshAttributes(node)
 {
-    m_causticsAmount = GetAttributeOptional<float>(node, "Caustics", "amount", 1.0f);
-    m_causticsScale = GetAttributeOptional<float>(node, "Caustics", "scale", 1.0f);
-    m_specularity = GetValueOptional<float>(node, 0.0f, "Specularity");
-    m_ambience = GetValueOptional<float>(node, 1.0f, "Ambience");
-    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
 }
 
 void Mesh::Write(boost::property_tree::ptree& node) const
 {
     MeshData::Write(node);
-
-    AddValueOptional(node, "Bump", m_bump, 0.0f);
-    AddValueOptional(node, "Ambience", m_ambience, 1.0f);
-    AddValueOptional(node, "Specularity", m_specularity, 0.0f);
-
-    if (UsesCaustics())
-    {
-        node.add("Caustics.<xmlattr>.amount", m_causticsAmount);
-        node.add("Caustics.<xmlattr>.scale", m_causticsScale);
-    }
+    MeshAttributes::Write(node);
 }
 
 void Mesh::Write(Cache& cache)
@@ -51,32 +38,6 @@ void Mesh::Read(Cache& cache)
     m_bump = cache.Mesh[MESH_BUMP].Get();
     m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
-}
-
-const float& Mesh::Bump() const
-{
-    return m_bump;
-}
-
-const float& Mesh::Specularity() const
-{
-    return m_specularity;
-}
-
-const float& Mesh::Ambience() const
-{
-    return m_ambience;
-
-}
-
-const float& Mesh::CausticsAmount() const
-{
-    return m_causticsAmount;
-}
-
-const float& Mesh::CausticsScale() const
-{
-    return m_causticsScale;
 }
 
 bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, bool requiresTangents)

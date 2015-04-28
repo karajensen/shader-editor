@@ -7,6 +7,7 @@
 #include "renderengine.h"
 #include <Windows.h>
 
+class MeshAttributes;
 class MeshData;
 class Particle;
 class Mesh;
@@ -240,6 +241,12 @@ private:
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
+
+    /**
+    * Sends any attributes for a mesh
+    * @param attributes The attributes of the mesh currently rendering
+    */
+    void SendAttributes(const MeshAttributes& attributes);
 
     /**
     * Sends light information to the selected shader

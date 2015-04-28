@@ -69,6 +69,9 @@ Int2 ScenePlacer::GetPatchInside(const Float3& position) const
 
 void ScenePlacer::Update(const Float3& cameraPosition)
 {
+     m_data.lights[m_data.sunIndex]->PositionX(cameraPosition.x);
+     m_data.lights[m_data.sunIndex]->PositionZ(cameraPosition.z);
+
     if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
     {
         m_patchInside = GetPatchInside(cameraPosition);

@@ -29,6 +29,9 @@ DxRenderTarget::DxRenderTarget(const std::string& name,
 
 void DxRenderTarget::InitialiseContainers()
 {
+    m_highQuality.resize(m_count);
+    m_highQuality.assign(m_count, false);
+
     m_views.resize(m_count);
     m_views.assign(m_count, nullptr);
     
@@ -87,7 +90,7 @@ bool DxRenderTarget::InitialiseDepthBuffer(ID3D11Device* device)
 {
     D3D11_TEXTURE2D_DESC textureDesc = sm_textureDesc;
     textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    textureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
 
     ID3D11Texture2D* depthTexture;
@@ -134,6 +137,11 @@ bool DxRenderTarget::InitialiseBackBuffer(ID3D11Device* device, IDXGISwapChain* 
     return true;
 }
 
+void DxRenderTarget::SetHighQuality(int index)
+{
+    m_highQuality[index] = true;
+}
+
 bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
 {
     const auto name = m_name + boost::lexical_cast<std::string>(ID);
@@ -141,8 +149,9 @@ bool DxRenderTarget::InitialiseRenderTarget(ID3D11Device* device, int ID)
     D3D11_TEXTURE2D_DESC textureDesc = sm_textureDesc;
     textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     textureDesc.SampleDesc.Count = m_multisampled ? MULTISAMPLING_COUNT : 1;
+    textureDesc.Format = m_highQuality[ID] ? 
+        DXGI_FORMAT_R32G32B32A32_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
 
     if (FAILED(device->CreateTexture2D(&textureDesc, 0, &(m_textures[ID]))))
     {
