@@ -26,9 +26,9 @@ public:
     float Size() const;
 
     /**
-    * @return the height at the given row/column
+    * @return the spacing between vertices
     */
-    float GetHeight(int row, int column) const;
+    float Spacing() const;
 
     /**
     * @return the number of rows of the grid
@@ -67,6 +67,16 @@ protected:
     * Sets the height at the given row/column
     */
     void SetHeight(int row, int column, float height);
+
+    /**
+    * @return the height at the given row/column
+    */
+    float GetHeight(int row, int column) const;
+
+    /**
+    * @return the local position at the given row/column
+    */
+    Float3 GetPosition(int row, int column) const;
 
     /**
     * Determines the normals for the grid

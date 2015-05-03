@@ -37,9 +37,13 @@ void main(void)
     vec4 blur = texture(BlurSampler, ex_UVs);
     vec3 postScene = scene.rgb;
 
-    // Normals/Depth
-    ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
-    float depth = texelFetch(DepthSampler, uvs, 0).r;
+    // Depth information
+    float depth = 0.0;
+    for (int i = 0; i < SAMPLES; ++i)
+    {
+        depth += texelFetch(DepthSampler, uvs, i).r;
+    }
+    depth *= (1.0 / SAMPLES);
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;

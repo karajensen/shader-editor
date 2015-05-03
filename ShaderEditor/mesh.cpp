@@ -40,13 +40,11 @@ void Mesh::Read(Cache& cache)
     m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
 }
 
-bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, bool requiresTangents)
+bool Mesh::InitialiseFromFile(const std::string& path, 
+                              const Float2& uvScale, 
+                              bool requiresNormals, 
+                              bool requiresTangents)
 {
-    const int usedTextures = TextureIDs().size() - 
-        std::count(TextureIDs().begin(), TextureIDs().end(), NO_INDEX);
-
-    const bool requiresUVs = usedTextures > 0;
-
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace|
         aiProcess_Triangulate|aiProcess_JoinIdenticalVertices|aiProcess_SortByPType|
@@ -83,7 +81,7 @@ bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, boo
             Logger::LogError(Name() + " requires positions for requested shader");
             return false;
         }
-        if(requiresUVs && !pMesh->HasTextureCoords(0))
+        if(!pMesh->HasTextureCoords(0))
         {
             Logger::LogError(Name() + " requires uvs for requested shader");
             return false;
@@ -101,14 +99,9 @@ bool Mesh::InitialiseFromFile(const std::string& path, bool requiresNormals, boo
             m_vertices.push_back(pMesh->mVertices[vert].x);
             m_vertices.push_back(pMesh->mVertices[vert].y);
             m_vertices.push_back(pMesh->mVertices[vert].z);
-            componentCount = 3;
-
-            if (requiresUVs)
-            {
-                m_vertices.push_back(pMesh->mTextureCoords[0][vert].x);
-                m_vertices.push_back(pMesh->mTextureCoords[0][vert].y);
-                componentCount += 2;
-            }
+            m_vertices.push_back(pMesh->mTextureCoords[0][vert].x * uvScale.x);
+            m_vertices.push_back(pMesh->mTextureCoords[0][vert].y * uvScale.y);
+            componentCount = 5;
 
             if (requiresNormals)
             {

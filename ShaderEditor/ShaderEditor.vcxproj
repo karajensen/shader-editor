@@ -40,6 +40,7 @@
     <ClCompile Include="fragmentlinker.cpp" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="meshAttributes.cpp" />
+    <ClCompile Include="meshgroup.cpp" />
     <ClCompile Include="qtGUI.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -52,6 +53,7 @@
     <ClCompile Include="opengltexture.cpp" />
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="postprocessing.cpp" />
+    <ClCompile Include="random_generator.cpp" />
     <ClCompile Include="sceneBuilder.cpp" />
     <ClCompile Include="scenePlacer.cpp" />
     <ClCompile Include="terrain.cpp" />
@@ -97,6 +99,7 @@
     <ClInclude Include="grid.h" />
     <ClInclude Include="int2.h" />
     <ClInclude Include="meshAttributes.h" />
+    <ClInclude Include="meshgroup.h" />
     <ClInclude Include="qtGUI.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="mesh.h" />
@@ -109,6 +112,7 @@
     <ClInclude Include="opengltexture.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="postprocessing.h" />
+    <ClInclude Include="random_generator.h" />
     <ClInclude Include="sceneBuilder.h" />
     <ClInclude Include="sceneData.h" />
     <ClInclude Include="scenePlacer.h" />

@@ -18,9 +18,6 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{bf83199f-cb5f-4230-bd48-2e7734160676}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Elements">
-      <UniqueIdentifier>{957ec1ed-d20f-4531-9941-8185e2195bb9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine - DirectX">
       <UniqueIdentifier>{df8d1dfb-1910-489c-9f0d-a34bc4d64c45}</UniqueIdentifier>
     </Filter>
@@ -36,13 +33,13 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\.gitignore" />
-    <None Include="..\readme.txt" />
     <None Include="qt\project\editor.ui">
       <Filter>Qt</Filter>
     </None>
     <None Include="qt\project\tweaker.ui">
       <Filter>Qt</Filter>
     </None>
+    <None Include="..\readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -123,15 +120,6 @@
     <ClCompile Include="diagnostic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="emitter.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="postprocessing.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="mesh.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
     <ClCompile Include="openglemitter.cpp">
       <Filter>Engine - OpenGL</Filter>
     </ClCompile>
@@ -150,38 +138,8 @@
     <ClCompile Include="opengltexture.cpp">
       <Filter>Engine - OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="particle.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="light.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="meshdata.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="water.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="textureAnimated.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="textureProcedural.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
-    <ClCompile Include="terrain.cpp">
-      <Filter>Elements</Filter>
-    </ClCompile>
     <ClCompile Include="sceneBuilder.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="grid.cpp">
-      <Filter>Elements</Filter>
     </ClCompile>
     <ClCompile Include="qtGUI.cpp">
       <Filter>Source Files</Filter>
@@ -193,6 +151,51 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="meshAttributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshgroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="random_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="emitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshdata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="postprocessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textureAnimated.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textureProcedural.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,27 +248,6 @@
     <ClInclude Include="openglemitter.h">
       <Filter>Engine - OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="water.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="postprocessing.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="light.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="emitter.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
     <ClInclude Include="directxtexture.h">
       <Filter>Engine - DirectX</Filter>
     </ClInclude>
@@ -286,12 +268,6 @@
     </ClInclude>
     <ClInclude Include="directxtarget.h">
       <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="particle.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="meshdata.h">
-      <Filter>Elements</Filter>
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Source Files</Filter>
@@ -341,20 +317,8 @@
     <ClInclude Include="sceneInterface.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="textureAnimated.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="textureProcedural.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain.h">
-      <Filter>Elements</Filter>
-    </ClInclude>
     <ClInclude Include="sceneBuilder.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="grid.h">
-      <Filter>Elements</Filter>
     </ClInclude>
     <ClInclude Include="sceneData.h">
       <Filter>Source Files</Filter>
@@ -372,6 +336,51 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="meshAttributes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshgroup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="random_generator.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="emitter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshdata.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="postprocessing.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textureAnimated.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textureProcedural.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="water.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

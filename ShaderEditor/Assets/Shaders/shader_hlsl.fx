@@ -157,8 +157,11 @@ Outputs PShader(Attributes input)
                 + lightAttenuation[i].z * lightLength * lightLength);
 
             vertToLight /= lightLength;
-            lightColour *= ((dot(vertToLight, normal) + 1.0) * 0.5);
-            diffuse.rgb += lightColour * attenuation * lightActive[i] * meshDiffuse;
+
+            lightColour *= ((dot(vertToLight, normal) + 1.0) *
+                ((1.0 - meshDiffuse) * 0.5)) + meshDiffuse;
+
+            diffuse.rgb += lightColour * attenuation * lightActive[i];
 
             ifdef: SPECULAR
                 float specularity = lightSpecularity[i] * meshSpecularity;

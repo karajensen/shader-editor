@@ -200,11 +200,6 @@ std::string MeshData::GetRenderedInstances() const
         std::to_string(m_instances.size());
 }
 
-void MeshData::ClearInstances()
-{
-    m_instances.clear();
-}
-
 int MeshData::GetInitialInstances() const
 {
     return m_initialInstances;

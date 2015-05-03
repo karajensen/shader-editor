@@ -65,7 +65,7 @@ void qtmain(int argc, char *argv[], std::shared_ptr<Cache> cache)
 */
 int main(int argc, char *argv[])
 {
-    srand(static_cast<unsigned int>(time(0)));
+    Random::Initialise();
 
     HWND hWnd;
     HINSTANCE hInstance;

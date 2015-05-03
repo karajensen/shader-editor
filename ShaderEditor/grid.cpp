@@ -313,3 +313,13 @@ void Grid::RecalculateNormals()
         }
     }
 }
+
+float Grid::Spacing() const
+{
+    return m_spacing;
+}
+
+Float3 Grid::GetPosition(int row, int column) const
+{
+    return GetPosition(GetIndex(row, column));
+}

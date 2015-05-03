@@ -58,7 +58,12 @@ Outputs PShader(Attributes input)
 
     // Depth information
     int3 uvs = int3(input.uvs.x * WINDOW_WIDTH, input.uvs.y * WINDOW_HEIGHT, 0);
-    float depth = DepthSampler.Load(uvs, 0).r;
+    float depth = 0.0;
+    for (int i = 0; i < SAMPLES; ++i)
+    {
+        depth += DepthSampler.Load(uvs, i).r;
+    }
+    depth *= (1.0 / SAMPLES);
 
     // Depth of Field
     float dofEnd = dofStart - dofFade;

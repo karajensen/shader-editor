@@ -189,8 +189,7 @@ bool SceneBuilder::InitialiseTextures()
             name, path, size, generation));
     };
 
-    //MakeProcedural("heightmap", ProceduralTexture::DIAMOND_SQUARE, 256);
-    MakeProcedural("sand_height", ProceduralTexture::FROM_FILE, 128);
+    MakeProcedural("sand_height", ProceduralTexture::FROM_FILE, 256);
 
     return InitialiseCaustics();
 }

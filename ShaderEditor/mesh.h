@@ -46,11 +46,13 @@ public:
     /**
     * Initialises the mesh data buffer containers from file
     * @param path The full path to the mesh file
+    * @param uvScale The scale to apply to mesh UVs
     * @param requiresNormals Whether this mesh requires normals
     * @param requiresTangents Whether this mesh requires tangents/bitangents
     * @return Whether creation was successful
     */
     bool InitialiseFromFile(const std::string& path, 
+                            const Float2& uvScale,
                             bool requiresNormals, 
                             bool requiresTangents);
 };
