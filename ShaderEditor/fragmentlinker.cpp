@@ -31,7 +31,7 @@ bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& po
     m_defines["SAMPLES"] = std::to_string(MULTISAMPLING_COUNT);
     m_defines["WINDOW_WIDTH"] = std::to_string(WINDOW_WIDTH);
     m_defines["WINDOW_HEIGHT"] = std::to_string(WINDOW_HEIGHT);
-    m_defines["MAX_WAVES"] = std::to_string(Water::GetMaxWaves());
+    m_defines["MAX_WAVES"] = std::to_string(Water::Wave::MAX);
     m_defines["SCENE_TEXTURES"] = std::to_string(SCENE_TEXTURES);
     m_defines["ID_COLOUR"] = std::to_string(SCENE_ID);
     m_defines["ID_DEPTH"] = std::to_string(DEPTH_ID);
@@ -42,21 +42,6 @@ bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& po
     m_defines["WEIGHT3"] = std::to_string(post.BlurWeight(3));
     m_defines["WEIGHT4"] = std::to_string(post.BlurWeight(4));
     return CreateGeneratedFolder();
-}
-
-void FragmentLinker::FindShaderComponents(Shader& shader)
-{
-    // take apart name to find what components are needed for the shader
-    m_shaderComponents.clear();
-    for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
-    {
-        const std::string component = Shader::ComponentAsString(i);
-        if(boost::algorithm::icontains(shader.Name(), component))
-        {
-            m_shaderComponents.push_back(component);
-            shader.AddComponent(Shader::Component(i));
-        }
-    }
 }
 
 bool FragmentLinker::GenerateFromFile(const std::string& name, 
@@ -118,7 +103,6 @@ bool FragmentLinker::GenerateFromFile(Shader& shader)
 bool FragmentLinker::GenerateWithFragments(Shader& shader)
 {
     const std::string filename = GENERATED_PATH + shader.Name();
-    FindShaderComponents(shader);
 
     shader.GLSLVertexFile(filename + GLSL_VERTEX_EXTENSION);
     if(!CreateShaderFromFragments(shader.Name(), GLSL_VERTEX_EXTENSION))

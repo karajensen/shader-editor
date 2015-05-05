@@ -24,8 +24,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_reloadEngine.Initialise(m_ui.reloadEngine_btn, m_callbacks.ReloadEngine);
     m_reloadTerrain.Initialise(m_ui.reloadTerrain_btn, m_callbacks.ReloadTerrain);
     m_reloadTexture.Initialise(m_ui.reloadTexture_btn, m_callbacks.ReloadTexture);
+    m_reloadPlacement.Initialise(m_ui.reloadPlacement_btn, m_callbacks.ReloadPlacement);
     m_toggleWireframe.Initialise(m_ui.toggleWireframe_btn, m_callbacks.ToggleWireframe);
-    m_saveScene.Initialise(m_ui.saveScene_btn, m_callbacks.SaveScene);
     m_pauseEmission.Initialise(m_ui.pauseEmission_btn, m_callbacks.PauseEmission);
     m_lightsOnly.Initialise(m_ui.light_render_only_btn, m_callbacks.RenderLightsOnly);
 

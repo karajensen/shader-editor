@@ -212,7 +212,7 @@ struct SignalCallbacks
     VoidSignal ReloadEngine;       ///< Sends a request to reload the engine
     VoidSignal ReloadTexture;      ///< Sends a request to reload the selected texture
     VoidSignal ReloadTerrain;      ///< Sends a request to reload the selected terrain
-    VoidSignal SaveScene;          ///< Sends a request to save the scene to xml
+    VoidSignal ReloadPlacement;    ///< Sends a request to reload the scene placement
     VoidSignal ToggleWireframe;    ///< Sends a request to toggle wireframe rendering
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
     VoidSignal RenderLightsOnly;   ///< Sends a request to render only the lights
@@ -236,8 +236,8 @@ struct SignalCallbacks
         ReloadEngine(nullptr),
         ReloadTexture(nullptr),
         ReloadTerrain(nullptr),
+        ReloadPlacement(nullptr),
         LightDiagnostics(nullptr),
-        SaveScene(nullptr),
         PauseEmission(nullptr),
         RenderLightsOnly(nullptr),
         CompileShader(nullptr),

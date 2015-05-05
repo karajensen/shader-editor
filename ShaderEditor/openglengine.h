@@ -5,7 +5,7 @@
 #pragma once
 
 #include "renderengine.h"
-#include "opengl/glm/glm.hpp"
+#include "glm/glm.hpp"
 #include <Windows.h>
 
 class MeshData;

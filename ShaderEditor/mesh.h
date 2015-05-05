@@ -8,7 +8,6 @@
 #include <vector>
 #include "float3.h"
 #include "colour.h"
-#include "matrix.h"
 #include "meshdata.h"
 #include "meshAttributes.h"
 
@@ -21,15 +20,13 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the mesh with
+    * @param name The name of the mesh
+    * @param shaderName The name of the shader to use
+    * @param shaderID The ID of the shader to use
     */
-    Mesh(const boost::property_tree::ptree& node);
-
-    /**
-    * Writes the data to a property tree
-    * @param node The node to write to
-    */
-    virtual void Write(boost::property_tree::ptree& node) const override;
+    Mesh(const std::string& name, 
+         const std::string& shaderName, 
+         int shaderID);
 
     /**
     * Writes to the data in the cache

@@ -56,12 +56,6 @@ private:
     bool CreateGeneratedFolder();
 
     /**
-    * Finds and caches the relevant components required to generate the shader
-    * @param shader The shader object to fill in
-    */
-    void FindShaderComponents(Shader& shader);
-
-    /**
     * Generates a shader with the required components from the base shader
     * @param name The name of the shader to generate
     * @param extension The file extension of the shader

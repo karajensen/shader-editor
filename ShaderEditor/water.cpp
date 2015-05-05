@@ -5,97 +5,46 @@
 #include "water.h"
 #include "cache.h"
 
-Water::Water(const boost::property_tree::ptree& node) :
-    Grid(node)
+Water::Water(const std::string& name, 
+             const std::string& shaderName, 
+             int shaderID) :
+
+    Grid(name, shaderName, shaderID),
+    m_speed(1.0f),
+    m_bump(1.0f),
+    m_bumpVelocity(0.0f, 0.0f),
+    m_uvScale(1.0f, 1.0f),
+    m_fresnal(1.0f, 0.5f, 2.0f),
+    m_shallowColour(1.0f, 1.0f, 1.0f, 0.5f),
+    m_deepColour(0.8f, 0.8f, 0.8f, 1.0f),
+    m_reflectionTint(1.0f, 1.0f, 1.0f, 1.0f),
+    m_reflection(1.0f)
 {
-    m_height = GetValue<float>(node, "Height");
-    m_bump = GetValueOptional<float>(node, 0.0f, "Bump");
-    m_bumpVelocity.x = GetAttribute<float>(node, "BumpVelocity", "x");
-    m_bumpVelocity.y = GetAttribute<float>(node, "BumpVelocity", "y");
-    m_fresnal.x = GetAttribute<float>(node, "Fresnal", "scale");
-    m_fresnal.y = GetAttribute<float>(node, "Fresnal", "bias");
-    m_fresnal.z = GetAttribute<float>(node, "Fresnal", "power");
-    m_reflection = GetValue<float>(node, "ReflectionIntensity");
-    m_speed = GetValue<float>(node, "Speed");
-    m_uvScale.x = GetAttribute<float>(node, "UVScale", "u");
-    m_uvScale.y = GetAttribute<float>(node, "UVScale", "v");
-    m_deepColour.r = GetAttribute<float>(node, "DeepColour", "r");
-    m_deepColour.g = GetAttribute<float>(node, "DeepColour", "g");
-    m_deepColour.b = GetAttribute<float>(node, "DeepColour", "b");
-    m_deepColour.a = GetAttribute<float>(node, "DeepColour", "a");
-    m_shallowColour.r = GetAttribute<float>(node, "ShallowColour", "r");
-    m_shallowColour.g = GetAttribute<float>(node, "ShallowColour", "g");
-    m_shallowColour.b = GetAttribute<float>(node, "ShallowColour", "b");
-    m_shallowColour.a = GetAttribute<float>(node, "ShallowColour", "a");
-    m_reflectionTint.r = GetAttribute<float>(node, "ReflectionTint", "r");
-    m_reflectionTint.g = GetAttribute<float>(node, "ReflectionTint", "g");
-    m_reflectionTint.b = GetAttribute<float>(node, "ReflectionTint", "b");
+    BackfaceCull(false);
+    m_waves.resize(Wave::MAX);
 
-    for (auto itr = node.begin(); itr != node.end(); ++itr)
-    {
-        if (itr->first == "Wave")
-        {
-            m_waves.emplace_back();
-            Wave& wave = m_waves[m_waves.size()-1];
+    m_waves[0].amplitude = 1.0f;
+    m_waves[0].frequency = 1.0f;
+    m_waves[0].phase = 1.0f;
+    m_waves[0].directionX = -1.0f;
+    m_waves[0].directionZ = 0.0f;
 
-            const boost::property_tree::ptree& child = itr->second;
-            wave.amplitude = GetValue<float>(child, "Amplitude");
-            wave.frequency = GetValue<float>(child, "Frequency");
-            wave.phase = GetValue<float>(child, "Phase");
-            wave.directionX = GetAttribute<float>(child, "Direction", "x");
-            wave.directionZ = GetAttribute<float>(child, "Direction", "z");
-        }
-    }
-
-    // Currently don't support dynamic arrays in shaders
-    if (m_waves.size() != GetMaxWaves())
-    {
-        Logger::LogError("Water: " + Name() + 
-            " Did not have required amount of waves");
-    }
-
-    CreateGrid(Float2(1.0f, 1.0f), false, false);
-    InitialiseMeshData();
+    m_waves[1].amplitude = 0.5f;
+    m_waves[1].frequency = 2.0f;
+    m_waves[1].phase = 1.0f;
+    m_waves[1].directionX = -0.7f;
+    m_waves[1].directionZ = 0.7f;
 }
-
-void Water::Write(boost::property_tree::ptree& node,
-                  std::function<boost::property_tree::ptree&()> createNode) const
+bool Water::Initialise(float height, float spacing, int size)
 {
-    Grid::Write(node);
+    m_height = height;
 
-    AddValueOptional(node, "Bump", m_bump, 0.0f);
-    node.add("Speed", m_speed);
-    node.add("Height", m_height);
-    node.add("BumpVelocity.<xmlattr>.x", m_bumpVelocity.x);
-    node.add("BumpVelocity.<xmlattr>.y", m_bumpVelocity.y);
-    node.add("Fresnal.<xmlattr>.scale", m_fresnal.x);
-    node.add("Fresnal.<xmlattr>.bias", m_fresnal.y);
-    node.add("Fresnal.<xmlattr>.power", m_fresnal.z);
-    node.add("ReflectionIntensity", m_reflection);
-    node.add("UVScale.<xmlattr>.u", m_uvScale.x);
-    node.add("UVScale.<xmlattr>.v", m_uvScale.y);
-    node.add("DeepColour.<xmlattr>.r", m_deepColour.r);
-    node.add("DeepColour.<xmlattr>.g", m_deepColour.g);
-    node.add("DeepColour.<xmlattr>.b", m_deepColour.b);
-    node.add("DeepColour.<xmlattr>.a", m_deepColour.a);
-    node.add("ShallowColour.<xmlattr>.r", m_shallowColour.r);
-    node.add("ShallowColour.<xmlattr>.g", m_shallowColour.g);
-    node.add("ShallowColour.<xmlattr>.b", m_shallowColour.b);
-    node.add("ShallowColour.<xmlattr>.a", m_shallowColour.a);
-    node.add("ReflectionTint.<xmlattr>.r", m_reflectionTint.r);
-    node.add("ReflectionTint.<xmlattr>.g", m_reflectionTint.g);
-    node.add("ReflectionTint.<xmlattr>.b", m_reflectionTint.b);
-
-    for (const Wave& wave : m_waves)
+    if (CreateGrid(Float2(1.0f, 1.0f), spacing, size, size, false, false))
     {
-        boost::property_tree::ptree& wavenode = createNode();
-        wavenode.add("Frequency", wave.frequency);
-        wavenode.add("Amplitude", wave.amplitude);
-        wavenode.add("Phase", wave.phase);
-        wavenode.add("Direction.<xmlattr>.x", wave.directionX);
-        wavenode.add("Direction.<xmlattr>.z", wave.directionZ);
-        node.add_child("Wave", wavenode);
+        InitialiseMeshData();
+        return true;
     }
+    return false;
 }
 
 void Water::Write(Cache& cache)
@@ -217,11 +166,6 @@ const float& Water::Bump() const
 const float& Water::ReflectionIntensity() const
 {
     return m_reflection;
-}
-
-int Water::GetMaxWaves()
-{
-    return 2;
 }
 
 void Water::SetInstance(int index, const Float2& position, bool flippedX, bool flippedZ)

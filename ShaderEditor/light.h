@@ -7,7 +7,6 @@
 #include <string>
 #include "float3.h"
 #include "colour.h"
-#include "ptree_utilities.h"
 
 struct Cache;
 
@@ -20,15 +19,9 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the light with
+    * @param name The name of the light
     */
-    Light(const boost::property_tree::ptree& node);
-
-    /**
-    * Writes the light data to a property tree
-    * @param node The node to write to
-    */
-    void Write(boost::property_tree::ptree& node) const;
+    Light(const std::string& name); 
 
     /**
     * Writes to the data in the cache from the light
@@ -78,14 +71,44 @@ public:
     const float& Active() const;
 
     /**
+    * Sets the Colour of the light
+    */
+    void Diffuse(const Colour& value);
+
+    /**
+    * Sets the Specular highlights the light will cast
+    */
+    void Specular(const Colour& value);
+
+    /**
+    * Sets How much the light will fade in distance
+    */
+    void Attenuation(const Float3& value);
+
+    /**
+    * Sets the World coordinates of the light
+    */
+    void Position(const Float3& value);
+
+    /**
     * Sets the World coordinates of the light
     */
     void PositionX(float x);
-    
+
     /**
     * Sets the World coordinates of the light
     */
     void PositionZ(float z);
+
+    /**
+    * Sets The brightness of the specular highlights
+    */
+    void Specularity(float value);
+
+    /**
+    * Sets How much activity this light contributes
+    */
+    void Active(float value);
 
 private:
 

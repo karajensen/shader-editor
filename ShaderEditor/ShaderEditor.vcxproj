@@ -13,14 +13,6 @@
   <ItemGroup>
     <None Include="..\.gitignore" />
     <None Include="..\readme.txt" />
-    <None Include="Assets\Lights.xml">
-      <SubType>Designer</SubType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Assets\Meshes.xml">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="qt\project\editor.ui" />
     <None Include="qt\project\tweaker.ui">
       <SubType>Designer</SubType>
@@ -76,7 +68,7 @@
     <ClCompile Include="appGUI.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture.cpp" />
-    <ClCompile Include="textureAnimated.cpp" />
+    <ClCompile Include="animation.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="water.cpp" />
   </ItemGroup>
@@ -118,7 +110,6 @@
     <ClInclude Include="scenePlacer.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="textureProcedural.h" />
-    <ClInclude Include="ptree_utilities.h" />
     <ClInclude Include="qt\project\editor.h" />
     <ClInclude Include="qt\project\generated\ui_editor.h" />
     <ClInclude Include="qt\project\generated\ui_tweaker.h" />
@@ -138,7 +129,7 @@
     <ClInclude Include="appGUI.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture.h" />
-    <ClInclude Include="textureAnimated.h" />
+    <ClInclude Include="animation.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
     <ClInclude Include="water.h" />
@@ -225,15 +216,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Xml Include="Assets\Emitters.xml">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <SubType>Designer</SubType>
-    </Xml>
-    <Xml Include="Assets\PostProcessing.xml">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </Xml>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{14D5F556-2E51-4F6F-8133-9762A0CA6517}</ProjectGuid>
     <RootNamespace>Shader</RootNamespace>
@@ -279,7 +261,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\vld\include;$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;$(SolutionDir)\$(TargetName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -298,7 +280,7 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(TargetName)\assimp\include;$(SolutionDir)\$(TargetName)\opengl\include;$(SolutionDir)\$(TargetName)\boost;$(SolutionDir)\$(TargetName)\directx\include;$(SolutionDir)\$(TargetName)\qt\include;$(SolutionDir)\$(TargetName)\qt\include\QtCore;$(SolutionDir)\$(TargetName)\qt\include\QtGui;$(SolutionDir)\$(TargetName)\qt\include\QtWidgets;$(SolutionDir)\$(TargetName)\qt\include\QtANGLE;$(SolutionDir)\$(TargetName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

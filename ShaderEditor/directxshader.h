@@ -73,11 +73,6 @@ public:
     void SendConstants(ID3D11DeviceContext* context);
 
     /**
-    * @return the unique index of the shader
-    */
-    int GetIndex() const;
-
-    /**
     * Determines whether the texture slot is available for the texture
     * @param slot The slot to query
     * @return whether the shader allows the slot to be bound to

@@ -5,17 +5,15 @@
 #pragma once
 
 #include "shader.h"
+#include "renderdata.h"
 
-Shader::Shader(const std::string& name, int index) :
+Shader::Shader(const std::string& name, 
+               const std::string& path,
+               unsigned int components) :
+
     m_name(name),
-    m_index(index)
+    m_components(components)
 {
-}
-
-void Shader::Set(const std::string& name, int index)
-{
-    m_name = name;
-    m_index = index;
 }
 
 std::string Shader::ComponentAsString(unsigned int component)
@@ -35,15 +33,9 @@ std::string Shader::ComponentAsString(unsigned int component)
     };
 }
 
-bool Shader::HasComponent(unsigned int component) const
+bool Shader::HasComponent(Component component) const
 {
-    return std::find(m_components.begin(), m_components.end(),
-        Component(component)) != m_components.end();
-}
-
-int Shader::ID() const
-{
-    return m_index;
+    return (m_components & component) == component;
 }
 
 const std::string& Shader::Name() const
@@ -79,9 +71,4 @@ void Shader::GLSLFragmentFile(const std::string& file)
 void Shader::HLSLShaderFile(const std::string& file)
 {
     m_hlslShaderFile = file;
-}
-
-void Shader::AddComponent(Shader::Component component)
-{
-    m_components.push_back(component);
 }

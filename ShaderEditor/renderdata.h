@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <float3.h>
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -74,7 +75,8 @@ enum ShaderIndex
     BLUR_VERTICAL_SHADER,
     WATER_SHADER,
     PARTICLE_SHADER,
-    DIAGNOSTIC_SHADER
+    DIAGNOSTIC_SHADER,
+    MAX_SHADERS
 };
 
 /**

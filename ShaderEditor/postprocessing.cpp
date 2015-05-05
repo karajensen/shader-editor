@@ -5,63 +5,47 @@
 #include "postprocessing.h"
 #include "cache.h"
 
-PostProcessing::PostProcessing(const boost::property_tree::ptree& node)
+PostProcessing::PostProcessing()
 {
-    SetPostMap(SCENE_MAP);
+    SetPostMap(FINAL_MAP);
 
-    m_blurStep = GetValue<float>(node, "BlurStep");
-    m_depthFar = GetValue<float>(node, "DepthFar");
-    m_depthNear = GetValue<float>(node, "DepthNear");
-    m_dofStart = GetValue<float>(node, "DOFStart");
-    m_dofFade = GetValue<float>(node, "DOFFade");
-    m_fogColour.r = GetAttribute<float>(node, "FogColour", "r");
-    m_fogColour.g = GetAttribute<float>(node, "FogColour", "g");
-    m_fogColour.b = GetAttribute<float>(node, "FogColour", "b");
-    m_fogStart = GetValue<float>(node, "FogStart");
-    m_fogFade = GetValue<float>(node, "FogFade");
-    m_bloomIntensity = GetValue<float>(node, "BloomIntensity");
-    m_bloomStart = GetValue<float>(node, "BloomStart");
-    m_bloomFade = GetValue<float>(node, "BloomFade");
-    m_contrast = GetValue<float>(node, "Contrast");
-    m_saturation = GetValue<float>(node, "Saturation");
-    m_maximumColour.r = GetAttribute<float>(node, "MaximumColour", "r");
-    m_maximumColour.g = GetAttribute<float>(node, "MaximumColour", "g");
-    m_maximumColour.b = GetAttribute<float>(node, "MaximumColour", "b");
-    m_minimumColour.r = GetAttribute<float>(node, "MinimumColour", "r");
-    m_minimumColour.g = GetAttribute<float>(node, "MinimumColour", "g");
-    m_minimumColour.b = GetAttribute<float>(node, "MinimumColour", "b");
+    m_blurStep = 0.003f;
+    m_depthFar = 1000.0f;
+    m_depthNear = 1.0f;
+    m_dofStart = 0.99f;
+    m_dofFade = 0.01f;
+    m_fogColour.r = 0.0f;
+    m_fogColour.g = 69.0f/255.0f;
+    m_fogColour.b = 1.0f;
+    m_fogStart = 0.39f;
+    m_fogFade = 0.61f;
+    m_bloomIntensity = 0.5f;
+    m_bloomStart = 0.95f;
+    m_bloomFade = 0.35f;
+    m_contrast = 0.0f;
+    m_saturation = 1.0f;
+    m_maximumColour.r = 1.0f;
+    m_maximumColour.g = 1.0f;
+    m_maximumColour.b = 1.0f;
+    m_minimumColour.r = 0.0f;
+    m_minimumColour.g = 0.0f;
+    m_minimumColour.b = 0.0f;
 
     m_weights[0] = 1.0f;
     m_weights[1] = 0.9f;
     m_weights[2] = 0.55f;
     m_weights[3] = 0.18f;
     m_weights[4] = 0.1f;
-    NormaliseWeights();
-}
 
-void PostProcessing::Write(boost::property_tree::ptree& node) const
-{
-    node.add("BlurStep", m_blurStep);
-    node.add("DepthFar", m_depthFar);
-    node.add("DepthNear", m_depthNear);
-    node.add("DOFStart", m_dofStart);
-    node.add("DOFFade", m_dofFade);
-    node.add("FogColour.<xmlattr>.r", m_fogColour.r);
-    node.add("FogColour.<xmlattr>.g", m_fogColour.g);
-    node.add("FogColour.<xmlattr>.b", m_fogColour.b);
-    node.add("FogStart", m_fogStart);
-    node.add("FogFade", m_fogFade);
-    node.add("BloomIntensity", m_bloomIntensity);
-    node.add("BloomStart", m_bloomStart);
-    node.add("BloomFade", m_bloomFade);
-    node.add("Contrast", m_contrast);
-    node.add("Saturation", m_saturation);
-    node.add("MaximumColour.<xmlattr>.r", m_maximumColour.r);
-    node.add("MaximumColour.<xmlattr>.g", m_maximumColour.g);
-    node.add("MaximumColour.<xmlattr>.b", m_maximumColour.b);
-    node.add("MinimumColour.<xmlattr>.r", m_minimumColour.r);
-    node.add("MinimumColour.<xmlattr>.g", m_minimumColour.g);
-    node.add("MinimumColour.<xmlattr>.b", m_minimumColour.b);
+    // Normalise the blurring weights
+    const float overallWeight = m_weights[0] + 2.0f * 
+        (m_weights[1] + m_weights[2] + m_weights[3] + m_weights[4]);
+
+    m_weights[0] /= overallWeight;
+    m_weights[1] /= overallWeight;
+    m_weights[2] /= overallWeight;
+    m_weights[3] /= overallWeight;
+    m_weights[4] /= overallWeight;
 }
 
 void PostProcessing::Write(Cache& cache)

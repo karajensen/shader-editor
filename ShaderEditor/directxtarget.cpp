@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directxtarget.h"
+#include "boost/lexical_cast.hpp"
 
 D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 

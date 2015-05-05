@@ -10,10 +10,11 @@
 #include "terrain.h"
 #include "light.h"
 #include "texture.h"
-#include "textureAnimated.h"
+#include "animation.h"
 #include "textureProcedural.h"
 #include "postprocessing.h"
 #include "diagnostic.h"
+#include "meshgroup.h"
 
 /**
 * Internal data for the scene
@@ -27,12 +28,12 @@ struct SceneData
     std::vector<std::unique_ptr<Terrain>> terrain;     ///< All terrain in the scene
     std::vector<std::unique_ptr<Water>> water;         ///< All water in the scene
     std::vector<std::unique_ptr<Emitter>> emitters;    ///< All emitters in the scene
-    std::unique_ptr<AnimatedTexture> caustics;         ///< Caustic animated texture
+    std::unique_ptr<Animation> caustics;               ///< Caustic animated texture
     std::unique_ptr<Diagnostic> diagnostics;           ///< Scene diagnostics
     std::unique_ptr<PostProcessing> post;              ///< Data for post processing
     std::vector<unsigned int> proceduralTextures;      ///< Indices of all editable textures
-    std::vector<std::pair<unsigned int, int>> foliage; ///< Scene foliage placed on rocks
-    std::vector<std::pair<unsigned int, int>> rocks;   ///< Scene foliage placed on rocks
+    std::vector<MeshGroup> foliage;                    ///< Available foliage for placing in scene
+    std::vector<InstanceKey> rocks;                    ///< Avaliable rocks for placing in scene
     unsigned int sandIndex = 0;                        ///< Index for the sand terrain
     unsigned int oceanIndex = 0;                       ///< Index for the ocean water
     unsigned int sunIndex = 0;                         ///< Index for the initial sun light

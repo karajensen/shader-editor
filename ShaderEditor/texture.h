@@ -37,13 +37,15 @@ public:
     };
 
     /**
-    * Constructor
+    * Constructor for a texture
     * @param name The filename of the texture
     * @param path The full path to the texture
-    * @param filter The filtering to use
+    * @param type The type of image to display
+    * @param filter The type of filtering for this texture
     */
     Texture(const std::string& name, 
-            const std::string& path, 
+            const std::string& path,
+            Type type,
             Filter filter);
 
     /**
@@ -67,11 +69,6 @@ public:
     * @return whether this texture is a cube map
     */
     bool IsCubeMap() const;
-
-    /**
-    * @return whether this texture is a cube map
-    */
-    static bool IsCubeMap(const std::string& path);
 
     /**
     * @return the type of filtering used
@@ -121,13 +118,6 @@ public:
     * @return whether this texture is to be rendered
     */
     virtual bool IsRenderable() const;
-    
-protected:
-
-    /**
-    * Sets the type of texture this is
-    */
-    void SetType(Type type);
 
 private:
 

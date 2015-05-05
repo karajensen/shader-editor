@@ -211,43 +211,21 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
         const auto& instance = instances[i];
         if (instance.requiresUpdate || m_updateInstances)
         {
-            if (!instance.rotation.IsZero())
-            {
-                D3DXMATRIX scale;
-                D3DXMatrixIdentity(&scale);
-                scale._11 = instance.scale.x;
-                scale._22 = instance.scale.y;
-                scale._33 = instance.scale.z;
-
-                D3DXMATRIX translate;
-                D3DXMatrixIdentity(&translate);
-                translate._41 = instance.position.x;
-                translate._42 = instance.position.y;
-                translate._43 = instance.position.z;
-
-                D3DXMATRIX rotateX, rotateY, rotateZ;
-                D3DXMatrixRotationX(&rotateX, DegToRad(instance.rotation.x)); 
-                D3DXMatrixRotationY(&rotateY, DegToRad(instance.rotation.y)); 
-                D3DXMatrixRotationZ(&rotateZ, DegToRad(instance.rotation.z)); 
-
-                m_world[i] = scale * (rotateZ * rotateX * rotateY) * translate;
-            }
-            else
-            {
-                auto& world = m_world[i];
-                world._11 = instance.scale.x;
-                world._12 = 0.0f;
-                world._13 = 0.0f;
-                world._21 = 0.0f;
-                world._22 = instance.scale.y;
-                world._23 = 0.0f;
-                world._31 = 0.0f;
-                world._32 = 0.0f;
-                world._33 = instance.scale.z;
-                world._41 = instance.position.x;
-                world._42 = instance.position.y;
-                world._43 = instance.position.z;
-            }
+            m_world[i]._11 = instance.world.m11;
+            m_world[i]._21 = instance.world.m12;
+            m_world[i]._31 = -instance.world.m13;
+            
+            m_world[i]._12 = instance.world.m21;
+            m_world[i]._22 = instance.world.m22;
+            m_world[i]._32 = -instance.world.m23;
+            
+            m_world[i]._13 = instance.world.m31;
+            m_world[i]._23 = instance.world.m32;
+            m_world[i]._33 = -instance.world.m33;
+            
+            m_world[i]._41 = instance.world.m14;
+            m_world[i]._42 = instance.world.m24;
+            m_world[i]._43 = instance.world.m34;
         }
 
         if (instance.enabled && instance.render)

@@ -16,12 +16,12 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <sstream>
 #include <memory>
 #include <array>
 #include <functional>
 #include <array>
 #include <vector>
+#include <assert.h>
 #include "logger.h"
 #include "float3.h"
 #include "matrix.h"

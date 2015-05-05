@@ -5,51 +5,40 @@
 #include "sceneBuilder.h"
 #include "sceneData.h"
 #include "fragmentlinker.h"
-#include "renderdata.h"
-#include "mesh.h"
-#include "water.h"
-#include "shader.h"
-#include "texture.h"
-#include "textureProcedural.h"
-#include "postprocessing.h"
-#include "emitter.h"
-#include "terrain.h"
-#include "light.h"
-#include "ptree_utilities.h"
-#include "boost/assign.hpp"
-#include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include <algorithm>
 
 namespace
 {
     /**
-    * Shaders that do not need to be generated through fragment linking
-    */
-    std::map<std::string, ShaderIndex> SPECIAL_SHADERS = boost::assign::map_list_of
-        ("post_effects", POST_SHADER)
-        ("pre_effects", PRE_SHADER)
-        ("blur_horizontal", BLUR_HORIZONTAL_SHADER)
-        ("blur_vertical", BLUR_VERTICAL_SHADER)
-        ("water", WATER_SHADER)
-        ("particle", PARTICLE_SHADER)
-        ("diagnostic", DIAGNOSTIC_SHADER);
-
-    /**
     * Resource file information
     */
-    const std::string EMITTERS_NAME("Emitters");
-    const std::string MESHES_NAME("Meshes");
-    const std::string POST_NAME("PostProcessing");
-    const std::string LIGHTS_NAME("Lights");
-    const std::string EMITTERS_PATH(ASSETS_PATH + EMITTERS_NAME);
-    const std::string MESHES_PATH(ASSETS_PATH + MESHES_NAME);
-    const std::string LIGHTS_PATH(ASSETS_PATH + LIGHTS_NAME);
-    const std::string POST_PATH(ASSETS_PATH + POST_NAME);
-    const std::string TEXTURE_PATH(ASSETS_PATH + "Textures");
-    const std::string GENERATED_TEXTURES(TEXTURE_PATH + "//Generated//");
-    const std::string SAVED("_saved");
-    const std::string XML(".xml");
+    const std::string MESHES_PATH(ASSETS_PATH + "Meshes//");
+    const std::string TEXTURE_PATH(ASSETS_PATH + "Textures//");
+    const std::string GENERATED_TEXTURES(TEXTURE_PATH + "Generated//");
+
+    /**
+    * Shared values for creating meshes
+    */
+    const int PATCH_GRID_VERTICES = 51;
+    const int PATCH_ROCK_TYPES = 3;
+    const float PATCH_GRID_SPACING = 10.0f;
+
+    /**
+    * Helper function to get an asset by name
+    */
+    template<typename T> 
+    int GetID(const std::vector<T>& data, const std::string& name)
+    {
+        for (unsigned int i = 0; i < data.size(); ++i)
+        {
+            if (boost::iequals(name, data[i]->Name()))
+            {
+                return i;
+            }
+        }
+        Logger::LogError("Could not find " + name);
+        return NO_INDEX;
+    }
 }
 
 SceneBuilder::SceneBuilder(SceneData& data) :
@@ -61,85 +50,482 @@ SceneBuilder::~SceneBuilder() = default;
 
 bool SceneBuilder::Initialise()
 {
-    FragmentLinker linker;
-    return InitialiseTextures() &&
-           InitialisePost() &&
-           InitialiseLighting() &&
-           InitialiseShaders(linker) &&
-           InitialiseMeshes(linker) &&
-           InitialiseEmitters() && 
+    return InitialiseLighting() &&
+           InitialiseTextures() &&
+           InitialiseShaders() &&
+           InitialiseEmitters() &&
+           InitialiseWater() &&
+           InitialiseMeshes() && 
+           InitialiseTerrain() && 
            InitialiseDiagnostics();
 }
 
-bool SceneBuilder::InitialiseShaders(FragmentLinker& linker)
+bool SceneBuilder::InitialiseLighting()
 {
-    if (!linker.Initialise(m_data.lights.size(), *m_data.post))
+    m_data.sunIndex = m_data.lights.size();
+    m_data.lights.push_back(std::make_unique<Light>("Sun"));
+    auto& sun = m_data.lights[m_data.sunIndex];
+    sun->Position(Float3(0.0, 60.0, 0.0));
+    sun->Attenuation(Float3(1.0, 0.0, 0.0));
+    sun->Diffuse(Colour(0.85f, 0.85f, 1.0f, 1.0f));
+    sun->Specular(Colour(1.0f, 1.0f, 1.0f, 1.0f));
+    sun->Specularity(20.0f);
+    return true;
+}
+
+bool SceneBuilder::InitialiseShaders()
+{
+    bool success = true;
+    m_data.shaders.resize(MAX_SHADERS);
+
+    FragmentLinker linker;
+    linker.Initialise(m_data.lights.size(), *m_data.post);
+
+    success &= InitialiseShader(linker, "post_effects", Shader::NONE, POST_SHADER);
+    success &= InitialiseShader(linker, "pre_effects", Shader::NONE, PRE_SHADER);
+    success &= InitialiseShader(linker, "blur_vertical", Shader::NONE, BLUR_VERTICAL_SHADER);
+    success &= InitialiseShader(linker, "blur_horizontal", Shader::NONE, BLUR_HORIZONTAL_SHADER);
+    success &= InitialiseShader(linker, "water", Shader::NONE, WATER_SHADER);
+    success &= InitialiseShader(linker, "particle", Shader::NONE, PARTICLE_SHADER);
+    success &= InitialiseShader(linker, "diagnostic", Shader::NONE, DIAGNOSTIC_SHADER);
+    success &= InitialiseShader(linker, "diffuse", Shader::NONE);
+    success &= InitialiseShader(linker, "bump", Shader::BUMP);
+    success &= InitialiseShader(linker, "diffusecaustics", Shader::CAUSTICS);
+    success &= InitialiseShader(linker, "flat", Shader::NONE);
+    success &= InitialiseShader(linker, "bumpcaustics", Shader::CAUSTICS|Shader::BUMP);
+    success &= InitialiseShader(linker, "bumpspecularcaustics", Shader::BUMP|Shader::SPECULAR|Shader::CAUSTICS);
+    return success;
+}
+
+bool SceneBuilder::InitialiseTextures()
+{
+    bool success = true;
+
+    success &= InitialiseTexture("blank", "blank.png", Texture::FROM_FILE); // requires first index
+    success &= InitialiseTexture("water_cube", "water_environment", Texture::CUBE, Texture::ANISOTROPIC);
+    success &= InitialiseTexture("water_colour", "water.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("water_normal", "water_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("bubble1", "bubble1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("bubble2", "bubble2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("bubble3", "bubble3.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("skybox", "skybox.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("coral", "coral.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower2_top", "flower2_top.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower2_bot", "flower2_bot.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower3_top", "flower3_top.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower3_bot", "flower3_bot.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower1_top", "flower1_top.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower1_bot", "flower1_bot.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("leaf", "leaf.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("shell", "shell.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("starfish", "starfish.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("urchin", "urchin.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("rock", "rock.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("rock_bump", "rock_bump.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("rock_specular", "rock_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("sand", "sand.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("sand_bump", "sand_bump.png", Texture::FROM_FILE);
+
+    for (int i = 0; i < PATCH_ROCK_TYPES; ++i)
     {
-        return false;
+        success &= InitialiseTexture("terrain" + 
+            std::to_string(i), ProceduralTexture::PERLIN_NOISE_ROCK, 128);
     }
 
-    assert(m_data.shaders.empty());
-    m_data.shaders.resize(SPECIAL_SHADERS.size());
+    success &= InitialiseTexture("sand_height", ProceduralTexture::FROM_FILE, 256);
 
-    auto CreateShader = [this, &linker](const std::string& name, int index) -> bool
+    return success && InitialiseCaustics();
+}
+
+bool SceneBuilder::InitialiseTerrain()
+{
+    const int causticsTexture = m_data.caustics->GetFrame();
+
+    m_data.sandIndex = m_data.terrain.size();
+    Terrain& sand = InitialiseTerrain("sand", "sand_height", 
+        "bumpcaustics", 4.0f, true, -45.0f, 
+        0.0f, 5.0f, PATCH_GRID_SPACING, PATCH_GRID_VERTICES);
+
+    sand.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "sand"));
+    sand.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "sand_bump"));
+    sand.SetTexture(SLOT_CAUSTICS, causticsTexture);
+    sand.Bump(10.0f);
+    sand.Ambience(1.0f);
+    sand.CausticsAmount(0.2f);
+
+    const int instancesPerType = 10;
+    for (int i = 0; i < PATCH_ROCK_TYPES; ++i)
     {
-        m_data.shaders[index] = std::make_unique<Shader>();
-        m_data.shaders[index]->Set(name, index);
+        for (int j = 0; j < instancesPerType; ++j)
+        {
+            const auto index = m_data.rocks.size();
+            m_data.rocks.emplace_back();
+            m_data.rocks[index].index = m_data.terrain.size();
+            m_data.rocks[index].instance = j;
+        }
+
+        const auto ID(std::to_string(i));
+        Terrain& rock = InitialiseTerrain("rock" + ID, "terrain" + ID, 
+            "bumpcaustics", 4.0f, false, 0.0f, -5.0f, 40.0f, 5.0f, 30);
+
+        rock.AddInstances(instancesPerType);
+        rock.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "rock"));
+        rock.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "rock_bump"));
+        rock.SetTexture(SLOT_CAUSTICS, causticsTexture);
+        rock.Bump(15.0f);
+        rock.CausticsAmount(0.8f);
+    }
+
+    return true;
+}
+
+bool SceneBuilder::InitialiseWater()
+{
+    const auto index = m_data.water.size();
+    m_data.water.push_back(std::make_unique<Water>(
+        "water", m_data.shaders[WATER_SHADER]->Name(), WATER_SHADER));
+    auto& water = *m_data.water[index];
+
+    water.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "water_colour"));
+    water.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "water_normal"));
+    water.SetTexture(SLOT_ENVIRONMENT, GetID(m_data.textures, "water_cube"));
+    return water.Initialise(25.0f, PATCH_GRID_SPACING, PATCH_GRID_VERTICES);
+}
+
+bool SceneBuilder::InitialiseMeshes()
+{
+    bool success = true;
+
+    const int causticsTexture = m_data.caustics->GetFrame();
+
+    {
+        auto& mesh = InitialiseMesh("sphere", "sphere.obj", 1.0f, 1.0f, "diagnostic");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "blank"));
+    }
+    {
+        auto& mesh = InitialiseMesh("skybox", "skybox.obj", 1.0f, 1.0f, "flat");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "skybox"));
+        mesh.BackfaceCull(false);
+        mesh.Ambience(0.85f);
+        mesh.SetSkyBox();
+        mesh.AddInstances(1);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("sealeaves", "sealeaves.obj", 0.25f, 4.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.BackfaceCull(false);
+        mesh.Diffuse(0.3f); // Ensures backfaces are lit
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("seaweed1", "seaweed1.obj", 0.25f, 4.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.BackfaceCull(false);
+        mesh.Diffuse(0.3f); // Ensures backfaces are lit
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("seaweed2", "seaweed2.obj", 0.2f, 8.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.BackfaceCull(false);
+        mesh.Diffuse(0.3f); // Ensures backfaces are lit
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("shell", "shell.obj", 2.0f, 4.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell"));
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("starfish", "starfish.obj", 0.5f, 0.5f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish"));
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("urchin", "urchin.obj", 1.0f, 1.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin"));
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh = InitialiseMesh("coral", "coral.obj", 1.0f, 4.0f, "diffuse");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral"));
+        mesh.AddInstances(instances);
+        success &= AddFoliage({ &mesh }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh1 = InitialiseMesh("flower1 top", "flower1_top.obj", 1.0f, 1.0f, "diffuse");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower1_top"));
+        mesh1.AddInstances(instances);
+
+        auto& mesh2 = InitialiseMesh("flower1 bot", "flower1_bot.obj", 2.0f, 2.0f, "diffuse");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower1_bot"));
+        mesh2.AddInstances(instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh1 = InitialiseMesh("flower2 top", "flower2_top.obj", 1.0f, 1.0f, "diffuse");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower2_top"));
+        mesh1.AddInstances(instances);
+    
+        auto& mesh2 = InitialiseMesh("flower2 bot", "flower2_bot.obj", 3.0f, 3.0f, "diffuse");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower2_bot"));
+        mesh2.AddInstances(instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+    }
+    {
+        const int instances = 80;
+        auto& mesh1 = InitialiseMesh("flower3 top", "flower3_top.obj", 1.0f, 1.0f, "diffuse");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower3_top"));
+        mesh1.AddInstances(instances);
+
+        auto& mesh2 = InitialiseMesh("flower3 bot", "flower3_bot.obj", 1.0f, 2.0f, "diffuse");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower3_bot"));
+        mesh2.AddInstances(instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+    }
+
+    return success;
+}
+
+bool SceneBuilder::InitialiseEmitters()
+{
+    return InitialiseBubbles();
+}
+
+bool SceneBuilder::InitialiseBubbles()
+{
+    std::vector<int> textures = 
+    {
+        GetID(m_data.textures, "bubble1"),
+        GetID(m_data.textures, "bubble2"),
+        GetID(m_data.textures, "bubble3")
+    };
+
+    EmitterData data;
+    data.direction.x = 0.0f;
+    data.direction.y = 1.0f;
+    data.direction.z = 0.0f;
+    data.length = 10.0f;
+    data.width = 10.0f;
+    data.lifeTime = 5.0f;
+    data.lifeFade = 0.5f;
+    data.maxAmplitude = 1.5f;
+    data.minAmplitude = 0.5f;
+    data.maxFrequency = 1.0f;
+    data.minFrequency = 0.5f;
+    data.maxWaveSpeed = 1.0f;
+    data.minWaveSpeed = 1.0f;
+    data.maxSpeed = 0.3f;
+    data.minSpeed = 0.2f;
+    data.minSize = 0.5f;
+    data.maxSize = 1.5f;
+    data.minWaitTime = 0.5f;
+    data.maxWaitTime = 3.0f;    
+    data.tint.r = 1.0f;
+    data.tint.g = 1.0f;
+    data.tint.b = 1.0f;
+    data.tint.a = 1.0f;
+    data.instances = 100;
+    data.particles = 15;
+
+    return InitialiseEmitter("bubbles", "particle", textures, data);
+}
+
+bool SceneBuilder::InitialiseCaustics()
+{
+    m_data.caustics = std::make_unique<Animation>();
+
+    const std::string path("Caustics//");
+    const std::string name("Caustics_0");
+    const std::string extension(".bmp");
+
+    const int maxFrames = 45;
+    for (int frame = 1; frame <= maxFrames; ++frame)
+    {
+        const std::string number(std::to_string(frame));
+        const std::string frameName(name + (frame < 10 ? "0" : "") + number + extension);
+        m_data.caustics->AddFrame(static_cast<int>(m_data.textures.size()));
+
+        if (!InitialiseTexture(frameName, path + frameName, Texture::FROM_FILE))
+        {
+            return false;
+        }
+    }
+
+    Logger::LogInfo("Caustics: Initialised " + std::to_string(maxFrames) + " frames");
+    return true;
+}
+
+bool SceneBuilder::InitialiseShader(FragmentLinker& linker,
+                                    const std::string& name, 
+                                    unsigned int components,
+                                    int index)
+{
+    if (index == NO_INDEX)
+    {
+        index = m_data.shaders.size();
+        m_data.shaders.push_back(std::make_unique<Shader>(name, SHADER_PATH + name, components));
+        if (!linker.GenerateWithFragments(*m_data.shaders[index]))
+        {
+            Logger::LogError("Could not generate shader " + name);
+        }
+    }
+    else
+    {
+        m_data.shaders[index] = std::make_unique<Shader>(name, SHADER_PATH + name, components);
         if (!linker.GenerateFromFile(*m_data.shaders[index]))
         {
             Logger::LogError("Could not generate shader " + name);
             return false;
         }
-        else
-        {
-            Logger::LogInfo("Shader: " + name + " loaded");
-            return true;
-        }
-    };
-
-    bool success = true;
-    for (auto& pair : SPECIAL_SHADERS)
-    {
-        success &= CreateShader(pair.first, pair.second);
     }
-    return success;
-}
 
-bool SceneBuilder::InitialisePost()
-{
-    const boost::property_tree::ptree tree = ReadXMLFile(POST_NAME, POST_PATH + XML);
-    m_data.post = std::make_unique<PostProcessing>(tree);
-    Logger::LogInfo("PostProcessing: Successfully initialised");
+    Logger::LogInfo("Shader: " + name + " loaded");
     return true;
 }
 
-bool SceneBuilder::InitialiseLighting()
+bool SceneBuilder::InitialiseTexture(const std::string& name, 
+                                     const std::string& path,
+                                     Texture::Type type,
+                                     Texture::Filter filter)
 {
-    boost::property_tree::ptree tree = ReadXMLFile(LIGHTS_NAME, LIGHTS_PATH + XML);
-    for (boost::property_tree::ptree::iterator it = tree.begin(); it != tree.end(); ++it)
-    {
-        m_data.lights.push_back(std::make_unique<Light>(it->second));
-    }
-
-    Logger::LogInfo("Lighting: Successfully initialised");
+    const auto index = m_data.textures.size();
+    m_data.textures.push_back(std::make_unique<Texture>(name, TEXTURE_PATH + path, type, filter));
     return true;
 }
 
-bool SceneBuilder::InitialiseEmitters()
+bool SceneBuilder::InitialiseTexture(const std::string& name, 
+                                     ProceduralTexture::Generation generation,
+                                     int size)
 {
-    boost::property_tree::ptree tree = ReadXMLFile(EMITTERS_NAME, EMITTERS_PATH + XML);
-    for (boost::property_tree::ptree::iterator it = tree.begin(); it != tree.end(); ++it)
-    {
-        m_data.emitters.push_back(std::make_unique<Emitter>(it->second, PARTICLE_SHADER));
-        auto& emitter = *m_data.emitters[m_data.emitters.size()-1];
+    const auto index = m_data.textures.size();
+    m_data.proceduralTextures.push_back(index);
 
-        for (const auto& name : emitter.TextureNames())
-        {
-            emitter.AddTexture(AddTexture(name));
-        }
+    const std::string path(generation == ProceduralTexture::FROM_FILE ? 
+        TEXTURE_PATH + name + ".png" : GENERATED_TEXTURES + name + ".bmp");
+
+    m_data.textures.push_back(std::make_unique<ProceduralTexture>(
+        name, path, size, generation));
+
+    m_data.textures[index]->Save();
+    return true;
+}
+
+Mesh& SceneBuilder::InitialiseMesh(const std::string& name,
+                                   const std::string& filename,
+                                   float uScale,
+                                   float vScale,
+                                   const std::string& shaderName)
+{
+    const auto index = m_data.meshes.size();
+    const int shaderID = GetID(m_data.shaders, shaderName);
+
+    m_data.meshes.push_back(std::make_unique<Mesh>(name, shaderName, shaderID));
+    auto& mesh = *m_data.meshes[index];
+
+    if (!mesh.InitialiseFromFile(MESHES_PATH + filename, Float2(uScale, vScale),
+        true, m_data.shaders[shaderID]->HasComponent(Shader::BUMP)))
+    {
+        Logger::LogError("Mesh: " + name + " failed initialisation");
     }
 
-    Logger::LogInfo("Particles: Successfully initialised");
+    return mesh;
+}
+
+bool SceneBuilder::InitialiseEmitter(const std::string& name,
+                                     const std::string& shaderName,
+                                     const std::vector<int>& textures,
+                                     const EmitterData& data)
+{
+    const int shaderID = GetID(m_data.shaders, shaderName);
+    m_data.emitters.push_back(std::make_unique<Emitter>(name, shaderID));
+    Emitter& emitter = *m_data.emitters[m_data.emitters.size()-1];
+
+    for (int texture : textures)
+    {
+        emitter.AddTexture(texture);
+    }
+
+    return emitter.Initialise(data);
+}
+
+Terrain& SceneBuilder::InitialiseTerrain(const std::string& name,
+                                         const std::string& heightmap,
+                                         const std::string& shaderName,
+                                         float uvTextureStretch,
+                                         bool tiling,
+                                         float height,
+                                         float minHeight,
+                                         float maxHeight,
+                                         float spacing,
+                                         int size)
+{
+    const int shaderID = GetID(m_data.shaders, shaderName);
+    if (shaderID == NO_INDEX)
+    {
+        Logger::LogError("Terrain: " + name + " could not find shader " + shaderName);
+    }
+
+    const int heightID = GetID(m_data.textures, heightmap);
+    if (heightID == NO_INDEX)
+    {
+        Logger::LogError("Terrain: " + name + " could not find texture " + heightmap);
+    }
+
+    const auto& texture = *m_data.textures[heightID];
+
+    m_data.terrain.push_back(std::make_unique<Terrain>(
+        name, m_data.shaders[shaderID]->Name(), shaderID, texture.Pixels()));
+    Terrain& terrain = *m_data.terrain[m_data.terrain.size()-1];
+
+    if (!terrain.Initialise(uvTextureStretch, minHeight, 
+        maxHeight, height, spacing, size, true, 
+        m_data.shaders[shaderID]->HasComponent(Shader::BUMP), tiling))
+    {
+        Logger::LogError("Terrain: " + name + " failed initialisation");
+    }
+    return terrain;
+}
+
+bool SceneBuilder::AddFoliage(std::initializer_list<const MeshData*> meshes, int instances)
+{
+    if (meshes.size() == 0)
+    {
+        Logger::LogError("Empty foliage mesh group");
+        return false;
+    }
+
+    for (int i = 0; i < instances; ++i)
+    {
+        const auto index = m_data.foliage.size();
+        m_data.foliage.emplace_back();
+
+        for (const auto* mesh : meshes)
+        {
+            if (static_cast<int>(mesh->Instances().size()) != instances)
+            {
+                Logger::LogError("Mesh " + mesh->Name() + " did not have require instances");
+                return false;
+            }
+
+            m_data.foliage[index].AddMesh(GetID(m_data.meshes, mesh->Name()), i);
+        }
+    }
     return true;
 }
 
@@ -162,353 +548,4 @@ bool SceneBuilder::InitialiseDiagnostics()
         return false;
     }
     return true;
-}
-
-bool SceneBuilder::InitialiseTextures()
-{
-    assert(m_data.textures.empty());
-    m_data.textures.resize(MAX_TEXTURES);
-
-    m_data.textures[BLANK_TEXTURE_ID] = std::make_unique<Texture>(
-        "blank", TEXTURE_PATH + "//blank.png", Texture::NEAREST);
-
-    if (!boost::filesystem::exists(GENERATED_TEXTURES))
-    {
-        boost::filesystem::create_directory(GENERATED_TEXTURES);
-    }
-
-    auto MakeProcedural = [this](const std::string& name,
-                                 ProceduralTexture::Generation generation,
-                                 int size)
-    {
-        const std::string path(generation == ProceduralTexture::FROM_FILE ?
-            TEXTURE_PATH + "//" + name + ".png" : GENERATED_TEXTURES + "//" + name + ".bmp");
-
-        m_data.proceduralTextures.push_back(m_data.textures.size());
-        m_data.textures.push_back(std::make_unique<ProceduralTexture>(
-            name, path, size, generation));
-    };
-
-    MakeProcedural("sand_height", ProceduralTexture::FROM_FILE, 256);
-
-    return InitialiseCaustics();
-}
-
-bool SceneBuilder::InitialiseCaustics()
-{
-    m_data.caustics = std::make_unique<AnimatedTexture>(
-        TEXTURE_PATH + "//Caustics//", "Caustics_0", ".bmp");
-
-    for (const std::string& path : m_data.caustics->Paths())
-    {
-        m_data.caustics->AddFrame(static_cast<int>(m_data.textures.size()));
-        m_data.textures.push_back(std::make_unique<Texture>(path, path, Texture::LINEAR));
-    }
-    return true;
-}
-
-bool SceneBuilder::InitialiseMeshes(FragmentLinker& linker)
-{	
-    boost::property_tree::ptree tree = ReadXMLFile(MESHES_NAME, MESHES_PATH + XML);
-    for(boost::property_tree::ptree::iterator itr = tree.begin(); itr != tree.end(); ++itr)
-    {
-        const boost::property_tree::ptree node = itr->second;
-
-        if (itr->first == "Water")
-        {
-            if (!InitialiseWater(node))
-            {
-                return false;
-            }
-        }
-        else if (itr->first == "Mesh" || itr->first == "Foliage")
-        {
-            if(!InitialiseMesh(node, linker, itr->first == "Foliage"))
-            {
-                return false;
-            }
-        }
-        else if (itr->first == "Sand" || itr->first == "Terrain")
-        {
-            if (itr->first == "Sand")
-            {
-                m_data.sandIndex = m_data.terrain.size();
-            }
-            
-            if(!InitialiseTerrain(node, linker))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-bool SceneBuilder::InitialiseWater(const boost::property_tree::ptree& node)
-{
-    const auto index = m_data.water.size();
-    m_data.water.push_back(std::make_unique<Water>(node));
-    m_data.water[index]->SetShaderID(WATER_SHADER);
-    InitialiseMeshTextures(*m_data.water[index]);
-    return true;
-}
-
-bool SceneBuilder::InitialiseTerrain(const boost::property_tree::ptree& node, 
-                                     FragmentLinker& linker)
-{                
-    const std::string map = boost::to_lower_copy(GetValue<std::string>(node, "HeightMap"));
-
-    for (const auto& texture : m_data.textures)
-    {
-        if (boost::iequals(texture->Name(), map))
-        {
-            const auto index = m_data.terrain.size();
-            m_data.terrain.push_back(std::make_unique<Terrain>(node, texture->Pixels(), map));
-            auto& terrain = *m_data.terrain[index];
-
-            InitialiseMeshTextures(terrain);
-            InitialiseMeshShader(terrain, linker);
-            return terrain.Initialise(true, 
-                m_data.shaders[terrain.ShaderID()]->HasComponent(Shader::BUMP));
-        }
-    }
-
-    Logger::LogError("Could not find height map " + map);
-    return false;         
-}
-
-bool SceneBuilder::InitialiseMesh(const boost::property_tree::ptree& node, 
-                                  FragmentLinker& linker,
-                                  bool isFoliage)
-{                            
-    const auto index = m_data.meshes.size();    
-    m_data.meshes.push_back(std::make_unique<Mesh>(node));
-    auto& mesh = *m_data.meshes[index];
-
-    const int instanceCount = mesh.GetInitialInstances();
-    if (isFoliage)
-    {
-        // Instances are generated using the scene placer
-        m_data.foliage.push_back(std::make_pair(index, instanceCount));
-    }
-    else
-    {
-        mesh.AddInstances(instanceCount);
-    }
-
-    InitialiseMeshTextures(mesh);
-    InitialiseMeshShader(mesh, linker);
-
-    return mesh.InitialiseFromFile(MESHES_PATH + "//" + mesh.Name(), true, 
-        m_data.shaders[mesh.ShaderID()]->HasComponent(Shader::BUMP));
-}
-
-void SceneBuilder::InitialiseMeshTextures(MeshData& mesh)
-{
-    for (int i = 0; i < MAX_SLOTS; ++i)
-    {
-        const auto type = static_cast<TextureSlot>(i);
-        const std::string name = mesh.TextureNames().at(type);
-        if (!name.empty())
-        {
-            mesh.SetTexture(type, AddTexture(name));
-        }
-    }
-}
-
-void SceneBuilder::InitialiseMeshShader(MeshData& mesh, FragmentLinker& linker)
-{
-    // Get the shader used by the mesh
-    std::string shader = mesh.ShaderName();
-    boost::algorithm::replace_all(shader, "|", "");
-
-    // Ensure not asking for a specialised shader
-    int shaderIndex = GetShaderIndex(shader);
-    if (shaderIndex == NO_INDEX)
-    {
-        // Copy each component featured in the given shader name to a set order
-        std::string newShaderName;
-        std::string component;
-        for(int i = 0; i < Shader::MAX_COMPONENTS; ++i)
-        {
-            component = Shader::ComponentAsString(i);
-            if(boost::algorithm::icontains(shader, component))
-            {
-                newShaderName += component;
-                boost::algorithm::ireplace_all(shader, component, "");
-            }
-        }
-	
-        // Add any non-component text to the ordered components
-        shader += boost::algorithm::to_lower_copy(newShaderName);
-        shaderIndex = GetShaderIndex(linker, shader, mesh.Name());
-    }
-
-    mesh.SetShaderID(shaderIndex);
-}
-
-int SceneBuilder::GetShaderIndex(const std::string& shadername)
-{
-    const auto itr = SPECIAL_SHADERS.find(shadername);
-    return itr != SPECIAL_SHADERS.end() ? itr->second : NO_INDEX;
-}
-
-int SceneBuilder::GetShaderIndex(FragmentLinker& linker, 
-                                 const std::string& shaderName, 
-                                 const std::string& meshName)
-{
-    std::string name = shaderName;
-
-    // Determine if shader with those components already exists and reuse if so
-    auto shaderItr = std::find_if(m_data.shaders.begin(), m_data.shaders.end(), 
-        [&name](const std::unique_ptr<Shader>& shader)
-        { 
-            return shader->Name() == name; 
-        });
-        
-    if(shaderItr == m_data.shaders.end())
-    {
-        // Shader does not exist, create from fragments
-        const int index = m_data.shaders.size();
-
-        m_data.shaders.push_back(std::make_unique<Shader>(name, index));
-        Shader& shader = *m_data.shaders[m_data.shaders.size()-1];
-
-        if(!linker.GenerateWithFragments(shader))
-        {
-            Logger::LogError("Shader name " + shader.Name() +
-                " for " + meshName + " is an invalid combination");
-        }
-        else
-        {
-            Logger::LogInfo("Shader: " + shader.Name() + " created");
-        }
-        return shader.ID();
-    }
-    else
-    {
-        return (*shaderItr)->ID();
-    }
-}
-
-int SceneBuilder::AddTexture(const std::string& name)
-{
-    if(name.empty())
-    {
-        return NO_INDEX;
-    }
-
-    const int size = static_cast<int>(m_data.textures.size());
-
-    for(int i = 0; i < size; ++i)
-    {
-        if(name == m_data.textures[i]->Name())
-        {
-            return i;
-        }
-    }
-
-    const std::string path = TEXTURE_PATH + "//" + name;
-    Texture::Filter filter = Texture::IsCubeMap(path) ? 
-        Texture::ANISOTROPIC : Texture::LINEAR;
-
-    const int index = size;
-    m_data.textures.push_back(std::make_unique<Texture>(name, path, filter));
-    return index;
-}
-
-void SceneBuilder::SaveSceneToFile()
-{
-    SaveParticlesToFile();
-    SaveMeshesToFile();
-    SaveLightsToFile();
-    SavePostProcessingtoFile();
-}
-
-void SceneBuilder::SaveParticlesToFile()
-{
-    boost::property_tree::ptree root, tree;
-    std::vector<boost::property_tree::ptree> entries;
-	
-    for (const auto& emitter : m_data.emitters)
-    {
-        boost::property_tree::ptree entry;
-        emitter->Write(entry);
-        entries.push_back(entry);
-        tree.add_child("Emitter", entries[entries.size()-1]);
-    }
-
-    SaveXMLFile(root, tree, EMITTERS_NAME, EMITTERS_PATH + SAVED + XML);
-}
-
-bool SceneBuilder::IsFoliage(unsigned int index) const
-{
-    auto isIndex = [index](std::pair<unsigned int, int>& pair)
-    { 
-        return index == pair.first; 
-    };
-
-    return std::find_if(m_data.foliage.begin(), m_data.foliage.end(), isIndex)
-         != m_data.foliage.end();
-}
-
-void SceneBuilder::SaveMeshesToFile()
-{
-    boost::property_tree::ptree root, tree;
-    std::vector<boost::property_tree::ptree> entries;
-	
-    for (unsigned int i = 0; i < m_data.meshes.size(); ++i)
-    {
-        boost::property_tree::ptree entry;
-        m_data.meshes[i]->Write(entry);
-        entries.push_back(entry);
-        tree.add_child(IsFoliage(i) ? "Foliage" : "Mesh", entries[entries.size()-1]);
-    }
-
-    for (unsigned int i = 0; i < m_data.terrain.size(); ++i)
-    {
-        const bool isSand = m_data.sandIndex == i;
-        boost::property_tree::ptree entry;
-        m_data.terrain[i]->Write(entry);
-        entries.push_back(entry);
-        tree.add_child(isSand ? "Sand" : "Terrain", entries[entries.size()-1]);
-    }
-
-    if (!m_data.water.empty())
-    {
-        auto createNode = [&entries]() -> boost::property_tree::ptree&
-        { 
-            entries.emplace_back(); 
-            return entries.at(entries.size()-1); 
-        };
-
-        boost::property_tree::ptree entry;
-        m_data.water[0]->Write(entry, createNode);
-        entries.push_back(entry);
-        tree.add_child("Water", entries[entries.size()-1]);
-    }
-
-    SaveXMLFile(root, tree, MESHES_NAME, MESHES_PATH + SAVED + XML);
-}
-
-void SceneBuilder::SaveLightsToFile()
-{
-    boost::property_tree::ptree root, tree;
-    std::vector<boost::property_tree::ptree> entries;
-	
-    for(const auto& light : m_data.lights)
-    {
-        boost::property_tree::ptree entry;
-        light->Write(entry);
-        entries.push_back(entry);
-        tree.add_child("Light", entries[entries.size()-1]);
-    }
-    SaveXMLFile(root, tree, LIGHTS_NAME, LIGHTS_PATH + SAVED + XML);
-}
-
-void SceneBuilder::SavePostProcessingtoFile()
-{
-    boost::property_tree::ptree root, tree;
-    m_data.post->Write(tree);
-    SaveXMLFile(root, tree, POST_NAME, POST_PATH + SAVED + XML);
 }

@@ -94,8 +94,8 @@ void QtGUI::Run(int argc, char *argv[])
     callbacks.ReloadEngine =       [this](){ m_cache->ReloadEngine.Set(true); };
     callbacks.ReloadTerrain =      [this](){ m_cache->ReloadTerrain.Set(true); };
     callbacks.ReloadTexture =      [this](){ m_cache->ReloadTexture.Set(true); };
+    callbacks.ReloadPlacement =    [this](){ m_cache->ReloadPlacement.Set(true); };
     callbacks.ToggleWireframe =    [this](){ m_cache->ToggleWireframe.Set(true); };
-    callbacks.SaveScene =          [this](){ m_cache->SaveScene.Set(true); };
     callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
     callbacks.RenderLightsOnly =   [this](){ m_cache->RenderLightsOnly.Set(true); };
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };

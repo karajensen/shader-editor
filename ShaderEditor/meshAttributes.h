@@ -4,26 +4,12 @@
 
 #pragma once
 
-#include "ptree_utilities.h"
-
 /**
 * Attributes used for shading meshes
 */
 class MeshAttributes
 {
 public:
-
-    /**
-    * Constructor
-    * @param node The data to intialize the mesh with
-    */
-    MeshAttributes(const boost::property_tree::ptree& node);
-
-    /**
-    * Writes the data to a property tree
-    * @param node The node to write to
-    */
-    virtual void Write(boost::property_tree::ptree& node) const;
 
     /**
     * @return Brightness of the specular highlights

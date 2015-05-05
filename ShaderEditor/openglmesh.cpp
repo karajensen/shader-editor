@@ -194,41 +194,20 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
         const auto& instance = instances[i];
         if (instance.requiresUpdate || m_updateInstances)
         {
-            if (!instance.rotation.IsZero())
-            {
-                glm::mat4 scale;
-                scale[0][0] = instance.scale.x;
-                scale[1][1] = instance.scale.y;
-                scale[2][2] = instance.scale.z;
+            m_world[i][0][0] = instance.world.m11;  
+            m_world[i][1][0] = instance.world.m12;
+            m_world[i][2][0] = instance.world.m13;
+            m_world[i][3][0] = instance.world.m14;
 
-                glm::mat4 translate;
-                translate[3][0] = instance.position.x;
-                translate[3][1] = instance.position.y;
-                translate[3][2] = instance.position.z;
-            
-                glm::mat4 rotateX, rotateY, rotateZ;
-                glm::rotate(rotateX, instance.rotation.x, glm::vec3(1,0,0));
-                glm::rotate(rotateY, instance.rotation.y, glm::vec3(0,1,0));
-                glm::rotate(rotateZ, instance.rotation.z, glm::vec3(0,0,1));
+            m_world[i][0][1] = instance.world.m21;
+            m_world[i][1][1] = instance.world.m22;
+            m_world[i][2][1] = instance.world.m23;
+            m_world[i][3][1] = instance.world.m24;
 
-                m_world[i] = translate * (rotateZ * rotateX * rotateY) * scale;
-            }
-            else
-            {
-                auto& world = m_world[i];
-                world[0][0] = instance.scale.x;
-                world[0][1] = 0.0f;
-                world[0][2] = 0.0f;
-                world[1][0] = 0.0f;
-                world[1][1] = instance.scale.y;
-                world[1][2] = 0.0f;
-                world[2][0] = 0.0f;
-                world[2][1] = 0.0f;
-                world[2][2] = instance.scale.z;
-                world[3][0] = instance.position.x;
-                world[3][1] = instance.position.y;
-                world[3][2] = instance.position.z;
-            }
+            m_world[i][0][2] = instance.world.m31;
+            m_world[i][1][2] = instance.world.m32;
+            m_world[i][2][2] = instance.world.m33;
+            m_world[i][3][2] = instance.world.m34;
         }
 
         if (instance.enabled && instance.render)

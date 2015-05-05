@@ -18,7 +18,7 @@ public:
     */
     enum Generation
     {
-        DIAMOND_SQUARE,
+        PERLIN_NOISE_ROCK,
         FROM_FILE
     };
 
@@ -89,9 +89,10 @@ private:
     void MakeFromFile();
 
     /**
-    * Creates a fractal texture using the diamond square algorithm
+    * Creates a texture using perlin noise
+    * Reference: AIE Computer Graphics Tutorial Week 9 Procedural Generation
     */
-    void MakeDiamondSquareFractal();
+    void MakePerlinNoiseRock();
 
     /**
     * @return the colour from the row and column value
@@ -165,6 +166,10 @@ private:
 
     Generation m_generation;            ///< How to make the texture
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture
-    int m_size;                         ///< Dimensions of the texture
+    int m_size = 0;                     ///< Dimensions of the texture
     std::string m_savePath;             ///< Path the generated texture is saved to
+    float m_scale = 1.0f;               ///< Scale value for generating a texture
+    float m_amplitude = 1.0f;           ///< Amplitude value for generating a texture
+    float m_contrast = 1.0f;            ///< Brightness multiplier of the final texture
+    int m_iterations = 1;               ///< Number of iterations for the algorithm
 };

@@ -129,12 +129,6 @@ void AppGUI::UpdateScene(RenderEngine& engine)
     m_cache->DeltaTime.Set(m_timer.GetDeltaTime());
     m_cache->Timer.Set(m_timer.GetTotalTime());
 
-    if (m_cache->SaveScene.Get())
-    {
-        m_cache->SaveScene.Set(false);
-        m_scene.SaveSceneToFile();
-    }
-
     if (m_cache->ReloadScene.Get())
     {
         m_cache->ReloadScene.Set(false);

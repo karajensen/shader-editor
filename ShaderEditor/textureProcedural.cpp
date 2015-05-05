@@ -7,6 +7,7 @@
 #include "colour.h"
 #include "cache.h"
 #include "soil/SOIL.h"
+#include "glm/gtc/noise.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
 
@@ -14,10 +15,9 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
                                      const std::string& path,
                                      int size,
                                      Generation generation) :
-    Texture(name, path, NEAREST),
+    Texture(name, path, PROCEDURAL, NEAREST),
     m_generation(generation)
 {
-    SetType(PROCEDURAL);
     m_size = size;
     m_pixels.resize(size * size);
 
@@ -25,6 +25,16 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
     m_savePath += std::string(path.begin() + 1, path.end()); // Remove .
     boost::algorithm::ireplace_all(m_savePath, R"(\)", R"(/)");
     boost::algorithm::ireplace_all(m_savePath, R"(//)", R"(/)");
+
+    switch (m_generation)
+    {
+    case PERLIN_NOISE_ROCK:
+        m_scale = 3.0f;
+        m_iterations = 6;
+        m_amplitude = 1.0f;
+        m_contrast = 1.0f;
+        break;
+    }
 
     Generate();
 }
@@ -248,8 +258,8 @@ void ProceduralTexture::Generate()
     case FROM_FILE:
         MakeFromFile();
         break;
-    case DIAMOND_SQUARE:
-        MakeDiamondSquareFractal();
+    case PERLIN_NOISE_ROCK:
+        MakePerlinNoiseRock();
         break;
     }
 }
@@ -277,110 +287,46 @@ void ProceduralTexture::MakeFromFile()
     SOIL_free_image_data(image);
 }
 
-void ProceduralTexture::MakeDiamondSquareFractal()
+void ProceduralTexture::MakePerlinNoiseRock()
 {
-    // Diamond Square Fractal References:
-    // http://www.gameprogrammer.com/fractal.html 
-    // http://www.playfuljs.com/realistic-terrain-in-130-lines/
+    // Randomize each call of the noise
+    const int randomR = Random::Generate(0, 1000);
+    const int randomC = Random::Generate(0, 1000);
 
-    const int maxSize = m_size;
-    const int maxIndex = maxSize - 1;
-    int size = maxSize;
-    int half = size / 2;
-    float scale = 2.0f;
+    const float persistance = 0.3f;
+    const float scale = (1.0f / m_size) * m_scale;
+    const int fadeIndex = 10;
 
-    // All four corners must have the same point to allow tiling
-    const float initial = 0.0f;
-    Set(0, 0, initial);
-    Set(maxIndex, 0, initial);
-    Set(maxIndex, maxIndex, initial);
-    Set(0, maxIndex, initial);
+    const int boundary = 10;
+    const float outerRadius = static_cast<float>(m_size-boundary) * 0.5f;
+    const float innerRadius = outerRadius * 0.6f;
+    const glm::vec2 center(m_size / 2.0f, m_size / 2.0f);
 
-    /**
-    * Averages the value of the four points in a square
-    * o  .  o
-    * .  .  .
-    * o  .  o
-    */
-    auto AverageSquare = [&](int row, int column) -> float
+    for (int r = 0; r < m_size; ++r)
     {
-        return (RedAsFlt(Index(row-half, column-half)) +
-            RedAsFlt(Index(row+half-1, column+half-1)) +
-            RedAsFlt(Index(row-half, column+half-1)) +
-            RedAsFlt(Index(row+half-1, column-half))) * 0.25f;
-    };
+        for (int c = 0; c < m_size; ++c)
+        {
+            float amplitude = m_amplitude;
+            float value = 0.0f;
 
-    /**
-    * Averages the value of the four points in a diamond
-    * If row/column is on edge of texture looks at opposite side to support tiling
-    * .  o  .
-    * o  .  o
-    * .  o  .
-    */
-    auto AverageDiamond = [&](int row, int column) -> float
-    {
-        const auto top = Index(row, column-half);
-        const auto bot = Index(row, column+half-1);
-        const auto left = Index(row-half, column);
-        const auto right = Index(row+half-1, column);
-
-        if (row == 0)
-        {
-            return (RedAsFlt(top) + RedAsFlt(bot) + RedAsFlt(right)
-                + RedAsFlt(Index(maxIndex-half, column))) * 0.25f;
-        }
-        else if (row == maxIndex)
-        {
-            return (RedAsFlt(top) + RedAsFlt(bot) + RedAsFlt(left) 
-                + RedAsFlt(Index(half, column))) * 0.25f;
-        }
-        else if (column == 0)
-        {
-            return (RedAsFlt(right) + RedAsFlt(left) + RedAsFlt(bot) 
-                + RedAsFlt(Index(row, maxIndex-half))) * 0.25f;
-        }
-        else if (column == maxIndex)
-        {
-            return (RedAsFlt(right) + RedAsFlt(left) + RedAsFlt(bot) 
-                + RedAsFlt(Index(row, half))) * 0.25f;
-        }
-
-        return (RedAsFlt(right) + RedAsFlt(left) 
-            + RedAsFlt(top) + RedAsFlt(bot)) * 0.25f;
-    };
-
-    // Terminate loop when power of 2 texture halves to reach 0.5
-    while (half >= 1)
-    {
-        /**
-        * Set the midpoint of the sections
-        * .  .  .
-        * .  o  .
-        * .  .  .
-        */
-        for (int r = half; r < maxSize; r += size) 
-        {
-            for (int c = half; c < maxSize; c += size)
+            for (int i = 0; i < m_iterations; ++i)
             {
-                Set(r, c, AverageSquare(r, c) + scale * Random::Generate(-0.5f, 0.5f));
+                const float frequency = powf(2, static_cast<float>(i));
+                const glm::vec2 position(randomR + r, randomC + c);
+                const float noise = glm::perlin(position * scale * frequency);
+                value += ((noise * 0.5f) + 0.5f) * amplitude;
+                amplitude *= persistance;
             }
-        }
 
-        /**
-        * Set the four corners of the diamond surrounding the midpoint
-        * .  o  .
-        * o  .  o
-        * .  o  .
-        */
-        for (int r = 0; r <= maxIndex; r += half)
-        {
-            for (int c = (r + half) % size; c <= maxIndex; c += size)
-            {
-                Set(r, c, AverageDiamond(r, c) + scale * Random::Generate(-0.5f, 0.5f));
-            }
-        }
+            // Contrast Reference: Programming vertex, geometry and pixel shaders p378-379
+            value -= m_contrast * (value - 1.0f) * value * (value - 0.5f);
 
-        size = half;
-        half = size / 2;
-    }   
+            // Fade the boundry out to allow aligning with flat ground
+            const float distance = glm::length(center - glm::vec2(r, c));
+            value *= Clamp(ConvertRange(distance, innerRadius, outerRadius, 1.0f, 0.0f), 0.0f, 1.0f);
+
+            Set(r, c, value);
+        }
+    }
+    Logger::LogInfo("Texture: " + Name() + " generated");
 }

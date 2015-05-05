@@ -20,11 +20,11 @@ public:
     */
     enum Component
     {
-        FLAT,
-        BUMP,
-        SPECULAR,
-        CAUSTICS,
-        MAX_COMPONENTS
+        NONE = 0,
+        FLAT = 1,
+        BUMP = 2,
+        SPECULAR = 4,
+        CAUSTICS = 8
     };
 
     /**
@@ -35,16 +35,11 @@ public:
     /**
     * Constructor
     * @param name The name of the shader
-    * @param index The unique ID of the shader
+    * @param components The components this shader supports
     */
-    Shader(const std::string& name, int index);
-
-    /**
-    * Sets the data for the shader
-    * @param name The name of the shader
-    * @param index The unique ID of the shader
-    */
-    void Set(const std::string& name, int index);
+    Shader(const std::string& name, 
+           const std::string& path,
+           unsigned int components);
 
     /**
     * Gets a text description of the shader component
@@ -58,23 +53,12 @@ public:
     * @param component The component to query for text
     * @return whether The shader has the component
     */
-    bool HasComponent(unsigned int component) const;
-
-    /**
-    * Adds a component to the shader
-    * @param component The component to add to the shader
-    */
-    void AddComponent(Component component);
+    bool HasComponent(Component component) const;
 
     /**
     * @return The name of the shader
     */
     const std::string& Name() const;
-
-    /**
-    * @return Unique index of the shader
-    */
-    int ID() const;
 
     /**
     * @param file The filename of the GLSL vertex shader
@@ -108,10 +92,10 @@ public:
 
 private:
 
+    const unsigned int m_components;     ///< Sections that make up this shader
     int m_index = -1;                    ///< Unique index of the shader
     std::string m_name;                  ///< name of the shader
     std::string m_glslVertexFile;        ///< filename of the glsl shader
     std::string m_glslFragmentFile;      ///< filename of the glsl shader
     std::string m_hlslShaderFile;        ///< filename of the hlsl shader
-    std::vector<Component> m_components; ///< Sections that make up this shader
 };

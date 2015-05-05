@@ -21,4 +21,26 @@ struct Colour
     float g = 0.0f;
     float b = 0.0f;
     float a = 0.0f;
+
+    /**
+    * Constructor
+    */
+    Colour() :
+        r(0.0f),
+        g(0.0f),
+        b(0.0f),
+        a(0.0f)
+    {
+    }
+
+    /**
+    * Constructor
+    */
+    Colour(float R, float G, float B, float A) :
+        r(R),
+        g(G),
+        b(B),
+        a(A)
+    {
+    }
 };

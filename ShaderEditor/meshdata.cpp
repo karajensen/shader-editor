@@ -6,41 +6,15 @@
 #include "common.h"
 #include "cache.h"
 
-MeshData::MeshData(const boost::property_tree::ptree& node)
+MeshData::MeshData(const std::string& name, 
+                   const std::string& shaderName,
+                   int shaderID) :
+    m_name(name),
+    m_shaderName(shaderName),
+    m_shaderIndex(shaderID)
 {
     m_textureIDs.resize(MAX_SLOTS);
-    m_textureNames.resize(MAX_SLOTS);
     m_textureIDs.assign(MAX_SLOTS, NO_INDEX);
-
-    m_name = GetValue<std::string>(node, "Name");
-    m_backfacecull = GetValueOptional<bool>(node, true, "BackfaceCulling");
-    m_skybox = GetValueOptional<bool>(node, false, "SkyBox");
-    m_shaderName = GetValueOptional<std::string>(node, "", "Shader");
-    m_usesCaustics = m_shaderName.find("caustic") != NO_INDEX;
-    m_initialInstances = GetValueOptional(node, 0, "Instances");
-
-    for (int i = 0; i < MAX_SLOTS; ++i)
-    {
-        m_textureNames[i] = GetValueOptional(node, 
-            std::string(), GetTypeDescription(i).c_str());
-    }
-}
-
-void MeshData::Write(boost::property_tree::ptree& node) const
-{
-    node.add("Name", m_name);
-    AddValueOptional(node, "Shader", m_shaderName, std::string());
-    AddValueOptional(node, "BackfaceCulling", m_backfacecull ? 1 : 0, 1);
-    AddValueOptional(node, "SkyBox", m_skybox ? 1 : 0, 0);
-    AddValueOptional(node, "Instances", m_initialInstances, 0);
-
-    for (int i = 0; i < MAX_SLOTS; ++i)
-    {
-        if (i != SLOT_CAUSTICS && m_textureIDs[i] != NO_INDEX)
-        {
-            node.add(GetTypeDescription(i), m_textureNames[i]);
-        }
-    }
 }
 
 std::string MeshData::GetTypeDescription(unsigned int type)
@@ -73,6 +47,16 @@ void MeshData::InitialiseMeshData()
     }
 }
 
+void MeshData::SetSkyBox()
+{
+    m_skybox = true;
+}
+
+void MeshData::BackfaceCull(bool value)
+{
+    m_backfacecull = value;
+}
+
 const std::string& MeshData::Name() const
 {
     return m_name;
@@ -103,19 +87,9 @@ const std::vector<int>& MeshData::TextureIDs() const
     return m_textureIDs;
 }
 
-const std::vector<std::string>& MeshData::TextureNames() const
-{
-    return m_textureNames;
-}
-
 int MeshData::VertexComponentCount() const
 {
     return m_vertexComponentCount;
-}
-
-void MeshData::SetShaderID(int shaderID)
-{
-    m_shaderIndex = shaderID;
 }
 
 void MeshData::SetTexture(TextureSlot slot, int ID)
@@ -185,24 +159,21 @@ void MeshData::Tick(const Float3& cameraPosition,
             {
                 ++m_visibleInstances;
             }
+
+            UpdateTransforms(instance);
         }
     }
 }
 
 bool MeshData::UsesCaustics() const
 {
-    return m_usesCaustics;
+    return m_textureIDs[SLOT_CAUSTICS] != NO_INDEX;   
 }
 
 std::string MeshData::GetRenderedInstances() const
 {
     return std::to_string(m_visibleInstances) + " / " +
         std::to_string(m_instances.size());
-}
-
-int MeshData::GetInitialInstances() const
-{
-    return m_initialInstances;
 }
 
 void MeshData::AddInstances(int amount)
@@ -224,4 +195,52 @@ void MeshData::SetInstance(int index,
     m_instances[index].scale.y = scale;
     m_instances[index].scale.z = scale;
     m_instances[index].requiresUpdate = true;
+}
+
+const Matrix& MeshData::GetWorldInstance(int instance)
+{
+    UpdateTransforms(m_instances[instance]);
+    return m_instances[instance].world;
+}
+
+void MeshData::UpdateTransforms(Instance& instance)
+{
+    if (instance.requiresUpdate)
+    {
+        instance.world.MakeIdentity();
+
+        if (instance.rotation.IsZero())
+        {
+            instance.world.m11 = instance.scale.x;
+            instance.world.m12 = 0.0f;
+            instance.world.m13 = 0.0f;
+            instance.world.m21 = 0.0f;
+            instance.world.m22 = instance.scale.y;
+            instance.world.m23 = 0.0f;
+            instance.world.m31 = 0.0f;
+            instance.world.m32 = 0.0f;
+            instance.world.m33 = instance.scale.z;
+            instance.world.m14 = instance.position.x;
+            instance.world.m24 = instance.position.y;
+            instance.world.m34 = instance.position.z;            
+        }
+        else
+        {
+            Matrix scale;
+            scale.m11 = instance.scale.x;
+            scale.m22 = instance.scale.y;
+            scale.m33 = instance.scale.z;
+            
+            Matrix translate;
+            translate.m14 = instance.position.x;
+            translate.m24 = instance.position.y;
+            translate.m34 = instance.position.z;
+            
+            Matrix rotateX = Matrix::CreateRotateX(DegToRad(instance.rotation.x));
+            Matrix rotateY = Matrix::CreateRotateY(DegToRad(instance.rotation.y));
+            Matrix rotateZ = Matrix::CreateRotateZ(DegToRad(instance.rotation.z));
+            
+            instance.world = translate * (rotateZ * rotateX * rotateY) * scale;
+        }
+    }
 }

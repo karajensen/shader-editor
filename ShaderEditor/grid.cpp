@@ -26,22 +26,18 @@ namespace
     };
 }
 
-Grid::Grid(const boost::property_tree::ptree& node) :
-    MeshData(node)
+Grid::Grid(const std::string& name, const std::string& shaderName, int shaderID) :
+    MeshData(name, shaderName, shaderID)
 {
-    m_spacing = GetAttribute<float>(node, "Grid", "spacing");
-    m_rows = m_columns = GetAttribute<int>(node, "Grid", "size");
 }
 
-void Grid::Write(boost::property_tree::ptree& node) const
-{
-    MeshData::Write(node);
 
-    node.add("Grid.<xmlattr>.spacing", m_spacing);
-    node.add("Grid.<xmlattr>.size", m_rows);
-}
-
-bool Grid::CreateGrid(const Float2& uvScale, bool normals, bool tangents)
+bool Grid::CreateGrid(const Float2& uvStretch,
+                      float spacing, 
+                      int rows, 
+                      int columns, 
+                      bool normals, 
+                      bool tangents)
 {
     if (!normals && tangents)
     {
@@ -49,22 +45,27 @@ bool Grid::CreateGrid(const Float2& uvScale, bool normals, bool tangents)
         return false;
     }
 
+    m_columns = columns;
+    m_rows = rows;
+    m_spacing = spacing;
     m_vertexComponentCount = tangents ? 14 : (normals ? 8 : 5);
     m_hasNormals = normals;
     m_hasTangents = tangents;
+    m_uvStretch = uvStretch;
 
-    ResetGrid(uvScale);
+    ResetGrid();
     return true;
 }
-void Grid::ResetGrid(const Float2& uvScale)
+
+void Grid::ResetGrid()
 {
     const int vertices = m_rows * m_columns;
     const int trianglesPerQuad = 2;
     const int pointsInFace = 3;
     const int triangleNumber = ((m_rows-1)*(m_columns-1)) * trianglesPerQuad;
 
-    const float uOffset = uvScale.x / static_cast<float>(m_rows-1);
-    const float vOffset = uvScale.y / static_cast<float>(m_columns-1);
+    const float uOffset = m_uvStretch.x / static_cast<float>(m_rows-1);
+    const float vOffset = m_uvStretch.y / static_cast<float>(m_columns-1);
 
     m_indices.clear();
     m_vertices.clear();
@@ -73,8 +74,8 @@ void Grid::ResetGrid(const Float2& uvScale)
     m_vertices.resize(m_vertexComponentCount * vertices);
 
     Float3 initialPosition;
-    initialPosition.x -= m_spacing * ((m_rows - 1) * 0.5f);
-    initialPosition.z -= m_spacing * ((m_columns - 1) * 0.5f);
+    initialPosition.x -= m_spacing * ((m_rows-1) * 0.5f);
+    initialPosition.z -= m_spacing * ((m_columns-1) * 0.5f);
 
     float u = 0;
     float v = 0;
@@ -322,4 +323,14 @@ float Grid::Spacing() const
 Float3 Grid::GetPosition(int row, int column) const
 {
     return GetPosition(GetIndex(row, column));
+}
+
+const Float2& Grid::GetUVStretch() const
+{
+    return m_uvStretch;
+}
+
+void Grid::SetUVStretch(const Float2& value)
+{
+    m_uvStretch = value;
 }

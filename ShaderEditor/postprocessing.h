@@ -7,7 +7,6 @@
 #include <string>
 #include <array>
 #include "colour.h"
-#include "ptree_utilities.h"
 
 struct Cache;
 
@@ -36,15 +35,8 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the post data with
     */
-    PostProcessing(const boost::property_tree::ptree& node);
-
-    /**
-    * Writes the post data to a property tree
-    * @param node The node to write to
-    */
-    void Write(boost::property_tree::ptree& node) const;
+    PostProcessing();
 
     /**
     * Writes to the data in the cache from the post data

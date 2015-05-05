@@ -24,22 +24,26 @@ public:
         float phase = 0.0f;       ///< Phase of the wave
         float directionX = 0.0f;  ///< Direction the wave moves
         float directionZ = 0.0f;  ///< Direction the wave moves
+        static const int MAX = 2; ///< Maximum allowed waves
     };
 
     /**
     * Constructor
-    * @param node The data to intialize the mesh with
+    * @param name The name of the water
+    * @param shaderID The ID of the shader to use
+    * @param shaderName The name of the shader to use
     */
-    Water(const boost::property_tree::ptree& node);
+    Water(const std::string& name, 
+          const std::string& shaderName,
+          int shaderID);
 
     /**
-    * Writes the data to a property tree
-    * @param node The node to write to
-    * @param waveNodes The container to add wave data to
-    * @param saveNode Callback to create a new node in the tree
+    * Initialises the water
+    * @param height The height of the water
+    * @param spacing The spacing between vertices
+    * @param size How many rows/columns for the grid
     */
-    void Write(boost::property_tree::ptree& node,
-               std::function<boost::property_tree::ptree&()> createNode) const;
+    bool Initialise(float height, float spacing, int size);
 
     /**
     * Writes to the data in the cache
@@ -109,11 +113,6 @@ public:
     * @return the intensity of the reflections
     */
     const float& ReflectionIntensity() const;
-
-    /**
-    * @return the maximum supported maximum waves per water
-    */
-    static int GetMaxWaves();
 
     /**
     * @return The saturation of the bump

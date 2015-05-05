@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 #include "float3.h"
+#include "matrix.h"
 #include "renderdata.h"
-#include "ptree_utilities.h"
+#include "boost/noncopyable.hpp"
 
 struct Cache;
 struct BoundingArea;
@@ -25,6 +26,7 @@ public:
     */
     struct Instance
     {
+        Matrix world;                    ///< World matrix 
         Float3 position = Float3(0,0,0); ///< Position offset
         Float3 rotation = Float3(0,0,0); ///< Degress rotated around each axis
         Float3 scale = Float3(1,1,1);    ///< Scaling of the mesh
@@ -35,9 +37,13 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the data with
+    * @param name The name of the data
+    * @param shader The ID of the shader to use
+    * @param shaderName The name of the shader to use
     */
-    MeshData(const boost::property_tree::ptree& node);
+    MeshData(const std::string& name, 
+             const std::string& shaderName,
+             int shaderID);
 
     /**
     * Destructor
@@ -58,12 +64,6 @@ public:
     * Post ticks the mesh
     */
     void PostTick();
-
-    /**
-    * Writes the data to a property tree
-    * @param node The node to write to
-    */
-    virtual void Write(boost::property_tree::ptree& node) const;
 
     /**
     * Initialises the mesh data
@@ -91,6 +91,11 @@ public:
     bool BackfaceCull() const;
 
     /**
+    * Sets Whether back facing polygons are culled
+    */
+    void BackfaceCull(bool value);
+
+    /**
     * @return The vertices constructing this mesh
     */
     const std::vector<float>& Vertices() const;
@@ -106,20 +111,26 @@ public:
     const std::vector<int>& TextureIDs() const;
 
     /**
-    * @return The name for each texture used
-    */
-    const std::vector<std::string>& TextureNames() const;
-
-    /**
     * @return Number of components that make up a vertex
     */
     int VertexComponentCount() const;
 
     /**
-    * Sets the shaders used by the mesh to render
-    * @param shaderID The ID of the shader to render with
+    * Sets whether this mesh is a sky box
     */
-    void SetShaderID(int shaderID);
+    void SetSkyBox();
+
+    /**
+    * Sets the ID of the texture to use
+    * @param slot The type of texture to set
+    * @param ID The ID of the texture to use
+    */
+    void SetTexture(TextureSlot slot, int ID);
+
+    /**
+    * @return a description of what instances are rendered
+    */
+    std::string GetRenderedInstances() const;
 
     /**
     * @return The instances of this mesh
@@ -139,26 +150,9 @@ public:
     const Instance& GetInstance(int index) const;
 
     /**
-    * Sets the ID of the texture to use
-    * @param slot The type of texture to set
-    * @param ID The ID of the texture to use
-    */
-    void SetTexture(TextureSlot slot, int ID);
-
-    /**
-    * @return a description of what instances are rendered
-    */
-    std::string GetRenderedInstances() const;
-
-    /**
-    * @return the number of instances initialised with
-    */
-    int GetInitialInstances() const;
-
-    /**
     * Adds instances at the world center with default values
     */
-    void AddInstances(int amount);
+    virtual void AddInstances(int amount);
 
     /**
     * Sets an instance for this mesh
@@ -179,12 +173,24 @@ protected:
     */
     bool UsesCaustics() const;
 
+    /**
+    * @return the world matrix for the given matrix
+    * @note will update the world if pending an update
+    */
+    const Matrix& GetWorldInstance(int instance);
+
+
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
     std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
     std::vector<Instance> m_instances;       ///< Current instances of this mesh
     int m_vertexComponentCount = 0;          ///< Number of components that make up a vertex
 
 private:
+
+    /**
+    * Updates the world transforms for the given instance
+    */
+    void UpdateTransforms(Instance& instance);
 
     /**
     * Determines the radius surrounding this mesh
@@ -212,10 +218,8 @@ private:
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
-    std::vector<std::string> m_textureNames; ///< Names for each texture used
     int m_visibleInstances = 0;              ///< Number of instances visible this tick
     int m_initialInstances = 0;              ///< The number of instances on load
     bool m_skybox = false;                   ///< Whether this mesh is a skybox
-    bool m_usesCaustics = false;             ///< Whether this mesh supports caustics
     float m_radius = 0.0f;                   ///< The radius of the sphere surrounding the mesh
 };

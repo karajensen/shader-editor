@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Qt">
       <UniqueIdentifier>{e5b38e7e-480e-4274-84b7-952c6fb7157d}</UniqueIdentifier>
     </Filter>
@@ -26,12 +22,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Lights.xml">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Assets\Meshes.xml">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\.gitignore" />
     <None Include="qt\project\editor.ui">
       <Filter>Qt</Filter>
@@ -192,10 +182,10 @@
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textureAnimated.cpp">
+    <ClCompile Include="textureProcedural.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textureProcedural.cpp">
+    <ClCompile Include="animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -302,9 +292,6 @@
     <ClInclude Include="matrix.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ptree_utilities.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="renderdata.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -374,13 +361,13 @@
     <ClInclude Include="texture.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="textureAnimated.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="textureProcedural.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="water.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -459,13 +446,5 @@
     <FxCompile Include="Assets\Shaders\blur_vertical_hlsl.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="Assets\PostProcessing.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="Assets\Emitters.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
   </ItemGroup>
 </Project>

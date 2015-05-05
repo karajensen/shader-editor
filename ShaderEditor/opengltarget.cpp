@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "opengltarget.h"
+#include "boost/lexical_cast.hpp"
+#include <algorithm>
 
 GlRenderTarget::GlRenderTarget(const std::string& name) :
     m_isBackBuffer(true),

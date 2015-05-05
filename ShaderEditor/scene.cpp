@@ -105,11 +105,6 @@ void Scene::PostTick()
     }
 }
 
-void Scene::SaveSceneToFile()
-{
-    m_builder->SaveSceneToFile();
-}
-
 SceneData& Scene::GetData()
 {
     return *m_data;

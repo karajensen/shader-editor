@@ -155,10 +155,10 @@ struct Cache
         ReloadEngine(false),
         ReloadTerrain(false),
         ReloadTexture(false),
+        ReloadPlacement(false),
         ToggleWireframe(false),
         RenderLightsOnly(false),
         LightDiagnostics(false),
-        SaveScene(false),
         PauseEmission(false)
     {
     }
@@ -169,8 +169,8 @@ struct Cache
     Lockable<bool> ReloadEngine;        ///< Request to reload the engine
     Lockable<bool> ReloadTexture;       ///< Request to reload the selected texture
     Lockable<bool> ReloadTerrain;       ///< Request to reload the selected terrain
+    Lockable<bool> ReloadPlacement;     ///< Request to reload the scene placement
     Lockable<bool> ToggleWireframe;     ///< Request to toggle the wireframe
-    Lockable<bool> SaveScene;           ///< Request to save the scene to xml
     Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics
     Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
     Lockable<bool> RenderLightsOnly;    ///< Request to render only the lights

@@ -8,7 +8,6 @@
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
 #include <iomanip>
-#include <assert.h>
 #include <fstream>
 
 namespace
@@ -599,11 +598,6 @@ void GlShader::SendTexture(int slot, const GlRenderTarget& target, int ID)
 void GlShader::SetActive()
 {
     glUseProgram(m_program);
-}
-
-int GlShader::GetIndex() const
-{
-    return m_shader.ID();
 }
 
 bool GlShader::HasTextureSlot(int slot)

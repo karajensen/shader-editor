@@ -619,11 +619,6 @@ void DxShader::SendConstants(ID3D11DeviceContext* context)
     }
 }
 
-int DxShader::GetIndex() const
-{
-    return m_shader.ID();
-}
-
 bool DxShader::HasTextureSlot(int slot)
 {
     return slot <= m_textureSlots;

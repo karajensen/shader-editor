@@ -71,8 +71,6 @@ public:
     QPushButton *reloadPlacement_btn;
     QFrame *reloadEngine;
     QPushButton *reloadEngine_btn;
-    QFrame *saveScene;
-    QPushButton *saveScene_btn;
     QSpacerItem *_sceneSpacer;
     QWidget *Area;
     QWidget *layoutWidget1;
@@ -688,30 +686,6 @@ public:
         reloadEngine_btn->setDefault(false);
 
         sceneLayout->addWidget(reloadEngine);
-
-        saveScene = new QFrame(layoutWidget);
-        saveScene->setObjectName(QStringLiteral("saveScene"));
-        sizePolicy.setHeightForWidth(saveScene->sizePolicy().hasHeightForWidth());
-        saveScene->setSizePolicy(sizePolicy);
-        saveScene->setMinimumSize(QSize(225, 35));
-        saveScene->setMaximumSize(QSize(225, 35));
-        saveScene->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        saveScene->setFrameShape(QFrame::Panel);
-        saveScene->setFrameShadow(QFrame::Raised);
-        saveScene_btn = new QPushButton(saveScene);
-        saveScene_btn->setObjectName(QStringLiteral("saveScene_btn"));
-        saveScene_btn->setGeometry(QRect(5, 4, 216, 25));
-        saveScene_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(255, 255, 255);\n"
-"border-left-color: rgb(255, 255, 255);\n"
-"border-bottom-color: rgb(180, 180, 180);\n"
-"border-right-color: rgb(180, 180, 180);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        saveScene_btn->setDefault(false);
-
-        sceneLayout->addWidget(saveScene);
 
         _sceneSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -2303,7 +2277,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(1);
+        TabMenu->setCurrentIndex(0);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2331,7 +2305,6 @@ public:
         reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", 0));
         reloadPlacement_btn->setText(QApplication::translate("Tweaker", "Reload Placement", 0));
         reloadEngine_btn->setText(QApplication::translate("Tweaker", "Reload Engine", 0));
-        saveScene_btn->setText(QApplication::translate("Tweaker", "Save Scene to File", 0));
         TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", 0));
         selectedTexture_lbl->setText(QApplication::translate("Tweaker", "Texture", 0));
         displayTexture_btn->setText(QString());

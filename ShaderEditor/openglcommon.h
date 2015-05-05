@@ -8,8 +8,8 @@
 #include "opengl/include/wglew.h"
 #include "opengl/include/GL.h"
 #include "opengl/include/GLU.h"
-#include "opengl/glm/glm.hpp"
-#include "opengl/glm/gtc/matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "common.h"
 #include "renderdata.h"

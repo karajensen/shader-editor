@@ -95,11 +95,6 @@ public:
     bool Initialise(const Float3& camera);
 
     /**
-    * Outputs the scene to an xml file
-    */
-    void SaveSceneToFile();
-
-    /**
     * Reloads the scene
     */
     void Reload();

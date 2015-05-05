@@ -1,28 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - textureAnimated.h
+// Kara Jensen - mail@karajensen.com - animation.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
 #include <vector>
 
+class Tweaker;
+
 /**
-* Manages cycling through multiple textures
+* Manager for cycling through multiple textures
 */
-class AnimatedTexture
+class Animation
 {
 public:
 
     /**
     * Constructor
-    * @param path The path where the frames are
-    * @param name The generic name of a frame
-    * @param extension The file extension of a frame
     */
-    AnimatedTexture(const std::string& path, 
-                    const std::string& name,
-                    const std::string& extension);
-
+    Animation() = default;
+            
     /**
     * Adds a texture frame 
     * @param ID the unique ID of the texture to add
@@ -35,11 +32,6 @@ public:
     int GetFrame() const;
 
     /**
-    * @return all the paths for the frames
-    */
-    const std::vector<std::string>& Paths() const;
-
-    /**
     * Ticks the animated texture
     */
     void Tick(float deltatime);
@@ -50,16 +42,20 @@ public:
     void SetSpeed(float speed);
 
     /**
-    * @return the speed of the animation
+    * Gets the speed of the animation
     */
     float GetSpeed() const;
 
 private:
 
-    std::vector<std::string> m_paths; ///< Paths to all the frames
+    /**
+    * Prevent copying
+    */
+    Animation(const Animation&) = delete;
+    Animation& operator=(const Animation&) = delete;
+
     std::vector<int> m_frames;        ///< All frames to animate
     int m_selectedFrame = 0;          ///< The currently selected frame
     float m_timePassed = 0.0f;        ///< The time passed since last frame switch
-    float m_speed = 0.03f;            ///< The speed of the animation  
-
+    float m_speed = 0.03f;            ///< Frame animation speed
 };

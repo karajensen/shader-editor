@@ -15,9 +15,13 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the mesh with
+    * @param name The name of the data
+    * @param shaderName The name of the shader to use
+    * @param shaderID The ID of the shader to use
     */
-    Grid(const boost::property_tree::ptree& node);
+    Grid(const std::string& name, 
+         const std::string& shaderName, 
+         int shaderID);
 
     /**
     * @return the size of the grid
@@ -43,25 +47,25 @@ public:
 protected:
 
     /**
-    * Writes the data to a property tree
-    * @param node The node to write to
+    * Loads a grid into the buffers
+    * @param uvStretch Texture stretch multiplier
+    * @param spacing The spacing between vertices
+    * @param rows How many rows for the grid
+    * @param columns How many columns for the grid
+    * @param normals Whether to generate normals
+    * @param tangents Whether to generate the tangent/bitangent
     */
-    virtual void Write(boost::property_tree::ptree& node) const;
+    bool CreateGrid(const Float2& uvStretch,
+                    float spacing,
+                    int rows, 
+                    int columns, 
+                    bool normals, 
+                    bool tangents);
 
     /**
-    * Loads a grid into the buffers
-    * @param uvScale The scale for the UVs
-    * @param normals Whether to generate normals
-    * @param tangents Whether to generate tangent/bitangents
-    * @return whether creation was successful
-    */
-    bool CreateGrid(const Float2& uvScale, bool normals, bool tangents);
-                   
-    /**
     * Resets the grid to default
-    * @param uvScale The scale for the UVs
     */
-    void ResetGrid(const Float2& uvScale);
+    void ResetGrid();
 
     /**
     * Sets the height at the given row/column
@@ -82,6 +86,16 @@ protected:
     * Determines the normals for the grid
     */
     void RecalculateNormals();
+
+    /**
+    * Gets the UV texture stretch
+    */
+    const Float2& GetUVStretch() const;
+
+    /**
+    * Sets the UV texture stretch
+    */
+    void SetUVStretch(const Float2& value);
 
 private:
 
@@ -120,9 +134,10 @@ private:
     */
     Float2 GetUVs(int index) const;
 
-    float m_spacing = 0.0f;      ///< The spacing between vertices
-    int m_columns = 0;           ///< The number of columns of this mesh
-    int m_rows = 0;              ///< The number of rows of this mesh
-    bool m_hasNormals = false;   ///< Whether to generate normals
-    bool m_hasTangents = false;  ///< Whether to generate tangent/bitangents
+    Float2 m_uvStretch;           ///< Texture stretch multiplier
+    float m_spacing = 0.0f;       ///< The spacing between vertices
+    int m_columns = 0;            ///< The number of columns of this mesh
+    int m_rows = 0;               ///< The number of rows of this mesh
+    bool m_hasNormals = false;    ///< Whether to generate normals
+    bool m_hasTangents = false;   ///< Whether to generate tangent/bitangents
 };

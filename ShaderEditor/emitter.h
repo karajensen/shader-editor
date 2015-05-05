@@ -8,10 +8,37 @@
 #include <string>
 #include "particle.h"
 #include "colour.h"
-#include "ptree_utilities.h"
 
 struct Cache;
 struct BoundingArea;
+
+/**
+* Data for a particle emitter
+*/
+struct EmitterData
+{
+    float radius = 0.0f;          ///< The radius of the emitter
+    float width = 0.0f;           ///< The width of the emitter
+    float length = 0.0f;          ///< The length of the emitter
+    float minSpeed = 1.0f;        ///< The minimum speed of the particles
+    float maxSpeed = 1.0f;        ///< The maximum speed of the particles
+    float minSize = 1.0f;         ///< The minimum size of the particles
+    float maxSize = 1.0f;         ///< The maximum size of the particles
+    float minAmplitude = 1.0f;    ///< The minimum height of the particle waves
+    float maxAmplitude = 1.0f;    ///< The maximum height of the particle waves
+    float minWaveSpeed = 1.0f;    ///< The minimum speed of the particle wave
+    float maxWaveSpeed = 1.0f;    ///< The maximum speed of the particle wave
+    float minFrequency = 1.0f;    ///< The minimum intensity of the waves
+    float maxFrequency = 1.0f;    ///< The maximum intensity of the waves
+    float lifeTime = 0.0f;        ///< Seconds the particle can live before dying
+    float lifeFade = 1.0f;        ///< Seconds before lifetime ends to fade the particle
+    float minWaitTime = 0.0f;     ///< Seconds to wait before respawning
+    float maxWaitTime = 0.0f;     ///< Seconds to wait before respawning
+    Float3 direction;             ///< The direction the particles will spawn 
+    Colour tint;                  ///< Colour to tint the particle texture
+    int instances = 0;            ///< Number of instances of this emitter
+    int particles = 0;            ///< Number of particles per instance
+};
 
 /**
 * Data for a particle emitter
@@ -34,16 +61,17 @@ public:
 
     /**
     * Constructor
-    * @param node The data to intialize the emitter with
+    * @param name The name of the emitter
     * @param shaderID The ID of the shader to render with
     */
-    Emitter(const boost::property_tree::ptree& node, int shaderID);
+    Emitter(const std::string& name, int shaderID);
 
     /**
-    * Writes the emitter data to a property tree
-    * @param node The node to write to
+    * Initialises the emitter
+    * @param data The data to initialise the emitter with
+    * @return whether initialisation succeeded
     */
-    void Write(boost::property_tree::ptree& node) const;
+    bool Initialise(const EmitterData& data);
 
     /**
     * Writes to the data in the cache from the emitter
@@ -79,11 +107,6 @@ public:
     * @return The texture IDs used in the emitter
     */
     const std::vector<int>& Textures() const;
-
-    /**
-    * @return The textures names used in the emitter
-    */
-    const std::vector<std::string>& TextureNames() const;
 
     /**
     * @return The shader used for rendering particles
@@ -136,29 +159,12 @@ private:
     bool ShouldRender(const Float3& instancePosition, 
                       const BoundingArea& bounds);
 
-    float m_minWaitTime = 0.0f;              ///< Seconds to wait before respawning
-    float m_maxWaitTime = 0.0f;              ///< Seconds to wait before respawning
-    float m_width = 0.0f;                    ///< The width of the emitter
-    float m_length = 0.0f;                   ///< The length of the emitter
-    float m_minSpeed = 1.0f;                 ///< The minimum speed of the particles
-    float m_maxSpeed = 1.0f;                 ///< The maximum speed of the particles
-    float m_minSize = 1.0f;                  ///< The minimum size of the particles
-    float m_maxSize = 1.0f;                  ///< The maximum size of the particles
-    float m_minAmplitude = 1.0f;             ///< The minimum height of the particle waves
-    float m_maxAmplitude = 1.0f;             ///< The maximum height of the particle waves
-    float m_minWaveSpeed = 1.0f;             ///< The minimum speed of the particle wave
-    float m_maxWaveSpeed = 1.0f;             ///< The maximum speed of the particle wave
-    float m_minFrequency = 1.0f;             ///< The minimum intensity of the waves
-    float m_maxFrequency = 1.0f;             ///< The maximum intensity of the waves
-    float m_lifeTime = 0.0f;                 ///< Seconds the particle can live before dying
-    float m_lifeFade = 1.0f;                 ///< Seconds before lifetime ends to fade the particle
-    Float3 m_direction;                      ///< The direction the particles will spawn 
-    Colour m_tint;                           ///< Colour to tint the particle texture
-    std::vector<int> m_textures;             ///< Indexes for the particle textures to use
-    std::vector<std::string> m_textureNames; ///< Names for the particle textures to use
-    std::vector<Instance> m_instances;       ///< All instances of this emitter
-    int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to render with
-    std::string m_name;                      ///< Name of this emitter
-    bool m_paused = false;                   ///< Whether emission is paused
-    int m_visibleInstances = 0;              ///< Number of instances currently rendered
+    EmitterData m_data;                  ///< Data for this emitter
+    std::vector<int> m_textures;         ///< Indexes for the particle textures to use
+    std::vector<Instance> m_instances;   ///< All instances of this emitter
+    int m_shaderIndex = -1;              ///< Unique Index of the mesh shader to render with
+    int m_totalParticles = 0;            ///< Total amount of particles over all instances
+    int m_visibleInstances = 0;          ///< Number of instances currently rendered
+    std::string m_name;                  ///< Name of this emitter
+    bool m_paused = false;               ///< Whether emission is paused
 };

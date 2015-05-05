@@ -4,11 +4,17 @@
 
 #pragma once
 
-#include "boost/property_tree/ptree.hpp"
+#include <string>
+#include "textureProcedural.h"
 
-struct SceneData;
-class FragmentLinker;
+class Mesh;
+class Light;
+class Shader;
+class Terrain;
 class MeshData;
+class FragmentLinker;
+struct EmitterData;
+struct SceneData;
 
 /**
 * Builds all objects and diagnostics for the scene
@@ -19,7 +25,7 @@ public:
 
     /**
     * Constructor
-    * @param data Data for manipulating the scene
+    * @param data All information for the scene
     */
     SceneBuilder(SceneData& data);
 
@@ -34,45 +40,25 @@ public:
     */
     bool Initialise();
 
-    /**
-    * Outputs the scene to an xml file
-    */
-    void SaveSceneToFile();
-
 private:
 
     /**
-    * Outputs post processing to an xml file
+    * Prevent copying
     */
-    void SavePostProcessingtoFile();
+    SceneBuilder(const SceneBuilder&) = delete;
+    SceneBuilder& operator=(const SceneBuilder&) = delete;
 
     /**
-    * Outputs the meshes and emitters to an xml file
-    */
-    void SaveMeshesToFile();
-
-    /**
-    * Outputs the lights to an xml file
-    */
-    void SaveLightsToFile();
-
-    /**
-    * Outputs particle emitters to an xml file
-    */
-    void SaveParticlesToFile();
-
-    /**
-    * Initiliases any stand-alone and shared shaders explicitly
-    * @param linker The fragment linker used to generate shaders
+    * Initiliases the diagnostics
     * @return Whether the initialization was successful
     */
-    bool InitialiseShaders(FragmentLinker& linker);
+    bool InitialiseDiagnostics();
 
     /**
-    * Initialises the post processing for the final image
+    * Initiliases all shaders
     * @return Whether the initialization was successful
     */
-    bool InitialisePost();
+    bool InitialiseShaders();
 
     /**
     * Initialises the lighting for the scene
@@ -81,105 +67,145 @@ private:
     bool InitialiseLighting();
 
     /**
-    * Initialises the emitters for the scene
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseEmitters();
-
-    /**
-    * Initialises the diagnostics in the scene
-    * @return Whether the initialization was successful
-    */
-    bool InitialiseDiagnostics();
-
-    /**
     * Initialises all textures required
     * @return Whether the initialization was successful
     */
     bool InitialiseTextures();
 
     /**
-    * Initialises the caustics textures
+    * Initialises the meshes for the scene
+    * @note relies on shaders initialised before
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseMeshes();
+
+    /**
+    * Initialises the water for the scene
+    * @note relies on shaders initialised before
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseWater();
+
+    /**
+    * Initialises the emitters for the scene
+    * @note relies on shaders initialised before
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseEmitters();
+
+    /**
+    * Initialises the terrain for the scene
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseTerrain();
+
+    /**
+    * Initialises a mesh
+    * @param name The name of the mesh
+    * @param filename The filename of the mesh
+    * @param uvScale The scale for the UVs
+    * @param shaderName The shader to use
+    * @return The mesh initialised
+    */
+    Mesh& InitialiseMesh(const std::string& name,
+                         const std::string& filename,
+                         float uScale,
+                         float vScale,
+                         const std::string& shaderName);
+
+    /**
+    * Initialises terrain
+    * @param name The name of the mesh
+    * @param heightmap The name of the height map
+    * @param shaderName The shader to use
+    * @param uvTextureStretch The texture stretch multipliers
+    * @param tiling whether to force edges to match
+    * @param height The height the terrain is rendered at
+    * @param minHeight The minimum height offset of the terrain
+    * @param maxHeight The maximum height offset of the terrain
+    * @param spacing The spacing between vertices
+    * @param size The number of vertices
+    * @return The terrain initialised
+    */
+    Terrain& InitialiseTerrain(const std::string& name,
+                               const std::string& heightmap,
+                               const std::string& shaderName,
+                               float uvTextureStretch,
+                               bool tiling,
+                               float height,
+                               float minHeight,
+                               float maxHeight,
+                               float spacing,
+                               int size);
+    /**
+    * Initialises a shader
+    * @param linker the generator for shaders
+    * @param name the filename of the shader
+    * @param components What the shader is made up of
+    * @param index The index to add the shader at
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseShader(FragmentLinker& linker,
+                          const std::string& name, 
+                          unsigned int components,
+                          int index = -1);
+
+    /**
+    * Initialises the caustics animation
     * @return Whether the initialization was successful
     */
     bool InitialiseCaustics();
 
     /**
-    * Initialises the meshes for the scene
-    * @param linker The fragment linker used to generate shaders
+    * Initialises the bubble emitter
+    * @return Whether the initialization was successful 
+    */
+    bool InitialiseBubbles();
+
+    /**
+    * Initialises a texture
+    * @param name The name of the texture
+    * @param path The path of the texture
+    * @param type The image type of the texture
+    * @param filter The type of filtering to use
     * @return Whether the initialization was successful
     */
-    bool InitialiseMeshes(FragmentLinker& linker);
+    bool InitialiseTexture(const std::string& name, 
+                           const std::string& path,
+                           Texture::Type type,
+                           Texture::Filter filter = Texture::LINEAR);
 
     /**
-    * Initialises a mesh shader for the scene
-    * @param mesh The mesh to initialise
-    * @param linker The fragment linker used to generate shaders
+    * Initialises a procedural texture
+    * @param name The name of the texture
+    * @param generation The type of procedural algorithm to use
+    * @param size The size of the texture
+    * @return whether initialisation succeeded
     */
-    void InitialiseMeshShader(MeshData& mesh, FragmentLinker& linker);
+    bool InitialiseTexture(const std::string& name, 
+                           ProceduralTexture::Generation generation,
+                           int size);
 
     /**
-    * Initialises any textures requires for the mesh
-    * @param mesh The mesh to initialise
+    * Initialises an emitter
+    * @param name The name of the emitter
+    * @param shader The id of the shader to use
+    * @param textures The particle textures to use
+    * @param data The data for the emission
     */
-    void InitialiseMeshTextures(MeshData& mesh);
+    bool InitialiseEmitter(const std::string& name, 
+                           const std::string& shaderName,
+                           const std::vector<int>& textures,
+                           const EmitterData& data);
 
     /**
-    * Initialises a mesh for the scene
-    * @param node The mesh data to initialise
-    * @param linker The fragment linker used to generate shaders
-    * @param isFoliage whether this mesh is considered foliage in the scene
-    * @return if initialization was successfull
+    * Creates new foliage mesh group(s) for the meshes
+    * @param meshes The types of meshes to add to the group
+    * @param instances The number of groups to create
+    * @return whether creation was successful
     */
-    bool InitialiseMesh(const boost::property_tree::ptree& node, 
-                        FragmentLinker& linker, 
-                        bool isFoliage);
-
-    /**
-    * Initialises terrain for the scene
-    * @param node The terrain data to initialise
-    * @param linker The fragment linker used to generate shaders
-    * @return if initialization was successfull
-    */
-    bool InitialiseTerrain(const boost::property_tree::ptree& node, 
-                           FragmentLinker& linker);
-
-    /**
-    * Initialises a water mesh for the scene
-    * @param node The water data to initialise
-    * @return if initialization was successfull
-    */
-    bool InitialiseWater(const boost::property_tree::ptree& node);
-
-    /**
-    * Adds a texture from a mesh if it doesn't already exist
-    * @param name The name of the texture to add
-    * @return The unique id of the texture added
-    */
-    int AddTexture(const std::string& name);
-
-    /**
-    * Gets the index for the shader if possible
-    * @param shadername The name of the shader
-    * @return the index for the shader or -1 if can't find
-    */
-    int GetShaderIndex(const std::string& shadername);
-
-    /**
-    * Gets the index for the shader
-    * @param linker The fragment linker
-    * @param shaderName The name of the shader to get the index for
-    * @param meshName The name ofthe mesh the shader will be used for
-    * @return the index for the shader
-    */
-    int GetShaderIndex(FragmentLinker& linker, 
-                       const std::string& shadername, 
-                       const std::string& meshName);
-
-    /**
-    * @return whether the mesh at the given index is considered foliage
-    */
-    bool IsFoliage(unsigned int index) const;
+    bool AddFoliage(std::initializer_list<const MeshData*> meshes,
+                    int instances);
 
     SceneData& m_data; ///< The scene to build
 };                     

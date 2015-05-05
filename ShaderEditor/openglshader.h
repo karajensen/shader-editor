@@ -74,11 +74,6 @@ public:
     void SendUniformArrays();
 
     /**
-    * @return the unique index of the shader
-    */
-    int GetIndex() const;
-
-    /**
     * Enables the vertex shader 'in' attributes for the shader
     * This is required after the shader is active and when a mesh buffer is bound
     */

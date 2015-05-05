@@ -14,6 +14,7 @@
 #include "boost/algorithm/string/regex.hpp"
 #include <array>
 #include <fstream>
+#include <sstream>
 
 /**
 * Internal data for the opengl rendering engine

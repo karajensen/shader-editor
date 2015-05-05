@@ -508,7 +508,10 @@ void ScenePlacer::PlaceFoliage(int instanceID)
             const float x = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
             const float z = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
             const float offset = Random::Generate(clusterOffset.x, clusterOffset.y) * m_sand.Spacing();
-            position = clusterCenter + Float2(x, z) * offset;
+            
+            position.x = clusterCenter.x + (x * offset);
+            position.y = clusterCenter.y + (z * offset);
+
             withinPatchBounds = position.x > minBounds.x && position.x < maxBounds.x &&
                 position.y > minBounds.y && position.y < maxBounds.y;
         }

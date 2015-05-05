@@ -8,11 +8,15 @@
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem.hpp"
 
-Texture::Texture(const std::string& name, const std::string& path, Filter filter) :
+Texture::Texture(const std::string& name, 
+                 const std::string& path, 
+                 Type type,
+                 Filter filter) :
+
     m_name(name),
     m_path(path),
-    m_filter(filter),
-    m_type(IsCubeMap(path) ? CUBE : FROM_FILE)
+    m_type(type),
+    m_filter(filter)
 {
 }
 
@@ -37,11 +41,6 @@ const std::string& Texture::Path() const
 Texture::Filter Texture::Filtering() const
 {
     return m_filter;
-}
-
-bool Texture::IsCubeMap(const std::string& path)
-{
-    return boost::filesystem::path(path).extension().string().empty();
 }
 
 bool Texture::IsCubeMap() const
@@ -77,9 +76,4 @@ void Texture::Save()
 bool Texture::IsRenderable() const
 {
     return true;
-}
-
-void Texture::SetType(Type type)
-{
-    m_type = type;
 }

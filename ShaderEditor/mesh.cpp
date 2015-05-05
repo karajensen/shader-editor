@@ -9,16 +9,12 @@
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
 
-Mesh::Mesh(const boost::property_tree::ptree& node) :
-    MeshData(node),
-    MeshAttributes(node)
-{
-}
+Mesh::Mesh(const std::string& name, 
+           const std::string& shaderName, 
+           int shaderID) :
 
-void Mesh::Write(boost::property_tree::ptree& node) const
+    MeshData(name, shaderName, shaderID)
 {
-    MeshData::Write(node);
-    MeshAttributes::Write(node);
 }
 
 void Mesh::Write(Cache& cache)

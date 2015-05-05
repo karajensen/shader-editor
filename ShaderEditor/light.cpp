@@ -5,40 +5,9 @@
 #include "light.h"
 #include "cache.h"
 
-Light::Light(const boost::property_tree::ptree& node)
+Light::Light(const std::string& name) :
+    m_name(name)
 {
-    m_name = GetValue<std::string>(node, "Name");
-    m_diffuse.r = GetAttribute<float>(node, "Diffuse", "r");
-    m_diffuse.g = GetAttribute<float>(node, "Diffuse", "g");
-    m_diffuse.b = GetAttribute<float>(node, "Diffuse", "b");
-    m_specular.r = GetAttribute<float>(node, "Specular", "r");
-    m_specular.g = GetAttribute<float>(node, "Specular", "g");
-    m_specular.b = GetAttribute<float>(node, "Specular", "b");
-    m_position.x = GetAttribute<float>(node, "Position", "x");
-    m_position.y = GetAttribute<float>(node, "Position", "y");
-    m_position.z = GetAttribute<float>(node, "Position", "z");
-    m_attenuation.x = GetAttribute<float>(node, "Attenuation", "x");
-    m_attenuation.y = GetAttribute<float>(node, "Attenuation", "y");
-    m_attenuation.z = GetAttribute<float>(node, "Attenuation", "z");
-    m_specularity = GetValue<float>(node, "Specularity");
-}
-
-void Light::Write(boost::property_tree::ptree& node) const
-{
-    node.add("Name", m_name.c_str());
-    node.add("Position.<xmlattr>.x", m_position.x);
-    node.add("Position.<xmlattr>.y", m_position.y);
-    node.add("Position.<xmlattr>.z", m_position.z);
-    node.add("Attenuation.<xmlattr>.x", m_attenuation.x);
-    node.add("Attenuation.<xmlattr>.y", m_attenuation.y);
-    node.add("Attenuation.<xmlattr>.z", m_attenuation.z);
-    node.add("Diffuse.<xmlattr>.r", m_diffuse.r);
-    node.add("Diffuse.<xmlattr>.g", m_diffuse.g);
-    node.add("Diffuse.<xmlattr>.b", m_diffuse.b);
-    node.add("Specular.<xmlattr>.r", m_specular.r);
-    node.add("Specular.<xmlattr>.g", m_specular.g);
-    node.add("Specular.<xmlattr>.b", m_specular.b);
-    node.add("Specularity", m_specularity);
 }
 
 void Light::Write(Cache& cache)
@@ -112,6 +81,26 @@ const float& Light::Active() const
     return m_active;
 }
 
+void Light::Diffuse(const Colour& value)
+{
+    m_diffuse = value;
+}
+
+void Light::Specular(const Colour& value)
+{
+    m_specular = value;
+}
+
+void Light::Attenuation(const Float3& value)
+{
+    m_attenuation = value;
+}
+
+void Light::Position(const Float3& value)
+{
+    m_position = value;
+}
+
 void Light::PositionX(float x)
 {
     m_position.x = x;
@@ -120,4 +109,14 @@ void Light::PositionX(float x)
 void Light::PositionZ(float z)
 {
     m_position.z = z;
+}
+
+void Light::Specularity(float value)
+{
+    m_specularity = value;
+}
+
+void Light::Active(float value)
+{
+    m_active = value;
 }
