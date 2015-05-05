@@ -213,15 +213,15 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
         {
             m_world[i]._11 = instance.world.m11;
             m_world[i]._21 = instance.world.m12;
-            m_world[i]._31 = -instance.world.m13;
+            m_world[i]._31 = instance.world.m13;
             
             m_world[i]._12 = instance.world.m21;
             m_world[i]._22 = instance.world.m22;
-            m_world[i]._32 = -instance.world.m23;
+            m_world[i]._32 = instance.world.m23;
             
             m_world[i]._13 = instance.world.m31;
             m_world[i]._23 = instance.world.m32;
-            m_world[i]._33 = -instance.world.m33;
+            m_world[i]._33 = instance.world.m33;
             
             m_world[i]._41 = instance.world.m14;
             m_world[i]._42 = instance.world.m24;

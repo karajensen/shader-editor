@@ -91,7 +91,7 @@ bool SceneBuilder::InitialiseShaders()
     success &= InitialiseShader(linker, "diffuse", Shader::NONE);
     success &= InitialiseShader(linker, "bump", Shader::BUMP);
     success &= InitialiseShader(linker, "diffusecaustics", Shader::CAUSTICS);
-    success &= InitialiseShader(linker, "flat", Shader::NONE);
+    success &= InitialiseShader(linker, "flat", Shader::FLAT);
     success &= InitialiseShader(linker, "bumpcaustics", Shader::CAUSTICS|Shader::BUMP);
     success &= InitialiseShader(linker, "bumpspecularcaustics", Shader::BUMP|Shader::SPECULAR|Shader::CAUSTICS);
     return success;
@@ -197,11 +197,8 @@ bool SceneBuilder::InitialiseMeshes()
     bool success = true;
 
     const int causticsTexture = m_data.caustics->GetFrame();
+    InitialiseMesh("sphere", "sphere.obj", 1.0f, 1.0f, "diagnostic");
 
-    {
-        auto& mesh = InitialiseMesh("sphere", "sphere.obj", 1.0f, 1.0f, "diagnostic");
-        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "blank"));
-    }
     {
         auto& mesh = InitialiseMesh("skybox", "skybox.obj", 1.0f, 1.0f, "flat");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "skybox"));

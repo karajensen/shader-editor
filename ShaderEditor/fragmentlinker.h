@@ -116,6 +116,6 @@ private:
         const std::string& conditional, std::string line) const;
 
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
-    std::vector<std::string> m_shaderComponents; ///< components of currently linked shader
+    unsigned int m_shaderComponents; ///< components of currently linked shader
 };
 

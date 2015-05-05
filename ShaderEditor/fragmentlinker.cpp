@@ -103,6 +103,7 @@ bool FragmentLinker::GenerateFromFile(Shader& shader)
 bool FragmentLinker::GenerateWithFragments(Shader& shader)
 {
     const std::string filename = GENERATED_PATH + shader.Name();
+    m_shaderComponents = shader.GetComponents();
 
     shader.GLSLVertexFile(filename + GLSL_VERTEX_EXTENSION);
     if(!CreateShaderFromFragments(shader.Name(), GLSL_VERTEX_EXTENSION))
@@ -247,9 +248,8 @@ bool FragmentLinker::ShouldSkipConditionalBlock(const std::string& conditional,
     {
         const bool required = !boost::icontains(component, "!");
         boost::ireplace_first(component, "!", "");
-        const bool found = std::find(m_shaderComponents.begin(), 
-            m_shaderComponents.end(), component) != m_shaderComponents.end();
-
+        const auto value = Shader::StringAsComponent(component);
+        const bool found = (m_shaderComponents & value) == value;
         return (found && required) || (!found && !required);
     };
 

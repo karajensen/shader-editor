@@ -6,6 +6,7 @@
 
 #include "shader.h"
 #include "renderdata.h"
+#include "boost/algorithm/string.hpp"
 
 Shader::Shader(const std::string& name, 
                const std::string& path,
@@ -14,6 +15,27 @@ Shader::Shader(const std::string& name,
     m_name(name),
     m_components(components)
 {
+}
+
+Shader::Component Shader::StringAsComponent(const std::string& component)
+{
+    if (boost::iequals(component, "CAUSTICS"))
+    {
+        return CAUSTICS;
+    }
+    if (boost::iequals(component, "FLAT"))
+    {
+        return FLAT;
+    }
+    if (boost::iequals(component, "BUMP"))
+    {
+        return BUMP;
+    }
+    if (boost::iequals(component, "SPECULAR"))
+    {
+        return SPECULAR;
+    }
+    return NONE;
 }
 
 std::string Shader::ComponentAsString(unsigned int component)
@@ -71,4 +93,9 @@ void Shader::GLSLFragmentFile(const std::string& file)
 void Shader::HLSLShaderFile(const std::string& file)
 {
     m_hlslShaderFile = file;
+}
+
+unsigned int Shader::GetComponents() const
+{
+    return m_components;
 }

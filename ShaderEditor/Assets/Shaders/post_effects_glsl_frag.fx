@@ -38,6 +38,7 @@ void main(void)
     vec3 postScene = scene.rgb;
 
     // Depth information
+    ivec2 uvs = ivec2(ex_UVs.x * WINDOW_WIDTH, ex_UVs.y * WINDOW_HEIGHT);
     float depth = 0.0;
     for (int i = 0; i < SAMPLES; ++i)
     {

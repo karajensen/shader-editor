@@ -36,7 +36,7 @@ cbuffer MeshPixelBuffer : register(b2)
     endif
 };
 
-#ifdef: !FLAT
+ifdef: !FLAT
 cbuffer ScenePixelBuffer : register(b3)
 {
     float lightActive[MAX_LIGHTS];

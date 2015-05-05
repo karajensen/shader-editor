@@ -12,6 +12,11 @@ class MeshAttributes
 public:
 
     /**
+    * Constructor
+    */
+    MeshAttributes();
+
+    /**
     * @return Brightness of the specular highlights
     */
     const float& Specularity() const;
@@ -89,5 +94,5 @@ protected:
     float m_specularity = 1.0f;    ///< Brightness of the specular highlights
     float m_ambience = 1.0f;       ///< Ambient light multiplier
     float m_specular = 1.0f;       ///< Overall Specular light multiplier
-    float m_diffuse = 1.0f;        ///< Minimum Diffuse light value
+    float m_diffuse = 0.0f;        ///< Minimum Diffuse light value
 };

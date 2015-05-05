@@ -49,11 +49,23 @@ public:
     static std::string ComponentAsString(unsigned int component);
 
     /**
+    * Gets the component from a text description
+    * @param component The string description
+    * @return the component ID
+    */
+    static Component StringAsComponent(const std::string& component);
+
+    /**
     * Determines whether the shader has the component
     * @param component The component to query for text
     * @return whether The shader has the component
     */
     bool HasComponent(Component component) const;
+
+    /**
+    * @return the components of the shader
+    */
+    unsigned int GetComponents() const;
 
     /**
     * @return The name of the shader

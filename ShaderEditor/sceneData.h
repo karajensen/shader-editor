@@ -21,6 +21,14 @@
 */
 struct SceneData
 {
+    /**
+    * Constructor
+    */
+    SceneData() :
+        post(std::make_unique<PostProcessing>())
+    {
+    }
+
     std::vector<std::unique_ptr<Shader>> shaders;      ///< All shaders in the scene
     std::vector<std::unique_ptr<Mesh>> meshes;         ///< All meshes in the scene
     std::vector<std::unique_ptr<Light>> lights;        ///< All lights in the scene
