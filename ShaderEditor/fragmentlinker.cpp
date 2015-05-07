@@ -41,7 +41,7 @@ bool FragmentLinker::Initialise(unsigned int maxLights, const PostProcessing& po
     m_defines["WEIGHT2"] = std::to_string(post.BlurWeight(2));
     m_defines["WEIGHT3"] = std::to_string(post.BlurWeight(3));
     m_defines["WEIGHT4"] = std::to_string(post.BlurWeight(4));
-    return CreateGeneratedFolder();
+    return true;
 }
 
 bool FragmentLinker::GenerateFromFile(const std::string& name, 
@@ -308,31 +308,4 @@ bool FragmentLinker::SolveConditionalLine(int level,
     }
 
     return true;
-}
-
-bool FragmentLinker::CreateGeneratedFolder()
-{
-    bool success = true;
-    try
-    {
-        if(boost::filesystem::exists(GENERATED_PATH))    
-        {
-            boost::filesystem::remove_all(GENERATED_PATH);
-        }
-
-        if(!boost::filesystem::create_directory(GENERATED_PATH))
-        {
-            success = false;
-        }
-    }
-    catch(boost::filesystem::filesystem_error&)
-    {
-        success = false;
-    }
-
-    if(!success)
-    {
-        Logger::LogError(GENERATED_PATH + " could not be created");
-    }
-    return success;
 }
