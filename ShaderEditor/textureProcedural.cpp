@@ -98,11 +98,19 @@ void ProceduralTexture::Save()
 void ProceduralTexture::Write(Cache& cache)
 {
     Texture::Write(cache);
+    cache.Texture[TEXTURE_CONTRAST].SetUpdated(m_contrast);
+    cache.Texture[TEXTURE_AMPLITUDE].SetUpdated(m_amplitude);
+    cache.Texture[TEXTURE_SCALE].SetUpdated(m_scale);
+    cache.Texture[TEXTURE_ITERATIONS].SetUpdated(static_cast<float>(m_iterations));
 }
 
 void ProceduralTexture::Read(Cache& cache)
 {
     Texture::Read(cache);
+    m_contrast = cache.Texture[TEXTURE_CONTRAST].Get();
+    m_amplitude = cache.Texture[TEXTURE_AMPLITUDE].Get();
+    m_scale = cache.Texture[TEXTURE_SCALE].Get();
+    m_iterations = static_cast<int>(cache.Texture[TEXTURE_ITERATIONS].Get());
 }
 
 void ProceduralTexture::SetRed(unsigned int index, int value)

@@ -100,6 +100,11 @@ public:
     void Reload();
 
     /**
+    * Reloads just the placement of the scene
+    */
+    void ReloadPlacement();
+
+    /**
     * Reloads the texture
     * @param ID The ID of the texture to reload
     */

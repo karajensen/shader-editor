@@ -68,7 +68,7 @@ bool SceneBuilder::InitialiseLighting()
     sun->Position(Float3(0.0, 60.0, 0.0));
     sun->Attenuation(Float3(1.0, 0.0, 0.0));
     sun->Diffuse(Colour(0.85f, 0.85f, 1.0f, 1.0f));
-    sun->Specular(Colour(1.0f, 1.0f, 1.0f, 1.0f));
+    sun->Specular(Colour(0.15f, 0.15f, 0.3f, 1.0f));
     sun->Specularity(20.0f);
     return true;
 }
@@ -88,12 +88,12 @@ bool SceneBuilder::InitialiseShaders()
     success &= InitialiseShader(linker, "water", Shader::NONE, WATER_SHADER);
     success &= InitialiseShader(linker, "particle", Shader::NONE, PARTICLE_SHADER);
     success &= InitialiseShader(linker, "diagnostic", Shader::NONE, DIAGNOSTIC_SHADER);
-    success &= InitialiseShader(linker, "diffuse", Shader::NONE);
     success &= InitialiseShader(linker, "bump", Shader::BUMP);
+    success &= InitialiseShader(linker, "specular", Shader::SPECULAR);
     success &= InitialiseShader(linker, "diffusecaustics", Shader::CAUSTICS);
     success &= InitialiseShader(linker, "flat", Shader::FLAT);
     success &= InitialiseShader(linker, "bumpcaustics", Shader::CAUSTICS|Shader::BUMP);
-    success &= InitialiseShader(linker, "bumpspecularcaustics", Shader::BUMP|Shader::SPECULAR|Shader::CAUSTICS);
+    success &= InitialiseShader(linker, "bumpspecular", Shader::SPECULAR|Shader::BUMP);
     return success;
 }
 
@@ -101,7 +101,6 @@ bool SceneBuilder::InitialiseTextures()
 {
     bool success = true;
 
-    success &= InitialiseTexture("blank", "blank.png", Texture::FROM_FILE); // requires first index
     success &= InitialiseTexture("water_cube", "water_environment", Texture::CUBE, Texture::ANISOTROPIC);
     success &= InitialiseTexture("water_colour", "water.png", Texture::FROM_FILE);
     success &= InitialiseTexture("water_normal", "water_normal.png", Texture::FROM_FILE);
@@ -109,20 +108,41 @@ bool SceneBuilder::InitialiseTextures()
     success &= InitialiseTexture("bubble2", "bubble2.png", Texture::FROM_FILE);
     success &= InitialiseTexture("bubble3", "bubble3.png", Texture::FROM_FILE);
     success &= InitialiseTexture("skybox", "skybox.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("coral", "coral.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower2_top", "flower2_top.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower2_bot", "flower2_bot.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower3_top", "flower3_top.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower3_bot", "flower3_bot.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower1_top", "flower1_top.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("flower1_bot", "flower1_bot.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("coral1", "coral1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("coral2", "coral2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("coral_specular", "coral_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("coral_normal", "coral_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerA_top1", "flowerA_top1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerA_top2", "flowerA_top2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerA_top_specular", "flowerA_top_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerA_top_normal", "flowerA_top_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerB_top1", "flowerB_top1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerB_top2", "flowerB_top2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerB_top_specular", "flowerB_top_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerB_top_normal", "flowerB_top_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerC_top1", "flowerC_top1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerC_top2", "flowerC_top2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerC_top_specular", "flowerC_top_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flowerC_top_normal", "flowerC_top_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot", "flower_bot.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot_specular", "flower_bot_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot_normal", "flower_bot_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot_large", "flower_bot_large.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot_large_specular", "flower_bot_large_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("flower_bot_large_normal", "flower_bot_large_normal.png", Texture::FROM_FILE);
     success &= InitialiseTexture("leaf", "leaf.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("shell", "shell.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("starfish", "starfish.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("urchin", "urchin.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("leaf_specular", "leaf_specular.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("shell1", "shell1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("shell2", "shell2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("starfish1", "starfish1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("starfish2", "starfish2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("starfish_normal", "starfish_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("urchin1", "urchin1.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("urchin2", "urchin2.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("urchin_normal", "urchin_normal.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("urchin_specular", "urchin_specular.png", Texture::FROM_FILE);
     success &= InitialiseTexture("rock", "rock.png", Texture::FROM_FILE);
     success &= InitialiseTexture("rock_bump", "rock_bump.png", Texture::FROM_FILE);
-    success &= InitialiseTexture("rock_specular", "rock_specular.png", Texture::FROM_FILE);
     success &= InitialiseTexture("sand", "sand.png", Texture::FROM_FILE);
     success &= InitialiseTexture("sand_bump", "sand_bump.png", Texture::FROM_FILE);
 
@@ -168,10 +188,10 @@ bool SceneBuilder::InitialiseTerrain()
         Terrain& rock = InitialiseTerrain("rock" + ID, "terrain" + ID, 
             "bumpcaustics", 4.0f, false, 0.0f, -5.0f, 40.0f, 5.0f, 30);
 
-        rock.AddInstances(instancesPerType);
         rock.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "rock"));
         rock.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "rock_bump"));
         rock.SetTexture(SLOT_CAUSTICS, causticsTexture);
+        rock.AddInstances(instancesPerType);
         rock.Bump(15.0f);
         rock.CausticsAmount(0.8f);
     }
@@ -195,10 +215,9 @@ bool SceneBuilder::InitialiseWater()
 bool SceneBuilder::InitialiseMeshes()
 {
     bool success = true;
-
     const int causticsTexture = m_data.caustics->GetFrame();
-    InitialiseMesh("sphere", "sphere.obj", 1.0f, 1.0f, "diagnostic");
-
+    InitialiseMesh("diagnostic", "sphere.obj", 1.0f, 1.0f, "diagnostic");
+    
     {
         auto& mesh = InitialiseMesh("skybox", "skybox.obj", 1.0f, 1.0f, "flat");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "skybox"));
@@ -209,8 +228,9 @@ bool SceneBuilder::InitialiseMeshes()
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("sealeaves", "sealeaves.obj", 0.25f, 4.0f, "diffuse");
+        auto& mesh = InitialiseMesh("seaweed1", "seaweed1.obj", 0.25f, 4.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
         mesh.BackfaceCull(false);
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
         mesh.AddInstances(instances);
@@ -218,81 +238,130 @@ bool SceneBuilder::InitialiseMeshes()
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("seaweed1", "seaweed1.obj", 0.25f, 4.0f, "diffuse");
+        auto& mesh = InitialiseMesh("seaweed2", "seaweed2.obj", 0.2f, 8.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
         mesh.BackfaceCull(false);
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
+        mesh.Specular(0.3f);
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("seaweed2", "seaweed2.obj", 0.2f, 8.0f, "diffuse");
+        auto& mesh = InitialiseMesh("seaweed3", "seaweed3.obj", 0.2f, 8.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
+        mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
         mesh.BackfaceCull(false);
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
+        mesh.Specular(0.3f);
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("shell", "shell.obj", 2.0f, 4.0f, "diffuse");
-        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell"));
+        auto& mesh = InitialiseMesh("shell", "shell.obj", 2.0f, 4.0f, "diffusecaustics");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell1"));
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell2"));
+        mesh.SetTexture(SLOT_CAUSTICS, causticsTexture);
+        mesh.CausticsScale(0.1f);
+        mesh.CausticsAmount(0.2f);
+        mesh.Specular(0.3f);
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("starfish", "starfish.obj", 0.5f, 0.5f, "diffuse");
-        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish"));
+        auto& mesh = InitialiseMesh("starfish", "starfish.obj", 0.5f, 0.5f, "bump");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish1"));
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish2"));
+        mesh.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "starfish_normal"));
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("urchin", "urchin.obj", 1.0f, 1.0f, "diffuse");
-        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin"));
+        auto& mesh = InitialiseMesh("urchin", "urchin.obj", 1.0f, 1.0f, "bumpspecular");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin1"));
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin2"));
+        mesh.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "urchin_normal"));
+        mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "urchin_specular"));
+        mesh.Specular(0.5f);
+        mesh.Bump(8.0f);
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh = InitialiseMesh("coral", "coral.obj", 1.0f, 4.0f, "diffuse");
-        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral"));
+        auto& mesh = InitialiseMesh("coral", "coral.obj", 1.0f, 4.0f, "bumpspecular");
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral1"));
+        mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral2"));
+        mesh.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "coral_normal"));
+        mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "coral_specular"));
+        mesh.Bump(2.0f);
+        mesh.Specular(0.5f);
         mesh.AddInstances(instances);
         success &= AddFoliage({ &mesh }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh1 = InitialiseMesh("flower1 top", "flower1_top.obj", 1.0f, 1.0f, "diffuse");
-        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower1_top"));
+        auto& mesh1 = InitialiseMesh("flower1_top", "flower1_top.obj", 1.0f, 1.0f, "bumpspecular");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerA_top1"));
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerA_top2"));
+        mesh1.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flowerA_top_normal"));
+        mesh1.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flowerA_top_specular"));
+        mesh1.Bump(2.5f);
+        mesh1.Specular(0.5f);
         mesh1.AddInstances(instances);
 
-        auto& mesh2 = InitialiseMesh("flower1 bot", "flower1_bot.obj", 2.0f, 2.0f, "diffuse");
-        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower1_bot"));
+        auto& mesh2 = InitialiseMesh("flower1_bot", "flower1_bot.obj", 2.0f, 2.0f, "bumpspecular");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower_bot"));
+        mesh2.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flower_bot_normal"));
+        mesh2.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flower_bot_specular"));
         mesh2.AddInstances(instances);
+        mesh2.Bump(2.5f);
+        mesh2.Specular(0.4f);
         success &= AddFoliage({ &mesh1, &mesh2 }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh1 = InitialiseMesh("flower2 top", "flower2_top.obj", 1.0f, 1.0f, "diffuse");
-        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower2_top"));
+        auto& mesh1 = InitialiseMesh("flower2_top", "flower2_top.obj", 1.0f, 1.0f, "bumpspecular");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerB_top1"));
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerB_top2"));
+        mesh1.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flowerB_top_normal"));
+        mesh1.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flowerB_top_specular"));
+        mesh1.Bump(2.0f);
+        mesh1.Specularity(5.0f);
+        mesh1.Specular(0.5f);
         mesh1.AddInstances(instances);
     
-        auto& mesh2 = InitialiseMesh("flower2 bot", "flower2_bot.obj", 3.0f, 3.0f, "diffuse");
-        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower2_bot"));
+        auto& mesh2 = InitialiseMesh("flower2_bot", "flower2_bot.obj", 3.0f, 3.0f, "bumpspecular");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower_bot_large"));
+        mesh2.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flower_bot_large_normal"));
+        mesh2.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flower_bot_large_specular"));
         mesh2.AddInstances(instances);
+        mesh2.Specular(0.5f);
+        mesh2.Bump(3.5f);
         success &= AddFoliage({ &mesh1, &mesh2 }, instances);
     }
     {
         const int instances = 80;
-        auto& mesh1 = InitialiseMesh("flower3 top", "flower3_top.obj", 1.0f, 1.0f, "diffuse");
-        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower3_top"));
+        auto& mesh1 = InitialiseMesh("flower3_top", "flower3_top.obj", 1.0f, 1.0f, "bumpspecular");
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerC_top1"));
+        mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerC_top2"));
+        mesh1.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flowerC_top_normal"));
+        mesh1.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flowerC_top_specular"));
+        mesh1.Bump(2.5f);
+        mesh1.Specular(0.5f);
         mesh1.AddInstances(instances);
 
-        auto& mesh2 = InitialiseMesh("flower3 bot", "flower3_bot.obj", 1.0f, 2.0f, "diffuse");
-        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower3_bot"));
+        auto& mesh2 = InitialiseMesh("flower3_bot", "flower3_bot.obj", 1.0f, 2.0f, "bumpspecular");
+        mesh2.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flower_bot"));
+        mesh2.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "flower_bot_normal"));
+        mesh2.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "flower_bot_specular"));
         mesh2.AddInstances(instances);
+        mesh2.Bump(2.5f);
+        mesh2.Specular(0.4f);
         success &= AddFoliage({ &mesh1, &mesh2 }, instances);
     }
 
@@ -337,7 +406,7 @@ bool SceneBuilder::InitialiseBubbles()
     data.tint.g = 1.0f;
     data.tint.b = 1.0f;
     data.tint.a = 1.0f;
-    data.instances = 100;
+    data.instances = 120;
     data.particles = 15;
 
     return InitialiseEmitter("bubbles", "particle", textures, data);
@@ -436,7 +505,8 @@ Mesh& SceneBuilder::InitialiseMesh(const std::string& name,
     auto& mesh = *m_data.meshes[index];
 
     if (!mesh.InitialiseFromFile(MESHES_PATH + filename, Float2(uScale, vScale),
-        true, m_data.shaders[shaderID]->HasComponent(Shader::BUMP)))
+        !m_data.shaders[shaderID]->HasComponent(Shader::FLAT),
+        m_data.shaders[shaderID]->HasComponent(Shader::BUMP)))
     {
         Logger::LogError("Mesh: " + name + " failed initialisation");
     }

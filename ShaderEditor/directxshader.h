@@ -282,5 +282,6 @@ private:
     ID3D10Blob* m_psBlob = nullptr;                   ///< Pixel shader data
     int m_textureSlots = 0;                           ///< Number of textures allowed for this mesh
 
+    std::vector<ID3D11ShaderResourceView**> m_allocatedSlots;  ///< Textures currently allocated
     std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader
 };  

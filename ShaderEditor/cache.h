@@ -210,6 +210,7 @@ struct Cache
     std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
     std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
     std::array<Lockable<float>, TERRAIN_ATTRIBUTES> Terrain;    ///< Terrain attributes
+    std::array<Lockable<float>, TEXTURE_ATTRIBUTES> Texture;    ///< Texture attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

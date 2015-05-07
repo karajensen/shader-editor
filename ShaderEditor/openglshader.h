@@ -255,6 +255,7 @@ private:
 
     const Shader& m_shader;                   ///< Shader data and paths
     UniformMap m_uniforms;                    ///< Vertex and fragment non-attribute uniform data
+    std::vector<int> m_allocatedSlots;        ///< Textures currently allocated
     std::vector<int> m_samplers;              ///< Fragment shader sampler locations
     std::vector<AttributeData> m_attributes;  ///< Vertex shader input attributes
     std::string m_vsFilepath;                 ///< Path to the vertex shader file

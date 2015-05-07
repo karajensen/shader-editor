@@ -49,6 +49,14 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
         container.emplace_back(attribute, name, step, precision, callbacks[attribute]);
     };
 
+    std::vector<ComboEntry> texture;
+    AddEntry(texture, m_callbacks.SetTexture, TEXTURE_CONTRAST, 0.01, 3, "Contrast");
+    AddEntry(texture, m_callbacks.SetTexture, TEXTURE_AMPLITUDE, 0.01, 3, "Amplitude");
+    AddEntry(texture, m_callbacks.SetTexture, TEXTURE_SCALE, 0.01, 3, "Scale");
+    AddEntry(texture, m_callbacks.SetTexture, TEXTURE_ITERATIONS, 1.0, 3, "Iterations");
+    m_texture.Initialise(m_ui.textureAttributes_box, 
+        m_ui.textureAttributes_value, m_ui.textureAttributes_dial, texture);
+
     std::vector<ComboEntry> terrain;
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_BUMP, 0.01, 3, "Bump");
     AddEntry(terrain, m_callbacks.SetTerrain, TERRAIN_AMBIENCE, 0.01, 3, "Ambience");
@@ -152,8 +160,8 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_FREQ, 0.01, 3, "Min Freq");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAVE, 0.01, 3, "Max Wave Sp");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAVE, 0.01, 3, "Min Wave Sp");
-    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAIT, 0.01, 3, "Max Wait Time");
-    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAIT, 0.01, 3, "Min Wait Time");
+    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAIT, 0.01, 3, "Max Wait");
+    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAIT, 0.01, 3, "Min Wait");
     m_emitterMinMax.Initialise(m_ui.emitterMinMax_box, 
         m_ui.emitterMinMax_value, m_ui.emitterMinMax_dial, emitterMinMax);
 
@@ -307,6 +315,11 @@ void Tweaker::SetEmitter(EmitterAttribute attribute, float value)
     {
         m_emitter.SetValue(attribute, value);
     }
+}
+
+void Tweaker::SetTexture(TextureAttribute attribute, float value)
+{
+    m_texture.SetValue(attribute, value);
 }
 
 void Tweaker::SetWater(WaterAttribute attribute, float value)

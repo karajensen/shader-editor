@@ -35,6 +35,10 @@ DxShader::DxShader(const Shader& shader) :
 {
     m_asmpath = boost::ireplace_last_copy(
         m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
+
+    const int maxSupportedTextures = 8;
+    m_allocatedSlots.resize(maxSupportedTextures);
+    m_allocatedSlots.assign(maxSupportedTextures, nullptr);
 }
 
 DxShader::~DxShader()
@@ -503,6 +507,7 @@ void DxShader::SetDebugNames()
 
 void DxShader::SetActive(ID3D11DeviceContext* context)
 {
+    m_allocatedSlots.assign(m_allocatedSlots.size(), nullptr);
     context->VSSetShader(m_vs, 0, 0);
     context->PSSetShader(m_ps, 0, 0);
     context->IASetInputLayout(m_layout);
@@ -525,6 +530,11 @@ void DxShader::SendTexture(ID3D11DeviceContext* context,
                            ID3D11ShaderResourceView** view,
                            ID3D11SamplerState** state)
 {
+    if (m_allocatedSlots[slot] == view)
+    {
+        return;
+    }
+
     context->PSSetShaderResources(slot, 1, view);
     context->PSSetSamplers(slot, 1, state);
 }

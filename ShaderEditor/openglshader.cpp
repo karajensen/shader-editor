@@ -35,6 +35,10 @@ GlShader::GlShader(const Shader& shader) :
     
     m_faFilepath = boost::ireplace_last_copy(
         m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
+
+    const int maxSupportedTextures = 8;
+    m_allocatedSlots.resize(maxSupportedTextures);
+    m_allocatedSlots.assign(maxSupportedTextures, NO_INDEX);
 }
 
 GlShader::~GlShader()
@@ -570,6 +574,11 @@ void GlShader::SendTexture(int slot, GLuint id, bool cubemap)
 
 void GlShader::SendTexture(int slot, GLuint id, bool multisample, bool cubemap)
 {
+    if (m_allocatedSlots[slot] == id)
+    {
+        return;
+    }
+    
     glActiveTexture(GetTexture(slot));
 
     if (cubemap)
@@ -598,6 +607,7 @@ void GlShader::SendTexture(int slot, const GlRenderTarget& target, int ID)
 void GlShader::SetActive()
 {
     glUseProgram(m_program);
+    m_allocatedSlots.assign(m_allocatedSlots.size(), NO_INDEX);
 }
 
 bool GlShader::HasTextureSlot(int slot)

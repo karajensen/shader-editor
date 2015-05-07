@@ -212,7 +212,7 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
 
         if (instance.enabled && instance.render)
         {
-            m_preRender(m_world[i]);
+            m_preRender(m_world[i], instance.colour);
             GlMeshData::Render();
         }
     }

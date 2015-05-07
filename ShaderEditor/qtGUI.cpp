@@ -39,6 +39,15 @@ void QtGUI::Run(int argc, char *argv[])
             [this, i](float value){ m_cache->Mesh[i].Set(value); };
     }
 
+    for (int i = 0; i < TEXTURE_ATTRIBUTES; ++i)
+    {
+        callbacks.SetTexture[i] = [this, i](float value)
+        { 
+            m_cache->Texture[i].Set(value);
+            m_cache->ReloadTexture.Set(true);
+        };
+    }
+
     for (int i = 0; i < WATER_ATTRIBUTES; ++i)
     {
         callbacks.SetWater[i] = 
@@ -279,6 +288,15 @@ void QtGUI::UpdateTextures(Tweaker& tweaker)
         initialisedTextures = true;
         tweaker.InitialiseTextures(
             m_cache->TextureSelected.Get(), m_cache->Textures.Get());
+    }
+
+    for (int i = 0; i < TEXTURE_ATTRIBUTES; ++i)
+    {
+        if (initialisedTextures || m_cache->Texture[i].RequiresUpdate())
+        {
+            tweaker.SetTexture(static_cast<TextureAttribute>(i),
+                m_cache->Texture[i].GetUpdated());
+        }
     }
 
     if (initialisedTextures || m_cache->TexturePath.RequiresUpdate())

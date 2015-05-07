@@ -503,21 +503,21 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     for(const auto& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<DxMesh>(new DxMesh(*mesh,
-            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
+            [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
         m_data->terrain.push_back(std::unique_ptr<DxTerrain>(new DxTerrain(*terrain,
-            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
+            [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
         m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(*water,
-            [this](const D3DXMATRIX& world){ UpdateShader(world); })));
+            [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
@@ -756,11 +756,12 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(m_data->context, 2);
 }
 
-void DirectxEngine::UpdateShader(const D3DXMATRIX& world)
+void DirectxEngine::UpdateShader(const D3DXMATRIX& world, int texture)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->UpdateConstantMatrix("world", world);
     shader->SendConstants(m_data->context);
+    SendTexture(0, m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
 }
 
 bool DirectxEngine::UpdateShader(const MeshData& mesh, 
@@ -909,20 +910,12 @@ void DirectxEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights
 
 void DirectxEngine::SendTextures(const std::vector<int>& textures)
 {
+    int slot = 1;
     auto& shader = m_data->shaders[m_data->selectedShader];
-    for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
-    {
-        const auto type = static_cast<TextureSlot>(i);
-        const bool isDiffuse = type == SLOT_DIFFUSE;
-
-        const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
-            BLANK_TEXTURE_ID : textures[type];
-
-        if (SendTexture(slot, ID))
-        {
-            ++slot;
-        }
-    }
+    slot += SendTexture(slot, textures[SLOT_NORMAL]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_SPECULAR]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_ENVIRONMENT]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_CAUSTICS]) ? 1 : 0;
 }
 
 bool DirectxEngine::SendTexture(int slot, int ID)

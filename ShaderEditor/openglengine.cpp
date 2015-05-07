@@ -345,21 +345,21 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     for(const auto& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<GlMesh>(new GlMesh(*mesh,
-            [this](const glm::mat4& world){ UpdateShader(world); })));
+            [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
         m_data->terrain.push_back(std::unique_ptr<GlTerrain>(new GlTerrain(*terrain,
-            [this](const glm::mat4& world){ UpdateShader(world); })));
+            [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
         m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(*water,
-            [this](const glm::mat4& world){ UpdateShader(world); })));
+            [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->emitters.reserve(scene.Emitters().size());
@@ -667,10 +667,11 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Particle& particle
     SendTexture(0, particle.Texture());
 }
 
-void OpenglEngine::UpdateShader(const glm::mat4& world)
+void OpenglEngine::UpdateShader(const glm::mat4& world, int texture)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("world", world);
+    SendTexture(0, m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
 }
 
 bool OpenglEngine::UpdateShader(const MeshData& mesh,
@@ -789,20 +790,12 @@ void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
 
 void OpenglEngine::SendTextures(const std::vector<int>& textures)
 {
+    int slot = 1;
     auto& shader = m_data->shaders[m_data->selectedShader];
-    for (unsigned int i = 0, slot = 0; i < textures.size(); ++i)
-    {
-        const auto type = static_cast<TextureSlot>(i);
-        const bool isDiffuse = type == SLOT_DIFFUSE;
-
-        const int ID = (isDiffuse && !m_data->useDiffuseTextures) ?
-            BLANK_TEXTURE_ID : textures[type];
-
-        if (SendTexture(slot, ID))
-        {
-            ++slot;
-        }
-    }
+    slot += SendTexture(slot, textures[SLOT_NORMAL]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_SPECULAR]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_ENVIRONMENT]) ? 1 : 0;
+    slot += SendTexture(slot, textures[SLOT_CAUSTICS]) ? 1 : 0;
 }
 
 bool OpenglEngine::SendTexture(int slot, int ID)

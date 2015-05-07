@@ -201,8 +201,9 @@ private:
     /**
     * Updates the shader for a mesh per instance
     * @param world The world matrix for the mesh
+    * @param texture The colour texture to render
     */
-    void UpdateShader(const glm::mat4& world);
+    void UpdateShader(const glm::mat4& world, int texture);
 
     /**
     * Sets the shader at the given index as selected

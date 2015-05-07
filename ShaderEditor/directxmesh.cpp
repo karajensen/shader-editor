@@ -230,7 +230,7 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
 
         if (instance.enabled && instance.render)
         {
-            m_preRender(m_world[i]);
+            m_preRender(m_world[i], instance.colour);
             DxMeshData::Render(context);
         }
     }

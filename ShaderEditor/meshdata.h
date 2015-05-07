@@ -30,6 +30,7 @@ public:
         Float3 position = Float3(0,0,0); ///< Position offset
         Float3 rotation = Float3(0,0,0); ///< Degress rotated around each axis
         Float3 scale = Float3(1,1,1);    ///< Scaling of the mesh
+        int colour = -1;                 ///< Colour texture for rendering
         bool enabled = true;             ///< Whether to render this instance
         bool render = true;              ///< Whether this mesh is visible
         bool requiresUpdate = false;     ///< Whether this mesh requires an update
@@ -218,6 +219,7 @@ private:
     int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
     std::string m_shaderName;                ///< The name of the shader to render with
     std::vector<int> m_textureIDs;           ///< IDs for each texture used
+    std::vector<int> m_colourIDs;            ///< Possible colour texture for instances
     int m_visibleInstances = 0;              ///< Number of instances visible this tick
     int m_initialInstances = 0;              ///< The number of instances on load
     bool m_skybox = false;                   ///< Whether this mesh is a skybox

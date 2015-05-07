@@ -95,6 +95,15 @@ int MeshData::VertexComponentCount() const
 void MeshData::SetTexture(TextureSlot slot, int ID)
 {
     m_textureIDs[slot] = ID;
+
+    if (slot == SLOT_DIFFUSE)
+    {
+        m_colourIDs.push_back(ID);
+    }
+    else
+    {
+        m_textureIDs[slot] = ID;
+    }
 }
 
 const std::string& MeshData::ShaderName() const
@@ -178,9 +187,20 @@ std::string MeshData::GetRenderedInstances() const
 
 void MeshData::AddInstances(int amount)
 {
+    if (m_colourIDs.empty())
+    {
+        Logger::LogError("No colour textures set for " + Name());
+    }
+    
+    const int textures = static_cast<int>(m_colourIDs.size());
     for (int i = 0; i < amount; ++i)
     {
         m_instances.emplace_back();
+    
+        // Randomly allocate one of the possible colour textures
+        m_instances[m_instances.size()-1].colour = 
+            textures == 1 ? m_colourIDs[0] :
+            m_colourIDs[Random::Generate(0, textures-1)];
     }
 }
 

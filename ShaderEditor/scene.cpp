@@ -130,6 +130,11 @@ bool Scene::Initialise(const Float3& camera)
     return false;
 }
 
+void Scene::ReloadPlacement()
+{
+    m_placer->ResetPatches();
+}
+
 void Scene::Reload()
 {
     for (int ID : m_data->proceduralTextures)
@@ -141,6 +146,8 @@ void Scene::Reload()
     {
         terrain->Reload();
     }
+
+    ReloadPlacement();
 }
 
 void Scene::ReloadTexture(int ID)

@@ -152,6 +152,12 @@ void AppGUI::UpdateScene(RenderEngine& engine)
         m_reloadEngine();
         m_cache->ReloadEngine.Set(false);
     }
+
+    if (m_cache->ReloadPlacement.Get())
+    {
+        m_scene.ReloadPlacement();
+        m_cache->ReloadPlacement.Set(false);
+    }
 }
 
 void AppGUI::UpdateCamera()
@@ -252,7 +258,7 @@ void AppGUI::UpdateTexture(RenderEngine& engine)
         m_cache->TexturePath.SetUpdated(m_data.textures[ID]->Path());
     }
     else if(m_selectedTexture >= 0 && 
-            m_selectedTexture < static_cast<int>(m_scene.Textures().size()))
+            m_selectedTexture < static_cast<int>(m_data.proceduralTextures.size()))
     {
         const int ID = m_data.proceduralTextures[m_selectedTexture];
         m_data.textures[ID]->Read(*m_cache);

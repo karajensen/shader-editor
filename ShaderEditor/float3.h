@@ -19,6 +19,16 @@ struct Float2
     */
     Float2() = default;
     Float2(float X, float Y) : x(X), y(Y) {}
+
+    /**
+    * Testing equality for two vectors
+    * @param vec The vector to test equality against
+    * @return Whether the two vectors are equal
+    */
+    bool operator==(const Float2& vec) const
+    {
+        return x == vec.x && y == vec.y;
+    }
 };
 
 /**

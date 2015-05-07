@@ -65,10 +65,10 @@ endif
 struct Attributes
 {
     float4 position          : SV_POSITION;
-    float3 normal            : NORMAL;
     float  depth             : TEXCOORD0;
     float2 uvs               : TEXCOORD1;
     ifdef: !FLAT
+        float3 normal        : NORMAL;
         float3 positionWorld : TEXCOORD2;
     endif
     ifdef: BUMP
@@ -89,21 +89,24 @@ struct Outputs
 };
 
 Attributes VShader(float4 position      : POSITION,    
-                   float2 uvs           : TEXCOORD0,
                    ifdef: BUMP
+                       float2 uvs       : TEXCOORD0,
                        float3 normal    : NORMAL,
                        float3 tangent   : TEXCOORD1,
                        float3 bitangent : TEXCOORD2)
-                   else:
+                   elseif: !FLAT
+                       float2 uvs       : TEXCOORD0,
                        float3 normal    : NORMAL)
+                   else: 
+                       float2 uvs       : TEXCOORD0)
                    endif
 {
     Attributes output;
 
     output.position = mul(mul(viewProjection, world), position);
-    output.normal = mul(world, normal);
     output.uvs = uvs;
     ifdef: !FLAT
+        output.normal = mul(world, normal);
         output.positionWorld = mul(world, position).xyz;
     endif
 

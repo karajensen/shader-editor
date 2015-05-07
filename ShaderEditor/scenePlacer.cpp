@@ -20,7 +20,7 @@ ScenePlacer::ScenePlacer(SceneData& data) :
     m_meshMinScale(0.75f),
     m_meshMaxScale(2.0f),
     m_rockOffset(1.0f),
-    m_minClusters(1),
+    m_minClusters(2),
     m_maxClusters(5)
 {
     const int patchAmount = 36;
@@ -489,31 +489,40 @@ void ScenePlacer::PlaceFoliage(int instanceID)
 
     int clusterCounter = 0;
     Float2 clusterCenter;
-    Int2 clusterOffset(1, 2);
+    std::vector<Float2> allocated;
 
     for (auto& foliage : patchData.foliage)
     {
         if (clusterCounter <= 0)
         {
+            allocated.clear();
             clusterCounter = Random::Generate(m_minClusters, m_maxClusters);
             clusterCenter.x = Random::Generate(minBounds.x, maxBounds.x);
             clusterCenter.y = Random::Generate(minBounds.y, maxBounds.y);
         }
 
         Float2 position;
-        bool withinPatchBounds = false;
-
-        while (!withinPatchBounds)
+        const int maxIterations = 20;
+        for (int i = 0; i < maxIterations; ++i)
         {
             const float x = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
             const float z = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
-            const float offset = Random::Generate(clusterOffset.x, clusterOffset.y) * m_sand.Spacing();
-            
-            position.x = clusterCenter.x + (x * offset);
-            position.y = clusterCenter.y + (z * offset);
+            position.x = clusterCenter.x + x * m_sand.Spacing();
+            position.y = clusterCenter.y + z * m_sand.Spacing();
 
-            withinPatchBounds = position.x > minBounds.x && position.x < maxBounds.x &&
-                position.y > minBounds.y && position.y < maxBounds.y;
+            const bool withinPatchBounds = 
+                position.x > minBounds.x && 
+                position.x < maxBounds.x &&
+                position.y > minBounds.y && 
+                position.y < maxBounds.y;
+
+            const bool isNew = std::find(allocated.begin(), 
+                allocated.end(), position) == allocated.end();
+
+            if (withinPatchBounds && isNew)
+            {
+                break;
+            }
         }
 
         const Float3 rotation(0.0f, Random::Generate(0.0f, 360.0f), 0.0f);

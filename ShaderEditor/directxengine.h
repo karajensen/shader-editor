@@ -234,8 +234,9 @@ private:
     /**
     * Updates the shader for a mesh per instance
     * @param world The world matrix for the particle
+    * @param texture The colour texture to render
     */
-    void UpdateShader(const D3DXMATRIX& world);
+    void UpdateShader(const D3DXMATRIX& world, int texture);
 
     /**
     * Sets the shader at the given index as selected

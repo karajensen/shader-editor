@@ -119,6 +119,13 @@ public:
     void SetWater(WaterAttribute attribute, float value);
 
     /**
+    * Sets the value for an attribute of a texture
+    * @param attribute The type of attribute to set
+    * @param value The value to set for the attribute
+    */
+    void SetTexture(TextureAttribute attribute, float value);
+
+    /**
     * Sets the readonly selected mesh shader name
     * @param name The name of the shader
     */
@@ -312,6 +319,7 @@ private:
     TweakableBoxedValue m_water;         ///< Tweakable values for water attributes
     TweakableBoxedValue m_wave;          ///< Tweakable values for wave attributes
     TweakableBoxedValue m_emitter;       ///< Tweakable values for emitter attributes
+    TweakableBoxedValue m_texture;       ///< Tweakable values for texture attributes
     TweakableBoxedValue m_terrain;       ///< Tweakable values for terrain attributes
     TweakableBoxedValue m_emitterMinMax; ///< Tweakable values for emitter min/max attributes
     TweakableBoxedValue m_correction;    ///< Post processing colour correction

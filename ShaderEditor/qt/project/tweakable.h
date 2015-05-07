@@ -116,6 +116,18 @@ enum CameraAttribute
 };
 
 /**
+* Tweakable texture values
+*/
+enum TextureAttribute
+{
+    TEXTURE_SCALE,
+    TEXTURE_AMPLITUDE,
+    TEXTURE_CONTRAST,
+    TEXTURE_ITERATIONS,
+    TEXTURE_ATTRIBUTES
+};
+
+/**
 * Attributes for the emitter
 */
 enum EmitterAttribute
@@ -198,6 +210,7 @@ struct SignalCallbacks
     FloatSignals SetWave;          ///< Sets the water wave tweakable attributes
     FloatSignals SetEmitter;       ///< Sets the emitter tweakable attributes
     FloatSignals SetTerrain;       ///< Sets the terrain tweakable attributes
+    FloatSignals SetTexture;       ///< Sets the texture tweakable attributes
     IntSignal SetSelectedEngine;   ///< Sets the selected engine to render
     IntSignal SetSelectedLight;    ///< Sets the selected light to display
     IntSignal SetSelectedMesh;     ///< Sets the selected mesh to display
@@ -266,5 +279,8 @@ struct SignalCallbacks
 
         SetTerrain.resize(TERRAIN_ATTRIBUTES);
         SetTerrain.assign(TERRAIN_ATTRIBUTES, nullptr);
+
+        SetTexture.resize(TEXTURE_ATTRIBUTES);
+        SetTexture.assign(TEXTURE_ATTRIBUTES, nullptr);
     }
 };
