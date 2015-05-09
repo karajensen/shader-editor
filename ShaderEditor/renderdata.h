@@ -14,7 +14,7 @@ const int MAX_ANISOTROPY = 16;
 const float FRUSTRUM_NEAR = 1.0f;
 const float FRUSTRUM_FAR = 1500.0f; // Minimum value for skybox
 const float FRUSTRUM_BOUNDS_NEAR = 0.0f;
-const float FRUSTRUM_BOUNDS_FAR = 1000.0f;
+const float FRUSTRUM_BOUNDS_FAR = 1500.0f;
 const float FIELD_OF_VIEW = 60.0f;
 const float RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT);
 

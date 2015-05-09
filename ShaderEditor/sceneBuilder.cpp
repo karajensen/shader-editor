@@ -18,9 +18,11 @@ namespace
 
     /**
     * Shared values for creating meshes
+    * requires size of 3060 with fog 
     */
-    const int PATCH_GRID_VERTICES = 51;
+    const int PATCH_GRID_VERTICES = 35;
     const int PATCH_ROCK_TYPES = 3;
+    const int PATCH_ROCK_INSTANCES = 20;
     const float PATCH_GRID_SPACING = 10.0f;
 
     /**
@@ -173,10 +175,9 @@ bool SceneBuilder::InitialiseTerrain()
     sand.Ambience(1.0f);
     sand.CausticsAmount(0.2f);
 
-    const int instancesPerType = 10;
     for (int i = 0; i < PATCH_ROCK_TYPES; ++i)
     {
-        for (int j = 0; j < instancesPerType; ++j)
+        for (int j = 0; j < PATCH_ROCK_INSTANCES; ++j)
         {
             const auto index = m_data.rocks.size();
             m_data.rocks.emplace_back();
@@ -191,7 +192,7 @@ bool SceneBuilder::InitialiseTerrain()
         rock.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "rock"));
         rock.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "rock_bump"));
         rock.SetTexture(SLOT_CAUSTICS, causticsTexture);
-        rock.AddInstances(instancesPerType);
+        rock.AddInstances(PATCH_ROCK_INSTANCES);
         rock.Bump(15.0f);
         rock.CausticsAmount(0.8f);
     }
@@ -218,6 +219,8 @@ bool SceneBuilder::InitialiseMeshes()
     const int causticsTexture = m_data.caustics->GetFrame();
     InitialiseMesh("diagnostic", "sphere.obj", 1.0f, 1.0f, "diagnostic");
     
+    const int instances = 100;
+
     {
         auto& mesh = InitialiseMesh("skybox", "skybox.obj", 1.0f, 1.0f, "flat");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "skybox"));
@@ -227,7 +230,6 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.AddInstances(1);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("seaweed1", "seaweed1.obj", 0.25f, 4.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
         mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
@@ -237,7 +239,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("seaweed2", "seaweed2.obj", 0.2f, 8.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
         mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
@@ -248,7 +249,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("seaweed3", "seaweed3.obj", 0.2f, 8.0f, "specular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "leaf"));
         mesh.SetTexture(SLOT_SPECULAR, GetID(m_data.textures, "leaf_specular"));
@@ -259,7 +259,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("shell", "shell.obj", 2.0f, 4.0f, "diffusecaustics");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell1"));
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shell2"));
@@ -271,7 +270,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("starfish", "starfish.obj", 0.5f, 0.5f, "bump");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish1"));
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish2"));
@@ -280,7 +278,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("urchin", "urchin.obj", 1.0f, 1.0f, "bumpspecular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin1"));
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "urchin2"));
@@ -292,7 +289,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh = InitialiseMesh("coral", "coral.obj", 1.0f, 4.0f, "bumpspecular");
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral1"));
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "coral2"));
@@ -304,7 +300,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh1 = InitialiseMesh("flower1_top", "flower1_top.obj", 1.0f, 1.0f, "bumpspecular");
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerA_top1"));
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerA_top2"));
@@ -324,7 +319,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh1, &mesh2 }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh1 = InitialiseMesh("flower2_top", "flower2_top.obj", 1.0f, 1.0f, "bumpspecular");
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerB_top1"));
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerB_top2"));
@@ -345,7 +339,6 @@ bool SceneBuilder::InitialiseMeshes()
         success &= AddFoliage({ &mesh1, &mesh2 }, instances);
     }
     {
-        const int instances = 80;
         auto& mesh1 = InitialiseMesh("flower3_top", "flower3_top.obj", 1.0f, 1.0f, "bumpspecular");
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerC_top1"));
         mesh1.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "flowerC_top2"));

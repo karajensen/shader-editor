@@ -15,7 +15,7 @@ PostProcessing::PostProcessing()
     m_dofStart = 0.99f;
     m_dofFade = 0.01f;
     m_fogColour.r = 0.0f;
-    m_fogColour.g = 69.0f/255.0f;
+    m_fogColour.g = 100.0f/255.0f;
     m_fogColour.b = 1.0f;
     m_fogStart = 0.39f;
     m_fogFade = 0.61f;

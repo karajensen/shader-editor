@@ -16,14 +16,14 @@ ScenePlacer::ScenePlacer(SceneData& data) :
     m_ocean(*data.water[data.oceanIndex]),
     m_sand(*data.terrain[data.sandIndex]),
     m_rockMinScale(2.5f, 0.75f, 2.5f),
-    m_rockMaxScale(4.0f, 1.25f, 4.0f),
+    m_rockMaxScale(4.0f, 1.15f, 4.0f),
     m_meshMinScale(0.75f),
     m_meshMaxScale(2.0f),
     m_rockOffset(1.0f),
     m_minClusters(2),
     m_maxClusters(5)
 {
-    const int patchAmount = 36;
+    const int patchAmount = 81;
     const int minPatchAmount = 9;
     double unused = 0.0;
     if (std::modf(std::sqrt(static_cast<double>(patchAmount)), &unused) != 0.0 ||

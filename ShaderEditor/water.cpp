@@ -180,6 +180,6 @@ void Water::SetInstance(int index, const Float2& position, bool flippedX, bool f
 
 void Water::AddInstance(const Float2& position, bool flippedX, bool flippedZ)
 {
-    m_instances.emplace_back();
+    Water::AddInstances(1);
     SetInstance(static_cast<int>(m_instances.size()-1), position, flippedX, flippedZ);
 }
