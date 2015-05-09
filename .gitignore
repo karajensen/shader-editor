@@ -18,7 +18,9 @@ ShaderEditor/Release/
 ShaderEditor/Assets/Reference/
 ShaderEditor/Assets/Textures/Generated/*.bmp
 ShaderEditor/Assets/Shaders/Generated/*.fx
+ShaderEditor/Assets/Shaders/Generated/*.as
 Release/Assets/Textures/Generated/*.bmp
 Release/Assets/Shaders/Generated/*.fx
+Release/Assets/Shaders/Generated/*.as
 ipch/
 html/
