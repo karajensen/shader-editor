@@ -61,7 +61,7 @@ endif
 void main(void)
 {
     vec4 diffuseTex = texture(DiffuseSampler, ex_UVs);
-    vec4 diffuse = vec4(0.0, 0.0, 0.0, 0.0);
+    vec3 diffuse = vec3(0.0, 0.0, 0.0);
 
     ifdef: !FLAT
         vec3 normal = normalize(ex_Normal);
@@ -77,7 +77,7 @@ void main(void)
     ifdef: SPECULAR
         vec3 vertToCamera = normalize(ex_VertToCamera);
         vec4 specularTex = texture(SpecularSampler, ex_UVs);
-        vec4 specular = vec4(0.0, 0.0, 0.0, 0.0);
+        vec3 specular = vec3(0.0, 0.0, 0.0);
     endif
 
     ifdef: !FLAT
@@ -96,13 +96,13 @@ void main(void)
             lightColour *= ((dot(vertToLight, normal) + 1.0) *
                 ((1.0 - meshDiffuse) * 0.5)) + meshDiffuse;
 
-            diffuse.rgb += lightColour * attenuation * lightActive[i];
+            diffuse += lightColour * attenuation * lightActive[i];
 
             ifdef: SPECULAR
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 vec3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * 
+                specular += specularFactor * lightSpecular[i] * 
                     attenuation * lightActive[i] * meshSpecular;
             endif
         }

@@ -9,6 +9,7 @@
 *.Release
 *.idb
 ShaderEditor/ShaderEditor.exe
+ShaderEditor/ShaderEditorD.exe
 ShaderEditor/logfile.txt
 ShaderEditor/qt/build/debug/
 ShaderEditor/qt/build/release/

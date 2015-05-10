@@ -131,7 +131,7 @@ Outputs PShader(Attributes input)
     float4 diffuseTex = DiffuseSampler.Sample(Sampler, input.uvs);
 
     ifdef: !FLAT
-        float4 diffuse = float4(0.0, 0.0, 0.0, 0.0);
+        float3 diffuse = float3(0.0, 0.0, 0.0);
         float3 normal = normalize(input.normal);
     endif
 
@@ -145,7 +145,7 @@ Outputs PShader(Attributes input)
     ifdef: SPECULAR
         float3 vertToCamera = normalize(input.vertToCamera);
         float4 specularTex = SpecularSampler.Sample(Sampler, input.uvs);
-        float4 specular = float4(0.0, 0.0, 0.0, 0.0);
+        float3 specular = float3(0.0, 0.0, 0.0);
     endif
 
     ifdef: !FLAT
@@ -164,13 +164,13 @@ Outputs PShader(Attributes input)
             lightColour *= ((dot(vertToLight, normal) + 1.0) *
                 ((1.0 - meshDiffuse) * 0.5)) + meshDiffuse;
 
-            diffuse.rgb += lightColour * attenuation * lightActive[i];
+            diffuse += lightColour * attenuation * lightActive[i];
 
             ifdef: SPECULAR
                 float specularity = lightSpecularity[i] * meshSpecularity;
                 float3 halfVector = normalize(vertToLight + vertToCamera);
                 float specularFactor = pow(max(dot(normal, halfVector), 0.0), specularity); 
-                specular.rgb += specularFactor * lightSpecular[i] * 
+                specular += specularFactor * lightSpecular[i] * 
                     attenuation * lightActive[i] * meshSpecular;
             endif
         }

@@ -17,6 +17,14 @@
 #include <sstream>
 
 /**
+* Empty callback for the temporary window
+*/
+LRESULT CALLBACK WindowProcGL(HWND, UINT, WPARAM, LPARAM) 
+{  
+    return 0;
+}
+
+/**
 * Internal data for the opengl rendering engine
 */
 struct OpenglData
@@ -135,7 +143,7 @@ OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
     WNDCLASSEX wc;
     ZeroMemory(&wc, sizeof(WNDCLASSEX)); 
     wc.cbSize = sizeof(WNDCLASSEX);
-    wc.lpfnWndProc = nullptr;
+    wc.lpfnWndProc = (WNDPROC)WindowProcGL;
     wc.hInstance = hinstance; 
     wc.lpszClassName = "GlewWindow";
     RegisterClassEx(&wc); 
