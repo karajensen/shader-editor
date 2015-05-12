@@ -19,14 +19,14 @@ PostProcessing::PostProcessing()
     m_fogColour.b = 1.0f;
     m_fogStart = 0.39f;
     m_fogFade = 0.61f;
-    m_bloomIntensity = 0.5f;
+    m_bloomIntensity = 0.65f;
     m_bloomStart = 0.95f;
     m_bloomFade = 0.35f;
-    m_contrast = 0.0f;
+    m_contrast = 0.3f;
     m_saturation = 1.0f;
     m_maximumColour.r = 1.0f;
     m_maximumColour.g = 1.0f;
-    m_maximumColour.b = 1.0f;
+    m_maximumColour.b = 220.0f/255.0f;
     m_minimumColour.r = 0.0f;
     m_minimumColour.g = 0.0f;
     m_minimumColour.b = 0.0f;

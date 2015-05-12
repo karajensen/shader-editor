@@ -16,12 +16,10 @@ ScenePlacer::ScenePlacer(SceneData& data) :
     m_ocean(*data.water[data.oceanIndex]),
     m_sand(*data.terrain[data.sandIndex]),
     m_rockMinScale(2.5f, 0.75f, 2.5f),
-    m_rockMaxScale(4.0f, 1.15f, 4.0f),
+    m_rockMaxScale(3.5f, 1.15f, 3.5f),
     m_meshMinScale(0.75f),
     m_meshMaxScale(2.0f),
-    m_rockOffset(1.0f),
-    m_minClusters(2),
-    m_maxClusters(5)
+    m_rockOffset(1.0f)
 {
     const int patchAmount = 81;
     const int minPatchAmount = 9;
@@ -313,15 +311,6 @@ bool ScenePlacer::Initialise(const Float3& cameraPosition)
 
 bool ScenePlacer::GeneratePatchData()
 {
-    // Reset all the patch data
-    for (Patch& patch : m_patchData)
-    {
-        patch.foliage.clear();
-        patch.emitters.clear();
-        patch.rock.index = NO_INDEX;
-        patch.rock.instance = NO_INDEX;
-    }
-
     // Grab all avaliable emitters to assign
     std::vector<InstanceKey> emitterKeys;
     for (unsigned int i = 0; i < m_data.emitters.size(); ++i)
@@ -487,6 +476,9 @@ void ScenePlacer::PlaceFoliage(int instanceID)
     const Float2& minBounds = m_sand.GetMinBounds(instanceID);
     const Float2& maxBounds = m_sand.GetMaxBounds(instanceID);
 
+    const int minClusters = 2;
+    const int maxClusters = 5;
+    const float spacing = m_sand.Spacing();
     int clusterCounter = 0;
     Float2 clusterCenter;
     std::vector<Float2> allocated;
@@ -495,18 +487,17 @@ void ScenePlacer::PlaceFoliage(int instanceID)
     {
         if (clusterCounter <= 0)
         {
-            allocated.clear();
-            clusterCounter = Random::Generate(m_minClusters, m_maxClusters);
-            clusterCenter.x = Random::Generate(minBounds.x, maxBounds.x);
-            clusterCenter.y = Random::Generate(minBounds.y, maxBounds.y);
+            clusterCounter = Random::Generate(minClusters, maxClusters);
+            clusterCenter.x = Random::Generate(minBounds.x + spacing, maxBounds.x - spacing);
+            clusterCenter.y = Random::Generate(minBounds.y + spacing, maxBounds.y - spacing);
         }
 
         Float2 position;
         const int maxIterations = 20;
         for (int i = 0; i < maxIterations; ++i)
         {
-            const float x = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
-            const float z = static_cast<float>(Random::Generate(0, 1) == 0 ? -1 : 1);
+            const float x = static_cast<float>(Random::Generate(0, 2) - 1);
+            const float z = static_cast<float>(Random::Generate(0, 2) - 1);
             position.x = clusterCenter.x + x * m_sand.Spacing();
             position.y = clusterCenter.y + z * m_sand.Spacing();
 

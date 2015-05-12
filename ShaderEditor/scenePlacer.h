@@ -161,8 +161,6 @@ private:
     Terrain& m_sand;                  ///< Main Sand terrain mesh
     Water& m_ocean;                   ///< Main Ocean terran mesh
     int m_patchPerRow = 0;            ///< The number of patches per row of the area
-    int m_minClusters = 0;            ///< Minimum foliage clusters per patch
-    int m_maxClusters = 0;            ///< Maximum foliage clusters per patch
     float m_meshMinScale = 0.0f;      ///< Random mesh scaling amount
     float m_meshMaxScale = 0.0f;      ///< Random mesh scaling amount
     float m_patchSize = 0.0f;         ///< The offset between sand/water patches

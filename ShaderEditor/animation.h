@@ -57,5 +57,5 @@ private:
     std::vector<int> m_frames;        ///< All frames to animate
     int m_selectedFrame = 0;          ///< The currently selected frame
     float m_timePassed = 0.0f;        ///< The time passed since last frame switch
-    float m_speed = 0.03f;            ///< Frame animation speed
+    float m_speed = 0.04f;            ///< Frame animation speed
 };

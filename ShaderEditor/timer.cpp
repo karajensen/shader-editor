@@ -4,12 +4,6 @@
 
 #include "timer.h"
 
-namespace
-{
-    const float DT_MAXIMUM = 0.03f;   ///< Maximum allowed deltatime
-    const float DT_MINIMUM = 0.01f;   ///< Minimum allowed deltatime
-}
-
 void Timer::StartTimer()
 {
     LARGE_INTEGER frequency;
@@ -25,8 +19,8 @@ void Timer::UpdateTimer()
     QueryPerformanceCounter(&m_timer);
     float currentTime = static_cast<float>(m_timer.QuadPart);
 
-    float deltatime = (currentTime - m_previousTime) / m_frequency;
-    m_deltaTimeCounter += deltatime;
+    m_deltaTime = (currentTime - m_previousTime) / m_frequency;
+    m_deltaTimeCounter += m_deltaTime;
     if (m_deltaTimeCounter >= 1.0) //one second has passed
     {
         m_deltaTimeCounter = 0.0;
@@ -36,9 +30,6 @@ void Timer::UpdateTimer()
 
     m_totalTime += m_deltaTime;
     m_totalTime = _finite(m_totalTime) ? m_totalTime : 0.0f;
-
-    m_deltaTime = max(deltatime, DT_MINIMUM);
-    m_deltaTime = min(m_deltaTime, DT_MAXIMUM);
     
     ++m_fpsCounter; 
     m_previousTime = currentTime;

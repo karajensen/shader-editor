@@ -70,8 +70,8 @@ bool SceneBuilder::InitialiseLighting()
     sun->Position(Float3(0.0, 60.0, 0.0));
     sun->Attenuation(Float3(1.0, 0.0, 0.0));
     sun->Diffuse(Colour(0.85f, 0.85f, 1.0f, 1.0f));
-    sun->Specular(Colour(0.15f, 0.15f, 0.3f, 1.0f));
-    sun->Specularity(20.0f);
+    sun->Specular(Colour(0.0f, 100.0f/255.0f, 1.0f, 1.0f));
+    sun->Specularity(15.0f);
     return true;
 }
 
