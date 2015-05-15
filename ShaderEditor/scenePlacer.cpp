@@ -77,6 +77,16 @@ void ScenePlacer::Update(const Float3& cameraPosition)
     m_data.lights[m_data.sunIndex]->PositionX(cameraPosition.x);
     m_data.lights[m_data.sunIndex]->PositionZ(cameraPosition.z);
 
+    // Any patches flagged for mesh update from last tick
+    // Requires a tick to allow rock transforms to be updated
+    for (int r = 0; r < m_patchPerRow; ++r)
+    {
+        for (int c = 0; c < m_patchPerRow; ++c)
+        {
+            UpdatePatchMeshes(r, c);
+        }
+    }
+
     // Rerrange the patches if the camera has moved out
     if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
     {
@@ -97,15 +107,6 @@ void ScenePlacer::Update(const Float3& cameraPosition)
         }
 
         m_patchInside = GetPatchInside(cameraPosition);
-    }
-
-    // Any patches flagged for mesh update do after being rearranged
-    for (int r = 0; r < m_patchPerRow; ++r)
-    {
-        for (int c = 0; c < m_patchPerRow; ++c)
-        {
-            UpdatePatchMeshes(r, c);
-        }
     }
 }
 
@@ -388,14 +389,6 @@ void ScenePlacer::ResetPatches()
             UpdatePatchData(r, c);
         }
     }
-
-    for (int r = 0; r < m_patchPerRow; ++r)
-    {
-        for (int c = 0; c < m_patchPerRow; ++c)
-        {
-            UpdatePatchMeshes(r, c);
-        }
-    }
 }
 
 void ScenePlacer::UpdatePatchData(int row, int column)
@@ -422,7 +415,7 @@ void ScenePlacer::UpdatePatchMeshes(int row, int column)
     }
 }
 
-Float3 ScenePlacer::GetPatchPosition(int instanceID, float x, float z)
+Float3 ScenePlacer::GetPatchLocation(int instanceID, float x, float z)
 {
     using namespace std;
     Float3 position = m_sand.GetAbsolutePosition(instanceID, x, z);
@@ -478,7 +471,7 @@ void ScenePlacer::PlaceFoliage(int instanceID)
 
     const int minClusters = 2;
     const int maxClusters = 5;
-    const float spacing = m_sand.Spacing();
+    const float spacing = m_sand.Spacing() * 2.0f;
     int clusterCounter = 0;
     Float2 clusterCenter;
     std::vector<Float2> allocated;
@@ -516,15 +509,23 @@ void ScenePlacer::PlaceFoliage(int instanceID)
             }
         }
 
+        Float3 location = GetPatchLocation(instanceID, position.x, position.y);
         const Float3 rotation(0.0f, Random::Generate(0.0f, 360.0f), 0.0f);
         const float scale = Random::Generate(m_meshMinScale, m_meshMaxScale);
 
         for (auto& key : foliage.GetKeys())
         {
             auto& mesh = *m_data.meshes[key.index];
-            mesh.SetInstance(key.instance, 
-                GetPatchPosition(instanceID, position.x, position.y), 
-                rotation, scale);
+            mesh.SetInstance(key.instance, location, rotation, scale);
+
+        }
+
+        // Not all meshes have shadows
+        if (foliage.GetShadow() != NO_INDEX)
+        {
+            location.y += m_shadowOffset;
+            m_data.shadows->SetInstance(foliage.GetShadow(), 
+                location, Float3(90.0f, 0.0f, 0.0f), m_shadowScale * scale);
         }
 
         --clusterCounter;
@@ -541,8 +542,9 @@ void ScenePlacer::PlaceEmitters(int instanceID)
     {
         const float x = Random::Generate(minBounds.x, maxBounds.x);
         const float z = Random::Generate(minBounds.y, maxBounds.y);
-        const Float3 position(GetPatchPosition(instanceID, x, z));
+        const Float3 position(GetPatchLocation(instanceID, x, z));
         m_data.emitters[emitter.index]->SetInstance(emitter.instance, position);
+        m_data.emitters[emitter.index]->SetEnabled(true);
     }
 }
 

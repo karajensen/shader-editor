@@ -57,6 +57,7 @@ bool SceneBuilder::Initialise()
            InitialiseShaders() &&
            InitialiseEmitters() &&
            InitialiseWater() &&
+           InitialiseShadows() &&
            InitialiseMeshes() && 
            InitialiseTerrain() && 
            InitialiseDiagnostics();
@@ -90,6 +91,7 @@ bool SceneBuilder::InitialiseShaders()
     success &= InitialiseShader(linker, "water", Shader::NONE, WATER_SHADER);
     success &= InitialiseShader(linker, "particle", Shader::NONE, PARTICLE_SHADER);
     success &= InitialiseShader(linker, "diagnostic", Shader::NONE, DIAGNOSTIC_SHADER);
+    success &= InitialiseShader(linker, "shadow", Shader::NONE, SHADOW_SHADER);
     success &= InitialiseShader(linker, "bump", Shader::BUMP);
     success &= InitialiseShader(linker, "specular", Shader::SPECULAR);
     success &= InitialiseShader(linker, "diffusecaustics", Shader::CAUSTICS);
@@ -147,6 +149,7 @@ bool SceneBuilder::InitialiseTextures()
     success &= InitialiseTexture("rock_bump", "rock_bump.png", Texture::FROM_FILE);
     success &= InitialiseTexture("sand", "sand.png", Texture::FROM_FILE);
     success &= InitialiseTexture("sand_bump", "sand_bump.png", Texture::FROM_FILE);
+    success &= InitialiseTexture("shadow", "shadow.png", Texture::FROM_FILE);
 
     for (int i = 0; i < PATCH_ROCK_TYPES; ++i)
     {
@@ -236,7 +239,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.BackfaceCull(false);
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, false, instances);
     }
     {
         auto& mesh = InitialiseMesh("seaweed2", "seaweed2.obj", 0.2f, 8.0f, "specular");
@@ -246,7 +249,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
         mesh.Specular(0.3f);
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, false, instances);
     }
     {
         auto& mesh = InitialiseMesh("seaweed3", "seaweed3.obj", 0.2f, 8.0f, "specular");
@@ -256,7 +259,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.Diffuse(0.3f); // Ensures backfaces are lit
         mesh.Specular(0.3f);
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, false, instances);
     }
     {
         auto& mesh = InitialiseMesh("shell", "shell.obj", 2.0f, 4.0f, "diffusecaustics");
@@ -267,7 +270,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.CausticsAmount(0.2f);
         mesh.Specular(0.3f);
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, true, instances);
     }
     {
         auto& mesh = InitialiseMesh("starfish", "starfish.obj", 0.5f, 0.5f, "bump");
@@ -275,7 +278,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "starfish2"));
         mesh.SetTexture(SLOT_NORMAL, GetID(m_data.textures, "starfish_normal"));
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, true, instances);
     }
     {
         auto& mesh = InitialiseMesh("urchin", "urchin.obj", 1.0f, 1.0f, "bumpspecular");
@@ -286,7 +289,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.Specular(0.5f);
         mesh.Bump(8.0f);
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, true, instances);
     }
     {
         auto& mesh = InitialiseMesh("coral", "coral.obj", 1.0f, 4.0f, "bumpspecular");
@@ -297,7 +300,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh.Bump(2.0f);
         mesh.Specular(0.5f);
         mesh.AddInstances(instances);
-        success &= AddFoliage({ &mesh }, instances);
+        success &= AddFoliage({ &mesh }, true, instances);
     }
     {
         auto& mesh1 = InitialiseMesh("flower1_top", "flower1_top.obj", 1.0f, 1.0f, "bumpspecular");
@@ -316,7 +319,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh2.AddInstances(instances);
         mesh2.Bump(2.5f);
         mesh2.Specular(0.4f);
-        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, true, instances);
     }
     {
         auto& mesh1 = InitialiseMesh("flower2_top", "flower2_top.obj", 1.0f, 1.0f, "bumpspecular");
@@ -336,7 +339,7 @@ bool SceneBuilder::InitialiseMeshes()
         mesh2.AddInstances(instances);
         mesh2.Specular(0.5f);
         mesh2.Bump(3.5f);
-        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, true, instances);
     }
     {
         auto& mesh1 = InitialiseMesh("flower3_top", "flower3_top.obj", 1.0f, 1.0f, "bumpspecular");
@@ -355,10 +358,18 @@ bool SceneBuilder::InitialiseMeshes()
         mesh2.AddInstances(instances);
         mesh2.Bump(2.5f);
         mesh2.Specular(0.4f);
-        success &= AddFoliage({ &mesh1, &mesh2 }, instances);
+        success &= AddFoliage({ &mesh1, &mesh2 }, true, instances);
     }
 
     return success;
+}
+
+bool SceneBuilder::InitialiseShadows()
+{
+    m_data.shadows = std::make_unique<MeshData>("shadow", "shadow", SHADOW_SHADER);
+    m_data.shadows->SetTexture(SLOT_DIFFUSE, GetID(m_data.textures, "shadow"));
+    m_data.shadows->InitialiseMeshData();
+    return true;
 }
 
 bool SceneBuilder::InitialiseEmitters()
@@ -387,8 +398,6 @@ bool SceneBuilder::InitialiseBubbles()
     data.minAmplitude = 0.5f;
     data.maxFrequency = 1.0f;
     data.minFrequency = 0.5f;
-    data.maxWaveSpeed = 1.0f;
-    data.minWaveSpeed = 1.0f;
     data.maxSpeed = 0.3f;
     data.minSpeed = 0.2f;
     data.minSize = 0.5f;
@@ -562,7 +571,7 @@ Terrain& SceneBuilder::InitialiseTerrain(const std::string& name,
     return terrain;
 }
 
-bool SceneBuilder::AddFoliage(std::initializer_list<const MeshData*> meshes, int instances)
+bool SceneBuilder::AddFoliage(std::initializer_list<const MeshData*> meshes, bool hasShadow, int instances)
 {
     if (meshes.size() == 0)
     {
@@ -574,6 +583,13 @@ bool SceneBuilder::AddFoliage(std::initializer_list<const MeshData*> meshes, int
     {
         const auto index = m_data.foliage.size();
         m_data.foliage.emplace_back();
+
+        if (hasShadow)
+        {
+            const int shadowID = static_cast<int>(m_data.shadows->Instances().size());
+            m_data.shadows->AddInstances(1);
+            m_data.foliage[index].AddShadow(shadowID);
+        }
 
         for (const auto* mesh : meshes)
         {

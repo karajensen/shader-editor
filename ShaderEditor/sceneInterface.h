@@ -6,6 +6,7 @@
 
 #include <vector>
 
+class MeshData;
 class Mesh;
 class Water;
 class Light;
@@ -63,4 +64,9 @@ public:
     * @return the emitters in the scene
     */
     virtual const std::vector<std::unique_ptr<Emitter>>& Emitters() const = 0;
+
+    /**
+    * @return the shadow instances for meshes
+    */
+    virtual const MeshData& Shadows() const = 0;
 };                     

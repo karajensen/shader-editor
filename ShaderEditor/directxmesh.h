@@ -9,32 +9,26 @@
 /**
 * Base data for any polygons to be rendered
 */
-class DxMeshData : boost::noncopyable
+class DxMeshBuffer : boost::noncopyable
 {
 public:
 
     /**
-    * Constructor for predefined buffers
-    * @param data Information for the mesh buffers
-    * @param preRender Callback to prerender an instance
-    */
-    DxMeshData(const MeshData& data,
-               PreRenderMesh preRender);
-
-    /**
-    * Constructor for empty buffers
+    * Constructor
     * @param name The name of the mesh
     * @param vertices The vertex buffer
     * @param indices The index buffer
+    * @param vertexStride Size of the vertex structure
     */
-    DxMeshData(const std::string& name, 
-               const std::vector<float>& vertices,
-               const std::vector<unsigned int>& indices);
+    DxMeshBuffer(const std::string& name, 
+                 const std::vector<float>& vertices,
+                 const std::vector<unsigned int>& indices,
+                 int vertexStride);
 
     /**
     * Destructor
     */
-    virtual ~DxMeshData();
+    virtual ~DxMeshBuffer();
 
     /**
     * Releases the data
@@ -52,18 +46,17 @@ public:
     * @param device The DirectX device interface
     * @param context Direct3D device context
     */
-    void Initialise(ID3D11Device* device, 
-                    ID3D11DeviceContext* context);
-
-protected:
+    virtual void Initialise(ID3D11Device* device, 
+                            ID3D11DeviceContext* context);
 
     /**
-    * Renders the data for each instance
-    * @param context Direct3D device context
-    * @param instances The mesh instances to render
+    * Reloads the mesh
+    * @param context The direct3D context
+    * @return whether reloading was successful
     */
-    void RenderInstances(ID3D11DeviceContext* context,
-                         const std::vector<MeshData::Instance>& instances);
+    bool Reload(ID3D11DeviceContext* context);
+
+protected:
 
     /**
     * Fills the vertex and index buffers
@@ -78,43 +71,75 @@ protected:
     std::string m_name;                         ///< Name of the mesh
     const std::vector<float>& m_vertices;       ///< Vertex buffer data
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
-    std::vector<D3DXMATRIX> m_world;            ///< World matrices of the instances
-    PreRenderMesh m_preRender = nullptr;        ///< Callback to render a single mesh instance
-    bool m_updateInstances = false;             ///< Whether a full transform update is required
 };
 
 /**
-* DirectX screen quad
+* DirectX MeshData with instances
 */
-class DxQuad : public DxMeshData
+class DxMeshData : public DxMeshBuffer
 {
 public:
 
     /**
-    * Constructor for a 2D screen quad
-    * @param name The name of the mesh
+    * Constructor
+    * @param mesh The mesh to use as a template
+    * @param preRender Callback to prerender an instance
     */
-    DxQuad(const std::string& name);
+    DxMeshData(const MeshData& mesh, PreRenderMesh preRender);
 
+    /**
+    * Constructor
+    * @param mesh The mesh to use as a template
+    * @param vertices The vertex buffer
+    * @param indices The index buffer
+    * @param vertexStride Size of the vertex structure
+    * @param preRender Callback to prerender an instance
+    */
+    DxMeshData(const MeshData& mesh,
+               const std::vector<float>& vertices,
+               const std::vector<unsigned int>& indices,
+               int vertexStride,
+               PreRenderMesh preRender);
+
+    /**
+    * @return the mesh element
+    */
+    const MeshData& GetData() const;
+
+    /**
+    * Renders the data
+    * @param context Direct3D device context
+    */
+    virtual void Render(ID3D11DeviceContext* context) override;
+
+    /**
+    * Initialises the data
+    * @param device The DirectX device interface
+    * @param context Direct3D device context
+    */
+    virtual void Initialise(ID3D11Device* device, 
+                            ID3D11DeviceContext* context) override;
 private:
 
-    std::vector<float> m_vertices;        ///< Vertex information
-    std::vector<unsigned int> m_indices;  ///< Index information
+    const MeshData& m_meshdata;             ///< Mesh information
+    std::vector<D3DXMATRIX> m_world;        ///< World matrices of the instances
+    PreRenderMesh m_preRender = nullptr;    ///< Callback to render a single mesh instance
+    bool m_updateInstances = false;         ///< Whether a full transform update is required
 };
 
 /**
-* DirectX complex mesh
+* DirectX mesh with instances
 */
 class DxMesh : public DxMeshData
 {
 public:
 
     /**
-    * Constructor for a complex mesh
+    * Constructor
     * @param mesh The mesh to use as a template
     * @param preRender Callback to prerender an instance
     */
-    DxMesh(const Mesh& mesh, PreRenderMesh preRender);
+    DxMesh(const MeshData& mesh, PreRenderMesh preRender);
 
     /**
     * @return the mesh element
@@ -122,80 +147,58 @@ public:
     const Mesh& GetMesh() const;
 
     /**
-    * Renders the data
-    * @param context Direct3D device context
-    */
-    virtual void Render(ID3D11DeviceContext* context) override;
-
-private:
-
-    const Mesh& m_mesh;               ///< Mesh information
-};                                           
-
-/**
-* DirectX Water mesh
-*/
-class DxWater : public DxMeshData
-{
-public:
-
-    /**
-    * Constructor for a complex mesh
-    * @param mesh The mesh to use as a template
-    * @param preRender Callback to prerender an instance
-    */
-    DxWater(const Water& water, PreRenderMesh preRender);
-
-    /**
     * @return the water information for the mesh
     */
     const Water& GetWater() const;
 
     /**
-    * Renders the data
-    * @param context Direct3D device context
+    * @return the water information for the mesh
     */
-    virtual void Render(ID3D11DeviceContext* context) override;
-
-private:
-
-    const Water& m_water; ///< Water information
+    const Terrain& GetTerrain() const;
 };
 
 /**
-* DirectX Terrain mesh
+* DirectX quad data
 */
-class DxTerrain : public DxMeshData
+struct DxQuadData
 {
 public:
 
     /**
-    * Constructor for a complex mesh
+    * Constructor
+    */
+    DxQuadData();
+
+    int stride;                         ///< Size of the vertex structure
+    std::vector<float> vertices;        ///< Vertex information
+    std::vector<unsigned int> indices;  ///< Index information
+};
+
+/**
+* DirectX instanced quad
+*/
+class DxQuadMesh : public DxQuadData, public DxMeshData
+{
+public:
+
+    /**
+    * Constructor
     * @param mesh The mesh to use as a template
     * @param preRender Callback to prerender an instance
     */
-    DxTerrain(const Terrain& terrain, PreRenderMesh preRender);
-
-    /**
-    * @return the water information for the mesh
-    */
-    const Terrain& GetTerrain() const;
-
-    /**
-    * Renders the data
-    * @param context Direct3D device context
-    */
-    virtual void Render(ID3D11DeviceContext* context) override;
-
-    /**
-    * Reloads the terrain
-    * @param context The direct3D context
-    * @return whether reloading was successful
-    */
-    bool Reload(ID3D11DeviceContext* context);
-
-private:
-
-    const Terrain& m_terrain; ///< Terrain information
+    DxQuadMesh(const MeshData& mesh, PreRenderMesh preRender);
 };
-                                                                             
+
+/**
+* DirectX single quad
+*/
+class DxQuad : public DxQuadData, public DxMeshBuffer
+{
+public:
+
+    /**
+    * Constructor
+    * @param name The name of the quad
+    */
+    DxQuad(const std::string& name);
+};

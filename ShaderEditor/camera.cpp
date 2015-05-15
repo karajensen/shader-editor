@@ -8,7 +8,7 @@
 namespace
 {
     const float MOVE_SPEED = 45.0f; ///< Speed the camera will translate
-    const float ROT_SPEED = 2.0f;   ///< Speed the camera will rotate
+    const float ROT_SPEED = 3.0f;   ///< Speed the camera will rotate
 }
 
 Camera::Camera() :

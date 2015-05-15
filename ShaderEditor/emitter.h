@@ -26,8 +26,6 @@ struct EmitterData
     float maxSize = 1.0f;         ///< The maximum size of the particles
     float minAmplitude = 1.0f;    ///< The minimum height of the particle waves
     float maxAmplitude = 1.0f;    ///< The maximum height of the particle waves
-    float minWaveSpeed = 1.0f;    ///< The minimum speed of the particle wave
-    float maxWaveSpeed = 1.0f;    ///< The maximum speed of the particle wave
     float minFrequency = 1.0f;    ///< The minimum intensity of the waves
     float maxFrequency = 1.0f;    ///< The maximum intensity of the waves
     float lifeTime = 0.0f;        ///< Seconds the particle can live before dying
@@ -149,6 +147,11 @@ public:
     */
     const std::vector<Instance>& Instances() const;
 
+    /**
+    * Sets whether the emitter is enabled or not
+    */
+    void SetEnabled(bool enabled);
+
 private:
 
     /**
@@ -167,4 +170,5 @@ private:
     int m_visibleInstances = 0;          ///< Number of instances currently rendered
     std::string m_name;                  ///< Name of this emitter
     bool m_paused = false;               ///< Whether emission is paused
+    bool m_enabled = false;              ///< Whether emission is enabled
 };

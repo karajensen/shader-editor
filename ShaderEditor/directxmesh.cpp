@@ -4,102 +4,53 @@
 
 #include "directxmesh.h"
 
-DxMeshData::DxMeshData(const MeshData& data, PreRenderMesh preRender) :
-    m_name(data.Name()),
-    m_vertexStride(sizeof(float) * data.VertexComponentCount()),
-    m_vertices(data.Vertices()),
-    m_indices(data.Indices()),
-    m_preRender(preRender)
-{
-    m_world.resize(data.Instances().size());
-    for (auto& world : m_world)
-    {
-        D3DXMatrixIdentity(&world);
-    }
-}
-
-DxMeshData::DxMeshData(const std::string& name,
-                       const std::vector<float>& vertices,
-                       const std::vector<unsigned int>& indices) :
+DxMeshBuffer::DxMeshBuffer(const std::string& name,
+                           const std::vector<float>& vertices,
+                           const std::vector<unsigned int>& indices,
+                           int vertexStride) :
     m_name(name),
     m_vertices(vertices),
-    m_indices(indices)
+    m_indices(indices),
+    m_vertexStride(vertexStride)
 {
 }
 
-DxWater::DxWater(const Water& water, PreRenderMesh preRender) :
-    DxMeshData(water, preRender),
-    m_water(water)
+DxMeshData::DxMeshData(const MeshData& mesh, PreRenderMesh preRender) :
+    DxMeshBuffer(mesh.Name(), mesh.Vertices(), mesh.Indices(), sizeof(float)* mesh.VertexComponentCount()),
+    m_meshdata(mesh),
+    m_preRender(preRender)
 {
 }
 
-DxTerrain::DxTerrain(const Terrain& terrain, PreRenderMesh preRender) :
-    DxMeshData(terrain, preRender),
-    m_terrain(terrain)
+DxMeshData::DxMeshData(const MeshData& mesh,
+                       const std::vector<float>& vertices,
+                       const std::vector<unsigned int>& indices,
+                       int vertexStride,
+                       PreRenderMesh preRender) :
+
+    DxMeshBuffer(mesh.Name(), vertices, indices, vertexStride),
+    m_meshdata(mesh),
+    m_preRender(preRender)
 {
 }
 
-DxMesh::DxMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    DxMeshData(mesh, preRender),
-    m_mesh(mesh)
+DxMesh::DxMesh(const MeshData& mesh, PreRenderMesh preRender) :
+    DxMeshData(mesh, preRender)
 {
 }
 
-DxQuad::DxQuad(const std::string& name) :
-    DxMeshData(name, m_vertices, m_indices)
-{
-    // Top left corner
-    m_vertices.emplace_back(-1.0f); // x
-    m_vertices.emplace_back(1.0f);  // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(0.0f);  // u
-    m_vertices.emplace_back(0.0f);  // v
-
-    // Top right corner
-    m_vertices.emplace_back(1.0f); // x
-    m_vertices.emplace_back(1.0f); // y
-    m_vertices.emplace_back(0.0f); // z
-    m_vertices.emplace_back(1.0f); // u
-    m_vertices.emplace_back(0.0f); // v
-
-    // Bot right corner
-    m_vertices.emplace_back(1.0f);  // x
-    m_vertices.emplace_back(-1.0f); // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(1.0f);  // u
-    m_vertices.emplace_back(1.0f);  // v
-
-    // Bot left corner
-    m_vertices.emplace_back(-1.0f); // x
-    m_vertices.emplace_back(-1.0f); // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(0.0f);  // u
-    m_vertices.emplace_back(1.0f);  // v
-
-    m_indices.emplace_back(0);
-    m_indices.emplace_back(3);
-    m_indices.emplace_back(1);
-
-    m_indices.emplace_back(1);
-    m_indices.emplace_back(3);
-    m_indices.emplace_back(2);
-
-    // 3 floats in position, 2 floats in uvs
-    m_vertexStride = sizeof(float) * 5;
-}
-
-DxMeshData::~DxMeshData()
+DxMeshBuffer::~DxMeshBuffer()
 {
     Release();
 }
 
-void DxMeshData::Release()
+void DxMeshBuffer::Release()
 {
     SafeRelease(&m_vertexBuffer);
     SafeRelease(&m_indexBuffer);
 }
 
-bool DxMeshData::FillBuffers(ID3D11DeviceContext* context)
+bool DxMeshBuffer::FillBuffers(ID3D11DeviceContext* context)
 {
     // Copy the mesh vertices to the directx mesh
     D3D11_MAPPED_SUBRESOURCE vms;
@@ -125,8 +76,20 @@ bool DxMeshData::FillBuffers(ID3D11DeviceContext* context)
 void DxMeshData::Initialise(ID3D11Device* device, 
                             ID3D11DeviceContext* context)
 {
-    m_updateInstances = true;
+    DxMeshBuffer::Initialise(device, context);
 
+    m_world.clear();
+    m_world.resize(m_meshdata.Instances().size());
+    for (auto& world : m_world)
+    {
+        D3DXMatrixIdentity(&world);
+    }
+    m_updateInstances = true;
+}
+
+void DxMeshBuffer::Initialise(ID3D11Device* device, 
+                              ID3D11DeviceContext* context)
+{
     // Create the vertex buffer
     D3D11_BUFFER_DESC vbd;
     ZeroMemory(&vbd, sizeof(vbd));
@@ -153,27 +116,12 @@ void DxMeshData::Initialise(ID3D11Device* device,
     }
 }
 
-const Mesh& DxMesh::GetMesh() const
-{
-    return m_mesh;
-}
-
-const Water& DxWater::GetWater() const
-{
-    return m_water;
-}
-
-const Terrain& DxTerrain::GetTerrain() const
-{
-    return m_terrain;
-}
-
-bool DxTerrain::Reload(ID3D11DeviceContext* context)
+bool DxMeshBuffer::Reload(ID3D11DeviceContext* context)
 {
     return FillBuffers(context);
 }
 
-void DxMeshData::Render(ID3D11DeviceContext* context)
+void DxMeshBuffer::Render(ID3D11DeviceContext* context)
 {
     UINT offset = 0;
     context->IASetVertexBuffers(0, 1, &m_vertexBuffer, &m_vertexStride, &offset);
@@ -182,30 +130,9 @@ void DxMeshData::Render(ID3D11DeviceContext* context)
     context->DrawIndexed(m_indices.size(), 0, 0);
 }
 
-void DxMesh::Render(ID3D11DeviceContext* context)
+void DxMeshData::Render(ID3D11DeviceContext* context)
 {
-    assert(m_world.size() == m_mesh.Instances().size());
-    RenderInstances(context, m_mesh.Instances());
-    m_updateInstances = false;
-}
-
-void DxTerrain::Render(ID3D11DeviceContext* context)
-{
-    assert(m_world.size() == m_terrain.Instances().size());
-    RenderInstances(context, m_terrain.Instances());
-    m_updateInstances = false;
-}
-
-void DxWater::Render(ID3D11DeviceContext* context)
-{
-    assert(m_world.size() == m_water.Instances().size());
-    RenderInstances(context, m_water.Instances());
-    m_updateInstances = false;
-}
-
-void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
-                                 const std::vector<MeshData::Instance>& instances)
-{
+    const auto& instances = m_meshdata.Instances();
     for (unsigned int i = 0; i < instances.size(); ++i)
     {
         const auto& instance = instances[i];
@@ -231,7 +158,81 @@ void DxMeshData::RenderInstances(ID3D11DeviceContext* context,
         if (instance.enabled && instance.render)
         {
             m_preRender(m_world[i], instance.colour);
-            DxMeshData::Render(context);
+            DxMeshBuffer::Render(context);
         }
     }
+
+    m_updateInstances = false;
+}
+
+const MeshData& DxMeshData::GetData() const
+{
+    return m_meshdata;
+}
+
+const Mesh& DxMesh::GetMesh() const
+{
+    return static_cast<const Mesh&>(GetData());
+}
+
+const Water& DxMesh::GetWater() const
+{
+    return static_cast<const Water&>(GetData());
+}
+
+const Terrain& DxMesh::GetTerrain() const
+{
+    return static_cast<const Terrain&>(GetData());
+}
+
+DxQuadData::DxQuadData()
+{
+    // Top left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(1.0f);  // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f);  // u
+    vertices.emplace_back(0.0f);  // v
+
+    // Top right corner
+    vertices.emplace_back(1.0f); // x
+    vertices.emplace_back(1.0f); // y
+    vertices.emplace_back(0.0f); // z
+    vertices.emplace_back(1.0f); // u
+    vertices.emplace_back(0.0f); // v
+
+    // Bot right corner
+    vertices.emplace_back(1.0f);  // x
+    vertices.emplace_back(-1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(1.0f);  // u
+    vertices.emplace_back(1.0f);  // v
+
+    // Bot left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(-1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f);  // u
+    vertices.emplace_back(1.0f);  // v
+
+    indices.emplace_back(0);
+    indices.emplace_back(3);
+    indices.emplace_back(1);
+
+    indices.emplace_back(1);
+    indices.emplace_back(3);
+    indices.emplace_back(2);
+
+    // 3 floats in position, 2 floats in uvs
+    stride = sizeof(float) * 5;
+}
+
+DxQuad::DxQuad(const std::string& name) :
+    DxMeshBuffer(name, vertices, indices, stride)
+{
+}
+
+DxQuadMesh::DxQuadMesh(const MeshData& mesh, PreRenderMesh preRender) :
+    DxMeshData(mesh, vertices, indices, stride, preRender)
+{
 }

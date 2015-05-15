@@ -12,6 +12,7 @@ class MeshData;
 class MeshAttributes;
 class Particle;
 class Mesh;
+class Quad;
 class Water;
 class Light;
 class Terrain;
@@ -192,6 +193,13 @@ private:
                       const IScene& scene);
 
     /**
+    * Updates and switches to the shader for a quad
+    * @param quad The quad to render
+    * @return whether the quad can now be rendered
+    */
+    bool UpdateShader(const MeshData& quad);
+
+    /**
     * Updates the shader for a particle per instance
     * @param world The world matrix for the particle
     * @param particle The data for the particle
@@ -266,6 +274,11 @@ private:
     void RenderEmitters(const IScene& scene);
 
     /**
+    * Renders all shadows
+    */
+    void RenderShadows();
+
+    /**
     * Renders the scene meshes
     * @param scene The scene to render
     */
@@ -285,8 +298,10 @@ private:
 
     /**
     * Sets whether alpha blending is enabled or not
+    * @param enable Whether to enable alpha blending
+    * @param multiply Whether to multiply the blend colours
     */
-    void EnableAlphaBlending(bool enable);
+    void EnableAlphaBlending(bool enable, bool multiply);
 
     /**
     * Sets whether values are written to the depth buffer or not

@@ -77,6 +77,11 @@ public:
     virtual const PostProcessing& Post() const override;
 
     /**
+    * @return the shadow instances for meshes
+    */
+    virtual const MeshData& Shadows() const override;
+
+    /**
     * Sets which post map will currently be rendered
     * @param index The index for the map to render
     */

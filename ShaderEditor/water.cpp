@@ -30,7 +30,7 @@ Water::Water(const std::string& name,
     m_waves[0].directionZ = 0.0f;
 
     m_waves[1].amplitude = 0.5f;
-    m_waves[1].frequency = 2.0f;
+    m_waves[1].frequency = 1.0f;
     m_waves[1].phase = 1.0f;
     m_waves[1].directionX = -0.7f;
     m_waves[1].directionZ = 0.7f;

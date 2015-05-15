@@ -4,9 +4,9 @@
 
 #include "openglmesh.h"
 
-GlMeshData::GlMeshData(const std::string& name,
-                       const std::vector<float>& vertices,
-                       const std::vector<unsigned int>& indices) :
+GlMeshBuffer::GlMeshBuffer(const std::string& name,
+                           const std::vector<float>& vertices,
+                           const std::vector<unsigned int>& indices) :
     m_name(name),
     m_vertices(vertices),
     m_indices(indices)
@@ -14,78 +14,73 @@ GlMeshData::GlMeshData(const std::string& name,
 }
 
 GlMeshData::GlMeshData(const MeshData& data, PreRenderMesh preRender) :
-    m_name(data.Name()),
-    m_vertices(data.Vertices()),
-    m_indices(data.Indices()),
+    GlMeshBuffer(data.Name(), data.Vertices(), data.Indices()),
+    m_preRender(preRender),
+    m_meshdata(data)
+{
+}
+
+GlMeshData::GlMeshData(const MeshData& mesh,
+                       const std::vector<float>& vertices,
+                       const std::vector<unsigned int>& indices,
+                       PreRenderMesh preRender) :
+
+    GlMeshBuffer(mesh.Name(), vertices, indices),
+    m_meshdata(mesh),
     m_preRender(preRender)
 {
-    m_world.resize(data.Instances().size());
 }
 
-GlWater::GlWater(const Water& water, PreRenderMesh preRender) :
-    GlMeshData(water, preRender),
-    m_water(water)
+GlMesh::GlMesh(const MeshData& mesh, PreRenderMesh preRender) :
+    GlMeshData(mesh, preRender)
 {
 }
 
-GlTerrain::GlTerrain(const Terrain& terrain, PreRenderMesh preRender) :
-    GlMeshData(terrain, preRender),
-    m_terrain(terrain)
-{
-}
-
-GlMesh::GlMesh(const Mesh& mesh, PreRenderMesh preRender) :
-    GlMeshData(mesh, preRender),
-    m_mesh(mesh)
-{
-}
-
-GlQuad::GlQuad(const std::string& name) :
-    GlMeshData(name, m_vertices, m_indices)
-{
-    // Top left corner
-    m_vertices.emplace_back(-1.0f); // x
-    m_vertices.emplace_back(-1.0f);  // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(0.0f); // u
-    m_vertices.emplace_back(0.0f);  // v
-
-    // Top right corner
-    m_vertices.emplace_back(1.0f); // x
-    m_vertices.emplace_back(-1.0f); // y
-    m_vertices.emplace_back(0.0f); // z
-    m_vertices.emplace_back(1.0f); // u
-    m_vertices.emplace_back(0.0f); // v
-
-    // Bot right corner
-    m_vertices.emplace_back(1.0f);  // x
-    m_vertices.emplace_back(1.0f); // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(1.0f);  // u
-    m_vertices.emplace_back(1.0f); // v
-
-    // Bot left corner
-    m_vertices.emplace_back(-1.0f); // x
-    m_vertices.emplace_back(1.0f); // y
-    m_vertices.emplace_back(0.0f);  // z
-    m_vertices.emplace_back(0.0f); // u
-    m_vertices.emplace_back(1.0f); // v
-
-    m_indices.emplace_back(0);
-    m_indices.emplace_back(3);
-    m_indices.emplace_back(1);
-              
-    m_indices.emplace_back(1);
-    m_indices.emplace_back(3);
-    m_indices.emplace_back(2);
-}
-
-GlMeshData::~GlMeshData()
+GlMeshBuffer::~GlMeshBuffer()
 {
     Release();
 }
 
-void GlMeshData::Release()
+GlQuadData::GlQuadData()
+{
+    // Top left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(-1.0f);  // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f); // u
+    vertices.emplace_back(0.0f);  // v
+
+    // Top right corner
+    vertices.emplace_back(1.0f); // x
+    vertices.emplace_back(-1.0f); // y
+    vertices.emplace_back(0.0f); // z
+    vertices.emplace_back(1.0f); // u
+    vertices.emplace_back(0.0f); // v
+
+    // Bot right corner
+    vertices.emplace_back(1.0f);  // x
+    vertices.emplace_back(1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(1.0f);  // u
+    vertices.emplace_back(1.0f); // v
+
+    // Bot left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f); // u
+    vertices.emplace_back(1.0f); // v
+
+    indices.emplace_back(0);
+    indices.emplace_back(3);
+    indices.emplace_back(1);
+            
+    indices.emplace_back(1);
+    indices.emplace_back(3);
+    indices.emplace_back(2);
+}
+
+void GlMeshBuffer::Release()
 {
     if(m_initialised)
     {
@@ -96,7 +91,7 @@ void GlMeshData::Release()
     }
 }
 
-bool GlMeshData::FillBuffers()
+bool GlMeshBuffer::FillBuffers()
 {
     glBindVertexArray(m_vaoID);
 
@@ -113,11 +108,18 @@ bool GlMeshData::FillBuffers()
 
 bool GlMeshData::Initialise()
 {
+    m_updateInstances = true;
+    m_world.clear();
+    m_world.resize(m_meshdata.Instances().size());
+    return GlMeshBuffer::Initialise();
+}
+
+bool GlMeshBuffer::Initialise()
+{
     glGenVertexArrays(1, &m_vaoID);
     glGenBuffers(1, &m_vboID);
     glGenBuffers(1, &m_iboID);
     m_initialised = true;
-    m_updateInstances = true;
 
     if(HasCallFailed())
     {
@@ -133,62 +135,47 @@ bool GlMeshData::Initialise()
     return true;
 }
 
-void GlMeshData::PreRender()
+void GlMeshBuffer::PreRender()
 {
     assert(m_initialised);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iboID);
     glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 }
 
-void GlMeshData::Render()
+void GlMeshBuffer::Render()
 {
     assert(m_initialised);
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
 }
 
+const MeshData& GlMeshData::GetData() const
+{
+    return m_meshdata;
+}
+
 const Mesh& GlMesh::GetMesh() const
 {
-    return m_mesh;
+    return static_cast<const Mesh&>(GetData());
 }
 
-const Water& GlWater::GetWater() const
+const Water& GlMesh::GetWater() const
 {
-    return m_water;
+    return static_cast<const Water&>(GetData());
 }
 
-const Terrain& GlTerrain::GetTerrain() const
+const Terrain& GlMesh::GetTerrain() const
 {
-    return m_terrain;
+    return static_cast<const Terrain&>(GetData());
 }
 
-bool GlTerrain::Reload()
+bool GlMeshBuffer::Reload()
 {
     return FillBuffers();
 }
 
-void GlMesh::Render()
+void GlMeshData::Render()
 {
-    assert(m_world.size() == m_mesh.Instances().size());
-    RenderInstances(m_mesh.Instances());
-    m_updateInstances = false;
-}
-
-void GlTerrain::Render()
-{
-    assert(m_world.size() == m_terrain.Instances().size());
-    RenderInstances(m_terrain.Instances());
-    m_updateInstances = false;
-}
-
-void GlWater::Render()
-{
-    assert(m_world.size() == m_water.Instances().size());
-    RenderInstances(m_water.Instances());
-    m_updateInstances = false;
-}
-
-void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instances)
-{
+    const auto& instances = m_meshdata.Instances();
     for (unsigned int i = 0; i < instances.size(); ++i)
     {
         const auto& instance = instances[i];
@@ -216,4 +203,15 @@ void GlMeshData::RenderInstances(const std::vector<MeshData::Instance>& instance
             GlMeshData::Render();
         }
     }
+    m_updateInstances = false;
+}
+
+GlQuad::GlQuad(const std::string& name) :
+    GlMeshBuffer(name, vertices, indices)
+{
+}
+
+GlQuadMesh::GlQuadMesh(const MeshData& mesh, PreRenderMesh preRender) :
+    GlMeshData(mesh, vertices, indices, preRender)
+{
 }

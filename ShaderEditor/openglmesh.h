@@ -10,31 +10,24 @@ class Mesh;
 /**
 * Base data for any polygons to be rendered
 */
-class GlMeshData : boost::noncopyable
+class GlMeshBuffer : boost::noncopyable
 {
 public:
 
     /**
-    * Constructor for predefined buffers
-    * @param data Information for the mesh buffers
-    * @param preRender Callback to render instances
-    */
-    GlMeshData(const MeshData& data, PreRenderMesh preRender);
-
-    /**
-    * Constructor for empty buffers
+    * Constructor
     * @param name The name of the mesh
     * @param vertices The vertex buffer
     * @param indices The index buffer
     */
-    GlMeshData(const std::string& name, 
-               const std::vector<float>& vertices,
-               const std::vector<unsigned int>& indices);
+    GlMeshBuffer(const std::string& name, 
+                 const std::vector<float>& vertices,
+                 const std::vector<unsigned int>& indices);
 
     /**
     * Destructor
     */
-    virtual ~GlMeshData();
+    virtual ~GlMeshBuffer();
 
     /**
     * Releases the opengl mesh
@@ -55,15 +48,15 @@ public:
     * Initialises the mesh
     * @return whether initialisation succeeded
     */
-    bool Initialise();
-
-protected:
+    virtual bool Initialise();
 
     /**
-    * Renders the mesh instances
-    * @param instances The mesh intances to render
+    * Reloads the mesh
+    * @return whether reloading was successful
     */
-    void RenderInstances(const std::vector<MeshData::Instance>& instances);
+    bool Reload();
+
+protected:
 
     /**
     * Fills the vertex and index buffers
@@ -79,43 +72,71 @@ protected:
     std::string m_name;                         ///< Name of the mesh
     const std::vector<float>& m_vertices;       ///< Vertex buffer data
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
-    std::vector<glm::mat4> m_world;             ///< World matrices of the instances
-    PreRenderMesh m_preRender = nullptr;        ///< Callback to render instances
-    bool m_updateInstances = false;             ///< Whether a full transform update is required
 };
 
 /**
-* OpenGL screen quad
+* OpenGL MeshData with instances
 */
-class GlQuad : public GlMeshData
+class GlMeshData : public GlMeshBuffer
 {
 public:
 
     /**
-    * Constructor to generate a quad
-    * @param name A unique name for the quad
+    * Constructor
+    * @param mesh The mesh to use as a template
+    * @param preRender Callback to prerender an instance
     */
-    GlQuad(const std::string& name);
+    GlMeshData(const MeshData& mesh, PreRenderMesh preRender);
+
+    /**
+    * Constructor
+    * @param mesh The mesh to use as a template
+    * @param vertices The vertex buffer
+    * @param indices The index buffer
+    * @param preRender Callback to prerender an instance
+    */
+    GlMeshData(const MeshData& mesh,
+               const std::vector<float>& vertices,
+               const std::vector<unsigned int>& indices,
+               PreRenderMesh preRender);
+
+    /**
+    * Renders the mesh
+    */
+    virtual void Render() override;
+
+    /**
+    * Initialises the mesh
+    * @return whether initialisation succeeded
+    */
+    virtual bool Initialise() override;
+
+    /**
+    * @return the mesh element
+    */
+    const MeshData& GetData() const;
 
 private:
 
-    std::vector<float> m_vertices;        ///< Vertex information
-    std::vector<unsigned int> m_indices;  ///< Index information
-};
+    const MeshData& m_meshdata;           ///< Data for the mesh
+    std::vector<glm::mat4> m_world;       ///< World matrices of the instances
+    PreRenderMesh m_preRender = nullptr;  ///< Callback to render instances
+    bool m_updateInstances = false;       ///< Whether a full transform update is required
+};                                       
 
 /**
-* OpenGL complex mesh
+* OpenGL mesh with instances
 */
 class GlMesh : public GlMeshData
 {
 public:
 
     /**
-    * Constructor to generate a complex mesh
+    * Constructor
     * @param mesh The mesh to use as a template
-    * @param preRender Callback to render a single mesh instance
+    * @param preRender Callback to prerender an instance
     */
-    GlMesh(const Mesh& mesh, PreRenderMesh preRender);
+    GlMesh(const MeshData& mesh, PreRenderMesh preRender);
 
     /**
     * @return the mesh element
@@ -123,75 +144,57 @@ public:
     const Mesh& GetMesh() const;
 
     /**
-    * Renders the mesh
-    */
-    virtual void Render() override;
-
-private:
-
-    const Mesh& m_mesh;        ///< Mesh information
-};                     
-
-/**
-* OpenGL Water mesh
-*/
-class GlWater : public GlMeshData
-{
-public:
-
-    /**
-    * Constructor for a complex mesh
-    * @param mesh The mesh to use as a template
-    * @param preRender Callback to render a single instance
-    */
-    GlWater(const Water& water, PreRenderMesh preRender);
-
-    /**
     * @return the water information for the mesh
     */
     const Water& GetWater() const;
 
     /**
-    * Renders the mesh
+    * @return the water information for the mesh
     */
-    virtual void Render() override;
-
-private:
-
-    const Water& m_water; ///< Water information
-};
+    const Terrain& GetTerrain() const;
+};             
 
 /**
-* OpenGL Terrain mesh
+* OpenGL quad data
 */
-class GlTerrain : public GlMeshData
+struct GlQuadData
 {
 public:
 
     /**
-    * Constructor for a complex mesh
+    * Constructor
+    */
+    GlQuadData();
+
+    std::vector<float> vertices;        ///< Vertex information
+    std::vector<unsigned int> indices;  ///< Index information
+};
+
+/**
+* OpenGL instanced quad
+*/
+class GlQuadMesh : public GlQuadData, public GlMeshData
+{
+public:
+
+    /**
+    * Constructor
     * @param mesh The mesh to use as a template
-    * @param preRender Callback to render a single instance
+    * @param preRender Callback to prerender an instance
     */
-    GlTerrain(const Terrain& terrain, PreRenderMesh preRender);
+    GlQuadMesh(const MeshData& mesh, PreRenderMesh preRender);
+};
+
+/**
+* OpenGL single quad
+*/
+class GlQuad : public GlQuadData, public GlMeshBuffer
+{
+public:
 
     /**
-    * @return the terrain information for the mesh
+    * Constructor
+    * @param name The name of the quad
     */
-    const Terrain& GetTerrain() const;
-
-    /**
-    * Renders the mesh
-    */
-    virtual void Render() override;
-
-    /**
-    * Reloads the terrain
-    * @return whether reloading was successful
-    */
-    bool Reload();
-
-private:
-
-    const Terrain& m_terrain; ///< Terrain information
+    GlQuad(const std::string& name);
 };

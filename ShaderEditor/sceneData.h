@@ -39,6 +39,7 @@ struct SceneData
     std::unique_ptr<Animation> caustics;               ///< Caustic animated texture
     std::unique_ptr<Diagnostic> diagnostics;           ///< Scene diagnostics
     std::unique_ptr<PostProcessing> post;              ///< Data for post processing
+    std::unique_ptr<MeshData> shadows;                 ///< Shadow instances
     std::vector<unsigned int> proceduralTextures;      ///< Indices of all editable textures
     std::vector<MeshGroup> foliage;                    ///< Available foliage for placing in scene
     std::vector<InstanceKey> rocks;                    ///< Avaliable rocks for placing in scene

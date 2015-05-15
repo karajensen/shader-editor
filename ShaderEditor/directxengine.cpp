@@ -58,6 +58,7 @@ struct DirectxData
     void Release();
 
     ID3D11BlendState* alphaBlendState = nullptr;     ///< State for alpha blending
+    ID3D11BlendState* alphaBlendMultiply = nullptr;  ///< State for alpha blending with colour multiply
     ID3D11BlendState* noBlendState = nullptr;        ///< State for no alpha blending
     ID3D11DepthStencilState* writeState = nullptr;   ///< State for writing to the depth buffer
     ID3D11DepthStencilState* noWriteState = nullptr; ///< State for not writing to the depth buffer
@@ -81,16 +82,18 @@ struct DirectxData
     D3DXVECTOR3 cameraUp;                ///< Up vector of the camera
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
+    bool isBlendMultiply = false;        ///< Whether to multiply the blend colours
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
     bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
     
+    std::unique_ptr<DxQuadMesh> shadows;              ///< Shadow instances
     std::vector<std::unique_ptr<DxTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<DxMesh>> meshes;      ///< Each mesh in the scene
-    std::vector<std::unique_ptr<DxWater>> waters;     ///< Each water in the scene
-    std::vector<std::unique_ptr<DxTerrain>> terrain;  ///< Each terrain in the scene
+    std::vector<std::unique_ptr<DxMesh>> waters;      ///< Each water in the scene
+    std::vector<std::unique_ptr<DxMesh>> terrain;     ///< Each terrain in the scene
     std::vector<std::unique_ptr<DxShader>> shaders;   ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<DxEmitter>> emitters; ///< Particle emitters
 };
@@ -119,6 +122,8 @@ void DirectxData::Release()
 {
     selectedShader = NO_INDEX;
     fadeAmount = 0.0f;
+
+    shadows->Release();
 
     for(auto& texture : textures)
     {
@@ -168,6 +173,7 @@ void DirectxData::Release()
 
     SafeRelease(&noBlendState);
     SafeRelease(&alphaBlendState);
+    SafeRelease(&alphaBlendMultiply);
     SafeRelease(&writeState);
     SafeRelease(&noWriteState);
     SafeRelease(&swapchain);
@@ -257,10 +263,11 @@ bool DirectxEngine::Initialize()
     // Setup the directX environment
     m_data->drawState = NO_STATE;
     m_data->isAlphaBlend = true;
+    m_data->isBlendMultiply = true;
     m_data->isDepthWrite = false;
     m_data->isWireframe = false;
     SetRenderState(true, false);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
     EnableDepthWrite(true);
 
     D3D11_VIEWPORT viewport;
@@ -323,8 +330,23 @@ bool DirectxEngine::InitialiseBlendStates()
         return false;
     }
 
+    for (int i = 0; i < MAX_TARGETS; ++i)
+    {
+        blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_DEST_COLOR;
+        blendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_ZERO;
+        blendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA; 
+        blendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO; 
+    }
+
+    if (FAILED(m_data->device->CreateBlendState(&blendDesc, &m_data->alphaBlendMultiply)))
+    {
+        Logger::LogError("DirectX: Failed to create alpha blending state");
+        return false;
+    }
+
     SetDebugName(m_data->noBlendState, "NoBlendState");
     SetDebugName(m_data->alphaBlendState, "AlphaBlendState");
+    SetDebugName(m_data->alphaBlendMultiply, "AlphaBlendMultiplyState");
     return true;
 }
 
@@ -485,6 +507,9 @@ std::string DirectxEngine::CompileShader(int index)
 
 bool DirectxEngine::InitialiseScene(const IScene& scene)
 {
+    m_data->shadows = std::make_unique<DxQuadMesh>(scene.Shadows(),
+        [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); });
+
     m_data->textures.reserve(scene.Textures().size());
     for(const auto& texture : scene.Textures())
     {
@@ -509,14 +534,14 @@ bool DirectxEngine::InitialiseScene(const IScene& scene)
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
-        m_data->terrain.push_back(std::unique_ptr<DxTerrain>(new DxTerrain(*terrain,
+        m_data->terrain.push_back(std::unique_ptr<DxMesh>(new DxMesh(*terrain,
             [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<DxWater>(new DxWater(*water,
+        m_data->waters.push_back(std::unique_ptr<DxMesh>(new DxMesh(*water,
             [this](const D3DXMATRIX& world, int texture){ UpdateShader(world, texture); })));
     }
 
@@ -568,6 +593,8 @@ bool DirectxEngine::ReInitialiseScene()
         emitter->Initialise(m_data->device, m_data->context);
     }
 
+    m_data->shadows->Initialise(m_data->device, m_data->context);
+    
     Logger::LogInfo("DirectX: Re-Initialised");
     return true;
 }
@@ -603,6 +630,7 @@ void DirectxEngine::RenderSceneMap(const IScene& scene, float timer)
     m_data->sceneTarget.SetActive(m_data->context);
 
     RenderTerrain(scene);
+    RenderShadows();
     RenderMeshes(scene);
     RenderWater(scene, timer);
     RenderEmitters(scene);
@@ -641,6 +669,18 @@ void DirectxEngine::RenderWater(const IScene& scene, float timer)
     }
 }
 
+void DirectxEngine::RenderShadows()
+{
+    if (UpdateShader(m_data->shadows->GetData()))
+    {
+        EnableDepthWrite(false);
+
+        m_data->shadows->Render(m_data->context);
+
+        EnableDepthWrite(true);
+    }
+}
+
 void DirectxEngine::RenderEmitters(const IScene& scene)
 {
     EnableDepthWrite(false);
@@ -660,7 +700,7 @@ void DirectxEngine::RenderEmitters(const IScene& scene)
 void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 {
     SetRenderState(false, false);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
 
     m_data->preEffectsTarget.SetActive(m_data->context);
 
@@ -681,7 +721,7 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 void DirectxEngine::RenderBlur(const PostProcessing& post)
 {
     SetRenderState(false, false);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
 
     m_data->blurTarget.SetActive(m_data->context);
 
@@ -717,7 +757,7 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     m_data->useDiffuseTextures = post.UseDiffuseTextures();
 
     SetRenderState(false, false);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
 
     SetSelectedShader(POST_SHADER);
     auto& postShader = m_data->shaders[POST_SHADER];
@@ -764,6 +804,25 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, int texture)
     SendTexture(0, m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
 }
 
+bool DirectxEngine::UpdateShader(const MeshData& quad)
+{
+    const int index = quad.ShaderID();
+    if (index != NO_INDEX)
+    {
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->UpdateConstantMatrix("viewProjection", m_data->viewProjection);
+        }
+
+        SetRenderState(false, m_data->isWireframe);
+        EnableAlphaBlending(true, true);
+        return true;
+    }
+    return false;
+}
+
 bool DirectxEngine::UpdateShader(const MeshData& mesh, 
                                  const IScene& scene,
                                  bool alphaBlend, 
@@ -790,7 +849,7 @@ bool DirectxEngine::UpdateShader(const MeshData& mesh,
 
         SendTextures(mesh.TextureIDs());
         SetRenderState(mesh.BackfaceCull(), m_data->isWireframe);
-        EnableAlphaBlending(alphaBlend);
+        EnableAlphaBlending(alphaBlend, false);
         return true;
     }
     return false;
@@ -839,7 +898,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
         {
             const int offset = i*4; // Arrays pack in buffer of float4
             shader->UpdateConstantFloat("waveFrequency", &waves[i].amplitude, 1, offset);
-            shader->UpdateConstantFloat("waveAmplitude", &waves[i].amplitude, 1, offset);
+            shader->UpdateConstantFloat("waveAmplitude", &waves[i].frequency, 1, offset);
             shader->UpdateConstantFloat("wavePhase", &waves[i].phase, 1, offset);
             shader->UpdateConstantFloat("waveDirectionX", &waves[i].directionX, 1, offset);
             shader->UpdateConstantFloat("waveDirectionZ", &waves[i].directionZ, 1, offset);
@@ -865,7 +924,7 @@ bool DirectxEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
         shader->UpdateConstantFloat("tint", &emitter.Tint().r, 4);
 
         SetRenderState(false, m_data->isWireframe);
-        EnableAlphaBlending(true);
+        EnableAlphaBlending(true, false);
 
         return true;
     }
@@ -1034,13 +1093,16 @@ void DirectxEngine::EnableDepthWrite(bool enable)
     }
 }
 
-void DirectxEngine::EnableAlphaBlending(bool enable)
+void DirectxEngine::EnableAlphaBlending(bool enable, bool multiply)
 {
-    if (enable != m_data->isAlphaBlend)
+    if (enable != m_data->isAlphaBlend || multiply != m_data->isBlendMultiply)
     {
         m_data->isAlphaBlend = enable;
-	    m_data->context->OMSetBlendState(
-            enable ? m_data->alphaBlendState : m_data->noBlendState, 0, 0xFFFFFFFF);
+        m_data->isBlendMultiply = multiply;
+
+	    m_data->context->OMSetBlendState(enable ? 
+            (multiply ? m_data->alphaBlendMultiply : m_data->alphaBlendState)
+            : m_data->noBlendState, 0, 0xFFFFFFFF);
     }
 }
 

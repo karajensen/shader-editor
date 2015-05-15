@@ -1,0 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - shadow_glsl_frag.fx
+////////////////////////////////////////////////////////////////////////////////////////
+
+#version 150
+
+out vec4 out_Color;
+
+in vec2 ex_UVs;
+ 
+uniform sampler2D DiffuseSampler;
+
+void main(void)
+{
+    out_Color = texture(DiffuseSampler, ex_UVs);
+    out_Color.a = 1.0;
+}

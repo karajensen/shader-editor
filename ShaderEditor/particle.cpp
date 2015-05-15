@@ -13,7 +13,6 @@ void Particle::Reset(float lifeTime,
                      float lifeFade,
                      float waitTime,
                      float speed,
-                     float waveSpeed,
                      float size,
                      float amplitude,
                      float frequency,
@@ -31,7 +30,6 @@ void Particle::Reset(float lifeTime,
     m_size = size;
     m_texture = texture;
     m_amplitude = amplitude;
-    m_waveSpeed = waveSpeed;
     m_frequency = frequency;
     m_startPosition = position;
     m_position = position;
@@ -46,7 +44,7 @@ bool Particle::Tick(float deltatime, const Float3& direction)
         m_position += direction * m_speed;
    
         // Wave equation: y = a * sin(kx-wt+phase)
-        const float wt = m_waveSpeed * m_lifeTime;
+        const float wt = m_lifeTime;
         const float kx = m_frequency * m_position.y;
         const float zOffset = 2.0f;
    

@@ -14,6 +14,7 @@ class Mesh;
 class Water;
 class Light;
 class Terrain;
+class Quad;
 class PostProcessing;
 class Emitter;
 struct DirectxData;
@@ -239,6 +240,13 @@ private:
     void UpdateShader(const D3DXMATRIX& world, int texture);
 
     /**
+    * Updates and switches to the shader for a quad
+    * @param quad The quad to render
+    * @return whether the quad can now be rendered
+    */
+    bool UpdateShader(const MeshData& quad);
+
+    /**
     * Sets the shader at the given index as selected
     */
     void SetSelectedShader(int index);
@@ -323,9 +331,16 @@ private:
     void RenderEmitters(const IScene& scene);
 
     /**
-    * Sets whether alpha blending is enabled or not
+    * Renders all shadows
     */
-    void EnableAlphaBlending(bool enable);
+    void RenderShadows();
+
+    /**
+    * Sets whether alpha blending is enabled or not
+    * @param enable Whether to enable alpha blending
+    * @param multiply Whether to multiply the blend colours
+    */
+    void EnableAlphaBlending(bool enable, bool multiply);
 
     /**
     * Sets whether values are written to the depth buffer or not
@@ -338,7 +353,6 @@ private:
     * @param wireframe Whether to enable wireframe rendering
     */
     void SetRenderState(bool cull, bool wireframe);
-
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX

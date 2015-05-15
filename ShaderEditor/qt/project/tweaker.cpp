@@ -158,8 +158,6 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_AMP, 0.01, 3, "Min Amp");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_FREQ, 0.01, 3, "Max Freq");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_FREQ, 0.01, 3, "Min Freq");
-    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAVE, 0.01, 3, "Max Wave Sp");
-    AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAVE, 0.01, 3, "Min Wave Sp");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MAX_WAIT, 0.01, 3, "Max Wait");
     AddEntry(emitterMinMax, m_callbacks.SetEmitter, EMITTER_MIN_WAIT, 0.01, 3, "Min Wait");
     m_emitterMinMax.Initialise(m_ui.emitterMinMax_box, 

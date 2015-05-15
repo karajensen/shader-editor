@@ -14,7 +14,7 @@ LIBRARIES: Assimp 3.0, Boost 1.55, vld 2.2.3, Qt 5.3.0 with opengl
 =================================================================
 
 INPUT:
-1 -> 9     Render a specific layer
+1 -> 7     Render a specific layer
 0          Toggle Wireframe
 F1         Toggle Camera Auto Move
 F2         Switch the engine
@@ -28,7 +28,6 @@ Caustics Generation  http://www.dualheights.se/caustics/
 Water Shader         http://nvidia.com/shaderlibrary
 
 =================================================================
-
 
 Overview:
 Scene for editing shaders in real-time. 
@@ -45,11 +44,10 @@ Features include:
 • Shader fragment linker
 • Shader assembly output
 • Procedural terrain
-• Ambient Occlusion
 • Colour Correction
 • Multithreaded Qt GUI for
   real time scene editing
 
-View Shader Repository
 View Base Shader HLSL/GLSL
 View Water Shader HLSL/GLSL
+View Qt GUI Research

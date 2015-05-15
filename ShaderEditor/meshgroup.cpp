@@ -16,3 +16,13 @@ const std::vector<InstanceKey>& MeshGroup::GetKeys() const
 {
     return m_group;
 }
+
+void MeshGroup::AddShadow(int shadow)
+{
+    m_shadowID = shadow;
+}
+
+int MeshGroup::GetShadow() const
+{
+    return m_shadowID;
+}

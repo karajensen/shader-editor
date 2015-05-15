@@ -58,16 +58,18 @@ struct OpenglData
     glm::mat4 viewProjection;            ///< View projection matrix
     bool isBackfaceCull = false;         ///< Whether the culling rasterize state is active
     bool isAlphaBlend = false;           ///< Whether alpha blending is currently active
+    bool isBlendMultiply = false;        ///< Whether to multiply the blend colours
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
     bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
     int selectedShader = NO_INDEX;       ///< Currently active shader for rendering
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
-                                        
+                              
+    std::unique_ptr<GlQuadMesh> shadows;              ///< Shadow instances
     std::vector<std::unique_ptr<GlTexture>> textures; ///< Textures shared by all meshes
     std::vector<std::unique_ptr<GlMesh>> meshes;      ///< Each mesh in the scene
-    std::vector<std::unique_ptr<GlWater>> waters;     ///< Each water in the scene
-    std::vector<std::unique_ptr<GlTerrain>> terrain;  ///< Each terrain in the scene
+    std::vector<std::unique_ptr<GlMesh>> waters;      ///< Each water in the scene
+    std::vector<std::unique_ptr<GlMesh>> terrain;     ///< Each terrain in the scene
     std::vector<std::unique_ptr<GlShader>> shaders;   ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<GlEmitter>> emitters; ///< Emitters holding particles
 };
@@ -90,6 +92,8 @@ void OpenglData::Release()
 {
     selectedShader = NO_INDEX;
     fadeAmount = 0.0f;
+
+    shadows->Release();
 
     for(auto& texture : textures)
     {
@@ -297,8 +301,6 @@ bool OpenglEngine::Initialize()
     }
 
     // Initialise the opengl environment
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-    glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
     glClearColor(0.22f, 0.49f, 0.85f, 0.0f);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearDepth(1.0f);
@@ -308,10 +310,11 @@ bool OpenglEngine::Initialize()
 
     m_data->isBackfaceCull = false;
     m_data->isAlphaBlend = true;
+    m_data->isBlendMultiply = true;
     m_data->isDepthWrite = false;
     m_data->isWireframe = false;
     EnableBackfaceCull(true);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
     EnableDepthWrite(true);
 
     m_data->projection = glm::perspective(FIELD_OF_VIEW, 
@@ -335,6 +338,9 @@ std::string OpenglEngine::CompileShader(int index)
 
 bool OpenglEngine::InitialiseScene(const IScene& scene)
 {
+    m_data->shadows = std::make_unique<GlQuadMesh>(scene.Shadows(),
+        [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); });
+
     m_data->textures.reserve(scene.Textures().size());
     for(const auto& texture : scene.Textures())
     {
@@ -359,14 +365,14 @@ bool OpenglEngine::InitialiseScene(const IScene& scene)
     m_data->terrain.reserve(scene.Terrains().size());
     for(const auto& terrain : scene.Terrains())
     {
-        m_data->terrain.push_back(std::unique_ptr<GlTerrain>(new GlTerrain(*terrain,
+        m_data->terrain.push_back(std::unique_ptr<GlMesh>(new GlMesh(*terrain,
             [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); })));
     }
 
     m_data->waters.reserve(scene.Waters().size());
     for(const auto& water : scene.Waters())
     {
-        m_data->waters.push_back(std::unique_ptr<GlWater>(new GlWater(*water,
+        m_data->waters.push_back(std::unique_ptr<GlMesh>(new GlMesh(*water,
             [this](const glm::mat4& world, int texture){ UpdateShader(world, texture); })));
     }
 
@@ -438,6 +444,12 @@ bool OpenglEngine::ReInitialiseScene()
         }
     }
 
+    if (!m_data->shadows->Initialise())
+    {
+        Logger::LogError("OpenGL: Failed to re-initialise shadows");
+        return false;
+    }
+
     Logger::LogInfo("OpenGL: Re-Initialised");
     return true;
 }
@@ -478,6 +490,7 @@ void OpenglEngine::RenderSceneMap(const IScene& scene, float timer)
     }
 
     RenderTerrain(scene);
+    RenderShadows();
     RenderMeshes(scene);
     RenderWater(scene, timer);
     RenderEmitters(scene);
@@ -527,6 +540,20 @@ void OpenglEngine::RenderWater(const IScene& scene, float timer)
     }
 }
 
+void OpenglEngine::RenderShadows()
+{
+    if (UpdateShader(m_data->shadows->GetData()))
+    {
+        EnableDepthWrite(false);
+
+        m_data->shadows->PreRender();
+        EnableAttributes();
+        m_data->shadows->Render();
+
+        EnableDepthWrite(true);
+    }
+}
+
 void OpenglEngine::RenderEmitters(const IScene& scene)
 {
     EnableDepthWrite(false);
@@ -547,7 +574,7 @@ void OpenglEngine::RenderEmitters(const IScene& scene)
 void OpenglEngine::RenderPreEffects(const PostProcessing& post)
 {
     EnableBackfaceCull(false);
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
 
     SetSelectedShader(PRE_SHADER);
     auto& preShader = m_data->shaders[PRE_SHADER];
@@ -567,7 +594,7 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
 
 void OpenglEngine::RenderBlur(const PostProcessing& post)
 {
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
     EnableBackfaceCull(false);
 
     m_data->blurTarget.SetActive();
@@ -604,7 +631,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 {
     m_data->useDiffuseTextures = post.UseDiffuseTextures();
 
-    EnableAlphaBlending(false);
+    EnableAlphaBlending(false, false);
     EnableBackfaceCull(false);
 
     m_data->backBuffer.SetActive();
@@ -645,6 +672,25 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->ClearTexture(2, m_data->sceneTarget);
 }
 
+bool OpenglEngine::UpdateShader(const MeshData& quad)
+{
+    const int index = quad.ShaderID();
+    if (index != NO_INDEX)
+    {
+        auto& shader = m_data->shaders[index];
+        if(index != m_data->selectedShader)
+        {
+            SetSelectedShader(index);
+            shader->SendUniformMatrix("viewProjection", m_data->viewProjection);
+        }
+
+        EnableBackfaceCull(false);
+        EnableAlphaBlending(true, true);
+        return true;
+    }
+    return false;
+}
+
 bool OpenglEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
 {
     const int index = emitter.ShaderID();
@@ -661,7 +707,7 @@ bool OpenglEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
         shader->SendUniformFloat("tint", &emitter.Tint().r, 4);
 
         EnableBackfaceCull(false);
-        EnableAlphaBlending(true);
+        EnableAlphaBlending(true, false);
         return true;
     }
     return false;
@@ -708,7 +754,7 @@ bool OpenglEngine::UpdateShader(const MeshData& mesh,
     
         SendTextures(mesh.TextureIDs());
         EnableBackfaceCull(mesh.BackfaceCull());
-        EnableAlphaBlending(alphaBlend);
+        EnableAlphaBlending(alphaBlend, false);
         return true;
     }
     return false;
@@ -757,7 +803,7 @@ bool OpenglEngine::UpdateShader(const Water& water,
         for (unsigned int i = 0; i < waves.size(); ++i)
         {
             shader->UpdateUniformArray("waveFrequency", &waves[i].amplitude, 1, i);
-            shader->UpdateUniformArray("waveAmplitude", &waves[i].amplitude, 1, i);
+            shader->UpdateUniformArray("waveAmplitude", &waves[i].frequency, 1, i);
             shader->UpdateUniformArray("wavePhase", &waves[i].phase, 1, i);
             shader->UpdateUniformArray("waveDirectionX", &waves[i].directionX, 1, i);
             shader->UpdateUniformArray("waveDirectionZ", &waves[i].directionZ, 1, i);
@@ -906,7 +952,7 @@ void OpenglEngine::WriteToShader(const std::string& name,
         GENERATED_PATH + name + GLSL_FRAGMENT_EXTENSION);
 }
 
-void OpenglEngine::EnableAlphaBlending(bool enable)
+void OpenglEngine::EnableAlphaBlending(bool enable, bool multiply)
 {
     if (enable != m_data->isAlphaBlend)
     {
@@ -914,6 +960,20 @@ void OpenglEngine::EnableAlphaBlending(bool enable)
         for (int i = 0; i < MAX_TARGETS; ++i)
         {
             enable ? glEnablei(GL_BLEND, i) : glDisablei(GL_BLEND, i);
+        }
+    }
+    if (multiply != m_data->isBlendMultiply)
+    {
+        m_data->isBlendMultiply = multiply;
+        if (multiply)
+        {
+            glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_DST_ALPHA, GL_ZERO);
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+        }
+        else
+        {
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
         }
     }
 }

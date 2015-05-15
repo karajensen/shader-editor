@@ -36,7 +36,18 @@ public:
     */
     const std::vector<InstanceKey>& GetKeys() const;
 
+    /**
+    * @param shadow The ID of the shadow attached
+    */
+    void AddShadow(int shadow);
+    
+    /**
+    * @return the ID of the shadow attached
+    */
+    int GetShadow() const;
+
 private:
 
+    int m_shadowID = -1;                ///< The ID of the shadow attached
     std::vector<InstanceKey> m_group;   ///< Keys for acessing the group
 };

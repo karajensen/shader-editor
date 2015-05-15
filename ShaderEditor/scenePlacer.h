@@ -138,7 +138,7 @@ private:
     * @param patchID The ID of the patch to use
     * @param x/z The position to get the height at
     */
-    Float3 GetPatchPosition(int patchID, float x, float z);
+    Float3 GetPatchLocation(int patchID, float x, float z);
 
     /**
     * Resets all assigned foliage and emitters for a patch
@@ -167,6 +167,8 @@ private:
     float m_rockOffset = 0.0f;        ///< Random rock offset from the patch center
     Float3 m_rockMinScale;            ///< Random rock scaling amount
     Float3 m_rockMaxScale;            ///< Random rock scaling amount
+    float m_shadowOffset = 0.2f;      ///< Height above terrain to place shadows
+    float m_shadowScale = 4.0f;       ///< Scale of shadows in comparison to mesh
     std::vector<int> m_patches;       ///< The current ordering of the patches; holds the instance ID
     std::vector<int> m_previous;      ///< Buffer for reorganising the patches; holds the instance ID
     std::vector<Patch> m_patchData;   ///< Holds patch data; key is the instance ID held in m_patches

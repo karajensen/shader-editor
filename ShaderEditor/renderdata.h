@@ -76,6 +76,7 @@ enum ShaderIndex
     WATER_SHADER,
     PARTICLE_SHADER,
     DIAGNOSTIC_SHADER,
+    SHADOW_SHADER,
     MAX_SHADERS
 };
 

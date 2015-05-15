@@ -67,8 +67,6 @@ void Emitter::Write(Cache& cache)
     cache.Emitter[EMITTER_MIN_FREQ].SetUpdated(m_data.minFrequency);
     cache.Emitter[EMITTER_MAX_AMP].SetUpdated(m_data.maxAmplitude);
     cache.Emitter[EMITTER_MIN_AMP].SetUpdated(m_data.minAmplitude);
-    cache.Emitter[EMITTER_MAX_WAVE].SetUpdated(m_data.maxWaveSpeed);
-    cache.Emitter[EMITTER_MIN_WAVE].SetUpdated(m_data.minWaveSpeed);
     cache.Emitter[EMITTER_MAX_WAIT].SetUpdated(m_data.minWaitTime);
     cache.Emitter[EMITTER_MIN_WAIT].SetUpdated(m_data.maxWaitTime);
 }
@@ -100,11 +98,6 @@ void Emitter::Read(Cache& cache)
         cache.Emitter[EMITTER_MIN_AMP],
         cache.Emitter[EMITTER_MAX_AMP],
         m_data.minAmplitude, m_data.maxAmplitude);
-
-    RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_WAVE],
-        cache.Emitter[EMITTER_MAX_WAVE],
-        m_data.minWaveSpeed, m_data.maxWaveSpeed);
 
     RestrictMinMax(
         cache.Emitter[EMITTER_MIN_FREQ],
@@ -200,7 +193,7 @@ bool Emitter::ShouldRender(const Float3& instancePosition,
 void Emitter::Tick(float deltatime,
                    const BoundingArea& cameraBounds)
 {
-    if (m_paused)
+    if (m_paused || !m_enabled)
     {
         return;
     }
@@ -228,7 +221,6 @@ void Emitter::Tick(float deltatime,
                                     m_data.lifeFade,
                                     Random::Generate(m_data.minWaitTime, m_data.maxWaitTime),
                                     Random::Generate(m_data.minSpeed, m_data.maxSpeed),
-                                    Random::Generate(m_data.minWaveSpeed, m_data.maxWaveSpeed),
                                     Random::Generate(m_data.minSize, m_data.maxSize),
                                     Random::Generate(m_data.minAmplitude, m_data.maxAmplitude),
                                     Random::Generate(m_data.minFrequency, m_data.maxFrequency),
@@ -239,4 +231,9 @@ void Emitter::Tick(float deltatime,
             }
         }
     }
+}
+
+void Emitter::SetEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }

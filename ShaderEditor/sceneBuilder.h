@@ -80,6 +80,13 @@ private:
     bool InitialiseMeshes();
 
     /**
+    * Initialises the shadows for the scene
+    * @note relies on shaders initialised before
+    * @return Whether the initialization was successful
+    */
+    bool InitialiseShadows();
+
+    /**
     * Initialises the water for the scene
     * @note relies on shaders initialised before
     * @return Whether the initialization was successful
@@ -201,10 +208,12 @@ private:
     /**
     * Creates new foliage mesh group(s) for the meshes
     * @param meshes The types of meshes to add to the group
+    * @param hasShadow Whether this mesh requires a shadow
     * @param instances The number of groups to create
     * @return whether creation was successful
     */
     bool AddFoliage(std::initializer_list<const MeshData*> meshes,
+                    bool hasShadow,
                     int instances);
 
     SceneData& m_data; ///< The scene to build

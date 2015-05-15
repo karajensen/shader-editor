@@ -166,7 +166,6 @@ public:
                      const Float3& position,
                      const Float3& rotation,
                      float scale);
-
 protected:
 
     /**

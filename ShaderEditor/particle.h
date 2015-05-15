@@ -57,7 +57,6 @@ public:
     * @param lifeFade Time for fading in/out of life
     * @param waitTime How long to wait before respawning
     * @param speed How fast the particle moves up
-    * @param waveSpeed How fast the particle moves in waves
     * @param size The scale of the particle
     * @param amplitude How large the waves of the particle are
     * @param frequency How intense are the waves
@@ -68,7 +67,6 @@ public:
                float lifeFade,
                float waitTime,
                float speed,
-               float waveSpeed, 
                float size, 
                float amplitude, 
                float frequency,
@@ -83,7 +81,6 @@ private:
     float m_waitTime = 0.0f;      ///< How long has passed while waiting
     float m_maxWaitTime = 0.0f;   ///< Time to wait before respawning
     float m_speed = 1.0f;         ///< The speed of the particle
-    float m_waveSpeed = 1.0f;     ///< The wave speed of the particle
     float m_size = 1.0f;          ///< Size of the particle
     float m_alpha = 1.0f;         ///< How transparent this particle is
     float m_amplitude = 1.0f;     ///< How large the waves of the particle are

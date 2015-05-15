@@ -51,6 +51,11 @@ const PostProcessing& Scene::Post() const
     return *m_data->post;
 }
 
+const MeshData& Scene::Shadows() const
+{
+    return *m_data->shadows;
+}
+
 void Scene::SetPostMap(int index)
 {
     m_data->post->SetPostMap(static_cast<PostProcessing::Map>(index));
@@ -65,6 +70,7 @@ void Scene::Tick(float deltatime, const Camera& camera)
     m_data->diagnostics->Tick();
     m_data->caustics->Tick(deltatime);
     m_placer->Update(position);
+    m_data->shadows->Tick(position, bounds, causticsTexture);
 
     for (auto& emitter : m_data->emitters)
     {
@@ -89,6 +95,8 @@ void Scene::Tick(float deltatime, const Camera& camera)
 
 void Scene::PostTick()
 {
+    m_data->shadows->PostTick();
+
     for (auto& mesh : m_data->meshes)
     {
         mesh->PostTick();
