@@ -105,6 +105,7 @@ bool SceneBuilder::InitialiseTextures()
 {
     bool success = true;
 
+    success &= InitialiseTexture("blank", "blank.png", Texture::FROM_FILE);
     success &= InitialiseTexture("water_cube", "water_environment", Texture::CUBE, Texture::ANISOTROPIC);
     success &= InitialiseTexture("water_colour", "water.png", Texture::FROM_FILE);
     success &= InitialiseTexture("water_normal", "water_normal.png", Texture::FROM_FILE);

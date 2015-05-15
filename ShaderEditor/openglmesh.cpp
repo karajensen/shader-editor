@@ -200,7 +200,7 @@ void GlMeshData::Render()
         if (instance.enabled && instance.render)
         {
             m_preRender(m_world[i], instance.colour);
-            GlMeshData::Render();
+            GlMeshBuffer::Render();
         }
     }
     m_updateInstances = false;

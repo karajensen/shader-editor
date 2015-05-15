@@ -134,8 +134,6 @@ std::string PostProcessing::GetMapName(PostProcessing::Map map)
         return "Fog Map";
     case BLOOM_MAP:
         return "Bloom Map";
-    case AMBIENCE_MAP:
-        return "Ambience Map";
     default:
         return "None";
     }

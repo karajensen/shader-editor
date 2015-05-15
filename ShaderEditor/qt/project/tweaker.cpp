@@ -119,12 +119,16 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(lightColour, m_callbacks.SetLight, LIGHT_DIFFUSE_R, 0.01, 3, "Diffuse R");
     AddEntry(lightColour, m_callbacks.SetLight, LIGHT_DIFFUSE_G, 0.01, 3, "Diffuse G");
     AddEntry(lightColour, m_callbacks.SetLight, LIGHT_DIFFUSE_B, 0.01, 3, "Diffuse B");
-    AddEntry(lightColour, m_callbacks.SetLight, LIGHT_SPECULAR_R, 0.01, 3, "Specular R");
-    AddEntry(lightColour, m_callbacks.SetLight, LIGHT_SPECULAR_G, 0.01, 3, "Specular G");
-    AddEntry(lightColour, m_callbacks.SetLight, LIGHT_SPECULAR_B, 0.01, 3, "Specular B");
-    AddEntry(lightColour, m_callbacks.SetLight, LIGHT_SPECULARITY, 0.01, 3, "Specularity");
     m_lightColour.Initialise(m_ui.light_colour_box, 
         m_ui.light_colour_value, m_ui.light_colour_dial, lightColour);
+
+    std::vector<ComboEntry> lightSpecular;
+    AddEntry(lightSpecular, m_callbacks.SetLight, LIGHT_SPECULAR_R, 0.01, 3, "Specular R");
+    AddEntry(lightSpecular, m_callbacks.SetLight, LIGHT_SPECULAR_G, 0.01, 3, "Specular G");
+    AddEntry(lightSpecular, m_callbacks.SetLight, LIGHT_SPECULAR_B, 0.01, 3, "Specular B");
+    AddEntry(lightSpecular, m_callbacks.SetLight, LIGHT_SPECULARITY, 0.01, 3, "Specularity");
+    m_lightSpecular.Initialise(m_ui.light_specular_box, 
+        m_ui.light_specular_value, m_ui.light_specular_dial, lightSpecular);
 
     std::vector<ComboEntry> mesh;
     AddEntry(mesh, m_callbacks.SetMesh, MESH_AMBIENCE, 0.01, 3, "Ambience");
@@ -290,6 +294,7 @@ void Tweaker::SetPost(PostAttribute attribute, float value)
 void Tweaker::SetLight(LightAttribute attribute, float value)
 {
     if (!m_lightColour.SetValue(attribute, value) &&
+        !m_lightSpecular.SetValue(attribute, value) &&
         !m_lightPosition.SetValue(attribute, value) &&
         !m_lightAtt.SetValue(attribute, value))
     {

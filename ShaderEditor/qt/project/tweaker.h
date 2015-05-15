@@ -325,6 +325,7 @@ private:
     TweakableBoxedValue m_correction;    ///< Post processing colour correction
     TweakableBoxedValue m_fog;           ///< Tweakable values for fog
     TweakableBoxedValue m_post;          ///< Tweakable values for post processing
+    TweakableBoxedValue m_lightSpecular; ///< Tweakable values for light specular
     TweakableBoxedValue m_lightColour;   ///< Tweakable values for light colour
     TweakableBoxedValue m_lightPosition; ///< Tweakable values for light position
     TweakableBoxedValue m_lightAtt;      ///< Tweakable values for light attenuation

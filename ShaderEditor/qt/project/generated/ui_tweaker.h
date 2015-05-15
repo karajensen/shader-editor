@@ -174,6 +174,8 @@ public:
     QDoubleSpinBox *fog_value;
     QDial *fog_dial;
     QComboBox *fog_box;
+    QFrame *toggleWireframe;
+    QPushButton *toggleWireframe_btn;
     QSpacerItem *_meshSpacer_4;
     QFrame *lightSelected;
     QLabel *lightSelected_lbl;
@@ -194,12 +196,14 @@ public:
     QDoubleSpinBox *light_colour_value;
     QDial *light_colour_dial;
     QComboBox *light_colour_box;
+    QFrame *light_specular;
+    QDoubleSpinBox *light_specular_value;
+    QDial *light_specular_dial;
+    QComboBox *light_specular_box;
     QFrame *light_render_only;
     QPushButton *light_render_only_btn;
     QFrame *light_diagnostics;
     QPushButton *light_diagnostics_btn;
-    QFrame *toggleWireframe;
-    QPushButton *toggleWireframe_btn;
     QSpacerItem *_postSpacer;
 
     void setupUi(QWidget *Tweaker)
@@ -1921,6 +1925,30 @@ public:
 
         postLayout->addWidget(fog);
 
+        toggleWireframe = new QFrame(layoutWidget3);
+        toggleWireframe->setObjectName(QStringLiteral("toggleWireframe"));
+        sizePolicy.setHeightForWidth(toggleWireframe->sizePolicy().hasHeightForWidth());
+        toggleWireframe->setSizePolicy(sizePolicy);
+        toggleWireframe->setMinimumSize(QSize(225, 35));
+        toggleWireframe->setMaximumSize(QSize(225, 35));
+        toggleWireframe->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        toggleWireframe->setFrameShape(QFrame::Panel);
+        toggleWireframe->setFrameShadow(QFrame::Raised);
+        toggleWireframe_btn = new QPushButton(toggleWireframe);
+        toggleWireframe_btn->setObjectName(QStringLiteral("toggleWireframe_btn"));
+        toggleWireframe_btn->setGeometry(QRect(5, 4, 216, 25));
+        toggleWireframe_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(255, 255, 255);\n"
+"border-left-color: rgb(255, 255, 255);\n"
+"border-bottom-color: rgb(180, 180, 180);\n"
+"border-right-color: rgb(180, 180, 180);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        toggleWireframe_btn->setDefault(false);
+
+        postLayout->addWidget(toggleWireframe);
+
         _meshSpacer_4 = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         postLayout->addItem(_meshSpacer_4);
@@ -2194,6 +2222,65 @@ public:
 
         postLayout->addWidget(light_colour);
 
+        light_specular = new QFrame(layoutWidget3);
+        light_specular->setObjectName(QStringLiteral("light_specular"));
+        light_specular->setMinimumSize(QSize(225, 35));
+        light_specular->setMaximumSize(QSize(225, 35));
+        light_specular->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        light_specular->setFrameShape(QFrame::NoFrame);
+        light_specular->setFrameShadow(QFrame::Plain);
+        light_specular->setLineWidth(0);
+        light_specular_value = new QDoubleSpinBox(light_specular);
+        light_specular_value->setObjectName(QStringLiteral("light_specular_value"));
+        light_specular_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(light_specular_value->sizePolicy().hasHeightForWidth());
+        light_specular_value->setSizePolicy(sizePolicy);
+        light_specular_value->setMinimumSize(QSize(86, 25));
+        light_specular_value->setMaximumSize(QSize(86, 25));
+        light_specular_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        light_specular_value->setFrame(false);
+        light_specular_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        light_specular_value->setDecimals(3);
+        light_specular_value->setMinimum(-9999);
+        light_specular_value->setMaximum(9999);
+        light_specular_value->setSingleStep(0.05);
+        light_specular_dial = new QDial(light_specular);
+        light_specular_dial->setObjectName(QStringLiteral("light_specular_dial"));
+        light_specular_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(light_specular_dial->sizePolicy().hasHeightForWidth());
+        light_specular_dial->setSizePolicy(sizePolicy);
+        light_specular_dial->setMinimumSize(QSize(30, 30));
+        light_specular_dial->setMaximumSize(QSize(30, 30));
+        light_specular_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        light_specular_dial->setMinimum(-10000);
+        light_specular_dial->setMaximum(10000);
+        light_specular_box = new QComboBox(light_specular);
+        light_specular_box->setObjectName(QStringLiteral("light_specular_box"));
+        light_specular_box->setGeometry(QRect(3, 6, 95, 22));
+        sizePolicy.setHeightForWidth(light_specular_box->sizePolicy().hasHeightForWidth());
+        light_specular_box->setSizePolicy(sizePolicy);
+        light_specular_box->setMinimumSize(QSize(95, 22));
+        light_specular_box->setMaximumSize(QSize(90, 22));
+        light_specular_box->setBaseSize(QSize(90, 25));
+        light_specular_box->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        light_specular_box->setMaxVisibleItems(30);
+        light_specular_box->setFrame(false);
+
+        postLayout->addWidget(light_specular);
+
         light_render_only = new QFrame(layoutWidget3);
         light_render_only->setObjectName(QStringLiteral("light_render_only"));
         sizePolicy.setHeightForWidth(light_render_only->sizePolicy().hasHeightForWidth());
@@ -2242,30 +2329,6 @@ public:
 
         postLayout->addWidget(light_diagnostics);
 
-        toggleWireframe = new QFrame(layoutWidget3);
-        toggleWireframe->setObjectName(QStringLiteral("toggleWireframe"));
-        sizePolicy.setHeightForWidth(toggleWireframe->sizePolicy().hasHeightForWidth());
-        toggleWireframe->setSizePolicy(sizePolicy);
-        toggleWireframe->setMinimumSize(QSize(225, 35));
-        toggleWireframe->setMaximumSize(QSize(225, 35));
-        toggleWireframe->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        toggleWireframe->setFrameShape(QFrame::Panel);
-        toggleWireframe->setFrameShadow(QFrame::Raised);
-        toggleWireframe_btn = new QPushButton(toggleWireframe);
-        toggleWireframe_btn->setObjectName(QStringLiteral("toggleWireframe_btn"));
-        toggleWireframe_btn->setGeometry(QRect(5, 4, 216, 25));
-        toggleWireframe_btn->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-"border-top-color: rgb(255, 255, 255);\n"
-"border-left-color: rgb(255, 255, 255);\n"
-"border-bottom-color: rgb(180, 180, 180);\n"
-"border-right-color: rgb(180, 180, 180);\n"
-"border-style: solid;\n"
-"border-width: 2px;"));
-        toggleWireframe_btn->setDefault(false);
-
-        postLayout->addWidget(toggleWireframe);
-
         _postSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         postLayout->addItem(_postSpacer);
@@ -2277,7 +2340,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(0);
+        TabMenu->setCurrentIndex(3);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2331,11 +2394,11 @@ public:
         pauseEmission_btn->setText(QApplication::translate("Tweaker", "Pause Emission", 0));
         TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", 0));
         postImage_lbl->setText(QApplication::translate("Tweaker", "Rendering", 0));
+        toggleWireframe_btn->setText(QApplication::translate("Tweaker", "Toggle Wireframe", 0));
         lightSelected_lbl->setText(QApplication::translate("Tweaker", "Light", 0));
         light_active_lbl->setText(QApplication::translate("Tweaker", "Activity", 0));
         light_render_only_btn->setText(QApplication::translate("Tweaker", "Render Lights Only", 0));
         light_diagnostics_btn->setText(QApplication::translate("Tweaker", "Toggle Light Diagnostics", 0));
-        toggleWireframe_btn->setText(QApplication::translate("Tweaker", "Toggle Wireframe", 0));
         TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", 0));
     } // retranslateUi
 

@@ -29,7 +29,6 @@ public:
         DOF_MAP,
         FOG_MAP,
         BLOOM_MAP,
-        AMBIENCE_MAP,
         MAX_MAPS
     };
 
