@@ -346,7 +346,13 @@ std::string GlShader::BindVertexAttributes()
         GLenum type;
         std::string name(maxLength,'\0');
         glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
+
         name = std::string(name.begin(), name.begin() + name.find('\0'));
+        const int index = name.find("[");
+        if (index != NO_INDEX)
+        {
+            name = std::string(name.begin(), name.begin() + index);
+        }
         
         if(HasCallFailed())
         {
