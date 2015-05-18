@@ -564,7 +564,8 @@ Terrain& SceneBuilder::InitialiseTerrain(const std::string& name,
     Terrain& terrain = *m_data.terrain[m_data.terrain.size()-1];
 
     if (!terrain.Initialise(uvTextureStretch, minHeight, 
-        maxHeight, height, spacing, size, true, 
+        maxHeight, height, spacing, size,
+        !m_data.shaders[shaderID]->HasComponent(Shader::FLAT),
         m_data.shaders[shaderID]->HasComponent(Shader::BUMP), tiling))
     {
         Logger::LogError("Terrain: " + name + " failed initialisation");

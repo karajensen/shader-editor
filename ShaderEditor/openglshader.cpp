@@ -22,7 +22,16 @@ namespace
     const std::string VERTEX_MODEL("glsl_vs");
     const std::string FRAGMENT_MODEL("glsl_fs");
     const std::string GLSL_HEADER("#version");
-    const std::string GLSL_IN_POSITION("in_Position");
+
+    const int IN_POSITION_ID = 0;
+    std::vector<std::string> ATTRIBUTE_MAP =
+    {
+        "in_Position",
+        "in_UVs",
+        "in_Normal",
+        "in_Tangent",
+        "in_Bitangent",
+    };
 }
 
 GlShader::GlShader(const Shader& shader) :
@@ -35,10 +44,6 @@ GlShader::GlShader(const Shader& shader) :
     
     m_faFilepath = boost::ireplace_last_copy(
         m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
-
-    const int maxSupportedTextures = 8;
-    m_allocatedSlots.resize(maxSupportedTextures);
-    m_allocatedSlots.assign(maxSupportedTextures, NO_INDEX);
 }
 
 GlShader::~GlShader()
@@ -333,10 +338,10 @@ std::string GlShader::BindVertexAttributes()
 
     int attributeCount;
     glGetProgramiv(m_program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-    
-    if(HasCallFailed())
+
+    if (HasCallFailed())
     {
-        return "Could not get attribute count for shader " + m_shader.Name();
+        return "Could not get attribute count";
     }
 
     m_stride = 0;
@@ -344,38 +349,59 @@ std::string GlShader::BindVertexAttributes()
     {
         int size;
         GLenum type;
-        std::string name(maxLength,'\0');
-        glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
+        std::string name(maxLength, '\0');
 
+        // Note attributes can be given in any order
+        glGetActiveAttrib(m_program, i, maxLength, 0, &size, &type, &name[0]);
         name = std::string(name.begin(), name.begin() + name.find('\0'));
-        const int index = name.find("[");
-        if (index != NO_INDEX)
+
+        if (HasCallFailed())
         {
-            name = std::string(name.begin(), name.begin() + index);
+            return "Could not get attribute " + std::to_string(i);
         }
-        
-        if(HasCallFailed())
+
+        int location = NO_INDEX;
+        for (int j = 0; j < static_cast<int>(ATTRIBUTE_MAP.size()); ++j)
         {
-            return "Could not get attribute " + boost::lexical_cast<std::string>(i);
+            if (ATTRIBUTE_MAP[j] == name)
+            {
+                location = j;
+                break;
+            }
+        }
+
+        if (location == NO_INDEX)
+        {
+            return "Unknown attribute name " + name;
         }
 
         m_attributes.emplace_back();
-        m_attributes[i].location = i;
+        m_attributes[i].location = location;
         m_attributes[i].name = name;
 
         // Pass position as a vec3 into a vec4 slot to use the optimization
         // where the 'w' component is automatically set as 1.0
-        const bool isPosition = boost::iequals(m_attributes[i].name, GLSL_IN_POSITION);
+        const bool isPosition = boost::iequals(m_attributes[i].name, ATTRIBUTE_MAP[IN_POSITION_ID]);
         m_attributes[i].components = GetComponents(isPosition ? GL_FLOAT_VEC3 : type);
 
         m_stride += m_attributes[i].components;
-        glBindAttribLocation(m_program, i, name.c_str());
+    }
 
-        if(HasCallFailed())
+    std::sort(m_attributes.begin(), m_attributes.end(), [](const AttributeData& d1, const AttributeData& d2)
+    {
+        return d1.location < d2.location;
+    });
+
+    for (const AttributeData& attr : m_attributes)
+    {
+        glBindAttribLocation(m_program, attr.location, attr.name.c_str());
+
+        if (HasCallFailed())
         {
-            return "Failed to bind attribute " + name;
+            return "Failed to bind attribute " + attr.name;
         }
     }
+
     return std::string();
 }
 
@@ -392,13 +418,21 @@ std::string GlShader::FindShaderUniforms()
         return "Could not get uniform count for shader " + m_shader.Name();
     }
 
+    int samplerSlot = 0;
     for (int i = 0; i < uniformCount; ++i)
     {
         int size;
         GLenum type;
         std::string name(maxLength,'\0');
         glGetActiveUniform(m_program, i, maxLength, 0, &size, &type, &name[0]);
+
         name = std::string(name.begin(), name.begin() + name.find('\0'));
+        const int index = name.find("[");
+        if (index != NO_INDEX)
+        {
+            name = std::string(name.begin(), name.begin() + index);
+        }
+
         if(HasCallFailed())
         {
             return "Could not get uniform " + boost::lexical_cast<std::string>(i);
@@ -412,7 +446,10 @@ std::string GlShader::FindShaderUniforms()
         
         if(type == GL_SAMPLER_2D || type == GL_SAMPLER_2D_MULTISAMPLE || type == GL_SAMPLER_CUBE)
         {
-            m_samplers.push_back(location);
+            m_samplers[name].location = location;
+            m_samplers[name].type = type;
+            m_samplers[name].slot = samplerSlot;
+            ++samplerSlot;
         }
         else
         {   
@@ -516,11 +553,6 @@ void GlShader::SendUniformFloat(const std::string& name, const float* value, int
     auto itr = m_uniforms.find(name);
     if(itr != m_uniforms.end())
     {
-        if (itr->second.scratch.size() != count)
-        {
-            Logger::LogError("Size for uniform " + name + " doesn't match");
-        }
-
         SendUniformFloat(name, value, itr->second.location, 
             itr->second.size, itr->second.type);
     }
@@ -548,77 +580,81 @@ void GlShader::EnableAttributes()
     }
 }
 
-void GlShader::ClearTexture(int slot, const GlRenderTarget& target)
+void GlShader::ClearTexture(const std::string& sampler, const GlRenderTarget& target)
 {
-    ClearTexture(slot, target.IsMultisampled(), false);
+    ClearTexture(sampler, target.IsMultisampled(), false);
 }
 
-void GlShader::ClearTexture(int slot, bool multisample, bool cubemap)
+void GlShader::ClearTexture(const std::string& sampler, bool multisample, bool cubemap)
 {
-    glActiveTexture(GetTexture(slot));
-
-    if (cubemap)
+    auto samplerItr = m_samplers.find(sampler);
+    if (samplerItr != m_samplers.end())
     {
-        glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
-    }
-    else
-    {
-        glBindTexture(!multisample ? GL_TEXTURE_2D :
-            GL_TEXTURE_2D_MULTISAMPLE, 0);
-    }
+        glActiveTexture(GetTexture(samplerItr->second.slot));
 
-    if(HasCallFailed())
-    {
-        Logger::LogError("Could not clear texture");
-    }
-}
+        if (cubemap)
+        {
+            glBindTexture (GL_TEXTURE_CUBE_MAP, 0);
+        }
+        else
+        {
+            glBindTexture(!multisample ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE, 0);
+        }
 
-void GlShader::SendTexture(int slot, GLuint id, bool cubemap)
-{
-    SendTexture(slot, id, false, cubemap);
-}
-
-void GlShader::SendTexture(int slot, GLuint id, bool multisample, bool cubemap)
-{
-    if (m_allocatedSlots[slot] == id)
-    {
-        return;
-    }
-    
-    glActiveTexture(GetTexture(slot));
-
-    if (cubemap)
-    {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-    }
-    else
-    {
-        glBindTexture(!multisample ? GL_TEXTURE_2D :
-            GL_TEXTURE_2D_MULTISAMPLE, id);
-    }
-
-    glUniform1i(m_samplers[slot], slot);
-
-    if(HasCallFailed())
-    {
-        Logger::LogError("Could not send texture");
+        if(HasCallFailed())
+        {
+            Logger::LogError("Could not clear texture");
+        }
     }
 }
 
-void GlShader::SendTexture(int slot, const GlRenderTarget& target, int ID)
+void GlShader::SendTexture(const std::string& sampler, GLuint id, bool cubemap)
 {
-    SendTexture(slot, target.GetTexture(ID), target.IsMultisampled(), false);
+    SendTexture(sampler, id, false, cubemap);
+}
+
+void GlShader::SendTexture(const std::string& sampler, GLuint id, bool multisample, bool cubemap)
+{
+    auto samplerItr = m_samplers.find(sampler);
+    if (samplerItr != m_samplers.end())
+    {
+        if (samplerItr->second.allocated != id)
+        {
+            samplerItr->second.allocated = id;
+
+            glActiveTexture(GetTexture(samplerItr->second.slot));
+
+            if (cubemap)
+            {
+                glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+            }
+            else
+            {
+                glBindTexture(!multisample ? GL_TEXTURE_2D : GL_TEXTURE_2D_MULTISAMPLE, id);
+            }
+
+            glUniform1i(samplerItr->second.location, samplerItr->second.slot);
+
+            if (HasCallFailed())
+            {
+                Logger::LogError("Could not send texture");
+            }
+        }
+    }
+}
+
+void GlShader::SendTexture(const std::string& sampler, const GlRenderTarget& target, int ID)
+{
+    SendTexture(sampler, target.GetTexture(ID), target.IsMultisampled(), false);
 }
 
 void GlShader::SetActive()
 {
     glUseProgram(m_program);
-    m_allocatedSlots.assign(m_allocatedSlots.size(), NO_INDEX);
-}
-
-bool GlShader::HasTextureSlot(int slot)
-{
-    return slot < static_cast<int>(m_samplers.size());
+    for (auto& sampler : m_samplers)
+    {
+    	sampler.second.allocated = NO_INDEX;
+    }
 }
 
 std::string GlShader::GetText() const

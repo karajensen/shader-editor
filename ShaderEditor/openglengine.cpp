@@ -582,14 +582,14 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     preShader->SendUniformFloat("bloomStart", &post.BloomStart(), 1);
     preShader->SendUniformFloat("bloomFade", &post.BloomFade(), 1);
 
-    preShader->SendTexture(0, m_data->sceneTarget, SCENE_ID);
+    preShader->SendTexture("SceneSampler", m_data->sceneTarget, SCENE_ID);
     
     m_data->preEffectsTarget.SetActive();
     m_data->quad.PreRender();
     preShader->EnableAttributes();
     m_data->quad.Render();
 
-    preShader->ClearTexture(0, m_data->sceneTarget);
+    preShader->ClearTexture("SceneSampler", m_data->sceneTarget);
 }
 
 void OpenglEngine::RenderBlur(const PostProcessing& post)
@@ -604,19 +604,19 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
 
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurHorizontal->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
+    blurHorizontal->SendTexture("SceneSampler", m_data->preEffectsTarget, SCENE_ID);
 
     m_data->quad.PreRender();
     blurHorizontal->EnableAttributes();
     m_data->quad.Render();
 
-    blurHorizontal->ClearTexture(0, m_data->preEffectsTarget);
+    blurHorizontal->ClearTexture("SceneSampler", m_data->preEffectsTarget);
 
     SetSelectedShader(BLUR_VERTICAL_SHADER);
     auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
     
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
-    blurVertical->SendTexture(0, m_data->blurTarget, BLUR_ID);
+    blurVertical->SendTexture("SceneSampler", m_data->blurTarget, BLUR_ID);
 
     m_data->blurTarget.SwitchTextures();
 
@@ -624,7 +624,7 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     blurVertical->EnableAttributes();
     m_data->quad.Render();
 
-    blurVertical->ClearTexture(0, m_data->blurTarget);
+    blurVertical->ClearTexture("SceneSampler", m_data->blurTarget);
 }
 
 void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
@@ -659,17 +659,17 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
     postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
 
-    postShader->SendTexture(0, m_data->preEffectsTarget, SCENE_ID);
-    postShader->SendTexture(1, m_data->blurTarget, BLUR_ID);
-    postShader->SendTexture(2, m_data->sceneTarget, DEPTH_ID);
+    postShader->SendTexture("SceneSampler", m_data->preEffectsTarget, SCENE_ID);
+    postShader->SendTexture("BlurSampler", m_data->blurTarget, BLUR_ID);
+    postShader->SendTexture("DepthSampler", m_data->sceneTarget, DEPTH_ID);
 
     m_data->quad.PreRender();
     postShader->EnableAttributes();
     m_data->quad.Render();
 
-    postShader->ClearTexture(0, m_data->preEffectsTarget);
-    postShader->ClearTexture(1, m_data->blurTarget);
-    postShader->ClearTexture(2, m_data->sceneTarget);
+    postShader->ClearTexture("SceneSampler", m_data->preEffectsTarget);
+    postShader->ClearTexture("BlurSampler", m_data->blurTarget);
+    postShader->ClearTexture("DepthSampler", m_data->sceneTarget);
 }
 
 bool OpenglEngine::UpdateShader(const MeshData& quad)
@@ -718,14 +718,14 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, const Particle& particle
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("worldViewProjection", m_data->viewProjection * world);
     shader->SendUniformFloat("alpha", &particle.Alpha(), 1);
-    SendTexture(0, particle.Texture());
+    SendTexture("DiffuseSampler", particle.Texture());
 }
 
 void OpenglEngine::UpdateShader(const glm::mat4& world, int texture)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("world", world);
-    SendTexture(0, m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
+    SendTexture("DiffuseSampler", m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
 }
 
 bool OpenglEngine::UpdateShader(const MeshData& mesh,
@@ -844,21 +844,20 @@ void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
 
 void OpenglEngine::SendTextures(const std::vector<int>& textures)
 {
-    int slot = 1;
     auto& shader = m_data->shaders[m_data->selectedShader];
-    slot += SendTexture(slot, textures[SLOT_NORMAL]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_SPECULAR]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_ENVIRONMENT]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_CAUSTICS]) ? 1 : 0;
+    SendTexture("NormalSampler", textures[SLOT_NORMAL]);
+    SendTexture("SpecularSampler", textures[SLOT_SPECULAR]);
+    SendTexture("EnvironmentSampler", textures[SLOT_ENVIRONMENT]);
+    SendTexture("CausticsSampler", textures[SLOT_CAUSTICS]);
 }
 
-bool OpenglEngine::SendTexture(int slot, int ID)
+bool OpenglEngine::SendTexture(const std::string& sampler, int ID)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-    if (ID != NO_INDEX && shader->HasTextureSlot(slot))
+    if (ID != NO_INDEX)
     {
         const auto& texture = m_data->textures[ID];
-        shader->SendTexture(slot, texture->GetID(), texture->IsCubeMap());
+        shader->SendTexture(sampler, texture->GetID(), texture->IsCubeMap());
         return true;
     }
     return false;

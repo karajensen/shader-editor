@@ -240,7 +240,7 @@ private:
     * @param ID The texture ID
     * @return whether sending was successful
     */
-    bool SendTexture(int slot, int ID);
+    bool SendTexture(const std::string& sampler, int ID);
 
     /**
     * Renders the scene
