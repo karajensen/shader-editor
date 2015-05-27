@@ -75,9 +75,9 @@ public:
     const std::vector<Wave>& Waves() const;
 
     /**
-    * @return The Velocity of the bump movement
+    * @return The scale of each normal map used
     */
-    const Float2& BumpVelocity() const;
+    const Float2& BumpScale() const;
 
     /**
     * @return The overall speed of the wave
@@ -140,7 +140,7 @@ private:
 
     float m_height = 0.0f;        ///< The starting height of the water
     float m_bump = 1.0f;          ///< Saturation of bump
-    Float2 m_bumpVelocity;        ///< Velocity of the bump movement
+    Float2 m_bumpScale;           ///< Scale of each normal map used
     float m_speed = 0.0f;         ///< Overall speed of the wave
     Float2 m_uvScale;             ///< Scale of the water texture
     Float3 m_fresnal;             ///< The fresnal scale, bias and power

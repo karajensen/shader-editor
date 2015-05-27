@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector>
 #include <string>
 #include <array>
 #include "colour.h"
@@ -72,10 +73,9 @@ public:
     const float& DOFFade() const;
 
     /**
-    * @param index The pixel to get the weight for
-    * @return The blur weight for the surrounding pixels
+    * @return The blur weights for the surrounding pixels
     */
-    const float& BlurWeight(int index) const;
+    const std::vector<float>& GetBlurWeights() const;
 
     /**
     * @return Contrast controller of the final scene
@@ -181,7 +181,5 @@ private:
     Colour m_minimumColour;               ///< Minimum Colour ranges for RGB
     Colour m_maximumColour;               ///< Maximum Colour ranges for RGB
     std::array<float, MAX_MAPS> m_masks;  ///< Visibility of post maps
-
-    static const int BLUR_PIXELS = 5;          ///< Amount of pixels per-pixel involved in blurring
-    std::array<float, BLUR_PIXELS> m_weights;  ///< Normalised pixel weights for blurring
+    std::vector<float> m_weights;         ///< Normalised pixel weights for blurring
 };

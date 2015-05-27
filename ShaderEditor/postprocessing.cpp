@@ -31,6 +31,9 @@ PostProcessing::PostProcessing()
     m_minimumColour.g = 0.0f;
     m_minimumColour.b = 0.0f;
 
+    const int BLUR_PIXELS = 5;
+    m_weights.resize(BLUR_PIXELS);
+
     m_weights[0] = 1.0f;
     m_weights[1] = 0.9f;
     m_weights[2] = 0.55f;
@@ -164,9 +167,9 @@ const float& PostProcessing::BloomFade() const
     return m_bloomFade;
 }
 
-const float& PostProcessing::BlurWeight(int index) const
+const std::vector<float>& PostProcessing::GetBlurWeights() const
 {
-    return m_weights.at(index);
+    return m_weights;
 }
 
 const float& PostProcessing::Contrast() const

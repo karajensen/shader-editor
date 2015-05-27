@@ -4,65 +4,70 @@
 
 #pragma once
 
+#include <vector>
 #include <unordered_map>
-#include "common.h"
+#include <boost/noncopyable.hpp>
 
 class Shader;
-class PostProcessing;
 
 /**
-* Generates a shader with the required components from a set of base shader fragments
+* Generates a shader from a file replacing any special syntax or defined values
 */
 class FragmentLinker : boost::noncopyable
 {
 public:
 
+    FragmentLinker() = default;
+    ~FragmentLinker() = default;
+
     /**
     * Initialises the fragment linker
+    * @param maxWaves The amount of overlapping waves for water
     * @param maxLights The amount of lights the shader will consider
-    * @param post The post processing data
+    * @param blurWeights The values for blurring surrounding pixels
     * @return Whether initialisation was successful
     */
-    bool Initialise(unsigned int maxLights, const PostProcessing& post);
+    bool Initialise(unsigned int maxWaves,
+                    unsigned int maxLights, 
+                    const std::vector<float>& blurWeights);
 
     /**
     * Generates a shader from base shader fragments
     * @param shader The shader object to fill in
     * @return Whether generation was successful
     */
-    bool GenerateWithFragments(Shader& shader);
+    bool GenerateFromFragments(const Shader& shader);
 
     /**
-    * Generates a shader from file
+    * Generates a shader from a file
     * @param shader The shader object to fill in
     * @return Whether generation was successful
     */
-    bool GenerateFromFile(Shader& shader);
+    bool GenerateFromFile(const Shader& shader);
 
 private:
 
     /**
-    * Initialises a shader from file
-    * @param name The name of the shader
-    * @param extension The extension for a hlsl or glsl shader
+    * Generates a new shader
+    * @param baseFilePath path of the file to use as a base for generation
+    * @param generatedFilePath path of the file to save to once generated
+    * @param generateFromFragments Whether to create a new shader based off conditionals
     * @return Whether generation was successful
     */
-    bool GenerateFromFile(const std::string& name, const std::string& extension);
+    bool GenerateShader(const std::string& baseFilePath, 
+                        const std::string& generatedFilePath,
+                        bool generateFromFragments);
 
     /**
-    * Creates the folder to hold all generated shaders
-    * @return Whether creation was successful
+    * Reads the base shader until the end of the file
+    * @param baseFile The filestream for the base shader
+    * @param generatedFile The filestream of the shader being created
+    * @param previousLine The line last added to the generated shader
+    * @return the last line read after the target string is found
     */
-    bool CreateGeneratedFolder();
-
-    /**
-    * Generates a shader with the required components from the base shader
-    * @param name The name of the shader to generate
-    * @param extension The file extension of the shader
-    * @return Whether generation was successful
-    */
-    bool CreateShaderFromFragments(const std::string& name, 
-                                   const std::string& extension);
+    std::string ReadBaseShader(std::ifstream& baseFile, 
+                               std::ofstream& generatedFile, 
+                               std::string& previousLine);
 
     /**
     * Reads the base shader until the end of the file
@@ -115,7 +120,7 @@ private:
     bool ShouldSkipConditionalBlock(
         const std::string& conditional, std::string line) const;
 
-    std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items
+    std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items to replace
     unsigned int m_shaderComponents; ///< components of currently linked shader
 };
 

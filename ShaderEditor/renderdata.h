@@ -17,19 +17,7 @@ const float FRUSTRUM_BOUNDS_NEAR = 0.0f;
 const float FRUSTRUM_BOUNDS_FAR = 1500.0f;
 const float FIELD_OF_VIEW = 60.0f;
 const float RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HEIGHT);
-
-const std::string SHADER_EXTENSION(".fx");
-const std::string ASM_EXTENSION(".as");
-const std::string GLSL_VERTEX("_glsl_vert");
-const std::string GLSL_FRAGMENT("_glsl_frag");
-const std::string HLSL_SHADER("_hlsl");
-const std::string GLSL_FRAGMENT_EXTENSION(GLSL_FRAGMENT + SHADER_EXTENSION);   
-const std::string GLSL_VERTEX_EXTENSION(GLSL_VERTEX + SHADER_EXTENSION);
-const std::string HLSL_SHADER_EXTENSION(HLSL_SHADER + SHADER_EXTENSION);
-
 const std::string ASSETS_PATH(".//Assets//");
-const std::string SHADER_PATH(ASSETS_PATH + "Shaders//");
-const std::string GENERATED_PATH(SHADER_PATH + "Generated//");
 
 /**
 * Data for the render targets and attached textures

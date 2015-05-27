@@ -181,9 +181,9 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     AddEntry(water, m_callbacks.SetWater, WATER_REFLECTION_G, 0.01, 3, "Reflection G");
     AddEntry(water, m_callbacks.SetWater, WATER_REFLECTION_B, 0.01, 3, "Reflection B");
     AddEntry(water, m_callbacks.SetWater, WATER_REFLECTION, 0.01, 3, "Reflection");
-    AddEntry(water, m_callbacks.SetWater, WATER_BUMP, 0.01, 3, "Bump");
-    AddEntry(water, m_callbacks.SetWater, WATER_BUMP_VELOCITY_X, 0.01, 3, "Bump Vel X");
-    AddEntry(water, m_callbacks.SetWater, WATER_BUMP_VELOCITY_Y, 0.01, 3, "Bump Vel Y");
+    AddEntry(water, m_callbacks.SetWater, WATER_BUMP, 0.01, 3, "Bump Amount");
+    AddEntry(water, m_callbacks.SetWater, WATER_BUMP_SCALE_X, 0.01, 3, "Bump Scale X");
+    AddEntry(water, m_callbacks.SetWater, WATER_BUMP_SCALE_Y, 0.01, 3, "Bump Scale Y");
     AddEntry(water, m_callbacks.SetWater, WATER_SCALE_U, 0.01, 3, "Scale U");
     AddEntry(water, m_callbacks.SetWater, WATER_SCALE_V, 0.01, 3, "Scale V");
     AddEntry(water, m_callbacks.SetWater, WATER_FRESNAL_SCALE, 0.01, 3, "Fresnal Scale");

@@ -14,7 +14,6 @@ in vec3 ex_Normal;
 in vec3 ex_Tangent;
 in vec3 ex_Bitangent;
 in vec3 ex_VertToCamera;
-in vec2 ex_NormalUV0;
 in vec2 ex_NormalUV1;
 in vec2 ex_NormalUV2;
 
@@ -44,7 +43,7 @@ void main(void)
     vec3 diffuseTex = texture(DiffuseSampler, ex_UVs).rgb;
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     
-    vec3 normalTex0 = texture(NormalSampler, ex_NormalUV0).rgb - 0.5;
+    vec3 normalTex0 = texture(NormalSampler, ex_UVs).rgb - 0.5;
     vec3 normalTex1 = texture(NormalSampler, ex_NormalUV1).rgb - 0.5;
     vec3 normalTex2 = texture(NormalSampler, ex_NormalUV2).rgb - 0.5;
     vec3 bump = bumpIntensity * (normalTex0 + normalTex1 + normalTex2);

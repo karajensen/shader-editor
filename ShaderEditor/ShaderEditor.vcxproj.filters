@@ -131,9 +131,6 @@
     <ClCompile Include="sceneBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qtGUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="appGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -187,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="animation.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qtGUI.cpp">
+      <Filter>Qt</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -310,9 +310,6 @@
     <ClInclude Include="sceneData.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="qtGUI.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="appGUI.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -369,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="animation.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qtGUI.h">
+      <Filter>Qt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

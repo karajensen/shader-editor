@@ -791,7 +791,7 @@ bool OpenglEngine::UpdateShader(const Water& water,
         auto& shader = m_data->shaders[water.ShaderID()];
         shader->SendUniformFloat("speed", &water.Speed(), 1);
         shader->SendUniformFloat("bumpIntensity", &water.Bump(), 1);
-        shader->SendUniformFloat("bumpVelocity", &water.BumpVelocity().x, 2);
+        shader->SendUniformFloat("bumpScale", &water.BumpScale().x, 2);
         shader->SendUniformFloat("uvScale", &water.UVScale().x, 2);
         shader->SendUniformFloat("deepColor", &water.Deep().r, 4);
         shader->SendUniformFloat("shallowColor", &water.Shallow().r, 4);
@@ -920,7 +920,7 @@ void OpenglEngine::SetFade(float value)
     m_data->fadeAmount = value;
 }
 
-void OpenglEngine::WriteToShader(const std::string& name,
+void OpenglEngine::WriteToShader(const Shader& shader,
                                  const std::string& text)
 {
     auto WriteToFile = [](const std::string& contents, const std::string& filepath)
@@ -944,11 +944,8 @@ void OpenglEngine::WriteToShader(const std::string& name,
     boost::algorithm::split_regex(components, 
         text, boost::regex(GlShader::GetShaderHeader()));
 
-    WriteToFile(GlShader::GetShaderHeader() + components[1], 
-        GENERATED_PATH + name + GLSL_VERTEX_EXTENSION);
-
-    WriteToFile(GlShader::GetShaderHeader() + components[2], 
-        GENERATED_PATH + name + GLSL_FRAGMENT_EXTENSION);
+    WriteToFile(GlShader::GetShaderHeader() + components[1], shader.GLSLVertexFile());
+    WriteToFile(GlShader::GetShaderHeader() + components[2], shader.GLSLFragmentFile());
 }
 
 void OpenglEngine::EnableAlphaBlending(bool enable, bool multiply)

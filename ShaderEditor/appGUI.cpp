@@ -70,20 +70,20 @@ void AppGUI::SetApplicationRunning(bool run)
 
 bool AppGUI::ReCompileShader(const std::string& text, RenderEngine& engine)
 {
-    const std::string& name = m_data.shaders[m_selectedShader]->Name();
+    const auto& shader = *m_data.shaders[m_selectedShader];
     m_cache->CompileShader.Clear();
-    engine.WriteToShader(name, text);
+    engine.WriteToShader(shader, text);
 
     std::string errors = engine.CompileShader(m_selectedShader);
     if(errors.empty())
     {
-        Logger::LogInfo(name + ": Recompiled successfully");
+        Logger::LogInfo(shader.Name() + ": Recompiled successfully");
         return true;
     }
     else
     {
-        Logger::LogInfo(name + ": Failed Recompilation");
-        MessageBox(nullptr, (name + ":" + errors).c_str(), "Compilation Errors", MB_OK);
+        Logger::LogInfo(shader.Name() + ": Failed Recompilation");
+        MessageBox(nullptr, (shader.Name() + ":" + errors).c_str(), "Compilation Errors", MB_OK);
         return false;
     }
 }

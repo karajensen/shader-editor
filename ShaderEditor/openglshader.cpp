@@ -37,13 +37,10 @@ namespace
 GlShader::GlShader(const Shader& shader) :
     m_shader(shader),
     m_vsFilepath(shader.GLSLVertexFile()),
-    m_fsFilepath(shader.GLSLFragmentFile())
+    m_fsFilepath(shader.GLSLFragmentFile()),
+    m_vaFilepath(shader.GLSLVertexAsmFile()),
+    m_faFilepath(shader.GLSLFragmentAsmFile())
 {
-    m_vaFilepath = boost::ireplace_last_copy(
-        m_vsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
-    
-    m_faFilepath = boost::ireplace_last_copy(
-        m_fsFilepath, SHADER_EXTENSION, ASM_EXTENSION);
 }
 
 GlShader::~GlShader()

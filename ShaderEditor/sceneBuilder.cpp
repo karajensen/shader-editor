@@ -6,6 +6,7 @@
 #include "sceneData.h"
 #include "fragmentlinker.h"
 #include "boost/algorithm/string.hpp"
+#include "boost/assign.hpp"
 
 namespace
 {
@@ -82,7 +83,7 @@ bool SceneBuilder::InitialiseShaders()
     m_data.shaders.resize(MAX_SHADERS);
 
     FragmentLinker linker;
-    linker.Initialise(m_data.lights.size(), *m_data.post);
+    linker.Initialise(Water::Wave::MAX, m_data.lights.size(), m_data.post->GetBlurWeights());
 
     success &= InitialiseShader(linker, "post_effects", Shader::NONE, POST_SHADER);
     success &= InitialiseShader(linker, "pre_effects", Shader::NONE, PRE_SHADER);
@@ -448,15 +449,15 @@ bool SceneBuilder::InitialiseShader(FragmentLinker& linker,
     if (index == NO_INDEX)
     {
         index = m_data.shaders.size();
-        m_data.shaders.push_back(std::make_unique<Shader>(name, SHADER_PATH + name, components));
-        if (!linker.GenerateWithFragments(*m_data.shaders[index]))
+        m_data.shaders.push_back(std::make_unique<Shader>(name, components, true));
+        if (!linker.GenerateFromFragments(*m_data.shaders[index]))
         {
             Logger::LogError("Could not generate shader " + name);
         }
     }
     else
     {
-        m_data.shaders[index] = std::make_unique<Shader>(name, SHADER_PATH + name, components);
+        m_data.shaders[index] = std::make_unique<Shader>(name, components, false);
         if (!linker.GenerateFromFile(*m_data.shaders[index]))
         {
             Logger::LogError("Could not generate shader " + name);

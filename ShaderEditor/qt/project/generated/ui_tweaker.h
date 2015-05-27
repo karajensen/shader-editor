@@ -210,14 +210,14 @@ public:
     {
         if (Tweaker->objectName().isEmpty())
             Tweaker->setObjectName(QStringLiteral("Tweaker"));
-        Tweaker->resize(250, 600);
+        Tweaker->resize(250, 580);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(Tweaker->sizePolicy().hasHeightForWidth());
         Tweaker->setSizePolicy(sizePolicy);
-        Tweaker->setMinimumSize(QSize(250, 600));
-        Tweaker->setMaximumSize(QSize(300, 600));
+        Tweaker->setMinimumSize(QSize(250, 580));
+        Tweaker->setMaximumSize(QSize(300, 580));
         verticalLayout_3 = new QVBoxLayout(Tweaker);
         verticalLayout_3->setSpacing(5);
         verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
@@ -2340,7 +2340,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(3);
+        TabMenu->setCurrentIndex(2);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);

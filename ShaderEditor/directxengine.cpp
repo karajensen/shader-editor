@@ -885,7 +885,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
         auto& shader = m_data->shaders[water.ShaderID()];
         shader->UpdateConstantFloat("speed", &water.Speed(), 1);
         shader->UpdateConstantFloat("bumpIntensity", &water.Bump(), 1);
-        shader->UpdateConstantFloat("bumpVelocity", &water.BumpVelocity().x, 2);
+        shader->UpdateConstantFloat("bumpScale", &water.BumpScale().x, 2);
         shader->UpdateConstantFloat("uvScale", &water.UVScale().x, 2);
         shader->UpdateConstantFloat("deepColor", &water.Deep().r, 4);
         shader->UpdateConstantFloat("shallowColor", &water.Shallow().r, 4);
@@ -1066,15 +1066,15 @@ void DirectxEngine::SetFade(float value)
     m_data->fadeAmount = value;
 }
 
-void DirectxEngine::WriteToShader(const std::string& name,
+void DirectxEngine::WriteToShader(const Shader& shader,
                                   const std::string& text)
 {
-    const std::string filepath = GENERATED_PATH + name + HLSL_SHADER_EXTENSION;
-    std::ofstream file(filepath.c_str(), std::ios_base::out | std::ios_base::trunc);
+    std::ofstream file(shader.HLSLShaderFile().c_str(), 
+        std::ios_base::out | std::ios_base::trunc);
 
     if (!file.is_open())
     {
-        Logger::LogError("Could not open " + filepath);
+        Logger::LogError("Could not open " + shader.HLSLShaderFile());
     }
     else
     {

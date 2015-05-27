@@ -23,8 +23,8 @@ cbuffer ScenePixelBuffer : register(b1)
 cbuffer MeshVertexBuffer : register(b2)
 {
     float4x4 world;
-    float2 bumpVelocity;
     float2 uvScale;
+    float2 bumpScale;
     float speed;
     float waveFrequency[MAX_WAVES];
     float waveAmplitude[MAX_WAVES];
@@ -57,10 +57,9 @@ struct Attributes
     float3 positionWorld    : TEXCOORD2;
     float3 bitangent        : TEXCOORD3;
     float3 tangent          : TEXCOORD4;
-    float2 normalUV0        : TEXCOORD5;
-    float2 normalUV1        : TEXCOORD6;
-    float2 normalUV2        : TEXCOORD7;
-    float3 vertToCamera     : TEXCOORD8;
+    float2 normalUV1        : TEXCOORD5;
+    float2 normalUV2        : TEXCOORD6;
+    float3 vertToCamera     : TEXCOORD7;
 };
 
 struct Outputs
@@ -90,6 +89,9 @@ Attributes VShader(float4 position  : POSITION,
     wavePosition = mul(world, wavePosition);
     output.position = mul(viewProjection, wavePosition);
     output.positionWorld = wavePosition.xyz;
+    output.uvs = uvs * uvScale;
+    output.normalUV1 = output.uvs * bumpScale.x;
+    output.normalUV2 = output.uvs * bumpScale.y;
     output.bitangent = float3(1, waveDerivative.x, 0);
     output.tangent = float3(0, waveDerivative.y, 1);
     output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
@@ -99,14 +101,6 @@ Attributes VShader(float4 position  : POSITION,
     output.depth = ((output.position.z - depthNear) *
         ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
 
-    // Generate UV Coordinates
-    float4 scale = float4(2.0, 4.0, 8.0, 0.001);
-    float2 uvVelocity = bumpVelocity * timer * scale.w;
-    output.uvs = uvs * uvScale;
-    output.normalUV0 = uvs * uvScale + uvVelocity;
-    output.normalUV1 = uvs * uvScale * scale.x + uvVelocity * scale.y;
-    output.normalUV2 = uvs * uvScale * scale.y + uvVelocity * scale.z;
-
     return output;
 }
 
@@ -115,7 +109,7 @@ Outputs PShader(Attributes input)
     float3 diffuseTex = DiffuseTexture.Sample(Sampler, input.uvs).rgb;
     float3 diffuse = float3(0.0, 0.0, 0.0);
     
-    float3 normalTex0 = NormalTexture.Sample(Sampler, input.normalUV0).rgb - 0.5;
+    float3 normalTex0 = NormalTexture.Sample(Sampler, input.uvs).rgb - 0.5;
     float3 normalTex1 = NormalTexture.Sample(Sampler, input.normalUV1).rgb - 0.5;
     float3 normalTex2 = NormalTexture.Sample(Sampler, input.normalUV2).rgb - 0.5;
     float3 bump = bumpIntensity * (normalTex0 + normalTex1 + normalTex2);

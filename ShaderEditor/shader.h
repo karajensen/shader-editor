@@ -36,10 +36,11 @@ public:
     * Constructor
     * @param name The name of the shader
     * @param components The components this shader supports
+    * @param fromFragments Whether this shader is generated from the base shader
     */
     Shader(const std::string& name, 
-           const std::string& path,
-           unsigned int components);
+           unsigned int components,
+           bool fromFragments);
 
     /**
     * Gets a text description of the shader component
@@ -73,41 +74,54 @@ public:
     const std::string& Name() const;
 
     /**
-    * @param file The filename of the GLSL vertex shader
+    * @return the location of the base shader to generate from
     */
-    void GLSLVertexFile(const std::string& file);
+    std::string GLSLVertexBase() const;
 
     /**
-    * @param file The filename of the GLSL fragment shader
+    * @return the location of the base shader to generate from
     */
-    void GLSLFragmentFile(const std::string& file);
+    std::string GLSLFragmentBase() const;
 
     /**
-    * @param file The filename of the HLSL shader
+    * @return the location of the base shader to generate from
     */
-    void HLSLShaderFile(const std::string& file);
+    std::string HLSLShaderBase() const;
 
     /**
-    * @return The filename of the GLSL vertex shader
+    * @return The full path of the generated GLSL vertex shader
     */
-    const std::string& GLSLVertexFile() const;
+    std::string GLSLVertexFile() const;
 
     /**
-    * @return The filename of the GLSL fragment shader
+    * @return The full path of the generated GLSL fragment shader
     */
-    const std::string& GLSLFragmentFile() const;
+    std::string GLSLFragmentFile() const;
 
     /**
-    * @return The filename of the HLSL shader
+    * @return The full path of the generated HLSL shader
     */
-    const std::string& HLSLShaderFile() const;
+    std::string HLSLShaderFile() const;
+
+    /**
+    * @return The full path of the GLSL vertex assembly
+    */
+    std::string GLSLVertexAsmFile() const;
+
+    /**
+    * @return The full path of the GLSL fragment assembly
+    */
+    std::string GLSLFragmentAsmFile() const;
+
+    /**
+    * @return The full path of the HLSL assembly
+    */
+    std::string HLSLShaderAsmFile() const;
 
 private:
 
     const unsigned int m_components;     ///< Sections that make up this shader
     int m_index = -1;                    ///< Unique index of the shader
     std::string m_name;                  ///< name of the shader
-    std::string m_glslVertexFile;        ///< filename of the glsl shader
-    std::string m_glslFragmentFile;      ///< filename of the glsl shader
-    std::string m_hlslShaderFile;        ///< filename of the hlsl shader
+    bool m_fromFragments = false;        ///< whether this shader is generated from the base shader
 };

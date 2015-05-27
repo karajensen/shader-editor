@@ -43,8 +43,8 @@ enum TerrainAttribute
 enum WaterAttribute
 {
     WATER_BUMP,
-    WATER_BUMP_VELOCITY_X,
-    WATER_BUMP_VELOCITY_Y,
+    WATER_BUMP_SCALE_X,
+    WATER_BUMP_SCALE_Y,
     WATER_SPEED,
     WATER_SCALE_U,
     WATER_SCALE_V,

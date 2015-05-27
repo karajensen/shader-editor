@@ -12,7 +12,7 @@ Water::Water(const std::string& name,
     Grid(name, shaderName, shaderID),
     m_speed(1.0f),
     m_bump(1.0f),
-    m_bumpVelocity(0.0f, 0.0f),
+    m_bumpScale(4.0f, 6.0f),
     m_uvScale(1.0f, 1.0f),
     m_fresnal(1.0f, 0.5f, 2.0f),
     m_shallowColour(1.0f, 1.0f, 1.0f, 0.5f),
@@ -50,8 +50,8 @@ bool Water::Initialise(float height, float spacing, int size)
 void Water::Write(Cache& cache)
 {
     cache.Water[WATER_BUMP].SetUpdated(m_bump);
-    cache.Water[WATER_BUMP_VELOCITY_X].SetUpdated(m_bumpVelocity.x);
-    cache.Water[WATER_BUMP_VELOCITY_Y].SetUpdated(m_bumpVelocity.y);
+    cache.Water[WATER_BUMP_SCALE_X].SetUpdated(m_bumpScale.x);
+    cache.Water[WATER_BUMP_SCALE_Y].SetUpdated(m_bumpScale.y);
     cache.Water[WATER_SPEED].SetUpdated(m_speed);
     cache.Water[WATER_DEEP_R].SetUpdated(m_deepColour.r);
     cache.Water[WATER_DEEP_G].SetUpdated(m_deepColour.g);
@@ -76,8 +76,8 @@ void Water::Write(Cache& cache)
 void Water::Read(Cache& cache)
 {
     m_bump = cache.Water[WATER_BUMP].Get();
-    m_bumpVelocity.x = cache.Water[WATER_BUMP_VELOCITY_X].Get();
-    m_bumpVelocity.y = cache.Water[WATER_BUMP_VELOCITY_Y].Get();
+    m_bumpScale.x = cache.Water[WATER_BUMP_SCALE_X].Get();
+    m_bumpScale.y = cache.Water[WATER_BUMP_SCALE_Y].Get();
     m_speed = cache.Water[WATER_SPEED].Get();
     m_deepColour.r = cache.Water[WATER_DEEP_R].Get();
     m_deepColour.g = cache.Water[WATER_DEEP_G].Get();
@@ -123,9 +123,9 @@ const std::vector<Water::Wave>& Water::Waves() const
     return m_waves;
 }
 
-const Float2& Water::BumpVelocity() const
+const Float2& Water::BumpScale() const
 {
-    return m_bumpVelocity;
+    return m_bumpScale;
 }
 
 const float& Water::Speed() const

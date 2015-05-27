@@ -134,10 +134,10 @@ public:
 
     /**
     * Writes the shader text file
-    * @param name The name of the shader to write over
+    * @param shader The shader to write to
     * @param text The new text for the shader
     */
-    virtual void WriteToShader(const std::string& name,
+    virtual void WriteToShader(const Shader& shader,
                                const std::string& text) override;
 
 private:

@@ -15,7 +15,6 @@ out vec3 ex_Normal;
 out vec3 ex_Tangent;
 out vec3 ex_Bitangent;
 out vec3 ex_VertToCamera;
-out vec2 ex_NormalUV0;
 out vec2 ex_NormalUV1;
 out vec2 ex_NormalUV2;
 
@@ -26,8 +25,8 @@ uniform float speed;
 uniform mat4 world;
 uniform mat4 viewProjection;
 uniform vec3 cameraPosition;
-uniform vec2 bumpVelocity;
 uniform vec2 uvScale;
+uniform vec2 bumpScale;
 
 uniform float waveFrequency[MAX_WAVES];
 uniform float waveAmplitude[MAX_WAVES];
@@ -53,6 +52,9 @@ void main(void)
     wavePosition = world * wavePosition;
     gl_Position = viewProjection * wavePosition;
     ex_PositionWorld = wavePosition.xyz;
+    ex_UVs = in_UVs * uvScale;
+    ex_NormalUV1 = ex_UVs * bumpScale.x;
+    ex_NormalUV2 = ex_UVs * bumpScale.y;
     ex_Bitangent = vec3(1, waveDerivative.x, 0);
     ex_Tangent = vec3(0, waveDerivative.y, 1);
     ex_Normal = vec3(-waveDerivative.x, 1, -waveDerivative.y);
@@ -61,12 +63,4 @@ void main(void)
     vec2 depthBounds = vec2(0.0, 1.0);
     ex_Depth = ((gl_Position.z - depthNear) *
         ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
-
-    // Generate UV Coordinates
-    vec4 scale = vec4(2.0, 4.0, 8.0, 0.001);
-    vec2 uvVelocity = bumpVelocity * timer * scale.w;
-    ex_UVs = in_UVs * uvScale;
-    ex_NormalUV0 = in_UVs * uvScale + uvVelocity;
-    ex_NormalUV1 = in_UVs * uvScale * scale.x + uvVelocity * scale.y;
-    ex_NormalUV2 = in_UVs * uvScale * scale.y + uvVelocity * scale.z;
 }

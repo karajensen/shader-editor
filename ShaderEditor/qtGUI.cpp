@@ -111,11 +111,11 @@ void QtGUI::Run(int argc, char *argv[])
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     Editor editor(callbacks);
-    editor.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    editor.setWindowFlags(Qt::CustomizeWindowHint);
     editor.show();
 
     Tweaker tweaker(callbacks);
-    tweaker.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    tweaker.setWindowFlags(Qt::CustomizeWindowHint);
     tweaker.show();
 
     while(m_cache->ApplicationRunning.Get())

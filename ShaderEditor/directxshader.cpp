@@ -31,11 +31,9 @@ namespace
 
 DxShader::DxShader(const Shader& shader) :
     m_shader(shader),
-    m_filepath(shader.HLSLShaderFile())
+    m_filepath(shader.HLSLShaderFile()),
+    m_asmpath(shader.HLSLShaderAsmFile())
 {
-    m_asmpath = boost::ireplace_last_copy(
-        m_filepath, SHADER_EXTENSION, ASM_EXTENSION);
-
     const int maxSupportedTextures = 8;
     m_allocatedSlots.resize(maxSupportedTextures);
     m_allocatedSlots.assign(maxSupportedTextures, nullptr);
