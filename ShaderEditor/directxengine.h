@@ -101,8 +101,6 @@ public:
     /**
     * Updates the engine's cached view matrix
     * @param world The world matrix of the camera
-    * @param depthNear The near cutoff value for the depth
-    * @param depthFar The far cutoff value for the depth
     */
     virtual void UpdateView(const Matrix& world) override;
 

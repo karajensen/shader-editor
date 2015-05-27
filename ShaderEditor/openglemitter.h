@@ -24,7 +24,7 @@ public:
     /**
     * Renders the emitter
     * @param cameraPosition The world position of the camera
-    * @param camerUp The up vector of the camera
+    * @param cameraUp The up vector of the camera
     */
     void Render(const glm::vec3& cameraPosition,
                 const glm::vec3& cameraUp);

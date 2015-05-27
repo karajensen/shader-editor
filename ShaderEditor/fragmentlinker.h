@@ -33,14 +33,14 @@ public:
 
     /**
     * Generates a shader from base shader fragments
-    * @param shader The shader object to fill in
+    * @param shader The shader information to generate from
     * @return Whether generation was successful
     */
     bool GenerateFromFragments(const Shader& shader);
 
     /**
     * Generates a shader from a file
-    * @param shader The shader object to fill in
+    * @param shader The shader information to generate from
     * @return Whether generation was successful
     */
     bool GenerateFromFile(const Shader& shader);
@@ -105,7 +105,7 @@ private:
                               std::ofstream& generatedFile,
                               bool skiplines);
     /**
-    * Gets the next line from the file, filtering and removing as needed
+    * Gets the next line from the file, filtering and removing syntax as needed
     * @param file The shader file to read from
     * @return the next line from the file
     */
@@ -121,6 +121,6 @@ private:
         const std::string& conditional, std::string line) const;
 
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items to replace
-    unsigned int m_shaderComponents; ///< components of currently linked shader
+    unsigned int m_shaderComponents; ///< components of shader undergoing linking
 };
 

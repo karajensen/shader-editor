@@ -39,8 +39,8 @@ public:
     /**
     * Constructor
     * @param name The name of the data
-    * @param shader The ID of the shader to use
     * @param shaderName The name of the shader to use
+    * @param shader The ID of the shader to use
     */
     MeshData(const std::string& name, 
              const std::string& shaderName,

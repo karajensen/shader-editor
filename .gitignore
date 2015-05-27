@@ -5,6 +5,7 @@
 *.vcxproj.user
 *.ilk
 *.pdb
+*.tmp
 *.Debug
 *.Release
 *.idb
@@ -25,3 +26,4 @@ Release/Assets/Shaders/Generated/*.fx
 Release/Assets/Shaders/Generated/*.as
 ipch/
 html/
+latex/

@@ -41,7 +41,7 @@ public:
 
     /**
     * Updates the scene
-    * @param camera The position of the camera
+    * @param cameraPosition The position of the camera
     */
     void Update(const Float3& cameraPosition);
 

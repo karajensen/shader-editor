@@ -18,7 +18,7 @@ public:
 
     /**
     * Constructor
-    * @param diagnosticMesh The mesh to use for rendering diagnostics
+    * @param diagnostics The mesh instances to use for rendering
     */
     Diagnostic(std::vector<Mesh::Instance>& diagnostics);
 
@@ -38,11 +38,14 @@ public:
     /**
     * Adds an instance for diagnostics
     * @param light The light to update to
+    * @param scale The scale of the diagnostic
     */
     void AddInstance(const Light& light, float scale);
 
     /**
     * Sets whether an instance should update and be visible
+    * @param index The instance to set
+    * @param enabled Whether the instance is enabled
     */
     void EnableInstance(int index, bool enabled);
 

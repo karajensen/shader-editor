@@ -16,7 +16,6 @@ public:
     /**
     * Constructor for the back buffer
     * @param name Name of the render target
-    * @param isBackBuffer Whether this render target is the back buffer
     */
     GlRenderTarget(const std::string& name);
 

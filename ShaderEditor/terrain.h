@@ -48,7 +48,7 @@ public:
     * @param size How many rows/columns for the grid
     * @param hasNormals Whether the terrain requires normals
     * @param hasNormals Whether the terrain requires tangents
-    * @param whether to force tiling between edges
+    * @param requiresTiling whether to force tiling between edges
     * @return whether call was successful
     */
     bool Initialise(float uvTextureStretch,

@@ -99,7 +99,6 @@ public:
     * Clears the render target texture from the shader
     * @param sampler Name of the shader texture sampler to use
     * @param target The render target to clear
-    * @param ID the id of the target texture to clear
     */
     void ClearTexture(const std::string& sampler, const GlRenderTarget& target);
 
