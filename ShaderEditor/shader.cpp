@@ -30,6 +30,11 @@ Shader::Shader(const std::string& name,
 {
 }
 
+bool Shader::GenerateFromFragments() const
+{
+    return m_fromFragments;
+}
+
 Shader::Component Shader::StringAsComponent(const std::string& component)
 {
     if (boost::iequals(component, "CAUSTICS"))

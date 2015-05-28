@@ -64,6 +64,11 @@ public:
     bool HasComponent(Component component) const;
 
     /**
+    * @return whether this shader is to be generated from fragments
+    */
+    bool GenerateFromFragments() const;
+
+    /**
     * @return the components of the shader
     */
     unsigned int GetComponents() const;

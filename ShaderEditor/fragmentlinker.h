@@ -32,18 +32,11 @@ public:
                     const std::vector<float>& blurWeights);
 
     /**
-    * Generates a shader from base shader fragments
+    * Generates a new shader
     * @param shader The shader information to generate from
     * @return Whether generation was successful
     */
-    bool GenerateFromFragments(const Shader& shader);
-
-    /**
-    * Generates a shader from a file
-    * @param shader The shader information to generate from
-    * @return Whether generation was successful
-    */
-    bool GenerateFromFile(const Shader& shader);
+    bool GenerateShader(const Shader& shader);
 
 private:
 

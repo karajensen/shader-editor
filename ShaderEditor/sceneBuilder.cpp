@@ -450,23 +450,22 @@ bool SceneBuilder::InitialiseShader(FragmentLinker& linker,
     {
         index = m_data.shaders.size();
         m_data.shaders.push_back(std::make_unique<Shader>(name, components, true));
-        if (!linker.GenerateFromFragments(*m_data.shaders[index]))
-        {
-            Logger::LogError("Could not generate shader " + name);
-        }
     }
     else
     {
         m_data.shaders[index] = std::make_unique<Shader>(name, components, false);
-        if (!linker.GenerateFromFile(*m_data.shaders[index]))
-        {
-            Logger::LogError("Could not generate shader " + name);
-            return false;
-        }
     }
 
-    Logger::LogInfo("Shader: " + name + " loaded");
-    return true;
+    if (!linker.GenerateShader(*m_data.shaders[index]))
+    {
+        Logger::LogError("Could not generate shader " + name);
+        return false;
+    }
+    else
+    {
+        Logger::LogInfo("Shader: " + name + " loaded");
+        return true;
+    }
 }
 
 bool SceneBuilder::InitialiseTexture(const std::string& name, 

@@ -25,20 +25,14 @@ namespace
     const std::string ENDIF("endif");
 }
 
-bool FragmentLinker::GenerateFromFile(const Shader& shader)
-{
-    return GenerateShader(shader.GLSLVertexBase(), shader.GLSLVertexFile(), false) &&
-        GenerateShader(shader.GLSLFragmentBase(), shader.GLSLFragmentFile(), false) &&
-        GenerateShader(shader.HLSLShaderBase(), shader.HLSLShaderFile(), false);
-}
-
-bool FragmentLinker::GenerateFromFragments(const Shader& shader)
+bool FragmentLinker::GenerateShader(const Shader& shader)
 {
     m_shaderComponents = shader.GetComponents();
+    const bool useFragments = shader.GenerateFromFragments();
 
-    return GenerateShader(shader.GLSLVertexBase(), shader.GLSLVertexFile(), true) &&
-        GenerateShader(shader.GLSLFragmentBase(), shader.GLSLFragmentFile(), true) &&
-        GenerateShader(shader.HLSLShaderBase(), shader.HLSLShaderFile(), true);
+    return GenerateShader(shader.GLSLVertexBase(), shader.GLSLVertexFile(), useFragments) &&
+        GenerateShader(shader.GLSLFragmentBase(), shader.GLSLFragmentFile(), useFragments) &&
+        GenerateShader(shader.HLSLShaderBase(), shader.HLSLShaderFile(), useFragments);
 }
 
 bool FragmentLinker::GenerateShader(const std::string& baseFilePath, 
