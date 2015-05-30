@@ -68,7 +68,7 @@ void main(void)
         diffuse += lightColour * attenuation * lightActive[i];
     }
     
-    // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
+    // Fresnal Approximation = saturate(bias + scale * pow(1.0 + dot(I,N)))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     vec3 vertToCamera = normalize(ex_VertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));

@@ -92,14 +92,13 @@ Attributes VShader(float4 position  : POSITION,
     output.uvs = uvs * uvScale;
     output.normalUV1 = output.uvs * bumpScale.x;
     output.normalUV2 = output.uvs * bumpScale.y;
-    output.bitangent = float3(1, waveDerivative.x, 0);
-    output.tangent = float3(0, waveDerivative.y, 1);
-    output.normal = float3(-waveDerivative.x, 1, -waveDerivative.y);
+    output.bitangent = float3(1.0, waveDerivative.x, 0.0);
+    output.tangent = float3(0.0, waveDerivative.y, 1.0);
+    output.normal = float3(-waveDerivative.x, 1.0, -waveDerivative.y);
     output.vertToCamera = cameraPosition - output.positionWorld;
 
-    float2 depthBounds = float2(0.0, 1.0);
-    output.depth = ((output.position.z - depthNear) *
-        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+    output.depth = ((output.position.z - depthNear) * 
+        (-1.0 / (depthFar - depthNear))) + 1.0;
 
     return output;
 }
@@ -134,7 +133,7 @@ Outputs PShader(Attributes input)
         diffuse += lightColour * attenuation * lightActive[i];
     }
     
-    // Fresnal Approximation = max(0, min(1, bias + scale * pow(1.0 + dot(I,N))))
+    // Fresnal Approximation = saturate(bias + scale * pow(1.0 + dot(I,N)))
     // Reference: NVIDEA CG Chapter 7 Environment Mapping Techniques
     float3 vertToCamera = normalize(input.vertToCamera);
     float fresnalFactor = saturate(fresnal.x + fresnal.y * pow(1.0 + dot(-vertToCamera, normal), fresnal.z));

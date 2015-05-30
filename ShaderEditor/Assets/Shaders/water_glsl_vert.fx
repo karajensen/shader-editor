@@ -55,12 +55,11 @@ void main(void)
     ex_UVs = in_UVs * uvScale;
     ex_NormalUV1 = ex_UVs * bumpScale.x;
     ex_NormalUV2 = ex_UVs * bumpScale.y;
-    ex_Bitangent = vec3(1, waveDerivative.x, 0);
-    ex_Tangent = vec3(0, waveDerivative.y, 1);
-    ex_Normal = vec3(-waveDerivative.x, 1, -waveDerivative.y);
+    ex_Bitangent = vec3(1.0, waveDerivative.x, 0.0);
+    ex_Tangent = vec3(0.0, waveDerivative.y, 1.0);
+    ex_Normal = vec3(-waveDerivative.x, 1.0, -waveDerivative.y);
     ex_VertToCamera = cameraPosition - ex_PositionWorld;
 
-    vec2 depthBounds = vec2(0.0, 1.0);
-    ex_Depth = ((gl_Position.z - depthNear) *
-        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+    ex_Depth = ((gl_Position.z - depthNear) * 
+        (-1.0 / (depthFar - depthNear))) + 1.0;
 }
