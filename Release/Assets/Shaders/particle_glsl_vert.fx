@@ -19,7 +19,6 @@ void main(void)
     gl_Position = worldViewProjection * in_Position;
     ex_UVs = in_UVs;
 
-    vec2 depthBounds = vec2(0.0, 1.0);
-    ex_Depth = ((gl_Position.z - depthNear) *
-        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+    ex_Depth = ((gl_Position.z - depthNear) * 
+        (-1.0 / (depthFar - depthNear))) + 1.0;
 }

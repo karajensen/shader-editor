@@ -10,14 +10,14 @@ void Timer::StartTimer()
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&m_timer);
 
-    m_frequency = static_cast<float>(frequency.QuadPart);
-    m_previousTime = static_cast<float>(m_timer.QuadPart);
+    m_frequency = static_cast<double>(frequency.QuadPart);
+    m_previousTime = static_cast<double>(m_timer.QuadPart);
 }
 
 void Timer::UpdateTimer()
 {
     QueryPerformanceCounter(&m_timer);
-    float currentTime = static_cast<float>(m_timer.QuadPart);
+    double currentTime = static_cast<double>(m_timer.QuadPart);
 
     m_deltaTime = (currentTime - m_previousTime) / m_frequency;
     m_deltaTimeCounter += m_deltaTime;
@@ -37,12 +37,12 @@ void Timer::UpdateTimer()
 
 float Timer::GetTotalTime() const
 {
-    return m_totalTime;
+    return static_cast<float>(m_totalTime);
 }
 
 float Timer::GetDeltaTime() const 
 { 
-    return m_deltaTime;
+    return static_cast<float>(m_deltaTime);
 }
 
 int Timer::GetFPS() const

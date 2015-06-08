@@ -36,7 +36,7 @@ Attributes VShader(float4 position : POSITION,
 
 Outputs PShader(Attributes input)
 {
-    float3 vertToLight = float3(DIAGNOSTIC_LIGHT) - input.positionWorld;
+    float3 vertToLight = float3(10.0, 10.0, 0.0) - input.positionWorld;
     float diffuse = ((dot(normalize(vertToLight), normalize(input.normal))+1.0)*0.5);
 
     Outputs output;

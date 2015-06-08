@@ -47,10 +47,10 @@ private:
 
     float m_frequency = 0.0;          ///< The frequency of the high-resolution performance counter
     LARGE_INTEGER m_timer;            ///< The current time queried
-    float m_previousTime = 0.0;       ///< The previous time queried
-    float m_deltaTime = 0.0;          ///< The time passed since last frame in seconds
-    float m_deltaTimeCounter = 0.0;   ///< Combined timestep between frames up to 1 second
-    float m_totalTime = 0.0;          ///< The time passed since start of the timer
+    double m_previousTime = 0.0;      ///< The previous time queried
+    double m_deltaTime = 0.0;         ///< The time passed since last frame in seconds
+    double m_deltaTimeCounter = 0.0;  ///< Combined timestep between frames up to 1 second
+    double m_totalTime = 0.0;         ///< The time passed since start of the timer
     unsigned int m_fps = 0;           ///< Amount of frames rendered in 1 second
     unsigned int m_fpsCounter = 0;    ///< Amount of frames rendered since delta time counter began
 };

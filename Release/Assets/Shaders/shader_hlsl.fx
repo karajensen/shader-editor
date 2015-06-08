@@ -36,19 +36,19 @@ cbuffer MeshPixelBuffer : register(b2)
     endif
 };
 
-ifdef: !FLAT
 cbuffer ScenePixelBuffer : register(b3)
 {
-    float lightActive[MAX_LIGHTS];
-    float3 lightPosition[MAX_LIGHTS];
-    float3 lightAttenuation[MAX_LIGHTS];
-    float3 lightDiffuse[MAX_LIGHTS];
-    ifdef: SPECULAR
-        float lightSpecularity[MAX_LIGHTS];
-        float3 lightSpecular[MAX_LIGHTS];
+    ifdef: !FLAT
+        float lightActive[MAX_LIGHTS];
+        float3 lightPosition[MAX_LIGHTS];
+        float3 lightAttenuation[MAX_LIGHTS];
+        float3 lightDiffuse[MAX_LIGHTS];
+        ifdef: SPECULAR
+            float lightSpecularity[MAX_LIGHTS];
+            float3 lightSpecular[MAX_LIGHTS];
+        endif
     endif
 };
-endif
 
 SamplerState Sampler;
 Texture2D DiffuseSampler;
@@ -110,9 +110,8 @@ Attributes VShader(float4 position      : POSITION,
         output.positionWorld = mul(world, position).xyz;
     endif
 
-    float2 depthBounds = float2(0.0, 1.0);
-    output.depth = ((output.position.z - depthNear) *
-        ((depthBounds.x - depthBounds.y) / (depthFar - depthNear))) + depthBounds.y;
+    output.depth = ((output.position.z - depthNear) * 
+        (-1.0 / (depthFar - depthNear))) + 1.0;
     
     ifdef: BUMP
         output.tangent = mul(world, tangent);
