@@ -78,6 +78,26 @@ public:
     */
     const BoundingArea& GetBounds() const;
 
+    /**
+    * Sets the forward speed of the camera
+    */
+    void SetForwardSpeed(float speed);
+
+    /**
+    * Sets the rotation speed of the camera
+    */
+    void SetRotationSpeed(float speed);
+
+    /**
+    * @return the forward speed of the camera
+    */
+    float GetForwardSpeed() const;
+
+    /**
+    * @return the rotation speed of the camera
+    */
+    float GetRotationSpeed() const;
+
 private:
 
     /**
@@ -91,6 +111,8 @@ private:
     Float3 m_target;                    ///< Camera Look target
     Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
     Float2 m_heightBounds;              ///< The min/max height the camera can move
+    float m_forwardSpeed;               ///< The speed to move the camera forward
+    float m_rotationSpeed;              ///< The speed to rotate the camera
     bool m_autoMove = false;            ///< Whether to automatically move the camera
     bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
     std::unique_ptr<BoundingArea> m_bounds; ///< The bounding area in front of the area

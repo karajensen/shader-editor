@@ -168,6 +168,9 @@ void AppGUI::UpdateCamera()
     m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.Rotation().x);
     m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.Rotation().y);
     m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.Rotation().z);
+
+    m_camera.SetForwardSpeed(m_cache->Camera[CAMERA_FORWARD_SPD].Get());
+    m_camera.SetRotationSpeed(m_cache->Camera[CAMERA_ROTATION_SPD].Get());
 }
 
 void AppGUI::UpdateMesh()
@@ -365,10 +368,16 @@ void AppGUI::Initialise(const std::vector<std::string>& engineNames,
     m_cache->Textures.Set(GetTextureNames());
     m_cache->Terrains.Set(GetTerrainNames());
 
-    m_data.post->Write(*m_cache);
+    m_cache->Camera[CAMERA_FORWARD_SPD].SetUpdated(
+        m_camera.GetForwardSpeed());
+
+    m_cache->Camera[CAMERA_ROTATION_SPD].SetUpdated(
+        m_camera.GetRotationSpeed());
 
     m_cache->Post[POST_CAUSTIC_SPEED].SetUpdated(
         m_data.caustics->GetSpeed());
+
+    m_data.post->Write(*m_cache);
 }
 
 std::vector<std::string> AppGUI::GetLightNames() const

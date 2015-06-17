@@ -44,9 +44,6 @@ public:
     QFrame *deltaTime;
     QLabel *deltaTime_lbl;
     QLabel *deltaTime_text;
-    QFrame *timer;
-    QLabel *timer_lbl;
-    QLabel *timer_text;
     QFrame *cameraX;
     QLabel *cameraX_lbl;
     QDoubleSpinBox *cameraX_value;
@@ -65,6 +62,14 @@ public:
     QFrame *cameraRoll;
     QLabel *cameraRoll_lbl;
     QDoubleSpinBox *cameraRoll_value;
+    QFrame *cameraForwardSpeed;
+    QLabel *cameraForwardSpeed_lbl;
+    QDoubleSpinBox *cameraForwardSpeed_value;
+    QDial *cameraForwardSpeed_dial;
+    QFrame *cameraRotationSpeed;
+    QLabel *cameraRotationSpeed_lbl;
+    QDoubleSpinBox *cameraRotationSpeed_value;
+    QDial *cameraRotationSpeed_dial;
     QFrame *reloadScene;
     QPushButton *reloadScene_btn;
     QFrame *reloadPlacement;
@@ -357,41 +362,6 @@ public:
 
         sceneLayout->addWidget(deltaTime);
 
-        timer = new QFrame(layoutWidget);
-        timer->setObjectName(QStringLiteral("timer"));
-        sizePolicy.setHeightForWidth(timer->sizePolicy().hasHeightForWidth());
-        timer->setSizePolicy(sizePolicy);
-        timer->setMinimumSize(QSize(225, 35));
-        timer->setMaximumSize(QSize(225, 35));
-        timer->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
-"border-radius: 4px;"));
-        timer->setFrameShape(QFrame::Panel);
-        timer->setFrameShadow(QFrame::Raised);
-        timer_lbl = new QLabel(timer);
-        timer_lbl->setObjectName(QStringLiteral("timer_lbl"));
-        timer_lbl->setGeometry(QRect(3, 2, 100, 30));
-        sizePolicy.setHeightForWidth(timer_lbl->sizePolicy().hasHeightForWidth());
-        timer_lbl->setSizePolicy(sizePolicy);
-        timer_lbl->setMinimumSize(QSize(100, 30));
-        timer_lbl->setMaximumSize(QSize(100, 30));
-        timer_lbl->setFont(font1);
-        timer_text = new QLabel(timer);
-        timer_text->setObjectName(QStringLiteral("timer_text"));
-        timer_text->setGeometry(QRect(106, 5, 115, 25));
-        sizePolicy1.setHeightForWidth(timer_text->sizePolicy().hasHeightForWidth());
-        timer_text->setSizePolicy(sizePolicy1);
-        timer_text->setMinimumSize(QSize(115, 25));
-        timer_text->setMaximumSize(QSize(115, 25));
-        timer_text->setAutoFillBackground(false);
-        timer_text->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
-""));
-        timer_text->setFrameShape(QFrame::NoFrame);
-        timer_text->setFrameShadow(QFrame::Plain);
-        timer_text->setLineWidth(0);
-        timer_text->setMargin(3);
-
-        sceneLayout->addWidget(timer);
-
         cameraX = new QFrame(layoutWidget);
         cameraX->setObjectName(QStringLiteral("cameraX"));
         cameraX->setMinimumSize(QSize(225, 35));
@@ -618,6 +588,110 @@ public:
         cameraRoll_value->setSingleStep(0.05);
 
         sceneLayout->addWidget(cameraRoll);
+
+        cameraForwardSpeed = new QFrame(layoutWidget);
+        cameraForwardSpeed->setObjectName(QStringLiteral("cameraForwardSpeed"));
+        cameraForwardSpeed->setMinimumSize(QSize(225, 35));
+        cameraForwardSpeed->setMaximumSize(QSize(225, 35));
+        cameraForwardSpeed->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        cameraForwardSpeed->setFrameShape(QFrame::NoFrame);
+        cameraForwardSpeed->setFrameShadow(QFrame::Plain);
+        cameraForwardSpeed->setLineWidth(0);
+        cameraForwardSpeed_lbl = new QLabel(cameraForwardSpeed);
+        cameraForwardSpeed_lbl->setObjectName(QStringLiteral("cameraForwardSpeed_lbl"));
+        cameraForwardSpeed_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(cameraForwardSpeed_lbl->sizePolicy().hasHeightForWidth());
+        cameraForwardSpeed_lbl->setSizePolicy(sizePolicy);
+        cameraForwardSpeed_lbl->setMinimumSize(QSize(100, 30));
+        cameraForwardSpeed_lbl->setMaximumSize(QSize(100, 30));
+        cameraForwardSpeed_lbl->setFont(font1);
+        cameraForwardSpeed_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        cameraForwardSpeed_lbl->setMargin(1);
+        cameraForwardSpeed_value = new QDoubleSpinBox(cameraForwardSpeed);
+        cameraForwardSpeed_value->setObjectName(QStringLiteral("cameraForwardSpeed_value"));
+        cameraForwardSpeed_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(cameraForwardSpeed_value->sizePolicy().hasHeightForWidth());
+        cameraForwardSpeed_value->setSizePolicy(sizePolicy);
+        cameraForwardSpeed_value->setMinimumSize(QSize(86, 25));
+        cameraForwardSpeed_value->setMaximumSize(QSize(86, 25));
+        cameraForwardSpeed_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        cameraForwardSpeed_value->setFrame(false);
+        cameraForwardSpeed_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraForwardSpeed_value->setDecimals(3);
+        cameraForwardSpeed_value->setMinimum(0);
+        cameraForwardSpeed_value->setMaximum(1e+09);
+        cameraForwardSpeed_value->setSingleStep(0.01);
+        cameraForwardSpeed_dial = new QDial(cameraForwardSpeed);
+        cameraForwardSpeed_dial->setObjectName(QStringLiteral("cameraForwardSpeed_dial"));
+        cameraForwardSpeed_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(cameraForwardSpeed_dial->sizePolicy().hasHeightForWidth());
+        cameraForwardSpeed_dial->setSizePolicy(sizePolicy);
+        cameraForwardSpeed_dial->setMinimumSize(QSize(30, 30));
+        cameraForwardSpeed_dial->setMaximumSize(QSize(30, 30));
+        cameraForwardSpeed_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        cameraForwardSpeed_dial->setMinimum(-10000);
+        cameraForwardSpeed_dial->setMaximum(10000);
+
+        sceneLayout->addWidget(cameraForwardSpeed);
+
+        cameraRotationSpeed = new QFrame(layoutWidget);
+        cameraRotationSpeed->setObjectName(QStringLiteral("cameraRotationSpeed"));
+        cameraRotationSpeed->setMinimumSize(QSize(225, 35));
+        cameraRotationSpeed->setMaximumSize(QSize(225, 35));
+        cameraRotationSpeed->setStyleSheet(QLatin1String("background-color: rgb(245, 245, 245);\n"
+"border-radius: 4px;"));
+        cameraRotationSpeed->setFrameShape(QFrame::NoFrame);
+        cameraRotationSpeed->setFrameShadow(QFrame::Plain);
+        cameraRotationSpeed->setLineWidth(0);
+        cameraRotationSpeed_lbl = new QLabel(cameraRotationSpeed);
+        cameraRotationSpeed_lbl->setObjectName(QStringLiteral("cameraRotationSpeed_lbl"));
+        cameraRotationSpeed_lbl->setGeometry(QRect(2, 2, 100, 30));
+        sizePolicy.setHeightForWidth(cameraRotationSpeed_lbl->sizePolicy().hasHeightForWidth());
+        cameraRotationSpeed_lbl->setSizePolicy(sizePolicy);
+        cameraRotationSpeed_lbl->setMinimumSize(QSize(100, 30));
+        cameraRotationSpeed_lbl->setMaximumSize(QSize(100, 30));
+        cameraRotationSpeed_lbl->setFont(font1);
+        cameraRotationSpeed_lbl->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        cameraRotationSpeed_lbl->setMargin(1);
+        cameraRotationSpeed_value = new QDoubleSpinBox(cameraRotationSpeed);
+        cameraRotationSpeed_value->setObjectName(QStringLiteral("cameraRotationSpeed_value"));
+        cameraRotationSpeed_value->setGeometry(QRect(104, 5, 86, 25));
+        sizePolicy.setHeightForWidth(cameraRotationSpeed_value->sizePolicy().hasHeightForWidth());
+        cameraRotationSpeed_value->setSizePolicy(sizePolicy);
+        cameraRotationSpeed_value->setMinimumSize(QSize(86, 25));
+        cameraRotationSpeed_value->setMaximumSize(QSize(86, 25));
+        cameraRotationSpeed_value->setStyleSheet(QLatin1String("background-color: rgb(230, 230, 230);\n"
+"border-top-color: rgb(180, 180, 180);\n"
+"border-left-color: rgb(180, 180, 180);\n"
+"border-bottom-color: rgb(255, 255, 255);\n"
+"border-right-color: rgb(255, 255, 255);\n"
+"border-style: solid;\n"
+"border-width: 2px;"));
+        cameraRotationSpeed_value->setFrame(false);
+        cameraRotationSpeed_value->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+        cameraRotationSpeed_value->setDecimals(3);
+        cameraRotationSpeed_value->setMinimum(0);
+        cameraRotationSpeed_value->setMaximum(1e+09);
+        cameraRotationSpeed_value->setSingleStep(0.01);
+        cameraRotationSpeed_dial = new QDial(cameraRotationSpeed);
+        cameraRotationSpeed_dial->setObjectName(QStringLiteral("cameraRotationSpeed_dial"));
+        cameraRotationSpeed_dial->setGeometry(QRect(192, 2, 30, 30));
+        sizePolicy.setHeightForWidth(cameraRotationSpeed_dial->sizePolicy().hasHeightForWidth());
+        cameraRotationSpeed_dial->setSizePolicy(sizePolicy);
+        cameraRotationSpeed_dial->setMinimumSize(QSize(30, 30));
+        cameraRotationSpeed_dial->setMaximumSize(QSize(30, 30));
+        cameraRotationSpeed_dial->setStyleSheet(QStringLiteral("border-width: 0px;"));
+        cameraRotationSpeed_dial->setMinimum(-10000);
+        cameraRotationSpeed_dial->setMaximum(10000);
+
+        sceneLayout->addWidget(cameraRotationSpeed);
 
         reloadScene = new QFrame(layoutWidget);
         reloadScene->setObjectName(QStringLiteral("reloadScene"));
@@ -2340,7 +2414,7 @@ public:
 
         retranslateUi(Tweaker);
 
-        TabMenu->setCurrentIndex(2);
+        TabMenu->setCurrentIndex(0);
         selectedTexture_box->setCurrentIndex(-1);
         selectedTerrain_box->setCurrentIndex(-1);
         lightSelected_box->setCurrentIndex(-1);
@@ -2357,14 +2431,14 @@ public:
         fps_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         deltaTime_lbl->setText(QApplication::translate("Tweaker", "Delta Time", 0));
         deltaTime_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
-        timer_lbl->setText(QApplication::translate("Tweaker", "Timer", 0));
-        timer_text->setText(QApplication::translate("Tweaker", "TextLabel", 0));
         cameraX_lbl->setText(QApplication::translate("Tweaker", "Camera X", 0));
         cameraY_lbl->setText(QApplication::translate("Tweaker", "Camera Y", 0));
         cameraZ_lbl->setText(QApplication::translate("Tweaker", "Camera Z", 0));
         cameraPitch_lbl->setText(QApplication::translate("Tweaker", "Camera Pitch", 0));
         cameraYaw_lbl->setText(QApplication::translate("Tweaker", "Camera Yaw", 0));
         cameraRoll_lbl->setText(QApplication::translate("Tweaker", "Camera Roll", 0));
+        cameraForwardSpeed_lbl->setText(QApplication::translate("Tweaker", "Forward Speed", 0));
+        cameraRotationSpeed_lbl->setText(QApplication::translate("Tweaker", "Rotation Speed", 0));
         reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", 0));
         reloadPlacement_btn->setText(QApplication::translate("Tweaker", "Reload Placement", 0));
         reloadEngine_btn->setText(QApplication::translate("Tweaker", "Reload Engine", 0));

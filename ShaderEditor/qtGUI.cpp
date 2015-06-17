@@ -240,7 +240,6 @@ void QtGUI::UpdateScene(Tweaker& tweaker)
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
     tweaker.SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
-    tweaker.SetTimer(boost::lexical_cast<std::string>(timer));
     tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
 
     for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)

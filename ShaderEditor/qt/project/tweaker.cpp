@@ -40,6 +40,12 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
     m_camera[CAMERA_YAW].Initialise(0.01, 3, m_ui.cameraYaw_value, nullptr, nullptr);
     m_camera[CAMERA_ROLL].Initialise(0.01, 3, m_ui.cameraRoll_value, nullptr, nullptr);
 
+    m_camera[CAMERA_FORWARD_SPD].Initialise(0.01, 3, m_ui.cameraForwardSpeed_value, 
+        m_ui.cameraForwardSpeed_dial, m_callbacks.SetCamera[CAMERA_FORWARD_SPD]);
+
+    m_camera[CAMERA_ROTATION_SPD].Initialise(0.01, 3, m_ui.cameraRotationSpeed_value,
+        m_ui.cameraRotationSpeed_dial, m_callbacks.SetCamera[CAMERA_ROTATION_SPD]);
+
     m_light[LIGHT_ACTIVE].Initialise(0.1, 3, m_ui.light_active_value,
         m_ui.light_active_dial, m_callbacks.SetLight[LIGHT_ACTIVE]);
 
@@ -210,12 +216,6 @@ void Tweaker::SetDeltaTime(const std::string& dt)
     m_ui.deltaTime_text->setText(QString(dt.c_str()));
     m_ui.deltaTime_text->update();
 }
-
-void Tweaker::SetTimer(const std::string& timer)
-{
-    m_ui.timer_text->setText(QString(timer.c_str()));
-    m_ui.timer_text->update();
-}   
 
 void Tweaker::SetFramesPerSec(const std::string& fps)
 {

@@ -5,16 +5,12 @@
 #include "Camera.h"
 #include "renderdata.h"
 
-namespace
-{
-    const float MOVE_SPEED = 45.0f; ///< Speed the camera will translate
-    const float ROT_SPEED = 3.0f;   ///< Speed the camera will rotate
-}
-
 Camera::Camera() :
     m_initialPos(15.0f, 1.0f, 3.0f),
     m_rotation(0.0f, DegToRad(-75.0f), 0.0f),
     m_heightBounds(-20.0f, 2000.0f),
+    m_forwardSpeed(45.0f),
+    m_rotationSpeed(2.0f),
     m_bounds(std::make_unique<BoundingArea>())
 {
     Reset();
@@ -23,24 +19,24 @@ Camera::Camera() :
 void Camera::Forward(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_position -= m_world.Forward() * value * MOVE_SPEED;
+    m_position -= m_world.Forward() * value * m_forwardSpeed;
 }
 
 void Camera::Up(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_position += m_world.Up() * value * MOVE_SPEED;
+    m_position += m_world.Up() * value * m_forwardSpeed;
 }
 
 void Camera::Right(float value)
 {
     m_cameraNeedsUpdate = true;
-    m_position += m_world.Right() * value * MOVE_SPEED;
+    m_position += m_world.Right() * value * m_forwardSpeed;
 }
 
 void Camera::Rotate(const Float2& mouseDir, float speed)
 {
-    speed *= ROT_SPEED;
+    speed *= m_rotationSpeed;
 
     if(mouseDir.x != 0.0f)
     {
@@ -114,4 +110,24 @@ void Camera::GenerateBounds()
 const BoundingArea& Camera::GetBounds() const
 {
     return *m_bounds;
+}
+
+void Camera::SetForwardSpeed(float speed)
+{
+    m_forwardSpeed = speed;
+}
+
+void Camera::SetRotationSpeed(float speed)
+{
+    m_rotationSpeed = speed;
+}
+
+float Camera::GetForwardSpeed() const
+{
+    return m_forwardSpeed;
+}
+
+float Camera::GetRotationSpeed() const
+{
+    return m_rotationSpeed;
 }

@@ -52,12 +52,6 @@ public:
 
     /**
     * Sets the readonly tweak entry
-    * @param timer The time passed in seconds from start
-    */
-    void SetTimer(const std::string& timer);
-
-    /**
-    * Sets the readonly tweak entry
     * @param fps The frames per second for the application
     */
     void SetFramesPerSec(const std::string& fps);
