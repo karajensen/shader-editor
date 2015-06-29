@@ -48,10 +48,12 @@ void Application::Run()
             TranslateMessage(&msg);
             DispatchMessage(&msg); 
         }
-
-        m_timer->UpdateTimer();
-        HandleKeyDown();
-        TickApplication();
+        else
+        {
+            m_timer->UpdateTimer();
+            HandleKeyDown();
+            TickApplication();
+        }
     }
 }
 
