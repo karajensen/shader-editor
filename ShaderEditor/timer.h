@@ -4,7 +4,6 @@
 
 #pragma once
 #include <Windows.h>
-#include <string>
 
 /**
 * FPS class for determining frame rate and delta time
@@ -45,7 +44,7 @@ public:
 
 private:
 
-    float m_frequency = 0.0;          ///< The frequency of the high-resolution performance counter
+    double m_frequency = 0.0;         ///< The frequency of the high-resolution performance counter
     LARGE_INTEGER m_timer;            ///< The current time queried
     double m_previousTime = 0.0;      ///< The previous time queried
     double m_deltaTime = 0.0;         ///< The time passed since last frame in seconds
