@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -255,14 +255,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -292,14 +292,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\vld\include;$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vld.lib;assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\vld\lib;$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>

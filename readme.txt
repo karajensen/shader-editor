@@ -1,3 +1,6 @@
+
+- Update Qt to vs2015 when installer is available
+
 ===================================================================
 SHADER EDITOR
 ===================================================================
@@ -7,8 +10,8 @@ https://github.com/karajensen/shader-editor.git
 ===================================================================
 
 INSTALL REQUIREMENTS: GPUShaderAnalyzer 1.59.0.3208
-RELEASE REQUIREMENTS: Windows 7
-BUILD REQUIREMENTS: Windows 7, Visual Studio 2013 (v120)
+RELEASE REQUIREMENTS: Windows 8+
+BUILD REQUIREMENTS: Windows 8+, Visual Studio 2015
 LIBRARIES: Assimp 3.0, Boost 1.55, vld 2.2.3, Qt 5.3.0 with opengl
 CAUSTIC GENERATOR: http://www.dualheights.se/caustics/
 

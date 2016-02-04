@@ -9,6 +9,8 @@
 *.Debug
 *.Release
 *.idb
+*.iobj
+*.ipdb
 ShaderEditor/ShaderEditor.exe
 ShaderEditor/ShaderEditorD.exe
 ShaderEditor/logfile.txt
