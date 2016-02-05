@@ -11,6 +11,8 @@
 *.idb
 *.iobj
 *.ipdb
+ShaderEditor.caw
+ShaderEditor.VC.opendb
 ShaderEditor/ShaderEditor.exe
 ShaderEditor/ShaderEditorD.exe
 ShaderEditor/logfile.txt
