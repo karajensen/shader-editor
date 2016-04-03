@@ -1,39 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2014 Olivier Goffart <ogoffart@woboq.com>
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -55,7 +48,7 @@ template <typename T> class QList;
 class Q_CORE_EXPORT QMetaMethod
 {
 public:
-    inline QMetaMethod() : mobj(0),handle(0) {}
+    Q_DECL_CONSTEXPR inline QMetaMethod() : mobj(Q_NULLPTR), handle(0) {}
 
     QByteArray methodSignature() const;
     QByteArray name() const;
@@ -81,7 +74,7 @@ public:
     bool invoke(QObject *object,
                 Qt::ConnectionType connectionType,
                 QGenericReturnArgument returnValue,
-                QGenericArgument val0 = QGenericArgument(0),
+                QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                 QGenericArgument val1 = QGenericArgument(),
                 QGenericArgument val2 = QGenericArgument(),
                 QGenericArgument val3 = QGenericArgument(),
@@ -93,7 +86,7 @@ public:
                 QGenericArgument val9 = QGenericArgument()) const;
     inline bool invoke(QObject *object,
                        QGenericReturnArgument returnValue,
-                       QGenericArgument val0 = QGenericArgument(0),
+                       QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                        QGenericArgument val1 = QGenericArgument(),
                        QGenericArgument val2 = QGenericArgument(),
                        QGenericArgument val3 = QGenericArgument(),
@@ -109,7 +102,7 @@ public:
     }
     inline bool invoke(QObject *object,
                        Qt::ConnectionType connectionType,
-                       QGenericArgument val0 = QGenericArgument(0),
+                       QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                        QGenericArgument val1 = QGenericArgument(),
                        QGenericArgument val2 = QGenericArgument(),
                        QGenericArgument val3 = QGenericArgument(),
@@ -124,7 +117,7 @@ public:
                       val0, val1, val2, val3, val4, val5, val6, val7, val8, val9);
     }
     inline bool invoke(QObject *object,
-                       QGenericArgument val0 = QGenericArgument(0),
+                       QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                        QGenericArgument val1 = QGenericArgument(),
                        QGenericArgument val2 = QGenericArgument(),
                        QGenericArgument val3 = QGenericArgument(),
@@ -139,7 +132,35 @@ public:
                       val0, val1, val2, val3, val4, val5, val6, val7, val8, val9);
     }
 
-    inline bool isValid() const { return mobj != 0; }
+    bool invokeOnGadget(void *gadget,
+                QGenericReturnArgument returnValue,
+                QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
+                QGenericArgument val1 = QGenericArgument(),
+                QGenericArgument val2 = QGenericArgument(),
+                QGenericArgument val3 = QGenericArgument(),
+                QGenericArgument val4 = QGenericArgument(),
+                QGenericArgument val5 = QGenericArgument(),
+                QGenericArgument val6 = QGenericArgument(),
+                QGenericArgument val7 = QGenericArgument(),
+                QGenericArgument val8 = QGenericArgument(),
+                QGenericArgument val9 = QGenericArgument()) const;
+    inline bool invokeOnGadget(void *gadget,
+                       QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
+                       QGenericArgument val1 = QGenericArgument(),
+                       QGenericArgument val2 = QGenericArgument(),
+                       QGenericArgument val3 = QGenericArgument(),
+                       QGenericArgument val4 = QGenericArgument(),
+                       QGenericArgument val5 = QGenericArgument(),
+                       QGenericArgument val6 = QGenericArgument(),
+                       QGenericArgument val7 = QGenericArgument(),
+                       QGenericArgument val8 = QGenericArgument(),
+                       QGenericArgument val9 = QGenericArgument()) const
+    {
+        return invokeOnGadget(gadget, QGenericReturnArgument(),
+                      val0, val1, val2, val3, val4, val5, val6, val7, val8, val9);
+    }
+
+    inline bool isValid() const { return mobj != Q_NULLPTR; }
 
 #ifdef Q_QDOC
     static QMetaMethod fromSignal(PointerToMemberFunction signal);
@@ -183,7 +204,7 @@ inline bool operator!=(const QMetaMethod &m1, const QMetaMethod &m2)
 class Q_CORE_EXPORT QMetaEnum
 {
 public:
-    inline QMetaEnum() : mobj(0),handle(0) {}
+    Q_DECL_CONSTEXPR inline QMetaEnum() : mobj(Q_NULLPTR), handle(0) {}
 
     const char *name() const;
     bool isFlag() const;
@@ -194,14 +215,23 @@ public:
 
     const char *scope() const;
 
-    int keyToValue(const char *key, bool *ok = 0) const;
+    int keyToValue(const char *key, bool *ok = Q_NULLPTR) const;
     const char* valueToKey(int value) const;
-    int keysToValue(const char * keys, bool *ok = 0) const;
+    int keysToValue(const char * keys, bool *ok = Q_NULLPTR) const;
     QByteArray valueToKeys(int value) const;
 
     inline const QMetaObject *enclosingMetaObject() const { return mobj; }
 
-    inline bool isValid() const { return name() != 0; }
+    inline bool isValid() const { return name() != Q_NULLPTR; }
+
+    template<typename T> static QMetaEnum fromType() {
+        Q_STATIC_ASSERT_X(QtPrivate::IsQEnumHelper<T>::Value,
+                          "QMetaEnum::fromType only works with enums declared as Q_ENUM or Q_FLAG");
+        const QMetaObject *metaObject = qt_getEnumMetaObject(T());
+        const char *name = qt_getEnumName(T());
+        return metaObject->enumerator(metaObject->indexOfEnumerator(name));
+    }
+
 private:
     const QMetaObject *mobj;
     uint handle;
@@ -223,11 +253,11 @@ public:
     bool isReadable() const;
     bool isWritable() const;
     bool isResettable() const;
-    bool isDesignable(const QObject *obj = 0) const;
-    bool isScriptable(const QObject *obj = 0) const;
-    bool isStored(const QObject *obj = 0) const;
-    bool isEditable(const QObject *obj = 0) const;
-    bool isUser(const QObject *obj = 0) const;
+    bool isDesignable(const QObject *obj = Q_NULLPTR) const;
+    bool isScriptable(const QObject *obj = Q_NULLPTR) const;
+    bool isStored(const QObject *obj = Q_NULLPTR) const;
+    bool isEditable(const QObject *obj = Q_NULLPTR) const;
+    bool isUser(const QObject *obj = Q_NULLPTR) const;
     bool isConstant() const;
     bool isFinal() const;
 
@@ -245,11 +275,17 @@ public:
     bool write(QObject *obj, const QVariant &value) const;
     bool reset(QObject *obj) const;
 
+    QVariant readOnGadget(const void *gadget) const;
+    bool writeOnGadget(void *gadget, const QVariant &value) const;
+    bool resetOnGadget(void *gadget) const;
+
     bool hasStdCppSet() const;
     inline bool isValid() const { return isReadable(); }
     inline const QMetaObject *enclosingMetaObject() const { return mobj; }
 
 private:
+    int registerPropertyType() const;
+
     const QMetaObject *mobj;
     uint handle;
     int idx;
@@ -261,7 +297,7 @@ private:
 class Q_CORE_EXPORT QMetaClassInfo
 {
 public:
-    inline QMetaClassInfo() : mobj(0),handle(0) {}
+    Q_DECL_CONSTEXPR inline QMetaClassInfo() : mobj(Q_NULLPTR), handle(0) {}
     const char *name() const;
     const char *value() const;
     inline const QMetaObject *enclosingMetaObject() const { return mobj; }

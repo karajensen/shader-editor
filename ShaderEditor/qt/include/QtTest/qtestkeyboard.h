@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtTest module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -65,10 +57,11 @@
 QT_BEGIN_NAMESPACE
 
 Q_GUI_EXPORT void qt_handleKeyEvent(QWindow *w, QEvent::Type t, int k, Qt::KeyboardModifiers mods, const QString & text = QString(), bool autorep = false, ushort count = 1);
+Q_GUI_EXPORT bool qt_sendShortcutOverrideEvent(QObject *o, ulong timestamp, int k, Qt::KeyboardModifiers mods, const QString &text = QString(), bool autorep = false, ushort count = 1);
 
 namespace QTest
 {
-    enum KeyAction { Press, Release, Click };
+    enum KeyAction { Press, Release, Click, Shortcut };
 
     static void simulateEvent(QWindow *window, bool press, int code,
                               Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
@@ -76,11 +69,7 @@ namespace QTest
         QEvent::Type type;
         type = press ? QEvent::KeyPress : QEvent::KeyRelease;
         qt_handleKeyEvent(window, type, code, modifier, text, repeat, delay);
-#ifdef QT_MAC_USE_COCOA
-        QTest::qWait(20);
-#else
         qApp->processEvents();
-#endif
     }
 
     static void sendKeyEvent(KeyAction action, QWindow *window, Qt::Key code,
@@ -102,9 +91,15 @@ namespace QTest
 
         bool repeat = false;
 
+        if (action == Shortcut) {
+            int timestamp = 0;
+            qt_sendShortcutOverrideEvent(window, timestamp, code, modifier, text, repeat);
+            return;
+        }
+
         if (action == Press) {
             if (modifier & Qt::ShiftModifier)
-                simulateEvent(window, true, Qt::Key_Shift, 0, QString(), false, delay);
+                simulateEvent(window, true, Qt::Key_Shift, Qt::KeyboardModifiers(), QString(), false, delay);
 
             if (modifier & Qt::ControlModifier)
                 simulateEvent(window, true, Qt::Key_Control, modifier & Qt::ShiftModifier, QString(), false, delay);
@@ -178,6 +173,9 @@ namespace QTest
 
         QKeyEvent a(press ? QEvent::KeyPress : QEvent::KeyRelease, code, modifier, text, repeat);
         QSpontaneKeyEvent::setSpontaneous(&a);
+
+        if (press && qt_sendShortcutOverrideEvent(widget, a.timestamp(), code, modifier, text, repeat))
+            return;
         if (!qApp->notify(widget, &a))
             QTest::qWarn("Keyboard event not accepted by receiving widget");
     }
@@ -224,7 +222,7 @@ namespace QTest
 
         if (action == Press) {
             if (modifier & Qt::ShiftModifier)
-                simulateEvent(widget, true, Qt::Key_Shift, 0, QString(), false, delay);
+                simulateEvent(widget, true, Qt::Key_Shift, Qt::KeyboardModifiers(), QString(), false, delay);
 
             if (modifier & Qt::ControlModifier)
                 simulateEvent(widget, true, Qt::Key_Control, modifier & Qt::ShiftModifier, QString(), false, delay);

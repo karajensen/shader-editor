@@ -1,39 +1,31 @@
 /****************************************************************************
 **
 ** Copyright (C) 2011 Thiago Macieira <thiago@kde.org>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -52,13 +44,6 @@ QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
 #pragma qt_sync_skip_header_check
 #pragma qt_sync_stop_processing
-#endif
-
-#ifdef Q_CC_GNU
-// lowercase is fine, we'll undef it below
-#define always_inline __attribute__((always_inline, gnu_inline))
-#else
-#define always_inline
 #endif
 
 template<int> struct QAtomicOpsSupport { enum { IsSupported = 0 }; };
@@ -92,19 +77,19 @@ template <typename BaseClass> struct QGenericAtomicOps
     {
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T load(const T &_q_value) Q_DECL_NOTHROW
     {
         return _q_value;
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     void store(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         _q_value = newValue;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T loadAcquire(const T &_q_value) Q_DECL_NOTHROW
     {
         T tmp = *static_cast<const volatile T *>(&_q_value);
@@ -112,7 +97,7 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     void storeRelease(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
@@ -123,13 +108,13 @@ template <typename BaseClass> struct QGenericAtomicOps
     { return BaseClass::isFetchAndAddNative(); }
     static inline Q_DECL_CONSTEXPR bool isReferenceCountingWaitFree() Q_DECL_NOTHROW
     { return BaseClass::isFetchAndAddWaitFree(); }
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     bool ref(T &_q_value) Q_DECL_NOTHROW
     {
         return BaseClass::fetchAndAddRelaxed(_q_value, 1) != T(-1);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     bool deref(T &_q_value) Q_DECL_NOTHROW
     {
          return BaseClass::fetchAndAddRelaxed(_q_value, -1) != 1;
@@ -146,7 +131,7 @@ template <typename BaseClass> struct QGenericAtomicOps
     bool testAndSetRelaxed(T &_q_value, X expectedValue, X newValue, X *currentValue) Q_DECL_NOTHROW;
 #endif
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetAcquire(T &_q_value, X expectedValue, X newValue) Q_DECL_NOTHROW
     {
         bool tmp = BaseClass::testAndSetRelaxed(_q_value, expectedValue, newValue);
@@ -154,21 +139,21 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetRelease(T &_q_value, X expectedValue, X newValue) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::testAndSetRelaxed(_q_value, expectedValue, newValue);
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetOrdered(T &_q_value, X expectedValue, X newValue) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::testAndSetRelaxed(_q_value, expectedValue, newValue);
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetAcquire(T &_q_value, X expectedValue, X newValue, X *currentValue) Q_DECL_NOTHROW
     {
         bool tmp = BaseClass::testAndSetRelaxed(_q_value, expectedValue, newValue, currentValue);
@@ -176,14 +161,14 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetRelease(T &_q_value, X expectedValue, X newValue, X *currentValue) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::testAndSetRelaxed(_q_value, expectedValue, newValue, currentValue);
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     bool testAndSetOrdered(T &_q_value, X expectedValue, X newValue, X *currentValue) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
@@ -193,7 +178,7 @@ template <typename BaseClass> struct QGenericAtomicOps
     static inline Q_DECL_CONSTEXPR bool isFetchAndStoreNative() Q_DECL_NOTHROW { return false; }
     static inline Q_DECL_CONSTEXPR bool isFetchAndStoreWaitFree() Q_DECL_NOTHROW { return false; }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     T fetchAndStoreRelaxed(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         // implement fetchAndStore on top of testAndSet
@@ -204,7 +189,7 @@ template <typename BaseClass> struct QGenericAtomicOps
         }
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     T fetchAndStoreAcquire(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndStoreRelaxed(_q_value, newValue);
@@ -212,14 +197,14 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     T fetchAndStoreRelease(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndStoreRelaxed(_q_value, newValue);
     }
 
-    template <typename T, typename X> static inline always_inline
+    template <typename T, typename X> static Q_ALWAYS_INLINE
     T fetchAndStoreOrdered(T &_q_value, X newValue) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
@@ -228,7 +213,7 @@ template <typename BaseClass> struct QGenericAtomicOps
 
     static inline Q_DECL_CONSTEXPR bool isFetchAndAddNative() Q_DECL_NOTHROW { return false; }
     static inline Q_DECL_CONSTEXPR bool isFetchAndAddWaitFree() Q_DECL_NOTHROW { return false; }
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAddRelaxed(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
     {
         // implement fetchAndAdd on top of testAndSet
@@ -239,7 +224,7 @@ template <typename BaseClass> struct QGenericAtomicOps
         }
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAddAcquire(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndAddRelaxed(_q_value, valueToAdd);
@@ -247,28 +232,28 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAddRelease(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndAddRelaxed(_q_value, valueToAdd);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAddOrdered(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::fetchAndAddRelaxed(_q_value, valueToAdd);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndSubRelaxed(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT operand) Q_DECL_NOTHROW
     {
         // implement fetchAndSub on top of fetchAndAdd
         return fetchAndAddRelaxed(_q_value, -operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndSubAcquire(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT operand) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndSubRelaxed(_q_value, operand);
@@ -276,32 +261,32 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndSubRelease(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT operand) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndSubRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndSubOrdered(T &_q_value, typename QAtomicAdditiveType<T>::AdditiveT operand) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::fetchAndSubRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAndRelaxed(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         // implement fetchAndAnd on top of testAndSet
+        T tmp = BaseClass::load(_q_value);
         Q_FOREVER {
-            T tmp = BaseClass::load(_q_value);
-            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp & operand)))
+            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp & operand), &tmp))
                 return tmp;
         }
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAndAcquire(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndAndRelaxed(_q_value, operand);
@@ -309,32 +294,32 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAndRelease(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndAndRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndAndOrdered(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::fetchAndAndRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndOrRelaxed(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         // implement fetchAndOr on top of testAndSet
+        T tmp = BaseClass::load(_q_value);
         Q_FOREVER {
-            T tmp = BaseClass::load(_q_value);
-            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp | operand)))
+            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp | operand), &tmp))
                 return tmp;
         }
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndOrAcquire(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndOrRelaxed(_q_value, operand);
@@ -342,32 +327,32 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndOrRelease(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndOrRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndOrOrdered(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::fetchAndOrRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndXorRelaxed(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         // implement fetchAndXor on top of testAndSet
+        T tmp = BaseClass::load(_q_value);
         Q_FOREVER {
-            T tmp = BaseClass::load(_q_value);
-            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp ^ operand)))
+            if (BaseClass::testAndSetRelaxed(_q_value, tmp, T(tmp ^ operand), &tmp))
                 return tmp;
         }
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndXorAcquire(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         T tmp = BaseClass::fetchAndXorRelaxed(_q_value, operand);
@@ -375,22 +360,20 @@ template <typename BaseClass> struct QGenericAtomicOps
         return tmp;
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndXorRelease(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::releaseMemoryFence(_q_value);
         return BaseClass::fetchAndXorRelaxed(_q_value, operand);
     }
 
-    template <typename T> static inline always_inline
+    template <typename T> static Q_ALWAYS_INLINE
     T fetchAndXorOrdered(T &_q_value, typename QtPrivate::QEnableIf<QTypeInfo<T>::isIntegral, T>::Type operand) Q_DECL_NOTHROW
     {
         BaseClass::orderedMemoryFence(_q_value);
         return BaseClass::fetchAndXorRelaxed(_q_value, operand);
     }
 };
-
-#undef always_inline
 
 QT_END_NAMESPACE
 #endif // QGENERICATOMIC_H

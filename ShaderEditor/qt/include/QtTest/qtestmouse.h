@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtTest module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -53,6 +45,7 @@
 #include <QtTest/qtestspontaneevent.h>
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qpointer.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qwindow.h>
 
@@ -65,11 +58,14 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_GUI_EXPORT void qt_handleMouseEvent(QWindow *w, const QPointF & local, const QPointF & global, Qt::MouseButtons b, Qt::KeyboardModifiers mods = Qt::NoModifier);
+Q_GUI_EXPORT void qt_handleMouseEvent(QWindow *w, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods, int timestamp);
 
 namespace QTest
 {
     enum MouseAction { MousePress, MouseRelease, MouseClick, MouseDClick, MouseMove };
+
+    extern Q_TESTLIB_EXPORT Qt::MouseButton lastMouseButton;
+    extern Q_TESTLIB_EXPORT int lastMouseTimestamp;
 
     static void waitForEvents()
     {
@@ -91,85 +87,91 @@ namespace QTest
             QTest::qWarn("Mouse event occurs outside of target window.");
         }
 
-         static Qt::MouseButton lastButton = Qt::NoButton;
-
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();
-        if (delay > 0)
+        if (delay > 0) {
             QTest::qWait(delay);
+            lastMouseTimestamp += delay;
+        }
 
         if (pos.isNull())
-            pos = window->geometry().center();
+            pos = QPoint(window->width() / 2, window->height() / 2);
 
-        if (action == MouseClick) {
-            mouseEvent(MousePress, window, button, stateKey, pos);
-            mouseEvent(MouseRelease, window, button, stateKey, pos);
-            return;
-        }
-        QTEST_ASSERT(stateKey == 0 || stateKey & Qt::KeyboardModifierMask);
+        QTEST_ASSERT(uint(stateKey) == 0 || stateKey & Qt::KeyboardModifierMask);
 
         stateKey &= static_cast<unsigned int>(Qt::KeyboardModifierMask);
 
+        QPointF global = window->mapToGlobal(pos);
+        QPointer<QWindow> w(window);
 
         switch (action)
         {
-            case MousePress:
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),button,stateKey);
-                lastButton = button;
+        case MouseDClick:
+            qt_handleMouseEvent(w, pos, global, button, stateKey, ++lastMouseTimestamp);
+            qt_handleMouseEvent(w, pos, global, Qt::NoButton, stateKey, ++lastMouseTimestamp);
+            // fall through
+        case MousePress:
+        case MouseClick:
+            qt_handleMouseEvent(w, pos, global, button, stateKey, ++lastMouseTimestamp);
+            lastMouseButton = button;
+            if (action == MousePress)
                 break;
-            case MouseRelease:
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),Qt::NoButton,stateKey);
-                lastButton = Qt::NoButton;
-                break;
-            case MouseDClick:
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),button,stateKey);
-                qWait(10);
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),Qt::NoButton,stateKey);
-                qWait(20);
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),button,stateKey);
-                qWait(10);
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),Qt::NoButton,stateKey);
-                break;
-            case MouseMove:
-                qt_handleMouseEvent(window,pos,window->mapToGlobal(pos),lastButton,stateKey);
-                // No QCursor::setPos() call here. That could potentially result in mouse events sent by the windowing system
-                // which is highly undesired here. Tests must avoid relying on QCursor.
-                break;
-            default:
-                QTEST_ASSERT(false);
+            // fall through
+        case MouseRelease:
+            qt_handleMouseEvent(w, pos, global, Qt::NoButton, stateKey, ++lastMouseTimestamp);
+            lastMouseTimestamp += 500; // avoid double clicks being generated
+            lastMouseButton = Qt::NoButton;
+            break;
+        case MouseMove:
+            qt_handleMouseEvent(w, pos, global, lastMouseButton, stateKey, ++lastMouseTimestamp);
+            // No QCursor::setPos() call here. That could potentially result in mouse events sent by the windowing system
+            // which is highly undesired here. Tests must avoid relying on QCursor.
+            break;
+        default:
+            QTEST_ASSERT(false);
         }
         waitForEvents();
     }
 
-    inline void mousePress(QWindow *window, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mousePress(QWindow *window, Qt::MouseButton button,
+                           Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                            QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MousePress, window, button, stateKey, pos, delay); }
-    inline void mouseRelease(QWindow *window, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseRelease(QWindow *window, Qt::MouseButton button,
+                             Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                              QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseRelease, window, button, stateKey, pos, delay); }
-    inline void mouseClick(QWindow *window, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseClick(QWindow *window, Qt::MouseButton button,
+                           Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                            QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseClick, window, button, stateKey, pos, delay); }
-    inline void mouseDClick(QWindow *window, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseDClick(QWindow *window, Qt::MouseButton button,
+                            Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                             QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseDClick, window, button, stateKey, pos, delay); }
     inline void mouseMove(QWindow *window, QPoint pos = QPoint(), int delay=-1)
-    { mouseEvent(MouseMove, window, Qt::NoButton, 0, pos, delay); }
+    { mouseEvent(MouseMove, window, Qt::NoButton, Qt::KeyboardModifiers(), pos, delay); }
 
 #ifdef QT_WIDGETS_LIB
     static void mouseEvent(MouseAction action, QWidget *widget, Qt::MouseButton button,
                            Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
     {
         QTEST_ASSERT(widget);
+
+        if (pos.isNull())
+            pos = widget->rect().center();
+
+#ifdef QTEST_QPA_MOUSE_HANDLING
+        QWindow *w = widget->window()->windowHandle();
+        QTEST_ASSERT(w);
+        mouseEvent(action, w, button, stateKey, w->mapFromGlobal(widget->mapToGlobal(pos)), delay);
+#else
         extern int Q_TESTLIB_EXPORT defaultMouseDelay();
 
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();
         if (delay > 0)
             QTest::qWait(delay);
-
-        if (pos.isNull())
-            pos = widget->rect().center();
 
         if (action == MouseClick) {
             mouseEvent(MousePress, widget, button, stateKey, pos);
@@ -188,7 +190,7 @@ namespace QTest
                 me = QMouseEvent(QEvent::MouseButtonPress, pos, widget->mapToGlobal(pos), button, button, stateKey);
                 break;
             case MouseRelease:
-                me = QMouseEvent(QEvent::MouseButtonRelease, pos, widget->mapToGlobal(pos), button, 0, stateKey);
+                me = QMouseEvent(QEvent::MouseButtonRelease, pos, widget->mapToGlobal(pos), button, Qt::MouseButton(), stateKey);
                 break;
             case MouseDClick:
                 me = QMouseEvent(QEvent::MouseButtonDblClick, pos, widget->mapToGlobal(pos), button, button, stateKey);
@@ -206,28 +208,32 @@ namespace QTest
         }
         QSpontaneKeyEvent::setSpontaneous(&me);
         if (!qApp->notify(widget, &me)) {
-            static const char *mouseActionNames[] =
+            static const char *const mouseActionNames[] =
                 { "MousePress", "MouseRelease", "MouseClick", "MouseDClick", "MouseMove" };
             QString warning = QString::fromLatin1("Mouse event \"%1\" not accepted by receiving widget");
             QTest::qWarn(warning.arg(QString::fromLatin1(mouseActionNames[static_cast<int>(action)])).toLatin1().data());
         }
-
+#endif
     }
 
-    inline void mousePress(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mousePress(QWidget *widget, Qt::MouseButton button,
+                           Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                            QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MousePress, widget, button, stateKey, pos, delay); }
-    inline void mouseRelease(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseRelease(QWidget *widget, Qt::MouseButton button,
+                             Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                              QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseRelease, widget, button, stateKey, pos, delay); }
-    inline void mouseClick(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseClick(QWidget *widget, Qt::MouseButton button,
+                           Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                            QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseClick, widget, button, stateKey, pos, delay); }
-    inline void mouseDClick(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
+    inline void mouseDClick(QWidget *widget, Qt::MouseButton button,
+                            Qt::KeyboardModifiers stateKey = Qt::KeyboardModifiers(),
                             QPoint pos = QPoint(), int delay=-1)
     { mouseEvent(MouseDClick, widget, button, stateKey, pos, delay); }
     inline void mouseMove(QWidget *widget, QPoint pos = QPoint(), int delay=-1)
-    { mouseEvent(MouseMove, widget, Qt::NoButton, 0, pos, delay); }
+    { mouseEvent(MouseMove, widget, Qt::NoButton, Qt::KeyboardModifiers(), pos, delay); }
 #endif // QT_WIDGETS_LIB
 }
 

@@ -54,6 +54,7 @@
 #include "qgridlayout.h"
 #include "qlayout.h"
 #include "qlayoutitem.h"
+#include "qopenglwidget.h"
 #include "qshortcut.h"
 #include "qsizepolicy.h"
 #include "qstackedlayout.h"

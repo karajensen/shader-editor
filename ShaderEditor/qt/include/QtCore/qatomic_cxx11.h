@@ -1,39 +1,31 @@
 /****************************************************************************
 **
 ** Copyright (C) 2011 Thiago Macieira <thiago@kde.org>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -86,11 +78,13 @@ template<> struct QAtomicOpsSupport<8> { enum { IsSupported = 1 }; };
 #define Q_ATOMIC_INT16_FETCH_AND_STORE_IS_ALWAYS_NATIVE
 #define Q_ATOMIC_INT16_FETCH_AND_ADD_IS_ALWAYS_NATIVE
 
-#define Q_ATOMIC_INT64_IS_SUPPORTED
-#define Q_ATOMIC_INT64_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_INT64_TEST_AND_SET_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_INT64_FETCH_AND_STORE_IS_ALWAYS_NATIVE
-#define Q_ATOMIC_INT64_FETCH_AND_ADD_IS_ALWAYS_NATIVE
+#ifndef QT_NO_STD_ATOMIC64
+#  define Q_ATOMIC_INT64_IS_SUPPORTED
+#  define Q_ATOMIC_INT64_REFERENCE_COUNTING_IS_ALWAYS_NATIVE
+#  define Q_ATOMIC_INT64_TEST_AND_SET_IS_ALWAYS_NATIVE
+#  define Q_ATOMIC_INT64_FETCH_AND_STORE_IS_ALWAYS_NATIVE
+#  define Q_ATOMIC_INT64_FETCH_AND_ADD_IS_ALWAYS_NATIVE
+#endif
 
 template <typename X> struct QAtomicOps
 {
@@ -238,12 +232,108 @@ template <typename X> struct QAtomicOps
     {
         return _q_value.fetch_add(valueToAdd, std::memory_order_acq_rel);
     }
+
+    template <typename T> static inline
+    T fetchAndSubRelaxed(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_sub(valueToAdd, std::memory_order_relaxed);
+    }
+
+    template <typename T> static inline
+    T fetchAndSubAcquire(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_sub(valueToAdd, std::memory_order_acquire);
+    }
+
+    template <typename T> static inline
+    T fetchAndSubRelease(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_sub(valueToAdd, std::memory_order_release);
+    }
+
+    template <typename T> static inline
+    T fetchAndSubOrdered(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_sub(valueToAdd, std::memory_order_acq_rel);
+    }
+
+    template <typename T> static inline
+    T fetchAndAndRelaxed(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_and(valueToAdd, std::memory_order_relaxed);
+    }
+
+    template <typename T> static inline
+    T fetchAndAndAcquire(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_and(valueToAdd, std::memory_order_acquire);
+    }
+
+    template <typename T> static inline
+    T fetchAndAndRelease(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_and(valueToAdd, std::memory_order_release);
+    }
+
+    template <typename T> static inline
+    T fetchAndAndOrdered(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_and(valueToAdd, std::memory_order_acq_rel);
+    }
+
+    template <typename T> static inline
+    T fetchAndOrRelaxed(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_or(valueToAdd, std::memory_order_relaxed);
+    }
+
+    template <typename T> static inline
+    T fetchAndOrAcquire(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_or(valueToAdd, std::memory_order_acquire);
+    }
+
+    template <typename T> static inline
+    T fetchAndOrRelease(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_or(valueToAdd, std::memory_order_release);
+    }
+
+    template <typename T> static inline
+    T fetchAndOrOrdered(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_or(valueToAdd, std::memory_order_acq_rel);
+    }
+
+    template <typename T> static inline
+    T fetchAndXorRelaxed(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_xor(valueToAdd, std::memory_order_relaxed);
+    }
+
+    template <typename T> static inline
+    T fetchAndXorAcquire(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_xor(valueToAdd, std::memory_order_acquire);
+    }
+
+    template <typename T> static inline
+    T fetchAndXorRelease(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_xor(valueToAdd, std::memory_order_release);
+    }
+
+    template <typename T> static inline
+    T fetchAndXorOrdered(std::atomic<T> &_q_value, typename QAtomicAdditiveType<T>::AdditiveT valueToAdd) Q_DECL_NOTHROW
+    {
+        return _q_value.fetch_xor(valueToAdd, std::memory_order_acq_rel);
+    }
 };
 
-#ifdef ATOMIC_VAR_INIT
-# define Q_BASIC_ATOMIC_INITIALIZER(a)   { ATOMIC_VAR_INIT(a) }
+#if defined(Q_COMPILER_CONSTEXPR) && defined(Q_COMPILER_DEFAULT_MEMBERS) && defined(Q_COMPILER_DELETE_MEMBERS)
+#  define Q_BASIC_ATOMIC_INITIALIZER(a)     { a }
 #else
-# define Q_BASIC_ATOMIC_INITIALIZER(a)   { {a} }
+#  define Q_BASIC_ATOMIC_INITIALIZER(a)     { ATOMIC_VAR_INIT(a) }
 #endif
 
 QT_END_NAMESPACE

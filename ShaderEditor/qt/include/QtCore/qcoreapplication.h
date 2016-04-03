@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -125,7 +117,7 @@ public:
 
     static bool sendEvent(QObject *receiver, QEvent *event);
     static void postEvent(QObject *receiver, QEvent *event, int priority = Qt::NormalEventPriority);
-    static void sendPostedEvents(QObject *receiver = 0, int event_type = 0);
+    static void sendPostedEvents(QObject *receiver = Q_NULLPTR, int event_type = 0);
     static void removePostedEvents(QObject *receiver, int eventType = 0);
 #if QT_DEPRECATED_SINCE(5, 3)
     QT_DEPRECATED static bool hasPendingEvents();
@@ -157,7 +149,7 @@ public:
 
     static QString translate(const char * context,
                              const char * key,
-                             const char * disambiguation = 0,
+                             const char * disambiguation = Q_NULLPTR,
                              int n = -1);
 #if QT_DEPRECATED_SINCE(5, 0)
     enum Encoding { UnicodeUTF8, Latin1, DefaultCodec = UnicodeUTF8, CodecForTr = UnicodeUTF8 };
@@ -179,11 +171,7 @@ public Q_SLOTS:
     static void quit();
 
 Q_SIGNALS:
-    void aboutToQuit(
-#if !defined(Q_QDOC)
-    QPrivateSignal
-#endif
-    );
+    void aboutToQuit(QPrivateSignal);
 
     void organizationNameChanged();
     void organizationDomainChanged();
@@ -191,7 +179,7 @@ Q_SIGNALS:
     void applicationVersionChanged();
 
 protected:
-    bool event(QEvent *);
+    bool event(QEvent *) Q_DECL_OVERRIDE;
 
     virtual bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
 #endif // QT_NO_QOBJECT
@@ -206,7 +194,10 @@ protected:
 private:
 #ifndef QT_NO_QOBJECT
     static bool sendSpontaneousEvent(QObject *receiver, QEvent *event);
-    bool notifyInternal(QObject *receiver, QEvent *event);
+#  if QT_DEPRECATED_SINCE(5,6)
+    QT_DEPRECATED bool notifyInternal(QObject *receiver, QEvent *event); // ### Qt6 BIC: remove me
+#  endif
+    static bool notifyInternal2(QObject *receiver, QEvent *);
 #endif
 
     void init();
@@ -219,7 +210,6 @@ private:
     friend class QApplicationPrivate;
     friend class QGuiApplication;
     friend class QGuiApplicationPrivate;
-    friend class QETWidget;
     friend class QWidget;
     friend class QWidgetWindow;
     friend class QWidgetPrivate;
@@ -234,23 +224,23 @@ private:
 
 #ifndef QT_NO_QOBJECT
 inline bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)
-{  if (event) event->spont = false; return self ? self->notifyInternal(receiver, event) : false; }
+{  if (event) event->spont = false; return notifyInternal2(receiver, event); }
 
 inline bool QCoreApplication::sendSpontaneousEvent(QObject *receiver, QEvent *event)
-{ if (event) event->spont = true; return self ? self->notifyInternal(receiver, event) : false; }
+{ if (event) event->spont = true; return notifyInternal2(receiver, event); }
 #endif
 
 #ifdef QT_NO_DEPRECATED
 #  define QT_DECLARE_DEPRECATED_TR_FUNCTIONS(context)
 #else
 #  define QT_DECLARE_DEPRECATED_TR_FUNCTIONS(context) \
-    QT_DEPRECATED static inline QString trUtf8(const char *sourceText, const char *disambiguation = 0, int n = -1) \
+    QT_DEPRECATED static inline QString trUtf8(const char *sourceText, const char *disambiguation = Q_NULLPTR, int n = -1) \
         { return QCoreApplication::translate(#context, sourceText, disambiguation, n); }
 #endif
 
 #define Q_DECLARE_TR_FUNCTIONS(context) \
 public: \
-    static inline QString tr(const char *sourceText, const char *disambiguation = 0, int n = -1) \
+    static inline QString tr(const char *sourceText, const char *disambiguation = Q_NULLPTR, int n = -1) \
         { return QCoreApplication::translate(#context, sourceText, disambiguation, n); } \
     QT_DECLARE_DEPRECATED_TR_FUNCTIONS(context) \
 private:

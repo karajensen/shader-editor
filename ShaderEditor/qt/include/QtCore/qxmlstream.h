@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -61,13 +53,37 @@ public:
     inline QXmlStreamStringRef(const QStringRef &aString)
         :m_string(aString.string()?*aString.string():QString()), m_position(aString.position()), m_size(aString.size()){}
     inline QXmlStreamStringRef(const QString &aString):m_string(aString), m_position(0), m_size(aString.size()){}
-    inline ~QXmlStreamStringRef(){}
+
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+    QXmlStreamStringRef(const QXmlStreamStringRef &other) // = default
+        : m_string(other.m_string), m_position(other.m_position), m_size(other.m_size) {}
+#ifdef Q_COMPILER_RVALUE_REFS
+    QXmlStreamStringRef(QXmlStreamStringRef &&other) Q_DECL_NOTHROW // = default
+        : m_string(std::move(other.m_string)), m_position(other.m_position), m_size(other.m_size) {}
+    QXmlStreamStringRef &operator=(QXmlStreamStringRef &&other) Q_DECL_NOTHROW // = default
+    { swap(other); return *this; }
+#endif
+    QXmlStreamStringRef &operator=(const QXmlStreamStringRef &other) // = default
+    { m_string = other.m_string; m_position = other.m_position; m_size = other.m_size; return *this; }
+    inline ~QXmlStreamStringRef() {} // ### this prevents (or deprecates) all the move/copy special member functions,
+                                     // ### that's why we need to provide them by hand above. We can't remove it in
+                                     // ### Qt 5, since that would change the way its passed to functions. In Qt 6, remove all.
+#endif // Qt < 6.0
+
+    void swap(QXmlStreamStringRef &other) Q_DECL_NOTHROW
+    {
+        qSwap(m_string, other.m_string);
+        qSwap(m_position, other.m_position);
+        qSwap(m_size, other.m_size);
+    }
+
     inline void clear() { m_string.clear(); m_position = m_size = 0; }
     inline operator QStringRef() const { return QStringRef(&m_string, m_position, m_size); }
     inline const QString *string() const { return &m_string; }
     inline int position() const { return m_position; }
     inline int size() const { return m_size; }
 };
+Q_DECLARE_SHARED_NOT_MOVABLE_UNTIL_QT6(QXmlStreamStringRef)
 
 
 class QXmlStreamReaderPrivate;
@@ -83,6 +99,28 @@ public:
     QXmlStreamAttribute(const QString &qualifiedName, const QString &value);
     QXmlStreamAttribute(const QString &namespaceUri, const QString &name, const QString &value);
     QXmlStreamAttribute(const QXmlStreamAttribute &);
+#ifdef Q_COMPILER_RVALUE_REFS
+    QXmlStreamAttribute(QXmlStreamAttribute &&other) Q_DECL_NOTHROW // = default;
+        : m_name(std::move(other.m_name)),
+          m_namespaceUri(std::move(other.m_namespaceUri)),
+          m_qualifiedName(std::move(other.m_qualifiedName)),
+          m_value(std::move(other.m_value)),
+          reserved(other.reserved),
+          m_isDefault(other.m_isDefault)
+    {
+        other.reserved = Q_NULLPTR;
+    }
+    QXmlStreamAttribute &operator=(QXmlStreamAttribute &&other) Q_DECL_NOTHROW // = default;
+    {
+        m_name = std::move(other.m_name);
+        m_namespaceUri = std::move(other.m_namespaceUri);
+        m_qualifiedName = std::move(other.m_qualifiedName);
+        m_value = std::move(other.m_value);
+        qSwap(reserved, other.reserved);
+        m_isDefault = other.m_isDefault;
+        return *this;
+    }
+#endif
     QXmlStreamAttribute& operator=(const QXmlStreamAttribute &);
     ~QXmlStreamAttribute();
     inline QStringRef namespaceUri() const { return m_namespaceUri; }
@@ -133,12 +171,7 @@ public:
         return !value(namespaceUri, name).isNull();
     }
 
-#if !defined(Q_NO_USING_KEYWORD)
     using QVector<QXmlStreamAttribute>::append;
-#else
-    inline void append(const QXmlStreamAttribute &attribute)
-        { QVector<QXmlStreamAttribute>::append(attribute); }
-#endif
 };
 
 class Q_CORE_EXPORT QXmlStreamNamespaceDeclaration {

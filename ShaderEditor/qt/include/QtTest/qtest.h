@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtTest module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -59,6 +51,9 @@
 #include <QtCore/qsize.h>
 #include <QtCore/qrect.h>
 
+#ifdef QT_NETWORK_LIB
+#  include <QtNetwork/qhostaddress.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -78,7 +73,7 @@ template<> inline char *toString(const QLatin1String &str)
 
 template<> inline char *toString(const QByteArray &ba)
 {
-    return QTest::toHexRepresentation(ba.constData(), ba.length());
+    return QTest::toPrettyCString(ba.constData(), ba.length());
 }
 
 #ifndef QT_NO_DATESTRING
@@ -99,8 +94,7 @@ template<> inline char *toString(const QDate &date)
 template<> inline char *toString(const QDateTime &dateTime)
 {
     return dateTime.isValid()
-        ? qstrdup(qPrintable(dateTime.toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz")) +
-                             (dateTime.timeSpec() == Qt::LocalTime ? QLatin1String("[local time]") : QLatin1String("[UTC]"))))
+        ? qstrdup(qPrintable(dateTime.toString(QLatin1String("yyyy/MM/dd hh:mm:ss.zzz[t]"))))
         : qstrdup("Invalid QDateTime");
 }
 #endif // QT_NO_DATESTRING
@@ -171,6 +165,23 @@ template<> inline char *toString(const QVariant &v)
     return qstrdup(vstring.constData());
 }
 
+#ifdef QT_NETWORK_LIB
+template<> inline char *toString(const QHostAddress &addr)
+{
+    switch (addr.protocol()) {
+    case QAbstractSocket::UnknownNetworkLayerProtocol:
+        return qstrdup("<unknown address (parse error)>");
+    case QAbstractSocket::AnyIPProtocol:
+        return qstrdup("QHostAddress::Any");
+    case QAbstractSocket::IPv4Protocol:
+    case QAbstractSocket::IPv6Protocol:
+        break;
+    }
+
+    return qstrdup(addr.toString().toLatin1().constData());
+}
+#endif
+
 template<>
 inline bool qCompare(QString const &t1, QLatin1String const &t2, const char *actual,
                     const char *expected, const char *file, int line)
@@ -214,7 +225,7 @@ inline bool qCompare(QList<T> const &t1, QList<T> const &t2, const char *actual,
             delete [] val2;
         }
     }
-    return compare_helper(isOk, msg, 0, 0, actual, expected, file, line);
+    return compare_helper(isOk, msg, Q_NULLPTR, Q_NULLPTR, actual, expected, file, line);
 }
 
 template <>
@@ -283,18 +294,37 @@ inline bool qCompare(quint32 const &t1, quint64 const &t2, const char *actual,
 }
 QT_END_NAMESPACE
 
+#ifdef QT_TESTCASE_BUILDDIR
+#  define QTEST_SET_MAIN_SOURCE_PATH  QTest::setMainSourcePath(__FILE__, QT_TESTCASE_BUILDDIR);
+#else
+#  define QTEST_SET_MAIN_SOURCE_PATH  QTest::setMainSourcePath(__FILE__);
+#endif
+
 #define QTEST_APPLESS_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
 { \
     TestObject tc; \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 }
 
 #include <QtTest/qtestsystem.h>
+#include <set>
+
+#ifndef QT_NO_OPENGL
+#  define QTEST_ADD_GPU_BLACKLIST_SUPPORT_DEFS \
+    extern Q_TESTLIB_EXPORT std::set<QByteArray> *(*qgpu_features_ptr)(const QString &); \
+    extern Q_GUI_EXPORT std::set<QByteArray> *qgpu_features(const QString &);
+#  define QTEST_ADD_GPU_BLACKLIST_SUPPORT \
+    qgpu_features_ptr = qgpu_features;
+#else
+#  define QTEST_ADD_GPU_BLACKLIST_SUPPORT_DEFS
+#  define QTEST_ADD_GPU_BLACKLIST_SUPPORT
+#endif
 
 #if defined(QT_WIDGETS_LIB)
 
-#include <QtTest/qtest_gui.h>
+#include <QtTest/qtest_widgets.h>
 
 #ifdef QT_KEYPAD_NAVIGATION
 #  define QTEST_DISABLE_KEYPAD_NAVIGATION QApplication::setNavigationMode(Qt::NavigationModeNone);
@@ -303,12 +333,17 @@ int main(int argc, char *argv[]) \
 #endif
 
 #define QTEST_MAIN(TestObject) \
+QT_BEGIN_NAMESPACE \
+QTEST_ADD_GPU_BLACKLIST_SUPPORT_DEFS \
+QT_END_NAMESPACE \
 int main(int argc, char *argv[]) \
 { \
     QApplication app(argc, argv); \
     app.setAttribute(Qt::AA_Use96Dpi, true); \
     QTEST_DISABLE_KEYPAD_NAVIGATION \
+    QTEST_ADD_GPU_BLACKLIST_SUPPORT \
     TestObject tc; \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 }
 
@@ -317,11 +352,16 @@ int main(int argc, char *argv[]) \
 #include <QtTest/qtest_gui.h>
 
 #define QTEST_MAIN(TestObject) \
+QT_BEGIN_NAMESPACE \
+QTEST_ADD_GPU_BLACKLIST_SUPPORT_DEFS \
+QT_END_NAMESPACE \
 int main(int argc, char *argv[]) \
 { \
     QGuiApplication app(argc, argv); \
     app.setAttribute(Qt::AA_Use96Dpi, true); \
+    QTEST_ADD_GPU_BLACKLIST_SUPPORT \
     TestObject tc; \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 }
 
@@ -333,6 +373,7 @@ int main(int argc, char *argv[]) \
     QCoreApplication app(argc, argv); \
     app.setAttribute(Qt::AA_Use96Dpi, true); \
     TestObject tc; \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 }
 
@@ -344,6 +385,7 @@ int main(int argc, char *argv[]) \
     QCoreApplication app(argc, argv); \
     app.setAttribute(Qt::AA_Use96Dpi, true); \
     TestObject tc; \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 }
 

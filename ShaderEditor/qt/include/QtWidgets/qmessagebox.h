@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -57,7 +49,6 @@ class QCheckBox;
 class Q_WIDGETS_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
-    Q_ENUMS(Icon)
     Q_FLAGS(StandardButtons)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(Icon icon READ icon WRITE setIcon)
@@ -79,6 +70,7 @@ public:
         Critical = 3,
         Question = 4
     };
+    Q_ENUM(Icon)
 
     enum ButtonRole {
         // keep this in sync with QDialogButtonBox::ButtonRole and QPlatformDialogHelper::ButtonRole
@@ -133,9 +125,9 @@ public:
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
 
-    explicit QMessageBox(QWidget *parent = 0);
+    explicit QMessageBox(QWidget *parent = Q_NULLPTR);
     QMessageBox(Icon icon, const QString &title, const QString &text,
-                StandardButtons buttons = NoButton, QWidget *parent = 0,
+                StandardButtons buttons = NoButton, QWidget *parent = Q_NULLPTR,
                 Qt::WindowFlags flags = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
     ~QMessageBox();
 
@@ -148,13 +140,7 @@ public:
     void setVisible(bool visible);
 #endif
 
-#ifdef Q_NO_USING_KEYWORD
-#ifndef Q_QDOC
-    void open() { QDialog::open(); }
-#endif
-#else
     using QDialog::open;
-#endif
     void open(QObject *receiver, const char *member);
 
     QList<QAbstractButton *> buttons() const;
@@ -212,7 +198,7 @@ public:
 
     QMessageBox(const QString &title, const QString &text, Icon icon,
                   int button0, int button1, int button2,
-                  QWidget *parent = 0,
+                  QWidget *parent = Q_NULLPTR,
                   Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 
     static int information(QWidget *parent, const QString &title,
@@ -301,12 +287,12 @@ public Q_SLOTS:
 #endif
 
 protected:
-    bool event(QEvent *e);
-    void resizeEvent(QResizeEvent *event);
-    void showEvent(QShowEvent *event);
-    void closeEvent(QCloseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void changeEvent(QEvent *event);
+    bool event(QEvent *e) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+    void showEvent(QShowEvent *event) Q_DECL_OVERRIDE;
+    void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+    void changeEvent(QEvent *event) Q_DECL_OVERRIDE;
 
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_buttonClicked(QAbstractButton *))

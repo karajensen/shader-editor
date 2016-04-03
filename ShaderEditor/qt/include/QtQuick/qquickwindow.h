@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtQuick module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -47,13 +39,16 @@
 #include <QtGui/qopengl.h>
 #include <QtGui/qwindow.h>
 #include <QtGui/qevent.h>
+#include <QtQml/qqml.h>
 
 QT_BEGIN_NAMESPACE
 
+class QRunnable;
 class QQuickItem;
 class QSGTexture;
 class QInputMethodEvent;
 class QQuickWindowPrivate;
+class QQuickWindowAttached;
 class QOpenGLFramebufferObject;
 class QQmlIncubationController;
 class QInputMethodEvent;
@@ -74,7 +69,17 @@ public:
         TextureHasAlphaChannel  = 0x0001,
         TextureHasMipmaps       = 0x0002,
         TextureOwnsGLTexture    = 0x0004,
-        TextureCanUseAtlas      = 0x0008
+        TextureCanUseAtlas      = 0x0008,
+        TextureIsOpaque         = 0x0010
+    };
+
+    enum RenderStage {
+        BeforeSynchronizingStage,
+        AfterSynchronizingStage,
+        BeforeRenderingStage,
+        AfterRenderingStage,
+        AfterSwapStage,
+        NoStage
     };
 
     Q_DECLARE_FLAGS(CreateTextureOptions, CreateTextureOption)
@@ -82,16 +87,17 @@ public:
     enum SceneGraphError {
         ContextNotAvailable = 1
     };
-    Q_ENUMS(SceneGraphError)
+    Q_ENUM(SceneGraphError)
 
     QQuickWindow(QWindow *parent = 0);
+    explicit QQuickWindow(QQuickRenderControl *renderControl);
 
     virtual ~QQuickWindow();
 
     QQuickItem *contentItem() const;
 
     QQuickItem *activeFocusItem() const;
-    QObject *focusObject() const;
+    QObject *focusObject() const Q_DECL_OVERRIDE;
 
     QQuickItem *mouseGrabberItem() const;
 
@@ -111,7 +117,7 @@ public:
     QQmlIncubationController *incubationController() const;
 
 #ifndef QT_NO_ACCESSIBILITY
-    virtual QAccessibleInterface *accessibleRoot() const;
+    QAccessibleInterface *accessibleRoot() const Q_DECL_OVERRIDE;
 #endif
 
     // Scene graph specific functions
@@ -135,6 +141,11 @@ public:
     bool isPersistentSceneGraph() const;
 
     QOpenGLContext *openglContext() const;
+    bool isSceneGraphInitialized() const;
+
+    void scheduleRenderJob(QRunnable *job, RenderStage schedule);
+
+    qreal effectiveDevicePixelRatio() const;
 
 Q_SIGNALS:
     void frameSwapped();
@@ -161,39 +172,40 @@ public Q_SLOTS:
 protected:
     QQuickWindow(QQuickWindowPrivate &dd, QWindow *parent = 0);
 
-    virtual void exposeEvent(QExposeEvent *);
-    virtual void resizeEvent(QResizeEvent *);
+    void exposeEvent(QExposeEvent *) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
 
-    virtual void showEvent(QShowEvent *);
-    virtual void hideEvent(QHideEvent *);
+    void showEvent(QShowEvent *) Q_DECL_OVERRIDE;
+    void hideEvent(QHideEvent *) Q_DECL_OVERRIDE;
     // TODO Qt 6: reimplement QWindow::closeEvent to emit closing
 
-    virtual void focusInEvent(QFocusEvent *);
-    virtual void focusOutEvent(QFocusEvent *);
+    void focusInEvent(QFocusEvent *) Q_DECL_OVERRIDE;
+    void focusOutEvent(QFocusEvent *) Q_DECL_OVERRIDE;
 
-    virtual bool event(QEvent *);
-    virtual void keyPressEvent(QKeyEvent *);
-    virtual void keyReleaseEvent(QKeyEvent *);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseDoubleClickEvent(QMouseEvent *);
-    virtual void mouseMoveEvent(QMouseEvent *);
+    bool event(QEvent *) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *) Q_DECL_OVERRIDE;
+    void mousePressEvent(QMouseEvent *) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *) Q_DECL_OVERRIDE;
+    void mouseDoubleClickEvent(QMouseEvent *) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QMouseEvent *) Q_DECL_OVERRIDE;
 #ifndef QT_NO_WHEELEVENT
-    virtual void wheelEvent(QWheelEvent *);
+    void wheelEvent(QWheelEvent *) Q_DECL_OVERRIDE;
 #endif
 
 private Q_SLOTS:
     void maybeUpdate();
     void cleanupSceneGraph();
-    void forcePolish();
+    void physicalDpiChanged();
+    void handleScreenChanged(QScreen *screen);
     void setTransientParent_helper(QQuickWindow *window);
+    void runJobsAfterSwap();
 
 private:
     friend class QQuickItem;
     friend class QQuickWidget;
     friend class QQuickRenderControl;
     friend class QQuickAnimatorController;
-    explicit QQuickWindow(QQuickRenderControl*);
     Q_DISABLE_COPY(QQuickWindow)
 };
 

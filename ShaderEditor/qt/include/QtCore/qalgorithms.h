@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -45,7 +37,9 @@
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
-
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
+QT_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
 
 /*
     Warning: The contents of QAlgorithmsPrivate is not a part of the public Qt API
@@ -532,7 +526,7 @@ QT_DEPRECATED_X("Use std::binary_search") Q_OUTOFLINE_TEMPLATE RandomAccessItera
 #define QALGORITHMS_USE_BUILTIN_POPCOUNT
 #endif
 
-Q_DECL_CONSTEXPR inline uint qPopulationCount(quint32 v)
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qPopulationCount(quint32 v) Q_DECL_NOTHROW
 {
 #ifdef QALGORITHMS_USE_BUILTIN_POPCOUNT
     return __builtin_popcount(v);
@@ -545,7 +539,7 @@ Q_DECL_CONSTEXPR inline uint qPopulationCount(quint32 v)
 #endif
 }
 
-Q_DECL_CONSTEXPR inline uint qPopulationCount(quint8 v)
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qPopulationCount(quint8 v) Q_DECL_NOTHROW
 {
 #ifdef QALGORITHMS_USE_BUILTIN_POPCOUNT
     return __builtin_popcount(v);
@@ -555,7 +549,7 @@ Q_DECL_CONSTEXPR inline uint qPopulationCount(quint8 v)
 #endif
 }
 
-Q_DECL_CONSTEXPR inline uint qPopulationCount(quint16 v)
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qPopulationCount(quint16 v) Q_DECL_NOTHROW
 {
 #ifdef QALGORITHMS_USE_BUILTIN_POPCOUNT
     return __builtin_popcount(v);
@@ -566,7 +560,7 @@ Q_DECL_CONSTEXPR inline uint qPopulationCount(quint16 v)
 #endif
 }
 
-Q_DECL_CONSTEXPR inline uint qPopulationCount(quint64 v)
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qPopulationCount(quint64 v) Q_DECL_NOTHROW
 {
 #ifdef QALGORITHMS_USE_BUILTIN_POPCOUNT
     return __builtin_popcountll(v);
@@ -581,7 +575,7 @@ Q_DECL_CONSTEXPR inline uint qPopulationCount(quint64 v)
 #endif
 }
 
-Q_DECL_CONSTEXPR inline uint qPopulationCount(long unsigned int v)
+Q_DECL_CONST_FUNCTION Q_DECL_CONSTEXPR inline uint qPopulationCount(long unsigned int v) Q_DECL_NOTHROW
 {
     return qPopulationCount(static_cast<quint64>(v));
 }
@@ -590,7 +584,132 @@ Q_DECL_CONSTEXPR inline uint qPopulationCount(long unsigned int v)
 #undef QALGORITHMS_USE_BUILTIN_POPCOUNT
 #endif
 
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountTrailingZeroBits(quint32 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_ctz(v) : 32U;
+#else
+    // see http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightParallel
+    unsigned int c = 32; // c will be the number of zero bits on the right
+    v &= -signed(v);
+    if (v) c--;
+    if (v & 0x0000FFFF) c -= 16;
+    if (v & 0x00FF00FF) c -= 8;
+    if (v & 0x0F0F0F0F) c -= 4;
+    if (v & 0x33333333) c -= 2;
+    if (v & 0x55555555) c -= 1;
+    return c;
+#endif
+}
 
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountTrailingZeroBits(quint8 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_ctz(v) : 8U;
+#else
+    unsigned int c = 8; // c will be the number of zero bits on the right
+    v &= -signed(v);
+    if (v) c--;
+    if (v & 0x0000000F) c -= 4;
+    if (v & 0x00000033) c -= 2;
+    if (v & 0x00000055) c -= 1;
+    return c;
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountTrailingZeroBits(quint16 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_ctz(v) : 16U;
+#else
+    unsigned int c = 16; // c will be the number of zero bits on the right
+    v &= -signed(v);
+    if (v) c--;
+    if (v & 0x000000FF) c -= 8;
+    if (v & 0x00000F0F) c -= 4;
+    if (v & 0x00003333) c -= 2;
+    if (v & 0x00005555) c -= 1;
+    return c;
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountTrailingZeroBits(quint64 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_ctzll(v) : 64;
+#else
+    quint32 x = static_cast<quint32>(v);
+    return x ? qCountTrailingZeroBits(x)
+             : 32 + qCountTrailingZeroBits(static_cast<quint32>(v >> 32));
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountTrailingZeroBits(unsigned long v) Q_DECL_NOTHROW
+{
+    return qCountTrailingZeroBits(QIntegerForSizeof<long>::Unsigned(v));
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountLeadingZeroBits(quint32 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_clz(v) : 32U;
+#else
+    // Hacker's Delight, 2nd ed. Fig 5-16, p. 102
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+    v = v | (v >> 8);
+    v = v | (v >> 16);
+    return qPopulationCount(~v);
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountLeadingZeroBits(quint8 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_clz(v)-24U : 8U;
+#else
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+    return qPopulationCount(static_cast<quint8>(~v));
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountLeadingZeroBits(quint16 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_clz(v)-16U : 16U;
+#else
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+    v = v | (v >> 8);
+    return qPopulationCount(static_cast<quint16>(~v));
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountLeadingZeroBits(quint64 v) Q_DECL_NOTHROW
+{
+#if defined(Q_CC_GNU)
+    return v ? __builtin_clzll(v) : 64U;
+#else
+    v = v | (v >> 1);
+    v = v | (v >> 2);
+    v = v | (v >> 4);
+    v = v | (v >> 8);
+    v = v | (v >> 16);
+    v = v | (v >> 32);
+    return qPopulationCount(~v);
+#endif
+}
+
+Q_DECL_RELAXED_CONSTEXPR inline uint qCountLeadingZeroBits(unsigned long v) Q_DECL_NOTHROW
+{
+    return qCountLeadingZeroBits(QIntegerForSizeof<long>::Unsigned(v));
+}
+
+QT_WARNING_POP
 QT_END_NAMESPACE
 
 #endif // QALGORITHMS_H

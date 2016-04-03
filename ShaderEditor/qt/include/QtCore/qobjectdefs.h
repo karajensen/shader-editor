@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -86,12 +78,20 @@ class QString;
 #define Q_CLASSINFO(name, value)
 #define Q_PLUGIN_METADATA(x)
 #define Q_INTERFACES(x)
+#ifdef Q_COMPILER_VARIADIC_MACROS
+#define Q_PROPERTY(...)
+#else
 #define Q_PROPERTY(text)
+#endif
 #define Q_PRIVATE_PROPERTY(d, text)
 #define Q_REVISION(v)
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)
 #define Q_FLAGS(x)
+#define Q_ENUM(ENUM) \
+    friend Q_DECL_CONSTEXPR const QMetaObject *qt_getEnumMetaObject(ENUM) Q_DECL_NOEXCEPT { return &staticMetaObject; } \
+    friend Q_DECL_CONSTEXPR const char *qt_getEnumName(ENUM) Q_DECL_NOEXCEPT { return #ENUM; }
+#define Q_FLAG(ENUM) Q_ENUM(ENUM)
 #define Q_SCRIPTABLE
 #define Q_INVOKABLE
 #define Q_SIGNAL
@@ -101,9 +101,9 @@ class QString;
 #ifndef QT_NO_TRANSLATION
 // full set of tr functions
 #  define QT_TR_FUNCTIONS \
-    static inline QString tr(const char *s, const char *c = 0, int n = -1) \
+    static inline QString tr(const char *s, const char *c = Q_NULLPTR, int n = -1) \
         { return staticMetaObject.tr(s, c, n); } \
-    QT_DEPRECATED static inline QString trUtf8(const char *s, const char *c = 0, int n = -1) \
+    QT_DEPRECATED static inline QString trUtf8(const char *s, const char *c = Q_NULLPTR, int n = -1) \
         { return staticMetaObject.tr(s, c, n); }
 #else
 // inherit the ones from QObject
@@ -146,15 +146,24 @@ inline void qYouForgotTheQ_OBJECT_Macro(T1, T2) {}
 # define Q_DECL_HIDDEN_STATIC_METACALL Q_DECL_HIDDEN
 #endif
 
+#if defined(Q_CC_CLANG) && Q_CC_CLANG >= 306
+#  define Q_OBJECT_NO_OVERRIDE_WARNING      QT_WARNING_DISABLE_CLANG("-Winconsistent-missing-override")
+#else
+#  define Q_OBJECT_NO_OVERRIDE_WARNING
+#endif
+
 /* qmake ignore Q_OBJECT */
 #define Q_OBJECT \
 public: \
     Q_OBJECT_CHECK \
+    QT_WARNING_PUSH \
+    Q_OBJECT_NO_OVERRIDE_WARNING \
     static const QMetaObject staticMetaObject; \
     virtual const QMetaObject *metaObject() const; \
     virtual void *qt_metacast(const char *); \
-    QT_TR_FUNCTIONS \
     virtual int qt_metacall(QMetaObject::Call, int, void **); \
+    QT_WARNING_POP \
+    QT_TR_FUNCTIONS \
 private: \
     Q_DECL_HIDDEN_STATIC_METACALL static void qt_static_metacall(QObject *, QMetaObject::Call, int, void **); \
     struct QPrivateSignal {};
@@ -167,7 +176,10 @@ private: \
 #define Q_GADGET \
 public: \
     static const QMetaObject staticMetaObject; \
-private:
+    void qt_check_for_QGADGET_macro(); \
+    typedef void QtGadgetHelper; \
+private: \
+    Q_DECL_HIDDEN_STATIC_METACALL static void qt_static_metacall(QObject *, QMetaObject::Call, int, void **);
 #endif // QT_NO_META_MACROS
 
 #else // Q_MOC_RUN
@@ -182,6 +194,8 @@ private:
 #define Q_REVISION(v) Q_REVISION(v)
 #define Q_OVERRIDE(text) Q_OVERRIDE(text)
 #define Q_ENUMS(x) Q_ENUMS(x)
+#define Q_FLAGS(x) Q_FLAGS(x)
+#define Q_ENUM(x) Q_ENUM(x)
 #define Q_FLAGS(x) Q_FLAGS(x)
  /* qmake ignore Q_OBJECT */
 #define Q_OBJECT Q_OBJECT
@@ -244,7 +258,7 @@ class QMetaClassInfo;
 class Q_CORE_EXPORT QGenericArgument
 {
 public:
-    inline QGenericArgument(const char *aName = 0, const void *aData = 0)
+    inline QGenericArgument(const char *aName = Q_NULLPTR, const void *aData = Q_NULLPTR)
         : _data(aData), _name(aName) {}
     inline void *data() const { return const_cast<void *>(_data); }
     inline const char *name() const { return _name; }
@@ -257,7 +271,7 @@ private:
 class Q_CORE_EXPORT QGenericReturnArgument: public QGenericArgument
 {
 public:
-    inline QGenericReturnArgument(const char *aName = 0, void *aData = 0)
+    inline QGenericReturnArgument(const char *aName = Q_NULLPTR, void *aData = Q_NULLPTR)
         : QGenericArgument(aName, aData)
         {}
 };
@@ -337,7 +351,7 @@ struct Q_CORE_EXPORT QMetaObject
     // internal index-based connect
     static Connection connect(const QObject *sender, int signal_index,
                         const QObject *receiver, int method_index,
-                        int type = 0, int *types = 0);
+                        int type = 0, int *types = Q_NULLPTR);
     // internal index-based disconnect
     static bool disconnect(const QObject *sender, int signal_index,
                            const QObject *receiver, int method_index);
@@ -354,7 +368,7 @@ struct Q_CORE_EXPORT QMetaObject
     static bool invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType,
                              QGenericReturnArgument ret,
-                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
                              QGenericArgument val3 = QGenericArgument(),
@@ -367,7 +381,7 @@ struct Q_CORE_EXPORT QMetaObject
 
     static inline bool invokeMethod(QObject *obj, const char *member,
                              QGenericReturnArgument ret,
-                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
                              QGenericArgument val3 = QGenericArgument(),
@@ -384,7 +398,7 @@ struct Q_CORE_EXPORT QMetaObject
 
     static inline bool invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType type,
-                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
                              QGenericArgument val3 = QGenericArgument(),
@@ -400,7 +414,7 @@ struct Q_CORE_EXPORT QMetaObject
     }
 
     static inline bool invokeMethod(QObject *obj, const char *member,
-                             QGenericArgument val0 = QGenericArgument(0),
+                             QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
                              QGenericArgument val3 = QGenericArgument(),
@@ -415,7 +429,7 @@ struct Q_CORE_EXPORT QMetaObject
                 val1, val2, val3, val4, val5, val6, val7, val8, val9);
     }
 
-    QObject *newInstance(QGenericArgument val0 = QGenericArgument(0),
+    QObject *newInstance(QGenericArgument val0 = QGenericArgument(Q_NULLPTR),
                          QGenericArgument val1 = QGenericArgument(),
                          QGenericArgument val2 = QGenericArgument(),
                          QGenericArgument val3 = QGenericArgument(),
@@ -462,6 +476,7 @@ class Q_CORE_EXPORT QMetaObject::Connection {
     friend class QObject;
     friend class QObjectPrivate;
     friend struct QMetaObject;
+    bool isConnected_helper() const;
 public:
     ~Connection();
     Connection();
@@ -471,11 +486,11 @@ public:
     operator bool() const;
 #else
     typedef void *Connection::*RestrictedBool;
-    operator RestrictedBool() const { return d_ptr ? &Connection::d_ptr : 0; }
+    operator RestrictedBool() const { return d_ptr && isConnected_helper() ? &Connection::d_ptr : Q_NULLPTR; }
 #endif
 
 #ifdef Q_COMPILER_RVALUE_REFS
-    inline Connection(Connection &&o) : d_ptr(o.d_ptr) { o.d_ptr = 0; }
+    inline Connection(Connection &&o) : d_ptr(o.d_ptr) { o.d_ptr = Q_NULLPTR; }
     inline Connection &operator=(Connection &&other)
     { qSwap(d_ptr, other.d_ptr); return *this; }
 #endif

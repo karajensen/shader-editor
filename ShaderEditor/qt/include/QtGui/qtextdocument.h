@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -71,7 +63,6 @@ class QTextCursor;
 
 template<typename T> class QVector;
 
-#ifndef Q_QDOC // Workaround for QTBUG-35230
 namespace Qt
 {
     Q_GUI_EXPORT bool mightBeRichText(const QString&);
@@ -81,7 +72,6 @@ namespace Qt
     Q_GUI_EXPORT QTextCodec *codecForHtml(const QByteArray &ba);
 #endif
 }
-#endif // Q_QDOC
 
 class Q_GUI_EXPORT QAbstractUndoItem
 {
@@ -119,11 +109,11 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(QUrl baseUrl READ baseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
 
 public:
-    explicit QTextDocument(QObject *parent = 0);
-    explicit QTextDocument(const QString &text, QObject *parent = 0);
+    explicit QTextDocument(QObject *parent = Q_NULLPTR);
+    explicit QTextDocument(const QString &text, QObject *parent = Q_NULLPTR);
     ~QTextDocument();
 
-    QTextDocument *clone(QObject *parent = 0) const;
+    QTextDocument *clone(QObject *parent = Q_NULLPTR) const;
 
     bool isEmpty() const;
     virtual void clear();
@@ -167,11 +157,18 @@ public:
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
-    QTextCursor find(const QString &subString, int from = 0, FindFlags options = 0) const;
-    QTextCursor find(const QString &subString, const QTextCursor &from, FindFlags options = 0) const;
+    QTextCursor find(const QString &subString, int from = 0, FindFlags options = FindFlags()) const;
+    QTextCursor find(const QString &subString, const QTextCursor &cursor, FindFlags options = FindFlags()) const;
 
-    QTextCursor find(const QRegExp &expr, int from = 0, FindFlags options = 0) const;
-    QTextCursor find(const QRegExp &expr, const QTextCursor &from, FindFlags options = 0) const;
+#ifndef QT_NO_REGEXP
+    QTextCursor find(const QRegExp &expr, int from = 0, FindFlags options = FindFlags()) const;
+    QTextCursor find(const QRegExp &expr, const QTextCursor &cursor, FindFlags options = FindFlags()) const;
+#endif
+
+#ifndef QT_NO_REGULAREXPRESSION
+    QTextCursor find(const QRegularExpression &expr, int from = 0, FindFlags options = FindFlags()) const;
+    QTextCursor find(const QRegularExpression &expr, const QTextCursor &cursor, FindFlags options = FindFlags()) const;
+#endif
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;

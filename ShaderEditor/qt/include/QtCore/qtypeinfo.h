@@ -1,45 +1,38 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
 
 #include <QtCore/qtypetraits.h>
+#include <QtCore/qisenum.h>
 
 #ifndef QTYPEINFO_H
 #define QTYPEINFO_H
@@ -63,8 +56,9 @@ public:
         isIntegral = QtPrivate::is_integral<T>::value,
         isComplex = true,
         isStatic = true,
+        isRelocatable = Q_IS_ENUM(T),
         isLarge = (sizeof(T)>sizeof(void*)),
-        isDummy = false,
+        isDummy = false, //### Qt6: remove
         sizeOf = sizeof(T)
     };
 };
@@ -78,6 +72,7 @@ public:
         isIntegral = false,
         isComplex = false,
         isStatic = false,
+        isRelocatable = false,
         isLarge = false,
         isDummy = false,
         sizeOf = 0
@@ -93,11 +88,38 @@ public:
         isIntegral = false,
         isComplex = false,
         isStatic = false,
+        isRelocatable = true,
         isLarge = false,
         isDummy = false,
         sizeOf = sizeof(T*)
     };
 };
+
+/*!
+    \class QTypeInfoQuery
+    \inmodule QtCore
+    \internal
+    \brief QTypeInfoQuery is used to query the values of a given QTypeInfo<T>
+
+    We use it because there may be some QTypeInfo<T> specializations in user
+    code that don't provide certain flags that we added after Qt 5.0. They are:
+    \list
+      \li isRelocatable: defaults to !isStatic
+    \endlist
+
+    DO NOT specialize this class elsewhere.
+*/
+// apply defaults for a generic QTypeInfo<T> that didn't provide the new values
+template <typename T, typename = void>
+struct QTypeInfoQuery : QTypeInfo<T>
+{
+    enum { isRelocatable = !QTypeInfo<T>::isStatic };
+};
+
+// if QTypeInfo<T>::isRelocatable exists, use it
+template <typename T>
+struct QTypeInfoQuery<T, typename QtPrivate::QEnableIf<QTypeInfo<T>::isRelocatable || true>::Type> : QTypeInfo<T>
+{};
 
 /*!
     \class QTypeInfoMerger
@@ -124,8 +146,12 @@ class QTypeInfoMerger
 {
 public:
     enum {
-        isComplex = QTypeInfo<T1>::isComplex || QTypeInfo<T2>::isComplex || QTypeInfo<T3>::isComplex || QTypeInfo<T4>::isComplex,
-        isStatic = QTypeInfo<T1>::isStatic || QTypeInfo<T2>::isStatic || QTypeInfo<T3>::isStatic || QTypeInfo<T4>::isStatic,
+        isComplex = QTypeInfoQuery<T1>::isComplex || QTypeInfoQuery<T2>::isComplex
+                    || QTypeInfoQuery<T3>::isComplex || QTypeInfoQuery<T4>::isComplex,
+        isStatic = QTypeInfoQuery<T1>::isStatic || QTypeInfoQuery<T2>::isStatic
+                    || QTypeInfoQuery<T3>::isStatic || QTypeInfoQuery<T4>::isStatic,
+        isRelocatable = QTypeInfoQuery<T1>::isRelocatable && QTypeInfoQuery<T2>::isRelocatable
+                    && QTypeInfoQuery<T3>::isRelocatable && QTypeInfoQuery<T4>::isRelocatable,
         isLarge = sizeof(T) > sizeof(void*),
         isPointer = false,
         isIntegral = false,
@@ -144,19 +170,20 @@ public: \
         isPointer = false, \
         isIntegral = false, \
         isComplex = true, \
+        isRelocatable = true, \
         isStatic = false, \
         isLarge = (sizeof(CONTAINER<T>) > sizeof(void*)), \
         isDummy = false, \
         sizeOf = sizeof(CONTAINER<T>) \
     }; \
-};
+}
 
-Q_DECLARE_MOVABLE_CONTAINER(QList)
-Q_DECLARE_MOVABLE_CONTAINER(QVector)
-Q_DECLARE_MOVABLE_CONTAINER(QQueue)
-Q_DECLARE_MOVABLE_CONTAINER(QStack)
-Q_DECLARE_MOVABLE_CONTAINER(QLinkedList)
-Q_DECLARE_MOVABLE_CONTAINER(QSet)
+Q_DECLARE_MOVABLE_CONTAINER(QList);
+Q_DECLARE_MOVABLE_CONTAINER(QVector);
+Q_DECLARE_MOVABLE_CONTAINER(QQueue);
+Q_DECLARE_MOVABLE_CONTAINER(QStack);
+Q_DECLARE_MOVABLE_CONTAINER(QLinkedList);
+Q_DECLARE_MOVABLE_CONTAINER(QSet);
 
 #undef Q_DECLARE_MOVABLE_CONTAINER
 
@@ -172,8 +199,9 @@ enum { /* TYPEINFO flags */
     Q_COMPLEX_TYPE = 0,
     Q_PRIMITIVE_TYPE = 0x1,
     Q_STATIC_TYPE = 0,
-    Q_MOVABLE_TYPE = 0x2,
-    Q_DUMMY_TYPE = 0x4
+    Q_MOVABLE_TYPE = 0x2,               // ### Qt6: merge movable and relocatable once QList no longer depends on it
+    Q_DUMMY_TYPE = 0x4,
+    Q_RELOCATABLE_TYPE = 0x8
 };
 
 #define Q_DECLARE_TYPEINFO_BODY(TYPE, FLAGS) \
@@ -183,6 +211,7 @@ public: \
     enum { \
         isComplex = (((FLAGS) & Q_PRIMITIVE_TYPE) == 0), \
         isStatic = (((FLAGS) & (Q_MOVABLE_TYPE | Q_PRIMITIVE_TYPE)) == 0), \
+        isRelocatable = !isStatic || ((FLAGS) & Q_RELOCATABLE_TYPE), \
         isLarge = (sizeof(TYPE)>sizeof(void*)), \
         isPointer = false, \
         isIntegral = QtPrivate::is_integral< TYPE >::value, \
@@ -209,20 +238,22 @@ Q_DECLARE_TYPEINFO_BODY(QFlags<T>, Q_PRIMITIVE_TYPE);
    where 'type' is the name of the type to specialize.  NOTE: shared
    types must define a member-swap, and be defined in the same
    namespace as Qt for this to work.
-*/
-#define Q_DECLARE_SHARED_STL(TYPE) \
-QT_END_NAMESPACE \
-namespace std { \
-    template<> inline void swap< QT_PREPEND_NAMESPACE(TYPE) >(QT_PREPEND_NAMESPACE(TYPE) &value1, QT_PREPEND_NAMESPACE(TYPE) &value2) \
-    { value1.swap(value2); } \
-} \
-QT_BEGIN_NAMESPACE
 
-#define Q_DECLARE_SHARED(TYPE)                                          \
-Q_DECLARE_TYPEINFO(TYPE, Q_MOVABLE_TYPE); \
-template <> inline void qSwap<TYPE>(TYPE &value1, TYPE &value2) \
-{ value1.swap(value2); } \
-Q_DECLARE_SHARED_STL(TYPE)
+   If the type was already released without Q_DECLARE_SHARED applied,
+   _and_ without an explicit Q_DECLARE_TYPEINFO(type, Q_MOVABLE_TYPE),
+   then use Q_DECLARE_SHARED_NOT_MOVABLE_UNTIL_QT6(type) to mark the
+   type shared (incl. swap()), without marking it movable (which
+   would change the memory layout of QList, a BiC change.
+*/
+
+#define Q_DECLARE_SHARED_IMPL(TYPE, FLAGS) \
+Q_DECLARE_TYPEINFO(TYPE, FLAGS); \
+inline void swap(TYPE &value1, TYPE &value2) \
+    Q_DECL_NOEXCEPT_EXPR(noexcept(value1.swap(value2))) \
+{ value1.swap(value2); }
+#define Q_DECLARE_SHARED(TYPE) Q_DECLARE_SHARED_IMPL(TYPE, Q_MOVABLE_TYPE)
+#define Q_DECLARE_SHARED_NOT_MOVABLE_UNTIL_QT6(TYPE) \
+                               Q_DECLARE_SHARED_IMPL(TYPE, QT_VERSION >= QT_VERSION_CHECK(6,0,0) ? Q_MOVABLE_TYPE : Q_RELOCATABLE_TYPE)
 
 /*
    QTypeInfo primitive specializations

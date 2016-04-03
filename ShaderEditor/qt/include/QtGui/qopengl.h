@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtGui module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -67,8 +59,13 @@
 
 #if defined(QT_OPENGL_ES_2)
 # if defined(Q_OS_MAC) // iOS
-#  include <OpenGLES/ES2/gl.h>
-#  include <OpenGLES/ES2/glext.h>
+#  if defined(QT_OPENGL_ES_3)
+#   include <OpenGLES/ES3/gl.h>
+#   include <OpenGLES/ES3/glext.h>
+#  else
+#   include <OpenGLES/ES2/gl.h>
+#   include <OpenGLES/ES2/glext.h>
+#  endif
 
 /*
    OES_EGL_image_external is not included in the Apple provided
@@ -79,7 +76,26 @@
 typedef void* GLeglImageOES;
 
 # else // "uncontrolled" ES2 platforms
-#  include <GLES2/gl2.h>
+
+// In "es2" builds (QT_OPENGL_ES_2) additional defines indicate if ES
+// 3.0 or higher is available. In this case include the corresponding
+// header. These are backwards compatible and it should be safe to
+// include headers on top of each other, meaning that applications can
+// include gl2.h even if gl31.h gets included here.
+
+// NB! This file contains the only usages of the ES_3 and ES_3_1
+// macros. They are useless for pretty much anything else. The fact
+// that Qt was built against an SDK with f.ex. ES 2 only does not mean
+// applications cannot target ES 3. Therefore QOpenGLFunctions and
+// friends do everything dynamically and never rely on these macros.
+
+#  if defined(QT_OPENGL_ES_3_1)
+#   include <GLES3/gl31.h>
+#  elif defined(QT_OPENGL_ES_3)
+#   include <GLES3/gl3.h>
+#  else
+#   include <GLES2/gl2.h>
+#endif
 
 /*
    Some GLES2 implementations (like the one on Harmattan) are missing the
@@ -91,12 +107,6 @@ typedef char GLchar;
 
 #  include <QtGui/qopengles2ext.h>
 # endif // Q_OS_MAC
-# ifndef GL_DOUBLE
-#  define GL_DOUBLE GL_FLOAT
-# endif
-# ifndef GLdouble
-typedef GLfloat GLdouble;
-# endif
 #else // non-ES2 platforms
 # if defined(Q_OS_MAC)
 #  include <OpenGL/gl.h>
@@ -209,7 +219,7 @@ typedef unsigned long long int uint64_t;
 typedef long int int32_t;
 typedef long long int int64_t;
 typedef unsigned long long int uint64_t;
-#elif defined(_WIN32) && defined(__GNUC__)
+#elif defined(_WIN32) && (defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER >= 1600))
 #include <stdint.h>
 #elif defined(_WIN32)
 typedef __int32 int32_t;
@@ -239,7 +249,7 @@ struct _cl_event;
 #endif
 
 #ifndef GL_ARB_debug_output
-typedef void (APIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+typedef void (APIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const GLvoid *userParam);
 #endif
 
 #ifndef GL_AMD_debug_output
@@ -247,7 +257,7 @@ typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,GLenum category,GLenum severit
 #endif
 
 #ifndef GL_KHR_debug
-typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const GLvoid *userParam);
 #endif
 
 #ifndef GL_NV_vdpau_interop

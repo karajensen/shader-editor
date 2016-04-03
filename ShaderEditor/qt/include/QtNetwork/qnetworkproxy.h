@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtNetwork module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -71,7 +63,6 @@ public:
                        QueryType queryType = TcpSocket);
     explicit QNetworkProxyQuery(quint16 bindPort, const QString &protocolTag = QString(),
                        QueryType queryType = TcpServer);
-    QNetworkProxyQuery(const QNetworkProxyQuery &other);
 #ifndef QT_NO_BEARERMANAGEMENT
     QNetworkProxyQuery(const QNetworkConfiguration &networkConfiguration,
                        const QUrl &requestUrl, QueryType queryType = UrlRequest);
@@ -82,10 +73,14 @@ public:
                        quint16 bindPort, const QString &protocolTag = QString(),
                        QueryType queryType = TcpServer);
 #endif
-    ~QNetworkProxyQuery();
+    QNetworkProxyQuery(const QNetworkProxyQuery &other);
+#ifdef Q_COMPILER_RVALUE_REFS
+    QNetworkProxyQuery &operator=(QNetworkProxyQuery &&other) Q_DECL_NOTHROW { swap(other); return *this; }
+#endif
     QNetworkProxyQuery &operator=(const QNetworkProxyQuery &other);
+    ~QNetworkProxyQuery();
 
-    void swap(QNetworkProxyQuery &other) { qSwap(d, other.d); }
+    void swap(QNetworkProxyQuery &other) Q_DECL_NOTHROW { qSwap(d, other.d); }
 
     bool operator==(const QNetworkProxyQuery &other) const;
     inline bool operator!=(const QNetworkProxyQuery &other) const
@@ -147,10 +142,13 @@ public:
     QNetworkProxy(ProxyType type, const QString &hostName = QString(), quint16 port = 0,
                   const QString &user = QString(), const QString &password = QString());
     QNetworkProxy(const QNetworkProxy &other);
+#ifdef Q_COMPILER_RVALUE_REFS
+    QNetworkProxy &operator=(QNetworkProxy &&other) Q_DECL_NOTHROW { swap(other); return *this; }
+#endif
     QNetworkProxy &operator=(const QNetworkProxy &other);
     ~QNetworkProxy();
 
-    void swap(QNetworkProxy &other) { qSwap(d, other.d); }
+    void swap(QNetworkProxy &other) Q_DECL_NOTHROW { qSwap(d, other.d); }
 
     bool operator==(const QNetworkProxy &other) const;
     inline bool operator!=(const QNetworkProxy &other) const

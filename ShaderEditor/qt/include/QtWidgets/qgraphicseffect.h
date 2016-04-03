@@ -1,39 +1,31 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtWidgets module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -80,7 +72,7 @@ public:
         PadToEffectiveBoundingRect
     };
 
-    QGraphicsEffect(QObject *parent = 0);
+    QGraphicsEffect(QObject *parent = Q_NULLPTR);
     virtual ~QGraphicsEffect();
 
     virtual QRectF boundingRectFor(const QRectF &sourceRect) const;
@@ -96,7 +88,7 @@ Q_SIGNALS:
     void enabledChanged(bool enabled);
 
 protected:
-    QGraphicsEffect(QGraphicsEffectPrivate &d, QObject *parent = 0);
+    QGraphicsEffect(QGraphicsEffectPrivate &d, QObject *parent = Q_NULLPTR);
     virtual void draw(QPainter *painter) = 0;
     virtual void sourceChanged(ChangeFlags flags);
     void updateBoundingRect();
@@ -105,7 +97,7 @@ protected:
     QRectF sourceBoundingRect(Qt::CoordinateSystem system = Qt::LogicalCoordinates) const;
     void drawSource(QPainter *painter);
     QPixmap sourcePixmap(Qt::CoordinateSystem system = Qt::LogicalCoordinates,
-                         QPoint *offset = 0,
+                         QPoint *offset = Q_NULLPTR,
                          PixmapPadMode mode = PadToEffectiveBoundingRect) const;
 
 private:
@@ -130,7 +122,7 @@ class Q_WIDGETS_EXPORT QGraphicsColorizeEffect: public QGraphicsEffect
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(qreal strength READ strength WRITE setStrength NOTIFY strengthChanged)
 public:
-    QGraphicsColorizeEffect(QObject *parent = 0);
+    QGraphicsColorizeEffect(QObject *parent = Q_NULLPTR);
     ~QGraphicsColorizeEffect();
 
     QColor color() const;
@@ -145,7 +137,7 @@ Q_SIGNALS:
     void strengthChanged(qreal strength);
 
 protected:
-    void draw(QPainter *painter);
+    void draw(QPainter *painter) Q_DECL_OVERRIDE;
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsColorizeEffect)
@@ -167,10 +159,10 @@ public:
     };
     Q_DECLARE_FLAGS(BlurHints, BlurHint)
 
-    QGraphicsBlurEffect(QObject *parent = 0);
+    QGraphicsBlurEffect(QObject *parent = Q_NULLPTR);
     ~QGraphicsBlurEffect();
 
-    QRectF boundingRectFor(const QRectF &rect) const;
+    QRectF boundingRectFor(const QRectF &rect) const Q_DECL_OVERRIDE;
     qreal blurRadius() const;
     BlurHints blurHints() const;
 
@@ -183,7 +175,7 @@ Q_SIGNALS:
     void blurHintsChanged(BlurHints hints);
 
 protected:
-    void draw(QPainter *painter);
+    void draw(QPainter *painter) Q_DECL_OVERRIDE;
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsBlurEffect)
@@ -202,10 +194,10 @@ class Q_WIDGETS_EXPORT QGraphicsDropShadowEffect: public QGraphicsEffect
     Q_PROPERTY(qreal blurRadius READ blurRadius WRITE setBlurRadius NOTIFY blurRadiusChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 public:
-    QGraphicsDropShadowEffect(QObject *parent = 0);
+    QGraphicsDropShadowEffect(QObject *parent = Q_NULLPTR);
     ~QGraphicsDropShadowEffect();
 
-    QRectF boundingRectFor(const QRectF &rect) const;
+    QRectF boundingRectFor(const QRectF &rect) const Q_DECL_OVERRIDE;
     QPointF offset() const;
 
     inline qreal xOffset() const
@@ -241,7 +233,7 @@ Q_SIGNALS:
     void colorChanged(const QColor &color);
 
 protected:
-    void draw(QPainter *painter);
+    void draw(QPainter *painter) Q_DECL_OVERRIDE;
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsDropShadowEffect)
@@ -255,7 +247,7 @@ class Q_WIDGETS_EXPORT QGraphicsOpacityEffect: public QGraphicsEffect
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
     Q_PROPERTY(QBrush opacityMask READ opacityMask WRITE setOpacityMask NOTIFY opacityMaskChanged)
 public:
-    QGraphicsOpacityEffect(QObject *parent = 0);
+    QGraphicsOpacityEffect(QObject *parent = Q_NULLPTR);
     ~QGraphicsOpacityEffect();
 
     qreal opacity() const;
@@ -270,7 +262,7 @@ Q_SIGNALS:
     void opacityMaskChanged(const QBrush &mask);
 
 protected:
-    void draw(QPainter *painter);
+    void draw(QPainter *painter) Q_DECL_OVERRIDE;
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsOpacityEffect)

@@ -1,40 +1,32 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2015 The Qt Company Ltd.
 ** Copyright (C) 2013 Olivier Goffart <ogoffart@woboq.com>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -118,23 +110,23 @@ class Q_CORE_EXPORT QObject
     Q_DECLARE_PRIVATE(QObject)
 
 public:
-    Q_INVOKABLE explicit QObject(QObject *parent=0);
+    Q_INVOKABLE explicit QObject(QObject *parent=Q_NULLPTR);
     virtual ~QObject();
 
     virtual bool event(QEvent *);
     virtual bool eventFilter(QObject *, QEvent *);
 
 #ifdef Q_QDOC
-    static QString tr(const char *sourceText, const char *comment = 0, int n = -1);
-    static QString trUtf8(const char *sourceText, const char *comment = 0, int n = -1);
+    static QString tr(const char *sourceText, const char *comment = Q_NULLPTR, int n = -1);
+    static QString trUtf8(const char *sourceText, const char *comment = Q_NULLPTR, int n = -1);
     virtual const QMetaObject *metaObject() const;
     static const QMetaObject staticMetaObject;
 #endif
 #ifdef QT_NO_TRANSLATION
-    static QString tr(const char *sourceText, const char * = 0, int = -1)
+    static QString tr(const char *sourceText, const char * = Q_NULLPTR, int = -1)
         { return QString::fromUtf8(sourceText); }
 #if QT_DEPRECATED_SINCE(5, 0)
-    QT_DEPRECATED static QString trUtf8(const char *sourceText, const char * = 0, int = -1)
+    QT_DEPRECATED static QString trUtf8(const char *sourceText, const char * = Q_NULLPTR, int = -1)
         { return QString::fromUtf8(sourceText); }
 #endif
 #endif //QT_NO_TRANSLATION
@@ -145,8 +137,8 @@ public:
     inline bool isWidgetType() const { return d_ptr->isWidget; }
     inline bool isWindowType() const { return d_ptr->isWindow; }
 
-    inline bool signalsBlocked() const { return d_ptr->blockSig; }
-    bool blockSignals(bool b);
+    inline bool signalsBlocked() const Q_DECL_NOTHROW { return d_ptr->blockSig; }
+    bool blockSignals(bool b) Q_DECL_NOTHROW;
 
     QThread *thread() const;
     void moveToThread(QThread *thread);
@@ -156,13 +148,17 @@ public:
 
     template<typename T>
     inline T findChild(const QString &aName = QString(), Qt::FindChildOptions options = Qt::FindChildrenRecursively) const
-    { return static_cast<T>(qt_qFindChild_helper(this, aName, reinterpret_cast<T>(0)->staticMetaObject, options)); }
+    {
+        typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
+        return static_cast<T>(qt_qFindChild_helper(this, aName, ObjType::staticMetaObject, options));
+    }
 
     template<typename T>
     inline QList<T> findChildren(const QString &aName = QString(), Qt::FindChildOptions options = Qt::FindChildrenRecursively) const
     {
+        typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
         QList<T> list;
-        qt_qFindChildren_helper(this, aName, reinterpret_cast<T>(0)->staticMetaObject,
+        qt_qFindChildren_helper(this, aName, ObjType::staticMetaObject,
                                 reinterpret_cast<QList<void *> *>(&list), options);
         return list;
     }
@@ -171,8 +167,9 @@ public:
     template<typename T>
     inline QList<T> findChildren(const QRegExp &re, Qt::FindChildOptions options = Qt::FindChildrenRecursively) const
     {
+        typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
         QList<T> list;
-        qt_qFindChildren_helper(this, re, reinterpret_cast<T>(0)->staticMetaObject,
+        qt_qFindChildren_helper(this, re, ObjType::staticMetaObject,
                                 reinterpret_cast<QList<void *> *>(&list), options);
         return list;
     }
@@ -182,8 +179,9 @@ public:
     template<typename T>
     inline QList<T> findChildren(const QRegularExpression &re, Qt::FindChildOptions options = Qt::FindChildrenRecursively) const
     {
+        typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
         QList<T> list;
-        qt_qFindChildren_helper(this, re, reinterpret_cast<T>(0)->staticMetaObject,
+        qt_qFindChildren_helper(this, re, ObjType::staticMetaObject,
                                 reinterpret_cast<QList<void *> *>(&list), options);
         return list;
     }
@@ -230,7 +228,7 @@ public:
         Q_STATIC_ASSERT_X((QtPrivate::AreArgumentsCompatible<typename SlotType::ReturnType, typename SignalType::ReturnType>::value),
                           "Return type of the slot is not compatible with the return type of the signal.");
 
-        const int *types = 0;
+        const int *types = Q_NULLPTR;
         if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
             types = QtPrivate::ConnectionTypes<typename SignalType::Arguments>::types();
 
@@ -270,11 +268,11 @@ public:
         Q_STATIC_ASSERT_X((QtPrivate::AreArgumentsCompatible<typename SlotType::ReturnType, typename SignalType::ReturnType>::value),
                           "Return type of the slot is not compatible with the return type of the signal.");
 
-        const int *types = 0;
+        const int *types = Q_NULLPTR;
         if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
             types = QtPrivate::ConnectionTypes<typename SignalType::Arguments>::types();
 
-        return connectImpl(sender, reinterpret_cast<void **>(&signal), context, 0,
+        return connectImpl(sender, reinterpret_cast<void **>(&signal), context, Q_NULLPTR,
                            new QtPrivate::QStaticSlotObject<Func2,
                                                  typename QtPrivate::List_Left<typename SignalType::Arguments, SlotType::ArgumentCount>::Value,
                                                  typename SignalType::ReturnType>(slot),
@@ -340,11 +338,11 @@ public:
         Q_STATIC_ASSERT_X(QtPrivate::HasQ_OBJECT_Macro<typename SignalType::Object>::Value,
                           "No Q_OBJECT in the class with the signal");
 
-        const int *types = 0;
+        const int *types = Q_NULLPTR;
         if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
             types = QtPrivate::ConnectionTypes<typename SignalType::Arguments>::types();
 
-        return connectImpl(sender, reinterpret_cast<void **>(&signal), context, 0,
+        return connectImpl(sender, reinterpret_cast<void **>(&signal), context, Q_NULLPTR,
                            new QtPrivate::QFunctorSlotObject<Func2, SlotArgumentCount,
                                 typename QtPrivate::List_Left<typename SignalType::Arguments, SlotArgumentCount>::Value,
                                 typename SignalType::ReturnType>(slot),
@@ -356,11 +354,11 @@ public:
                            const QObject *receiver, const char *member);
     static bool disconnect(const QObject *sender, const QMetaMethod &signal,
                            const QObject *receiver, const QMetaMethod &member);
-    inline bool disconnect(const char *signal = 0,
-                           const QObject *receiver = 0, const char *member = 0) const
+    inline bool disconnect(const char *signal = Q_NULLPTR,
+                           const QObject *receiver = Q_NULLPTR, const char *member = Q_NULLPTR) const
         { return disconnect(this, signal, receiver, member); }
-    inline bool disconnect(const QObject *receiver, const char *member = 0) const
-        { return disconnect(this, 0, receiver, member); }
+    inline bool disconnect(const QObject *receiver, const char *member = Q_NULLPTR) const
+        { return disconnect(this, Q_NULLPTR, receiver, member); }
     static bool disconnect(const QMetaObject::Connection &);
 
 #ifdef Q_QDOC
@@ -387,7 +385,7 @@ public:
     static inline bool disconnect(const typename QtPrivate::FunctionPointer<Func1>::Object *sender, Func1 signal,
                                   const QObject *receiver, void **zero)
     {
-        // This is the overload for when one wish to disconnect a signal from any slot. (slot=0)
+        // This is the overload for when one wish to disconnect a signal from any slot. (slot=Q_NULLPTR)
         // Since the function template parameter cannot be deduced from '0', we use a
         // dummy void ** parameter that must be equal to 0
         Q_ASSERT(!zero);
@@ -414,18 +412,14 @@ public:
 #endif // QT_NO_USERDATA
 
 Q_SIGNALS:
-    void destroyed(QObject * = 0);
-    void objectNameChanged(const QString &objectName
-#if !defined(Q_QDOC)
-    , QPrivateSignal
-#endif
-    );
+    void destroyed(QObject * = Q_NULLPTR);
+    void objectNameChanged(const QString &objectName, QPrivateSignal);
 
 public:
     inline QObject *parent() const { return d_ptr->parent; }
 
     inline bool inherits(const char *classname) const
-        { return const_cast<QObject *>(this)->qt_metacast(classname) != 0; }
+        { return const_cast<QObject *>(this)->qt_metacast(classname) != Q_NULLPTR; }
 
 public Q_SLOTS:
     void deleteLater();
@@ -444,12 +438,14 @@ protected:
     virtual void disconnectNotify(const QMetaMethod &signal);
 
 protected:
-    QObject(QObjectPrivate &dd, QObject *parent = 0);
+    QObject(QObjectPrivate &dd, QObject *parent = Q_NULLPTR);
 
 protected:
     QScopedPointer<QObjectData> d_ptr;
 
     static const QMetaObject staticQtMetaObject;
+    friend inline const QMetaObject *qt_getQtMetaObject() Q_DECL_NOEXCEPT
+    { return &staticQtMetaObject; }
 
     friend struct QMetaObject;
     friend struct QMetaObjectPrivate;
@@ -519,7 +515,7 @@ inline T qobject_cast(QObject *object)
     typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
     Q_STATIC_ASSERT_X(QtPrivate::HasQ_OBJECT_Macro<ObjType>::Value,
                     "qobject_cast requires the type to have a Q_OBJECT macro");
-    return static_cast<T>(reinterpret_cast<T>(object)->staticMetaObject.cast(object));
+    return static_cast<T>(ObjType::staticMetaObject.cast(object));
 }
 
 template <class T>
@@ -528,21 +524,21 @@ inline T qobject_cast(const QObject *object)
     typedef typename QtPrivate::remove_cv<typename QtPrivate::remove_pointer<T>::type>::type ObjType;
     Q_STATIC_ASSERT_X(QtPrivate::HasQ_OBJECT_Macro<ObjType>::Value,
                       "qobject_cast requires the type to have a Q_OBJECT macro");
-    return static_cast<T>(reinterpret_cast<T>(object)->staticMetaObject.cast(object));
+    return static_cast<T>(ObjType::staticMetaObject.cast(object));
 }
 
 
 template <class T> inline const char * qobject_interface_iid()
-{ return 0; }
+{ return Q_NULLPTR; }
 
 #ifndef Q_MOC_RUN
 #  define Q_DECLARE_INTERFACE(IFace, IId) \
     template <> inline const char *qobject_interface_iid<IFace *>() \
     { return IId; } \
     template <> inline IFace *qobject_cast<IFace *>(QObject *object) \
-    { return reinterpret_cast<IFace *>((object ? object->qt_metacast(IId) : 0)); } \
+    { return reinterpret_cast<IFace *>((object ? object->qt_metacast(IId) : Q_NULLPTR)); } \
     template <> inline IFace *qobject_cast<IFace *>(const QObject *object) \
-    { return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0)); }
+    { return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IId) : Q_NULLPTR)); }
 #endif // Q_MOC_RUN
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -552,17 +548,17 @@ Q_CORE_EXPORT QDebug operator<<(QDebug, const QObject *);
 class QSignalBlocker
 {
 public:
-    inline explicit QSignalBlocker(QObject *o);
-    inline explicit QSignalBlocker(QObject &o);
+    inline explicit QSignalBlocker(QObject *o) Q_DECL_NOTHROW;
+    inline explicit QSignalBlocker(QObject &o) Q_DECL_NOTHROW;
     inline ~QSignalBlocker();
 
 #ifdef Q_COMPILER_RVALUE_REFS
-    inline QSignalBlocker(QSignalBlocker &&other);
-    inline QSignalBlocker &operator=(QSignalBlocker &&other);
+    inline QSignalBlocker(QSignalBlocker &&other) Q_DECL_NOTHROW;
+    inline QSignalBlocker &operator=(QSignalBlocker &&other) Q_DECL_NOTHROW;
 #endif
 
-    inline void reblock();
-    inline void unblock();
+    inline void reblock() Q_DECL_NOTHROW;
+    inline void unblock() Q_DECL_NOTHROW;
 private:
     Q_DISABLE_COPY(QSignalBlocker)
     QObject * m_o;
@@ -570,28 +566,28 @@ private:
     bool m_inhibited;
 };
 
-QSignalBlocker::QSignalBlocker(QObject *o)
+QSignalBlocker::QSignalBlocker(QObject *o) Q_DECL_NOTHROW
     : m_o(o),
       m_blocked(o && o->blockSignals(true)),
       m_inhibited(false)
 {}
 
-QSignalBlocker::QSignalBlocker(QObject &o)
+QSignalBlocker::QSignalBlocker(QObject &o) Q_DECL_NOTHROW
     : m_o(&o),
       m_blocked(o.blockSignals(true)),
       m_inhibited(false)
 {}
 
 #ifdef Q_COMPILER_RVALUE_REFS
-QSignalBlocker::QSignalBlocker(QSignalBlocker &&other)
+QSignalBlocker::QSignalBlocker(QSignalBlocker &&other) Q_DECL_NOTHROW
     : m_o(other.m_o),
       m_blocked(other.m_blocked),
       m_inhibited(other.m_inhibited)
 {
-    other.m_o = 0;
+    other.m_o = Q_NULLPTR;
 }
 
-QSignalBlocker &QSignalBlocker::operator=(QSignalBlocker &&other)
+QSignalBlocker &QSignalBlocker::operator=(QSignalBlocker &&other) Q_DECL_NOTHROW
 {
     if (this != &other) {
         // if both *this and other block the same object's signals:
@@ -602,7 +598,7 @@ QSignalBlocker &QSignalBlocker::operator=(QSignalBlocker &&other)
         m_blocked = other.m_blocked;
         m_inhibited = other.m_inhibited;
         // disable other:
-        other.m_o = 0;
+        other.m_o = Q_NULLPTR;
     }
     return *this;
 }
@@ -614,13 +610,13 @@ QSignalBlocker::~QSignalBlocker()
         m_o->blockSignals(m_blocked);
 }
 
-void QSignalBlocker::reblock()
+void QSignalBlocker::reblock() Q_DECL_NOTHROW
 {
     if (m_o) m_o->blockSignals(true);
     m_inhibited = false;
 }
 
-void QSignalBlocker::unblock()
+void QSignalBlocker::unblock() Q_DECL_NOTHROW
 {
     if (m_o) m_o->blockSignals(m_blocked);
     m_inhibited = true;

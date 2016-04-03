@@ -1,39 +1,31 @@
 /****************************************************************************
 **
 ** Copyright (C) 2011 Thiago Macieira <thiago@kde.org>
-** Contact: http://www.qt-project.org/legal
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:LGPL21$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia.  For licensing terms and
-** conditions see http://qt.digia.com/licensing.  For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights.  These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3.0 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU General Public License version 3.0 requirements will be
-** met: http://www.gnu.org/copyleft/gpl.html.
-**
 **
 ** $QT_END_LICENSE$
 **
@@ -46,6 +38,16 @@
 
 #if defined(QT_BOOTSTRAPPED)
 #  include <QtCore/qatomic_bootstrap.h>
+
+// If C++11 atomics are supported, use them!
+#elif defined(Q_COMPILER_ATOMICS) && defined(Q_COMPILER_CONSTEXPR) && !defined(QT_ATOMIC_FORCE_NO_CXX11)
+#  include <QtCore/qatomic_cxx11.h>
+
+// The following is used for testing only.
+// Note that we don't check the compiler support -- you had better
+// know what you're doing if you set it
+#elif defined(QT_ATOMIC_FORCE_GCC)
+#  include <QtCore/qatomic_gcc.h>
 
 // Compiler dependent implementation
 #elif defined(Q_CC_MSVC)
@@ -60,16 +62,10 @@
 # include "QtCore/qatomic_armv5.h"
 #elif defined(Q_PROCESSOR_IA64)
 #  include "QtCore/qatomic_ia64.h"
-#elif defined(Q_PROCESSOR_MIPS)
-#  include "QtCore/qatomic_mips.h"
-#elif defined(Q_PROCESSOR_SPARC)
-#  include "QtCore/qatomic_sparc.h"
 #elif defined(Q_PROCESSOR_X86)
 #  include <QtCore/qatomic_x86.h>
 
 // Fallback compiler dependent implementation
-#elif defined(Q_COMPILER_ATOMICS) && defined(Q_COMPILER_CONSTEXPR)
-#  include <QtCore/qatomic_cxx11.h>
 #elif defined(Q_CC_GNU)
 #  include <QtCore/qatomic_gcc.h>
 
@@ -94,13 +90,9 @@ QT_END_NAMESPACE
 // New atomics
 
 #if defined(Q_COMPILER_CONSTEXPR) && defined(Q_COMPILER_DEFAULT_MEMBERS) && defined(Q_COMPILER_DELETE_MEMBERS)
-# if defined(Q_CC_CLANG) && ((((__clang_major__ * 100) + __clang_minor__) < 303) \
-                             || defined(__apple_build_version__) \
-                            )
-   /* Do not define QT_BASIC_ATOMIC_HAS_CONSTRUCTORS for "stock" clang before version 3.3.
-      Apple's version has different (higher!) version numbers, so disable it for all of them for now.
-      (The only way to distinguish between them seems to be a check for __apple_build_version__ .)
-
+# if defined(Q_CC_CLANG) && Q_CC_CLANG < 303
+   /*
+      Do not define QT_BASIC_ATOMIC_HAS_CONSTRUCTORS for Clang before version 3.3.
       For details about the bug: see http://llvm.org/bugs/show_bug.cgi?id=12670
     */
 # else
