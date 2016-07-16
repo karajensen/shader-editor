@@ -10,6 +10,7 @@
 
 class OpenglEngine;
 class DirectxEngine;
+class VulcanEngine;
 class RenderEngine;
 class Timer;
 class Scene;

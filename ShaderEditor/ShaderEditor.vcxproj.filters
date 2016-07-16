@@ -20,6 +20,9 @@
     <Filter Include="Engine - OpenGL">
       <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine - Vulcan">
+      <UniqueIdentifier>{e0ce437f-19f5-4668-9469-c2aba0723350}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
@@ -187,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="qtGUI.cpp">
       <Filter>Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="vulcanengine.cpp">
+      <Filter>Engine - Vulcan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -369,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="qtGUI.h">
       <Filter>Qt</Filter>
+    </ClInclude>
+    <ClInclude Include="vulcanengine.h">
+      <Filter>Engine - Vulcan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

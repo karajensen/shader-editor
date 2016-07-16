@@ -66,7 +66,7 @@ public:
     virtual bool InitialiseScene(const IScene& scene) override;
 
     /**
-    * ReInitialises the scene for openGL
+    * ReInitialises the scene
     * @return whether initialisation was successful
     */
     virtual bool ReInitialiseScene() override;
