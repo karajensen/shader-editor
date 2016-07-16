@@ -46,12 +46,12 @@ namespace spv {
 
 typedef unsigned int Id;
 
-#define SPV_VERSION 0x10000
-#define SPV_REVISION 3
+#define SPV_VERSION 0x10100
+#define SPV_REVISION 1
 
 static const unsigned int MagicNumber = 0x07230203;
-static const unsigned int Version = 0x00010000;
-static const unsigned int Revision = 3;
+static const unsigned int Version = 0x00010100;
+static const unsigned int Revision = 1;
 static const unsigned int OpCodeMask = 0xffff;
 static const unsigned int WordCountShift = 16;
 
@@ -117,6 +117,10 @@ enum class ExecutionMode : unsigned {
     OutputTriangleStrip = 29,
     VecTypeHint = 30,
     ContractionOff = 31,
+    Initializer = 33,
+    Finalizer = 34,
+    SubgroupSize = 35,
+    SubgroupsPerWorkgroup = 36,
 };
 
 enum class StorageClass : unsigned {
@@ -220,6 +224,7 @@ enum class ImageChannelOrder : unsigned {
     sRGBx = 16,
     sRGBA = 17,
     sBGRA = 18,
+    ABGR = 19,
 };
 
 enum class ImageChannelDataType : unsigned {
@@ -355,6 +360,7 @@ enum class Decoration : unsigned {
     NoContraction = 42,
     InputAttachmentIndex = 43,
     Alignment = 44,
+    MaxByteOffset = 45,
 };
 
 enum class BuiltIn : unsigned {
@@ -415,12 +421,16 @@ enum class SelectionControlMask : unsigned {
 enum class LoopControlShift : unsigned {
     Unroll = 0,
     DontUnroll = 1,
+    DependencyInfinite = 2,
+    DependencyLength = 3,
 };
 
 enum class LoopControlMask : unsigned {
     MaskNone = 0,
     Unroll = 0x00000001,
     DontUnroll = 0x00000002,
+    DependencyInfinite = 0x00000004,
+    DependencyLength = 0x00000008,
 };
 
 enum class FunctionControlShift : unsigned {
@@ -564,6 +574,9 @@ enum class Capability : unsigned {
     StorageImageReadWithoutFormat = 55,
     StorageImageWriteWithoutFormat = 56,
     MultiViewport = 57,
+    SubgroupDispatch = 58,
+    NamedBarrier = 59,
+    PipeStorage = 60,
 };
 
 enum class Op : unsigned {
@@ -861,6 +874,16 @@ enum class Op : unsigned {
     OpAtomicFlagTestAndSet = 318,
     OpAtomicFlagClear = 319,
     OpImageSparseRead = 320,
+    OpSizeOf = 321,
+    OpTypePipeStorage = 322,
+    OpConstantPipeStorage = 323,
+    OpCreatePipeFromPipeStorage = 324,
+    OpGetKernelLocalSizeForSubgroupCount = 325,
+    OpGetKernelMaxNumSubgroups = 326,
+    OpTypeNamedBarrier = 327,
+    OpNamedBarrierInitialize = 328,
+    OpMemoryNamedBarrier = 329,
+    OpModuleProcessed = 330,
 };
 
 // Overload operator| for mask bit combining

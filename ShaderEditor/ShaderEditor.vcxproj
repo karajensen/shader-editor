@@ -70,7 +70,8 @@
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="timer.cpp" />
-    <ClCompile Include="vulcanengine.cpp" />
+    <ClCompile Include="vulkanengine.cpp" />
+    <ClCompile Include="vulkanfunctions.cpp" />
     <ClCompile Include="water.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -133,7 +134,9 @@
     <ClInclude Include="animation.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="float3.h" />
-    <ClInclude Include="vulcanengine.h" />
+    <ClInclude Include="vulkanengine.h" />
+    <ClInclude Include="vulkancommon.h" />
+    <ClInclude Include="vulkanfunctions.h" />
     <ClInclude Include="water.h" />
   </ItemGroup>
   <ItemGroup>
@@ -294,15 +297,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);$(SolutionDir)\$(SolutionName)\vulcan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);$(SolutionDir)\$(SolutionName)\vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;VK_USE_PLATFORM_WIN32_KHR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulcan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <ProgramDatabaseFile>$(SolutionDir)$(ProjectName)\$(Configuration)\$(TargetName).pdb</ProgramDatabaseFile>
@@ -313,15 +316,15 @@
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);$(SolutionDir)\$(SolutionName)\vulcan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(SolutionName)\assimp\include;$(SolutionDir)\$(SolutionName)\opengl\include;$(SolutionDir)\$(SolutionName)\boost;$(SolutionDir)\$(SolutionName)\directx\include;$(SolutionDir)\$(SolutionName)\qt\include;$(SolutionDir)\$(SolutionName)\qt\include\QtCore;$(SolutionDir)\$(SolutionName)\qt\include\QtGui;$(SolutionDir)\$(SolutionName)\qt\include\QtWidgets;$(SolutionDir)\$(SolutionName)\qt\include\QtANGLE;$(SolutionDir)\$(SolutionName);$(SolutionDir)\$(SolutionName)\vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_VS;QT_THREAD_SUPPORT;QT_CORE_LIB;VK_USE_PLATFORM_WIN32_KHR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOIL.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulcan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOIL.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;qtmain.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

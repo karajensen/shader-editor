@@ -131,7 +131,7 @@ void OpenglData::Release()
     }
 }
 
-OpenglEngine::OpenglEngine(HWND hwnd, HINSTANCE hinstance) :
+OpenglEngine::OpenglEngine(HWND hwnd) :
     m_data(new OpenglData()),
     m_hwnd(hwnd)
 {

@@ -8,7 +8,7 @@
 #include "timer.h"
 #include "openglengine.h"
 #include "directxengine.h"
-#include "vulcanengine.h"
+#include "vulkanengine.h"
 #include "scene.h"
 #include "camera.h"
 #include "cache.h"
@@ -17,7 +17,7 @@
 
 //#define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
-#define SELECTED_ENGINE VULCAN
+#define SELECTED_ENGINE VULKAN
 #define SELECTED_MAP PostProcessing::FINAL_MAP
 
 Application::Application() :
@@ -231,21 +231,21 @@ bool Application::Initialise(HWND hwnd,
 
     std::vector<std::string> engineNames;
     m_engines.resize(MAX_ENGINES);
-    m_engines[OPENGL].reset(new OpenglEngine(hwnd, hinstance));
+    m_engines[OPENGL].reset(new OpenglEngine(hwnd));
     m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
-    m_engines[VULCAN].reset(new VulcanEngine(hwnd));
+    m_engines[VULKAN].reset(new VulkanEngine(hwnd, hinstance));
 
     // Ensure that all engines can be initialised
     bool failed = false;
-    for(unsigned int i = 0; i < m_engines.size(); ++i)
-    {
-        engineNames.push_back(m_engines[i]->GetName());
-        if(i != m_selectedEngine)
-        {
-            failed |= !InitialiseEngine(*m_engines[i]);
-            m_engines[i]->Release();
-        }
-    }
+    //for(unsigned int i = 0; i < m_engines.size(); ++i)
+    //{
+    //    engineNames.push_back(m_engines[i]->GetName());
+    //    if(i != m_selectedEngine)
+    //    {
+    //        failed |= !InitialiseEngine(*m_engines[i]);
+    //        m_engines[i]->Release();
+    //    }
+    //}
 
     failed |= !InitialiseEngine(GetEngine());
 

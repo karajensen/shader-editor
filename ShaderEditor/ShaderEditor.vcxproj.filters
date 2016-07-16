@@ -20,7 +20,7 @@
     <Filter Include="Engine - OpenGL">
       <UniqueIdentifier>{037a360f-ff85-4e94-a30f-9cc03db07bef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine - Vulcan">
+    <Filter Include="Engine - Vulkan">
       <UniqueIdentifier>{e0ce437f-19f5-4668-9469-c2aba0723350}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -191,8 +191,11 @@
     <ClCompile Include="qtGUI.cpp">
       <Filter>Qt</Filter>
     </ClCompile>
-    <ClCompile Include="vulcanengine.cpp">
-      <Filter>Engine - Vulcan</Filter>
+    <ClCompile Include="vulkanengine.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkanfunctions.cpp">
+      <Filter>Engine - Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,8 +379,14 @@
     <ClInclude Include="qtGUI.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="vulcanengine.h">
-      <Filter>Engine - Vulcan</Filter>
+    <ClInclude Include="vulkancommon.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkanengine.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkanfunctions.h">
+      <Filter>Engine - Vulkan</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

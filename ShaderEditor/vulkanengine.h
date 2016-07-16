@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - vulcanengine.h
+// Kara Jensen - mail@karajensen.com - vulkanengine.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -17,25 +17,26 @@ class Terrain;
 class Quad;
 class PostProcessing;
 class Emitter;
-struct VulcanData;
+struct VulkanData;
 
 /**
-* Vulcan Graphics engine
+* Vulkan Graphics engine
 */
-class VulcanEngine : public RenderEngine
+class VulkanEngine : public RenderEngine
 {
 public:
 
     /**
     * Constructor
     * @param hwnd Handle to the window
+    * @param hinstance Handle to the current instance of the application
     */
-    explicit VulcanEngine(HWND hwnd);
+    VulkanEngine(HWND hwnd, HINSTANCE hinstance);
 
     /**
     * Destructor
     */
-    ~VulcanEngine();
+    ~VulkanEngine();
 
     /**
     * Explicity releases resources for the engine
@@ -138,6 +139,17 @@ public:
     virtual void WriteToShader(const Shader& shader,
                                const std::string& text) override;
 
+private:
+
+    /**
+    * Initialises the vulkan engine
+    */
+    bool InitializeSwapChain();
+    bool InitializeEngine();
+    bool InitializeInstance();
+    bool InitializeDebugging();
+
     HWND m_hwnd = nullptr;               ///< handle to the window
-    std::unique_ptr<VulcanData> m_data;  ///< member data
+    HINSTANCE m_hinstance = nullptr;     ///< handle to the current instance of the application
+    std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

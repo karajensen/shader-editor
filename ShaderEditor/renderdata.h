@@ -40,7 +40,7 @@ enum RenderingEngine
 {
     OPENGL,
     DIRECTX,
-    VULCAN,
+    VULKAN,
     MAX_ENGINES
 };
 

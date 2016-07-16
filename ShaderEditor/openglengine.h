@@ -32,7 +32,7 @@ public:
     * @param hwnd Handle to the window
     * @param hinstance Handle to the current instance of the application
     */
-    OpenglEngine(HWND hwnd, HINSTANCE hinstance);
+    OpenglEngine(HWND hwnd);
 
     /**
     * Destructor
