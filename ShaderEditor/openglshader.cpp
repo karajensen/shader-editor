@@ -263,7 +263,7 @@ std::string GlShader::GenerateAssembly()
     // GPUShaderAnalyzer.exe Diffuse_glsl_vert.fx -I Diffuse_glsl_vert.asm -ASIC IL -profile glsl_vs -function main
     // GPUShaderAnalyzer.exe Diffuse_glsl_frag.fx -I Diffuse_glsl_frag.asm -ASIC IL -profile glsl_fs -function main
 
-    const std::string process("Assets\\ShaderAnalyzer\\GPUShaderAnalyzer.exe ");
+    const std::string process("Assets\\Compiliers\\GPUShaderAnalyzer.exe ");
     const std::string console("C:\\windows\\system32\\cmd.exe");
 
     const std::string vertex(m_vsFilepath + " -I " + m_vaFilepath 

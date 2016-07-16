@@ -83,7 +83,7 @@ bool VulcanEngine::ReInitialiseScene()
 
 bool VulcanEngine::FadeView(bool in, float amount)
 {
-    return false;
+    return true;
 }
 
 void VulcanEngine::Render(const IScene& scene, float timer)

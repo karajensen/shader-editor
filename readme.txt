@@ -1,8 +1,8 @@
 
 
-- Fix crashing qt
-- Qt and QML code notes page update
+- Fix crashing qt in debug
 - Add vulcan API
+- Update release
 
 
 ===================================================================
