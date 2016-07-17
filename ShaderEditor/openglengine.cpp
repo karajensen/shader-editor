@@ -85,7 +85,10 @@ void OpenglData::Release()
     selectedShader = NO_INDEX;
     fadeAmount = 0.0f;
 
-    shadows->Release();
+    if (shadows)
+    {
+        shadows->Release();
+    }
 
     for(auto& texture : textures)
     {

@@ -100,8 +100,29 @@ void VulkanBase::Release()
     {
         vkDestroyImageView(m_device, m_buffers[i].View, nullptr);
     }
+
     DestroySwapchain(m_device, m_swapChain, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+
+    if (m_setupCmdBuffer != VK_NULL_HANDLE)
+    {
+        vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_setupCmdBuffer);
+    }
+
+    vkFreeCommandBuffers(m_device, m_cmdPool, 
+        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_drawCmdBuffers.data());
+
+    vkFreeCommandBuffers(m_device, m_cmdPool, 
+        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_prePresentCmdBuffers.data());
+
+    vkFreeCommandBuffers(m_device, m_cmdPool,
+        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_postPresentCmdBuffers.data());
+
+    vkDestroyImageView(m_device, m_depthStencil.View, nullptr);
+    vkDestroyImage(m_device, m_depthStencil.Image, nullptr);
+    vkFreeMemory(m_device, m_depthStencil.Memory, nullptr);
+
+    vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
 
     vkDestroySemaphore(m_device, m_presentCompleteSemaphore, nullptr);
     vkDestroySemaphore(m_device, m_renderCompleteSemaphore, nullptr);
@@ -140,6 +161,16 @@ bool VulkanBase::Initialise()
     if (!InitializeSwapChain())
     {
         Logger::LogError("Vulkan: InitializeSwapChain failed");
+        return false;
+    }
+    if (!InitializeCommands())
+    {
+        Logger::LogError("Vulkan: InitializeCommands failed");
+        return false;
+    }
+    if (!InitializeDepthStencil())
+    {
+        Logger::LogError("Vulkan: InitializeDepthStencil failed");
         return false;
     }
     return true;
@@ -642,4 +673,381 @@ bool VulkanBase::InitializeDebugging()
         return false;
     }
     return true;
+}
+
+bool VulkanBase::InitializeCommands()
+{
+    VkCommandPoolCreateInfo cmdPoolInfo = {};
+    cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    cmdPoolInfo.queueFamilyIndex = m_queueNodeIndex;
+    cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    if (FAIL(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &m_cmdPool)))
+    {
+        Logger::LogError("Vulkan: vkCreateCommandPool failed");
+        return false;
+    }
+
+    VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
+    cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cmdBufAllocateInfo.commandPool = m_cmdPool;
+    cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    cmdBufAllocateInfo.commandBufferCount = 1;
+
+    if (FAIL(vkAllocateCommandBuffers(m_device, &cmdBufAllocateInfo, &m_setupCmdBuffer)))
+    {
+        Logger::LogError("Vulkan: vkAllocateCommandBuffers failed");
+        return false;
+    }
+
+    VkCommandBufferBeginInfo cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if(FAIL(vkBeginCommandBuffer(m_setupCmdBuffer, &cmdBufInfo)))
+    {
+        Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+        return false;
+    }
+
+    // Create one command buffer per frame buffer in the swap chain
+    // Command buffers store a reference to the
+    // frame buffer inside their render pass info
+    // so for static usage withouth having to rebuild
+    // them each frame, we use one per frame buffer
+
+    m_drawCmdBuffers.resize(m_imageCount);
+    m_prePresentCmdBuffers.resize(m_imageCount);
+    m_postPresentCmdBuffers.resize(m_imageCount);
+
+    cmdBufAllocateInfo = {};
+    cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cmdBufAllocateInfo.commandPool = m_cmdPool;
+    cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    cmdBufAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_drawCmdBuffers.size());
+
+    if(FAIL(vkAllocateCommandBuffers(m_device, &cmdBufAllocateInfo, m_drawCmdBuffers.data())))
+    {
+        Logger::LogError("Vulkan: vkAllocateCommandBuffers failed");
+        return false;
+    }
+
+    // Command buffers for submitting present barriers
+    // One pre and post present buffer per swap chain image
+    if (FAIL(vkAllocateCommandBuffers(m_device, &cmdBufAllocateInfo, m_prePresentCmdBuffers.data())))
+    {
+        Logger::LogError("Vulkan: vkAllocateCommandBuffers failed");
+        return false;
+    }
+
+    if (FAIL(vkAllocateCommandBuffers(m_device, &cmdBufAllocateInfo, m_postPresentCmdBuffers.data())))
+    {
+        Logger::LogError("Vulkan: vkAllocateCommandBuffers failed");
+        return false;
+    }
+
+    cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBufInfo.pNext = NULL;
+
+    for (uint32_t i = 0; i < m_imageCount; i++)
+    {
+        // Command buffer for post present barrier
+
+        // Insert a post present image barrier to transform the image back to a
+        // color attachment that our render pass can write to
+        // We always use undefined image layout as the source as it doesn't actually matter
+        // what is done with the previous image contents
+
+        if (FAIL(vkBeginCommandBuffer(m_postPresentCmdBuffers[i], &cmdBufInfo)))
+        {
+            Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+            return false;
+        }
+
+        VkImageMemoryBarrier postPresentBarrier = {};
+        postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        postPresentBarrier.pNext = NULL;
+        postPresentBarrier.srcAccessMask = 0;
+        postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        postPresentBarrier.image = m_buffers[i].Image;
+
+        vkCmdPipelineBarrier(
+            m_postPresentCmdBuffers[i],
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &postPresentBarrier);
+
+        if (FAIL(vkEndCommandBuffer(m_postPresentCmdBuffers[i])))
+        {
+            Logger::LogError("Vulkan: vkEndCommandBuffer failed");
+            return false;
+        }
+
+        // Command buffers for pre present barrier
+        // Submit a pre present image barrier to the queue
+        // Transforms the (framebuffer) image layout from color attachment to present(khr) for presenting to the swap chain
+
+        if (FAIL(vkBeginCommandBuffer(m_prePresentCmdBuffers[i], &cmdBufInfo)))
+        {
+            Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+            return false;
+        }
+
+        VkImageMemoryBarrier prePresentBarrier = {};
+        prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        prePresentBarrier.pNext = NULL;
+        prePresentBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        prePresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        prePresentBarrier.image = m_buffers[i].Image;
+
+        vkCmdPipelineBarrier(
+            m_prePresentCmdBuffers[i],
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0, // No flags
+            0, nullptr, // No memory barriers,
+            0, nullptr, // No buffer barriers,
+            1, &prePresentBarrier);
+
+        if (FAIL(vkEndCommandBuffer(m_prePresentCmdBuffers[i])))
+        {
+            Logger::LogError("Vulkan: vkEndCommandBuffer failed");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool VulkanBase::InitializeDepthStencil()
+{
+    VkImageCreateInfo image = {};
+    image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image.pNext = NULL;
+    image.imageType = VK_IMAGE_TYPE_2D;
+    image.format = m_depthFormat;
+    image.extent = { WINDOW_WIDTH, WINDOW_HEIGHT, 1 };
+    image.mipLevels = 1;
+    image.arrayLayers = 1;
+    image.samples = VK_SAMPLE_COUNT_1_BIT;
+    image.tiling = VK_IMAGE_TILING_OPTIMAL;
+    image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    image.flags = 0;
+
+    VkMemoryAllocateInfo mem_alloc = {};
+    mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    mem_alloc.pNext = NULL;
+    mem_alloc.allocationSize = 0;
+    mem_alloc.memoryTypeIndex = 0;
+
+    VkImageViewCreateInfo depthStencilView = {};
+    depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    depthStencilView.pNext = NULL;
+    depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    depthStencilView.format = m_depthFormat;
+    depthStencilView.flags = 0;
+    depthStencilView.subresourceRange = {};
+    depthStencilView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    depthStencilView.subresourceRange.baseMipLevel = 0;
+    depthStencilView.subresourceRange.levelCount = 1;
+    depthStencilView.subresourceRange.baseArrayLayer = 0;
+    depthStencilView.subresourceRange.layerCount = 1;
+
+    if (FAIL(vkCreateImage(m_device, &image, nullptr, &m_depthStencil.Image)))
+    {
+        Logger::LogError("Vulkan: vkCreateImage failed");
+        return false;
+    }
+
+    VkMemoryRequirements memReqs;
+    vkGetImageMemoryRequirements(m_device, m_depthStencil.Image, &memReqs);
+    mem_alloc.allocationSize = memReqs.size;
+    if (!GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mem_alloc.memoryTypeIndex))
+    {
+        Logger::LogError("Vulkan: GetMemoryType failed");
+        return false;
+    }
+
+    if (FAIL(vkAllocateMemory(m_device, &mem_alloc, nullptr, &m_depthStencil.Memory)))
+    {
+        Logger::LogError("Vulkan: vkAllocateMemory failed");
+        return false;
+    }
+
+    if (FAIL(vkBindImageMemory(m_device, m_depthStencil.Image, m_depthStencil.Memory, 0)))
+    {
+        Logger::LogError("Vulkan: vkBindImageMemory failed");
+        return false;
+    }
+    
+    SetImageLayout(m_setupCmdBuffer,
+                   m_depthStencil.Image,
+                   VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
+                   VK_IMAGE_LAYOUT_UNDEFINED,
+                   VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+    depthStencilView.image = m_depthStencil.Image;
+    if (FAIL(vkCreateImageView(m_device, &depthStencilView, nullptr, &m_depthStencil.View)))
+    {
+        Logger::LogError("Vulkan: vkBindImageMemory failed");
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanBase::GetMemoryType(uint32_t typeBits, VkFlags properties, uint32_t& typeIndex)
+{
+    for (uint32_t i = 0; i < 32; i++)
+    {
+        if ((typeBits & 1) == 1)
+        {
+            if ((m_deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            {
+                typeIndex = i;
+                return true;
+            }
+        }
+        typeBits >>= 1;
+    }
+    return false;
+}
+
+void VulkanBase::SetImageLayout(VkCommandBuffer cmdbuffer,
+                                VkImage image,
+                                VkImageAspectFlags aspectMask,
+                                VkImageLayout oldImageLayout,
+                                VkImageLayout newImageLayout,
+                                VkImageSubresourceRange subresourceRange)
+{
+    // Create an image barrier object
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = NULL;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.oldLayout = oldImageLayout;
+    imageMemoryBarrier.newLayout = newImageLayout;
+    imageMemoryBarrier.image = image;
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+
+    // Source layouts (old)
+    // Source access mask controls actions that have to be finished on the old layout
+    // before it will be transitioned to the new layout
+    switch (oldImageLayout)
+    {
+    case VK_IMAGE_LAYOUT_UNDEFINED:
+        // Image layout is undefined (or does not matter)
+        // Only valid as initial layout
+        // No flags required, listed only for completeness
+        imageMemoryBarrier.srcAccessMask = 0;
+        break;
+    case VK_IMAGE_LAYOUT_PREINITIALIZED:
+        // Image is preinitialized
+        // Only valid as initial layout for linear images, preserves memory contents
+        // Make sure host writes have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        // Image is a color attachment
+        // Make sure any writes to the color buffer have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        // Image is a depth/stencil attachment
+        // Make sure any writes to the depth/stencil buffer have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        // Image is a transfer source 
+        // Make sure any reads from the image have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        // Image is a transfer destination
+        // Make sure any writes to the image have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        // Image is read by a shader
+        // Make sure any shader reads from the image have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        break;
+    }
+
+    // Target layouts (new)
+    // Destination access mask controls the dependency for the new image layout
+    switch (newImageLayout)
+    {
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        // Image will be used as a transfer destination
+        // Make sure any writes to the image have been finished
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        // Image will be used as a transfer source
+        // Make sure any reads from and writes to the image have been finished
+        imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        // Image will be used as a color attachment
+        // Make sure any writes to the color buffer have been finished
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        // Image layout will be used as a depth/stencil attachment
+        // Make sure any writes to depth/stencil buffer have been finished
+        imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        // Image will be read in a shader (sampler, input attachment)
+        // Make sure any writes to the image have been finished
+        if (imageMemoryBarrier.srcAccessMask == 0)
+        {
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+        }
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        break;
+    }
+
+    // Put barrier on top
+    VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+    // Put barrier inside setup command buffer
+    vkCmdPipelineBarrier(
+        cmdbuffer,
+        srcStageFlags,
+        destStageFlags,
+        0,
+        0, nullptr,
+        0, nullptr,
+        1, &imageMemoryBarrier);
+}
+
+void VulkanBase::SetImageLayout(VkCommandBuffer cmdbuffer,
+                                VkImage image,
+                                VkImageAspectFlags aspectMask,
+                                VkImageLayout oldImageLayout,
+                                VkImageLayout newImageLayout)
+{
+    VkImageSubresourceRange subresourceRange = {};
+    subresourceRange.aspectMask = aspectMask;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.layerCount = 1;
+    SetImageLayout(cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange);
 }

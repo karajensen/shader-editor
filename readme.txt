@@ -1,6 +1,6 @@
 
 - Add vulkan API
-    - Add validation layer and test debug output
+    - Fix crash on exit
     - Get window showing
 - Update release and test
 
