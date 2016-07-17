@@ -4,4 +4,5 @@
 #include <QtGui/QtGui>
 #include <QtWidgets/QtWidgets>
 #include <QtDesigner/QtDesigner>
+#include <QtXml/QtXml>
 #endif

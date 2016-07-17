@@ -3,6 +3,4 @@
 #include <QtCore/QtCore>
 #include <QtGui/QtGui>
 #include <Qt3DCore/Qt3DCore>
-#include <QtOpenGLExtensions/QtOpenGLExtensions>
-#include <QtConcurrent/QtConcurrent>
 #endif

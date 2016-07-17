@@ -1,7 +1,7 @@
 
-- Fix crashing qt in debug
 - Add vulkan API
     - Add validation layer and test debug output
+    - Get window showing
 - Update release and test
 
 ===================================================================
