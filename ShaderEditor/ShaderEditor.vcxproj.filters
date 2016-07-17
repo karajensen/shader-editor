@@ -194,7 +194,7 @@
     <ClCompile Include="vulkanengine.cpp">
       <Filter>Engine - Vulkan</Filter>
     </ClCompile>
-    <ClCompile Include="vulkanfunctions.cpp">
+    <ClCompile Include="vulkanbase.cpp">
       <Filter>Engine - Vulkan</Filter>
     </ClCompile>
   </ItemGroup>
@@ -385,7 +385,7 @@
     <ClInclude Include="vulkanengine.h">
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanfunctions.h">
+    <ClInclude Include="vulkanbase.h">
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

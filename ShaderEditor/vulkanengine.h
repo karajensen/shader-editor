@@ -141,15 +141,5 @@ public:
 
 private:
 
-    /**
-    * Initialises the vulkan engine
-    */
-    bool InitializeSwapChain();
-    bool InitializeEngine();
-    bool InitializeInstance();
-    bool InitializeDebugging();
-
-    HWND m_hwnd = nullptr;               ///< handle to the window
-    HINSTANCE m_hinstance = nullptr;     ///< handle to the current instance of the application
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

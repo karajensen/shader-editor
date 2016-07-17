@@ -71,7 +71,7 @@
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="vulkanengine.cpp" />
-    <ClCompile Include="vulkanfunctions.cpp" />
+    <ClCompile Include="vulkanbase.cpp" />
     <ClCompile Include="water.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +136,7 @@
     <ClInclude Include="float3.h" />
     <ClInclude Include="vulkanengine.h" />
     <ClInclude Include="vulkancommon.h" />
-    <ClInclude Include="vulkanfunctions.h" />
+    <ClInclude Include="vulkanbase.h" />
     <ClInclude Include="water.h" />
   </ItemGroup>
   <ItemGroup>
