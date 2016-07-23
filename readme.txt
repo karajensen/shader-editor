@@ -1,7 +1,5 @@
 
 - Add vulkan API
-    - Fix crash on exit
-    - Get window showing
 - Update release and test
 
 ===================================================================

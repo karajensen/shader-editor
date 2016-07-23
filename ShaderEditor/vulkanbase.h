@@ -90,6 +90,9 @@ private:
     bool InitializeSurface();
     bool InitializeCommands();
     bool InitializeDepthStencil();
+    bool InitializeRenderPass();
+    bool InitializePipelineCache();
+    bool InitializeFrameBuffers();
 
     struct SwapChainBuffer
     {
@@ -97,26 +100,25 @@ private:
         VkImageView View;
     };
 
-    struct DepthStencil
-    {
-        VkImage Image;
-        VkDeviceMemory Memory;
-        VkImageView View;
-    };
-
-    HWND m_hwnd = nullptr;                          ///< handle to the window
-    HINSTANCE m_hinstance = nullptr;                ///< handle to the current instance of the application
+    HWND m_hwnd = nullptr;            ///< handle to the window
+    HINSTANCE m_hinstance = nullptr;  ///< handle to the current instance of the application
 
     VkInstance m_instance;
     VkDevice m_device;
     VkPhysicalDevice m_physicalDevice;
     VkSurfaceKHR m_surface;
-    VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
-    DepthStencil m_depthStencil;
-    uint32_t m_imageCount = 0;
-    std::vector<VkImage> m_images;
-    std::vector<SwapChainBuffer> m_buffers;
+    VkRenderPass m_renderPass;
+    VkPipelineCache m_pipelineCache;
     uint32_t m_queueNodeIndex = UINT32_MAX;
+    VkQueue m_queue;
+    VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
+    uint32_t m_swapChainImageCount = 0;
+    std::vector<VkImage> m_swapChainImages;
+    std::vector<SwapChainBuffer> m_swapChainBuffers;
+    VkImage m_depthStencilImage;
+    VkDeviceMemory m_depthStencilMemory;
+    VkImageView m_depthStencilView;
+    std::vector<VkFramebuffer> m_frameBuffers;
     VkFormat m_colorFormat = VK_FORMAT_UNDEFINED;
     VkFormat m_depthFormat = VK_FORMAT_UNDEFINED;
     VkColorSpaceKHR m_colorSpace;
@@ -125,9 +127,7 @@ private:
     VkPhysicalDeviceFeatures m_deviceFeatures;
     VkPhysicalDeviceMemoryProperties m_deviceMemoryProperties;
     VkPipelineStageFlags m_submitPipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    VkQueue m_queue;
     bool m_vsync = false;
-
     VkSemaphore m_presentCompleteSemaphore;
     VkSemaphore m_renderCompleteSemaphore;
 

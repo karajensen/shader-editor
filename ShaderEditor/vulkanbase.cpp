@@ -96,44 +96,85 @@ VulkanBase::~VulkanBase()
 
 void VulkanBase::Release()
 {
-    for (size_t i = 0; i < m_buffers.size(); ++i)
+    if (m_instance == VK_NULL_HANDLE || m_device == VK_NULL_HANDLE)
     {
-        vkDestroyImageView(m_device, m_buffers[i].View, nullptr);
+        return; // Already released
+    }
+
+    for (uint32_t i = 0; i < m_swapChainImageCount; i++)
+    {
+        vkDestroyImageView(m_device, m_swapChainBuffers[i].View, nullptr);
+        m_swapChainBuffers[i].View = VK_NULL_HANDLE;
     }
 
     DestroySwapchain(m_device, m_swapChain, nullptr);
+    m_swapChain = VK_NULL_HANDLE;
+
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    m_surface = VK_NULL_HANDLE;
+
+    //if (m_descriptorPool != VK_NULL_HANDLE)
+    //{
+    //    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
+    //    m_descriptorPool = VK_NULL_HANDLE;
+    //}
 
     if (m_setupCmdBuffer != VK_NULL_HANDLE)
     {
         vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_setupCmdBuffer);
+        m_setupCmdBuffer = VK_NULL_HANDLE;
     }
 
-    vkFreeCommandBuffers(m_device, m_cmdPool, 
-        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_drawCmdBuffers.data());
+    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_drawCmdBuffers.data());
+    m_drawCmdBuffers = { VK_NULL_HANDLE };
 
-    vkFreeCommandBuffers(m_device, m_cmdPool, 
-        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_prePresentCmdBuffers.data());
+    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_prePresentCmdBuffers.data());
+    m_prePresentCmdBuffers = { VK_NULL_HANDLE };
 
-    vkFreeCommandBuffers(m_device, m_cmdPool,
-        static_cast<uint32_t>(m_drawCmdBuffers.size()), m_postPresentCmdBuffers.data());
+    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_postPresentCmdBuffers.data());
+    m_postPresentCmdBuffers = { VK_NULL_HANDLE };
 
-    vkDestroyImageView(m_device, m_depthStencil.View, nullptr);
-    vkDestroyImage(m_device, m_depthStencil.Image, nullptr);
-    vkFreeMemory(m_device, m_depthStencil.Memory, nullptr);
+    vkDestroyRenderPass(m_device, m_renderPass, nullptr);
+    m_renderPass = VK_NULL_HANDLE;
+
+    for (uint32_t i = 0; i < m_frameBuffers.size(); i++)
+    {
+        vkDestroyFramebuffer(m_device, m_frameBuffers[i], nullptr);
+        m_frameBuffers[i] = VK_NULL_HANDLE;
+    }
+
+    vkDestroyImageView(m_device, m_depthStencilView, nullptr);
+    m_depthStencilView = VK_NULL_HANDLE;
+
+    vkDestroyImage(m_device, m_depthStencilImage, nullptr);
+    m_depthStencilImage = VK_NULL_HANDLE;
+    
+    vkFreeMemory(m_device, m_depthStencilMemory, nullptr);
+    m_depthStencilMemory = VK_NULL_HANDLE;
+
+    vkDestroyPipelineCache(m_device, m_pipelineCache, nullptr);
+    m_pipelineCache = VK_NULL_HANDLE;
 
     vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
+    m_cmdPool = VK_NULL_HANDLE;
 
     vkDestroySemaphore(m_device, m_presentCompleteSemaphore, nullptr);
+    m_presentCompleteSemaphore = VK_NULL_HANDLE;
+
     vkDestroySemaphore(m_device, m_renderCompleteSemaphore, nullptr);
+    m_renderCompleteSemaphore = VK_NULL_HANDLE;
+
+    vkDestroyDevice(m_device, nullptr);
+    m_device = VK_NULL_HANDLE;
 
     if (m_debugCallback != VK_NULL_HANDLE)
     {
         DestroyDebugReport(m_instance, m_debugCallback, nullptr);
+        m_debugCallback = VK_NULL_HANDLE;
     }
 
-    vkDestroyDevice(m_device, nullptr);
     vkDestroyInstance(m_instance, nullptr);
+    m_instance = VK_NULL_HANDLE;
 }
 
 bool VulkanBase::Initialise()
@@ -171,6 +212,21 @@ bool VulkanBase::Initialise()
     if (!InitializeDepthStencil())
     {
         Logger::LogError("Vulkan: InitializeDepthStencil failed");
+        return false;
+    }
+    if (!InitializeRenderPass())
+    {
+        Logger::LogError("Vulkan: InitializeRenderPass failed");
+        return false;
+    }
+    if (!InitializePipelineCache())
+    {
+        Logger::LogError("Vulkan: InitializePipelineCache failed");
+        return false;
+    }
+    if (!InitializeFrameBuffers())
+    {
+        Logger::LogError("Vulkan: InitializeFrameBuffers failed");
         return false;
     }
     return true;
@@ -470,30 +526,30 @@ bool VulkanBase::InitializeSwapChain()
     // This also cleans up all the presentable images
     if (oldSwapchain != VK_NULL_HANDLE)
     {
-        for (uint32_t i = 0; i < m_imageCount; i++)
+        for (uint32_t i = 0; i < m_swapChainImageCount; i++)
         {
-            vkDestroyImageView(m_device, m_buffers[i].View, nullptr);
+            vkDestroyImageView(m_device, m_swapChainBuffers[i].View, nullptr);
         }
         DestroySwapchain(m_device, oldSwapchain, nullptr);
     }
 
-    if (FAIL(GetSwapchainImages(m_device, m_swapChain, &m_imageCount, 0)))
+    if (FAIL(GetSwapchainImages(m_device, m_swapChain, &m_swapChainImageCount, 0)))
     {
         Logger::LogError("Vulkan: GetSwapchainImages failed");
         return false;
     }
 
     // Get the swap chain images
-    m_images.resize(m_imageCount);
-    if(FAIL(GetSwapchainImages(m_device, m_swapChain, &m_imageCount, m_images.data())))
+    m_swapChainImages.resize(m_swapChainImageCount);
+    if(FAIL(GetSwapchainImages(m_device, m_swapChain, &m_swapChainImageCount, m_swapChainImages.data())))
     {
         Logger::LogError("Vulkan: GetSwapchainImages failed");
         return false;
     }
 
     // Get the swap chain buffers containing the image and imageview
-    m_buffers.resize(m_imageCount);
-    for (uint32_t i = 0; i < m_imageCount; i++)
+    m_swapChainBuffers.resize(m_swapChainImageCount);
+    for (uint32_t i = 0; i < m_swapChainImageCount; i++)
     {
         VkImageViewCreateInfo colorAttachmentView = {};
         colorAttachmentView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -514,10 +570,10 @@ bool VulkanBase::InitializeSwapChain()
         colorAttachmentView.viewType = VK_IMAGE_VIEW_TYPE_2D;
         colorAttachmentView.flags = 0;
 
-        m_buffers[i].Image = m_images[i];
-        colorAttachmentView.image = m_buffers[i].Image;
+        m_swapChainBuffers[i].Image = m_swapChainImages[i];
+        colorAttachmentView.image = m_swapChainBuffers[i].Image;
 
-        if (FAIL(vkCreateImageView(m_device, &colorAttachmentView, nullptr, &m_buffers[i].View)))
+        if (FAIL(vkCreateImageView(m_device, &colorAttachmentView, nullptr, &m_swapChainBuffers[i].View)))
         {
             Logger::LogError("Vulkan: vkCreateImageView failed");
             return false;
@@ -714,9 +770,9 @@ bool VulkanBase::InitializeCommands()
     // so for static usage withouth having to rebuild
     // them each frame, we use one per frame buffer
 
-    m_drawCmdBuffers.resize(m_imageCount);
-    m_prePresentCmdBuffers.resize(m_imageCount);
-    m_postPresentCmdBuffers.resize(m_imageCount);
+    m_drawCmdBuffers.resize(m_swapChainImageCount);
+    m_prePresentCmdBuffers.resize(m_swapChainImageCount);
+    m_postPresentCmdBuffers.resize(m_swapChainImageCount);
 
     cmdBufAllocateInfo = {};
     cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -748,7 +804,7 @@ bool VulkanBase::InitializeCommands()
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufInfo.pNext = NULL;
 
-    for (uint32_t i = 0; i < m_imageCount; i++)
+    for (uint32_t i = 0; i < m_swapChainImageCount; i++)
     {
         // Command buffer for post present barrier
 
@@ -773,7 +829,7 @@ bool VulkanBase::InitializeCommands()
         postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-        postPresentBarrier.image = m_buffers[i].Image;
+        postPresentBarrier.image = m_swapChainBuffers[i].Image;
 
         vkCmdPipelineBarrier(
             m_postPresentCmdBuffers[i],
@@ -810,7 +866,7 @@ bool VulkanBase::InitializeCommands()
         prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-        prePresentBarrier.image = m_buffers[i].Image;
+        prePresentBarrier.image = m_swapChainBuffers[i].Image;
 
         vkCmdPipelineBarrier(
             m_prePresentCmdBuffers[i],
@@ -864,14 +920,14 @@ bool VulkanBase::InitializeDepthStencil()
     depthStencilView.subresourceRange.baseArrayLayer = 0;
     depthStencilView.subresourceRange.layerCount = 1;
 
-    if (FAIL(vkCreateImage(m_device, &image, nullptr, &m_depthStencil.Image)))
+    if (FAIL(vkCreateImage(m_device, &image, nullptr, &m_depthStencilImage)))
     {
         Logger::LogError("Vulkan: vkCreateImage failed");
         return false;
     }
 
     VkMemoryRequirements memReqs;
-    vkGetImageMemoryRequirements(m_device, m_depthStencil.Image, &memReqs);
+    vkGetImageMemoryRequirements(m_device, m_depthStencilImage, &memReqs);
     mem_alloc.allocationSize = memReqs.size;
     if (!GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mem_alloc.memoryTypeIndex))
     {
@@ -879,26 +935,26 @@ bool VulkanBase::InitializeDepthStencil()
         return false;
     }
 
-    if (FAIL(vkAllocateMemory(m_device, &mem_alloc, nullptr, &m_depthStencil.Memory)))
+    if (FAIL(vkAllocateMemory(m_device, &mem_alloc, nullptr, &m_depthStencilMemory)))
     {
         Logger::LogError("Vulkan: vkAllocateMemory failed");
         return false;
     }
 
-    if (FAIL(vkBindImageMemory(m_device, m_depthStencil.Image, m_depthStencil.Memory, 0)))
+    if (FAIL(vkBindImageMemory(m_device, m_depthStencilImage, m_depthStencilMemory, 0)))
     {
         Logger::LogError("Vulkan: vkBindImageMemory failed");
         return false;
     }
     
     SetImageLayout(m_setupCmdBuffer,
-                   m_depthStencil.Image,
+                   m_depthStencilImage,
                    VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
                    VK_IMAGE_LAYOUT_UNDEFINED,
                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-    depthStencilView.image = m_depthStencil.Image;
-    if (FAIL(vkCreateImageView(m_device, &depthStencilView, nullptr, &m_depthStencil.View)))
+    depthStencilView.image = m_depthStencilImage;
+    if (FAIL(vkCreateImageView(m_device, &depthStencilView, nullptr, &m_depthStencilView)))
     {
         Logger::LogError("Vulkan: vkBindImageMemory failed");
         return false;
@@ -1050,4 +1106,109 @@ void VulkanBase::SetImageLayout(VkCommandBuffer cmdbuffer,
     subresourceRange.levelCount = 1;
     subresourceRange.layerCount = 1;
     SetImageLayout(cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange);
+}
+
+bool VulkanBase::InitializeRenderPass()
+{
+    VkAttachmentDescription attachments[2] = {};
+
+    // Color attachment
+    attachments[0].format = m_colorFormat;
+    attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+    attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    // Depth attachment
+    attachments[1].format = m_depthFormat;
+    attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference colorReference = {};
+    colorReference.attachment = 0;
+    colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthReference = {};
+    depthReference.attachment = 1;
+    depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.flags = 0;
+    subpass.inputAttachmentCount = 0;
+    subpass.pInputAttachments = NULL;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorReference;
+    subpass.pResolveAttachments = NULL;
+    subpass.pDepthStencilAttachment = &depthReference;
+    subpass.preserveAttachmentCount = 0;
+    subpass.pPreserveAttachments = NULL;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.pNext = NULL;
+    renderPassInfo.attachmentCount = 2;
+    renderPassInfo.pAttachments = attachments;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 0;
+    renderPassInfo.pDependencies = NULL;
+
+    if (FAIL(vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass)))
+    {
+        Logger::LogError("Vulkan: vkCreateRenderPass failed");
+        return false;
+    }
+    return true;
+}
+
+bool VulkanBase::InitializePipelineCache()
+{
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    if (FAIL(vkCreatePipelineCache(m_device, &pipelineCacheCreateInfo, nullptr, &m_pipelineCache)))
+    {
+        Logger::LogError("Vulkan: vkCreatePipelineCache failed");
+        return false;
+    }
+    return true;
+}
+
+bool VulkanBase::InitializeFrameBuffers()
+{
+    VkImageView attachments[2];
+
+    // Depth/Stencil attachment is the same for all frame buffers
+    attachments[1] = m_depthStencilView;
+
+    VkFramebufferCreateInfo frameBufferCreateInfo = {};
+    frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    frameBufferCreateInfo.pNext = NULL;
+    frameBufferCreateInfo.renderPass = m_renderPass;
+    frameBufferCreateInfo.attachmentCount = 2;
+    frameBufferCreateInfo.pAttachments = attachments;
+    frameBufferCreateInfo.width = WINDOW_WIDTH;
+    frameBufferCreateInfo.height = WINDOW_HEIGHT;
+    frameBufferCreateInfo.layers = 1;
+
+    // Create frame buffers for every swap chain image
+    m_frameBuffers.resize(m_swapChainImageCount);
+    for (uint32_t i = 0; i < m_frameBuffers.size(); i++)
+    {
+        attachments[0] = m_swapChainBuffers[i].View;
+        if (FAIL(vkCreateFramebuffer(m_device, &frameBufferCreateInfo, nullptr, &m_frameBuffers[i])))
+        {
+            Logger::LogError("Vulkan: vkCreateFramebuffer failed");
+            return false;
+        }
+    }
+    return true;
 }
