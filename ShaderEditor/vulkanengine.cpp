@@ -91,7 +91,7 @@ bool VulkanEngine::FadeView(bool in, float amount)
 
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
-
+    m_data->Base.Render();
 }
 
 void VulkanEngine::ToggleWireframe()

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Kara Jensen - mail@karajensen.com - vulkanbase.cpp
+// Vulkan code Reference: https://github.com/SaschaWillems/Vulkan
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkanbase.h"
@@ -87,11 +88,77 @@ VulkanBase::VulkanBase(HINSTANCE hinstance, HWND hwnd) :
     m_hinstance(hinstance),
     m_hwnd(hwnd)
 {
+    Reset();
 }
 
 VulkanBase::~VulkanBase()
 {
     Release();
+}
+
+void VulkanBase::Reset()
+{
+    m_enableValidation = true;
+    m_enableWarnings = false;
+    m_vsync = false;
+
+    m_descriptorSet = VK_NULL_HANDLE;
+    m_instance = VK_NULL_HANDLE;
+    m_surface = VK_NULL_HANDLE;
+    m_renderPass = VK_NULL_HANDLE;
+    m_queue = VK_NULL_HANDLE;
+    m_device = VK_NULL_HANDLE;
+    m_physicalDevice = VK_NULL_HANDLE;
+    m_swapChain = VK_NULL_HANDLE;
+    m_depthStencilImage = VK_NULL_HANDLE;
+    m_depthStencilMemory = VK_NULL_HANDLE;
+    m_depthStencilView = VK_NULL_HANDLE;
+    m_presentCompleteSemaphore = VK_NULL_HANDLE;
+    m_renderCompleteSemaphore = VK_NULL_HANDLE;
+    m_pipelineCache = VK_NULL_HANDLE;
+    m_cmdPool = VK_NULL_HANDLE;
+    m_setupCmdBuffer = VK_NULL_HANDLE;
+    m_descriptorPool = VK_NULL_HANDLE;
+    m_debugCallback = VK_NULL_HANDLE;
+    m_pipeline = VK_NULL_HANDLE;
+
+    GetPhysicalDeviceSurfaceSupport = VK_NULL_HANDLE;
+    GetPhysicalDeviceSurfaceCapabilities = VK_NULL_HANDLE;
+    GetPhysicalDeviceSurfaceFormats = VK_NULL_HANDLE;
+    GetPhysicalDeviceSurfacePresentModes = VK_NULL_HANDLE;
+    CreateSwapchain = VK_NULL_HANDLE;
+    DestroySwapchain = VK_NULL_HANDLE;
+    GetSwapchainImages = VK_NULL_HANDLE;
+    AcquireNextImage = VK_NULL_HANDLE;
+    QueuePresent = VK_NULL_HANDLE;
+    CreateDebugReport = VK_NULL_HANDLE;
+    DestroyDebugReport = VK_NULL_HANDLE;
+    DbgBreak = VK_NULL_HANDLE;
+
+    m_deviceFeatures = {};
+    m_deviceCreateFeatures = {};
+    m_deviceMemoryProperties = {};
+    m_deviceProperties = {};
+    m_descriptorSetLayout = {};
+    m_pipelineLayout = {};
+
+    m_prePresentCmdBuffers = { VK_NULL_HANDLE };
+    m_drawCmdBuffers = { VK_NULL_HANDLE };
+    m_postPresentCmdBuffers = { VK_NULL_HANDLE };
+
+    m_swapChainImages.clear();
+    m_swapChainBuffers.clear();
+    m_frameBuffers.clear();
+
+    m_validationLayerCount = 1;
+    m_validationLayerNames = "VK_LAYER_LUNARG_standard_validation";
+    m_colorFormat = VK_FORMAT_UNDEFINED;
+    m_depthFormat = VK_FORMAT_UNDEFINED;
+    m_submitPipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    m_queueNodeIndex = UINT32_MAX;
+    m_swapChainImageCount = 0;
+    m_submitPipelineStages = 0;
+    m_currentBuffer = 0;
 }
 
 void VulkanBase::Release()
@@ -101,80 +168,61 @@ void VulkanBase::Release()
         return; // Already released
     }
 
+    vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+    vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
+
     for (uint32_t i = 0; i < m_swapChainImageCount; i++)
     {
         vkDestroyImageView(m_device, m_swapChainBuffers[i].View, nullptr);
-        m_swapChainBuffers[i].View = VK_NULL_HANDLE;
     }
 
     DestroySwapchain(m_device, m_swapChain, nullptr);
-    m_swapChain = VK_NULL_HANDLE;
-
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-    m_surface = VK_NULL_HANDLE;
 
-    //if (m_descriptorPool != VK_NULL_HANDLE)
-    //{
-    //    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
-    //    m_descriptorPool = VK_NULL_HANDLE;
-    //}
+    if (m_descriptorPool != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
+    }
 
     if (m_setupCmdBuffer != VK_NULL_HANDLE)
     {
         vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_setupCmdBuffer);
-        m_setupCmdBuffer = VK_NULL_HANDLE;
     }
 
-    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_drawCmdBuffers.data());
-    m_drawCmdBuffers = { VK_NULL_HANDLE };
+    vkFreeCommandBuffers(m_device, m_cmdPool, 
+        (uint32_t)m_drawCmdBuffers.size(), m_drawCmdBuffers.data());
 
-    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_prePresentCmdBuffers.data());
-    m_prePresentCmdBuffers = { VK_NULL_HANDLE };
+    vkFreeCommandBuffers(m_device, m_cmdPool, 
+        (uint32_t)m_drawCmdBuffers.size(), m_prePresentCmdBuffers.data());
 
-    vkFreeCommandBuffers(m_device, m_cmdPool, (uint32_t)m_drawCmdBuffers.size(), m_postPresentCmdBuffers.data());
-    m_postPresentCmdBuffers = { VK_NULL_HANDLE };
+    vkFreeCommandBuffers(m_device, m_cmdPool, 
+        (uint32_t)m_drawCmdBuffers.size(), m_postPresentCmdBuffers.data());
 
     vkDestroyRenderPass(m_device, m_renderPass, nullptr);
-    m_renderPass = VK_NULL_HANDLE;
 
     for (uint32_t i = 0; i < m_frameBuffers.size(); i++)
     {
         vkDestroyFramebuffer(m_device, m_frameBuffers[i], nullptr);
-        m_frameBuffers[i] = VK_NULL_HANDLE;
     }
 
     vkDestroyImageView(m_device, m_depthStencilView, nullptr);
-    m_depthStencilView = VK_NULL_HANDLE;
-
     vkDestroyImage(m_device, m_depthStencilImage, nullptr);
-    m_depthStencilImage = VK_NULL_HANDLE;
-    
     vkFreeMemory(m_device, m_depthStencilMemory, nullptr);
-    m_depthStencilMemory = VK_NULL_HANDLE;
-
     vkDestroyPipelineCache(m_device, m_pipelineCache, nullptr);
-    m_pipelineCache = VK_NULL_HANDLE;
-
     vkDestroyCommandPool(m_device, m_cmdPool, nullptr);
-    m_cmdPool = VK_NULL_HANDLE;
-
     vkDestroySemaphore(m_device, m_presentCompleteSemaphore, nullptr);
-    m_presentCompleteSemaphore = VK_NULL_HANDLE;
-
     vkDestroySemaphore(m_device, m_renderCompleteSemaphore, nullptr);
-    m_renderCompleteSemaphore = VK_NULL_HANDLE;
-
     vkDestroyDevice(m_device, nullptr);
-    m_device = VK_NULL_HANDLE;
 
     if (m_debugCallback != VK_NULL_HANDLE)
     {
         DestroyDebugReport(m_instance, m_debugCallback, nullptr);
-        m_debugCallback = VK_NULL_HANDLE;
     }
 
     vkDestroyInstance(m_instance, nullptr);
-    m_instance = VK_NULL_HANDLE;
+
+    Reset();
 }
 
 bool VulkanBase::Initialise()
@@ -229,6 +277,23 @@ bool VulkanBase::Initialise()
         Logger::LogError("Vulkan: InitializeFrameBuffers failed");
         return false;
     }
+    if (!InitializeDescriptorSetLayout())
+    {
+        Logger::LogError("Vulkan: InitializeDescriptorSetLayout failed");
+        return false;
+    }
+    if (!InitializeDescriptorPool())
+    {
+        Logger::LogError("Vulkan: InitializeDescriptorPool failed");
+        return false;
+    }
+    if (!BuildCommandBuffers())
+    {
+        Logger::LogError("Vulkan: BuildCommandBuffers failed");
+        return false;
+    }
+
+    Logger::LogInfo("Vulkan: Initialize successful");
     return true;
 }
 
@@ -327,7 +392,7 @@ bool VulkanBase::InitializeDevice()
     deviceCreateInfo.pNext = NULL;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-    deviceCreateInfo.pEnabledFeatures = &m_enabledFeatures;
+    deviceCreateInfo.pEnabledFeatures = &m_deviceCreateFeatures;
 
     if (enabledExtensions.size() > 0)
     {
@@ -883,6 +948,55 @@ bool VulkanBase::InitializeCommands()
             return false;
         }
     }
+
+    // Flush Setup Command Buffer
+    if (FAIL(vkEndCommandBuffer(m_setupCmdBuffer)))
+    {
+        Logger::LogError("Vulkan: vkEndCommandBuffer failed");
+        return false;
+    }
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_setupCmdBuffer;
+
+    if (FAIL(vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE)))
+    {
+        Logger::LogError("Vulkan: vkQueueSubmit failed");
+        return false;
+    }
+
+    if (FAIL(vkQueueWaitIdle(m_queue)))
+    {
+        Logger::LogError("Vulkan: vkQueueWaitIdle failed");
+        return false;
+    }
+
+    vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_setupCmdBuffer);
+    m_setupCmdBuffer = VK_NULL_HANDLE;
+
+    cmdBufAllocateInfo = {};
+    cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cmdBufAllocateInfo.commandPool = m_cmdPool;
+    cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    cmdBufAllocateInfo.commandBufferCount = 1;
+
+    if (FAIL(vkAllocateCommandBuffers(m_device, &cmdBufAllocateInfo, &m_setupCmdBuffer)))
+    {
+        Logger::LogError("Vulkan: vkAllocateCommandBuffers failed");
+        return false;
+    }
+
+    cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (FAIL(vkBeginCommandBuffer(m_setupCmdBuffer, &cmdBufInfo)))
+    {
+        Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+        return false;
+    }
+
     return true;
 }
 
@@ -1211,4 +1325,285 @@ bool VulkanBase::InitializeFrameBuffers()
         }
     }
     return true;
+}
+
+bool VulkanBase::InitializeDescriptorSetLayout()
+{
+    // Setup layout of descriptors used in this example
+    // Basically connects the different shader stages to descriptors
+    // for binding uniform buffers, image samplers, etc.
+    // So every shader binding should map to one descriptor set layout binding
+
+    // Binding 0 : Uniform buffer (Vertex shader)
+    VkDescriptorSetLayoutBinding layoutBinding = {};
+    layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    layoutBinding.descriptorCount = 1;
+    layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    layoutBinding.pImmutableSamplers = NULL;
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout = {};
+    descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorLayout.pNext = NULL;
+    descriptorLayout.bindingCount = 1;
+    descriptorLayout.pBindings = &layoutBinding;
+
+    if (FAIL(vkCreateDescriptorSetLayout(m_device, &descriptorLayout, NULL, &m_descriptorSetLayout)))
+    {
+        Logger::LogError("Vulkan: vkCreateDescriptorSetLayout failed");
+        return false;
+    }
+
+    // Create the pipeline layout that is used to generate the rendering pipelines that
+    // are based on this descriptor set layout
+    // In a more complex scenario you would have different pipeline layouts for different
+    // descriptor set layouts that could be reused
+    VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+    pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pPipelineLayoutCreateInfo.pNext = NULL;
+    pPipelineLayoutCreateInfo.setLayoutCount = 1;
+    pPipelineLayoutCreateInfo.pSetLayouts = &m_descriptorSetLayout;
+
+    if (FAIL(vkCreatePipelineLayout(m_device, &pPipelineLayoutCreateInfo, nullptr, &m_pipelineLayout)))
+    {
+        Logger::LogError("Vulkan: vkCreatePipelineLayout failed");
+        return false;
+    }
+    return true;
+}
+
+bool VulkanBase::InitializeDescriptorPool()
+{
+    // We need to tell the API the number of max. requested descriptors per type
+    VkDescriptorPoolSize typeCounts[1];
+
+    // This example only uses one descriptor type (uniform buffer) and only
+    // requests one descriptor of this type
+    typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    typeCounts[0].descriptorCount = 1;
+
+    // For additional types you need to add new entries in the type count list
+    // E.g. for two combined image samplers :
+    // typeCounts[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    // typeCounts[1].descriptorCount = 2;
+
+    // Create the global descriptor pool
+    // All descriptors used in this example are allocated from this pool
+    VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+    descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolInfo.pNext = NULL;
+    descriptorPoolInfo.poolSizeCount = 1;
+    descriptorPoolInfo.pPoolSizes = typeCounts;
+
+    // Set the max. number of sets that can be requested
+    // Requesting descriptors beyond maxSets will result in an error
+    descriptorPoolInfo.maxSets = 1;
+
+    if (FAIL(vkCreateDescriptorPool(m_device, &descriptorPoolInfo, nullptr, &m_descriptorPool)))
+    {
+        Logger::LogError("Vulkan: vkCreateDescriptorPool failed");
+        return false;
+    }
+    return true;
+}
+
+bool VulkanBase::BuildCommandBuffers()
+{
+    VkCommandBufferBeginInfo cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBufInfo.pNext = NULL;
+
+    // Set clear values for all framebuffer attachments with loadOp set to clear
+    // We use two attachments (color and depth) that are cleared at the 
+    // start of the subpass and as such we need to set clear values for both
+    VkClearValue clearValues[2];
+    clearValues[0].color = { { 0.025f, 0.025f, 0.025f, 1.0f } };
+    clearValues[1].depthStencil = { 1.0f, 0 };
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.pNext = NULL;
+    renderPassBeginInfo.renderPass = m_renderPass;
+    renderPassBeginInfo.renderArea.offset.x = 0;
+    renderPassBeginInfo.renderArea.offset.y = 0;
+    renderPassBeginInfo.renderArea.extent.width = WINDOW_WIDTH;
+    renderPassBeginInfo.renderArea.extent.height = WINDOW_HEIGHT;
+    renderPassBeginInfo.clearValueCount = 2;
+    renderPassBeginInfo.pClearValues = clearValues;
+
+    for (unsigned int i = 0; i < m_drawCmdBuffers.size(); ++i)
+    {
+        // Set target frame buffer
+        renderPassBeginInfo.framebuffer = m_frameBuffers[i];
+
+        if (FAIL(vkBeginCommandBuffer(m_drawCmdBuffers[i], &cmdBufInfo)))
+        {
+            Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+            return false;
+        }
+
+        // Start the first sub pass specified in our default render pass setup by the base class
+        // This will clear the color and depth attachment
+        vkCmdBeginRenderPass(m_drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        // Update dynamic viewport state
+        VkViewport viewport = {};
+        viewport.height = (float)WINDOW_HEIGHT;
+        viewport.width = (float)WINDOW_WIDTH;
+        viewport.minDepth = (float) 0.0f;
+        viewport.maxDepth = (float) 1.0f;
+        vkCmdSetViewport(m_drawCmdBuffers[i], 0, 1, &viewport);
+
+        // Update dynamic scissor state
+        VkRect2D scissor = {};
+        scissor.extent.width = WINDOW_WIDTH;
+        scissor.extent.height = WINDOW_HEIGHT;
+        scissor.offset.x = 0;
+        scissor.offset.y = 0;
+        vkCmdSetScissor(m_drawCmdBuffers[i], 0, 1, &scissor);
+
+        vkCmdEndRenderPass(m_drawCmdBuffers[i]);
+
+        // Add a present memory barrier to the end of the command buffer
+        // This will transform the frame buffer color attachment to a
+        // new layout for presenting it to the windowing system integration 
+        VkImageMemoryBarrier prePresentBarrier = {};
+        prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        prePresentBarrier.pNext = NULL;
+        prePresentBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        prePresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        prePresentBarrier.image = m_swapChainBuffers[i].Image;
+
+        VkImageMemoryBarrier *pMemoryBarrier = &prePresentBarrier;
+        vkCmdPipelineBarrier(
+            m_drawCmdBuffers[i],
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &prePresentBarrier);
+
+        if (FAIL(vkEndCommandBuffer(m_drawCmdBuffers[i])))
+        {
+            Logger::LogError("Vulkan: vkEndCommandBuffer failed");
+            return false;
+        }
+    }
+
+    // Build command buffers for the post present image barrier for each swap chain image
+    // Note: The command Buffers are allocated in the base class
+
+    for (uint32_t i = 0; i < m_swapChainImageCount; i++)
+    {
+        // Insert a post present image barrier to transform the image back to a
+        // color attachment that our render pass can write to
+        // We always use undefined image layout as the source as it doesn't actually matter
+        // what is done with the previous image contents
+        VkImageMemoryBarrier postPresentBarrier = {};
+        postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        postPresentBarrier.pNext = NULL;
+        postPresentBarrier.srcAccessMask = 0;
+        postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        postPresentBarrier.image = m_swapChainBuffers[i].Image;
+
+        // Use dedicated command buffer from example base class for submitting the post present barrier
+        cmdBufInfo = {};
+        cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        if (FAIL(vkBeginCommandBuffer(m_postPresentCmdBuffers[i], &cmdBufInfo)))
+        {
+            Logger::LogError("Vulkan: vkBeginCommandBuffer failed");
+            return false;
+        }
+
+        // Put post present barrier into command buffer
+        vkCmdPipelineBarrier(
+            m_postPresentCmdBuffers[i],
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &postPresentBarrier);
+
+        if (FAIL(vkEndCommandBuffer(m_postPresentCmdBuffers[i])))
+        {
+            Logger::LogError("Vulkan: vkEndCommandBuffer failed");
+            return false;
+        }
+    }
+    return true;
+}
+
+void VulkanBase::Render()
+{
+    CHECK_FAIL(AcquireNextImage(m_device,
+        m_swapChain,
+        UINT64_MAX,
+        m_presentCompleteSemaphore,
+        (VkFence)nullptr,
+        &m_currentBuffer));
+
+    // Submit the post present image barrier to transform the image back to a color attachment
+    // that can be used to write to by our render pass
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_postPresentCmdBuffers[m_currentBuffer];
+
+    CHECK_FAIL(vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE));
+
+    // Make sure that the image barrier command submitted 
+    // to the queue has finished executing
+    CHECK_FAIL(vkQueueWaitIdle(m_queue));
+
+    // The submit infor strcuture contains a list of
+    // command buffers and semaphores to be submitted to a queue
+    // If you want to submit multiple command buffers, pass an array
+    VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pWaitDstStageMask = &pipelineStages;
+
+    // The wait semaphore ensures that the image is presented 
+    // before we start submitting command buffers agein
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &m_presentCompleteSemaphore;
+
+    // Submit the currently active command buffer
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_drawCmdBuffers[m_currentBuffer];
+
+    // The signal semaphore is used during queue presentation
+    // to ensure that the image is not rendered before all
+    // commands have been submitted
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &m_renderCompleteSemaphore;
+
+    // Submit to the graphics queue
+    CHECK_FAIL(vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE));
+
+    // Present the current buffer to the swap chain
+    // We pass the signal semaphore from the submit info
+    // to ensure that the image is not rendered until
+    // all commands have been submitted
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = NULL;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &m_swapChain;
+    presentInfo.pImageIndices = &m_currentBuffer;
+    presentInfo.pWaitSemaphores = &m_renderCompleteSemaphore;
+    presentInfo.waitSemaphoreCount = 1;
+
+    CHECK_FAIL(QueuePresent(m_queue, &presentInfo));
 }

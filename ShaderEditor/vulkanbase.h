@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 // Kara Jensen - mail@karajensen.com - vulkanbase.h
+// Vulkan code Reference: https://github.com/SaschaWillems/Vulkan
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -25,6 +26,11 @@ public:
     * Releases the vulkan data
     */
     void Release();
+
+    /**
+    * Renders the scene
+    */
+    void Render();
 
     /**
     * @return the vulkan instance
@@ -61,23 +67,28 @@ public:
                         VkImageLayout oldImageLayout,
                         VkImageLayout newImageLayout);
 
+private:
+
+    /**
+    * Reset all values to their defaults
+    */
+    void Reset();
+
     /**
     * Vulcan API Function pointers
     */
-    PFN_vkGetPhysicalDeviceSurfaceSupportKHR       GetPhysicalDeviceSurfaceSupport      = VK_NULL_HANDLE;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR  GetPhysicalDeviceSurfaceCapabilities = VK_NULL_HANDLE;
-    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR       GetPhysicalDeviceSurfaceFormats      = VK_NULL_HANDLE;
-    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR  GetPhysicalDeviceSurfacePresentModes = VK_NULL_HANDLE;
-    PFN_vkCreateSwapchainKHR                       CreateSwapchain                      = VK_NULL_HANDLE;
-    PFN_vkDestroySwapchainKHR                      DestroySwapchain                     = VK_NULL_HANDLE;
-    PFN_vkGetSwapchainImagesKHR                    GetSwapchainImages                   = VK_NULL_HANDLE;
-    PFN_vkAcquireNextImageKHR                      AcquireNextImage                     = VK_NULL_HANDLE;
-    PFN_vkQueuePresentKHR                          QueuePresent                         = VK_NULL_HANDLE;
-    PFN_vkCreateDebugReportCallbackEXT             CreateDebugReport                    = VK_NULL_HANDLE;
-    PFN_vkDestroyDebugReportCallbackEXT            DestroyDebugReport                   = VK_NULL_HANDLE;
-    PFN_vkDebugReportMessageEXT                    DbgBreak                             = VK_NULL_HANDLE;
-
-private:
+    PFN_vkGetPhysicalDeviceSurfaceSupportKHR GetPhysicalDeviceSurfaceSupport;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR GetPhysicalDeviceSurfaceCapabilities;
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR GetPhysicalDeviceSurfaceFormats;
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR GetPhysicalDeviceSurfacePresentModes;
+    PFN_vkCreateSwapchainKHR CreateSwapchain;
+    PFN_vkDestroySwapchainKHR DestroySwapchain;
+    PFN_vkGetSwapchainImagesKHR GetSwapchainImages;
+    PFN_vkAcquireNextImageKHR AcquireNextImage;
+    PFN_vkQueuePresentKHR QueuePresent;
+    PFN_vkCreateDebugReportCallbackEXT CreateDebugReport;
+    PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReport;
+    PFN_vkDebugReportMessageEXT DbgBreak;
 
     /**
     * Initialises parts of the vulkan engine
@@ -93,6 +104,9 @@ private:
     bool InitializeRenderPass();
     bool InitializePipelineCache();
     bool InitializeFrameBuffers();
+    bool InitializeDescriptorSetLayout();
+    bool InitializeDescriptorPool();
+    bool BuildCommandBuffers();
 
     struct SwapChainBuffer
     {
@@ -104,42 +118,55 @@ private:
     HINSTANCE m_hinstance = nullptr;  ///< handle to the current instance of the application
 
     VkInstance m_instance;
-    VkDevice m_device;
-    VkPhysicalDevice m_physicalDevice;
     VkSurfaceKHR m_surface;
     VkRenderPass m_renderPass;
-    VkPipelineCache m_pipelineCache;
-    uint32_t m_queueNodeIndex = UINT32_MAX;
+    uint32_t m_queueNodeIndex;
     VkQueue m_queue;
-    VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
-    uint32_t m_swapChainImageCount = 0;
+
+    VkDevice m_device;
+    VkPhysicalDevice m_physicalDevice;
+    VkPhysicalDeviceProperties m_deviceProperties;
+    VkPhysicalDeviceFeatures m_deviceFeatures;
+    VkPhysicalDeviceFeatures m_deviceCreateFeatures;
+    VkPhysicalDeviceMemoryProperties m_deviceMemoryProperties;
+
+    VkSwapchainKHR m_swapChain;
+    uint32_t m_swapChainImageCount;
     std::vector<VkImage> m_swapChainImages;
     std::vector<SwapChainBuffer> m_swapChainBuffers;
+
     VkImage m_depthStencilImage;
     VkDeviceMemory m_depthStencilMemory;
     VkImageView m_depthStencilView;
+
     std::vector<VkFramebuffer> m_frameBuffers;
-    VkFormat m_colorFormat = VK_FORMAT_UNDEFINED;
-    VkFormat m_depthFormat = VK_FORMAT_UNDEFINED;
+    uint32_t m_currentBuffer;
+    VkFormat m_colorFormat;
+    VkFormat m_depthFormat;
     VkColorSpaceKHR m_colorSpace;
-    VkPhysicalDeviceFeatures m_enabledFeatures = {};
-    VkPhysicalDeviceProperties m_deviceProperties;
-    VkPhysicalDeviceFeatures m_deviceFeatures;
-    VkPhysicalDeviceMemoryProperties m_deviceMemoryProperties;
-    VkPipelineStageFlags m_submitPipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    bool m_vsync = false;
+    bool m_vsync;
+
     VkSemaphore m_presentCompleteSemaphore;
     VkSemaphore m_renderCompleteSemaphore;
 
-    bool m_enableValidation = true;
-    bool m_enableWarnings = false;
-    int m_validationLayerCount = 1;
-    const char* m_validationLayerNames = "VK_LAYER_LUNARG_standard_validation";
-    VkDebugReportCallbackEXT m_debugCallback = VK_NULL_HANDLE;
+    VkDescriptorSet m_descriptorSet;
+    VkDescriptorSetLayout m_descriptorSetLayout;
+    VkDescriptorPool m_descriptorPool;
+
+    VkPipeline m_pipeline;
+    VkPipelineLayout m_pipelineLayout;
+    VkPipelineCache m_pipelineCache;
+    VkPipelineStageFlags m_submitPipelineStages;
+
+    bool m_enableValidation;
+    bool m_enableWarnings;
+    int m_validationLayerCount;
+    const char* m_validationLayerNames;
+    VkDebugReportCallbackEXT m_debugCallback;
 
     VkCommandPool m_cmdPool;
-    VkCommandBuffer m_setupCmdBuffer = VK_NULL_HANDLE;
+    VkCommandBuffer m_setupCmdBuffer;
     std::vector<VkCommandBuffer> m_drawCmdBuffers;
-    std::vector<VkCommandBuffer> m_postPresentCmdBuffers = { VK_NULL_HANDLE };
-    std::vector<VkCommandBuffer> m_prePresentCmdBuffers = { VK_NULL_HANDLE };
+    std::vector<VkCommandBuffer> m_postPresentCmdBuffers;
+    std::vector<VkCommandBuffer> m_prePresentCmdBuffers;
 };

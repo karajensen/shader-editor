@@ -20,8 +20,6 @@
 
 /**
 * Vulkan call checking
-* @return whether the last call to OpenGL has failed
-* @note requires an OpenGL context to be created
 */
 inline bool FAIL(VkResult result)
 {
@@ -102,4 +100,12 @@ inline bool FAIL(VkResult result)
         Logger::LogError("Vulkan: UNKNOWN");
         return true;
     }
+}
+
+/**
+* Vulkan call checking
+*/
+inline void CHECK_FAIL(VkResult result)
+{
+    FAIL(result);
 }

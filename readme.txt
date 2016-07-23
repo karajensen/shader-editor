@@ -1,4 +1,8 @@
 
+ERROR:  Vulkan: Error:DSCannot submit cmd buffer using image (0xc) 
+[sub-resource: aspectMask 0x2 array layer 0, mip level 0], with layout 
+VK_IMAGE_LAYOUT_UNDEFINED when first use is VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL. [7]
+
 - Add vulkan API
 - Update release and test
 
