@@ -29,6 +29,7 @@ ShaderEditor/Assets/Shaders/Generated/*.as
 Release/Assets/Textures/Generated/*.bmp
 Release/Assets/Shaders/Generated/*.fx
 Release/Assets/Shaders/Generated/*.as
+Graphics/
 ipch/
 html/
 latex/
