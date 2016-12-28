@@ -227,74 +227,26 @@ void VulkanBase::Release()
 
 bool VulkanBase::Initialise()
 {
-    if (!InitializeInstance())
+    if (InitializeInstance() &&
+        InitializeDevice() &&
+        InitializeDebugging() &&
+        InitializeSurface() &&
+        InitializeSwapChain() &&
+        InitializeCommands() &&
+        InitializeDepthStencil() &&
+        InitializeRenderPass() &&
+        InitializePipelineCache() &&
+        InitializeFrameBuffers() &&
+        InitializeDescriptorSetLayout() &&
+        InitializeDescriptorPool() &&
+        BuildCommandBuffers())
     {
-        Logger::LogError("Vulkan: InitializeInstance failed");
-        return false;
-    }
-    if (!InitializeDevice())
-    {
-        Logger::LogError("Vulkan: InitializeDevice failed");
-        return false;
-    }
-    if (!InitializeDebugging())
-    {
-        Logger::LogError("Vulkan: InitializeDebugging failed");
-        return false;
-    }
-    if (!InitializeSurface())
-    {
-        Logger::LogError("Vulkan: InitializeSurface failed");
-        return false;
-    }
-    if (!InitializeSwapChain())
-    {
-        Logger::LogError("Vulkan: InitializeSwapChain failed");
-        return false;
-    }
-    if (!InitializeCommands())
-    {
-        Logger::LogError("Vulkan: InitializeCommands failed");
-        return false;
-    }
-    if (!InitializeDepthStencil())
-    {
-        Logger::LogError("Vulkan: InitializeDepthStencil failed");
-        return false;
-    }
-    if (!InitializeRenderPass())
-    {
-        Logger::LogError("Vulkan: InitializeRenderPass failed");
-        return false;
-    }
-    if (!InitializePipelineCache())
-    {
-        Logger::LogError("Vulkan: InitializePipelineCache failed");
-        return false;
-    }
-    if (!InitializeFrameBuffers())
-    {
-        Logger::LogError("Vulkan: InitializeFrameBuffers failed");
-        return false;
-    }
-    if (!InitializeDescriptorSetLayout())
-    {
-        Logger::LogError("Vulkan: InitializeDescriptorSetLayout failed");
-        return false;
-    }
-    if (!InitializeDescriptorPool())
-    {
-        Logger::LogError("Vulkan: InitializeDescriptorPool failed");
-        return false;
-    }
-    if (!BuildCommandBuffers())
-    {
-        Logger::LogError("Vulkan: BuildCommandBuffers failed");
-        return false;
+        Logger::LogError("Vulkan: Initialize successful");
+        return true;
     }
 
-    Logger::LogInfo("Vulkan: Initialize successful");
-    return true;
+    Logger::LogInfo("Vulkan: Initialize failed");
+    return false;
 }
 
 bool VulkanBase::InitializeInstance()
