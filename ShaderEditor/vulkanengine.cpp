@@ -6,8 +6,6 @@
 #include "vulkandata.h"
 #include "vulkanutils.h"
 #include "sceneInterface.h"
-#include <array>
-#include <fstream>
 #include "mesh.h"
 #include "water.h"
 #include "shader.h"
@@ -17,6 +15,8 @@
 #include "emitter.h"
 #include "terrain.h"
 #include "light.h"
+#include <array>
+#include <fstream>
 
 VulkanEngine::VulkanEngine(HWND hwnd, HINSTANCE hinstance) :
     m_data(new VulkanData(hinstance, hwnd))
@@ -35,36 +35,28 @@ void VulkanEngine::Release()
 
 bool VulkanEngine::Initialize()
 {
-    init_global_layer_properties(*m_data);
-
-    // initialize the VkApplicationInfo structure
-    VkApplicationInfo app_info = {};
-    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    app_info.pNext = nullptr;
-    app_info.pApplicationName = "";
-    app_info.applicationVersion = 1;
-    app_info.pEngineName = "";
-    app_info.engineVersion = 1;
-    app_info.apiVersion = VK_API_VERSION_1_0;
-
-    // initialize the VkInstanceCreateInfo structure
-    VkInstanceCreateInfo inst_info = {};
-    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    inst_info.pNext = nullptr;
-    inst_info.flags = 0;
-    inst_info.pApplicationInfo = &app_info;
-    inst_info.enabledExtensionCount = 0;
-    inst_info.ppEnabledExtensionNames = nullptr;
-    inst_info.enabledLayerCount = 0;
-    inst_info.ppEnabledLayerNames = nullptr;
-
-    VkInstance instance;
-    if (FAIL(vkCreateInstance(&inst_info, nullptr, &instance)))
+    if (FAILED(init_global_layer_properties(*m_data)))
+    {
+        return false;
+    }
+    
+    if (FAILED(init_instance(*m_data)))
     {
         return false;
     }
 
-    vkDestroyInstance(instance, nullptr);
+    uint32_t gpu_count = 1;
+    if (FAILED(vkEnumeratePhysicalDevices(m_data->instance, &gpu_count, NULL)))
+    {
+        return false;
+    }
+
+    m_data->gpus.resize(gpu_count);
+    if (FAILED(vkEnumeratePhysicalDevices(m_data->instance, &gpu_count, m_data->gpus.data())) || gpu_count < 1)
+    {
+        return false;
+    }
+
     return true;
 }
 

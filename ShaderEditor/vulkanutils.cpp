@@ -6,83 +6,83 @@
 #include "vulkandata.h"
 #include "logger.h"
 
-bool FAIL(VkResult result)
+bool log_fail(VkResult result, const char* file, int line)
 {
     switch (result)
     {
     case VK_SUCCESS:
         return false;
     case VK_NOT_READY:
-        Logger::LogError("Vulkan: VK_NOT_READY");
+        Logger::LogError("Vulkan: %s - %d: VK_NOT_READY", file, line);
         return true;
     case VK_TIMEOUT:
-        Logger::LogError("Vulkan: VK_TIMEOUT");
+        Logger::LogError("Vulkan: %s - %d: VK_TIMEOUT", file, line);
         return true;
     case VK_EVENT_SET:
-        Logger::LogError("Vulkan: VK_EVENT_SET");
+        Logger::LogError("Vulkan: %s - %d: VK_EVENT_SET", file, line);
         return true;
     case VK_EVENT_RESET:
-        Logger::LogError("Vulkan: VK_EVENT_RESET");
+        Logger::LogError("Vulkan: %s - %d: VK_EVENT_RESET", file, line);
         return true;
     case VK_INCOMPLETE:
-        Logger::LogError("Vulkan: VK_INCOMPLETE");
+        Logger::LogError("Vulkan: %s - %d: VK_INCOMPLETE", file, line);
         return true;
     case VK_ERROR_OUT_OF_HOST_MEMORY:
-        Logger::LogError("Vulkan: VK_ERROR_OUT_OF_HOST_MEMORY");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_OUT_OF_HOST_MEMORY", file, line);
         return true;
     case VK_ERROR_OUT_OF_DEVICE_MEMORY:
-        Logger::LogError("Vulkan: VK_ERROR_OUT_OF_DEVICE_MEMORY");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_OUT_OF_DEVICE_MEMORY", file, line);
         return true;
     case VK_ERROR_INITIALIZATION_FAILED:
-        Logger::LogError("Vulkan: VK_ERROR_INITIALIZATION_FAILED");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_INITIALIZATION_FAILED", file, line);
         return true;
     case VK_ERROR_DEVICE_LOST:
-        Logger::LogError("Vulkan: VK_ERROR_DEVICE_LOST");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_DEVICE_LOST", file, line);
         return true;
     case VK_ERROR_MEMORY_MAP_FAILED:
-        Logger::LogError("Vulkan: VK_ERROR_MEMORY_MAP_FAILED");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_MEMORY_MAP_FAILED", file, line);
         return true;
     case VK_ERROR_LAYER_NOT_PRESENT:
-        Logger::LogError("Vulkan: VK_ERROR_LAYER_NOT_PRESENT");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_LAYER_NOT_PRESENT", file, line);
         return true;
     case VK_ERROR_EXTENSION_NOT_PRESENT:
-        Logger::LogError("Vulkan: VK_ERROR_EXTENSION_NOT_PRESENT");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_EXTENSION_NOT_PRESENT", file, line);
         return true;
     case VK_ERROR_FEATURE_NOT_PRESENT:
-        Logger::LogError("Vulkan: VK_ERROR_FEATURE_NOT_PRESENT");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_FEATURE_NOT_PRESENT", file, line);
         return true;
     case VK_ERROR_INCOMPATIBLE_DRIVER:
-        Logger::LogError("Vulkan: VK_ERROR_INCOMPATIBLE_DRIVER");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_INCOMPATIBLE_DRIVER", file, line);
         return true;
     case VK_ERROR_TOO_MANY_OBJECTS:
-        Logger::LogError("Vulkan: VK_ERROR_TOO_MANY_OBJECTS");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_TOO_MANY_OBJECTS", file, line);
         return true;
     case VK_ERROR_FORMAT_NOT_SUPPORTED:
-        Logger::LogError("Vulkan: VK_ERROR_FORMAT_NOT_SUPPORTED");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_FORMAT_NOT_SUPPORTED", file, line);
         return true;
     case VK_ERROR_SURFACE_LOST_KHR:
-        Logger::LogError("Vulkan: VK_ERROR_SURFACE_LOST_KHR");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_SURFACE_LOST_KHR", file, line);
         return true;
     case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:
-        Logger::LogError("Vulkan: VK_ERROR_NATIVE_WINDOW_IN_USE_KHR");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_NATIVE_WINDOW_IN_USE_KHR", file, line);
         return true;
     case VK_SUBOPTIMAL_KHR:
-        Logger::LogError("Vulkan: VK_SUBOPTIMAL_KHR");
+        Logger::LogError("Vulkan: %s - %d: VK_SUBOPTIMAL_KHR", file, line);
         return true;
     case VK_ERROR_OUT_OF_DATE_KHR:
-        Logger::LogError("Vulkan: VK_ERROR_OUT_OF_DATE_KHR");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_OUT_OF_DATE_KHR", file, line);
         return true;
     case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR:
-        Logger::LogError("Vulkan: VK_ERROR_INCOMPATIBLE_DISPLAY_KHR");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_INCOMPATIBLE_DISPLAY_KHR", file, line);
         return true;
     case VK_ERROR_VALIDATION_FAILED_EXT:
-        Logger::LogError("Vulkan: VK_ERROR_VALIDATION_FAILED_EXT");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_VALIDATION_FAILED_EXT", file, line);
         return true;
     case VK_ERROR_INVALID_SHADER_NV:
-        Logger::LogError("Vulkan: VK_ERROR_INVALID_SHADER_NV");
+        Logger::LogError("Vulkan: %s - %d: VK_ERROR_INVALID_SHADER_NV", file, line);
         return true;
     default:
-        Logger::LogError("Vulkan: UNKNOWN");
+        Logger::LogError("Vulkan: %s - %d: UNKNOWN", file, line);
         return true;
     }
 }
@@ -166,4 +166,28 @@ VkResult init_global_layer_properties(VulkanData& info)
 
     free(vk_props);
     return result;
+}
+
+VkResult init_instance(VulkanData &info)
+{
+    VkApplicationInfo app_info = {};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.pNext = NULL;
+    app_info.pApplicationName = "";
+    app_info.applicationVersion = 1;
+    app_info.pEngineName = "";
+    app_info.engineVersion = 1;
+    app_info.apiVersion = VK_API_VERSION_1_0;
+
+    VkInstanceCreateInfo inst_info = {};
+    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    inst_info.pNext = NULL;
+    inst_info.flags = 0;
+    inst_info.pApplicationInfo = &app_info;
+    inst_info.enabledLayerCount = info.instance_layer_names.size();
+    inst_info.ppEnabledLayerNames = info.instance_layer_names.size() ? info.instance_layer_names.data() : NULL;
+    inst_info.enabledExtensionCount = info.instance_extension_names.size();
+    inst_info.ppEnabledExtensionNames = info.instance_extension_names.data();
+
+    return vkCreateInstance(&inst_info, NULL, &info.instance);
 }

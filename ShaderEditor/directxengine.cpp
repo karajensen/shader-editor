@@ -188,9 +188,6 @@ void DirectxData::Release()
         debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
         debug->Release();
         debug = nullptr;
-
-        std::string seperator(100, '=');
-        OutputDebugString((seperator + "\n").c_str());
     }
 }
 

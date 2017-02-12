@@ -34,5 +34,10 @@ struct VulkanData
     */
     void Release();
 
+    VkInstance instance = VK_NULL_HANDLE;
+
     std::vector<LayerProperties> instance_layer_properties;
+    std::vector<const char*> instance_layer_names;
+    std::vector<const char*> instance_extension_names;
+    std::vector<VkPhysicalDevice> gpus;
 };

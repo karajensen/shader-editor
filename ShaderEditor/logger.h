@@ -6,9 +6,6 @@
 #include <string>
 #include <mutex>
 
-/**
-* Static class for logging application issues
-*/
 class Logger
 {
 public:
@@ -18,14 +15,17 @@ public:
     * @param info The information to log
     */
     static void LogInfo(const std::string& info);
+    static void LogInfo(const char* info, ...);
 
     /**
     * Logs error to the outputstream
     * @param error The error to log
     */
     static void LogError(const std::string& error);
+    static void LogError(const char* error, ...);
 
 private:
 
     static std::mutex sm_logMutex; ///< For getting sole access to the console
 };
+
