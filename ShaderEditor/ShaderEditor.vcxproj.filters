@@ -194,6 +194,12 @@
     <ClCompile Include="vulkanengine.cpp">
       <Filter>Engine - Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="vulkanutils.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkandata.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -376,10 +382,13 @@
     <ClInclude Include="qtGUI.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="vulkancommon.h">
+    <ClInclude Include="vulkanengine.h">
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanengine.h">
+    <ClInclude Include="vulkanutils.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkandata.h">
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

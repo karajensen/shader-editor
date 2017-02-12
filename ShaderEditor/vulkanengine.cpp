@@ -3,45 +3,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkanengine.h"
+#include "vulkandata.h"
+#include "vulkanutils.h"
 #include "sceneInterface.h"
 #include <array>
 #include <fstream>
-
-#include "vulkancommon.h"
-
-/**
-* Internal data for the vulkan rendering engine
-*/
-struct VulkanData
-{
-    /**
-    * Constructor
-    */
-    VulkanData(HINSTANCE hinstance, HWND hwnd);
-
-    /**
-    * Destructor
-    */
-    ~VulkanData();
-
-    /**
-    * Releases the device
-    */
-    void Release();
-};
-
-VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd)
-{
-}
-
-VulkanData::~VulkanData()
-{
-    Release();
-}
-
-void VulkanData::Release()
-{
-}
+#include "mesh.h"
+#include "water.h"
+#include "shader.h"
+#include "texture.h"
+#include "textureProcedural.h"
+#include "postprocessing.h"
+#include "emitter.h"
+#include "terrain.h"
+#include "light.h"
 
 VulkanEngine::VulkanEngine(HWND hwnd, HINSTANCE hinstance) :
     m_data(new VulkanData(hinstance, hwnd))
@@ -60,6 +35,36 @@ void VulkanEngine::Release()
 
 bool VulkanEngine::Initialize()
 {
+    init_global_layer_properties(*m_data);
+
+    // initialize the VkApplicationInfo structure
+    VkApplicationInfo app_info = {};
+    app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app_info.pNext = nullptr;
+    app_info.pApplicationName = "";
+    app_info.applicationVersion = 1;
+    app_info.pEngineName = "";
+    app_info.engineVersion = 1;
+    app_info.apiVersion = VK_API_VERSION_1_0;
+
+    // initialize the VkInstanceCreateInfo structure
+    VkInstanceCreateInfo inst_info = {};
+    inst_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    inst_info.pNext = nullptr;
+    inst_info.flags = 0;
+    inst_info.pApplicationInfo = &app_info;
+    inst_info.enabledExtensionCount = 0;
+    inst_info.ppEnabledExtensionNames = nullptr;
+    inst_info.enabledLayerCount = 0;
+    inst_info.ppEnabledLayerNames = nullptr;
+
+    VkInstance instance;
+    if (FAIL(vkCreateInstance(&inst_info, nullptr, &instance)))
+    {
+        return false;
+    }
+
+    vkDestroyInstance(instance, nullptr);
     return true;
 }
 
