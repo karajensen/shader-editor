@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkanengine.h"
-#include "vulkanbase.h"
 #include "sceneInterface.h"
 #include <array>
 #include <fstream>
@@ -29,12 +28,9 @@ struct VulkanData
     * Releases the device
     */
     void Release();
-
-    VulkanBase Base;  ///< Base engine elements such as device
 };
 
-VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd) :
-    Base(hinstance, hwnd)
+VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd)
 {
 }
 
@@ -44,8 +40,7 @@ VulkanData::~VulkanData()
 }
 
 void VulkanData::Release()
-{   
-    Base.Release();
+{
 }
 
 VulkanEngine::VulkanEngine(HWND hwnd, HINSTANCE hinstance) :
@@ -65,7 +60,7 @@ void VulkanEngine::Release()
 
 bool VulkanEngine::Initialize()
 {
-    return m_data->Base.Initialise();
+    return true;
 }
 
 std::string VulkanEngine::CompileShader(int index)
@@ -91,7 +86,6 @@ bool VulkanEngine::FadeView(bool in, float amount)
 
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
-    m_data->Base.Render();
 }
 
 void VulkanEngine::ToggleWireframe()
