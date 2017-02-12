@@ -36,8 +36,12 @@ struct VulkanData
 
     VkInstance instance = VK_NULL_HANDLE;
 
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    VkPhysicalDeviceProperties gpu_props;
+    std::vector<VkQueueFamilyProperties> queue_props;
     std::vector<LayerProperties> instance_layer_properties;
     std::vector<const char*> instance_layer_names;
     std::vector<const char*> instance_extension_names;
     std::vector<VkPhysicalDevice> gpus;
+    uint32_t queue_family_count;
 };

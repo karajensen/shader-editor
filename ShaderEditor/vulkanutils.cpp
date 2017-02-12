@@ -6,6 +6,11 @@
 #include "vulkandata.h"
 #include "logger.h"
 
+bool failed(VkResult result)
+{
+    return result != VK_SUCCESS;
+}
+
 bool log_fail(VkResult result, const char* file, int line)
 {
     switch (result)
@@ -85,6 +90,47 @@ bool log_fail(VkResult result, const char* file, int line)
         Logger::LogError("Vulkan: %s - %d: UNKNOWN", file, line);
         return true;
     }
+}
+
+VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count) 
+{
+    uint32_t const req_count = gpu_count;
+    VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, NULL);
+    if (gpu_count < 1)
+    {
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+    info.gpus.resize(gpu_count);
+
+    result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, info.gpus.data());
+    if (failed(result))
+    {
+        return result;
+    }
+
+    if (gpu_count < req_count)
+    {
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
+    if (info.queue_family_count < 1)
+    {
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+
+    info.queue_props.resize(info.queue_family_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, info.queue_props.data());
+    if (info.queue_family_count < 1)
+    {
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+
+    /* This is as good a place as any to do this */
+    vkGetPhysicalDeviceMemoryProperties(info.gpus[0], &info.memory_properties);
+    vkGetPhysicalDeviceProperties(info.gpus[0], &info.gpu_props);
+
+    return result;
 }
 
 VkResult init_global_extension_properties(LayerProperties& layer_props) 
