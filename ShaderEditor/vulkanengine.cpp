@@ -40,6 +40,7 @@ bool VulkanEngine::Initialize()
     if (FAILED(init_instance(info)) ||
         FAILED(init_enumerate_device(info)) ||
         FAILED(init_device(info)) ||
+        FAILED(init_debugging(info)) ||
         FAILED(init_queue_family_index(info)))
     {
         return false;

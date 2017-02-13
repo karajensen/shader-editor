@@ -37,6 +37,7 @@ struct VulkanData
     VkInstance instance = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
     VkCommandBuffer cmd = VK_NULL_HANDLE;
+    VkDebugReportCallbackEXT debug_callback = VK_NULL_HANDLE;
 
     VkPhysicalDeviceMemoryProperties memory_properties;
     VkPhysicalDeviceProperties gpu_props;
@@ -46,6 +47,9 @@ struct VulkanData
     std::vector<const char*> instance_extension_names;
     std::vector<VkPhysicalDevice> gpus;
     std::vector<const char*> device_extension_names;
+
+    PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn;
+    PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportFn;
 
     uint32_t queue_family_count;
     uint32_t graphics_queue_family_index;

@@ -30,6 +30,15 @@ void VulkanData::Release()
     gpus.clear();
     device_extension_names.clear();
 
+    if (debug_callback != VK_NULL_HANDLE)
+    {
+        if (DestroyDebugReportFn != nullptr)
+        {
+            DestroyDebugReportFn(instance, debug_callback, nullptr);
+        }
+        debug_callback = VK_NULL_HANDLE;
+    }
+
     if (cmd != VK_NULL_HANDLE)
     {
         VkCommandBuffer cmd_bufs[1] = { cmd };
@@ -50,4 +59,7 @@ void VulkanData::Release()
         vkDestroyInstance(instance, nullptr);
         instance = VK_NULL_HANDLE;
     }
+
+    DestroyDebugReportFn = nullptr;
+    CreateDebugReportFn = nullptr;
 }

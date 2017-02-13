@@ -6,10 +6,7 @@
 #include "vulkandata.h"
 #include "logger.h"
 
-bool failed(VkResult result)
-{
-    return result != VK_SUCCESS;
-}
+const VkResult VK_ERROR = VK_ERROR_INITIALIZATION_FAILED;
 
 bool log_fail(VkResult result, const char* file, int line)
 {
@@ -92,13 +89,74 @@ bool log_fail(VkResult result, const char* file, int line)
     }
 }
 
+bool failed(VkResult result)
+{
+    return result != VK_SUCCESS;
+}
+
+template<typename T> bool GetProcAddress(VkInstance& instance, std::string name, T& fn)
+{
+    void* address = vkGetInstanceProcAddr(instance, name.c_str());
+    if (address == nullptr)
+    {
+        Logger::LogError("Vulkan: Could not get instance address for " + name);
+        return false;
+    }
+    fn = static_cast<T>(address);
+    return true;
+}
+
+template<typename T> bool GetProcAddress(VkDevice& device, std::string name, T& fn)
+{
+    void* address = vkGetDeviceProcAddr(device, name.c_str());
+    if (address == nullptr)
+    {
+        Logger::LogError("Vulkan: Could not get device address for " + name);
+        return false;
+    }
+    fn = static_cast<T>(address);
+    return true;
+}
+
+VkBool32 debug_message_callback(VkDebugReportFlagsEXT flags,
+                                VkDebugReportObjectTypeEXT objType,
+                                uint64_t srcObject,
+                                size_t location,
+                                int32_t msgCode,
+                                const char* pLayerPrefix,
+                                const char* pMsg,
+                                void* pUserData)
+{
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+    {
+        Logger::LogError("Vulkan: Error %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+    }
+    else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+    {
+        Logger::LogInfo("Vulkan: Warning %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+    }
+    else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+    {
+        Logger::LogInfo("Vulkan: Performance %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+    }
+    else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+    {
+        Logger::LogInfo("Vulkan: Info %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+    }
+    else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+    {
+        Logger::LogInfo("Vulkan: Debug %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+    }
+    return VK_FALSE; // True will exit on error
+}
+
 VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count) 
 {
     uint32_t const req_count = gpu_count;
     VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, NULL);
     if (gpu_count < 1)
     {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
+        return VK_ERROR;
     }
     info.gpus.resize(gpu_count);
 
@@ -110,20 +168,20 @@ VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count)
 
     if (gpu_count < req_count)
     {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
+        return VK_ERROR;
     }
 
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
     if (info.queue_family_count < 1)
     {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
+        return VK_ERROR;
     }
 
     info.queue_props.resize(info.queue_family_count);
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, info.queue_props.data());
     if (info.queue_family_count < 1)
     {
-        return VK_ERROR_VALIDATION_FAILED_EXT;
+        return VK_ERROR;
     }
 
     /* This is as good a place as any to do this */
@@ -165,6 +223,11 @@ VkResult init_global_extension_properties(LayerProperties& layer_props)
 
 VkResult init_instance(VulkanData &info)
 {
+    info.instance_extension_names =
+    {
+        VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+    };
+
     VkApplicationInfo app_info = {};
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app_info.pNext = NULL;
@@ -189,13 +252,11 @@ VkResult init_instance(VulkanData &info)
 
 VkResult init_queue_family_index(VulkanData &info)
 {
-    /* This routine simply finds a graphics queue for a later vkCreateDevice,
-    * without consideration for which queue family can present an image.
-    * Do not use this if your intent is to present later in your sample,
-    * instead use the init_connection, init_window, init_swapchain_extension,
-    * init_device call sequence to get a graphics and present compatible queue
-    * family
-    */
+    // This routine simply finds a graphics queue for a later vkCreateDevice,
+    // without consideration for which queue family can present an image.
+    // Do not use this if your intent is to present later in your sample,
+    // instead use the init_connection, init_window, init_swapchain_extension,
+    // init_device call sequence to get a graphics and present compatible queue family
 
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
     assert(info.queue_family_count >= 1);
@@ -238,3 +299,19 @@ VkResult init_device(VulkanData &info)
 
     return vkCreateDevice(info.gpus[0], &device_info, NULL, &info.device);
 }
+
+VkResult init_debugging(VulkanData &info)
+{
+    if (!GetProcAddress(info.instance, "vkCreateDebugReportCallbackEXT", info.CreateDebugReportFn) ||
+        !GetProcAddress(info.instance, "vkDestroyDebugReportCallbackEXT", info.DestroyDebugReportFn))
+    {
+        return VK_ERROR;
+    }
+
+    VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
+    dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+    dbgCreateInfo.pfnCallback = (PFN_vkDebugReportCallbackEXT)debug_message_callback;
+    dbgCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+    return info.CreateDebugReportFn(info.instance, &dbgCreateInfo, nullptr, &info.debug_callback);
+}
+
