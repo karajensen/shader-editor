@@ -98,7 +98,7 @@ VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count)
     VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, NULL);
     if (gpu_count < 1)
     {
-        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+        return VK_ERROR_VALIDATION_FAILED_EXT;
     }
     info.gpus.resize(gpu_count);
 
@@ -110,20 +110,20 @@ VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count)
 
     if (gpu_count < req_count)
     {
-        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+        return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
     if (info.queue_family_count < 1)
     {
-        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+        return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
     info.queue_props.resize(info.queue_family_count);
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, info.queue_props.data());
     if (info.queue_family_count < 1)
     {
-        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+        return VK_ERROR_VALIDATION_FAILED_EXT;
     }
 
     /* This is as good a place as any to do this */
@@ -163,57 +163,6 @@ VkResult init_global_extension_properties(LayerProperties& layer_props)
     return result;
 }
 
-VkResult init_global_layer_properties(VulkanData& info)
-{
-    uint32_t instance_layer_count;
-    VkLayerProperties* vk_props = nullptr;
-    VkResult result;
-
-    // It's possible, though very rare, that the number of
-    // instance layers could change. For example, installing something
-    // could include new layers that the loader would pick up
-    // between the initial query for the count and the
-    // request for VkLayerProperties. The loader indicates that
-    // by returning a VK_INCOMPLETE status and will update the
-    // the count parameter.
-    // The count parameter will be updated with the number of
-    // entries loaded into the data pointer - in case the number
-    // of layers went down or is smaller than the size given.
-    do 
-    {
-        result = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
-        if (result)
-        {
-            return result;
-        }
-
-        if (instance_layer_count == 0) 
-        {
-            return VK_SUCCESS;
-        }
-
-        vk_props = (VkLayerProperties *)realloc(vk_props, instance_layer_count * sizeof(VkLayerProperties));
-        result = vkEnumerateInstanceLayerProperties(&instance_layer_count, vk_props);
-
-    } while (result == VK_INCOMPLETE);
-
-    // Now gather the extension list for each instance layer.
-    for (uint32_t i = 0; i < instance_layer_count; i++) 
-    {
-        LayerProperties layer_props;
-        layer_props.properties = vk_props[i];
-        result = init_global_extension_properties(layer_props);
-        if (result)
-        {
-            return result;
-        }
-        info.instance_layer_properties.push_back(layer_props);
-    }
-
-    free(vk_props);
-    return result;
-}
-
 VkResult init_instance(VulkanData &info)
 {
     VkApplicationInfo app_info = {};
@@ -236,4 +185,56 @@ VkResult init_instance(VulkanData &info)
     inst_info.ppEnabledExtensionNames = info.instance_extension_names.data();
 
     return vkCreateInstance(&inst_info, NULL, &info.instance);
+}
+
+VkResult init_queue_family_index(VulkanData &info)
+{
+    /* This routine simply finds a graphics queue for a later vkCreateDevice,
+    * without consideration for which queue family can present an image.
+    * Do not use this if your intent is to present later in your sample,
+    * instead use the init_connection, init_window, init_swapchain_extension,
+    * init_device call sequence to get a graphics and present compatible queue
+    * family
+    */
+
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, NULL);
+    assert(info.queue_family_count >= 1);
+
+    info.queue_props.resize(info.queue_family_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queue_family_count, info.queue_props.data());
+    assert(info.queue_family_count >= 1);
+
+    bool found = false;
+    for (unsigned int i = 0; i < info.queue_family_count; i++) {
+        if (info.queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            info.graphics_queue_family_index = i;
+            found = true;
+            break;
+        }
+    }
+    
+    return found ? VK_SUCCESS : VK_ERROR_VALIDATION_FAILED_EXT;
+}
+
+VkResult init_device(VulkanData &info) 
+{
+    VkDeviceQueueCreateInfo queue_info = {};
+
+    float queue_priorities[1] = { 0.0 };
+    queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_info.pNext = NULL;
+    queue_info.queueCount = 1;
+    queue_info.pQueuePriorities = queue_priorities;
+    queue_info.queueFamilyIndex = info.graphics_queue_family_index;
+
+    VkDeviceCreateInfo device_info = {};
+    device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    device_info.pNext = NULL;
+    device_info.queueCreateInfoCount = 1;
+    device_info.pQueueCreateInfos = &queue_info;
+    device_info.enabledExtensionCount = info.device_extension_names.size();
+    device_info.ppEnabledExtensionNames = device_info.enabledExtensionCount ? info.device_extension_names.data() : NULL;
+    device_info.pEnabledFeatures = NULL;
+
+    return vkCreateDevice(info.gpus[0], &device_info, NULL, &info.device);
 }
