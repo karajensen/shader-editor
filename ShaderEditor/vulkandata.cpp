@@ -5,6 +5,8 @@
 #include "vulkandata.h"
 
 VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd)
+    : connection(hinstance)
+    , window(hwnd)
 {
     Release();
 }
@@ -17,8 +19,12 @@ VulkanData::~VulkanData()
 void VulkanData::Release()
 {
     queue_family_count = 0;
+    present_queue_family_index = 0;
     graphics_queue_family_index = 0;
     cmd_pool = 0;
+    height = 0;
+    width = 0;
+    format = VK_FORMAT_UNDEFINED;
 
     memory_properties = {};
     gpu_props = {};
@@ -36,7 +42,6 @@ void VulkanData::Release()
         {
             DestroyDebugReportFn(instance, debug_callback, nullptr);
         }
-        debug_callback = VK_NULL_HANDLE;
     }
 
     if (cmd != VK_NULL_HANDLE)
@@ -44,22 +49,37 @@ void VulkanData::Release()
         VkCommandBuffer cmd_bufs[1] = { cmd };
         vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
         vkDestroyCommandPool(device, cmd_pool, 0);
-        cmd = VK_NULL_HANDLE;
+    }
+
+    for (uint32_t i = 0; i < swapchainImageCount; i++) 
+    {
+        vkDestroyImageView(device, buffers[i].view, NULL);
+    }
+    swapchainImageCount = 0;
+    buffers.clear();
+
+    if (swap_chain != VK_NULL_HANDLE)
+    {
+        vkDestroySwapchainKHR(device, swap_chain, NULL);
     }
 
     if (device != VK_NULL_HANDLE)
     {
         vkDeviceWaitIdle(device);
         vkDestroyDevice(device, NULL);
-        device = VK_NULL_HANDLE;
     }
 
     if (instance != VK_NULL_HANDLE)
     {
         vkDestroyInstance(instance, nullptr);
-        instance = VK_NULL_HANDLE;
     }
 
     DestroyDebugReportFn = nullptr;
     CreateDebugReportFn = nullptr;
+    surface = VK_NULL_HANDLE;
+    debug_callback = VK_NULL_HANDLE;
+    cmd = VK_NULL_HANDLE;
+    device = VK_NULL_HANDLE;
+    instance = VK_NULL_HANDLE;
+    swap_chain = VK_NULL_HANDLE;
 }
