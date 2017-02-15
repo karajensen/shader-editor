@@ -386,3 +386,122 @@ VkResult init_global_layer_properties(VulkanData& info)
     free(vk_props);
     return result;
 }
+
+VkResult init_swapchain_extension(VulkanData &info) 
+{
+    VkWin32SurfaceCreateInfoKHR createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    createInfo.pNext = NULL;
+    createInfo.hinstance = info.connection;
+    createInfo.hwnd = info.window;
+    VkResult res = vkCreateWin32SurfaceKHR(info.instance, &createInfo, NULL, &info.surface);
+    if (failed(res))
+    {
+        return res;
+    }
+
+    // Iterate over each queue to learn whether it supports presenting:
+    VkBool32 *pSupportsPresent = (VkBool32 *)malloc(info.queue_family_count * sizeof(VkBool32));
+    for (uint32_t i = 0; i < info.queue_family_count; i++) 
+    {
+        vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface, &pSupportsPresent[i]);
+    }
+
+    // Search for a graphics and a present queue in the array of queue
+    // families, try to find one that supports both
+    info.graphics_queue_family_index = UINT32_MAX;
+    info.present_queue_family_index = UINT32_MAX;
+    for (uint32_t i = 0; i < info.queue_family_count; ++i) 
+    {
+        if ((info.queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+        {
+            if (info.graphics_queue_family_index == UINT32_MAX) info.graphics_queue_family_index = i;
+
+            if (pSupportsPresent[i] == VK_TRUE) 
+            {
+                info.graphics_queue_family_index = i;
+                info.present_queue_family_index = i;
+                break;
+            }
+        }
+    }
+
+    if (info.present_queue_family_index == UINT32_MAX) 
+    {
+        // If didn't find a queue that supports both graphics and present, then
+        // find a separate present queue.
+        for (size_t i = 0; i < info.queue_family_count; ++i)
+        {
+            if (pSupportsPresent[i] == VK_TRUE)
+            {
+                info.present_queue_family_index = i;
+                break;
+            }
+        }
+    }
+    free(pSupportsPresent);
+
+    // Generate error if could not find queues that support graphics
+    // and present
+    if (info.graphics_queue_family_index == UINT32_MAX || info.present_queue_family_index == UINT32_MAX)
+    {
+        Logger::LogError("Vulkan: Could not find a queues for both graphics and present");
+        return VK_ERROR;
+    }
+
+    // Get the list of VkFormats that are supported:
+    uint32_t formatCount;
+    res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, NULL);
+    if (failed(res))
+    {
+        return res;
+    }
+
+    VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+    res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, surfFormats);
+    if (failed(res))
+    {
+        return res;
+    }
+
+    // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+    // the surface has no preferred format.  Otherwise, at least one
+    // supported format will be returned.
+    if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) 
+    {
+        info.format = VK_FORMAT_B8G8R8A8_UNORM;
+    }
+    else 
+    {
+        if (formatCount < 1)
+        {
+            return VK_ERROR;
+        }
+        info.format = surfFormats[0].format;
+    }
+    free(surfFormats);
+    return VK_SUCCESS;
+}
+
+bool memory_type_from_properties(VulkanData &info, 
+                                 uint32_t typeBits, 
+                                 VkFlags requirements_mask, 
+                                 uint32_t* typeIndex) 
+{
+    // Search memtypes to find first index with those properties
+    for (uint32_t i = 0; i < info.memory_properties.memoryTypeCount; i++) 
+    {
+        if ((typeBits & 1) == 1)
+        {
+            // Type is available, does it match user properties?
+            if ((info.memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) 
+            {
+                *typeIndex = i;
+                return true;
+            }
+        }
+        typeBits >>= 1;
+    }
+    // No memory types matched, return failure
+    return false;
+}

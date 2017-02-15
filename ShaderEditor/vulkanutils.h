@@ -21,6 +21,12 @@ VkResult init_global_layer_properties(VulkanData& info);
 VkResult init_instance_extension_names(VulkanData &info);
 VkResult init_device_extension_names(VulkanData &info);
 VkResult init_window_size(VulkanData &info);
+VkResult init_swapchain_extension(VulkanData &info);
+
+bool memory_type_from_properties(VulkanData &info,
+                                 uint32_t typeBits,
+                                 VkFlags requirements_mask,
+                                 uint32_t* typeIndex);
 
 #undef FAILED
 #define FAILED(result) log_fail(result, __FILE__, __LINE__)

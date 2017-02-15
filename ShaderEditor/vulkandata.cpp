@@ -28,6 +28,7 @@ void VulkanData::Release()
 
     memory_properties = {};
     gpu_props = {};
+    depth = {};
 
     queue_props.clear();
     instance_layer_properties.clear();

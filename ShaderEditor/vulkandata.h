@@ -5,27 +5,26 @@
 #include "vulkan.h"
 #include <vector>
 
-/*
-* A layer can expose extensions, keep track of those extensions here
-*/
 struct LayerProperties
 {
     VkLayerProperties properties;
     std::vector<VkExtensionProperties> extensions;
 };
 
-/*
-* Keep each of our swap chain buffers' image, command buffer and view in one spot
-*/
 struct SwapChainBuffer 
 {
     VkImage image;
     VkImageView view;
 };
 
-/**
-* Internal data for the vulkan rendering engine
-*/
+struct Depth
+{
+    VkFormat format = VK_FORMAT_UNDEFINED;
+    VkImage image = 0;
+    VkDeviceMemory mem = 0;
+    VkImageView view = 0;
+};
+
 struct VulkanData
 {
     /**
@@ -56,6 +55,7 @@ struct VulkanData
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn = nullptr;
     PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportFn = nullptr;
 
+    Depth depth = {};
     VkPhysicalDeviceMemoryProperties memory_properties = {};
     VkPhysicalDeviceProperties gpu_props = {};
 
