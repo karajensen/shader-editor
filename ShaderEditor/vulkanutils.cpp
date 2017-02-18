@@ -221,13 +221,6 @@ VkResult init_global_extension_properties(LayerProperties& layer_props)
     return result;
 }
 
-VkResult init_window_size(VulkanData &info) 
-{
-    info.width = WINDOW_WIDTH;
-    info.height = WINDOW_HEIGHT;
-    return VK_SUCCESS;
-}
-
 VkResult init_device_extension_names(VulkanData &info)
 {
     info.device_extension_names =

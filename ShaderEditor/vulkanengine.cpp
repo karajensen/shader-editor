@@ -17,6 +17,9 @@
 #include "light.h"
 #include <array>
 #include <fstream>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 
 VulkanEngine::VulkanEngine(HWND hwnd, HINSTANCE hinstance) :
     m_data(new VulkanData(hinstance, hwnd))
@@ -43,101 +46,74 @@ bool VulkanEngine::Initialize()
         FAILED(init_instance(info)) ||
         FAILED(init_debugging(info)) ||
         FAILED(init_enumerate_device(info)) ||
-        FAILED(init_window_size(info)) ||
+        FAILED(init_queue_family_index(info)) ||
         FAILED(init_swapchain_extension(info)) ||
         FAILED(init_device(info)))
     {
         return false;
     }
 
-    VkImageCreateInfo image_info = {};
-    const VkFormat depth_format = VK_FORMAT_D16_UNORM;
-    VkFormatProperties props;
-    vkGetPhysicalDeviceFormatProperties(info.gpus[0], depth_format, &props);
-    if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-        image_info.tiling = VK_IMAGE_TILING_LINEAR;
-    }
-    else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-        image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-    }
-    else {
-        /* Try other depth formats? */
-        Logger::LogError("VK_FORMAT_D16_UNORM Unsupported.\n");
-        return false;
-    }
+    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+    glm::mat4 View = glm::lookAt(glm::vec3(-5, 3, -10),  // Camera is at (-5,3,-10), in World Space
+        glm::vec3(0, 0, 0),     // and looks at the origin
+        glm::vec3(0, -1, 0)     // Head is up (set to 0,-1,0 to look upside-down)
+    );
 
-    image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_info.pNext = NULL;
-    image_info.imageType = VK_IMAGE_TYPE_2D;
-    image_info.format = depth_format;
-    image_info.extent.width = info.width;
-    image_info.extent.height = info.height;
-    image_info.extent.depth = 1;
-    image_info.mipLevels = 1;
-    image_info.arrayLayers = 1;
-    image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    image_info.queueFamilyIndexCount = 0;
-    image_info.pQueueFamilyIndices = NULL;
-    image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    image_info.flags = 0;
+    glm::mat4 Model = glm::mat4(1.0f);
 
-    VkMemoryAllocateInfo mem_alloc = {};
-    mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    mem_alloc.pNext = NULL;
-    mem_alloc.allocationSize = 0;
-    mem_alloc.memoryTypeIndex = 0;
+    // Vulkan clip space has inverted Y and half Z.
+    // clang-format off
+    glm::mat4 Clip = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.5f, 0.0f,
+        0.0f, 0.0f, 0.5f, 1.0f);
+    // clang-format on
+    glm::mat4 MVP = Clip * Projection * View * Model;
 
-    VkImageViewCreateInfo view_info = {};
-    view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    view_info.pNext = NULL;
-    view_info.image = VK_NULL_HANDLE;
-    view_info.format = depth_format;
-    view_info.components.r = VK_COMPONENT_SWIZZLE_R;
-    view_info.components.g = VK_COMPONENT_SWIZZLE_G;
-    view_info.components.b = VK_COMPONENT_SWIZZLE_B;
-    view_info.components.a = VK_COMPONENT_SWIZZLE_A;
-    view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-    view_info.subresourceRange.baseMipLevel = 0;
-    view_info.subresourceRange.levelCount = 1;
-    view_info.subresourceRange.baseArrayLayer = 0;
-    view_info.subresourceRange.layerCount = 1;
-    view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    view_info.flags = 0;
+    /* VULKAN_KEY_START */
+    VkBufferCreateInfo buf_info = {};
+    buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buf_info.pNext = NULL;
+    buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    buf_info.size = sizeof(MVP);
+    buf_info.queueFamilyIndexCount = 0;
+    buf_info.pQueueFamilyIndices = NULL;
+    buf_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    buf_info.flags = 0;
+    VkResult res = vkCreateBuffer(info.device, &buf_info, NULL, &info.uniform_data.buffer);
+    assert(res == VK_SUCCESS);
 
     VkMemoryRequirements mem_reqs;
+    vkGetBufferMemoryRequirements(info.device, info.uniform_data.buffer, &mem_reqs);
 
-    info.depth.format = depth_format;
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.pNext = NULL;
+    alloc_info.memoryTypeIndex = 0;
 
-    /* Create image */
-    VkResult res = vkCreateImage(info.device, &image_info, NULL, &info.depth.image);
+    alloc_info.allocationSize = mem_reqs.size;
+    bool pass = memory_type_from_properties(info, mem_reqs.memoryTypeBits,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &alloc_info.memoryTypeIndex);
+    assert(pass && "No mappable, coherent memory");
+
+    res = vkAllocateMemory(info.device, &alloc_info, NULL, &(info.uniform_data.memory));
     assert(res == VK_SUCCESS);
 
-    vkGetImageMemoryRequirements(info.device, info.depth.image, &mem_reqs);
-
-    mem_alloc.allocationSize = mem_reqs.size;
-    /* Use the memory properties to determine the type of memory required */
-    bool pass = memory_type_from_properties(info, mem_reqs.memoryTypeBits, 0, /* No Requirements */
-        &mem_alloc.memoryTypeIndex);
-    assert(pass);
-
-    /* Allocate memory */
-    res = vkAllocateMemory(info.device, &mem_alloc, NULL, &info.depth.mem);
+    uint8_t *pData;
+    res = vkMapMemory(info.device, info.uniform_data.memory, 0, mem_reqs.size, 0, (void **)&pData);
     assert(res == VK_SUCCESS);
 
-    /* Bind memory */
-    res = vkBindImageMemory(info.device, info.depth.image, info.depth.mem, 0);
+    memcpy(pData, &MVP, sizeof(MVP));
+
+    vkUnmapMemory(info.device, info.uniform_data.memory);
+
+    res = vkBindBufferMemory(info.device, info.uniform_data.buffer, info.uniform_data.memory, 0);
     assert(res == VK_SUCCESS);
 
-    /* Create image view */
-    view_info.image = info.depth.image;
-    res = vkCreateImageView(info.device, &view_info, NULL, &info.depth.view);
-    assert(res == VK_SUCCESS);
-
-    vkDestroyImageView(info.device, info.depth.view, NULL);
-    vkDestroyImage(info.device, info.depth.image, NULL);
-    vkFreeMemory(info.device, info.depth.mem, NULL);
+    info.uniform_data.buffer_info.buffer = info.uniform_data.buffer;
+    info.uniform_data.buffer_info.offset = 0;
+    info.uniform_data.buffer_info.range = sizeof(MVP);
 
     return true;
 }
@@ -179,6 +155,33 @@ std::string VulkanEngine::GetName() const
 
 void VulkanEngine::UpdateView(const Matrix& world)
 {
+    glm::mat4 view;
+
+    view[0][0] = world.m11;
+    view[1][0] = world.m12;
+    view[2][0] = world.m13;
+    view[3][0] = world.m14;
+
+    view[0][1] = world.m21;
+    view[1][1] = world.m22;
+    view[2][1] = world.m23;
+    view[3][1] = world.m24;
+
+    view[0][2] = world.m31;
+    view[1][2] = world.m32;
+    view[2][2] = world.m33;
+    view[3][2] = world.m34;
+
+    m_data->cameraPosition.x = world.m14;
+    m_data->cameraPosition.y = world.m24;
+    m_data->cameraPosition.z = world.m34;
+
+    m_data->cameraUp.x = world.m12;
+    m_data->cameraUp.y = world.m22;
+    m_data->cameraUp.z = world.m32;
+
+    m_data->view = glm::inverse(view);
+    m_data->viewProjection = m_data->projection * m_data->view;
 }
 
 std::string VulkanEngine::GetShaderText(int index) const

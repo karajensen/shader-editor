@@ -20,7 +20,6 @@ VkResult init_debugging(VulkanData &info);
 VkResult init_global_layer_properties(VulkanData& info);
 VkResult init_instance_extension_names(VulkanData &info);
 VkResult init_device_extension_names(VulkanData &info);
-VkResult init_window_size(VulkanData &info);
 VkResult init_swapchain_extension(VulkanData &info);
 
 bool memory_type_from_properties(VulkanData &info,

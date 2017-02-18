@@ -3,12 +3,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkandata.h"
+#include "renderdata.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd)
     : connection(hinstance)
     , window(hwnd)
 {
-    Release();
+    Reset();
+
+    projection = glm::perspective(FIELD_OF_VIEW,
+        RATIO, FRUSTRUM_NEAR, FRUSTRUM_FAR);
 }
 
 VulkanData::~VulkanData()
@@ -16,19 +22,30 @@ VulkanData::~VulkanData()
     Release();
 }
 
-void VulkanData::Release()
+void VulkanData::Reset()
 {
+    DestroyDebugReportFn = nullptr;
+    CreateDebugReportFn = nullptr;
+
+    surface = VK_NULL_HANDLE;
+    debug_callback = VK_NULL_HANDLE;
+    cmd = VK_NULL_HANDLE;
+    device = VK_NULL_HANDLE;
+    instance = VK_NULL_HANDLE;
+    swap_chain = VK_NULL_HANDLE;
+
+    swapchainImageCount = 0;
     queue_family_count = 0;
     present_queue_family_index = 0;
     graphics_queue_family_index = 0;
     cmd_pool = 0;
-    height = 0;
-    width = 0;
+
     format = VK_FORMAT_UNDEFINED;
 
     memory_properties = {};
     gpu_props = {};
     depth = {};
+    uniform_data = {};
 
     queue_props.clear();
     instance_layer_properties.clear();
@@ -36,6 +53,20 @@ void VulkanData::Release()
     instance_extension_names.clear();
     gpus.clear();
     device_extension_names.clear();
+    buffers.clear();
+}
+
+void VulkanData::Release()
+{
+    if (uniform_data.buffer != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(device, uniform_data.buffer, NULL);
+    }
+
+    if (uniform_data.memory != VK_NULL_HANDLE)
+    {
+        vkFreeMemory(device, uniform_data.memory, NULL);
+    }
 
     if (debug_callback != VK_NULL_HANDLE)
     {
@@ -56,8 +87,6 @@ void VulkanData::Release()
     {
         vkDestroyImageView(device, buffers[i].view, NULL);
     }
-    swapchainImageCount = 0;
-    buffers.clear();
 
     if (swap_chain != VK_NULL_HANDLE)
     {
@@ -75,12 +104,5 @@ void VulkanData::Release()
         vkDestroyInstance(instance, nullptr);
     }
 
-    DestroyDebugReportFn = nullptr;
-    CreateDebugReportFn = nullptr;
-    surface = VK_NULL_HANDLE;
-    debug_callback = VK_NULL_HANDLE;
-    cmd = VK_NULL_HANDLE;
-    device = VK_NULL_HANDLE;
-    instance = VK_NULL_HANDLE;
-    swap_chain = VK_NULL_HANDLE;
+    Reset();
 }

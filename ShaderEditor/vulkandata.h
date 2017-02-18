@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkan.h"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 #include <vector>
 
 struct LayerProperties
@@ -25,6 +27,13 @@ struct Depth
     VkImageView view = 0;
 };
 
+struct UniformData
+{
+    VkBuffer buffer = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    VkDescriptorBufferInfo buffer_info = {};
+};
+
 struct VulkanData
 {
     /**
@@ -38,26 +47,38 @@ struct VulkanData
     ~VulkanData();
 
     /**
-    * Releases the device
+    * Releases resources
     */
     void Release();
 
-    HINSTANCE connection = nullptr;
-    HWND window = nullptr;
+    /**
+    * Resets resources
+    */
+    void Reset();
 
-    VkInstance instance = VK_NULL_HANDLE;
-    VkDevice device = VK_NULL_HANDLE;
-    VkCommandBuffer cmd = VK_NULL_HANDLE;
-    VkDebugReportCallbackEXT debug_callback = VK_NULL_HANDLE;
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-    VkSwapchainKHR swap_chain = VK_NULL_HANDLE;
+    HINSTANCE connection;
+    HWND window;
 
-    PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn = nullptr;
-    PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportFn = nullptr;
+    glm::vec3 cameraPosition;  ///< Position of the camera
+    glm::vec3 cameraUp;        ///< The up vector of the camera
+    glm::mat4 projection;      ///< Projection matrix
+    glm::mat4 view;            ///< View matrix
+    glm::mat4 viewProjection;  ///< View projection matrix
 
-    Depth depth = {};
-    VkPhysicalDeviceMemoryProperties memory_properties = {};
-    VkPhysicalDeviceProperties gpu_props = {};
+    VkInstance instance;
+    VkDevice device;
+    VkCommandBuffer cmd;
+    VkSurfaceKHR surface;
+    VkSwapchainKHR swap_chain;
+
+    VkDebugReportCallbackEXT debug_callback;
+    PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn;
+    PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportFn;
+
+    Depth depth;
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    VkPhysicalDeviceProperties gpu_props;
+    UniformData uniform_data;
 
     std::vector<SwapChainBuffer> buffers;
     std::vector<VkQueueFamilyProperties> queue_props;
@@ -67,11 +88,10 @@ struct VulkanData
     std::vector<VkPhysicalDevice> gpus;
     std::vector<const char*> device_extension_names;
 
-    int width, height = 0;
-    uint32_t queue_family_count = 0;
-    uint32_t graphics_queue_family_index = 0;
-    uint32_t present_queue_family_index = 0;
-    uint32_t swapchainImageCount = 0;
-    VkCommandPool cmd_pool = 0;
-    VkFormat format = VK_FORMAT_UNDEFINED;
+    uint32_t queue_family_count;
+    uint32_t graphics_queue_family_index;
+    uint32_t present_queue_family_index;
+    uint32_t swapchainImageCount;
+    VkCommandPool cmd_pool;
+    VkFormat format;
 };
