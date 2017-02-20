@@ -305,8 +305,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;vulkan-1.lib;VkLayer_utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOILd.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;vulkan-1.lib;VkLayer_utils.lib;glslangd.lib;SPIRVd.lib;glslang-default-resource-limitsd.lib;HLSLd.lib;OGLCompilerd.lib;OSDependentd.lib;SPVRemapperd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;$(SolutionDir)\$(SolutionName)\glslang\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <ProgramDatabaseFile>$(SolutionDir)$(ProjectName)\$(Configuration)\$(TargetName).pdb</ProgramDatabaseFile>
@@ -324,8 +324,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOIL.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;vulkan-1.lib;VkLayer_utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp.lib;glew32.lib;glew32s.lib;OpenGL32.lib;SOIL.lib;d3d11.lib;d3dx11.lib;d3dx10.lib;d3dcompiler.lib;dxguid.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;qtmaind.lib;vulkan-1.lib;VkLayer_utils.lib;glslang.lib;SPIRV.lib;glslang-default-resource-limits.lib;HLSL.lib;OGLCompiler.lib;OSDependent.lib;SPVRemapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\$(SolutionName)\assimp;$(SolutionDir)\$(SolutionName)\opengl\lib;$(SolutionDir)\$(SolutionName)\boost\lib;$(SolutionDir)\$(SolutionName)\directx\lib;$(SolutionDir)\$(SolutionName)\soil;$(SolutionDir)\$(SolutionName)\qt\lib;$(SolutionDir)\$(SolutionName)\vulkan\lib;$(SolutionDir)\$(SolutionName)\glslang\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

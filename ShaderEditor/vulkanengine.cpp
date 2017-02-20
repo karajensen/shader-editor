@@ -46,74 +46,141 @@ bool VulkanEngine::Initialize()
         FAILED(init_instance(info)) ||
         FAILED(init_debugging(info)) ||
         FAILED(init_enumerate_device(info)) ||
-        FAILED(init_queue_family_index(info)) ||
         FAILED(init_swapchain_extension(info)) ||
-        FAILED(init_device(info)))
+        FAILED(init_device(info)) ||
+        FAILED(init_command_pool(info)) ||
+        FAILED(init_command_buffer(info)) ||
+        FAILED(execute_begin_command_buffer(info)) ||
+        FAILED(init_device_queue(info)) ||
+        FAILED(init_swap_chain(info)) ||
+        FAILED(init_depth_buffer(info)) ||
+        FAILED(init_uniform_buffer(info)) ||
+        FAILED(init_descriptor_and_pipeline_layouts(info)) ||
+        FAILED(init_renderpass(info)) ||
+        FAILED(init_shaders(info)) ||
+        FAILED(init_framebuffers(info)) ||
+        FAILED(init_vertex_buffer(info)) ||
+        FAILED(init_descriptor_pool(info)) ||
+        FAILED(init_descriptor_set(info)) ||
+        FAILED(init_pipeline_cache(info)) ||
+        FAILED(init_pipeline(info)))
     {
         return false;
     }
 
-    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-    glm::mat4 View = glm::lookAt(glm::vec3(-5, 3, -10),  // Camera is at (-5,3,-10), in World Space
-        glm::vec3(0, 0, 0),     // and looks at the origin
-        glm::vec3(0, -1, 0)     // Head is up (set to 0,-1,0 to look upside-down)
-    );
+    VkClearValue clear_values[2];
+    clear_values[0].color.float32[0] = 0.2f;
+    clear_values[0].color.float32[1] = 0.2f;
+    clear_values[0].color.float32[2] = 0.2f;
+    clear_values[0].color.float32[3] = 0.2f;
+    clear_values[1].depthStencil.depth = 1.0f;
+    clear_values[1].depthStencil.stencil = 0;
 
-    glm::mat4 Model = glm::mat4(1.0f);
+    VkSemaphore imageAcquiredSemaphore;
+    VkSemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo;
+    imageAcquiredSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    imageAcquiredSemaphoreCreateInfo.pNext = NULL;
+    imageAcquiredSemaphoreCreateInfo.flags = 0;
+    if (FAILED(vkCreateSemaphore(info.device, &imageAcquiredSemaphoreCreateInfo, NULL, &imageAcquiredSemaphore)))
+    {
+        return false;
+    }
 
-    // Vulkan clip space has inverted Y and half Z.
-    // clang-format off
-    glm::mat4 Clip = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.5f, 0.0f,
-        0.0f, 0.0f, 0.5f, 1.0f);
-    // clang-format on
-    glm::mat4 MVP = Clip * Projection * View * Model;
+    // Get the index of the next available swapchain image:
+    if (FAILED(vkAcquireNextImageKHR(info.device, info.swap_chain, UINT64_MAX, imageAcquiredSemaphore, VK_NULL_HANDLE, &info.current_buffer)))
+    {
+        return false;
+    }
 
-    /* VULKAN_KEY_START */
-    VkBufferCreateInfo buf_info = {};
-    buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buf_info.pNext = NULL;
-    buf_info.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    buf_info.size = sizeof(MVP);
-    buf_info.queueFamilyIndexCount = 0;
-    buf_info.pQueueFamilyIndices = NULL;
-    buf_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    buf_info.flags = 0;
-    VkResult res = vkCreateBuffer(info.device, &buf_info, NULL, &info.uniform_data.buffer);
-    assert(res == VK_SUCCESS);
+    VkRenderPassBeginInfo rp_begin;
+    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rp_begin.pNext = NULL;
+    rp_begin.renderPass = info.render_pass;
+    rp_begin.framebuffer = info.framebuffers[info.current_buffer];
+    rp_begin.renderArea.offset.x = 0;
+    rp_begin.renderArea.offset.y = 0;
+    rp_begin.renderArea.extent.width = WINDOW_WIDTH;
+    rp_begin.renderArea.extent.height = WINDOW_HEIGHT;
+    rp_begin.clearValueCount = 2;
+    rp_begin.pClearValues = clear_values;
 
-    VkMemoryRequirements mem_reqs;
-    vkGetBufferMemoryRequirements(info.device, info.uniform_data.buffer, &mem_reqs);
+    vkCmdBeginRenderPass(info.cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
 
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.pNext = NULL;
-    alloc_info.memoryTypeIndex = 0;
+    const int NUM_DESCRIPTOR_SETS = 1;
+    vkCmdBindDescriptorSets(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline_layout, 0, NUM_DESCRIPTOR_SETS, info.desc_set.data(), 0, NULL);
 
-    alloc_info.allocationSize = mem_reqs.size;
-    bool pass = memory_type_from_properties(info, mem_reqs.memoryTypeBits,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &alloc_info.memoryTypeIndex);
-    assert(pass && "No mappable, coherent memory");
+    const VkDeviceSize offsets[1] = { 0 };
+    vkCmdBindVertexBuffers(info.cmd, 0, 1, &info.vertex_buffer.buffer, offsets);
 
-    res = vkAllocateMemory(info.device, &alloc_info, NULL, &(info.uniform_data.memory));
-    assert(res == VK_SUCCESS);
+    if (FAILED(init_viewports(info)) ||
+        FAILED(init_scissors(info)))
+    {
+        return false;
+    }
 
-    uint8_t *pData;
-    res = vkMapMemory(info.device, info.uniform_data.memory, 0, mem_reqs.size, 0, (void **)&pData);
-    assert(res == VK_SUCCESS);
+    vkCmdDraw(info.cmd, 12 * 3, 1, 0, 0);
+    vkCmdEndRenderPass(info.cmd);
+    if (FAILED(vkEndCommandBuffer(info.cmd)))
+    {
+        return false;
+    }
 
-    memcpy(pData, &MVP, sizeof(MVP));
+    const VkCommandBuffer cmd_bufs[] = { info.cmd };
+    VkFenceCreateInfo fenceInfo;
+    VkFence drawFence;
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = NULL;
+    fenceInfo.flags = 0;
+    vkCreateFence(info.device, &fenceInfo, NULL, &drawFence);
 
-    vkUnmapMemory(info.device, info.uniform_data.memory);
+    VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkSubmitInfo submit_info[1] = {};
+    submit_info[0].pNext = NULL;
+    submit_info[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info[0].waitSemaphoreCount = 1;
+    submit_info[0].pWaitSemaphores = &imageAcquiredSemaphore;
+    submit_info[0].pWaitDstStageMask = &pipe_stage_flags;
+    submit_info[0].commandBufferCount = 1;
+    submit_info[0].pCommandBuffers = cmd_bufs;
+    submit_info[0].signalSemaphoreCount = 0;
+    submit_info[0].pSignalSemaphores = NULL;
 
-    res = vkBindBufferMemory(info.device, info.uniform_data.buffer, info.uniform_data.memory, 0);
-    assert(res == VK_SUCCESS);
+    /* Queue the command buffer for execution */
+    if (FAILED(vkQueueSubmit(info.graphics_queue, 1, submit_info, drawFence)))
+    {
+        return false;
+    }
 
-    info.uniform_data.buffer_info.buffer = info.uniform_data.buffer;
-    info.uniform_data.buffer_info.offset = 0;
-    info.uniform_data.buffer_info.range = sizeof(MVP);
+    /* Now present the image in the window */
+    VkPresentInfoKHR present;
+    present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present.pNext = NULL;
+    present.swapchainCount = 1;
+    present.pSwapchains = &info.swap_chain;
+    present.pImageIndices = &info.current_buffer;
+    present.pWaitSemaphores = NULL;
+    present.waitSemaphoreCount = 0;
+    present.pResults = NULL;
+
+    /* Make sure command buffer is finished before presenting */
+    /* Amount of time, in nanoseconds, to wait for a command buffer to complete */
+    const int FENCE_TIMEOUT = 100000000;
+    VkResult res = VK_SUCCESS;
+    do {
+        res = vkWaitForFences(info.device, 1, &drawFence, VK_TRUE, FENCE_TIMEOUT);
+    } while (res == VK_TIMEOUT);
+
+    if (res != VK_SUCCESS)
+    {
+        Logger::LogError("Vulkan: Command buffer did not present correctly");
+        return false;
+    }
+
+    if (FAILED(vkQueuePresentKHR(info.present_queue, &present)))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -155,33 +222,33 @@ std::string VulkanEngine::GetName() const
 
 void VulkanEngine::UpdateView(const Matrix& world)
 {
-    glm::mat4 view;
-
-    view[0][0] = world.m11;
-    view[1][0] = world.m12;
-    view[2][0] = world.m13;
-    view[3][0] = world.m14;
-
-    view[0][1] = world.m21;
-    view[1][1] = world.m22;
-    view[2][1] = world.m23;
-    view[3][1] = world.m24;
-
-    view[0][2] = world.m31;
-    view[1][2] = world.m32;
-    view[2][2] = world.m33;
-    view[3][2] = world.m34;
-
-    m_data->cameraPosition.x = world.m14;
-    m_data->cameraPosition.y = world.m24;
-    m_data->cameraPosition.z = world.m34;
-
-    m_data->cameraUp.x = world.m12;
-    m_data->cameraUp.y = world.m22;
-    m_data->cameraUp.z = world.m32;
-
-    m_data->view = glm::inverse(view);
-    m_data->viewProjection = m_data->projection * m_data->view;
+    //glm::mat4 view;
+    //
+    //view[0][0] = world.m11;
+    //view[1][0] = world.m12;
+    //view[2][0] = world.m13;
+    //view[3][0] = world.m14;
+    //
+    //view[0][1] = world.m21;
+    //view[1][1] = world.m22;
+    //view[2][1] = world.m23;
+    //view[3][1] = world.m24;
+    //
+    //view[0][2] = world.m31;
+    //view[1][2] = world.m32;
+    //view[2][2] = world.m33;
+    //view[3][2] = world.m34;
+    //
+    //m_data->cameraPosition.x = world.m14;
+    //m_data->cameraPosition.y = world.m24;
+    //m_data->cameraPosition.z = world.m34;
+    //
+    //m_data->cameraUp.x = world.m12;
+    //m_data->cameraUp.y = world.m22;
+    //m_data->cameraUp.z = world.m32;
+    //
+    //m_data->view = glm::inverse(view);
+    //m_data->viewProjection = m_data->projection * m_data->view;
 }
 
 std::string VulkanEngine::GetShaderText(int index) const
