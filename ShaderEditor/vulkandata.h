@@ -72,6 +72,11 @@ struct VulkanData
     glm::mat4 view;            ///< View matrix
     glm::mat4 viewProjection;  ///< View projection matrix
 
+    // TODO: Temporary until reorganising engine
+    glm::mat4 Model;
+    glm::mat4 Clip;
+    glm::mat4 MVP;
+
     VkInstance instance;
     VkDevice device;
     VkCommandBuffer cmd;
@@ -101,6 +106,7 @@ struct VulkanData
     VkDescriptorImageInfo image_info;
     VkViewport viewport;
     VkRect2D scissor;
+    VkFence drawFence;
 
     VkDebugReportCallbackEXT debug_callback;
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn;
@@ -118,9 +124,5 @@ struct VulkanData
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
     std::vector<VkVertexInputAttributeDescription> vi_attribs;
     std::vector<VkDescriptorSet> desc_set;
-
-    // TODO: Temporary until reorganising engine
-    glm::mat4 Model;
-    glm::mat4 Clip;
-    glm::mat4 MVP;
+    std::vector<VkClearValue> clear_values;
 };

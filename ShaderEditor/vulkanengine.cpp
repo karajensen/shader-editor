@@ -40,148 +40,40 @@ bool VulkanEngine::Initialize()
 {
     auto& info = *m_data;
 
-    if (FAILED(init_global_layer_properties(info)) ||
-        FAILED(init_instance_extension_names(info)) ||
-        FAILED(init_device_extension_names(info)) ||
-        FAILED(init_instance(info)) ||
-        FAILED(init_debugging(info)) ||
-        FAILED(init_enumerate_device(info)) ||
-        FAILED(init_swapchain_extension(info)) ||
-        FAILED(init_device(info)) ||
-        FAILED(init_command_pool(info)) ||
-        FAILED(init_command_buffer(info)) ||
-        FAILED(execute_begin_command_buffer(info)) ||
-        FAILED(init_device_queue(info)) ||
-        FAILED(init_swap_chain(info)) ||
-        FAILED(init_depth_buffer(info)) ||
-        FAILED(init_uniform_buffer(info)) ||
-        FAILED(init_descriptor_and_pipeline_layouts(info)) ||
-        FAILED(init_renderpass(info)) ||
-        FAILED(init_shaders(info)) ||
-        FAILED(init_framebuffers(info)) ||
-        FAILED(init_vertex_buffer(info)) ||
-        FAILED(init_descriptor_pool(info)) ||
-        FAILED(init_descriptor_set(info)) ||
-        FAILED(init_pipeline_cache(info)) ||
-        FAILED(init_pipeline(info)))
+    if (FAILED(VulkanUtils::init_global_layer_properties(info)) ||
+        FAILED(VulkanUtils::init_instance_extension_names(info)) ||
+        FAILED(VulkanUtils::init_device_extension_names(info)) ||
+        FAILED(VulkanUtils::init_instance(info)) ||
+        FAILED(VulkanUtils::init_debugging(info)) ||
+        FAILED(VulkanUtils::init_enumerate_device(info)) ||
+        FAILED(VulkanUtils::init_swapchain_extension(info)) ||
+        FAILED(VulkanUtils::init_device(info)) ||
+        FAILED(VulkanUtils::init_command_pool(info)) ||
+        FAILED(VulkanUtils::init_command_buffer(info)) ||
+        FAILED(VulkanUtils::init_device_queue(info)) ||
+        FAILED(VulkanUtils::init_swap_chain(info)) ||
+        FAILED(VulkanUtils::init_depth_buffer(info)) ||
+        FAILED(VulkanUtils::init_uniform_buffer(info)) ||
+        FAILED(VulkanUtils::init_descriptor_and_pipeline_layouts(info)) ||
+        FAILED(VulkanUtils::init_renderpass(info)) ||
+        FAILED(VulkanUtils::init_shaders(info)) ||
+        FAILED(VulkanUtils::init_framebuffers(info)) ||
+        FAILED(VulkanUtils::init_vertex_buffer(info)) ||
+        FAILED(VulkanUtils::init_descriptor_pool(info)) ||
+        FAILED(VulkanUtils::init_descriptor_set(info)) ||
+        FAILED(VulkanUtils::init_pipeline_cache(info)) ||
+        FAILED(VulkanUtils::init_pipeline(info)) ||
+        FAILED(VulkanUtils::init_viewports(info)) ||
+        FAILED(VulkanUtils::init_scissors(info)) ||
+        FAILED(VulkanUtils::init_semaphores(info)) ||
+        FAILED(VulkanUtils::init_fence(info)))
     {
         return false;
     }
 
-    VkClearValue clear_values[2];
-    clear_values[0].color.float32[0] = 0.2f;
-    clear_values[0].color.float32[1] = 0.2f;
-    clear_values[0].color.float32[2] = 0.2f;
-    clear_values[0].color.float32[3] = 0.2f;
-    clear_values[1].depthStencil.depth = 1.0f;
-    clear_values[1].depthStencil.stencil = 0;
+    //TODO: Scene initialisation
 
-    VkSemaphore imageAcquiredSemaphore;
-    VkSemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo;
-    imageAcquiredSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    imageAcquiredSemaphoreCreateInfo.pNext = NULL;
-    imageAcquiredSemaphoreCreateInfo.flags = 0;
-    if (FAILED(vkCreateSemaphore(info.device, &imageAcquiredSemaphoreCreateInfo, NULL, &imageAcquiredSemaphore)))
-    {
-        return false;
-    }
-
-    // Get the index of the next available swapchain image:
-    if (FAILED(vkAcquireNextImageKHR(info.device, info.swap_chain, UINT64_MAX, imageAcquiredSemaphore, VK_NULL_HANDLE, &info.current_buffer)))
-    {
-        return false;
-    }
-
-    VkRenderPassBeginInfo rp_begin;
-    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    rp_begin.pNext = NULL;
-    rp_begin.renderPass = info.render_pass;
-    rp_begin.framebuffer = info.framebuffers[info.current_buffer];
-    rp_begin.renderArea.offset.x = 0;
-    rp_begin.renderArea.offset.y = 0;
-    rp_begin.renderArea.extent.width = WINDOW_WIDTH;
-    rp_begin.renderArea.extent.height = WINDOW_HEIGHT;
-    rp_begin.clearValueCount = 2;
-    rp_begin.pClearValues = clear_values;
-
-    vkCmdBeginRenderPass(info.cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
-
-    const int NUM_DESCRIPTOR_SETS = 1;
-    vkCmdBindDescriptorSets(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline_layout, 0, NUM_DESCRIPTOR_SETS, info.desc_set.data(), 0, NULL);
-
-    const VkDeviceSize offsets[1] = { 0 };
-    vkCmdBindVertexBuffers(info.cmd, 0, 1, &info.vertex_buffer.buffer, offsets);
-
-    if (FAILED(init_viewports(info)) ||
-        FAILED(init_scissors(info)))
-    {
-        return false;
-    }
-
-    vkCmdDraw(info.cmd, 12 * 3, 1, 0, 0);
-    vkCmdEndRenderPass(info.cmd);
-    if (FAILED(vkEndCommandBuffer(info.cmd)))
-    {
-        return false;
-    }
-
-    const VkCommandBuffer cmd_bufs[] = { info.cmd };
-    VkFenceCreateInfo fenceInfo;
-    VkFence drawFence;
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.pNext = NULL;
-    fenceInfo.flags = 0;
-    vkCreateFence(info.device, &fenceInfo, NULL, &drawFence);
-
-    VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkSubmitInfo submit_info[1] = {};
-    submit_info[0].pNext = NULL;
-    submit_info[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submit_info[0].waitSemaphoreCount = 1;
-    submit_info[0].pWaitSemaphores = &imageAcquiredSemaphore;
-    submit_info[0].pWaitDstStageMask = &pipe_stage_flags;
-    submit_info[0].commandBufferCount = 1;
-    submit_info[0].pCommandBuffers = cmd_bufs;
-    submit_info[0].signalSemaphoreCount = 0;
-    submit_info[0].pSignalSemaphores = NULL;
-
-    /* Queue the command buffer for execution */
-    if (FAILED(vkQueueSubmit(info.graphics_queue, 1, submit_info, drawFence)))
-    {
-        return false;
-    }
-
-    /* Now present the image in the window */
-    VkPresentInfoKHR present;
-    present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    present.pNext = NULL;
-    present.swapchainCount = 1;
-    present.pSwapchains = &info.swap_chain;
-    present.pImageIndices = &info.current_buffer;
-    present.pWaitSemaphores = NULL;
-    present.waitSemaphoreCount = 0;
-    present.pResults = NULL;
-
-    /* Make sure command buffer is finished before presenting */
-    /* Amount of time, in nanoseconds, to wait for a command buffer to complete */
-    const int FENCE_TIMEOUT = 100000000;
-    VkResult res = VK_SUCCESS;
-    do {
-        res = vkWaitForFences(info.device, 1, &drawFence, VK_TRUE, FENCE_TIMEOUT);
-    } while (res == VK_TIMEOUT);
-
-    if (res != VK_SUCCESS)
-    {
-        Logger::LogError("Vulkan: Command buffer did not present correctly");
-        return false;
-    }
-
-    if (FAILED(vkQueuePresentKHR(info.present_queue, &present)))
-    {
-        return false;
-    }
-
+    VulkanUtils::begin_command_buffer(info);
     return true;
 }
 
@@ -208,6 +100,83 @@ bool VulkanEngine::FadeView(bool in, float amount)
 
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
+    auto& info = *m_data;
+
+    FAILED(vkAcquireNextImageKHR(info.device, 
+                                 info.swap_chain, 
+                                 UINT64_MAX, 
+                                 info.imageAcquiredSemaphore, 
+                                 VK_NULL_HANDLE,
+                                 &info.current_buffer));
+
+    VkRenderPassBeginInfo rp_begin;
+    rp_begin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rp_begin.pNext = NULL;
+    rp_begin.renderPass = info.render_pass;
+    rp_begin.framebuffer = info.framebuffers[info.current_buffer];
+    rp_begin.renderArea.offset.x = 0;
+    rp_begin.renderArea.offset.y = 0;
+    rp_begin.renderArea.extent.width = WINDOW_WIDTH;
+    rp_begin.renderArea.extent.height = WINDOW_HEIGHT;
+    rp_begin.clearValueCount = 2;
+    rp_begin.pClearValues = &info.clear_values[0];
+
+    vkCmdBeginRenderPass(info.cmd, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
+
+    vkCmdBindDescriptorSets(info.cmd, 
+                            VK_PIPELINE_BIND_POINT_GRAPHICS, 
+                            info.pipeline_layout, 
+                            0, 
+                            VulkanUtils::NUM_DESCRIPTOR_SETS, 
+                            info.desc_set.data(), 
+                            0, 
+                            NULL);
+
+    const VkDeviceSize offsets[1] = { 0 };
+    vkCmdBindVertexBuffers(info.cmd, 0, 1, &info.vertex_buffer.buffer, offsets);
+
+    vkCmdDraw(info.cmd, 12 * 3, 1, 0, 0);
+    vkCmdEndRenderPass(info.cmd);
+    VulkanUtils::end_command_buffer(info);
+
+    const VkCommandBuffer cmd_bufs[] = { info.cmd };
+    VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkSubmitInfo submit_info[1] = {};
+    submit_info[0].pNext = NULL;
+    submit_info[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info[0].waitSemaphoreCount = 1;
+    submit_info[0].pWaitSemaphores = &info.imageAcquiredSemaphore;
+    submit_info[0].pWaitDstStageMask = &pipe_stage_flags;
+    submit_info[0].commandBufferCount = 1;
+    submit_info[0].pCommandBuffers = cmd_bufs;
+    submit_info[0].signalSemaphoreCount = 0;
+    submit_info[0].pSignalSemaphores = NULL;
+
+    // Queue the command buffer for execution
+    FAILED(vkQueueSubmit(info.graphics_queue, 1, submit_info, info.drawFence));
+
+    // Now present the image in the window
+    VkPresentInfoKHR present;
+    present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present.pNext = NULL;
+    present.swapchainCount = 1;
+    present.pSwapchains = &info.swap_chain;
+    present.pImageIndices = &info.current_buffer;
+    present.pWaitSemaphores = NULL;
+    present.waitSemaphoreCount = 0;
+    present.pResults = NULL;
+
+    // Make sure command buffer is finished before presenting
+    VkResult res = VK_TIMEOUT;
+    while (res == VK_TIMEOUT)
+    {
+        res = vkWaitForFences(info.device, 1, &info.drawFence, VK_TRUE, VulkanUtils::FENCE_TIMEOUT);
+    }
+
+    FAILED(vkQueuePresentKHR(info.present_queue, &present));
+
+    VulkanUtils::begin_command_buffer(info);
 }
 
 void VulkanEngine::ToggleWireframe()

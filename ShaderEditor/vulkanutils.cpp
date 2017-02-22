@@ -8,23 +8,251 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-const VkResult VK_ERROR = VK_ERROR_INITIALIZATION_FAILED;
+namespace 
+{
+    const VkResult VK_ERROR = VK_ERROR_INITIALIZATION_FAILED;
 
-// Number of descriptor sets needs to be the same at alloc, 
-// pipeline layout creation, and descriptor set layout creation
-const int NUM_DESCRIPTOR_SETS = 1;
+    bool failed(VkResult result)
+    {
+        return result != VK_SUCCESS;
+    }
 
-// Number of viewports and number of scissors have to be the same
-// at pipeline creation and in any call to set them dynamically
-// They also have to be the same as each other
-#define NUM_VIEWPORTS 1
-#define NUM_SCISSORS NUM_VIEWPORTS
+    template<typename T> bool GetProcAddress(VkInstance& instance, std::string name, T& fn)
+    {
+        void* address = vkGetInstanceProcAddr(instance, name.c_str());
+        if (address == nullptr)
+        {
+            Logger::LogError("Vulkan: Could not get instance address for " + name);
+            return false;
+        }
+        fn = static_cast<T>(address);
+        return true;
+    }
 
-// Number of samples needs to be the same at image creation
-// renderpass creation and pipeline creation.              
-#define NUM_SAMPLES VK_SAMPLE_COUNT_1_BIT
+    template<typename T> bool GetProcAddress(VkDevice& device, std::string name, T& fn)
+    {
+        void* address = vkGetDeviceProcAddr(device, name.c_str());
+        if (address == nullptr)
+        {
+            Logger::LogError("Vulkan: Could not get device address for " + name);
+            return false;
+        }
+        fn = static_cast<T>(address);
+        return true;
+    }
 
-bool log_fail(VkResult result, const char* file, int line)
+    VkBool32 debug_message_callback(VkDebugReportFlagsEXT flags,
+                                    VkDebugReportObjectTypeEXT objType,
+                                    uint64_t srcObject,
+                                    size_t location,
+                                    int32_t msgCode,
+                                    const char* pLayerPrefix,
+                                    const char* pMsg,
+                                    void* pUserData)
+    {
+        if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+        {
+            Logger::LogError("Vulkan: Error %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+        }
+        else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+        {
+            Logger::LogInfo("Vulkan: Warning %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+        }
+        else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+        {
+            Logger::LogInfo("Vulkan: Performance %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+        }
+        else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+        {
+            Logger::LogInfo("Vulkan: Info %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+        }
+        else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+        {
+            Logger::LogInfo("Vulkan: Debug %s - %s - %d", pLayerPrefix, pMsg, msgCode);
+        }
+        return VK_FALSE; // True will exit on error
+    }
+
+    bool memory_type_from_properties(VulkanData &info, 
+                                     uint32_t typeBits, 
+                                     VkFlags requirements_mask, 
+                                     uint32_t* typeIndex) 
+    {
+        // Search memtypes to find first index with those properties
+        for (uint32_t i = 0; i < info.memory_properties.memoryTypeCount; i++) 
+        {
+            if ((typeBits & 1) == 1)
+            {
+                // Type is available, does it match user properties?
+                if ((info.memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) 
+                {
+                    *typeIndex = i;
+                    return true;
+                }
+            }
+            typeBits >>= 1;
+        }
+        // No memory types matched, return failure
+        return false;
+    }
+
+    EShLanguage find_language(const VkShaderStageFlagBits shader_type)
+    {
+        switch (shader_type)
+        {
+        case VK_SHADER_STAGE_VERTEX_BIT:
+            return EShLangVertex;
+        case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
+            return EShLangTessControl;
+        case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
+            return EShLangTessEvaluation;
+        case VK_SHADER_STAGE_GEOMETRY_BIT:
+            return EShLangGeometry;
+        case VK_SHADER_STAGE_FRAGMENT_BIT:
+            return EShLangFragment;
+        case VK_SHADER_STAGE_COMPUTE_BIT:
+            return EShLangCompute;
+        default:
+            return EShLangVertex;
+        }
+    }
+
+    void init_shader_resources(TBuiltInResource& resources)
+    {
+        resources.maxLights = 32;
+        resources.maxClipPlanes = 6;
+        resources.maxTextureUnits = 32;
+        resources.maxTextureCoords = 32;
+        resources.maxVertexAttribs = 64;
+        resources.maxVertexUniformComponents = 4096;
+        resources.maxVaryingFloats = 64;
+        resources.maxVertexTextureImageUnits = 32;
+        resources.maxCombinedTextureImageUnits = 80;
+        resources.maxTextureImageUnits = 32;
+        resources.maxFragmentUniformComponents = 4096;
+        resources.maxDrawBuffers = 32;
+        resources.maxVertexUniformVectors = 128;
+        resources.maxVaryingVectors = 8;
+        resources.maxFragmentUniformVectors = 16;
+        resources.maxVertexOutputVectors = 16;
+        resources.maxFragmentInputVectors = 15;
+        resources.minProgramTexelOffset = -8;
+        resources.maxProgramTexelOffset = 7;
+        resources.maxClipDistances = 8;
+        resources.maxComputeWorkGroupCountX = 65535;
+        resources.maxComputeWorkGroupCountY = 65535;
+        resources.maxComputeWorkGroupCountZ = 65535;
+        resources.maxComputeWorkGroupSizeX = 1024;
+        resources.maxComputeWorkGroupSizeY = 1024;
+        resources.maxComputeWorkGroupSizeZ = 64;
+        resources.maxComputeUniformComponents = 1024;
+        resources.maxComputeTextureImageUnits = 16;
+        resources.maxComputeImageUniforms = 8;
+        resources.maxComputeAtomicCounters = 8;
+        resources.maxComputeAtomicCounterBuffers = 1;
+        resources.maxVaryingComponents = 60;
+        resources.maxVertexOutputComponents = 64;
+        resources.maxGeometryInputComponents = 64;
+        resources.maxGeometryOutputComponents = 128;
+        resources.maxFragmentInputComponents = 128;
+        resources.maxImageUnits = 8;
+        resources.maxCombinedImageUnitsAndFragmentOutputs = 8;
+        resources.maxCombinedShaderOutputResources = 8;
+        resources.maxImageSamples = 0;
+        resources.maxVertexImageUniforms = 0;
+        resources.maxTessControlImageUniforms = 0;
+        resources.maxTessEvaluationImageUniforms = 0;
+        resources.maxGeometryImageUniforms = 0;
+        resources.maxFragmentImageUniforms = 8;
+        resources.maxCombinedImageUniforms = 8;
+        resources.maxGeometryTextureImageUnits = 16;
+        resources.maxGeometryOutputVertices = 256;
+        resources.maxGeometryTotalOutputComponents = 1024;
+        resources.maxGeometryUniformComponents = 1024;
+        resources.maxGeometryVaryingComponents = 64;
+        resources.maxTessControlInputComponents = 128;
+        resources.maxTessControlOutputComponents = 128;
+        resources.maxTessControlTextureImageUnits = 16;
+        resources.maxTessControlUniformComponents = 1024;
+        resources.maxTessControlTotalOutputComponents = 4096;
+        resources.maxTessEvaluationInputComponents = 128;
+        resources.maxTessEvaluationOutputComponents = 128;
+        resources.maxTessEvaluationTextureImageUnits = 16;
+        resources.maxTessEvaluationUniformComponents = 1024;
+        resources.maxTessPatchComponents = 120;
+        resources.maxPatchVertices = 32;
+        resources.maxTessGenLevel = 64;
+        resources.maxViewports = 16;
+        resources.maxVertexAtomicCounters = 0;
+        resources.maxTessControlAtomicCounters = 0;
+        resources.maxTessEvaluationAtomicCounters = 0;
+        resources.maxGeometryAtomicCounters = 0;
+        resources.maxFragmentAtomicCounters = 8;
+        resources.maxCombinedAtomicCounters = 8;
+        resources.maxAtomicCounterBindings = 1;
+        resources.maxVertexAtomicCounterBuffers = 0;
+        resources.maxTessControlAtomicCounterBuffers = 0;
+        resources.maxTessEvaluationAtomicCounterBuffers = 0;
+        resources.maxGeometryAtomicCounterBuffers = 0;
+        resources.maxFragmentAtomicCounterBuffers = 1;
+        resources.maxCombinedAtomicCounterBuffers = 1;
+        resources.maxAtomicCounterBufferSize = 16384;
+        resources.maxTransformFeedbackBuffers = 4;
+        resources.maxTransformFeedbackInterleavedComponents = 64;
+        resources.maxCullDistances = 8;
+        resources.maxCombinedClipAndCullDistances = 8;
+        resources.maxSamples = 4;
+        resources.limits.nonInductiveForLoops = 1;
+        resources.limits.whileLoops = 1;
+        resources.limits.doWhileLoops = 1;
+        resources.limits.generalUniformIndexing = 1;
+        resources.limits.generalAttributeMatrixVectorIndexing = 1;
+        resources.limits.generalVaryingIndexing = 1;
+        resources.limits.generalSamplerIndexing = 1;
+        resources.limits.generalVariableIndexing = 1;
+        resources.limits.generalConstantMatrixVectorIndexing = 1;
+    }
+
+    bool glsl_to_spb(const VkShaderStageFlagBits shader_type, const char* pshader, std::vector<unsigned int>& spirv)
+    {
+        EShLanguage stage = find_language(shader_type);
+        glslang::TShader shader(stage);
+        glslang::TProgram program;
+        const char *shaderStrings[1];
+
+        TBuiltInResource Resources;
+        init_shader_resources(Resources);
+
+        // Enable SPIR-V and Vulkan rules when parsing GLSL
+        EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+        shaderStrings[0] = pshader;
+        shader.setStrings(shaderStrings, 1);
+
+        if (!shader.parse(&Resources, 100, false, messages))
+        {
+            puts(shader.getInfoLog());
+            puts(shader.getInfoDebugLog());
+            return false;  // something didn't work
+        }
+
+        program.addShader(&shader);
+
+        // Program-level processing...
+        if (!program.link(messages))
+        {
+            puts(shader.getInfoLog());
+            puts(shader.getInfoDebugLog());
+            fflush(stdout);
+            return false;
+        }
+
+        glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
+        return true;
+    }
+}
+
+bool VulkanUtils::log_fail(VkResult result, const char* file, int line)
 {
     switch (result)
     {
@@ -105,68 +333,7 @@ bool log_fail(VkResult result, const char* file, int line)
     }
 }
 
-bool failed(VkResult result)
-{
-    return result != VK_SUCCESS;
-}
-
-template<typename T> bool GetProcAddress(VkInstance& instance, std::string name, T& fn)
-{
-    void* address = vkGetInstanceProcAddr(instance, name.c_str());
-    if (address == nullptr)
-    {
-        Logger::LogError("Vulkan: Could not get instance address for " + name);
-        return false;
-    }
-    fn = static_cast<T>(address);
-    return true;
-}
-
-template<typename T> bool GetProcAddress(VkDevice& device, std::string name, T& fn)
-{
-    void* address = vkGetDeviceProcAddr(device, name.c_str());
-    if (address == nullptr)
-    {
-        Logger::LogError("Vulkan: Could not get device address for " + name);
-        return false;
-    }
-    fn = static_cast<T>(address);
-    return true;
-}
-
-VkBool32 debug_message_callback(VkDebugReportFlagsEXT flags,
-                                VkDebugReportObjectTypeEXT objType,
-                                uint64_t srcObject,
-                                size_t location,
-                                int32_t msgCode,
-                                const char* pLayerPrefix,
-                                const char* pMsg,
-                                void* pUserData)
-{
-    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-    {
-        Logger::LogError("Vulkan: Error %s - %s - %d", pLayerPrefix, pMsg, msgCode);
-    }
-    else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-    {
-        Logger::LogInfo("Vulkan: Warning %s - %s - %d", pLayerPrefix, pMsg, msgCode);
-    }
-    else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
-    {
-        Logger::LogInfo("Vulkan: Performance %s - %s - %d", pLayerPrefix, pMsg, msgCode);
-    }
-    else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
-    {
-        Logger::LogInfo("Vulkan: Info %s - %s - %d", pLayerPrefix, pMsg, msgCode);
-    }
-    else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
-    {
-        Logger::LogInfo("Vulkan: Debug %s - %s - %d", pLayerPrefix, pMsg, msgCode);
-    }
-    return VK_FALSE; // True will exit on error
-}
-
-VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count) 
+VkResult VulkanUtils::init_enumerate_device(VulkanData &info, uint32_t gpu_count)
 {
     uint32_t const req_count = gpu_count;
     VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpu_count, NULL);
@@ -207,7 +374,7 @@ VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count)
     return result;
 }
 
-VkResult init_global_extension_properties(LayerProperties& layer_props) 
+VkResult VulkanUtils::init_global_extension_properties(LayerProperties& layer_props)
 {
     VkExtensionProperties* instance_extensions = nullptr;
     uint32_t instance_extension_count;
@@ -237,7 +404,7 @@ VkResult init_global_extension_properties(LayerProperties& layer_props)
     return result;
 }
 
-VkResult init_device_extension_names(VulkanData &info)
+VkResult VulkanUtils::init_device_extension_names(VulkanData &info)
 {
     info.device_extension_names =
     {
@@ -246,7 +413,7 @@ VkResult init_device_extension_names(VulkanData &info)
     return VK_SUCCESS;
 }
 
-VkResult init_instance_extension_names(VulkanData &info)
+VkResult VulkanUtils::init_instance_extension_names(VulkanData &info)
 {
     info.instance_extension_names =
     {
@@ -257,7 +424,7 @@ VkResult init_instance_extension_names(VulkanData &info)
     return VK_SUCCESS;
 }
 
-VkResult init_instance(VulkanData &info)
+VkResult VulkanUtils::init_instance(VulkanData &info)
 {
     VkApplicationInfo app_info = {};
     app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -281,7 +448,7 @@ VkResult init_instance(VulkanData &info)
     return vkCreateInstance(&inst_info, NULL, &info.instance);
 }
 
-VkResult init_queue_family_index(VulkanData &info)
+VkResult VulkanUtils::init_queue_family_index(VulkanData &info)
 {
     // This routine simply finds a graphics queue for a later vkCreateDevice,
     // without consideration for which queue family can present an image.
@@ -316,7 +483,7 @@ VkResult init_queue_family_index(VulkanData &info)
     return found ? VK_SUCCESS : VK_ERROR_VALIDATION_FAILED_EXT;
 }
 
-VkResult init_device(VulkanData &info) 
+VkResult VulkanUtils::init_device(VulkanData &info)
 {
     VkDeviceQueueCreateInfo queue_info = {};
 
@@ -339,7 +506,7 @@ VkResult init_device(VulkanData &info)
     return vkCreateDevice(info.gpus[0], &device_info, NULL, &info.device);
 }
 
-VkResult init_debugging(VulkanData &info)
+VkResult VulkanUtils::init_debugging(VulkanData &info)
 {
     if (!GetProcAddress(info.instance, "vkCreateDebugReportCallbackEXT", info.CreateDebugReportFn) ||
         !GetProcAddress(info.instance, "vkDestroyDebugReportCallbackEXT", info.DestroyDebugReportFn))
@@ -354,7 +521,7 @@ VkResult init_debugging(VulkanData &info)
     return info.CreateDebugReportFn(info.instance, &dbgCreateInfo, nullptr, &info.debug_callback);
 }
 
-VkResult init_global_layer_properties(VulkanData& info)
+VkResult VulkanUtils::init_global_layer_properties(VulkanData& info)
 {
     uint32_t instance_layer_count;
     VkLayerProperties *vk_props = NULL;
@@ -404,7 +571,7 @@ VkResult init_global_layer_properties(VulkanData& info)
     return result;
 }
 
-VkResult init_swapchain_extension(VulkanData &info) 
+VkResult VulkanUtils::init_swapchain_extension(VulkanData &info)
 {
     VkWin32SurfaceCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -421,7 +588,11 @@ VkResult init_swapchain_extension(VulkanData &info)
     VkBool32 *pSupportsPresent = (VkBool32 *)malloc(info.queue_family_count * sizeof(VkBool32));
     for (uint32_t i = 0; i < info.queue_family_count; i++) 
     {
-        vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface, &pSupportsPresent[i]);
+        res = vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface, &pSupportsPresent[i]);
+        if (failed(res))
+        {
+            return res;
+        }
     }
 
     // Search for a graphics and a present queue in the array of queue
@@ -432,7 +603,10 @@ VkResult init_swapchain_extension(VulkanData &info)
     {
         if ((info.queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
         {
-            if (info.graphics_queue_family_index == UINT32_MAX) info.graphics_queue_family_index = i;
+            if (info.graphics_queue_family_index == UINT32_MAX)
+            {
+                info.graphics_queue_family_index = i;
+            }
 
             if (pSupportsPresent[i] == VK_TRUE) 
             {
@@ -500,30 +674,7 @@ VkResult init_swapchain_extension(VulkanData &info)
     return VK_SUCCESS;
 }
 
-bool memory_type_from_properties(VulkanData &info, 
-                                 uint32_t typeBits, 
-                                 VkFlags requirements_mask, 
-                                 uint32_t* typeIndex) 
-{
-    // Search memtypes to find first index with those properties
-    for (uint32_t i = 0; i < info.memory_properties.memoryTypeCount; i++) 
-    {
-        if ((typeBits & 1) == 1)
-        {
-            // Type is available, does it match user properties?
-            if ((info.memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) 
-            {
-                *typeIndex = i;
-                return true;
-            }
-        }
-        typeBits >>= 1;
-    }
-    // No memory types matched, return failure
-    return false;
-}
-
-VkResult init_command_pool(VulkanData &info) 
+VkResult VulkanUtils::init_command_pool(VulkanData &info)
 {
     VkCommandPoolCreateInfo cmd_pool_info = {};
     cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -533,7 +684,7 @@ VkResult init_command_pool(VulkanData &info)
     return vkCreateCommandPool(info.device, &cmd_pool_info, NULL, &info.cmd_pool);
 }
 
-VkResult init_command_buffer(VulkanData &info) 
+VkResult VulkanUtils::init_command_buffer(VulkanData &info)
 {
     VkCommandBufferAllocateInfo cmd = {};
     cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -545,18 +696,7 @@ VkResult init_command_buffer(VulkanData &info)
     return vkAllocateCommandBuffers(info.device, &cmd, &info.cmd);
 }
 
-VkResult execute_begin_command_buffer(VulkanData &info)
-{
-    VkCommandBufferBeginInfo cmd_buf_info = {};
-    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    cmd_buf_info.pNext = NULL;
-    cmd_buf_info.flags = 0;
-    cmd_buf_info.pInheritanceInfo = NULL;
-
-    return vkBeginCommandBuffer(info.cmd, &cmd_buf_info);
-}
-
-VkResult init_device_queue(VulkanData &info)
+VkResult VulkanUtils::init_device_queue(VulkanData &info)
 {
     vkGetDeviceQueue(info.device, info.graphics_queue_family_index, 0, &info.graphics_queue);
     if (info.graphics_queue_family_index == info.present_queue_family_index) 
@@ -570,7 +710,7 @@ VkResult init_device_queue(VulkanData &info)
     return VK_SUCCESS;
 }
 
-VkResult init_swap_chain(VulkanData &info) 
+VkResult VulkanUtils::init_swap_chain(VulkanData &info)
 {
     VkImageUsageFlags usageFlags =
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
@@ -753,7 +893,7 @@ VkResult init_swap_chain(VulkanData &info)
     return VK_SUCCESS;
 }
 
-VkResult init_depth_buffer(VulkanData &info)
+VkResult VulkanUtils::init_depth_buffer(VulkanData &info)
 {
     VkImageCreateInfo image_info = {};
 
@@ -865,7 +1005,7 @@ VkResult init_depth_buffer(VulkanData &info)
     return vkCreateImageView(info.device, &view_info, NULL, &info.depth.view);
 }
 
-VkResult init_uniform_buffer(VulkanData& info)
+VkResult VulkanUtils::init_uniform_buffer(VulkanData& info)
 {
     float fov = glm::radians(45.0f);
     if (WINDOW_WIDTH > WINDOW_HEIGHT) 
@@ -875,11 +1015,13 @@ VkResult init_uniform_buffer(VulkanData& info)
 
     info.projection = glm::perspective(fov, static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT), 0.1f, 100.0f);
     
-    info.view = glm::lookAt(glm::vec3(-5, 3, -10),  // Camera is at (-5,3,-10), in World Space
+    info.view = 
+        glm::lookAt(glm::vec3(-5, 3, -10),  // Camera is at (-5,3,-10), in World Space
         glm::vec3(0, 0, 0),     // and looks at the origin
         glm::vec3(0, -1, 0)     // Head is up (set to 0,-1,0 to look upside-down)
     );
     info.Model = glm::mat4(1.0f);
+
     // Vulkan clip space has inverted Y and half Z.
     info.Clip = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 
@@ -948,7 +1090,7 @@ VkResult init_uniform_buffer(VulkanData& info)
     return VK_SUCCESS;
 }
 
-VkResult init_descriptor_and_pipeline_layouts(VulkanData &info) 
+VkResult VulkanUtils::init_descriptor_and_pipeline_layouts(VulkanData &info)
 {
     bool use_texture = false;
 
@@ -995,7 +1137,7 @@ VkResult init_descriptor_and_pipeline_layouts(VulkanData &info)
     return vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipeline_layout);
 }
 
-VkResult init_pipeline(VulkanData& info) 
+VkResult VulkanUtils::init_pipeline(VulkanData& info)
 {
     VkBool32 include_depth = true;
     VkBool32 include_vi = true;
@@ -1068,9 +1210,9 @@ VkResult init_pipeline(VulkanData& info)
     vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     vp.pNext = NULL;
     vp.flags = 0;
-    vp.viewportCount = NUM_VIEWPORTS;
+    vp.viewportCount = NUM_VIEWPORTS_AND_SCISSORS;
     dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
-    vp.scissorCount = NUM_SCISSORS;
+    vp.scissorCount = NUM_VIEWPORTS_AND_SCISSORS;
     dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
     vp.pScissors = NULL;
     vp.pViewports = NULL;
@@ -1131,7 +1273,7 @@ VkResult init_pipeline(VulkanData& info)
     return vkCreateGraphicsPipelines(info.device, info.pipelineCache, 1, &pipeline, NULL, &info.pipeline);
 }
 
-VkResult init_pipeline_cache(VulkanData& info) 
+VkResult VulkanUtils::init_pipeline_cache(VulkanData& info) 
 {
     VkPipelineCacheCreateInfo pipelineCache;
     pipelineCache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -1142,7 +1284,7 @@ VkResult init_pipeline_cache(VulkanData& info)
     return VK_SUCCESS;
 }
 
-VkResult init_descriptor_pool(VulkanData& info)
+VkResult VulkanUtils::init_descriptor_pool(VulkanData& info)
 {
     bool use_texture = false;
 
@@ -1165,7 +1307,7 @@ VkResult init_descriptor_pool(VulkanData& info)
     return vkCreateDescriptorPool(info.device, &descriptor_pool, NULL, &info.desc_pool);
 }
 
-VkResult init_descriptor_set(VulkanData& info) 
+VkResult VulkanUtils::init_descriptor_set(VulkanData& info)
 {
     bool use_texture = false;
 
@@ -1210,7 +1352,7 @@ VkResult init_descriptor_set(VulkanData& info)
     return VK_SUCCESS;
 }
 
-VkResult init_vertex_buffer(VulkanData& info) 
+VkResult VulkanUtils::init_vertex_buffer(VulkanData& info)
 {
     struct Vertex {
         float posX, posY, posZ, posW;  // Position data
@@ -1344,7 +1486,7 @@ VkResult init_vertex_buffer(VulkanData& info)
     return VK_SUCCESS;
 }
 
-VkResult init_renderpass(VulkanData &info)
+VkResult VulkanUtils::init_renderpass(VulkanData &info)
 {
     bool include_depth = true;
     bool clear = true;
@@ -1408,7 +1550,7 @@ VkResult init_renderpass(VulkanData &info)
     return vkCreateRenderPass(info.device, &rp_info, NULL, &info.render_pass);
 }
 
-VkResult init_shaders(VulkanData& info) 
+VkResult VulkanUtils::init_shaders(VulkanData& info)
 {
     static const char *vertShaderText =
         "#version 400\n"
@@ -1438,9 +1580,12 @@ VkResult init_shaders(VulkanData& info)
         "   outColor = color;\n"
         "}\n";
 
-    glslang::InitializeProcess();
-    VkShaderModuleCreateInfo moduleCreateInfo;
+    if (!glslang::InitializeProcess())
+    {
+        return VK_ERROR;
+    }
 
+    VkShaderModuleCreateInfo moduleCreateInfo;
     if (vertShaderText) 
     {
         std::vector<unsigned int> vtx_spv;
@@ -1499,162 +1644,7 @@ VkResult init_shaders(VulkanData& info)
     return VK_SUCCESS;
 }
 
-EShLanguage find_language(const VkShaderStageFlagBits shader_type) 
-{
-    switch (shader_type) 
-    {
-    case VK_SHADER_STAGE_VERTEX_BIT:
-        return EShLangVertex;
-    case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT:
-        return EShLangTessControl;
-    case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT:
-        return EShLangTessEvaluation;
-    case VK_SHADER_STAGE_GEOMETRY_BIT:
-        return EShLangGeometry;
-    case VK_SHADER_STAGE_FRAGMENT_BIT:
-        return EShLangFragment;
-    case VK_SHADER_STAGE_COMPUTE_BIT:
-        return EShLangCompute;
-    default:
-        return EShLangVertex;
-    }
-}
-
-void init_shader_resources(TBuiltInResource& resources)
-{
-    resources.maxLights = 32;
-    resources.maxClipPlanes = 6;
-    resources.maxTextureUnits = 32;
-    resources.maxTextureCoords = 32;
-    resources.maxVertexAttribs = 64;
-    resources.maxVertexUniformComponents = 4096;
-    resources.maxVaryingFloats = 64;
-    resources.maxVertexTextureImageUnits = 32;
-    resources.maxCombinedTextureImageUnits = 80;
-    resources.maxTextureImageUnits = 32;
-    resources.maxFragmentUniformComponents = 4096;
-    resources.maxDrawBuffers = 32;
-    resources.maxVertexUniformVectors = 128;
-    resources.maxVaryingVectors = 8;
-    resources.maxFragmentUniformVectors = 16;
-    resources.maxVertexOutputVectors = 16;
-    resources.maxFragmentInputVectors = 15;
-    resources.minProgramTexelOffset = -8;
-    resources.maxProgramTexelOffset = 7;
-    resources.maxClipDistances = 8;
-    resources.maxComputeWorkGroupCountX = 65535;
-    resources.maxComputeWorkGroupCountY = 65535;
-    resources.maxComputeWorkGroupCountZ = 65535;
-    resources.maxComputeWorkGroupSizeX = 1024;
-    resources.maxComputeWorkGroupSizeY = 1024;
-    resources.maxComputeWorkGroupSizeZ = 64;
-    resources.maxComputeUniformComponents = 1024;
-    resources.maxComputeTextureImageUnits = 16;
-    resources.maxComputeImageUniforms = 8;
-    resources.maxComputeAtomicCounters = 8;
-    resources.maxComputeAtomicCounterBuffers = 1;
-    resources.maxVaryingComponents = 60;
-    resources.maxVertexOutputComponents = 64;
-    resources.maxGeometryInputComponents = 64;
-    resources.maxGeometryOutputComponents = 128;
-    resources.maxFragmentInputComponents = 128;
-    resources.maxImageUnits = 8;
-    resources.maxCombinedImageUnitsAndFragmentOutputs = 8;
-    resources.maxCombinedShaderOutputResources = 8;
-    resources.maxImageSamples = 0;
-    resources.maxVertexImageUniforms = 0;
-    resources.maxTessControlImageUniforms = 0;
-    resources.maxTessEvaluationImageUniforms = 0;
-    resources.maxGeometryImageUniforms = 0;
-    resources.maxFragmentImageUniforms = 8;
-    resources.maxCombinedImageUniforms = 8;
-    resources.maxGeometryTextureImageUnits = 16;
-    resources.maxGeometryOutputVertices = 256;
-    resources.maxGeometryTotalOutputComponents = 1024;
-    resources.maxGeometryUniformComponents = 1024;
-    resources.maxGeometryVaryingComponents = 64;
-    resources.maxTessControlInputComponents = 128;
-    resources.maxTessControlOutputComponents = 128;
-    resources.maxTessControlTextureImageUnits = 16;
-    resources.maxTessControlUniformComponents = 1024;
-    resources.maxTessControlTotalOutputComponents = 4096;
-    resources.maxTessEvaluationInputComponents = 128;
-    resources.maxTessEvaluationOutputComponents = 128;
-    resources.maxTessEvaluationTextureImageUnits = 16;
-    resources.maxTessEvaluationUniformComponents = 1024;
-    resources.maxTessPatchComponents = 120;
-    resources.maxPatchVertices = 32;
-    resources.maxTessGenLevel = 64;
-    resources.maxViewports = 16;
-    resources.maxVertexAtomicCounters = 0;
-    resources.maxTessControlAtomicCounters = 0;
-    resources.maxTessEvaluationAtomicCounters = 0;
-    resources.maxGeometryAtomicCounters = 0;
-    resources.maxFragmentAtomicCounters = 8;
-    resources.maxCombinedAtomicCounters = 8;
-    resources.maxAtomicCounterBindings = 1;
-    resources.maxVertexAtomicCounterBuffers = 0;
-    resources.maxTessControlAtomicCounterBuffers = 0;
-    resources.maxTessEvaluationAtomicCounterBuffers = 0;
-    resources.maxGeometryAtomicCounterBuffers = 0;
-    resources.maxFragmentAtomicCounterBuffers = 1;
-    resources.maxCombinedAtomicCounterBuffers = 1;
-    resources.maxAtomicCounterBufferSize = 16384;
-    resources.maxTransformFeedbackBuffers = 4;
-    resources.maxTransformFeedbackInterleavedComponents = 64;
-    resources.maxCullDistances = 8;
-    resources.maxCombinedClipAndCullDistances = 8;
-    resources.maxSamples = 4;
-    resources.limits.nonInductiveForLoops = 1;
-    resources.limits.whileLoops = 1;
-    resources.limits.doWhileLoops = 1;
-    resources.limits.generalUniformIndexing = 1;
-    resources.limits.generalAttributeMatrixVectorIndexing = 1;
-    resources.limits.generalVaryingIndexing = 1;
-    resources.limits.generalSamplerIndexing = 1;
-    resources.limits.generalVariableIndexing = 1;
-    resources.limits.generalConstantMatrixVectorIndexing = 1;
-}
-
-bool glsl_to_spb(const VkShaderStageFlagBits shader_type, const char* pshader, std::vector<unsigned int>& spirv)
-{
-    EShLanguage stage = find_language(shader_type);
-    glslang::TShader shader(stage);
-    glslang::TProgram program;
-    const char *shaderStrings[1];
-
-    TBuiltInResource Resources;
-    init_shader_resources(Resources);
-
-    // Enable SPIR-V and Vulkan rules when parsing GLSL
-    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
-
-    shaderStrings[0] = pshader;
-    shader.setStrings(shaderStrings, 1);
-
-    if (!shader.parse(&Resources, 100, false, messages))
-    {
-        puts(shader.getInfoLog());
-        puts(shader.getInfoDebugLog());
-        return false;  // something didn't work
-    }
-
-    program.addShader(&shader);
-
-    // Program-level processing...
-    if (!program.link(messages)) 
-    {
-        puts(shader.getInfoLog());
-        puts(shader.getInfoDebugLog());
-        fflush(stdout);
-        return false;
-    }
-
-    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
-    return true;
-}
-
-VkResult init_framebuffers(VulkanData &info) 
+VkResult VulkanUtils::init_framebuffers(VulkanData &info)
 {
     bool include_depth = true;
 
@@ -1687,24 +1677,64 @@ VkResult init_framebuffers(VulkanData &info)
     return VK_SUCCESS;
 }
 
-VkResult init_viewports(VulkanData& info)
+VkResult VulkanUtils::init_viewports(VulkanData& info)
 {
+    info.clear_values[0].color.float32[0] = 0.2f;
+    info.clear_values[0].color.float32[1] = 0.2f;
+    info.clear_values[0].color.float32[2] = 0.2f;
+    info.clear_values[0].color.float32[3] = 0.2f;
+    info.clear_values[1].depthStencil.depth = 1.0f;
+    info.clear_values[1].depthStencil.stencil = 0;
+
     info.viewport.height = (float)WINDOW_HEIGHT;
     info.viewport.width = (float)WINDOW_WIDTH;
     info.viewport.minDepth = (float)0.0f;
     info.viewport.maxDepth = (float)1.0f;
     info.viewport.x = 0;
     info.viewport.y = 0;
-    vkCmdSetViewport(info.cmd, 0, NUM_VIEWPORTS, &info.viewport);
+    vkCmdSetViewport(info.cmd, 0, NUM_VIEWPORTS_AND_SCISSORS, &info.viewport);
     return VK_SUCCESS;
 }
 
-VkResult init_scissors(VulkanData& info)
+VkResult VulkanUtils::init_scissors(VulkanData& info)
 {
     info.scissor.extent.width = WINDOW_WIDTH;
     info.scissor.extent.height = WINDOW_HEIGHT;
     info.scissor.offset.x = 0;
     info.scissor.offset.y = 0;
-    vkCmdSetScissor(info.cmd, 0, NUM_SCISSORS, &info.scissor);
+    vkCmdSetScissor(info.cmd, 0, NUM_VIEWPORTS_AND_SCISSORS, &info.scissor);
     return VK_SUCCESS;
+}
+
+VkResult VulkanUtils::init_semaphores(VulkanData& info)
+{
+    VkSemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo;
+    imageAcquiredSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    imageAcquiredSemaphoreCreateInfo.pNext = NULL;
+    imageAcquiredSemaphoreCreateInfo.flags = 0;
+    return vkCreateSemaphore(info.device, &imageAcquiredSemaphoreCreateInfo, NULL, &info.imageAcquiredSemaphore);
+}
+
+VkResult VulkanUtils::init_fence(VulkanData& info)
+{
+    VkFenceCreateInfo fenceInfo;
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = NULL;
+    fenceInfo.flags = 0;
+    return vkCreateFence(info.device, &fenceInfo, NULL, &info.drawFence);
+}
+
+void VulkanUtils::begin_command_buffer(VulkanData &info)
+{
+    VkCommandBufferBeginInfo cmd_buf_info = {};
+    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmd_buf_info.pNext = NULL;
+    cmd_buf_info.flags = 0;
+    cmd_buf_info.pInheritanceInfo = NULL;
+    FAILED(vkBeginCommandBuffer(info.cmd, &cmd_buf_info));
+}
+
+void VulkanUtils::end_command_buffer(VulkanData &info)
+{
+    FAILED(vkEndCommandBuffer(info.cmd));
 }

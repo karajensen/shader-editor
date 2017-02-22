@@ -29,6 +29,7 @@ void VulkanData::Reset()
     graphics_queue = nullptr;
     present_queue = nullptr;
 
+    imageAcquiredSemaphore = VK_NULL_HANDLE;
     surface = VK_NULL_HANDLE;
     debug_callback = VK_NULL_HANDLE;
     cmd = VK_NULL_HANDLE;
@@ -75,6 +76,9 @@ void VulkanData::Reset()
 
     shaderStages.clear();
     shaderStages.resize(2);
+
+    clear_values.clear();
+    clear_values.resize(2);
 }
 
 void VulkanData::Release()
@@ -116,7 +120,10 @@ void VulkanData::Release()
 
     for (int i = 0; i < (int)shaderStages.size(); i++)
     {
-        vkDestroyShaderModule(device, shaderStages[i].module, NULL);
+        if (shaderStages[i].module != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(device, shaderStages[i].module, NULL);
+        }
     }
 
     if (render_pass != VK_NULL_HANDLE)
@@ -188,6 +195,11 @@ void VulkanData::Release()
     {
         vkDeviceWaitIdle(device);
         vkDestroyDevice(device, NULL);
+    }
+
+    if (surface != VK_NULL_HANDLE)
+    {
+        vkDestroySurfaceKHR(instance, surface, NULL);
     }
 
     if (instance != VK_NULL_HANDLE)
