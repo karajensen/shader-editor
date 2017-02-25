@@ -55,11 +55,8 @@ bool VulkanEngine::Initialize()
         FAILED(VulkanUtils::InitUniformBuffer(info)) ||
         FAILED(VulkanUtils::InitDescriptorAndPipelineLayouts(info)) ||
         FAILED(VulkanUtils::InitRenderpass(info)) ||
-        FAILED(VulkanUtils::InitFramebuffers(info)) ||
-        FAILED(VulkanUtils::InitVertexBuffer(info)) ||
         FAILED(VulkanUtils::InitDescriptorPool(info)) ||
         FAILED(VulkanUtils::InitDescriptorSet(info)) ||
-        FAILED(VulkanUtils::InitPipeline(info)) ||
         FAILED(VulkanUtils::InitViewports(info)) ||
         FAILED(VulkanUtils::InitScissors(info)) ||
         FAILED(VulkanUtils::InitSemaphores(info)) ||
@@ -81,22 +78,28 @@ bool VulkanEngine::Initialize()
 
 std::string VulkanEngine::CompileShader(int index)
 {
-    return "";
+    return m_data->shaders[index]->CompileShader();
 }
 
 bool VulkanEngine::InitialiseScene(const IScene& scene)
 {
     auto& info = *m_data;
 
-    //m_data->shaders.reserve(scene.Shaders().size());
-    //for (const auto& shader : scene.Shaders())
-    //{
-    //    m_data->shaders.push_back(std::unique_ptr<VkShader>(
-    //        new VkShader(*shader)));
-    //}
     m_data->shaders.push_back(std::unique_ptr<VkShader>(new VkShader(info)));
 
-    return ReInitialiseScene();
+    if (!ReInitialiseScene())
+    {
+        return false;
+    }
+
+    if (FAILED(VulkanUtils::InitFramebuffers(info)) ||
+        FAILED(VulkanUtils::InitVertexBuffer(info)) ||
+        FAILED(VulkanUtils::InitPipeline(info)))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool VulkanEngine::ReInitialiseScene()
