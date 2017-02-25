@@ -10,6 +10,59 @@
 
 namespace 
 {
+    struct Vertex
+    {
+        float posX, posY, posZ, posW;  // Position data
+        float r, g, b, a;              // Color
+    };
+
+    #define XYZ1(_x_, _y_, _z_) (_x_), (_y_), (_z_), 1.f
+
+    static const Vertex g_vbSolidFaceColors_Data[] = {
+        // red face
+        { XYZ1(-1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
+        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
+        { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
+        { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
+        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
+        { XYZ1(1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
+        // green face
+        { XYZ1(-1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
+        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
+        { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+        { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
+        { XYZ1(1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
+        // blue face
+        { XYZ1(-1, 1, 1), XYZ1(0.f, 0.f, 1.f) },
+        { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+        { XYZ1(-1, 1, -1), XYZ1(0.f, 0.f, 1.f) },
+        { XYZ1(-1, 1, -1), XYZ1(0.f, 0.f, 1.f) },
+        { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
+        { XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 1.f) },
+        // yellow face
+        { XYZ1(1, 1, 1), XYZ1(1.f, 1.f, 0.f) },
+        { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+        { XYZ1(1, -1, 1), XYZ1(1.f, 1.f, 0.f) },
+        { XYZ1(1, -1, 1), XYZ1(1.f, 1.f, 0.f) },
+        { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
+        { XYZ1(1, -1, -1), XYZ1(1.f, 1.f, 0.f) },
+        // magenta face
+        { XYZ1(1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
+        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
+        { XYZ1(1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
+        { XYZ1(1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
+        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
+        { XYZ1(-1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
+        // cyan face
+        { XYZ1(1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
+        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
+        { XYZ1(-1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
+        { XYZ1(-1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
+        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
+        { XYZ1(-1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
+    };
+
     template<typename T> bool GetProcAddress(VkInstance& instance, std::string name, T& fn)
     {
         void* address = vkGetInstanceProcAddr(instance, name.c_str());
@@ -818,7 +871,6 @@ VkResult VulkanUtils::InitUniformBuffer(VulkanData& info)
 
     info.mvp = info.clip * info.projection * info.view * info.model;
 
-    /* VULKAN_KEY_START */
     VkBufferCreateInfo bufInfo = {};
     bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufInfo.pNext = NULL;
@@ -1130,7 +1182,8 @@ VkResult VulkanUtils::InitDescriptorSet(VulkanData& info)
     writes[0].dstArrayElement = 0;
     writes[0].dstBinding = 0;
 
-    if (use_texture) {
+    if (use_texture) 
+    {
         writes[1] = {};
         writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writes[1].dstSet = info.descSet[0];
@@ -1147,58 +1200,6 @@ VkResult VulkanUtils::InitDescriptorSet(VulkanData& info)
 
 VkResult VulkanUtils::InitVertexBuffer(VulkanData& info)
 {
-    struct Vertex {
-        float posX, posY, posZ, posW;  // Position data
-        float r, g, b, a;              // Color
-    };
-
-    #define XYZ1(_x_, _y_, _z_) (_x_), (_y_), (_z_), 1.f
-
-    static const Vertex g_vbSolidFaceColors_Data[] = {
-        // red face
-        { XYZ1(-1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
-        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
-        { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
-        { XYZ1(1, -1, 1), XYZ1(1.f, 0.f, 0.f) },
-        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
-        { XYZ1(1, 1, 1), XYZ1(1.f, 0.f, 0.f) },
-        // green face
-        { XYZ1(-1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
-        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
-        { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
-        { XYZ1(-1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
-        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 0.f) },
-        { XYZ1(1, 1, -1), XYZ1(0.f, 1.f, 0.f) },
-        // blue face
-        { XYZ1(-1, 1, 1), XYZ1(0.f, 0.f, 1.f) },
-        { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
-        { XYZ1(-1, 1, -1), XYZ1(0.f, 0.f, 1.f) },
-        { XYZ1(-1, 1, -1), XYZ1(0.f, 0.f, 1.f) },
-        { XYZ1(-1, -1, 1), XYZ1(0.f, 0.f, 1.f) },
-        { XYZ1(-1, -1, -1), XYZ1(0.f, 0.f, 1.f) },
-        // yellow face
-        { XYZ1(1, 1, 1), XYZ1(1.f, 1.f, 0.f) },
-        { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
-        { XYZ1(1, -1, 1), XYZ1(1.f, 1.f, 0.f) },
-        { XYZ1(1, -1, 1), XYZ1(1.f, 1.f, 0.f) },
-        { XYZ1(1, 1, -1), XYZ1(1.f, 1.f, 0.f) },
-        { XYZ1(1, -1, -1), XYZ1(1.f, 1.f, 0.f) },
-        // magenta face
-        { XYZ1(1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
-        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
-        { XYZ1(1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
-        { XYZ1(1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
-        { XYZ1(-1, 1, 1), XYZ1(1.f, 0.f, 1.f) },
-        { XYZ1(-1, 1, -1), XYZ1(1.f, 0.f, 1.f) },
-        // cyan face
-        { XYZ1(1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
-        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
-        { XYZ1(-1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
-        { XYZ1(-1, -1, 1), XYZ1(0.f, 1.f, 1.f) },
-        { XYZ1(1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
-        { XYZ1(-1, -1, -1), XYZ1(0.f, 1.f, 1.f) },
-    };
-
     const void* vertexData = g_vbSolidFaceColors_Data;
     uint32_t dataSize = sizeof(g_vbSolidFaceColors_Data);
     uint32_t dataStride = sizeof(g_vbSolidFaceColors_Data[0]);

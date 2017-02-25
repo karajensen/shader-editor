@@ -198,6 +198,7 @@ VkShader::VkShader(VulkanData& info)
         "layout (location = 0) in vec4 color;\n"
         "layout (location = 0) out vec4 outColor;\n"
         "void main() {\n"
+        "   outColor = vec4(color.r, color.g, color.b, 1.0);\n"
         "   outColor = color;\n"
         "}\n";
 }

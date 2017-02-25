@@ -48,14 +48,8 @@ bool VulkanEngine::Initialize()
         FAILED(VulkanUtils::InitSwapchainExtension(info)) ||
         FAILED(VulkanUtils::InitDevice(info)) ||
         FAILED(VulkanUtils::InitCommandPool(info)) ||
-        FAILED(VulkanUtils::InitCommandBuffer(info)))
-    {
-        return false;
-    }
-
-    VulkanUtils::BeginCommandBuffer(info);
-
-    if (FAILED(VulkanUtils::InitViewports(info)) ||
+        FAILED(VulkanUtils::InitCommandBuffer(info)) ||
+        FAILED(VulkanUtils::InitViewports(info)) ||
         FAILED(VulkanUtils::InitDeviceQueue(info)) ||
         FAILED(VulkanUtils::InitSwapChain(info)) ||
         FAILED(VulkanUtils::InitDepthBuffer(info)) ||
@@ -75,6 +69,8 @@ bool VulkanEngine::Initialize()
     {
         return false;
     }
+
+    VulkanUtils::BeginCommandBuffer(info);
 
     return true;
 }
