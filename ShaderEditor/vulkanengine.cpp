@@ -48,7 +48,14 @@ bool VulkanEngine::Initialize()
         FAILED(VulkanUtils::InitSwapchainExtension(info)) ||
         FAILED(VulkanUtils::InitDevice(info)) ||
         FAILED(VulkanUtils::InitCommandPool(info)) ||
-        FAILED(VulkanUtils::InitCommandBuffer(info)) ||
+        FAILED(VulkanUtils::InitCommandBuffer(info)))
+    {
+        return false;
+    }
+
+    VulkanUtils::BeginCommandBuffer(info);
+
+    if (FAILED(VulkanUtils::InitViewports(info)) ||
         FAILED(VulkanUtils::InitDeviceQueue(info)) ||
         FAILED(VulkanUtils::InitSwapChain(info)) ||
         FAILED(VulkanUtils::InitDepthBuffer(info)) ||
@@ -57,7 +64,6 @@ bool VulkanEngine::Initialize()
         FAILED(VulkanUtils::InitRenderpass(info)) ||
         FAILED(VulkanUtils::InitDescriptorPool(info)) ||
         FAILED(VulkanUtils::InitDescriptorSet(info)) ||
-        FAILED(VulkanUtils::InitViewports(info)) ||
         FAILED(VulkanUtils::InitScissors(info)) ||
         FAILED(VulkanUtils::InitSemaphores(info)) ||
         FAILED(VulkanUtils::InitFence(info)))
@@ -70,9 +76,6 @@ bool VulkanEngine::Initialize()
         return false;
     }
 
-    //TODO: Scene initialisation
-
-    VulkanUtils::BeginCommandBuffer(info);
     return true;
 }
 
@@ -87,23 +90,13 @@ bool VulkanEngine::InitialiseScene(const IScene& scene)
 
     m_data->shaders.push_back(std::unique_ptr<VkShader>(new VkShader(info)));
 
-    if (!ReInitialiseScene())
-    {
-        return false;
-    }
-
-    if (FAILED(VulkanUtils::InitFramebuffers(info)) ||
-        FAILED(VulkanUtils::InitVertexBuffer(info)) ||
-        FAILED(VulkanUtils::InitPipeline(info)))
-    {
-        return false;
-    }
-
-    return true;
+    return ReInitialiseScene();
 }
 
 bool VulkanEngine::ReInitialiseScene()
 {
+    auto& info = *m_data;
+
     for (unsigned int i = 0; i < m_data->shaders.size(); ++i)
     {
         const std::string result = CompileShader(i);
@@ -112,6 +105,13 @@ bool VulkanEngine::ReInitialiseScene()
             Logger::LogError("Vulkan: " + m_data->shaders[i]->GetName() + ": " + result);
             return false;
         }
+    }
+
+    if (FAILED(VulkanUtils::InitFramebuffers(info)) ||
+        FAILED(VulkanUtils::InitVertexBuffer(info)) ||
+        FAILED(VulkanUtils::InitPipeline(info)))
+    {
+        return false;
     }
 
     Logger::LogInfo("Vulkan: Re-Initialised");

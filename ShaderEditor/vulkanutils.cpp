@@ -1378,17 +1378,17 @@ VkResult VulkanUtils::InitFramebuffers(VulkanData &info)
 
 VkResult VulkanUtils::InitViewports(VulkanData& info)
 {
-    info.clearValues[0].color.float32[0] = 0.2f;
-    info.clearValues[0].color.float32[1] = 0.2f;
-    info.clearValues[0].color.float32[2] = 0.2f;
-    info.clearValues[0].color.float32[3] = 0.2f;
+    info.clearValues[0].color.float32[0] = 1.0f;
+    info.clearValues[0].color.float32[1] = 0.0f;
+    info.clearValues[0].color.float32[2] = 0.0f;
+    info.clearValues[0].color.float32[3] = 1.0f;
     info.clearValues[1].depthStencil.depth = 1.0f;
     info.clearValues[1].depthStencil.stencil = 0;
 
     info.viewport.height = (float)WINDOW_HEIGHT;
     info.viewport.width = (float)WINDOW_WIDTH;
-    info.viewport.minDepth = (float)0.0f;
-    info.viewport.maxDepth = (float)1.0f;
+    info.viewport.minDepth = 0.0f;
+    info.viewport.maxDepth = 1.0f;
     info.viewport.x = 0;
     info.viewport.y = 0;
     vkCmdSetViewport(info.cmd, 0, NUM_VIEWPORTS_AND_SCISSORS, &info.viewport);
@@ -1430,10 +1430,10 @@ void VulkanUtils::BeginCommandBuffer(VulkanData &info)
     cmdBufInfo.pNext = NULL;
     cmdBufInfo.flags = 0;
     cmdBufInfo.pInheritanceInfo = NULL;
-    Failed(vkBeginCommandBuffer(info.cmd, &cmdBufInfo));
+    FAILED(vkBeginCommandBuffer(info.cmd, &cmdBufInfo));
 }
 
 void VulkanUtils::EndCommandBuffer(VulkanData &info)
 {
-    Failed(vkEndCommandBuffer(info.cmd));
+    FAILED(vkEndCommandBuffer(info.cmd));
 }
