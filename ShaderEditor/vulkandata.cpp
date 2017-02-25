@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkandata.h"
+#include "vulkanshader.h"
 #include "renderdata.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -24,65 +25,70 @@ VulkanData::~VulkanData()
 
 void VulkanData::Reset()
 {
-    DestroyDebugReportFn = nullptr;
-    CreateDebugReportFn = nullptr;
-    graphics_queue = nullptr;
-    present_queue = nullptr;
+    destroyDebugReportFn = nullptr;
+    createDebugReportFn = nullptr;
+    graphicsQueue = nullptr;
+    presentQueue = nullptr;
 
     imageAcquiredSemaphore = VK_NULL_HANDLE;
     surface = VK_NULL_HANDLE;
-    debug_callback = VK_NULL_HANDLE;
+    debugCallback = VK_NULL_HANDLE;
     cmd = VK_NULL_HANDLE;
     device = VK_NULL_HANDLE;
     instance = VK_NULL_HANDLE;
-    swap_chain = VK_NULL_HANDLE;
+    swapChain = VK_NULL_HANDLE;
     imageAcquiredSemaphore = VK_NULL_HANDLE;
     pipeline = VK_NULL_HANDLE;
     pipelineCache = VK_NULL_HANDLE;
-    desc_pool = VK_NULL_HANDLE;
-    render_pass = VK_NULL_HANDLE;
-    pipeline_layout = VK_NULL_HANDLE;
+    descPool = VK_NULL_HANDLE;
+    renderPass = VK_NULL_HANDLE;
+    pipelineLayout = VK_NULL_HANDLE;
 
-    current_buffer = 0;
+    currentBuffer = 0;
     swapchainImageCount = 0;
-    queue_family_count = 0;
-    present_queue_family_index = 0;
-    graphics_queue_family_index = 0;
-    cmd_pool = 0;
+    queueFamilyCount = 0;
+    presentQueueFamilyIndex = 0;
+    graphicsQueueFamilyIndex = 0;
+    cmdPool = 0;
     format = VK_FORMAT_UNDEFINED;
 
-    memory_properties = {};
-    gpu_props = {};
+    memoryProperties = {};
+    gpuProps = {};
     depth = {};
-    uniform_data = {};
-    vertex_buffer = {};
-    vi_binding = {};
+    uniformData = {};
+    vertexBuffer = {};
+    viBinding = {};
     viewport = {};
     scissor = {};
 
-    queue_props.clear();
-    instance_layer_properties.clear();
-    instance_layer_names.clear();
-    instance_extension_names.clear();
+    queueProps.clear();
+    instanceLayerProperties.clear();
+    instanceLayerNames.clear();
+    instanceExtensionNames.clear();
     gpus.clear();
-    device_extension_names.clear();
+    deviceExtensionNames.clear();
     buffers.clear();
-    desc_layout.clear();
+    descLayout.clear();
     framebuffers.clear();
-    desc_set.clear();
+    descSet.clear();
 
-    vi_attribs.clear();
-    vi_attribs.resize(2);
+    viAttribs.clear();
+    viAttribs.resize(2);
 
     shaderStages.clear();
     shaderStages.resize(2);
 
-    clear_values.clear();
-    clear_values.resize(2);
+    clearValues.clear();
+    clearValues.resize(2);
 }
 
 void VulkanData::Release()
 {
+    for (auto& shader : shaders)
+    {
+        shader->Release();
+    }
+
     if (imageAcquiredSemaphore != VK_NULL_HANDLE)
     {
         vkDestroySemaphore(device, imageAcquiredSemaphore, NULL);
@@ -98,19 +104,19 @@ void VulkanData::Release()
         vkDestroyPipelineCache(device, pipelineCache, NULL);
     }
 
-    if (desc_pool != VK_NULL_HANDLE)
+    if (descPool != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorPool(device, desc_pool, NULL);
+        vkDestroyDescriptorPool(device, descPool, NULL);
     }
 
-    if (vertex_buffer.buffer != VK_NULL_HANDLE)
+    if (vertexBuffer.buffer != VK_NULL_HANDLE)
     {
-        vkDestroyBuffer(device, vertex_buffer.buffer, NULL);
+        vkDestroyBuffer(device, vertexBuffer.buffer, NULL);
     }
 
-    if (vertex_buffer.memory != VK_NULL_HANDLE)
+    if (vertexBuffer.memory != VK_NULL_HANDLE)
     {
-        vkFreeMemory(device, vertex_buffer.memory, NULL);
+        vkFreeMemory(device, vertexBuffer.memory, NULL);
     }
 
     for (int i = 0; i < (int)framebuffers.size(); i++)
@@ -126,29 +132,29 @@ void VulkanData::Release()
         }
     }
 
-    if (render_pass != VK_NULL_HANDLE)
+    if (renderPass != VK_NULL_HANDLE)
     {
-        vkDestroyRenderPass(device, render_pass, NULL);
+        vkDestroyRenderPass(device, renderPass, NULL);
     }
 
-    for (int i = 0; i < (int)desc_layout.size(); i++)
+    for (int i = 0; i < (int)descLayout.size(); i++)
     {
-        vkDestroyDescriptorSetLayout(device, desc_layout[i], NULL);
+        vkDestroyDescriptorSetLayout(device, descLayout[i], NULL);
     }
 
-    if (pipeline_layout != VK_NULL_HANDLE)
+    if (pipelineLayout != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineLayout(device, pipeline_layout, NULL);
+        vkDestroyPipelineLayout(device, pipelineLayout, NULL);
     }
 
-    if (uniform_data.buffer != VK_NULL_HANDLE)
+    if (uniformData.buffer != VK_NULL_HANDLE)
     {
-        vkDestroyBuffer(device, uniform_data.buffer, NULL);
+        vkDestroyBuffer(device, uniformData.buffer, NULL);
     }
 
-    if (uniform_data.memory != VK_NULL_HANDLE)
+    if (uniformData.memory != VK_NULL_HANDLE)
     {
-        vkFreeMemory(device, uniform_data.memory, NULL);
+        vkFreeMemory(device, uniformData.memory, NULL);
     }
 
     if (depth.view != VK_NULL_HANDLE)
@@ -171,23 +177,23 @@ void VulkanData::Release()
         vkDestroyImageView(device, buffers[i].view, NULL);
     }
 
-    if (swap_chain != VK_NULL_HANDLE)
+    if (swapChain != VK_NULL_HANDLE)
     {
-        vkDestroySwapchainKHR(device, swap_chain, NULL);
+        vkDestroySwapchainKHR(device, swapChain, NULL);
     }
 
     if (cmd != VK_NULL_HANDLE)
     {
         VkCommandBuffer cmd_bufs[1] = { cmd };
-        vkFreeCommandBuffers(device, cmd_pool, 1, cmd_bufs);
-        vkDestroyCommandPool(device, cmd_pool, 0);
+        vkFreeCommandBuffers(device, cmdPool, 1, cmd_bufs);
+        vkDestroyCommandPool(device, cmdPool, 0);
     }
 
-    if (debug_callback != VK_NULL_HANDLE)
+    if (debugCallback != VK_NULL_HANDLE)
     {
-        if (DestroyDebugReportFn != nullptr)
+        if (destroyDebugReportFn != nullptr)
         {
-            DestroyDebugReportFn(instance, debug_callback, nullptr);
+            destroyDebugReportFn(instance, debugCallback, nullptr);
         }
     }
 

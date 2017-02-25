@@ -6,6 +6,9 @@
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
 #include <vector>
+#include <memory>
+
+class VkShader;
 
 struct LayerProperties
 {
@@ -31,14 +34,14 @@ struct UniformData
 {
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkDescriptorBufferInfo buffer_info = {};
+    VkDescriptorBufferInfo bufferInfo = {};
 };
 
 struct VertexBuffer
 {
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkDescriptorBufferInfo buffer_info = {};
+    VkDescriptorBufferInfo bufferInfo = {};
 };
 
 struct VulkanData
@@ -65,6 +68,56 @@ struct VulkanData
 
     HINSTANCE connection;
     HWND window;
+    VkInstance instance;
+    VkDevice device;
+    VkCommandBuffer cmd;
+    VkSurfaceKHR surface;
+    VkSwapchainKHR swapChain;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    Depth depth;
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    VkPhysicalDeviceProperties gpuProps;
+    UniformData uniformData;
+    VkPipelineLayout pipelineLayout;
+    VkSemaphore imageAcquiredSemaphore;
+    VkPipeline pipeline;
+    VkPipelineCache pipelineCache;
+    VkDescriptorPool descPool;
+    VertexBuffer vertexBuffer;
+    uint32_t currentBuffer;
+    uint32_t queueFamilyCount;
+    uint32_t graphicsQueueFamilyIndex;
+    uint32_t presentQueueFamilyIndex;
+    uint32_t swapchainImageCount;
+    VkCommandPool cmdPool;
+    VkFormat format;
+    VkRenderPass renderPass;
+    VkVertexInputBindingDescription viBinding;
+    VkDescriptorImageInfo imageInfo;
+    VkViewport viewport;
+    VkRect2D scissor;
+    VkFence drawFence;
+
+    VkDebugReportCallbackEXT debugCallback;
+    PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;
+    PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportFn;
+
+    std::vector<VkFramebuffer> framebuffers;
+    std::vector<SwapChainBuffer> buffers;
+    std::vector<VkQueueFamilyProperties> queueProps;
+    std::vector<LayerProperties> instanceLayerProperties;
+    std::vector<const char*> instanceLayerNames;
+    std::vector<const char*> instanceExtensionNames;
+    std::vector<VkPhysicalDevice> gpus;
+    std::vector<const char*> deviceExtensionNames;
+    std::vector<VkDescriptorSetLayout> descLayout;
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+    std::vector<VkVertexInputAttributeDescription> viAttribs;
+    std::vector<VkDescriptorSet> descSet;
+    std::vector<VkClearValue> clearValues;
+
+    std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
 
     glm::vec3 cameraPosition;  ///< Position of the camera
     glm::vec3 cameraUp;        ///< The up vector of the camera
@@ -73,56 +126,7 @@ struct VulkanData
     glm::mat4 viewProjection;  ///< View projection matrix
 
     // TODO: Temporary until reorganising engine
-    glm::mat4 Model;
-    glm::mat4 Clip;
-    glm::mat4 MVP;
-
-    VkInstance instance;
-    VkDevice device;
-    VkCommandBuffer cmd;
-    VkSurfaceKHR surface;
-    VkSwapchainKHR swap_chain;
-    VkQueue graphics_queue;
-    VkQueue present_queue;
-    Depth depth;
-    VkPhysicalDeviceMemoryProperties memory_properties;
-    VkPhysicalDeviceProperties gpu_props;
-    UniformData uniform_data;
-    VkPipelineLayout pipeline_layout;
-    VkSemaphore imageAcquiredSemaphore;
-    VkPipeline pipeline;
-    VkPipelineCache pipelineCache;
-    VkDescriptorPool desc_pool;
-    VertexBuffer vertex_buffer;
-    uint32_t current_buffer;
-    uint32_t queue_family_count;
-    uint32_t graphics_queue_family_index;
-    uint32_t present_queue_family_index;
-    uint32_t swapchainImageCount;
-    VkCommandPool cmd_pool;
-    VkFormat format;
-    VkRenderPass render_pass;
-    VkVertexInputBindingDescription vi_binding;
-    VkDescriptorImageInfo image_info;
-    VkViewport viewport;
-    VkRect2D scissor;
-    VkFence drawFence;
-
-    VkDebugReportCallbackEXT debug_callback;
-    PFN_vkCreateDebugReportCallbackEXT CreateDebugReportFn;
-    PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportFn;
-
-    std::vector<VkFramebuffer> framebuffers;
-    std::vector<SwapChainBuffer> buffers;
-    std::vector<VkQueueFamilyProperties> queue_props;
-    std::vector<LayerProperties> instance_layer_properties;
-    std::vector<const char*> instance_layer_names;
-    std::vector<const char*> instance_extension_names;
-    std::vector<VkPhysicalDevice> gpus;
-    std::vector<const char*> device_extension_names;
-    std::vector<VkDescriptorSetLayout> desc_layout;
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-    std::vector<VkVertexInputAttributeDescription> vi_attribs;
-    std::vector<VkDescriptorSet> desc_set;
-    std::vector<VkClearValue> clear_values;
+    glm::mat4 model;
+    glm::mat4 clip;
+    glm::mat4 mvp;
 };

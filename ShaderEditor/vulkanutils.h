@@ -1,12 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - vulkanutils.cpp
+// Kara Jensen - mail@karajensen.com - vulkanutils.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "common.h"
 #include "renderdata.h"
 #include "vulkan.h"
-#include "glslang/SPIRV/GlslangToSpv.h"
 
 struct VulkanData;
 struct LayerProperties;
@@ -39,42 +38,67 @@ public:
     */
     static const int FENCE_TIMEOUT = 100000000;
 
-    static VkResult init_global_extension_properties(LayerProperties& layer_props);
-    static VkResult init_instance(VulkanData &info);
-    static VkResult init_enumerate_device(VulkanData &info, uint32_t gpu_count = 1);
-    static VkResult init_queue_family_index(VulkanData &info);
-    static VkResult init_device(VulkanData &info);
-    static VkResult init_debugging(VulkanData &info);
-    static VkResult init_global_layer_properties(VulkanData& info);
-    static VkResult init_instance_extension_names(VulkanData &info);
-    static VkResult init_device_extension_names(VulkanData &info);
-    static VkResult init_swapchain_extension(VulkanData &info);
-    static VkResult init_command_pool(VulkanData &info);
-    static VkResult init_command_buffer(VulkanData &info);
-    static VkResult init_device_queue(VulkanData &info);
-    static VkResult init_swap_chain(VulkanData &info);
-    static VkResult init_depth_buffer(VulkanData &info);
-    static VkResult init_descriptor_and_pipeline_layouts(VulkanData &info);
-    static VkResult init_renderpass(VulkanData &info);
-    static VkResult init_framebuffers(VulkanData &info);
-    static VkResult init_descriptor_pool(VulkanData& info);
-    static VkResult init_descriptor_set(VulkanData& info);
-    static VkResult init_pipeline_cache(VulkanData& info);
-    static VkResult init_pipeline(VulkanData& info);
-    static VkResult init_viewports(VulkanData& info);
-    static VkResult init_scissors(VulkanData& info);
-    static VkResult init_semaphores(VulkanData& info);
-    static VkResult init_fence(VulkanData& info);
+    /**
+    * Generic Vulkan initualisation error
+    */
+    static const VkResult VK_ERROR = VK_ERROR_INITIALIZATION_FAILED;
 
-    static void begin_command_buffer(VulkanData& info);
-    static void end_command_buffer(VulkanData& info);
-    static bool log_fail(VkResult result, const char* file, int line);
+    /**
+    * Initialise the Vulkan Engine
+    */
+    static VkResult InitInstance(VulkanData &info);
+    static VkResult InitEnumerateDevice(VulkanData &info);
+    static VkResult InitDevice(VulkanData &info);
+    static VkResult InitDebugging(VulkanData &info);
+    static VkResult InitGlobalLayerProperties(VulkanData& info);
+    static VkResult InitExtensionNames(VulkanData &info);
+    static VkResult InitSwapchainExtension(VulkanData &info);
+    static VkResult InitCommandPool(VulkanData &info);
+    static VkResult InitCommandBuffer(VulkanData &info);
+    static VkResult InitDeviceQueue(VulkanData &info);
+    static VkResult InitSwapChain(VulkanData &info);
+    static VkResult InitDepthBuffer(VulkanData &info);
+    static VkResult InitDescriptorAndPipelineLayouts(VulkanData &info);
+    static VkResult InitRenderpass(VulkanData &info);
+    static VkResult InitFramebuffers(VulkanData &info);
+    static VkResult InitDescriptorPool(VulkanData& info);
+    static VkResult InitDescriptorSet(VulkanData& info);
+    static VkResult InitPipeline(VulkanData& info);
+    static VkResult InitViewports(VulkanData& info);
+    static VkResult InitScissors(VulkanData& info);
+    static VkResult InitSemaphores(VulkanData& info);
+    static VkResult InitFence(VulkanData& info);
 
     // TODO: Temporary until reorganising engine
-    static VkResult init_uniform_buffer(VulkanData& info);
-    static VkResult init_shaders(VulkanData& info);
-    static VkResult init_vertex_buffer(VulkanData& info);
+    static VkResult InitUniformBuffer(VulkanData& info);
+    static VkResult InitVertexBuffer(VulkanData& info);
+
+    /**
+    * Start recording a command buffer
+    */
+    static void BeginCommandBuffer(VulkanData& info);
+
+    /**
+    * End recording a command buffer
+    */
+    static void EndCommandBuffer(VulkanData& info);
+
+    /**
+    * @return whether the given result indicates failure
+    */
+    static bool Failed(VkResult result);
+
+    /**
+    * Logs the given result if a failure
+    * @return whether the given result indicates failure
+    */
+    static bool LogFail(VkResult result, const char* file, int line);
+
+    /**
+    * @return a text description of the failure or empty if a success
+    */
+    static const char* GetFailText(VkResult result);
 };
 
 #undef FAILED
-#define FAILED(result) VulkanUtils::log_fail(result, __FILE__, __LINE__)
+#define FAILED(result) VulkanUtils::LogFail(result, __FILE__, __LINE__)
