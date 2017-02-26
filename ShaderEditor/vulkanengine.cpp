@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkanengine.h"
+#include "vulkaninit.h"
 #include "vulkandata.h"
 #include "vulkanutils.h"
 #include "vulkanshader.h"
@@ -40,27 +41,26 @@ bool VulkanEngine::Initialize()
 {
     auto& info = *m_data;
 
-    if (FAILED(VulkanUtils::InitGlobalLayerProperties(info)) ||
-        FAILED(VulkanUtils::InitExtensionNames(info)) ||
-        FAILED(VulkanUtils::InitInstance(info)) ||
-        FAILED(VulkanUtils::InitDebugging(info)) ||
-        FAILED(VulkanUtils::InitEnumerateDevice(info)) ||
-        FAILED(VulkanUtils::InitSwapchainExtension(info)) ||
-        FAILED(VulkanUtils::InitDevice(info)) ||
-        FAILED(VulkanUtils::InitCommandPool(info)) ||
-        FAILED(VulkanUtils::InitCommandBuffer(info)) ||
-        FAILED(VulkanUtils::InitViewports(info)) ||
-        FAILED(VulkanUtils::InitDeviceQueue(info)) ||
-        FAILED(VulkanUtils::InitSwapChain(info)) ||
-        FAILED(VulkanUtils::InitDepthBuffer(info)) ||
-        FAILED(VulkanUtils::InitUniformBuffer(info)) ||
-        FAILED(VulkanUtils::InitDescriptorAndPipelineLayouts(info)) ||
-        FAILED(VulkanUtils::InitRenderpass(info)) ||
-        FAILED(VulkanUtils::InitDescriptorPool(info)) ||
-        FAILED(VulkanUtils::InitDescriptorSet(info)) ||
-        FAILED(VulkanUtils::InitScissors(info)) ||
-        FAILED(VulkanUtils::InitSemaphores(info)) ||
-        FAILED(VulkanUtils::InitFence(info)))
+    if (CHECK_FAIL(VulkanInit::InitGlobalLayerProperties(info)) ||
+        CHECK_FAIL(VulkanInit::InitInstance(info)) ||
+        CHECK_FAIL(VulkanInit::InitEnumerateDevice(info)) ||
+        CHECK_FAIL(VulkanInit::InitSwapchainExtension(info)) ||
+        CHECK_FAIL(VulkanInit::InitDevice(info)) ||
+        CHECK_FAIL(VulkanInit::InitDebugging(info)) ||
+        CHECK_FAIL(VulkanInit::InitCommandPool(info)) ||
+        CHECK_FAIL(VulkanInit::InitCommandBuffer(info)) ||
+        CHECK_FAIL(VulkanInit::InitDeviceQueue(info)) ||
+        CHECK_FAIL(VulkanInit::InitSwapChain(info)) ||
+        CHECK_FAIL(VulkanInit::InitDepthBuffer(info)) ||
+        CHECK_FAIL(VulkanInit::InitUniformBuffer(info)) ||
+        CHECK_FAIL(VulkanInit::InitDescriptorAndPipelineLayouts(info)) ||
+        CHECK_FAIL(VulkanInit::InitRenderpass(info)) ||
+        CHECK_FAIL(VulkanInit::InitDescriptorPool(info)) ||
+        CHECK_FAIL(VulkanInit::InitDescriptorSet(info)) ||
+        CHECK_FAIL(VulkanInit::InitSemaphores(info)) ||
+        CHECK_FAIL(VulkanInit::InitFence(info)) ||
+        CHECK_FAIL(VulkanInit::InitFramebuffers(info)) ||
+        CHECK_FAIL(VulkanInit::InitSubmitAndPresentInfo(info)))
     {
         return false;
     }
@@ -69,8 +69,6 @@ bool VulkanEngine::Initialize()
     {
         return false;
     }
-
-    VulkanUtils::BeginCommandBuffer(info);
 
     return true;
 }
@@ -103,9 +101,68 @@ bool VulkanEngine::ReInitialiseScene()
         }
     }
 
-    if (FAILED(VulkanUtils::InitFramebuffers(info)) ||
-        FAILED(VulkanUtils::InitVertexBuffer(info)) ||
-        FAILED(VulkanUtils::InitPipeline(info)))
+    // TODO: Restructure this for scene
+    if (CHECK_FAIL(VulkanInit::InitVertexBuffer(info)) ||
+        CHECK_FAIL(VulkanInit::InitPipeline(info)))
+    {
+        return false;
+    }
+
+    // TODO: Filling command buffer
+    VkCommandBufferBeginInfo cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBufInfo.pNext = NULL;
+    cmdBufInfo.flags = 0;
+    cmdBufInfo.pInheritanceInfo = NULL;
+    if (CHECK_FAIL(vkBeginCommandBuffer(info.cmd, &cmdBufInfo)))
+    {
+        return false;
+    }
+
+    VkClearValue clearValues[2];
+    clearValues[0].color = {{ 0.0f, 0.0f, 0.2f, 1.0f }};
+    clearValues[1].depthStencil = { 1.0f, 0 };
+
+    VkRenderPassBeginInfo rpBegin;
+    rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rpBegin.pNext = NULL;
+    rpBegin.renderPass = info.renderPass;
+    rpBegin.framebuffer = info.framebuffers[info.currentBuffer];
+    rpBegin.renderArea.offset.x = 0;
+    rpBegin.renderArea.offset.y = 0;
+    rpBegin.renderArea.extent.width = WINDOW_WIDTH;
+    rpBegin.renderArea.extent.height = WINDOW_HEIGHT;
+    rpBegin.clearValueCount = 2;
+    rpBegin.pClearValues = clearValues;
+    vkCmdBeginRenderPass(info.cmd, &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport;
+    viewport.height = (float)WINDOW_HEIGHT;
+    viewport.width = (float)WINDOW_WIDTH;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    viewport.x = 0;
+    viewport.y = 0;
+    vkCmdSetViewport(info.cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &viewport);
+
+    VkRect2D scissor;
+    scissor.extent.width = WINDOW_WIDTH;
+    scissor.extent.height = WINDOW_HEIGHT;
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    vkCmdSetScissor(info.cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &scissor);
+
+    vkCmdBindDescriptorSets(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipelineLayout, 0,
+        VulkanUtils::NUM_DESCRIPTOR_SETS, info.descSet.data(), 0, NULL);
+
+    vkCmdBindPipeline(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
+
+    const VkDeviceSize offsets[1] = { 0 };
+    vkCmdBindVertexBuffers(info.cmd, 0, 1, &info.vertexBuffer.buffer, offsets);
+    vkCmdDraw(info.cmd, 12 * 3, 1, 0, 0);
+    vkCmdEndRenderPass(info.cmd);
+
+    if (CHECK_FAIL(vkEndCommandBuffer(info.cmd)))
     {
         return false;
     }
@@ -123,81 +180,18 @@ void VulkanEngine::Render(const IScene& scene, float timer)
 {
     auto& info = *m_data;
 
-    FAILED(vkAcquireNextImageKHR(info.device, 
-                                 info.swapChain, 
-                                 UINT64_MAX, 
-                                 info.imageAcquiredSemaphore, 
-                                 VK_NULL_HANDLE,
-                                 &info.currentBuffer));
+    CHECK_FAIL(vkAcquireNextImageKHR(info.device,
+                                     info.swapChain, 
+                                     UINT64_MAX, 
+                                     info.presentCompleteSemaphore, 
+                                     VK_NULL_HANDLE,
+                                     &info.currentBuffer));
 
-    VkRenderPassBeginInfo rpBegin;
-    rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    rpBegin.pNext = NULL;
-    rpBegin.renderPass = info.renderPass;
-    rpBegin.framebuffer = info.framebuffers[info.currentBuffer];
-    rpBegin.renderArea.offset.x = 0;
-    rpBegin.renderArea.offset.y = 0;
-    rpBegin.renderArea.extent.width = WINDOW_WIDTH;
-    rpBegin.renderArea.extent.height = WINDOW_HEIGHT;
-    rpBegin.clearValueCount = 2;
-    rpBegin.pClearValues = &info.clearValues[0];
+    CHECK_FAIL(vkWaitForFences(info.device, 1, &info.drawFence, VK_TRUE, UINT64_MAX));
+    CHECK_FAIL(vkResetFences(info.device, 1, &info.drawFence));
 
-    vkCmdBeginRenderPass(info.cmd, &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(info.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
-
-    vkCmdBindDescriptorSets(info.cmd, 
-                            VK_PIPELINE_BIND_POINT_GRAPHICS, 
-                            info.pipelineLayout, 
-                            0, 
-                            VulkanUtils::NUM_DESCRIPTOR_SETS, 
-                            info.descSet.data(), 
-                            0, 
-                            NULL);
-
-    const VkDeviceSize offsets[1] = { 0 };
-    vkCmdBindVertexBuffers(info.cmd, 0, 1, &info.vertexBuffer.buffer, offsets);
-
-    vkCmdDraw(info.cmd, 12 * 3, 1, 0, 0);
-    vkCmdEndRenderPass(info.cmd);
-    VulkanUtils::EndCommandBuffer(info);
-
-    const VkCommandBuffer cmd_bufs[] = { info.cmd };
-    VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkSubmitInfo submitInfo[1] = {};
-    submitInfo[0].pNext = NULL;
-    submitInfo[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo[0].waitSemaphoreCount = 1;
-    submitInfo[0].pWaitSemaphores = &info.imageAcquiredSemaphore;
-    submitInfo[0].pWaitDstStageMask = &pipe_stage_flags;
-    submitInfo[0].commandBufferCount = 1;
-    submitInfo[0].pCommandBuffers = cmd_bufs;
-    submitInfo[0].signalSemaphoreCount = 0;
-    submitInfo[0].pSignalSemaphores = NULL;
-
-    // Queue the command buffer for execution
-    FAILED(vkQueueSubmit(info.graphicsQueue, 1, submitInfo, info.drawFence));
-
-    // Now present the image in the window
-    VkPresentInfoKHR present;
-    present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    present.pNext = NULL;
-    present.swapchainCount = 1;
-    present.pSwapchains = &info.swapChain;
-    present.pImageIndices = &info.currentBuffer;
-    present.pWaitSemaphores = NULL;
-    present.waitSemaphoreCount = 0;
-    present.pResults = NULL;
-
-    // Make sure command buffer is finished before presenting
-    VkResult res = VK_TIMEOUT;
-    while (res == VK_TIMEOUT)
-    {
-        res = vkWaitForFences(info.device, 1, &info.drawFence, VK_TRUE, VulkanUtils::FENCE_TIMEOUT);
-    }
-
-    FAILED(vkQueuePresentKHR(info.presentQueue, &present));
-
-    VulkanUtils::BeginCommandBuffer(info);
+    CHECK_FAIL(vkQueueSubmit(info.graphicsQueue, 1, &info.submitInfo, info.drawFence));
+    CHECK_FAIL(vkQueuePresentKHR(info.presentQueue, &info.presentInfo));
 }
 
 void VulkanEngine::ToggleWireframe()

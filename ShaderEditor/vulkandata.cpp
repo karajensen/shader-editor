@@ -27,17 +27,18 @@ void VulkanData::Reset()
 {
     destroyDebugReportFn = nullptr;
     createDebugReportFn = nullptr;
+    setDebugNameFn = nullptr;
     graphicsQueue = nullptr;
     presentQueue = nullptr;
 
-    imageAcquiredSemaphore = VK_NULL_HANDLE;
+    presentCompleteSemaphore = VK_NULL_HANDLE;
+    renderCompleteSemaphore = VK_NULL_HANDLE;
     surface = VK_NULL_HANDLE;
     debugCallback = VK_NULL_HANDLE;
     cmd = VK_NULL_HANDLE;
     device = VK_NULL_HANDLE;
     instance = VK_NULL_HANDLE;
     swapChain = VK_NULL_HANDLE;
-    imageAcquiredSemaphore = VK_NULL_HANDLE;
     pipeline = VK_NULL_HANDLE;
     pipelineCache = VK_NULL_HANDLE;
     descPool = VK_NULL_HANDLE;
@@ -51,6 +52,7 @@ void VulkanData::Reset()
     graphicsQueueFamilyIndex = 0;
     cmdPool = 0;
     format = VK_FORMAT_UNDEFINED;
+    pipeStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     memoryProperties = {};
     gpuProps = {};
@@ -58,8 +60,8 @@ void VulkanData::Reset()
     uniformData = {};
     vertexBuffer = {};
     viBinding = {};
-    viewport = {};
-    scissor = {};
+    submitInfo = {};
+    presentInfo = {};
 
     queueProps.clear();
     instanceLayerProperties.clear();
@@ -77,9 +79,6 @@ void VulkanData::Reset()
 
     shaderStages.clear();
     shaderStages.resize(2);
-
-    clearValues.clear();
-    clearValues.resize(2);
 }
 
 void VulkanData::Release()
@@ -89,9 +88,14 @@ void VulkanData::Release()
         shader->Release();
     }
 
-    if (imageAcquiredSemaphore != VK_NULL_HANDLE)
+    if (presentCompleteSemaphore != VK_NULL_HANDLE)
     {
-        vkDestroySemaphore(device, imageAcquiredSemaphore, NULL);
+        vkDestroySemaphore(device, presentCompleteSemaphore, NULL);
+    }
+
+    if (renderCompleteSemaphore != VK_NULL_HANDLE)
+    {
+        vkDestroySemaphore(device, renderCompleteSemaphore, NULL);
     }
 
     if (pipeline != VK_NULL_HANDLE)

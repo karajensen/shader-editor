@@ -80,7 +80,8 @@ struct VulkanData
     VkPhysicalDeviceProperties gpuProps;
     UniformData uniformData;
     VkPipelineLayout pipelineLayout;
-    VkSemaphore imageAcquiredSemaphore;
+    VkSemaphore presentCompleteSemaphore;
+    VkSemaphore renderCompleteSemaphore;
     VkPipeline pipeline;
     VkPipelineCache pipelineCache;
     VkDescriptorPool descPool;
@@ -95,13 +96,15 @@ struct VulkanData
     VkRenderPass renderPass;
     VkVertexInputBindingDescription viBinding;
     VkDescriptorImageInfo imageInfo;
-    VkViewport viewport;
-    VkRect2D scissor;
     VkFence drawFence;
+    VkPipelineStageFlags pipeStageFlags;
+    VkSubmitInfo submitInfo;
+    VkPresentInfoKHR presentInfo;
 
     VkDebugReportCallbackEXT debugCallback;
     PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;
     PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportFn;
+    PFN_vkDebugMarkerSetObjectNameEXT setDebugNameFn;
 
     std::vector<VkFramebuffer> framebuffers;
     std::vector<SwapChainBuffer> buffers;
@@ -115,7 +118,6 @@ struct VulkanData
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
     std::vector<VkVertexInputAttributeDescription> viAttribs;
     std::vector<VkDescriptorSet> descSet;
-    std::vector<VkClearValue> clearValues;
 
     std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
 

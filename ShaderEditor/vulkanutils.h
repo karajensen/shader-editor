@@ -44,44 +44,9 @@ public:
     static const VkResult VK_ERROR = VK_ERROR_INITIALIZATION_FAILED;
 
     /**
-    * Initialise the Vulkan Engine
+    * Sets the debug name for the Vulkan object
     */
-    static VkResult InitInstance(VulkanData &info);
-    static VkResult InitEnumerateDevice(VulkanData &info);
-    static VkResult InitDevice(VulkanData &info);
-    static VkResult InitDebugging(VulkanData &info);
-    static VkResult InitGlobalLayerProperties(VulkanData& info);
-    static VkResult InitExtensionNames(VulkanData &info);
-    static VkResult InitSwapchainExtension(VulkanData &info);
-    static VkResult InitCommandPool(VulkanData &info);
-    static VkResult InitCommandBuffer(VulkanData &info);
-    static VkResult InitDeviceQueue(VulkanData &info);
-    static VkResult InitSwapChain(VulkanData &info);
-    static VkResult InitDepthBuffer(VulkanData &info);
-    static VkResult InitDescriptorAndPipelineLayouts(VulkanData &info);
-    static VkResult InitRenderpass(VulkanData &info);
-    static VkResult InitFramebuffers(VulkanData &info);
-    static VkResult InitDescriptorPool(VulkanData& info);
-    static VkResult InitDescriptorSet(VulkanData& info);
-    static VkResult InitPipeline(VulkanData& info);
-    static VkResult InitViewports(VulkanData& info);
-    static VkResult InitScissors(VulkanData& info);
-    static VkResult InitSemaphores(VulkanData& info);
-    static VkResult InitFence(VulkanData& info);
-
-    // TODO: Temporary until reorganising engine
-    static VkResult InitUniformBuffer(VulkanData& info);
-    static VkResult InitVertexBuffer(VulkanData& info);
-
-    /**
-    * Start recording a command buffer
-    */
-    static void BeginCommandBuffer(VulkanData& info);
-
-    /**
-    * End recording a command buffer
-    */
-    static void EndCommandBuffer(VulkanData& info);
+    static void SetDebugName(VulkanData& info, uint64_t obj, const type_info& objType, const char* name);
 
     /**
     * @return whether the given result indicates failure
@@ -100,5 +65,4 @@ public:
     static const char* GetFailText(VkResult result);
 };
 
-#undef FAILED
-#define FAILED(result) VulkanUtils::LogFail(result, __FILE__, __LINE__)
+#define CHECK_FAIL(result) VulkanUtils::LogFail(result, __FILE__, __LINE__)
