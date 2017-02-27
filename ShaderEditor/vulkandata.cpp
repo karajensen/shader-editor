@@ -16,6 +16,9 @@ VulkanData::VulkanData(HINSTANCE hinstance, HWND hwnd)
 
     projection = glm::perspective(FIELD_OF_VIEW,
         RATIO, FRUSTRUM_NEAR, FRUSTRUM_FAR);
+
+    clearValues[0].color = { { 0.0f, 0.0f, 1.0f, 1.0f } };
+    clearValues[1].depthStencil = { 1.0f, 0 };
 }
 
 VulkanData::~VulkanData()
@@ -35,7 +38,6 @@ void VulkanData::Reset()
     renderCompleteSemaphore = VK_NULL_HANDLE;
     surface = VK_NULL_HANDLE;
     debugCallback = VK_NULL_HANDLE;
-    cmd = VK_NULL_HANDLE;
     device = VK_NULL_HANDLE;
     instance = VK_NULL_HANDLE;
     swapChain = VK_NULL_HANDLE;
@@ -44,13 +46,13 @@ void VulkanData::Reset()
     descPool = VK_NULL_HANDLE;
     renderPass = VK_NULL_HANDLE;
     pipelineLayout = VK_NULL_HANDLE;
+    cmdPool = VK_NULL_HANDLE;
 
     currentBuffer = 0;
     swapchainImageCount = 0;
     queueFamilyCount = 0;
     presentQueueFamilyIndex = 0;
     graphicsQueueFamilyIndex = 0;
-    cmdPool = 0;
     format = VK_FORMAT_UNDEFINED;
     pipeStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -60,8 +62,6 @@ void VulkanData::Reset()
     uniformData = {};
     vertexBuffer = {};
     viBinding = {};
-    submitInfo = {};
-    presentInfo = {};
 
     queueProps.clear();
     instanceLayerProperties.clear();
@@ -73,6 +73,8 @@ void VulkanData::Reset()
     descLayout.clear();
     framebuffers.clear();
     descSet.clear();
+    cmd.clear();
+    fences.clear();
 
     viAttribs.clear();
     viAttribs.resize(2);
@@ -86,6 +88,11 @@ void VulkanData::Release()
     for (auto& shader : shaders)
     {
         shader->Release();
+    }
+
+    for (int i = 0; i < (int)fences.size(); i++)
+    {
+        vkDestroyFence(device, fences[i], NULL);
     }
 
     if (presentCompleteSemaphore != VK_NULL_HANDLE)
@@ -186,10 +193,12 @@ void VulkanData::Release()
         vkDestroySwapchainKHR(device, swapChain, NULL);
     }
 
-    if (cmd != VK_NULL_HANDLE)
+    if (cmdPool != VK_NULL_HANDLE)
     {
-        VkCommandBuffer cmd_bufs[1] = { cmd };
-        vkFreeCommandBuffers(device, cmdPool, 1, cmd_bufs);
+        if (!cmd.empty())
+        {
+            vkFreeCommandBuffers(device, cmdPool, cmd.size(), &cmd[0]);
+        }
         vkDestroyCommandPool(device, cmdPool, 0);
     }
 

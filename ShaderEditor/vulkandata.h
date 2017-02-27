@@ -70,7 +70,6 @@ struct VulkanData
     HWND window;
     VkInstance instance;
     VkDevice device;
-    VkCommandBuffer cmd;
     VkSurfaceKHR surface;
     VkSwapchainKHR swapChain;
     VkQueue graphicsQueue;
@@ -96,17 +95,17 @@ struct VulkanData
     VkRenderPass renderPass;
     VkVertexInputBindingDescription viBinding;
     VkDescriptorImageInfo imageInfo;
-    VkFence drawFence;
     VkPipelineStageFlags pipeStageFlags;
-    VkSubmitInfo submitInfo;
-    VkPresentInfoKHR presentInfo;
+    VkClearValue clearValues[2];
 
     VkDebugReportCallbackEXT debugCallback;
     PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;
     PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportFn;
     PFN_vkDebugMarkerSetObjectNameEXT setDebugNameFn;
 
+    std::vector<VkFence> fences;
     std::vector<VkFramebuffer> framebuffers;
+    std::vector<VkCommandBuffer> cmd;
     std::vector<SwapChainBuffer> buffers;
     std::vector<VkQueueFamilyProperties> queueProps;
     std::vector<LayerProperties> instanceLayerProperties;

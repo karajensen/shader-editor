@@ -29,7 +29,6 @@ public:
     static VkResult InitPipeline(VulkanData& info);
     static VkResult InitSemaphores(VulkanData& info);
     static VkResult InitFence(VulkanData& info);
-    static VkResult InitSubmitAndPresentInfo(VulkanData& info);
 
     // TODO: Temporary until reorganising engine
     static VkResult InitUniformBuffer(VulkanData& info);

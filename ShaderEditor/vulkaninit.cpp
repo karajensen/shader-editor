@@ -459,17 +459,23 @@ VkResult VulkanInit::InitCommandPool(VulkanData &info)
 
 VkResult VulkanInit::InitCommandBuffer(VulkanData &info)
 {
+    info.cmd.resize(info.swapchainImageCount);
+
     VkCommandBufferAllocateInfo cmd = {};
     cmd.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     cmd.pNext = NULL;
     cmd.commandPool = info.cmdPool;
     cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    cmd.commandBufferCount = 1;
+    cmd.commandBufferCount = info.cmd.size();
 
-    VkResult result = vkAllocateCommandBuffers(info.device, &cmd, &info.cmd);
+    VkResult result = vkAllocateCommandBuffers(info.device, &cmd, &info.cmd[0]);
     if(!VulkanUtils::Failed(result))
     {
-        VulkanUtils::SetDebugName(info, (uint64_t)info.cmd, typeid(info.cmd), "CommandBUffer");
+        for (int i = 0; i < (int)info.cmd.size(); ++i)
+        {
+            VulkanUtils::SetDebugName(info, (uint64_t)info.cmd[i], typeid(info.cmd[i]), 
+                ("CommandBUffer" + std::to_string(i)).c_str());
+        }
     }
     return result;
 }
@@ -1388,43 +1394,23 @@ VkResult VulkanInit::InitSemaphores(VulkanData& info)
 
 VkResult VulkanInit::InitFence(VulkanData& info)
 {
+    info.fences.resize(info.swapchainImageCount);
+
     VkFenceCreateInfo fenceInfo = {};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.pNext = NULL;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    VkResult res = vkCreateFence(info.device, &fenceInfo, NULL, &info.drawFence);
-    if (VulkanUtils::Failed(res))
+    for (int i = 0; i < (int)info.fences.size(); ++i)
     {
-        return res;
+        VkResult res = vkCreateFence(info.device, &fenceInfo, NULL, &info.fences[i]);
+        if (VulkanUtils::Failed(res))
+        {
+            return res;
+        }
+        VulkanUtils::SetDebugName(info, (uint64_t)info.fences[i], typeid(info.fences[i]),
+            ("Fence" + std::to_string(i)).c_str());
     }
-
-    VulkanUtils::SetDebugName(info, (uint64_t)info.drawFence, typeid(info.drawFence), "Fence");
-    return VK_SUCCESS;
-}
-
-VkResult VulkanInit::InitSubmitAndPresentInfo(VulkanData& info)
-{
-    const VkCommandBuffer cmdBuffers[] = { info.cmd };
-
-    info.submitInfo.pNext = NULL;
-    info.submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    info.submitInfo.waitSemaphoreCount = 1;
-    info.submitInfo.pWaitSemaphores = &info.presentCompleteSemaphore;
-    info.submitInfo.pWaitDstStageMask = &info.pipeStageFlags;
-    info.submitInfo.commandBufferCount = 1;
-    info.submitInfo.pCommandBuffers = cmdBuffers;
-    info.submitInfo.signalSemaphoreCount = 1;
-    info.submitInfo.pSignalSemaphores = &info.renderCompleteSemaphore;
-
-    info.presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    info.presentInfo.pNext = NULL;
-    info.presentInfo.swapchainCount = 1;
-    info.presentInfo.pSwapchains = &info.swapChain;
-    info.presentInfo.pImageIndices = &info.currentBuffer;
-    info.presentInfo.pWaitSemaphores = &info.renderCompleteSemaphore;
-    info.presentInfo.waitSemaphoreCount = 1;
-    info.presentInfo.pResults = NULL;
 
     return VK_SUCCESS;
 }
