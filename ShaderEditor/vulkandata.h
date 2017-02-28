@@ -30,6 +30,11 @@ struct Depth
     VkImageView view = VK_NULL_HANDLE;
 };
 
+struct UniformBuffer
+{
+    glm::mat4 mvp;
+};
+
 struct UniformData
 {
     VkBuffer buffer = VK_NULL_HANDLE;
@@ -48,6 +53,12 @@ struct IndexBuffer
     VkDeviceMemory memory = VK_NULL_HANDLE;
     VkBuffer buffer = VK_NULL_HANDLE;
     uint32_t count = 0;
+};
+
+struct Vertex
+{
+    float position[4];
+    float color[4];
 };
 
 struct VulkanData
@@ -95,10 +106,12 @@ struct VulkanData
     VkCommandPool cmdPool;
     VkFormat format;
     VkRenderPass renderPass;
+    VkPipelineLayout pipelineLayout;
     VkVertexInputBindingDescription viBinding;
     VkDescriptorImageInfo imageInfo;
     VkPipelineStageFlags pipeStageFlags;
     VkClearValue clearValues[2];
+    VkDescriptorSetLayout descLayout;
 
     VkDebugReportCallbackEXT debugCallback;
     PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;
@@ -115,8 +128,6 @@ struct VulkanData
     std::vector<const char*> instanceExtensionNames;
     std::vector<VkPhysicalDevice> gpus;
     std::vector<const char*> deviceExtensionNames;
-    std::vector<VkDescriptorSetLayout> descLayout;
-    std::vector<VkVertexInputAttributeDescription> viAttribs;
 
     std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
 
@@ -127,14 +138,11 @@ struct VulkanData
     glm::mat4 viewProjection;  ///< View projection matrix
 
     // TODO: Make this generic for scene
-    glm::mat4 model;
-    glm::mat4 clip;
-    glm::mat4 mvp;
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
-    VkPipelineLayout pipelineLayout;
     VkPipeline pipeline;
     UniformData uniformData;
-    std::vector<VkDescriptorSet> descSet;
+    UniformBuffer uniformBuffer;
+    VkDescriptorSet descSet;
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 };

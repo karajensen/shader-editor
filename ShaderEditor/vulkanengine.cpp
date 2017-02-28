@@ -152,9 +152,7 @@ bool VulkanEngine::ReInitialiseScene()
         scissor.offset.y = 0;
         vkCmdSetScissor(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &scissor);
 
-        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipelineLayout, 0,
-            VulkanUtils::NUM_DESCRIPTOR_SETS, info.descSet.data(), 0, NULL);
-
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipelineLayout, 0, 1, &info.descSet, 0, NULL);
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, info.pipeline);
 
         VkDeviceSize offsets[1] = { 0 };
@@ -178,80 +176,39 @@ VkResult VulkanEngine::InitUniformBuffer()
 {
     auto& info = *m_data;
 
-    float fov = glm::radians(45.0f);
-    if (WINDOW_WIDTH > WINDOW_HEIGHT)
-    {
-        fov *= static_cast<float>(WINDOW_HEIGHT) / static_cast<float>(WINDOW_WIDTH);
-    }
+    VkMemoryRequirements memReqs;
+    VkBufferCreateInfo bufferInfo = {};
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.pNext = nullptr;
+    allocInfo.allocationSize = 0;
+    allocInfo.memoryTypeIndex = 0;
 
-    info.projection = glm::perspective(fov, static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT), 0.1f, 100.0f);
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(info.uniformBuffer);
+    bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
-    info.view =
-        glm::lookAt(glm::vec3(-5, 3, -10),  // Camera is at (-5,3,-10), in World Space
-            glm::vec3(0, 0, 0),                 // and looks at the origin
-            glm::vec3(0, -1, 0)                 // Head is up (set to 0,-1,0 to look upside-down)
-        );
-    info.model = glm::mat4(1.0f);
-
-    // Vulkan clip space has inverted Y and half Z.
-    info.clip = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
-
-    info.mvp = info.clip * info.projection * info.view * info.model;
-
-    VkBufferCreateInfo bufInfo = {};
-    bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufInfo.pNext = NULL;
-    bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    bufInfo.size = sizeof(info.mvp);
-    bufInfo.queueFamilyIndexCount = 0;
-    bufInfo.pQueueFamilyIndices = NULL;
-    bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    bufInfo.flags = 0;
-    VkResult res = vkCreateBuffer(info.device, &bufInfo, NULL, &info.uniformData.buffer);
+    VkResult res = vkCreateBuffer(info.device, &bufferInfo, nullptr, &info.uniformData.buffer);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
 
-    VulkanUtils::SetDebugName(info, (uint64_t)info.uniformData.buffer,
-        typeid(info.uniformData.buffer), "UniformBuffer");
-
-    VkMemoryRequirements memReqs;
     vkGetBufferMemoryRequirements(info.device, info.uniformData.buffer, &memReqs);
-
-    VkMemoryAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.pNext = NULL;
-    allocInfo.memoryTypeIndex = 0;
-
     allocInfo.allocationSize = memReqs.size;
     res = VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits,
-                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
                                                 &allocInfo.memoryTypeIndex);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
-    res = vkAllocateMemory(info.device, &allocInfo, NULL, &(info.uniformData.memory));
+    
+    res = vkAllocateMemory(info.device, &allocInfo, nullptr, &info.uniformData.memory);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
-    VulkanUtils::SetDebugName(info, (uint64_t)info.uniformData.memory,
-        typeid(info.uniformData.memory), "UniformMemory");
-
-    uint8_t *pData;
-    res = vkMapMemory(info.device, info.uniformData.memory, 0, memReqs.size, 0, (void **)&pData);
-    if (VulkanUtils::Failed(res))
-    {
-        return res;
-    }
-
-    memcpy(pData, &info.mvp, sizeof(info.mvp));
-
-    vkUnmapMemory(info.device, info.uniformData.memory);
 
     res = vkBindBufferMemory(info.device, info.uniformData.buffer, info.uniformData.memory, 0);
     if (VulkanUtils::Failed(res))
@@ -261,7 +218,18 @@ VkResult VulkanEngine::InitUniformBuffer()
 
     info.uniformData.bufferInfo.buffer = info.uniformData.buffer;
     info.uniformData.bufferInfo.offset = 0;
-    info.uniformData.bufferInfo.range = sizeof(info.mvp);
+    info.uniformData.bufferInfo.range = sizeof(info.uniformBuffer);
+
+    // Update uniform data
+    uint8_t* pData = nullptr;
+    res = vkMapMemory(info.device, info.uniformData.memory, 0, sizeof(info.uniformBuffer), 0, (void **)&pData);
+    if (VulkanUtils::Failed(res))
+    {
+        return res;
+    }
+    memcpy(pData, &info.uniformBuffer, sizeof(info.uniformBuffer));
+    vkUnmapMemory(info.device, info.uniformData.memory);
+
     return VK_SUCCESS;
 }
 
@@ -269,151 +237,98 @@ VkResult VulkanEngine::InitPipeline()
 {
     auto& info = *m_data;
 
-    VkPipelineCacheCreateInfo pipelineCache;
-    pipelineCache.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-    pipelineCache.pNext = NULL;
-    pipelineCache.initialDataSize = 0;
-    pipelineCache.pInitialData = NULL;
-    pipelineCache.flags = 0;
-    VkResult res = vkCreatePipelineCache(info.device, &pipelineCache, NULL, &info.pipelineCache);
-    if (VulkanUtils::Failed(res))
-    {
-        return res;
-    }
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
+    inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-    VkBool32 includeDepth = true;
-    VkBool32 include_vi = true;
+    VkPipelineRasterizationStateCreateInfo rasterizationState = {};
+    rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizationState.cullMode = VK_CULL_MODE_NONE;
+    rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationState.depthClampEnable = VK_FALSE;
+    rasterizationState.rasterizerDiscardEnable = VK_FALSE;
+    rasterizationState.depthBiasEnable = VK_FALSE;
+    rasterizationState.lineWidth = 1.0f;
 
-    VkDynamicState dynamicStateEnables[VK_DYNAMIC_STATE_RANGE_SIZE];
+    VkPipelineColorBlendAttachmentState blendAttachmentState[1] = {};
+    blendAttachmentState[0].colorWriteMask = 0xf;
+    blendAttachmentState[0].blendEnable = VK_FALSE;
+    VkPipelineColorBlendStateCreateInfo colorBlendState = {};
+    colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendState.attachmentCount = 1;
+    colorBlendState.pAttachments = blendAttachmentState;
+
+    VkPipelineViewportStateCreateInfo viewportState = {};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.viewportCount = VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS;
+    viewportState.scissorCount = VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS;
+
+    std::vector<VkDynamicState> dynamicStateEnables;
+    dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+    dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
     VkPipelineDynamicStateCreateInfo dynamicState = {};
-    memset(dynamicStateEnables, 0, sizeof dynamicStateEnables);
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.pNext = NULL;
-    dynamicState.pDynamicStates = dynamicStateEnables;
-    dynamicState.dynamicStateCount = 0;
+    dynamicState.pDynamicStates = dynamicStateEnables.data();
+    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
 
-    VkPipelineVertexInputStateCreateInfo vi;
-    memset(&vi, 0, sizeof(vi));
-    vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (include_vi)
-    {
-        vi.pNext = NULL;
-        vi.flags = 0;
-        vi.vertexBindingDescriptionCount = 1;
-        vi.pVertexBindingDescriptions = &info.viBinding;
-        vi.vertexAttributeDescriptionCount = info.viAttribs.size();
-        vi.pVertexAttributeDescriptions = &info.viAttribs[0];
-    }
-    VkPipelineInputAssemblyStateCreateInfo ia;
-    ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    ia.pNext = NULL;
-    ia.flags = 0;
-    ia.primitiveRestartEnable = VK_FALSE;
-    ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    VkPipelineDepthStencilStateCreateInfo depthStencilState = {};
+    depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilState.depthTestEnable = VK_TRUE;
+    depthStencilState.depthWriteEnable = VK_TRUE;
+    depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    depthStencilState.depthBoundsTestEnable = VK_FALSE;
+    depthStencilState.back.failOp = VK_STENCIL_OP_KEEP;
+    depthStencilState.back.passOp = VK_STENCIL_OP_KEEP;
+    depthStencilState.back.compareOp = VK_COMPARE_OP_ALWAYS;
+    depthStencilState.stencilTestEnable = VK_FALSE;
+    depthStencilState.front = depthStencilState.back;
 
-    VkPipelineRasterizationStateCreateInfo rs;
-    rs.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rs.pNext = NULL;
-    rs.flags = 0;
-    rs.polygonMode = VK_POLYGON_MODE_FILL;
-    rs.cullMode = VK_CULL_MODE_BACK_BIT;
-    rs.frontFace = VK_FRONT_FACE_CLOCKWISE;
-    rs.depthClampEnable = includeDepth;
-    rs.rasterizerDiscardEnable = VK_FALSE;
-    rs.depthBiasEnable = VK_FALSE;
-    rs.depthBiasConstantFactor = 0;
-    rs.depthBiasClamp = 0;
-    rs.depthBiasSlopeFactor = 0;
-    rs.lineWidth = 1.0f;
+    VkPipelineMultisampleStateCreateInfo multisampleState = {};
+    multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampleState.rasterizationSamples = VulkanUtils::NUM_SAMPLES;
+    multisampleState.pSampleMask = nullptr;
 
-    VkPipelineColorBlendStateCreateInfo cb;
-    cb.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    cb.flags = 0;
-    cb.pNext = NULL;
+    VkVertexInputBindingDescription vertexInputBinding = {};
+    vertexInputBinding.binding = 0;
+    vertexInputBinding.stride = sizeof(Vertex);
+    vertexInputBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    VkPipelineColorBlendAttachmentState attState[1];
-    attState[0].colorWriteMask = 0xf;
-    attState[0].blendEnable = VK_FALSE;
-    attState[0].alphaBlendOp = VK_BLEND_OP_ADD;
-    attState[0].colorBlendOp = VK_BLEND_OP_ADD;
-    attState[0].srcColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    attState[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    attState[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    attState[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    cb.attachmentCount = 1;
-    cb.pAttachments = attState;
-    cb.logicOpEnable = VK_FALSE;
-    cb.logicOp = VK_LOGIC_OP_NO_OP;
-    cb.blendConstants[0] = 1.0f;
-    cb.blendConstants[1] = 1.0f;
-    cb.blendConstants[2] = 1.0f;
-    cb.blendConstants[3] = 1.0f;
+    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributs;
+    vertexInputAttributs[0].binding = 0;
+    vertexInputAttributs[0].location = 0;
+    vertexInputAttributs[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    vertexInputAttributs[0].offset = offsetof(Vertex, position);
+    vertexInputAttributs[1].binding = 0;
+    vertexInputAttributs[1].location = 1;
+    vertexInputAttributs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    vertexInputAttributs[1].offset = offsetof(Vertex, color);
 
-    VkPipelineViewportStateCreateInfo vp = {};
-    vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    vp.pNext = NULL;
-    vp.flags = 0;
-    vp.viewportCount = VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS;
-    dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_VIEWPORT;
-    vp.scissorCount = VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS;
-    dynamicStateEnables[dynamicState.dynamicStateCount++] = VK_DYNAMIC_STATE_SCISSOR;
-    vp.pScissors = NULL;
-    vp.pViewports = NULL;
+    VkPipelineVertexInputStateCreateInfo vertexInputState = {};
+    vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputState.vertexBindingDescriptionCount = 1;
+    vertexInputState.pVertexBindingDescriptions = &vertexInputBinding;
+    vertexInputState.vertexAttributeDescriptionCount = 2;
+    vertexInputState.pVertexAttributeDescriptions = vertexInputAttributs.data();
 
-    VkPipelineDepthStencilStateCreateInfo ds;
-    ds.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    ds.pNext = NULL;
-    ds.flags = 0;
-    ds.depthTestEnable = includeDepth;
-    ds.depthWriteEnable = includeDepth;
-    ds.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-    ds.depthBoundsTestEnable = VK_FALSE;
-    ds.stencilTestEnable = VK_FALSE;
-    ds.back.failOp = VK_STENCIL_OP_KEEP;
-    ds.back.passOp = VK_STENCIL_OP_KEEP;
-    ds.back.compareOp = VK_COMPARE_OP_ALWAYS;
-    ds.back.compareMask = 0;
-    ds.back.reference = 0;
-    ds.back.depthFailOp = VK_STENCIL_OP_KEEP;
-    ds.back.writeMask = 0;
-    ds.minDepthBounds = 0;
-    ds.maxDepthBounds = 0;
-    ds.stencilTestEnable = VK_FALSE;
-    ds.front = ds.back;
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.layout = info.pipelineLayout;
+    pipelineCreateInfo.renderPass = info.renderPass;
+    pipelineCreateInfo.stageCount = static_cast<uint32_t>(info.shaderStages.size());
+    pipelineCreateInfo.pStages = info.shaderStages.data();
+    pipelineCreateInfo.pVertexInputState = &vertexInputState;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
+    pipelineCreateInfo.pRasterizationState = &rasterizationState;
+    pipelineCreateInfo.pColorBlendState = &colorBlendState;
+    pipelineCreateInfo.pMultisampleState = &multisampleState;
+    pipelineCreateInfo.pViewportState = &viewportState;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilState;
+    pipelineCreateInfo.renderPass = info.renderPass;
+    pipelineCreateInfo.pDynamicState = &dynamicState;
 
-    VkPipelineMultisampleStateCreateInfo ms;
-    ms.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    ms.pNext = NULL;
-    ms.flags = 0;
-    ms.pSampleMask = NULL;
-    ms.rasterizationSamples = VulkanUtils::NUM_SAMPLES;
-    ms.sampleShadingEnable = VK_FALSE;
-    ms.alphaToCoverageEnable = VK_FALSE;
-    ms.alphaToOneEnable = VK_FALSE;
-    ms.minSampleShading = 0.0;
-
-    VkGraphicsPipelineCreateInfo pipeline;
-    pipeline.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipeline.pNext = NULL;
-    pipeline.layout = info.pipelineLayout;
-    pipeline.basePipelineHandle = VK_NULL_HANDLE;
-    pipeline.basePipelineIndex = 0;
-    pipeline.flags = 0;
-    pipeline.pVertexInputState = &vi;
-    pipeline.pInputAssemblyState = &ia;
-    pipeline.pRasterizationState = &rs;
-    pipeline.pColorBlendState = &cb;
-    pipeline.pTessellationState = NULL;
-    pipeline.pMultisampleState = &ms;
-    pipeline.pDynamicState = &dynamicState;
-    pipeline.pViewportState = &vp;
-    pipeline.pDepthStencilState = &ds;
-    pipeline.pStages = &info.shaderStages[0];
-    pipeline.stageCount = info.shaderStages.size();
-    pipeline.renderPass = info.renderPass;
-    pipeline.subpass = 0;
-
-    res = vkCreateGraphicsPipelines(info.device, info.pipelineCache, 1, &pipeline, NULL, &info.pipeline);
+    VkResult res = vkCreateGraphicsPipelines(info.device, info.pipelineCache, 1, &pipelineCreateInfo, nullptr, &info.pipeline);
     if (VulkanUtils::Failed(res))
     {
         return res;
@@ -426,45 +341,39 @@ VkResult VulkanEngine::InitPipeline()
 VkResult VulkanEngine::InitVertexBuffer()
 {
     auto& info = *m_data;
-
-    struct Vertex 
+    
+    static std::vector<Vertex> vertexBuffer =
     {
-        float position[3];
-        float color[3];
-    };
-
-    std::vector<Vertex> vertexBuffer =
-    {
-        { { 1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
-        { { -1.0f,  1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-        { { 0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
+        { { 1.0f,  1.0f, 0.0f, 1.0f },{ 1.0f, 0.0f, 0.0f, 1.0f } },
+        { { -1.0f, 1.0f, 0.0f, 1.0f },{ 0.0f, 1.0f, 0.0f, 1.0f } },
+        { { 0.0f, -1.0f, 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f, 1.0f } }
     };
     uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
-
+    
     std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
     info.indexBuffer.count = static_cast<uint32_t>(indexBuffer.size());
     uint32_t indexBufferSize = info.indexBuffer.count * sizeof(uint32_t);
-
+    
     VkMemoryAllocateInfo memAlloc = {};
     memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     VkMemoryRequirements memReqs;
     void* data = nullptr;
-
+    
     VkBufferCreateInfo vertexBufferInfo = {};
     vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     vertexBufferInfo.size = vertexBufferSize;
     vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-
+    
     // Copy vertex data to a buffer visible to the host
     VkResult res = vkCreateBuffer(info.device, &vertexBufferInfo, nullptr, &info.vertexBuffer.buffer);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     vkGetBufferMemoryRequirements(info.device, info.vertexBuffer.buffer, &memReqs);
     memAlloc.allocationSize = memReqs.size;
-
+    
     res = VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits,
                                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 
                                                 &memAlloc.memoryTypeIndex);
@@ -472,19 +381,19 @@ VkResult VulkanEngine::InitVertexBuffer()
     {
         return res;
     }
-
+    
     res = vkAllocateMemory(info.device, &memAlloc, nullptr, &info.vertexBuffer.memory);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     res = vkMapMemory(info.device, info.vertexBuffer.memory, 0, memAlloc.allocationSize, 0, &data);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     memcpy(data, vertexBuffer.data(), vertexBufferSize);
     vkUnmapMemory(info.device, info.vertexBuffer.memory);
     res = vkBindBufferMemory(info.device, info.vertexBuffer.buffer, info.vertexBuffer.memory, 0);
@@ -492,19 +401,19 @@ VkResult VulkanEngine::InitVertexBuffer()
     {
         return res;
     }
-
+    
     VkBufferCreateInfo indexbufferInfo = {};
     indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     indexbufferInfo.size = indexBufferSize;
     indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-
+    
     // Copy index data to a buffer visible to the host
     res = vkCreateBuffer(info.device, &indexbufferInfo, nullptr, &info.indexBuffer.buffer);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     vkGetBufferMemoryRequirements(info.device, info.indexBuffer.buffer, &memReqs);
     memAlloc.allocationSize = memReqs.size;
     
@@ -515,19 +424,19 @@ VkResult VulkanEngine::InitVertexBuffer()
     {
         return res;
     }
-
+    
     res = vkAllocateMemory(info.device, &memAlloc, nullptr, &info.indexBuffer.memory);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     res = vkMapMemory(info.device, info.indexBuffer.memory, 0, indexBufferSize, 0, &data);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
+    
     memcpy(data, indexBuffer.data(), indexBufferSize);
     vkUnmapMemory(info.device, info.indexBuffer.memory);
     res = vkBindBufferMemory(info.device, info.indexBuffer.buffer, info.indexBuffer.memory, 0);
@@ -535,7 +444,7 @@ VkResult VulkanEngine::InitVertexBuffer()
     {
         return res;
     }
-
+    
     return VK_SUCCESS;
 }
 
@@ -543,53 +452,28 @@ VkResult VulkanEngine::InitDescriptorSet()
 {
     auto& info = *m_data;
 
-    bool use_texture = false;
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = info.descPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &info.descLayout;
 
-    VkDescriptorSetAllocateInfo allocInfo[1];
-    allocInfo[0].sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo[0].pNext = NULL;
-    allocInfo[0].descriptorPool = info.descPool;
-    allocInfo[0].descriptorSetCount = VulkanUtils::NUM_DESCRIPTOR_SETS;
-    allocInfo[0].pSetLayouts = info.descLayout.data();
-
-    info.descSet.resize(VulkanUtils::NUM_DESCRIPTOR_SETS);
-    VkResult res = vkAllocateDescriptorSets(info.device, allocInfo, info.descSet.data());
+    VkResult res = vkAllocateDescriptorSets(info.device, &allocInfo, &info.descSet);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
 
-    for (int i = 0; i < (int)info.descSet.size(); ++i)
-    {
-        VulkanUtils::SetDebugName(info, (uint64_t)info.descSet[i], typeid(info.descSet[i]),
-            ("DescSet" + std::to_string(i)).c_str());
-    }
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstSet = info.descSet;
+    writeDescriptorSet.descriptorCount = 1;
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writeDescriptorSet.pBufferInfo = &info.uniformData.bufferInfo;
+    writeDescriptorSet.dstBinding = 0;
 
-    VkWriteDescriptorSet writes[2];
+    vkUpdateDescriptorSets(info.device, 1, &writeDescriptorSet, 0, nullptr);
 
-    writes[0] = {};
-    writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writes[0].pNext = NULL;
-    writes[0].dstSet = info.descSet[0];
-    writes[0].descriptorCount = 1;
-    writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    writes[0].pBufferInfo = &info.uniformData.bufferInfo;
-    writes[0].dstArrayElement = 0;
-    writes[0].dstBinding = 0;
-
-    if (use_texture)
-    {
-        writes[1] = {};
-        writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writes[1].dstSet = info.descSet[0];
-        writes[1].dstBinding = 1;
-        writes[1].descriptorCount = 1;
-        writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        writes[1].pImageInfo = &info.imageInfo;
-        writes[1].dstArrayElement = 0;
-    }
-
-    vkUpdateDescriptorSets(info.device, use_texture ? 2 : 1, writes, 0, NULL);
     return VK_SUCCESS;
 }
 

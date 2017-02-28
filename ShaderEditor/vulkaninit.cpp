@@ -748,18 +748,12 @@ VkResult VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
     descriptorLayout.bindingCount = use_texture ? 2 : 1;
     descriptorLayout.pBindings = layoutBindings;
 
-    info.descLayout.resize(VulkanUtils::NUM_DESCRIPTOR_SETS);
-    VkResult res = vkCreateDescriptorSetLayout(info.device, &descriptorLayout, NULL, info.descLayout.data());
+    VkResult res = vkCreateDescriptorSetLayout(info.device, &descriptorLayout, NULL, &info.descLayout);
     if (VulkanUtils::Failed(res))
     {
         return res;
     }
-
-    for (int i = 0; i < (int)info.descLayout.size(); ++i)
-    {
-        VulkanUtils::SetDebugName(info, (uint64_t)info.descLayout[i], typeid(info.descLayout[i]), 
-            ("DescLayout" + std::to_string(i)).c_str());
-    }
+    VulkanUtils::SetDebugName(info, (uint64_t)info.descLayout, typeid(info.descLayout), "DescLayout");
 
     // Now use the descriptor layout to create a pipeline layout
     VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -767,8 +761,8 @@ VkResult VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
     pPipelineLayoutCreateInfo.pNext = NULL;
     pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
     pPipelineLayoutCreateInfo.pPushConstantRanges = NULL;
-    pPipelineLayoutCreateInfo.setLayoutCount = VulkanUtils::NUM_DESCRIPTOR_SETS;
-    pPipelineLayoutCreateInfo.pSetLayouts = info.descLayout.data();
+    pPipelineLayoutCreateInfo.setLayoutCount = 1;
+    pPipelineLayoutCreateInfo.pSetLayouts = &info.descLayout;
 
     res = vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout);
     if (VulkanUtils::Failed(res))

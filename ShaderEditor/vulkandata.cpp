@@ -47,6 +47,8 @@ void VulkanData::Reset()
     renderPass = VK_NULL_HANDLE;
     pipelineLayout = VK_NULL_HANDLE;
     cmdPool = VK_NULL_HANDLE;
+    descLayout = VK_NULL_HANDLE;
+    descSet = VK_NULL_HANDLE;
 
     currentBuffer = 0;
     swapchainImageCount = 0;
@@ -63,6 +65,7 @@ void VulkanData::Reset()
     vertexBuffer = {};
     indexBuffer = {};
     viBinding = {};
+    uniformBuffer = {};
 
     queueProps.clear();
     instanceLayerProperties.clear();
@@ -71,14 +74,9 @@ void VulkanData::Reset()
     gpus.clear();
     deviceExtensionNames.clear();
     buffers.clear();
-    descLayout.clear();
     framebuffers.clear();
-    descSet.clear();
     cmd.clear();
     fences.clear();
-
-    viAttribs.clear();
-    viAttribs.resize(2);
 
     shaderStages.clear();
     shaderStages.resize(2);
@@ -159,9 +157,9 @@ void VulkanData::Release()
         vkDestroyRenderPass(device, renderPass, NULL);
     }
 
-    for (int i = 0; i < (int)descLayout.size(); i++)
+    if (descLayout != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorSetLayout(device, descLayout[i], NULL);
+        vkDestroyDescriptorSetLayout(device, descLayout, NULL);
     }
 
     if (pipelineLayout != VK_NULL_HANDLE)

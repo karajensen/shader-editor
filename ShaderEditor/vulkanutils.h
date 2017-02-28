@@ -15,12 +15,6 @@ class VulkanUtils
 public:
 
     /**
-    * Number of descriptor sets needs to be the same at alloc,
-    * pipeline layout creation, and descriptor set layout creation
-    */
-    static const int NUM_DESCRIPTOR_SETS = 1;
-
-    /**
     * Number of viewports and number of scissors have to be the same
     * at pipeline creation and in any call to set them dynamically
     * They also have to be the same as each other
