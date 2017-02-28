@@ -39,9 +39,15 @@ struct UniformData
 
 struct VertexBuffer
 {
-    VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkDescriptorBufferInfo bufferInfo = {};
+    VkBuffer buffer = VK_NULL_HANDLE;
+};
+
+struct IndexBuffer
+{
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+    VkBuffer buffer = VK_NULL_HANDLE;
+    uint32_t count = 0;
 };
 
 struct VulkanData
@@ -77,14 +83,10 @@ struct VulkanData
     Depth depth;
     VkPhysicalDeviceMemoryProperties memoryProperties;
     VkPhysicalDeviceProperties gpuProps;
-    UniformData uniformData;
-    VkPipelineLayout pipelineLayout;
     VkSemaphore presentCompleteSemaphore;
     VkSemaphore renderCompleteSemaphore;
-    VkPipeline pipeline;
     VkPipelineCache pipelineCache;
     VkDescriptorPool descPool;
-    VertexBuffer vertexBuffer;
     uint32_t currentBuffer;
     uint32_t queueFamilyCount;
     uint32_t graphicsQueueFamilyIndex;
@@ -114,9 +116,7 @@ struct VulkanData
     std::vector<VkPhysicalDevice> gpus;
     std::vector<const char*> deviceExtensionNames;
     std::vector<VkDescriptorSetLayout> descLayout;
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
     std::vector<VkVertexInputAttributeDescription> viAttribs;
-    std::vector<VkDescriptorSet> descSet;
 
     std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
 
@@ -126,8 +126,15 @@ struct VulkanData
     glm::mat4 view;            ///< View matrix
     glm::mat4 viewProjection;  ///< View projection matrix
 
-    // TODO: Temporary until reorganising engine
+    // TODO: Make this generic for scene
     glm::mat4 model;
     glm::mat4 clip;
     glm::mat4 mvp;
+    VertexBuffer vertexBuffer;
+    IndexBuffer indexBuffer;
+    VkPipelineLayout pipelineLayout;
+    VkPipeline pipeline;
+    UniformData uniformData;
+    std::vector<VkDescriptorSet> descSet;
+    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 };

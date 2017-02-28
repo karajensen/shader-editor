@@ -63,6 +63,19 @@ public:
     * @return a text description of the failure or empty if a success
     */
     static const char* GetFailText(VkResult result);
+
+    /**
+    * Renders the scene
+    */
+    static void Render(VulkanData& info);
+
+    /**
+    * Search memtypes to find first index with those properties
+    */
+    static VkResult MemoryTypeFromProperties(VulkanData &info,
+                                             uint32_t typeBits, 
+                                             VkFlags requirementsMask, 
+                                             uint32_t* typeIndex);
 };
 
 #define CHECK_FAIL(result) VulkanUtils::LogFail(result, __FILE__, __LINE__)

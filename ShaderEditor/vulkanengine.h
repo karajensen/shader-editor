@@ -18,6 +18,7 @@ class Quad;
 class PostProcessing;
 class Emitter;
 struct VulkanData;
+enum VkResult;
 
 /**
 * Vulkan Graphics engine
@@ -140,6 +141,12 @@ public:
                                const std::string& text) override;
 
 private:
+
+    // TODO: Make this generic for scene
+    VkResult InitUniformBuffer();
+    VkResult InitVertexBuffer();
+    VkResult InitPipeline();
+    VkResult InitDescriptorSet();
 
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

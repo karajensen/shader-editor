@@ -172,7 +172,7 @@ namespace
 VkShader::VkShader(VulkanData& info)
     : m_info(info)
 {
-    // TODO: Temporary until reading from scene
+    // TODO: Make this generic for scene
     m_vertexText =
         "#version 400\n"
         "#extension GL_ARB_separate_shader_objects : enable\n"

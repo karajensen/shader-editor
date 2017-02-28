@@ -61,6 +61,7 @@ void VulkanData::Reset()
     depth = {};
     uniformData = {};
     vertexBuffer = {};
+    indexBuffer = {};
     viBinding = {};
 
     queueProps.clear();
@@ -128,6 +129,16 @@ void VulkanData::Release()
     if (vertexBuffer.memory != VK_NULL_HANDLE)
     {
         vkFreeMemory(device, vertexBuffer.memory, NULL);
+    }
+
+    if (indexBuffer.buffer != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(device, indexBuffer.buffer, NULL);
+    }
+
+    if (indexBuffer.memory != VK_NULL_HANDLE)
+    {
+        vkFreeMemory(device, indexBuffer.memory, NULL);
     }
 
     for (int i = 0; i < (int)framebuffers.size(); i++)

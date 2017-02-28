@@ -26,11 +26,6 @@ public:
     static VkResult InitFramebuffers(VulkanData &info);
     static VkResult InitDescriptorPool(VulkanData& info);
     static VkResult InitDescriptorSet(VulkanData& info);
-    static VkResult InitPipeline(VulkanData& info);
     static VkResult InitSemaphores(VulkanData& info);
     static VkResult InitFence(VulkanData& info);
-
-    // TODO: Temporary until reorganising engine
-    static VkResult InitUniformBuffer(VulkanData& info);
-    static VkResult InitVertexBuffer(VulkanData& info);
 };
