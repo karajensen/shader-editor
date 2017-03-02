@@ -30,18 +30,6 @@ struct Depth
     VkImageView view = VK_NULL_HANDLE;
 };
 
-struct UniformBuffer
-{
-    glm::mat4 mvp;
-};
-
-struct UniformData
-{
-    VkBuffer buffer = VK_NULL_HANDLE;
-    VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkDescriptorBufferInfo bufferInfo = {};
-};
-
 struct VertexBuffer
 {
     VkDeviceMemory memory = VK_NULL_HANDLE;
@@ -112,6 +100,7 @@ struct VulkanData
     VkPipelineStageFlags pipeStageFlags;
     VkClearValue clearValues[2];
     VkDescriptorSetLayout descLayout;
+    VkDescriptorSet descSet;
 
     VkDebugReportCallbackEXT debugCallback;
     PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;
@@ -131,18 +120,14 @@ struct VulkanData
 
     std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
 
-    glm::vec3 cameraPosition;  ///< Position of the camera
-    glm::vec3 cameraUp;        ///< The up vector of the camera
-    glm::mat4 projection;      ///< Projection matrix
-    glm::mat4 view;            ///< View matrix
-    glm::mat4 viewProjection;  ///< View projection matrix
+    glm::vec3 cameraPosition;                        ///< Position of the camera
+    glm::vec3 cameraUp;                              ///< The up vector of the camera
+    glm::mat4 projection;                            ///< Projection matrix
+    glm::mat4 view;                                  ///< View matrix
+    glm::mat4 viewProjection;                        ///< View projection matrix
+    int selectedShader;                              ///< Currently active shader for rendering
 
     // TODO: Make this generic for scene
     VertexBuffer vertexBuffer;
     IndexBuffer indexBuffer;
-    VkPipeline pipeline;
-    UniformData uniformData;
-    UniformBuffer uniformBuffer;
-    VkDescriptorSet descSet;
-    std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 };

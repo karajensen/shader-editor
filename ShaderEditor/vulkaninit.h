@@ -3,29 +3,28 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "vulkan.h"
 
 struct VulkanData;
 
 class VulkanInit
 {
 public:
-    static VkResult InitInstance(VulkanData &info);
-    static VkResult InitEnumerateDevice(VulkanData &info);
-    static VkResult InitDevice(VulkanData &info);
-    static VkResult InitDebugging(VulkanData &info);
-    static VkResult InitGlobalLayerProperties(VulkanData& info);
-    static VkResult InitSwapchainExtension(VulkanData &info);
-    static VkResult InitCommandPool(VulkanData &info);
-    static VkResult InitCommandBuffer(VulkanData &info);
-    static VkResult InitDeviceQueue(VulkanData &info);
-    static VkResult InitSwapChain(VulkanData &info);
-    static VkResult InitDepthBuffer(VulkanData &info);
-    static VkResult InitDescriptorAndPipelineLayouts(VulkanData &info);
-    static VkResult InitRenderpass(VulkanData &info);
-    static VkResult InitFramebuffers(VulkanData &info);
-    static VkResult InitDescriptorPool(VulkanData& info);
-    static VkResult InitDescriptorSet(VulkanData& info);
-    static VkResult InitSemaphores(VulkanData& info);
-    static VkResult InitFence(VulkanData& info);
+    static bool InitInstance(VulkanData &info);
+    static bool InitEnumerateDevice(VulkanData &info);
+    static bool InitDevice(VulkanData &info);
+    static bool InitDebugging(VulkanData &info);
+    static bool InitGlobalLayerProperties(VulkanData& info);
+    static bool InitSwapchainExtension(VulkanData &info);
+    static bool InitCommandPool(VulkanData &info);
+    static bool InitCommandBuffer(VulkanData &info);
+    static bool InitDeviceQueue(VulkanData &info);
+    static bool InitSwapChain(VulkanData &info);
+    static bool InitDepthBuffer(VulkanData &info);
+    static bool InitDescriptorAndPipelineLayouts(VulkanData &info);
+    static bool InitRenderpass(VulkanData &info);
+    static bool InitFramebuffers(VulkanData &info);
+    static bool InitDescriptorPool(VulkanData& info);
+    static bool InitSemaphores(VulkanData& info);
+    static bool InitFence(VulkanData& info);
+    static bool InitDescriptorSet(VulkanData& info);
 };

@@ -18,7 +18,6 @@ class Quad;
 class PostProcessing;
 class Emitter;
 struct VulkanData;
-enum VkResult;
 
 /**
 * Vulkan Graphics engine
@@ -142,11 +141,13 @@ public:
 
 private:
 
+    /**
+    * Sets the shader at the given index as selected
+    */
+    void SetSelectedShader(int index);
+
     // TODO: Make this generic for scene
-    VkResult InitUniformBuffer();
-    VkResult InitVertexBuffer();
-    VkResult InitPipeline();
-    VkResult InitDescriptorSet();
+    bool InitVertexBuffer();
 
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

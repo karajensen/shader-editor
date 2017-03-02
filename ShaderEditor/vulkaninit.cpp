@@ -5,6 +5,7 @@
 #include "vulkaninit.h"
 #include "vulkanutils.h"
 #include "vulkandata.h"
+#include "vulkan.h"
 #include "logger.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -67,7 +68,7 @@ namespace
         return VK_FALSE; // True will exit on error
     }
 
-    VkResult InitGlobalExtensionProperties(LayerProperties& layerProps)
+    bool InitGlobalExtensionProperties(LayerProperties& layerProps)
     {
         VkExtensionProperties* instanceExtensions = nullptr;
         uint32_t instanceExtensionCount;
@@ -77,15 +78,14 @@ namespace
 
         do
         {
-            result = vkEnumerateInstanceExtensionProperties(layerName, &instanceExtensionCount, nullptr);
-            if (result)
+            if (CHECK_FAIL(vkEnumerateInstanceExtensionProperties(layerName, &instanceExtensionCount, nullptr)))
             {
-                return result;
+                return false;
             }
 
             if (instanceExtensionCount == 0)
             {
-                return VK_SUCCESS;
+                return true;
             }
 
             layerProps.extensions.resize(instanceExtensionCount);
@@ -93,57 +93,55 @@ namespace
             result = vkEnumerateInstanceExtensionProperties(layerName, &instanceExtensionCount, instanceExtensions);
 
         } while (result == VK_INCOMPLETE);
-
-        return result;
+        
+        return !CHECK_FAIL(result);
     }
 }
 
-VkResult VulkanInit::InitEnumerateDevice(VulkanData &info)
+bool VulkanInit::InitEnumerateDevice(VulkanData &info)
 {
     uint32_t gpuCount = 0;
     const uint32_t reqCount = 1;
-    VkResult result = vkEnumeratePhysicalDevices(info.instance, &gpuCount, NULL);
-    if (VulkanUtils::Failed(result))
+    if(CHECK_FAIL(vkEnumeratePhysicalDevices(info.instance, &gpuCount, NULL)))
     {
-        return result;
+        return false;
     }
     if (gpuCount < 1)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
     info.gpus.resize(gpuCount);
 
-    result = vkEnumeratePhysicalDevices(info.instance, &gpuCount, info.gpus.data());
-    if (VulkanUtils::Failed(result))
+    if (CHECK_FAIL(vkEnumeratePhysicalDevices(info.instance, &gpuCount, info.gpus.data())))
     {
-        return result;
+        return false;
     }
 
     if (gpuCount < reqCount)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queueFamilyCount, NULL);
     if (info.queueFamilyCount < 1)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     info.queueProps.resize(info.queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(info.gpus[0], &info.queueFamilyCount, info.queueProps.data());
     if (info.queueFamilyCount < 1)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     vkGetPhysicalDeviceMemoryProperties(info.gpus[0], &info.memoryProperties);
     vkGetPhysicalDeviceProperties(info.gpus[0], &info.gpuProps);
 
-    return result;
+    return true;
 }
 
-VkResult VulkanInit::InitInstance(VulkanData &info)
+bool VulkanInit::InitInstance(VulkanData &info)
 {
     info.instanceExtensionNames =
     {
@@ -171,10 +169,10 @@ VkResult VulkanInit::InitInstance(VulkanData &info)
     instInfo.enabledExtensionCount = info.instanceExtensionNames.size();
     instInfo.ppEnabledExtensionNames = info.instanceExtensionNames.data();
 
-    return vkCreateInstance(&instInfo, NULL, &info.instance);
+    return !CHECK_FAIL(vkCreateInstance(&instInfo, NULL, &info.instance));
 }
 
-VkResult VulkanInit::InitDevice(VulkanData &info)
+bool VulkanInit::InitDevice(VulkanData &info)
 {
     info.deviceExtensionNames =
     {
@@ -199,26 +197,26 @@ VkResult VulkanInit::InitDevice(VulkanData &info)
     deviceInfo.ppEnabledExtensionNames = deviceInfo.enabledExtensionCount ? info.deviceExtensionNames.data() : NULL;
     deviceInfo.pEnabledFeatures = NULL;
 
-    return vkCreateDevice(info.gpus[0], &deviceInfo, NULL, &info.device);
+    return !CHECK_FAIL(vkCreateDevice(info.gpus[0], &deviceInfo, NULL, &info.device));
 }
 
-VkResult VulkanInit::InitDebugging(VulkanData &info)
+bool VulkanInit::InitDebugging(VulkanData &info)
 {
     if (!GetProcAddress(info.instance, "vkCreateDebugReportCallbackEXT", info.createDebugReportFn) ||
         !GetProcAddress(info.instance, "vkDestroyDebugReportCallbackEXT", info.destroyDebugReportFn) ||
         !GetProcAddress(info.device, "vkDebugMarkerSetObjectNameEXT", info.setDebugNameFn))
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
     dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
     dbgCreateInfo.pfnCallback = (PFN_vkDebugReportCallbackEXT)DebugMessageCallback;
     dbgCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-    return info.createDebugReportFn(info.instance, &dbgCreateInfo, nullptr, &info.debugCallback);
+    return !CHECK_FAIL(info.createDebugReportFn(info.instance, &dbgCreateInfo, nullptr, &info.debugCallback));
 }
 
-VkResult VulkanInit::InitGlobalLayerProperties(VulkanData& info)
+bool VulkanInit::InitGlobalLayerProperties(VulkanData& info)
 {
     uint32_t instanceLayerCount;
     VkLayerProperties *vkProps = NULL;
@@ -235,15 +233,14 @@ VkResult VulkanInit::InitGlobalLayerProperties(VulkanData& info)
     // entries loaded into the data pointer - in case the number
     // of layers went down or is smaller than the size given.
     do {
-        result = vkEnumerateInstanceLayerProperties(&instanceLayerCount, NULL);
-        if (result)
+        if(CHECK_FAIL(vkEnumerateInstanceLayerProperties(&instanceLayerCount, NULL)))
         {
-            return result;
+            return false;
         }
 
         if (instanceLayerCount == 0) 
         {
-            return VK_SUCCESS;
+            return true;
         }
 
         vkProps = (VkLayerProperties *)realloc(vkProps, instanceLayerCount * sizeof(VkLayerProperties));
@@ -256,39 +253,36 @@ VkResult VulkanInit::InitGlobalLayerProperties(VulkanData& info)
     {
         LayerProperties layerProps;
         layerProps.properties = vkProps[i];
-        result = InitGlobalExtensionProperties(layerProps);
-        if (result)
+        if (!InitGlobalExtensionProperties(layerProps))
         {
-            return result;
+            return false;
         }
         info.instanceLayerProperties.push_back(layerProps);
     }
 
     free(vkProps);
-    return result;
+    return !CHECK_FAIL(result);
 }
 
-VkResult VulkanInit::InitSwapchainExtension(VulkanData &info)
+bool VulkanInit::InitSwapchainExtension(VulkanData &info)
 {
     VkWin32SurfaceCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = NULL;
     createInfo.hinstance = info.connection;
     createInfo.hwnd = info.window;
-    VkResult res = vkCreateWin32SurfaceKHR(info.instance, &createInfo, NULL, &info.surface);
-    if (VulkanUtils::Failed(res))
+    if(CHECK_FAIL(vkCreateWin32SurfaceKHR(info.instance, &createInfo, NULL, &info.surface)))
     {
-        return res;
+        return false;
     }
 
     // Iterate over each queue to learn whether it supports presenting:
     VkBool32 *pSupportsPresent = (VkBool32 *)malloc(info.queueFamilyCount * sizeof(VkBool32));
     for (uint32_t i = 0; i < info.queueFamilyCount; i++) 
     {
-        res = vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface, &pSupportsPresent[i]);
-        if (VulkanUtils::Failed(res))
+        if (CHECK_FAIL(vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface, &pSupportsPresent[i])))
         {
-            return res;
+            return false;
         }
     }
 
@@ -334,22 +328,20 @@ VkResult VulkanInit::InitSwapchainExtension(VulkanData &info)
     if (info.graphicsQueueFamilyIndex == UINT32_MAX || info.presentQueueFamilyIndex == UINT32_MAX)
     {
         Logger::LogError("Vulkan: Could not find a queues for both graphics and present");
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     // Get the list of VkFormats that are supported:
     uint32_t formatCount;
-    res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, NULL);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, NULL)))
     {
-        return res;
+        return false;
     }
 
     VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-    res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, surfFormats);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface, &formatCount, surfFormats)))
     {
-        return res;
+        return false;
     }
 
     // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
@@ -363,25 +355,25 @@ VkResult VulkanInit::InitSwapchainExtension(VulkanData &info)
     {
         if (formatCount < 1)
         {
-            return VulkanUtils::VK_ERROR;
+            return CHECK_FAIL(VulkanUtils::VK_ERROR);
         }
         info.format = surfFormats[0].format;
     }
     free(surfFormats);
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitCommandPool(VulkanData &info)
+bool VulkanInit::InitCommandPool(VulkanData &info)
 {
     VkCommandPoolCreateInfo cmdPoolInfo = {};
     cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     cmdPoolInfo.pNext = NULL;
     cmdPoolInfo.queueFamilyIndex = info.graphicsQueueFamilyIndex;
     cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    return vkCreateCommandPool(info.device, &cmdPoolInfo, NULL, &info.cmdPool);
+    return !CHECK_FAIL(vkCreateCommandPool(info.device, &cmdPoolInfo, NULL, &info.cmdPool));
 }
 
-VkResult VulkanInit::InitCommandBuffer(VulkanData &info)
+bool VulkanInit::InitCommandBuffer(VulkanData &info)
 {
     info.cmd.resize(info.swapchainImageCount);
 
@@ -392,19 +384,23 @@ VkResult VulkanInit::InitCommandBuffer(VulkanData &info)
     cmd.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd.commandBufferCount = info.cmd.size();
 
-    VkResult result = vkAllocateCommandBuffers(info.device, &cmd, &info.cmd[0]);
-    if(!VulkanUtils::Failed(result))
+    if(CHECK_FAIL(vkAllocateCommandBuffers(info.device, &cmd, &info.cmd[0])))
     {
-        for (int i = 0; i < (int)info.cmd.size(); ++i)
-        {
-            VulkanUtils::SetDebugName(info, (uint64_t)info.cmd[i], typeid(info.cmd[i]), 
-                ("CommandBUffer" + std::to_string(i)).c_str());
-        }
+        return false;
     }
-    return result;
+
+    for (int i = 0; i < (int)info.cmd.size(); ++i)
+    {
+        VulkanUtils::SetDebugName(info, 
+            (uint64_t)info.cmd[i], 
+            typeid(info.cmd[i]), 
+            "CommandBUffer" + std::to_string(i));
+    }
+
+    return true;
 }
 
-VkResult VulkanInit::InitDeviceQueue(VulkanData &info)
+bool VulkanInit::InitDeviceQueue(VulkanData &info)
 {
     vkGetDeviceQueue(info.device, info.graphicsQueueFamilyIndex, 0, &info.graphicsQueue);
     if (info.graphicsQueueFamilyIndex == info.presentQueueFamilyIndex) 
@@ -419,10 +415,10 @@ VkResult VulkanInit::InitDeviceQueue(VulkanData &info)
     VulkanUtils::SetDebugName(info, (uint64_t)info.graphicsQueue, typeid(info.graphicsQueue), "GraphicsQueue");
     VulkanUtils::SetDebugName(info, (uint64_t)info.presentQueue, typeid(info.presentQueue), "PresentQueue");
 
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitSwapChain(VulkanData &info)
+bool VulkanInit::InitSwapChain(VulkanData &info)
 {
     VkImageUsageFlags usageFlags =
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
@@ -430,29 +426,26 @@ VkResult VulkanInit::InitSwapChain(VulkanData &info)
 
     VkSurfaceCapabilitiesKHR surfCapabilities;
 
-    VkResult res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface, &surfCapabilities);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface, &surfCapabilities)))
     {
-        return res;
+        return false;
     }
 
     uint32_t presentModeCount;
-    res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &presentModeCount, NULL);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &presentModeCount, NULL)))
     {
-        return res;
+        return false;
     }
 
     VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
     if (!presentModes)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
-    res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &presentModeCount, presentModes);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface, &presentModeCount, presentModes)))
     {
-        return res;
+        return false;
     }
 
     VkExtent2D swapchainExtent;
@@ -540,28 +533,25 @@ VkResult VulkanInit::InitSwapChain(VulkanData &info)
         swapchainCi.pQueueFamilyIndices = queueFamilyIndices;
     }
 
-    res = vkCreateSwapchainKHR(info.device, &swapchainCi, NULL, &info.swapChain);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateSwapchainKHR(info.device, &swapchainCi, NULL, &info.swapChain)))
     {
-        return res;
+        return false;
     }
 
-    res = vkGetSwapchainImagesKHR(info.device, info.swapChain, &info.swapchainImageCount, NULL);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetSwapchainImagesKHR(info.device, info.swapChain, &info.swapchainImageCount, NULL)))
     {
-        return res;
+        return false;
     }
 
     VkImage *swapchainImages = (VkImage *)malloc(info.swapchainImageCount * sizeof(VkImage));
     if (!swapchainImages)
     {
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
-    res = vkGetSwapchainImagesKHR(info.device, info.swapChain, &info.swapchainImageCount, swapchainImages);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkGetSwapchainImagesKHR(info.device, info.swapChain, &info.swapchainImageCount, swapchainImages)))
     {
-        return res;
+        return false;
     }
 
     for (uint32_t i = 0; i < info.swapchainImageCount; i++) 
@@ -587,15 +577,16 @@ VkResult VulkanInit::InitSwapChain(VulkanData &info)
         scBuffer.image = swapchainImages[i];
         colorImageView.image = scBuffer.image;
 
-        VulkanUtils::SetDebugName(info, (uint64_t)scBuffer.image, typeid(scBuffer.image),
-            ("SwapChain" + std::to_string(i) + "Image").c_str());
+        VulkanUtils::SetDebugName(info, 
+            (uint64_t)scBuffer.image, 
+            typeid(scBuffer.image),
+            "SwapChain" + std::to_string(i) + "Image");
 
-        res = vkCreateImageView(info.device, &colorImageView, NULL, &scBuffer.view);
-        info.buffers.push_back(scBuffer);
-        if (VulkanUtils::Failed(res))
+        if (CHECK_FAIL(vkCreateImageView(info.device, &colorImageView, NULL, &scBuffer.view)))
         {
-            return res;
+            return false;
         }
+        info.buffers.push_back(scBuffer);
     }
     free(swapchainImages);
     info.currentBuffer = 0;
@@ -604,10 +595,10 @@ VkResult VulkanInit::InitSwapChain(VulkanData &info)
     {
         free(presentModes);
     }
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitDepthBuffer(VulkanData &info)
+bool VulkanInit::InitDepthBuffer(VulkanData &info)
 {
     VkImageCreateInfo imageInfo = {};
 
@@ -631,7 +622,7 @@ VkResult VulkanInit::InitDepthBuffer(VulkanData &info)
     else 
     {
         Logger::LogError("Vulkan: Depth Format Unsupported");
-        return VulkanUtils::VK_ERROR;
+        return CHECK_FAIL(VulkanUtils::VK_ERROR);
     }
 
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -684,10 +675,9 @@ VkResult VulkanInit::InitDepthBuffer(VulkanData &info)
     VkMemoryRequirements memReqs;
 
     // Create image 
-    VkResult res = vkCreateImage(info.device, &imageInfo, NULL, &info.depth.image);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateImage(info.device, &imageInfo, NULL, &info.depth.image)))
     {
-        return res;
+        return false;
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.depth.image, typeid(info.depth.image), "DepthImage");
@@ -696,32 +686,29 @@ VkResult VulkanInit::InitDepthBuffer(VulkanData &info)
     memAlloc.allocationSize = memReqs.size;
 
     // Use the memory properties to determine the type of memory required
-    res = VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits, 0, &memAlloc.memoryTypeIndex);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits, 0, &memAlloc.memoryTypeIndex)))
     {
-        return res;
+        return false;
     }
 
     // Allocate memory
-    res = vkAllocateMemory(info.device, &memAlloc, NULL, &info.depth.memory);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkAllocateMemory(info.device, &memAlloc, NULL, &info.depth.memory)))
     {
-        return res;
+        return false;
     }
 
     // Bind memory
-    res = vkBindImageMemory(info.device, info.depth.image, info.depth.memory, 0);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkBindImageMemory(info.device, info.depth.image, info.depth.memory, 0)))
     {
-        return res;
+        return false;
     }
 
     // Create image view
     viewInfo.image = info.depth.image;
-    return vkCreateImageView(info.device, &viewInfo, NULL, &info.depth.view);
+    return !CHECK_FAIL(vkCreateImageView(info.device, &viewInfo, NULL, &info.depth.view));
 }
 
-VkResult VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
+bool VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
 {
     bool use_texture = false;
 
@@ -748,12 +735,15 @@ VkResult VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
     descriptorLayout.bindingCount = use_texture ? 2 : 1;
     descriptorLayout.pBindings = layoutBindings;
 
-    VkResult res = vkCreateDescriptorSetLayout(info.device, &descriptorLayout, NULL, &info.descLayout);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateDescriptorSetLayout(info.device, &descriptorLayout, NULL, &info.descLayout)))
     {
-        return res;
+        return false;
     }
-    VulkanUtils::SetDebugName(info, (uint64_t)info.descLayout, typeid(info.descLayout), "DescLayout");
+
+    VulkanUtils::SetDebugName(info, 
+        (uint64_t)info.descLayout, 
+        typeid(info.descLayout), 
+        "DescLayout");
 
     // Now use the descriptor layout to create a pipeline layout
     VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -764,17 +754,16 @@ VkResult VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
     pPipelineLayoutCreateInfo.setLayoutCount = 1;
     pPipelineLayoutCreateInfo.pSetLayouts = &info.descLayout;
 
-    res = vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout)))
     {
-        return res;
+        return false;
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.pipelineLayout, typeid(info.pipelineLayout), "PipelineLayout");
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitDescriptorPool(VulkanData& info)
+bool VulkanInit::InitDescriptorPool(VulkanData& info)
 {
     bool use_texture = false;
 
@@ -794,10 +783,10 @@ VkResult VulkanInit::InitDescriptorPool(VulkanData& info)
     descriptorPool.poolSizeCount = use_texture ? 2 : 1;
     descriptorPool.pPoolSizes = typeCount;
 
-    return vkCreateDescriptorPool(info.device, &descriptorPool, NULL, &info.descPool);
+    return !CHECK_FAIL(vkCreateDescriptorPool(info.device, &descriptorPool, NULL, &info.descPool));
 }
 
-VkResult VulkanInit::InitRenderpass(VulkanData &info)
+bool VulkanInit::InitRenderpass(VulkanData &info)
 {
     bool includeDepth = true;
     bool clear = true;
@@ -858,17 +847,16 @@ VkResult VulkanInit::InitRenderpass(VulkanData &info)
     rpInfo.dependencyCount = 0;
     rpInfo.pDependencies = NULL;
 
-    VkResult res = vkCreateRenderPass(info.device, &rpInfo, NULL, &info.renderPass);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateRenderPass(info.device, &rpInfo, NULL, &info.renderPass)))
     {
-        return res;
+        return false;
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.renderPass, typeid(info.renderPass), "RenderPass");
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitFramebuffers(VulkanData &info)
+bool VulkanInit::InitFramebuffers(VulkanData &info)
 {
     bool includeDepth = true;
 
@@ -892,46 +880,46 @@ VkResult VulkanInit::InitFramebuffers(VulkanData &info)
     for (i = 0; i < info.swapchainImageCount; i++) 
     {
         attachments[0] = info.buffers[i].view;
-        VkResult res = vkCreateFramebuffer(info.device, &fbInfo, NULL, &info.framebuffers[i]);
-        if (VulkanUtils::Failed(res))
+        if (CHECK_FAIL(vkCreateFramebuffer(info.device, &fbInfo, NULL, &info.framebuffers[i])))
         {
-            return res;
+            return false;
         }
-        VulkanUtils::SetDebugName(info, (uint64_t)info.framebuffers[i], typeid(info.framebuffers[i]),
-            ("FrameBuffer" + std::to_string(i)).c_str());
+
+        VulkanUtils::SetDebugName(info,
+            (uint64_t)info.framebuffers[i], 
+            typeid(info.framebuffers[i]),
+            "FrameBuffer" + std::to_string(i));
     }
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitSemaphores(VulkanData& info)
+bool VulkanInit::InitSemaphores(VulkanData& info)
 {
     VkSemaphoreCreateInfo createInfo;
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     createInfo.pNext = NULL;
     createInfo.flags = 0;
 
-    VkResult res = vkCreateSemaphore(info.device, &createInfo, NULL, &info.renderCompleteSemaphore);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateSemaphore(info.device, &createInfo, NULL, &info.renderCompleteSemaphore)))
     {
-        return res;
+        return false;
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.renderCompleteSemaphore,
         typeid(info.renderCompleteSemaphore), "RenderCompleteSemaphore");
 
-    res = vkCreateSemaphore(info.device, &createInfo, NULL, &info.presentCompleteSemaphore);
-    if (VulkanUtils::Failed(res))
+    if (CHECK_FAIL(vkCreateSemaphore(info.device, &createInfo, NULL, &info.presentCompleteSemaphore)))
     {
-        return res;
+        return false;
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.presentCompleteSemaphore,
         typeid(info.presentCompleteSemaphore), "PresentCompleteSemaphore");
 
-    return VK_SUCCESS;
+    return true;
 }
 
-VkResult VulkanInit::InitFence(VulkanData& info)
+bool VulkanInit::InitFence(VulkanData& info)
 {
     info.fences.resize(info.swapchainImageCount);
 
@@ -942,14 +930,26 @@ VkResult VulkanInit::InitFence(VulkanData& info)
 
     for (int i = 0; i < (int)info.fences.size(); ++i)
     {
-        VkResult res = vkCreateFence(info.device, &fenceInfo, NULL, &info.fences[i]);
-        if (VulkanUtils::Failed(res))
+        if (CHECK_FAIL(vkCreateFence(info.device, &fenceInfo, NULL, &info.fences[i])))
         {
-            return res;
+            return false;
         }
-        VulkanUtils::SetDebugName(info, (uint64_t)info.fences[i], typeid(info.fences[i]),
-            ("Fence" + std::to_string(i)).c_str());
+
+        VulkanUtils::SetDebugName(info, 
+            (uint64_t)info.fences[i],
+            typeid(info.fences[i]),
+            "Fence" + std::to_string(i));
     }
 
-    return VK_SUCCESS;
+    return true;
+}
+
+bool VulkanInit::InitDescriptorSet(VulkanData& info)
+{
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = info.descPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &info.descLayout;
+    return !CHECK_FAIL(vkAllocateDescriptorSets(info.device, &allocInfo, &info.descSet));
 }

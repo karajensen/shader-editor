@@ -40,7 +40,10 @@ public:
     /**
     * Sets the debug name for the Vulkan object
     */
-    static void SetDebugName(VulkanData& info, uint64_t obj, const type_info& objType, const char* name);
+    static void SetDebugName(VulkanData& info, 
+                             uint64_t obj, 
+                             const type_info& objType, 
+                             const std::string& name);
 
     /**
     * @return whether the given result indicates failure

@@ -5,6 +5,7 @@
 #include "vulkandata.h"
 #include "vulkanshader.h"
 #include "renderdata.h"
+#include "common.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -41,7 +42,6 @@ void VulkanData::Reset()
     device = VK_NULL_HANDLE;
     instance = VK_NULL_HANDLE;
     swapChain = VK_NULL_HANDLE;
-    pipeline = VK_NULL_HANDLE;
     pipelineCache = VK_NULL_HANDLE;
     descPool = VK_NULL_HANDLE;
     renderPass = VK_NULL_HANDLE;
@@ -57,15 +57,14 @@ void VulkanData::Reset()
     graphicsQueueFamilyIndex = 0;
     format = VK_FORMAT_UNDEFINED;
     pipeStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    selectedShader = NO_INDEX;
 
     memoryProperties = {};
     gpuProps = {};
     depth = {};
-    uniformData = {};
     vertexBuffer = {};
     indexBuffer = {};
     viBinding = {};
-    uniformBuffer = {};
 
     queueProps.clear();
     instanceLayerProperties.clear();
@@ -77,9 +76,6 @@ void VulkanData::Reset()
     framebuffers.clear();
     cmd.clear();
     fences.clear();
-
-    shaderStages.clear();
-    shaderStages.resize(2);
 }
 
 void VulkanData::Release()
@@ -102,11 +98,6 @@ void VulkanData::Release()
     if (renderCompleteSemaphore != VK_NULL_HANDLE)
     {
         vkDestroySemaphore(device, renderCompleteSemaphore, NULL);
-    }
-
-    if (pipeline != VK_NULL_HANDLE)
-    {
-        vkDestroyPipeline(device, pipeline, NULL);
     }
 
     if (pipelineCache != VK_NULL_HANDLE)
@@ -144,14 +135,6 @@ void VulkanData::Release()
         vkDestroyFramebuffer(device, framebuffers[i], NULL);
     }
 
-    for (int i = 0; i < (int)shaderStages.size(); i++)
-    {
-        if (shaderStages[i].module != VK_NULL_HANDLE)
-        {
-            vkDestroyShaderModule(device, shaderStages[i].module, NULL);
-        }
-    }
-
     if (renderPass != VK_NULL_HANDLE)
     {
         vkDestroyRenderPass(device, renderPass, NULL);
@@ -165,16 +148,6 @@ void VulkanData::Release()
     if (pipelineLayout != VK_NULL_HANDLE)
     {
         vkDestroyPipelineLayout(device, pipelineLayout, NULL);
-    }
-
-    if (uniformData.buffer != VK_NULL_HANDLE)
-    {
-        vkDestroyBuffer(device, uniformData.buffer, NULL);
-    }
-
-    if (uniformData.memory != VK_NULL_HANDLE)
-    {
-        vkFreeMemory(device, uniformData.memory, NULL);
     }
 
     if (depth.view != VK_NULL_HANDLE)

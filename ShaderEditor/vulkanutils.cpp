@@ -81,7 +81,7 @@ bool VulkanUtils::Failed(VkResult result)
     return result != VK_SUCCESS;
 }
 
-void VulkanUtils::SetDebugName(VulkanData& info, uint64_t obj, const type_info& objType, const char* name)
+void VulkanUtils::SetDebugName(VulkanData& info, uint64_t obj, const type_info& objType, const std::string& name)
 {
     VkDebugReportObjectTypeEXT type;
     if (objType == typeid(VkCommandBuffer))
@@ -158,7 +158,7 @@ void VulkanUtils::SetDebugName(VulkanData& info, uint64_t obj, const type_info& 
     nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT;
     nameInfo.objectType = type;
     nameInfo.object = obj;
-    nameInfo.pObjectName = name;
+    nameInfo.pObjectName = name.c_str();
     info.setDebugNameFn(info.device, &nameInfo);
 }
 
