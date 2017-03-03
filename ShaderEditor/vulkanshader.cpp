@@ -129,45 +129,6 @@ namespace
         resources.limits.generalVariableIndexing = 1;
         resources.limits.generalConstantMatrixVectorIndexing = 1;
     }
-
-    std::string GlslToSpb(const VkShaderStageFlagBits shader_type, const char* pshader, std::vector<unsigned int>& spirv)
-    {
-        std::string errorBuffer;
-
-        EShLanguage stage = FindLanguage(shader_type);
-        glslang::TShader shader(stage);
-        glslang::TProgram program;
-        const char *shaderStrings[1];
-
-        TBuiltInResource resources;
-        InitResources(resources);
-
-        // Enable SPIR-V and Vulkan rules when parsing GLSL
-        EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
-
-        shaderStrings[0] = pshader;
-        shader.setStrings(shaderStrings, 1);
-
-        if (!shader.parse(&resources, 100, false, messages))
-        {
-            errorBuffer += shader.getInfoLog();
-            errorBuffer += shader.getInfoDebugLog();
-            return errorBuffer;
-        }
-
-        program.addShader(&shader);
-
-        // Program-level processing
-        if (!program.link(messages))
-        {
-            errorBuffer += shader.getInfoLog();
-            errorBuffer += shader.getInfoDebugLog();
-            return errorBuffer;
-        }
-
-        glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
-        return errorBuffer;
-    }
 }
 
 VkShader::VkShader(VulkanData& info, const Shader& shader)
@@ -186,13 +147,13 @@ VkShader::VkShader(VulkanData& info, const Shader& shader)
         "    mat4 mvp;\n"
         "} myBufferVals;\n"
         "layout (location = 0) in vec4 pos;\n"
-        "layout (location = 1) in vec4 inColor;\n"
-        "layout (location = 0) out vec4 outColor;\n"
+        "layout (location = 1) in vec3 normal;\n"
+        "layout (location = 0) out vec3 outColor;\n"
         "out gl_PerVertex { \n"
         "    vec4 gl_Position;\n"
         "};\n"
         "void main() {\n"
-        "   outColor = inColor;\n"
+        "   outColor = normal;\n"
         "   gl_Position = myBufferVals.mvp * pos;\n"
         "}\n";
 
@@ -200,10 +161,10 @@ VkShader::VkShader(VulkanData& info, const Shader& shader)
         "#version 400\n"
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
-        "layout (location = 0) in vec4 color;\n"
+        "layout (location = 0) in vec3 color;\n"
         "layout (location = 0) out vec4 outColor;\n"
         "void main() {\n"
-        "   outColor = color;\n"
+        "   outColor = vec4(color.r, color.g, color.b, 1.0);\n"
         "}\n";
 }
 
@@ -327,7 +288,7 @@ std::string VkShader::CompileShader()
     m_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     m_stages[0].pName = "main";
 
-    const std::string vertErrors = GlslToSpb(VK_SHADER_STAGE_VERTEX_BIT, m_vertexText.c_str(), vtx_spv);
+    const std::string vertErrors = parse(VK_SHADER_STAGE_VERTEX_BIT, m_vertexText.c_str(), vtx_spv);
     if (!vertErrors.empty())
     {
         return VS + vertErrors;
@@ -353,7 +314,7 @@ std::string VkShader::CompileShader()
     m_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     m_stages[1].pName = "main";
 
-    const std::string fragErrors = GlslToSpb(VK_SHADER_STAGE_FRAGMENT_BIT, m_fragmentText.c_str(), frag_spv);
+    const std::string fragErrors = parse(VK_SHADER_STAGE_FRAGMENT_BIT, m_fragmentText.c_str(), frag_spv);
     if(!fragErrors.empty())
     {
         return FS + fragErrors;
@@ -422,7 +383,14 @@ bool VkShader::InitUniformBuffer()
     m_bufferInfo.offset = 0;
     m_bufferInfo.range = sizeof(m_data);
 
-    // Update uniform data
+    return UpdateUniformBuffer();
+}
+
+bool VkShader::UpdateUniformBuffer()
+{
+    // TODO: Make this generic for scene
+    m_data.mvp = m_info.viewProjection;
+
     uint8_t* pData = nullptr;
     if (CHECK_FAIL(vkMapMemory(m_info.device, m_memory, 0, sizeof(m_data), 0, (void **)&pData)))
     {
@@ -430,8 +398,6 @@ bool VkShader::InitUniformBuffer()
     }
     memcpy(pData, &m_data, sizeof(m_data));
     vkUnmapMemory(m_info.device, m_memory);
-
-    return true;
 }
 
 bool VkShader::InitPipeline()
@@ -490,29 +456,34 @@ bool VkShader::InitPipeline()
     multisampleState.rasterizationSamples = VulkanUtils::NUM_SAMPLES;
     multisampleState.pSampleMask = nullptr;
 
+    //------------------------------------------------
+    // TODO: Make this generic for scene
+    const int positionComponents = 4;
+    const int normalComponents = 3;
+    const int attributeCount = 2;
+
     VkVertexInputBindingDescription vertexInputBinding = {};
     vertexInputBinding.binding = 0;
-    vertexInputBinding.stride = sizeof(Vertex);
+    vertexInputBinding.stride = (positionComponents + normalComponents) * sizeof(float);
     vertexInputBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-    // TODO: Make this generic for scene
-    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributs;
+    
+    std::array<VkVertexInputAttributeDescription, attributeCount> vertexInputAttributs;
     vertexInputAttributs[0].binding = 0;
     vertexInputAttributs[0].location = 0;
     vertexInputAttributs[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexInputAttributs[0].offset = offsetof(Vertex, position);
+    vertexInputAttributs[0].offset = 0;
     vertexInputAttributs[1].binding = 0;
     vertexInputAttributs[1].location = 1;
     vertexInputAttributs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexInputAttributs[1].offset = offsetof(Vertex, color);
+    vertexInputAttributs[1].offset = positionComponents * sizeof(float);
 
-    // TODO: Make this generic for scene
     VkPipelineVertexInputStateCreateInfo vertexInputState = {};
     vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputState.vertexBindingDescriptionCount = 1;
     vertexInputState.pVertexBindingDescriptions = &vertexInputBinding;
-    vertexInputState.vertexAttributeDescriptionCount = 2;
+    vertexInputState.vertexAttributeDescriptionCount = attributeCount;
     vertexInputState.pVertexAttributeDescriptions = vertexInputAttributs.data();
+    //------------------------------------------------
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -550,4 +521,42 @@ std::string VkShader::GetText() const
 std::string VkShader::GetAssembly()
 {
     return m_vertexAsm + "\n" + m_fragmentAsm;
+}
+
+std::string VkShader::parse(const VkShaderStageFlagBits shader_type, 
+                            const char* pshader, 
+                            std::vector<unsigned int>& spirv)
+{
+    EShLanguage stage = FindLanguage(shader_type);
+    glslang::TShader shader(stage);
+    glslang::TProgram program;
+    const char *shaderStrings[1];
+
+    TBuiltInResource resources;
+    InitResources(resources);
+
+    // Enable SPIR-V and Vulkan rules when parsing GLSL
+    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+    shaderStrings[0] = pshader;
+    shader.setStrings(shaderStrings, 1);
+
+    if (!shader.parse(&resources, 100, false, messages))
+    {
+        return std::string(shader.getInfoLog()) + " " + shader.getInfoDebugLog();
+    }
+
+    program.addShader(&shader);
+    if (!program.link(messages))
+    {
+        return std::string(shader.getInfoLog()) + " " + shader.getInfoDebugLog();
+    }
+
+    if (!program.buildReflection())
+    {
+        return std::string(shader.getInfoLog()) + " " + shader.getInfoDebugLog();
+    }
+
+    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
+    return "";
 }

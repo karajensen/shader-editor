@@ -73,6 +73,7 @@
     <ClCompile Include="vulkandata.cpp" />
     <ClCompile Include="vulkanengine.cpp" />
     <ClCompile Include="vulkaninit.cpp" />
+    <ClCompile Include="vulkanmesh.cpp" />
     <ClCompile Include="vulkanshader.cpp" />
     <ClCompile Include="vulkanutils.cpp" />
     <ClCompile Include="water.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="vulkandata.h" />
     <ClInclude Include="vulkanengine.h" />
     <ClInclude Include="vulkaninit.h" />
+    <ClInclude Include="vulkanmesh.h" />
     <ClInclude Include="vulkanshader.h" />
     <ClInclude Include="vulkanutils.h" />
     <ClInclude Include="water.h" />

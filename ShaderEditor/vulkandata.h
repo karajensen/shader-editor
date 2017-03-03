@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - vulkandata.cpp
+// Kara Jensen - mail@karajensen.com - vulkandata.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkan.h"
@@ -9,6 +9,7 @@
 #include <memory>
 
 class VkShader;
+class VkMesh;
 
 struct LayerProperties
 {
@@ -28,25 +29,6 @@ struct Depth
     VkImage image = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
     VkImageView view = VK_NULL_HANDLE;
-};
-
-struct VertexBuffer
-{
-    VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkBuffer buffer = VK_NULL_HANDLE;
-};
-
-struct IndexBuffer
-{
-    VkDeviceMemory memory = VK_NULL_HANDLE;
-    VkBuffer buffer = VK_NULL_HANDLE;
-    uint32_t count = 0;
-};
-
-struct Vertex
-{
-    float position[4];
-    float color[4];
 };
 
 struct VulkanData
@@ -95,7 +77,6 @@ struct VulkanData
     VkFormat format;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
-    VkVertexInputBindingDescription viBinding;
     VkDescriptorImageInfo imageInfo;
     VkPipelineStageFlags pipeStageFlags;
     VkClearValue clearValues[2];
@@ -119,6 +100,7 @@ struct VulkanData
     std::vector<const char*> deviceExtensionNames;
 
     std::vector<std::unique_ptr<VkShader>> shaders;  ///< Shaders shared by all meshes
+    std::vector<std::unique_ptr<VkMesh>> meshes;     ///< Each mesh in the scene
 
     glm::vec3 cameraPosition;                        ///< Position of the camera
     glm::vec3 cameraUp;                              ///< The up vector of the camera
@@ -126,8 +108,4 @@ struct VulkanData
     glm::mat4 view;                                  ///< View matrix
     glm::mat4 viewProjection;                        ///< View projection matrix
     int selectedShader;                              ///< Currently active shader for rendering
-
-    // TODO: Make this generic for scene
-    VertexBuffer vertexBuffer;
-    IndexBuffer indexBuffer;
 };

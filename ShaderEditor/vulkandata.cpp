@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkandata.h"
+#include "vulkanmesh.h"
 #include "vulkanshader.h"
 #include "renderdata.h"
 #include "common.h"
@@ -62,9 +63,6 @@ void VulkanData::Reset()
     memoryProperties = {};
     gpuProps = {};
     depth = {};
-    vertexBuffer = {};
-    indexBuffer = {};
-    viBinding = {};
 
     queueProps.clear();
     instanceLayerProperties.clear();
@@ -83,6 +81,11 @@ void VulkanData::Release()
     for (auto& shader : shaders)
     {
         shader->Release();
+    }
+
+    for (auto& mesh : meshes)
+    {
+        mesh->Release();
     }
 
     for (int i = 0; i < (int)fences.size(); i++)
@@ -108,26 +111,6 @@ void VulkanData::Release()
     if (descPool != VK_NULL_HANDLE)
     {
         vkDestroyDescriptorPool(device, descPool, NULL);
-    }
-
-    if (vertexBuffer.buffer != VK_NULL_HANDLE)
-    {
-        vkDestroyBuffer(device, vertexBuffer.buffer, NULL);
-    }
-
-    if (vertexBuffer.memory != VK_NULL_HANDLE)
-    {
-        vkFreeMemory(device, vertexBuffer.memory, NULL);
-    }
-
-    if (indexBuffer.buffer != VK_NULL_HANDLE)
-    {
-        vkDestroyBuffer(device, indexBuffer.buffer, NULL);
-    }
-
-    if (indexBuffer.memory != VK_NULL_HANDLE)
-    {
-        vkFreeMemory(device, indexBuffer.memory, NULL);
     }
 
     for (int i = 0; i < (int)framebuffers.size(); i++)

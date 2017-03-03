@@ -206,6 +206,9 @@
     <ClCompile Include="vulkaninit.cpp">
       <Filter>Engine - Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="vulkanmesh.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opengltexture.h">
@@ -401,6 +404,9 @@
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="vulkaninit.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkanmesh.h">
       <Filter>Engine - Vulkan</Filter>
     </ClInclude>
   </ItemGroup>

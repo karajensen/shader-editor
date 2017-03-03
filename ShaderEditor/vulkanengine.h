@@ -146,8 +146,5 @@ private:
     */
     void SetSelectedShader(int index);
 
-    // TODO: Make this generic for scene
-    bool InitVertexBuffer();
-
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

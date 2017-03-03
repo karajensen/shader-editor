@@ -82,7 +82,19 @@ public:
     */
     std::string GetAssembly();
 
+    /**
+    * Updates the uniform buffer
+    */
+    bool UpdateUniformBuffer();
+
 private:
+
+    /**
+    * Parse a GLSL shader into SPRIV
+    */
+    std::string parse(const VkShaderStageFlagBits shader_type,  
+                      const char* pshader, 
+                      std::vector<unsigned int>& spirv);
 
     // TODO: Make this generic for scene
     struct UniformData

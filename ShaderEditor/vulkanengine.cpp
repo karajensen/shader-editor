@@ -5,6 +5,7 @@
 #include "vulkanengine.h"
 #include "vulkaninit.h"
 #include "vulkandata.h"
+#include "vulkanmesh.h"
 #include "vulkanutils.h"
 #include "vulkanshader.h"
 #include "sceneInterface.h"
@@ -87,12 +88,18 @@ bool VulkanEngine::InitialiseScene(const IScene& scene)
             new VkShader(info, *shader)));
     }
 
+    m_data->meshes.reserve(scene.Meshes().size());
+    for (const auto& mesh : scene.Meshes())
+    {
+        m_data->meshes.push_back(std::unique_ptr<VkMesh>(
+            new VkMesh(info, *mesh)));
+    }
+
     return ReInitialiseScene();
 }
 
 bool VulkanEngine::ReInitialiseScene()
 {
-    // TODO: Make this generic for scene
     auto& info = *m_data;
 
     for (unsigned int i = 0; i < m_data->shaders.size(); ++i)
@@ -105,13 +112,18 @@ bool VulkanEngine::ReInitialiseScene()
         }
     }
 
-    if (!InitVertexBuffer())
+    for (auto& mesh : m_data->meshes)
     {
-        return false;
+        if (!mesh->Initialise())
+        {
+            Logger::LogError("Vulkan: Failed to re-initialise mesh");
+            return false;
+        }
     }
 
     SetSelectedShader(0);
 
+    // TO DO: Add to render loop
     VkCommandBufferBeginInfo cmdBufInfo = {};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufInfo.pNext = NULL;
@@ -158,10 +170,10 @@ bool VulkanEngine::ReInitialiseScene()
 
         info.shaders.at(info.selectedShader)->Bind(cmd);
 
-        VkDeviceSize offsets[1] = { 0 };
-        vkCmdBindVertexBuffers(cmd, 0, 1, &info.vertexBuffer.buffer, offsets);
-        vkCmdBindIndexBuffer(cmd, info.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(cmd, info.indexBuffer.count, 1, 0, 0, 1);
+        for (auto& mesh : m_data->meshes)
+        {
+            mesh->Bind(cmd);
+        }
 
         vkCmdEndRenderPass(cmd);
 
@@ -175,106 +187,6 @@ bool VulkanEngine::ReInitialiseScene()
     return true;
 }
 
-bool VulkanEngine::InitVertexBuffer()
-{
-    auto& info = *m_data;
-    
-    static std::vector<Vertex> vertexBuffer =
-    {
-        { { 1.0f,  1.0f, 0.0f, 1.0f },{ 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { -1.0f, 1.0f, 0.0f, 1.0f },{ 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { 0.0f, -1.0f, 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
-    uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
-    
-    std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
-    info.indexBuffer.count = static_cast<uint32_t>(indexBuffer.size());
-    uint32_t indexBufferSize = info.indexBuffer.count * sizeof(uint32_t);
-    
-    VkMemoryAllocateInfo memAlloc = {};
-    memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    VkMemoryRequirements memReqs;
-    void* data = nullptr;
-    
-    VkBufferCreateInfo vertexBufferInfo = {};
-    vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    vertexBufferInfo.size = vertexBufferSize;
-    vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    
-    // Copy vertex data to a buffer visible to the host
-    if (CHECK_FAIL(vkCreateBuffer(info.device, &vertexBufferInfo, nullptr, &info.vertexBuffer.buffer)))
-    {
-        return false;
-    }
-    
-    vkGetBufferMemoryRequirements(info.device, info.vertexBuffer.buffer, &memReqs);
-    memAlloc.allocationSize = memReqs.size;
-    
-    if (CHECK_FAIL(VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits,
-                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 
-                                                         &memAlloc.memoryTypeIndex)))
-    {
-        return false;
-    }
-    
-    if (CHECK_FAIL(vkAllocateMemory(info.device, &memAlloc, nullptr, &info.vertexBuffer.memory)))
-    {
-        return false;
-    }
-    
-    if (CHECK_FAIL(vkMapMemory(info.device, info.vertexBuffer.memory, 0, memAlloc.allocationSize, 0, &data)))
-    {
-        return false;
-    }
-    
-    memcpy(data, vertexBuffer.data(), vertexBufferSize);
-    vkUnmapMemory(info.device, info.vertexBuffer.memory);
-    if (CHECK_FAIL(vkBindBufferMemory(info.device, info.vertexBuffer.buffer, info.vertexBuffer.memory, 0)))
-    {
-        return false;
-    }
-    
-    VkBufferCreateInfo indexbufferInfo = {};
-    indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    indexbufferInfo.size = indexBufferSize;
-    indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-    
-    // Copy index data to a buffer visible to the host
-    if (CHECK_FAIL(vkCreateBuffer(info.device, &indexbufferInfo, nullptr, &info.indexBuffer.buffer)))
-    {
-        return false;
-    }
-    
-    vkGetBufferMemoryRequirements(info.device, info.indexBuffer.buffer, &memReqs);
-    memAlloc.allocationSize = memReqs.size;
-    
-    if (CHECK_FAIL(VulkanUtils::MemoryTypeFromProperties(info, memReqs.memoryTypeBits,
-                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 
-                                                         &memAlloc.memoryTypeIndex)))
-    {
-        return false;
-    }
-    
-    if (CHECK_FAIL(vkAllocateMemory(info.device, &memAlloc, nullptr, &info.indexBuffer.memory)))
-    {
-        return false;
-    }
-    
-    if (CHECK_FAIL(vkMapMemory(info.device, info.indexBuffer.memory, 0, indexBufferSize, 0, &data)))
-    {
-        return false;
-    }
-    
-    memcpy(data, indexBuffer.data(), indexBufferSize);
-    vkUnmapMemory(info.device, info.indexBuffer.memory);
-    if (CHECK_FAIL(vkBindBufferMemory(info.device, info.indexBuffer.buffer, info.indexBuffer.memory, 0)))
-    {
-        return false;
-    }
-    
-    return true;
-}
-
 bool VulkanEngine::FadeView(bool in, float amount)
 {
     return true;
@@ -282,7 +194,10 @@ bool VulkanEngine::FadeView(bool in, float amount)
 
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
-    VulkanUtils::Render(*m_data);
+    auto& info = *m_data;
+
+    info.shaders.at(info.selectedShader)->UpdateUniformBuffer();
+    VulkanUtils::Render(info);
 }
 
 void VulkanEngine::ToggleWireframe()
@@ -297,33 +212,33 @@ std::string VulkanEngine::GetName() const
 
 void VulkanEngine::UpdateView(const Matrix& world)
 {
-    //glm::mat4 view;
-    //
-    //view[0][0] = world.m11;
-    //view[1][0] = world.m12;
-    //view[2][0] = world.m13;
-    //view[3][0] = world.m14;
-    //
-    //view[0][1] = world.m21;
-    //view[1][1] = world.m22;
-    //view[2][1] = world.m23;
-    //view[3][1] = world.m24;
-    //
-    //view[0][2] = world.m31;
-    //view[1][2] = world.m32;
-    //view[2][2] = world.m33;
-    //view[3][2] = world.m34;
-    //
-    //m_data->cameraPosition.x = world.m14;
-    //m_data->cameraPosition.y = world.m24;
-    //m_data->cameraPosition.z = world.m34;
-    //
-    //m_data->cameraUp.x = world.m12;
-    //m_data->cameraUp.y = world.m22;
-    //m_data->cameraUp.z = world.m32;
-    //
-    //m_data->view = glm::inverse(view);
-    //m_data->viewProjection = m_data->projection * m_data->view;
+    glm::mat4 view;
+    
+    view[0][0] = world.m11;
+    view[1][0] = world.m12;
+    view[2][0] = world.m13;
+    view[3][0] = world.m14;
+    
+    view[0][1] = world.m21;
+    view[1][1] = world.m22;
+    view[2][1] = world.m23;
+    view[3][1] = world.m24;
+    
+    view[0][2] = world.m31;
+    view[1][2] = world.m32;
+    view[2][2] = world.m33;
+    view[3][2] = world.m34;
+    
+    m_data->cameraPosition.x = world.m14;
+    m_data->cameraPosition.y = world.m24;
+    m_data->cameraPosition.z = world.m34;
+    
+    m_data->cameraUp.x = world.m12;
+    m_data->cameraUp.y = world.m22;
+    m_data->cameraUp.z = world.m32;
+    
+    m_data->view = glm::inverse(view);
+    m_data->viewProjection = m_data->projection * m_data->view;
 }
 
 std::string VulkanEngine::GetShaderText(int index) const
