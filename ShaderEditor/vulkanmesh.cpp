@@ -5,21 +5,18 @@
 #include "vulkanmesh.h"
 #include "vulkanutils.h"
 #include "vulkandata.h"
-#include "meshdata.h"
+#include "terrain.h"
+#include "water.h"
+#include "mesh.h"
 
-VkMesh::VkMesh(VulkanData& info, const MeshData& mesh)
-    : m_mesh(mesh)
-    , m_info(info)
-{
-    Reset();
-}
-
-VkMesh::~VkMesh()
-{
-    Release();
-}
-
-void VkMesh::Reset()
+VkMeshBuffer::VkMeshBuffer(VulkanData& info, 
+                           const std::string& name,
+                           const std::vector<float>& vertices,
+                           const std::vector<unsigned int>& indices) :
+    m_name(name),
+    m_vertices(vertices),
+    m_indices(indices),
+    m_info(info)
 {
     m_vertexMemory = VK_NULL_HANDLE;
     m_vertexBuffer = VK_NULL_HANDLE;
@@ -28,27 +25,79 @@ void VkMesh::Reset()
     m_indexCount = 0;
 }
 
-glm::mat4 VkMesh::GetWorld() const
+VkMeshData::VkMeshData(VulkanData& info, 
+                       const MeshData& data, 
+                       PreRenderMesh preRender) :
+    VkMeshBuffer(info, data.Name(), data.Vertices(), data.Indices()),
+    m_meshdata(data),
+    m_preRender(preRender)
 {
-    // TODO: Make this generic and implement instances
-    glm::mat4 world;
-    const auto& instance = m_mesh.Instances().at(0);
-    world[0][0] = instance.world.m11;
-    world[1][0] = instance.world.m12;
-    world[2][0] = instance.world.m13;
-    world[3][0] = instance.world.m14;
-    world[0][1] = instance.world.m21;
-    world[1][1] = instance.world.m22;
-    world[2][1] = instance.world.m23;
-    world[3][1] = instance.world.m24;
-    world[0][2] = instance.world.m31;
-    world[1][2] = instance.world.m32;
-    world[2][2] = instance.world.m33;
-    world[3][2] = instance.world.m34;
-    return world;
 }
 
-void VkMesh::Release()
+VkMeshData::VkMeshData(VulkanData& info, 
+                       const MeshData& mesh,
+                       const std::vector<float>& vertices,
+                       const std::vector<unsigned int>& indices,
+                       PreRenderMesh preRender) :
+
+    VkMeshBuffer(info, mesh.Name(), vertices, indices),
+    m_meshdata(mesh),
+    m_preRender(preRender)
+{
+}
+
+VkMesh::VkMesh(VulkanData& info, 
+               const MeshData& mesh,
+               PreRenderMesh preRender) :
+    VkMeshData(info, mesh, preRender)
+{
+}
+
+VkMeshBuffer::~VkMeshBuffer()
+{
+    Release();
+}
+
+VkQuadData::VkQuadData()
+{
+    // Top left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(-1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f);  // u
+    vertices.emplace_back(0.0f);  // v
+
+    // Top right corner
+    vertices.emplace_back(1.0f);  // x
+    vertices.emplace_back(-1.0f); // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(1.0f);  // u
+    vertices.emplace_back(0.0f);  // v
+
+    // Bot right corner
+    vertices.emplace_back(1.0f);  // x
+    vertices.emplace_back(1.0f);  // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(1.0f);  // u
+    vertices.emplace_back(1.0f);  // v
+
+    // Bot left corner
+    vertices.emplace_back(-1.0f); // x
+    vertices.emplace_back(1.0f);  // y
+    vertices.emplace_back(0.0f);  // z
+    vertices.emplace_back(0.0f);  // u
+    vertices.emplace_back(1.0f);  // v
+
+    indices.emplace_back(0);
+    indices.emplace_back(3);
+    indices.emplace_back(1);
+
+    indices.emplace_back(1);
+    indices.emplace_back(3);
+    indices.emplace_back(2);
+}
+
+void VkMeshBuffer::Release()
 {
     if (m_vertexBuffer != VK_NULL_HANDLE)
     {
@@ -70,28 +119,26 @@ void VkMesh::Release()
         vkFreeMemory(m_info.device, m_indexMemory, NULL);
     }
 
-    Reset();
+    m_vertexMemory = VK_NULL_HANDLE;
+    m_vertexBuffer = VK_NULL_HANDLE;
+    m_indexMemory = VK_NULL_HANDLE;
+    m_indexBuffer = VK_NULL_HANDLE;
+    m_indexCount = 0;
 }
 
-bool VkMesh::Initialise()
+bool VkMeshData::Initialise()
 {
-    // TODO: Make this generic for scene
-    //static std::vector<float> vertexBuffer =
-    //{
-    //    1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-    //    -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-    //    0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
-    //};
-    //std::vector<unsigned int> indexBuffer = { 0, 1, 2 };
+    m_updateInstances = true;
+    m_world.clear();
+    m_world.resize(m_meshdata.Instances().size());
+    return VkMeshBuffer::Initialise();
+}
 
-    auto& vertices = m_mesh.Vertices();
-    auto& indices = m_mesh.Indices();
-    //auto& vertices = vertexBuffer;
-    //auto& indices = indexBuffer;
+bool VkMeshBuffer::Initialise()
+{
+    uint32_t vertexBufferSize = static_cast<uint32_t>(m_vertices.size()) * sizeof(float);
 
-    uint32_t vertexBufferSize = static_cast<uint32_t>(vertices.size()) * sizeof(float);
-
-    m_indexCount = static_cast<uint32_t>(indices.size());
+    m_indexCount = static_cast<uint32_t>(m_indices.size());
     uint32_t indexBufferSize = m_indexCount * sizeof(unsigned int);
 
     VkMemoryAllocateInfo memAlloc = {};
@@ -114,8 +161,8 @@ bool VkMesh::Initialise()
     memAlloc.allocationSize = memReqs.size;
 
     if (CHECK_FAIL(VulkanUtils::MemoryTypeFromProperties(m_info, memReqs.memoryTypeBits,
-                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                                         &memAlloc.memoryTypeIndex)))
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        &memAlloc.memoryTypeIndex)))
     {
         return false;
     }
@@ -130,7 +177,7 @@ bool VkMesh::Initialise()
         return false;
     }
 
-    memcpy(data, vertices.data(), vertexBufferSize);
+    memcpy(data, m_vertices.data(), vertexBufferSize);
     vkUnmapMemory(m_info.device, m_vertexMemory);
     if (CHECK_FAIL(vkBindBufferMemory(m_info.device, m_vertexBuffer, m_vertexMemory, 0)))
     {
@@ -152,8 +199,8 @@ bool VkMesh::Initialise()
     memAlloc.allocationSize = memReqs.size;
 
     if (CHECK_FAIL(VulkanUtils::MemoryTypeFromProperties(m_info, memReqs.memoryTypeBits,
-                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                                         &memAlloc.memoryTypeIndex)))
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+        &memAlloc.memoryTypeIndex)))
     {
         return false;
     }
@@ -168,7 +215,7 @@ bool VkMesh::Initialise()
         return false;
     }
 
-    memcpy(data, indices.data(), indexBufferSize);
+    memcpy(data, m_indices.data(), indexBufferSize);
     vkUnmapMemory(m_info.device, m_indexMemory);
     if (CHECK_FAIL(vkBindBufferMemory(m_info.device, m_indexBuffer, m_indexMemory, 0)))
     {
@@ -178,10 +225,73 @@ bool VkMesh::Initialise()
     return true;
 }
 
-void VkMesh::Render(VkCommandBuffer cmd)
+void VkMeshBuffer::Render(VkCommandBuffer cmd)
 {
     VkDeviceSize offsets[1] = { 0 };
     vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertexBuffer, offsets);
     vkCmdBindIndexBuffer(cmd, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(cmd, m_indexCount, 1, 0, 0, 1);
+}
+
+const MeshData& VkMeshData::GetData() const
+{
+    return m_meshdata;
+}
+
+const Mesh& VkMesh::GetMesh() const
+{
+    return static_cast<const Mesh&>(GetData());
+}
+
+const Water& VkMesh::GetWater() const
+{
+    return static_cast<const Water&>(GetData());
+}
+
+const Terrain& VkMesh::GetTerrain() const
+{
+    return static_cast<const Terrain&>(GetData());
+}
+
+void VkMeshData::Render(VkCommandBuffer cmd)
+{
+    const auto& instances = m_meshdata.Instances();
+    for (unsigned int i = 0; i < instances.size(); ++i)
+    {
+        const auto& instance = instances[i];
+        if (instance.requiresUpdate || m_updateInstances)
+        {
+            m_world[i][0][0] = instance.world.m11;
+            m_world[i][1][0] = instance.world.m12;
+            m_world[i][2][0] = instance.world.m13;
+            m_world[i][3][0] = instance.world.m14;
+
+            m_world[i][0][1] = instance.world.m21;
+            m_world[i][1][1] = instance.world.m22;
+            m_world[i][2][1] = instance.world.m23;
+            m_world[i][3][1] = instance.world.m24;
+
+            m_world[i][0][2] = instance.world.m31;
+            m_world[i][1][2] = instance.world.m32;
+            m_world[i][2][2] = instance.world.m33;
+            m_world[i][3][2] = instance.world.m34;
+        }
+
+        if (instance.enabled && instance.render)
+        {
+            m_preRender(m_world[i], instance.colour);
+            VkMeshBuffer::Render(cmd);
+        }
+    }
+    m_updateInstances = false;
+}
+
+VkQuad::VkQuad(VulkanData& info, const std::string& name) :
+    VkMeshBuffer(info, name, vertices, indices)
+{
+}
+
+VkQuadMesh::VkQuadMesh(VulkanData& info, const MeshData& mesh, PreRenderMesh preRender) :
+    VkMeshData(info, mesh, vertices, indices, preRender)
+{
 }

@@ -83,9 +83,9 @@ public:
     std::string GetAssembly();
 
     /**
-    * Updates the uniform buffer
+    * Sends the uniform buffer to the shader
     */
-    void UpdateUniformBuffer();
+    void SendUniformBuffer();
 
     /**
     * TODO: Make this generic

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "renderengine.h"
+#include "glm/mat4x4.hpp"
 #include <Windows.h>
 
 class MeshAttributes;
@@ -150,6 +151,13 @@ private:
     * Fills the command buffer with the next frame to render
     */
     void FillCommandBuffer(int index);
+
+    /**
+    * Updates the shader for a mesh per instance
+    * @param world The world matrix for the mesh
+    * @param texture The colour texture to render
+    */
+    void UpdateShader(const glm::mat4& world, int texture);
 
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

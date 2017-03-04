@@ -91,8 +91,8 @@ bool VulkanEngine::InitialiseScene(const IScene& scene)
     m_data->meshes.reserve(scene.Meshes().size());
     for (const auto& mesh : scene.Meshes())
     {
-        m_data->meshes.push_back(std::unique_ptr<VkMesh>(
-            new VkMesh(info, *mesh)));
+        m_data->meshes.push_back(std::unique_ptr<VkMesh>(new VkMesh(info, *mesh, 
+            [this](const glm::mat4& world, int texture) { UpdateShader(world, texture); })));
     }
 
     return ReInitialiseScene();
@@ -299,12 +299,17 @@ void VulkanEngine::FillCommandBuffer(int index)
     info.shaders.at(info.selectedShader)->Bind(cmd);
     for (auto& mesh : info.meshes)
     {
-        info.shaders.at(info.selectedShader)->UpdateWorldMatrix(mesh->GetWorld());
-        info.shaders.at(info.selectedShader)->UpdateUniformBuffer();
         mesh->Render(cmd);
     }
 
     vkCmdEndRenderPass(cmd);
 
     CHECK_FAIL(vkEndCommandBuffer(cmd));
+}
+
+void VulkanEngine::UpdateShader(const glm::mat4& world, int texture)
+{
+    auto& shader = m_data->shaders[m_data->selectedShader];
+    shader->UpdateWorldMatrix(world);
+    shader->SendUniformBuffer();
 }

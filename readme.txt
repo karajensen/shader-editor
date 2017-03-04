@@ -1,5 +1,5 @@
 
-- Add instances to mesh
+- Fix instances all rendering with empty world matrix
 - Fix tearing and comment all vulkan data
 - Add diffuse texture
 

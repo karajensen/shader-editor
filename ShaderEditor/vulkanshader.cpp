@@ -395,11 +395,13 @@ void VkShader::UpdateWorldMatrix(const glm::mat4& world)
 {
     // TODO: Make this generic for scene
     m_data.world = world;
-    m_data.viewProj = m_info.viewProjection;
 }
 
-void VkShader::UpdateUniformBuffer()
+void VkShader::SendUniformBuffer()
 {
+    // TODO: Make this generic for scene
+    m_data.viewProj = m_info.viewProjection;
+
     uint8_t* pData = nullptr;
     CHECK_FAIL(vkMapMemory(m_info.device, m_memory, 0, sizeof(m_data), 0, (void **)&pData));
     memcpy(pData, &m_data, sizeof(m_data));

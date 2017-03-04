@@ -6,10 +6,19 @@
 #include "common.h"
 #include "renderdata.h"
 #include "vulkan.h"
+#include "glm/mat4x4.hpp"
 
 struct VulkanData;
 struct LayerProperties;
 
+/**
+* Callbacks for pre-rendering elements
+*/
+typedef std::function<void(const glm::mat4&, int)> PreRenderMesh;
+
+/**
+* Utilities for managing Vulkan
+*/
 class VulkanUtils
 {
 public:
