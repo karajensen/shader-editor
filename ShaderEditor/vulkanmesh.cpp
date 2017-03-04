@@ -28,6 +28,26 @@ void VkMesh::Reset()
     m_indexCount = 0;
 }
 
+glm::mat4 VkMesh::GetWorld() const
+{
+    // TODO: Make this generic and implement instances
+    glm::mat4 world;
+    const auto& instance = m_mesh.Instances().at(0);
+    world[0][0] = instance.world.m11;
+    world[1][0] = instance.world.m12;
+    world[2][0] = instance.world.m13;
+    world[3][0] = instance.world.m14;
+    world[0][1] = instance.world.m21;
+    world[1][1] = instance.world.m22;
+    world[2][1] = instance.world.m23;
+    world[3][1] = instance.world.m24;
+    world[0][2] = instance.world.m31;
+    world[1][2] = instance.world.m32;
+    world[2][2] = instance.world.m33;
+    world[3][2] = instance.world.m34;
+    return world;
+}
+
 void VkMesh::Release()
 {
     if (m_vertexBuffer != VK_NULL_HANDLE)
@@ -56,18 +76,23 @@ void VkMesh::Release()
 bool VkMesh::Initialise()
 {
     // TODO: Make this generic for scene
-    static std::vector<float> vertexBuffer =
-    {
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-         -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-         0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
-    };
+    //static std::vector<float> vertexBuffer =
+    //{
+    //    1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+    //    -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+    //    0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f
+    //};
+    //std::vector<unsigned int> indexBuffer = { 0, 1, 2 };
 
-    uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(float);
+    auto& vertices = m_mesh.Vertices();
+    auto& indices = m_mesh.Indices();
+    //auto& vertices = vertexBuffer;
+    //auto& indices = indexBuffer;
 
-    std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
-    m_indexCount = static_cast<uint32_t>(indexBuffer.size());
-    uint32_t indexBufferSize = m_indexCount * sizeof(uint32_t);
+    uint32_t vertexBufferSize = static_cast<uint32_t>(vertices.size()) * sizeof(float);
+
+    m_indexCount = static_cast<uint32_t>(indices.size());
+    uint32_t indexBufferSize = m_indexCount * sizeof(unsigned int);
 
     VkMemoryAllocateInfo memAlloc = {};
     memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -105,7 +130,7 @@ bool VkMesh::Initialise()
         return false;
     }
 
-    memcpy(data, vertexBuffer.data(), vertexBufferSize);
+    memcpy(data, vertices.data(), vertexBufferSize);
     vkUnmapMemory(m_info.device, m_vertexMemory);
     if (CHECK_FAIL(vkBindBufferMemory(m_info.device, m_vertexBuffer, m_vertexMemory, 0)))
     {
@@ -143,7 +168,7 @@ bool VkMesh::Initialise()
         return false;
     }
 
-    memcpy(data, indexBuffer.data(), indexBufferSize);
+    memcpy(data, indices.data(), indexBufferSize);
     vkUnmapMemory(m_info.device, m_indexMemory);
     if (CHECK_FAIL(vkBindBufferMemory(m_info.device, m_indexBuffer, m_indexMemory, 0)))
     {
@@ -153,7 +178,7 @@ bool VkMesh::Initialise()
     return true;
 }
 
-void VkMesh::Bind(VkCommandBuffer cmd)
+void VkMesh::Render(VkCommandBuffer cmd)
 {
     VkDeviceSize offsets[1] = { 0 };
     vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertexBuffer, offsets);

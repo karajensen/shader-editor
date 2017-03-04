@@ -143,18 +143,22 @@ VkShader::VkShader(VulkanData& info, const Shader& shader)
         "#version 400\n"
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
-        "layout (std140, binding = 0) uniform bufferVals {\n"
-        "    mat4 mvp;\n"
-        "} myBufferVals;\n"
-        "layout (location = 0) in vec4 pos;\n"
-        "layout (location = 1) in vec3 normal;\n"
+        "layout (std140, binding = 0) uniform bufferData {\n"
+        "    mat4 viewProj;\n"
+        "    mat4 world;\n"
+        "} data;\n"
+        "layout (location = 0) in vec3 pos;\n"
+        "layout (location = 1) in vec2 uvs;\n"
+        "layout (location = 2) in vec3 normal;\n"
         "layout (location = 0) out vec3 outColor;\n"
+        "layout (location = 1) out vec2 outUvs;\n"
         "out gl_PerVertex { \n"
         "    vec4 gl_Position;\n"
         "};\n"
         "void main() {\n"
         "   outColor = normal;\n"
-        "   gl_Position = myBufferVals.mvp * pos;\n"
+        "   outUvs = uvs;\n"
+        "   gl_Position = data.world * data.viewProj * vec4(pos, 1.0);\n"
         "}\n";
 
     m_fragmentText =
@@ -162,9 +166,10 @@ VkShader::VkShader(VulkanData& info, const Shader& shader)
         "#extension GL_ARB_separate_shader_objects : enable\n"
         "#extension GL_ARB_shading_language_420pack : enable\n"
         "layout (location = 0) in vec3 color;\n"
+        "layout (location = 1) in vec2 uvs;\n"
         "layout (location = 0) out vec4 outColor;\n"
         "void main() {\n"
-        "   outColor = vec4(color.r, color.g, color.b, 1.0);\n"
+        "   outColor = vec4(color.r, color.g, color.b, uvs.x);\n"
         "}\n";
 }
 
@@ -288,7 +293,7 @@ std::string VkShader::CompileShader()
     m_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     m_stages[0].pName = "main";
 
-    const std::string vertErrors = parse(VK_SHADER_STAGE_VERTEX_BIT, m_vertexText.c_str(), vtx_spv);
+    const std::string vertErrors = Parse(VK_SHADER_STAGE_VERTEX_BIT, m_vertexText.c_str(), vtx_spv);
     if (!vertErrors.empty())
     {
         return VS + vertErrors;
@@ -314,7 +319,7 @@ std::string VkShader::CompileShader()
     m_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     m_stages[1].pName = "main";
 
-    const std::string fragErrors = parse(VK_SHADER_STAGE_FRAGMENT_BIT, m_fragmentText.c_str(), frag_spv);
+    const std::string fragErrors = Parse(VK_SHADER_STAGE_FRAGMENT_BIT, m_fragmentText.c_str(), frag_spv);
     if(!fragErrors.empty())
     {
         return FS + fragErrors;
@@ -383,19 +388,20 @@ bool VkShader::InitUniformBuffer()
     m_bufferInfo.offset = 0;
     m_bufferInfo.range = sizeof(m_data);
 
-    return UpdateUniformBuffer();
+    return true;
 }
 
-bool VkShader::UpdateUniformBuffer()
+void VkShader::UpdateWorldMatrix(const glm::mat4& world)
 {
     // TODO: Make this generic for scene
-    m_data.mvp = m_info.viewProjection;
+    m_data.world = world;
+    m_data.viewProj = m_info.viewProjection;
+}
 
+void VkShader::UpdateUniformBuffer()
+{
     uint8_t* pData = nullptr;
-    if (CHECK_FAIL(vkMapMemory(m_info.device, m_memory, 0, sizeof(m_data), 0, (void **)&pData)))
-    {
-        return false;
-    }
+    CHECK_FAIL(vkMapMemory(m_info.device, m_memory, 0, sizeof(m_data), 0, (void **)&pData));
     memcpy(pData, &m_data, sizeof(m_data));
     vkUnmapMemory(m_info.device, m_memory);
 }
@@ -458,13 +464,14 @@ bool VkShader::InitPipeline()
 
     //------------------------------------------------
     // TODO: Make this generic for scene
-    const int positionComponents = 4;
+    const int positionComponents = 3;
+    const int uvComponents = 2;
     const int normalComponents = 3;
-    const int attributeCount = 2;
+    const int attributeCount = 3;
 
     VkVertexInputBindingDescription vertexInputBinding = {};
     vertexInputBinding.binding = 0;
-    vertexInputBinding.stride = (positionComponents + normalComponents) * sizeof(float);
+    vertexInputBinding.stride = (positionComponents + normalComponents + uvComponents) * sizeof(float);
     vertexInputBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     
     std::array<VkVertexInputAttributeDescription, attributeCount> vertexInputAttributs;
@@ -476,6 +483,10 @@ bool VkShader::InitPipeline()
     vertexInputAttributs[1].location = 1;
     vertexInputAttributs[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     vertexInputAttributs[1].offset = positionComponents * sizeof(float);
+    vertexInputAttributs[2].binding = 0;
+    vertexInputAttributs[2].location = 2;
+    vertexInputAttributs[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+    vertexInputAttributs[2].offset = (positionComponents + uvComponents) * sizeof(float);
 
     VkPipelineVertexInputStateCreateInfo vertexInputState = {};
     vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -523,7 +534,7 @@ std::string VkShader::GetAssembly()
     return m_vertexAsm + "\n" + m_fragmentAsm;
 }
 
-std::string VkShader::parse(const VkShaderStageFlagBits shader_type, 
+std::string VkShader::Parse(const VkShaderStageFlagBits shader_type,
                             const char* pshader, 
                             std::vector<unsigned int>& spirv)
 {

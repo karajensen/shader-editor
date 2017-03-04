@@ -1,3 +1,8 @@
+
+- Add instances to mesh
+- Fix tearing and comment all vulkan data
+- Add diffuse texture
+
 ========================================================================
 SHADER EDITOR
 ========================================================================

@@ -162,42 +162,6 @@ void VulkanUtils::SetDebugName(VulkanData& info, uint64_t obj, const type_info& 
     info.setDebugNameFn(info.device, &nameInfo);
 }
 
-void VulkanUtils::Render(VulkanData& info)
-{
-    CHECK_FAIL(vkAcquireNextImageKHR(info.device,
-                                     info.swapChain, 
-                                     UINT64_MAX, 
-                                     info.presentCompleteSemaphore, 
-                                     VK_NULL_HANDLE,
-                                     &info.currentBuffer));
-
-    CHECK_FAIL(vkWaitForFences(info.device, 1, &info.fences[info.currentBuffer], VK_TRUE, UINT64_MAX));
-    CHECK_FAIL(vkResetFences(info.device, 1, &info.fences[info.currentBuffer]));
-
-    VkSubmitInfo submitInfo;
-    submitInfo.pNext = NULL;
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &info.presentCompleteSemaphore;
-    submitInfo.pWaitDstStageMask = &info.pipeStageFlags;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &info.cmd[info.currentBuffer];
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &info.renderCompleteSemaphore;
-    CHECK_FAIL(vkQueueSubmit(info.graphicsQueue, 1, &submitInfo, info.fences[info.currentBuffer]));
-
-    VkPresentInfoKHR presentInfo;
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.pNext = NULL;
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &info.swapChain;
-    presentInfo.pImageIndices = &info.currentBuffer;
-    presentInfo.pWaitSemaphores = &info.renderCompleteSemaphore;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pResults = NULL;
-    CHECK_FAIL(vkQueuePresentKHR(info.presentQueue, &presentInfo));
-}
-
 VkResult VulkanUtils::MemoryTypeFromProperties(VulkanData &info,
                                                uint32_t typeBits, 
                                                VkFlags requirementsMask, 

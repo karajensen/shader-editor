@@ -62,11 +62,6 @@ public:
     static const char* GetFailText(VkResult result);
 
     /**
-    * Renders the scene
-    */
-    static void Render(VulkanData& info);
-
-    /**
     * Search memtypes to find first index with those properties
     */
     static VkResult MemoryTypeFromProperties(VulkanData &info,

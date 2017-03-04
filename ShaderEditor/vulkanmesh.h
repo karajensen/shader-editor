@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "vulkan.h"
+#include "glm\glm.hpp"
 
 class MeshData;
 struct VulkanData;
@@ -35,7 +36,12 @@ public:
     /**
     * Binds the mesh for rendering
     */
-    void Bind(VkCommandBuffer cmd);
+    void Render(VkCommandBuffer cmd);
+
+    /**
+    * TODO: Make this generic
+    */
+    glm::mat4 GetWorld() const;
 
 private:
 
@@ -46,7 +52,6 @@ private:
 
     VulkanData& m_info;             ///< Data for the Vulkan Engine
     const MeshData& m_mesh;         ///< The mesh data to create
-
     VkDeviceMemory m_vertexMemory;
     VkBuffer m_vertexBuffer;
     VkDeviceMemory m_indexMemory;

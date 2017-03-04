@@ -85,21 +85,27 @@ public:
     /**
     * Updates the uniform buffer
     */
-    bool UpdateUniformBuffer();
+    void UpdateUniformBuffer();
+
+    /**
+    * TODO: Make this generic
+    */
+    void UpdateWorldMatrix(const glm::mat4& world);
 
 private:
 
     /**
     * Parse a GLSL shader into SPRIV
     */
-    std::string parse(const VkShaderStageFlagBits shader_type,  
+    std::string Parse(const VkShaderStageFlagBits shader_type,  
                       const char* pshader, 
                       std::vector<unsigned int>& spirv);
 
     // TODO: Make this generic for scene
     struct UniformData
     {
-        glm::mat4 mvp;
+        glm::mat4 world;
+        glm::mat4 viewProj;
     };
 
     void ReleaseShader();

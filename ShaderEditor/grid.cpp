@@ -39,6 +39,10 @@ bool Grid::CreateGrid(const Float2& uvStretch,
                       bool normals, 
                       bool tangents)
 {
+    //TODO: remove
+    normals = true;
+    tangents = false;
+
     if (!normals && tangents)
     {
         Logger::LogError("CreateGrid: Tangents require normals");

@@ -146,5 +146,10 @@ private:
     */
     void SetSelectedShader(int index);
 
+    /**
+    * Fills the command buffer with the next frame to render
+    */
+    void FillCommandBuffer(int index);
+
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     
