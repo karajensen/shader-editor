@@ -8,8 +8,8 @@
 #include <vector>
 #include "float3.h"
 #include "colour.h"
-#include "meshdata.h"
-#include "meshAttributes.h"
+#include "mesh_data.h"
+#include "mesh_attributes.h"
 
 /**
 * Mesh loaded from file to be rendered in the scene

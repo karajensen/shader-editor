@@ -5,7 +5,7 @@
 #pragma once
 
 #include "boost/property_tree/ptree.hpp"
-#include "sceneInterface.h"
+#include "scene_interface.h"
 #include "float3.h"
 
 class Camera;

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "grid.h"
-#include "meshAttributes.h"
+#include "mesh_attributes.h"
 
 /**
 * Procedurally generated mesh

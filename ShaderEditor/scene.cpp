@@ -4,9 +4,9 @@
 
 #include "scene.h"
 #include "camera.h"
-#include "sceneData.h"
-#include "scenePlacer.h"
-#include "sceneBuilder.h"
+#include "scene_data.h"
+#include "scene_placer.h"
+#include "scene_builder.h"
 
 Scene::Scene() = default;
 Scene::~Scene() = default;

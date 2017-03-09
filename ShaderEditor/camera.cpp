@@ -2,8 +2,8 @@
 // Kara Jensen - mail@karajensen.com - camera.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Camera.h"
-#include "renderdata.h"
+#include "camera.h"
+#include "render_data.h"
 
 Camera::Camera() :
     m_initialPos(15.0f, 1.0f, 3.0f),

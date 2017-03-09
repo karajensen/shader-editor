@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "meshdata.h"
+#include "mesh_data.h"
 
 /**
 * Holds information of a grid of vertices

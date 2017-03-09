@@ -1,6 +1,6 @@
 
-- Fix instances all rendering with empty world matrix
 - Fix tearing and comment all vulkan data
+- Fix instances all rendering with empty world matrix
 - Add diffuse texture
 
 ========================================================================

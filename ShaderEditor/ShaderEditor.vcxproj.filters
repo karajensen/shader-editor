@@ -53,23 +53,8 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="directxengine.cpp">
-      <Filter>Engine - DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="directxmesh.cpp">
-      <Filter>Engine - DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="directxshader.cpp">
-      <Filter>Engine - DirectX</Filter>
-    </ClCompile>
-    <ClCompile Include="directxtexture.cpp">
-      <Filter>Engine - DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="directxtarget.cpp">
-      <Filter>Engine - DirectX</Filter>
     </ClCompile>
     <ClCompile Include="qt\project\editor.cpp">
       <Filter>Qt</Filter>
@@ -107,43 +92,7 @@
     <ClCompile Include="qt\project\generated\moc\moc_tweakable_button.cpp">
       <Filter>Qt\generated</Filter>
     </ClCompile>
-    <ClCompile Include="directxemitter.cpp">
-      <Filter>Engine - DirectX</Filter>
-    </ClCompile>
     <ClCompile Include="diagnostic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="openglemitter.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="openglengine.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="openglmesh.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="openglshader.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="opengltarget.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="opengltexture.cpp">
-      <Filter>Engine - OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="sceneBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="appGUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scenePlacer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="meshAttributes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="meshgroup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="random_generator.cpp">
@@ -164,9 +113,6 @@
     <ClCompile Include="mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="meshdata.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -182,53 +128,89 @@
     <ClCompile Include="texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="textureProcedural.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="qtGUI.cpp">
+    <ClCompile Include="directx_emitter.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_engine.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_mesh.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_shader.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_target.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="directx_texture.cpp">
+      <Filter>Engine - DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_emitter.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_engine.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_mesh.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_shader.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_target.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="opengl_texture.cpp">
+      <Filter>Engine - OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_data.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_engine.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_init.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_mesh.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_shader.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="vulkan_utils.cpp">
+      <Filter>Engine - Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="qt_gui.cpp">
       <Filter>Qt</Filter>
     </ClCompile>
-    <ClCompile Include="vulkanengine.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="app_gui.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vulkanutils.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="mesh_attributes.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vulkandata.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="mesh_data.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vulkanshader.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="mesh_group.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vulkaninit.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="scene_builder.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="vulkanmesh.cpp">
-      <Filter>Engine - Vulkan</Filter>
+    <ClCompile Include="scene_placer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_procedural.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="opengltexture.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="openglcommon.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="openglengine.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="openglmesh.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="openglshader.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="opengltarget.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="qt\project\editor.h">
       <Filter>Qt</Filter>
     </ClInclude>
@@ -255,30 +237,6 @@
     </ClInclude>
     <ClInclude Include="qt\project\tweakable.h">
       <Filter>Qt</Filter>
-    </ClInclude>
-    <ClInclude Include="openglemitter.h">
-      <Filter>Engine - OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="directxtexture.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxcommon.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxemitter.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxengine.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxmesh.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxshader.h">
-      <Filter>Engine - DirectX</Filter>
-    </ClInclude>
-    <ClInclude Include="directxtarget.h">
-      <Filter>Engine - DirectX</Filter>
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Source Files</Filter>
@@ -313,37 +271,10 @@
     <ClInclude Include="matrix.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="renderdata.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderengine.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="scene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="sceneInterface.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sceneBuilder.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sceneData.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="appGUI.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="int2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scenePlacer.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="meshAttributes.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="meshgroup.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="random_generator.h">
@@ -361,9 +292,6 @@
     <ClInclude Include="mesh.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="meshdata.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="particle.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -379,35 +307,107 @@
     <ClInclude Include="texture.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="textureProcedural.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="water.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="animation.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="qtGUI.h">
+    <ClInclude Include="directx_common.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_emitter.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_engine.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_mesh.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_shader.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_target.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="directx_texture.h">
+      <Filter>Engine - DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_common.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_emitter.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_engine.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_mesh.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_shader.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_target.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_texture.h">
+      <Filter>Engine - OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_data.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_engine.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_init.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_mesh.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_shader.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_utils.h">
+      <Filter>Engine - Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="qt_gui.h">
       <Filter>Qt</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanengine.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="app_gui.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanutils.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="mesh_attributes.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="vulkandata.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="mesh_data.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanshader.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="mesh_group.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="vulkaninit.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="scene_builder.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="vulkanmesh.h">
-      <Filter>Engine - Vulkan</Filter>
+    <ClInclude Include="scene_data.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_interface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_placer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_procedural.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render_engine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render_data.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

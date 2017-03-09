@@ -6,13 +6,13 @@
 #include "common.h"
 #include "postprocessing.h"
 #include "timer.h"
-#include "openglengine.h"
-#include "directxengine.h"
-#include "vulkanengine.h"
+#include "opengl_engine.h"
+#include "directx_engine.h"
+#include "vulkan_engine.h"
 #include "scene.h"
 #include "camera.h"
 #include "cache.h"
-#include "appGUI.h"
+#include "app_gui.h"
 #include <windowsx.h>
 
 //#define SELECTED_ENGINE DIRECTX

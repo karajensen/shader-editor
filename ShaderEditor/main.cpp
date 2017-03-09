@@ -3,9 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "common.h"
-#include "renderdata.h"
+#include "render_data.h"
 #include "application.h"
-#include "qtGUI.h"
+#include "qt_gui.h"
 #include "cache.h"
 #include <thread>
 #include <iostream>
