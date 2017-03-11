@@ -94,10 +94,9 @@ bool VulkanEngine::InitialiseScene(const IScene& scene)
         m_data->meshes.push_back(std::unique_ptr<VkMesh>(new VkMesh(info, *mesh, 
             [this](VkCommandBuffer cmd, const glm::mat4& world, int texture) 
         { 
-            auto& shader = m_data->shaders[m_data->selectedShader];
+            auto& info = *m_data;
+            auto& shader = info.shaders[info.selectedShader];
             shader->UpdateWorldMatrix(world);
-            shader->SendUniformBuffer();
-
         })));
     }
 
@@ -129,9 +128,6 @@ bool VulkanEngine::ReInitialiseScene()
 
     SetSelectedShader(0);
 
-    FillCommandBuffer(0);
-    FillCommandBuffer(1);
-
     Logger::LogInfo("Vulkan: Re-Initialised");
     return true;
 }
@@ -144,9 +140,70 @@ bool VulkanEngine::FadeView(bool in, float amount)
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
     auto& info = *m_data;
+    auto& cmd = info.cmd[info.currentBuffer];
+    auto& shader = info.shaders[info.selectedShader];
 
-    auto& shader = m_data->shaders[m_data->selectedShader];
+    BeginRender();
+
+    shader->Bind(cmd);
+    for (auto& mesh : info.meshes)
+    {
+        mesh->Render(cmd);
+    }
     shader->SendUniformBuffer();
+
+    EndRender();
+}
+
+void VulkanEngine::BeginRender()
+{
+    auto& info = *m_data;
+    auto& cmd = info.cmd[info.currentBuffer];
+    auto& shader = info.shaders[info.selectedShader];
+
+    CHECK_FAIL(vkResetCommandBuffer(cmd, 0));
+
+    VkCommandBufferBeginInfo cmdBufInfo = {};
+    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    CHECK_FAIL(vkBeginCommandBuffer(cmd, &cmdBufInfo));
+
+    VkRenderPassBeginInfo rpBegin = {};
+    rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    rpBegin.renderPass = info.renderPass;
+    rpBegin.framebuffer = info.framebuffers[info.currentBuffer];
+    rpBegin.renderArea.offset.x = 0;
+    rpBegin.renderArea.offset.y = 0;
+    rpBegin.renderArea.extent.width = WINDOW_WIDTH;
+    rpBegin.renderArea.extent.height = WINDOW_HEIGHT;
+    rpBegin.clearValueCount = 2;
+    rpBegin.pClearValues = info.clearValues;
+    vkCmdBeginRenderPass(cmd, &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport;
+    viewport.height = (float)WINDOW_HEIGHT;
+    viewport.width = (float)WINDOW_WIDTH;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    vkCmdSetViewport(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &viewport);
+
+    VkRect2D scissor;
+    scissor.extent.width = WINDOW_WIDTH;
+    scissor.extent.height = WINDOW_HEIGHT;
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    vkCmdSetScissor(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &scissor);
+}
+
+void VulkanEngine::EndRender()
+{
+    auto& info = *m_data;
+    auto& cmd = info.cmd[info.currentBuffer];
+
+    vkCmdEndRenderPass(cmd);
+
+    CHECK_FAIL(vkEndCommandBuffer(cmd));
 
     CHECK_FAIL(vkAcquireNextImageKHR(info.device,
         info.swapChain,
@@ -155,7 +212,6 @@ void VulkanEngine::Render(const IScene& scene, float timer)
         VK_NULL_HANDLE,
         &info.currentBuffer));
 
-    //FillCommandBuffer(info.currentBuffer);
     CHECK_FAIL(vkWaitForFences(info.device, 1, &info.fences[info.currentBuffer], VK_TRUE, UINT64_MAX));
     CHECK_FAIL(vkResetFences(info.device, 1, &info.fences[info.currentBuffer]));
 
@@ -181,6 +237,7 @@ void VulkanEngine::Render(const IScene& scene, float timer)
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pResults = NULL;
     CHECK_FAIL(vkQueuePresentKHR(info.presentQueue, &presentInfo));
+    CHECK_FAIL(vkQueueWaitIdle(info.presentQueue));
 }
 
 void VulkanEngine::ToggleWireframe()
@@ -256,59 +313,4 @@ void VulkanEngine::SetSelectedShader(int index)
 {
     m_data->selectedShader = index;
     m_data->shaders[index]->SetActive();
-}
-
-void VulkanEngine::FillCommandBuffer(int index)
-{
-    auto& info = *m_data;
-
-    auto& cmd = info.cmd[index];
-    CHECK_FAIL(vkResetCommandBuffer(cmd, 0));
-
-    VkCommandBufferBeginInfo cmdBufInfo = {};
-    cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    cmdBufInfo.pNext = NULL;
-    cmdBufInfo.flags = 0;
-    cmdBufInfo.pInheritanceInfo = NULL;
-
-    CHECK_FAIL(vkBeginCommandBuffer(cmd, &cmdBufInfo));
-
-    VkRenderPassBeginInfo rpBegin;
-    rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    rpBegin.pNext = NULL;
-    rpBegin.renderPass = info.renderPass;
-    rpBegin.framebuffer = info.framebuffers[index];
-    rpBegin.renderArea.offset.x = 0;
-    rpBegin.renderArea.offset.y = 0;
-    rpBegin.renderArea.extent.width = WINDOW_WIDTH;
-    rpBegin.renderArea.extent.height = WINDOW_HEIGHT;
-    rpBegin.clearValueCount = 2;
-    rpBegin.pClearValues = info.clearValues;
-    vkCmdBeginRenderPass(cmd, &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
-
-    VkViewport viewport;
-    viewport.height = (float)WINDOW_HEIGHT;
-    viewport.width = (float)WINDOW_WIDTH;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    vkCmdSetViewport(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &viewport);
-
-    VkRect2D scissor;
-    scissor.extent.width = WINDOW_WIDTH;
-    scissor.extent.height = WINDOW_HEIGHT;
-    scissor.offset.x = 0;
-    scissor.offset.y = 0;
-    vkCmdSetScissor(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &scissor);
-
-    info.shaders.at(info.selectedShader)->Bind(cmd);
-    for (auto& mesh : info.meshes)
-    {
-        mesh->Render(cmd);
-    }
-
-    vkCmdEndRenderPass(cmd);
-
-    CHECK_FAIL(vkEndCommandBuffer(cmd));
 }

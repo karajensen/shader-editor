@@ -1,5 +1,5 @@
 
-- Fix tearing and comment all vulkan data
+- Comment all vulkan members/functions
 - Fix instances all rendering with empty world matrix
 - Add diffuse texture
 

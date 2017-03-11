@@ -148,9 +148,14 @@ private:
     void SetSelectedShader(int index);
 
     /**
-    * Fills the command buffer with the next frame to render
+    * Sets up rendering for the frame
     */
-    void FillCommandBuffer(int index);
+    void BeginRender();
+
+    /**
+    * Ends rendering for the frame
+    */
+    void EndRender();
 
     std::unique_ptr<VulkanData> m_data;  ///< member data
 };                     

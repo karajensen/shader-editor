@@ -230,7 +230,7 @@ void VkMeshBuffer::Render(VkCommandBuffer cmd)
     VkDeviceSize offsets[1] = { 0 };
     vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertexBuffer, offsets);
     vkCmdBindIndexBuffer(cmd, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-    vkCmdDrawIndexed(cmd, m_indexCount, 1, 0, 0, 1);
+    vkCmdDrawIndexed(cmd, m_indexCount, 1, 0, 0, 0);
 }
 
 const MeshData& VkMeshData::GetData() const

@@ -212,7 +212,7 @@ bool VulkanInit::InitDebugging(VulkanData &info)
     VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
     dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
     dbgCreateInfo.pfnCallback = (PFN_vkDebugReportCallbackEXT)DebugMessageCallback;
-    dbgCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+    dbgCreateInfo.flags = 0;
     return !CHECK_FAIL(info.createDebugReportFn(info.instance, &dbgCreateInfo, nullptr, &info.debugCallback));
 }
 
@@ -420,12 +420,9 @@ bool VulkanInit::InitDeviceQueue(VulkanData &info)
 
 bool VulkanInit::InitSwapChain(VulkanData &info)
 {
-    VkImageUsageFlags usageFlags =
-        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    const bool vsync = false;
 
     VkSurfaceCapabilitiesKHR surfCapabilities;
-
     if (CHECK_FAIL(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface, &surfCapabilities)))
     {
         return false;
@@ -485,6 +482,24 @@ bool VulkanInit::InitSwapChain(VulkanData &info)
     // Also note that current Android driver only supports FIFO
     VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 
+    // If v-sync is not requested, try to find a mailbox mode
+    // It's the lowest latency non-tearing present mode available
+    if (!vsync)
+    {
+        for (size_t i = 0; i < presentModeCount; i++)
+        {
+            if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+            {
+                swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+                break;
+            }
+            if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) && (presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR))
+            {
+                swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+            }
+        }
+    }
+
     // Determine the number of VkImage's to use in the swap chain.
     // We need to acquire only 1 presentable image at at time.
     // Asking for minImageCount images ensures that we can acquire
@@ -515,12 +530,13 @@ bool VulkanInit::InitSwapChain(VulkanData &info)
     swapchainCi.imageArrayLayers = 1;
     swapchainCi.presentMode = swapchainPresentMode;
     swapchainCi.oldSwapchain = VK_NULL_HANDLE;
-    swapchainCi.clipped = true;
+    swapchainCi.clipped = VK_TRUE;
     swapchainCi.imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-    swapchainCi.imageUsage = usageFlags;
+    swapchainCi.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     swapchainCi.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     swapchainCi.queueFamilyIndexCount = 0;
     swapchainCi.pQueueFamilyIndices = NULL;
+
     uint32_t queueFamilyIndices[2] = { (uint32_t)info.graphicsQueueFamilyIndex, (uint32_t)info.presentQueueFamilyIndex };
     if (info.graphicsQueueFamilyIndex != info.presentQueueFamilyIndex) 
     {

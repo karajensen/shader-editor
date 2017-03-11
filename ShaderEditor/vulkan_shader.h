@@ -68,11 +68,6 @@ public:
     void SetActive();
 
     /**
-    * Binds the shader for rendering
-    */
-    void Bind(VkCommandBuffer cmd);
-
-    /**
     * @return the text for the shader
     */
     std::string GetText() const;
@@ -81,6 +76,11 @@ public:
     * @return the assembly for the shader
     */
     std::string GetAssembly();
+
+    /**
+    * Bind the shader to the command buffer
+    */
+    void Bind(VkCommandBuffer cmd);
 
     /**
     * Sends the uniform buffer to the shader
