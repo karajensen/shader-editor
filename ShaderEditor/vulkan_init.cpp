@@ -218,7 +218,7 @@ bool VulkanInit::InitDebugging(VulkanData &info)
 
 bool VulkanInit::InitGlobalLayerProperties(VulkanData& info)
 {
-    uint32_t instanceLayerCount;
+    uint32_t instanceLayerCount = 0;
     VkLayerProperties *vkProps = NULL;
     VkResult result;
 
@@ -723,113 +723,34 @@ bool VulkanInit::InitDepthBuffer(VulkanData &info)
     return !CHECK_FAIL(vkCreateImageView(info.device, &viewInfo, NULL, &info.depth.view));
 }
 
-bool VulkanInit::InitDescriptorAndPipelineLayouts(VulkanData &info)
-{
-    bool use_texture = false;
-
-    VkDescriptorSetLayoutBinding layoutBindings[2];
-    layoutBindings[0].binding = 0;
-    layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    layoutBindings[0].descriptorCount = 1;
-    layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    layoutBindings[0].pImmutableSamplers = NULL;
-
-    if (use_texture) 
-    {
-        layoutBindings[1].binding = 1;
-        layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        layoutBindings[1].descriptorCount = 1;
-        layoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        layoutBindings[1].pImmutableSamplers = NULL;
-    }
-
-    // Next take layout bindings and use them to create a descriptor set layout
-    VkDescriptorSetLayoutCreateInfo descriptorLayout = {};
-    descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayout.pNext = NULL;
-    descriptorLayout.bindingCount = use_texture ? 2 : 1;
-    descriptorLayout.pBindings = layoutBindings;
-
-    if (CHECK_FAIL(vkCreateDescriptorSetLayout(info.device, &descriptorLayout, NULL, &info.descLayout)))
-    {
-        return false;
-    }
-
-    VulkanUtils::SetDebugName(info, 
-        (uint64_t)info.descLayout, 
-        typeid(info.descLayout), 
-        "DescLayout");
-
-    // Now use the descriptor layout to create a pipeline layout
-    VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
-    pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pPipelineLayoutCreateInfo.pNext = NULL;
-    pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-    pPipelineLayoutCreateInfo.pPushConstantRanges = NULL;
-    pPipelineLayoutCreateInfo.setLayoutCount = 1;
-    pPipelineLayoutCreateInfo.pSetLayouts = &info.descLayout;
-
-    if (CHECK_FAIL(vkCreatePipelineLayout(info.device, &pPipelineLayoutCreateInfo, NULL, &info.pipelineLayout)))
-    {
-        return false;
-    }
-
-    VulkanUtils::SetDebugName(info, (uint64_t)info.pipelineLayout, typeid(info.pipelineLayout), "PipelineLayout");
-    return true;
-}
-
-bool VulkanInit::InitDescriptorPool(VulkanData& info)
-{
-    bool use_texture = false;
-
-    VkDescriptorPoolSize typeCount[2];
-    typeCount[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    typeCount[0].descriptorCount = 1;
-    if (use_texture) 
-    {
-        typeCount[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        typeCount[1].descriptorCount = 1;
-    }
-
-    VkDescriptorPoolCreateInfo descriptorPool = {};
-    descriptorPool.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    descriptorPool.pNext = NULL;
-    descriptorPool.maxSets = 1;
-    descriptorPool.poolSizeCount = use_texture ? 2 : 1;
-    descriptorPool.pPoolSizes = typeCount;
-
-    return !CHECK_FAIL(vkCreateDescriptorPool(info.device, &descriptorPool, NULL, &info.descPool));
-}
-
-bool VulkanInit::InitRenderpass(VulkanData &info)
+bool VulkanInit::InitRenderPass(VulkanData &info)
 {
     bool includeDepth = true;
     bool clear = true;
-    VkImageLayout finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     // Need attachments for render target and depth buffer
-    VkAttachmentDescription attachments[2];
-    attachments[0].format = info.format;
-    attachments[0].samples = VulkanUtils::NUM_SAMPLES;
-    attachments[0].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachments[0].finalLayout = finalLayout;
-    attachments[0].flags = 0;
+    VkAttachmentDescription desc[2];
+    desc[0].format = info.format;
+    desc[0].samples = VulkanUtils::NUM_SAMPLES;
+    desc[0].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    desc[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    desc[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    desc[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    desc[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    desc[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    desc[0].flags = 0;
 
     if (includeDepth) 
     {
-        attachments[1].format = info.depth.format;
-        attachments[1].samples = VulkanUtils::NUM_SAMPLES;
-        attachments[1].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        attachments[1].flags = 0;
+        desc[1].format = info.depth.format;
+        desc[1].samples = VulkanUtils::NUM_SAMPLES;
+        desc[1].loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        desc[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        desc[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        desc[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+        desc[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        desc[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        desc[1].flags = 0;
     }
 
     VkAttachmentReference color_reference = {};
@@ -856,7 +777,7 @@ bool VulkanInit::InitRenderpass(VulkanData &info)
     rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     rpInfo.pNext = NULL;
     rpInfo.attachmentCount = includeDepth ? 2 : 1;
-    rpInfo.pAttachments = attachments;
+    rpInfo.pAttachments = desc;
     rpInfo.subpassCount = 1;
     rpInfo.pSubpasses = &subpass;
     rpInfo.dependencyCount = 0;
@@ -868,12 +789,6 @@ bool VulkanInit::InitRenderpass(VulkanData &info)
     }
 
     VulkanUtils::SetDebugName(info, (uint64_t)info.renderPass, typeid(info.renderPass), "RenderPass");
-    return true;
-}
-
-bool VulkanInit::InitFramebuffers(VulkanData &info)
-{
-    bool includeDepth = true;
 
     VkImageView attachments[2];
     attachments[1] = info.depth.view;
@@ -888,11 +803,8 @@ bool VulkanInit::InitFramebuffers(VulkanData &info)
     fbInfo.height = WINDOW_HEIGHT;
     fbInfo.layers = 1;
 
-    uint32_t i;
-
     info.framebuffers.resize(info.swapchainImageCount);
-
-    for (i = 0; i < info.swapchainImageCount; i++) 
+    for (uint32_t i = 0; i < info.swapchainImageCount; i++)
     {
         attachments[0] = info.buffers[i].view;
         if (CHECK_FAIL(vkCreateFramebuffer(info.device, &fbInfo, NULL, &info.framebuffers[i])))
@@ -901,10 +813,11 @@ bool VulkanInit::InitFramebuffers(VulkanData &info)
         }
 
         VulkanUtils::SetDebugName(info,
-            (uint64_t)info.framebuffers[i], 
+            (uint64_t)info.framebuffers[i],
             typeid(info.framebuffers[i]),
             "FrameBuffer" + std::to_string(i));
     }
+
     return true;
 }
 
@@ -957,14 +870,4 @@ bool VulkanInit::InitFence(VulkanData& info)
     }
 
     return true;
-}
-
-bool VulkanInit::InitDescriptorSet(VulkanData& info)
-{
-    VkDescriptorSetAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = info.descPool;
-    allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &info.descLayout;
-    return !CHECK_FAIL(vkAllocateDescriptorSets(info.device, &allocInfo, &info.descSet));
 }

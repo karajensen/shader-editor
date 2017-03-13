@@ -53,18 +53,10 @@ bool VulkanEngine::Initialize()
         !VulkanInit::InitCommandBuffer(info) ||
         !VulkanInit::InitDeviceQueue(info) ||
         !VulkanInit::InitDepthBuffer(info) ||
-        !VulkanInit::InitDescriptorAndPipelineLayouts(info) ||
-        !VulkanInit::InitRenderpass(info) ||
-        !VulkanInit::InitDescriptorPool(info) ||
+        !VulkanInit::InitRenderPass(info) ||
         !VulkanInit::InitSemaphores(info) ||
         !VulkanInit::InitFence(info) ||
-        !VulkanInit::InitFramebuffers(info) ||
-        !VulkanInit::InitDescriptorSet(info))
-    {
-        return false;
-    }
-
-    if (!VkShader::InitFramework())
+        !VkShader::InitFramework())
     {
         return false;
     }
@@ -92,11 +84,8 @@ bool VulkanEngine::InitialiseScene(const IScene& scene)
     for (const auto& mesh : scene.Meshes())
     {
         m_data->meshes.push_back(std::unique_ptr<VkMesh>(new VkMesh(info, *mesh, 
-            [this](VkCommandBuffer cmd, const glm::mat4& world, int texture) 
+            [this](const glm::mat4& world, int texture) 
         { 
-            auto& info = *m_data;
-            auto& shader = info.shaders[info.selectedShader];
-            shader->UpdateWorldMatrix(world);
         })));
     }
 
@@ -140,17 +129,16 @@ bool VulkanEngine::FadeView(bool in, float amount)
 void VulkanEngine::Render(const IScene& scene, float timer)
 {
     auto& info = *m_data;
-    auto& cmd = info.cmd[info.currentBuffer];
-    auto& shader = info.shaders[info.selectedShader];
 
     BeginRender();
-
-    shader->Bind(cmd);
+    
+    auto& shader = info.SelectedShader();
+    shader.Bind();
     for (auto& mesh : info.meshes)
     {
-        mesh->Render(cmd);
+        mesh->Render();
     }
-    shader->SendUniformBuffer();
+    shader.SendUniformBuffer();
 
     EndRender();
 }
@@ -186,14 +174,14 @@ void VulkanEngine::BeginRender()
     viewport.maxDepth = 1.0f;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    vkCmdSetViewport(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &viewport);
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
 
     VkRect2D scissor;
     scissor.extent.width = WINDOW_WIDTH;
     scissor.extent.height = WINDOW_HEIGHT;
     scissor.offset.x = 0;
     scissor.offset.y = 0;
-    vkCmdSetScissor(cmd, 0, VulkanUtils::NUM_VIEWPORTS_AND_SCISSORS, &scissor);
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
 }
 
 void VulkanEngine::EndRender()

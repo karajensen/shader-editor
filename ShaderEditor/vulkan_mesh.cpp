@@ -225,8 +225,10 @@ bool VkMeshBuffer::Initialise()
     return true;
 }
 
-void VkMeshBuffer::Render(VkCommandBuffer cmd)
+void VkMeshBuffer::Render()
 {
+    auto& cmd = m_info.SelectedCmd();
+
     VkDeviceSize offsets[1] = { 0 };
     vkCmdBindVertexBuffers(cmd, 0, 1, &m_vertexBuffer, offsets);
     vkCmdBindIndexBuffer(cmd, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
@@ -253,7 +255,7 @@ const Terrain& VkMesh::GetTerrain() const
     return static_cast<const Terrain&>(GetData());
 }
 
-void VkMeshData::Render(VkCommandBuffer cmd)
+void VkMeshData::Render()
 {
     const auto& instances = m_meshdata.Instances();
     for (unsigned int i = 0; i < instances.size(); ++i)
@@ -279,8 +281,8 @@ void VkMeshData::Render(VkCommandBuffer cmd)
 
         if (instance.enabled && instance.render)
         {
-            m_preRender(cmd, m_world[i], instance.colour);
-            VkMeshBuffer::Render(cmd);
+            m_preRender(m_world[i], instance.colour);
+            VkMeshBuffer::Render();
         }
     }
     m_updateInstances = false;

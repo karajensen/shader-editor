@@ -44,7 +44,7 @@ public:
     /**
     * Renders the mesh
     */
-    virtual void Render(VkCommandBuffer cmd);
+    virtual void Render();
 
     /**
     * Initialises the mesh
@@ -59,11 +59,11 @@ protected:
     const std::vector<float>& m_vertices;       ///< Vertex buffer data
     const std::vector<unsigned int>& m_indices; ///< Index buffer data
     VulkanData& m_info;                         ///< Data for the Vulkan Engine
-    VkDeviceMemory m_vertexMemory;
-    VkBuffer m_vertexBuffer;
-    VkDeviceMemory m_indexMemory;
-    VkBuffer m_indexBuffer;
-    uint32_t m_indexCount;
+    VkDeviceMemory m_vertexMemory;              ///< Memory for the vertex buffer
+    VkBuffer m_vertexBuffer;                    ///< Vertex buffer
+    VkDeviceMemory m_indexMemory;               ///< Memory for the index buffer
+    VkBuffer m_indexBuffer;                     ///< Index buffer
+    uint32_t m_indexCount;                      ///< Number of indices
 };
 
 /**
@@ -100,7 +100,7 @@ public:
     /**
     * Renders the mesh
     */
-    virtual void Render(VkCommandBuffer cmd) override;
+    virtual void Render() override;
 
     /**
     * Initialises the mesh

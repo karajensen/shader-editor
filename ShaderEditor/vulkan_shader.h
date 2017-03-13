@@ -80,19 +80,44 @@ public:
     /**
     * Bind the shader to the command buffer
     */
-    void Bind(VkCommandBuffer cmd);
+    void Bind();
 
     /**
     * Sends the uniform buffer to the shader
     */
     void SendUniformBuffer();
 
-    /**
-    * TODO: Make this generic
-    */
-    void UpdateWorldMatrix(const glm::mat4& world);
-
 private:
+
+    /**
+    * Initialises a descripter pool to allocate descripter sets
+    * @param info Data for the Vulkan Engine
+    */
+    bool InitDescriptorPool(VulkanData& info);
+
+    /**
+    * Specifies the types of resources that are going to be accessed by the pipeline
+    * @param info Data for the Vulkan Engine
+    */
+    bool InitDescriptorAndPipelineLayouts(VulkanData &info);
+
+    /**
+    * Specifies the actual buffer or image resources that will be bound
+    * @param info Data for the Vulkan Engine
+    */
+    bool InitDescriptorSet(VulkanData& info);
+
+    /**
+    * Initialises the shader uniform buffers
+    * @param info Data for the Vulkan Engine
+    */
+    bool InitUniformBuffer(VulkanData& info);
+
+    /**
+    * Initialises the shader pipeline which describes the shader stages
+    * @param info Data for the Vulkan Engine
+    */
+    bool InitPipeline(VulkanData& info);
 
     /**
     * Parse a GLSL shader into SPRIV
@@ -101,32 +126,27 @@ private:
                       const char* pshader, 
                       std::vector<unsigned int>& spirv);
 
-    //-----------------------------------------
-    // TODO: Make this generic for scene
+    /**
+    * Releases the shader modules
+    */
+    void ReleaseShaderModules();
+
+    /**
+    * Resets the shader resource values to default
+    */
+    void Reset();
+
+    /**
+    * TODO: Make this generic
+    */
     struct SceneData
     {
         glm::mat4 viewProj;
     };
-    struct ObjData
-    {
-        glm::mat4 world;
-    };
-    ObjData m_objData;
-    SceneData m_sceneData;
-    //-----------------------------------------
-
-    void ReleaseShader();
-    void Reset();
-    bool InitUniformBuffer();
-    bool InitPipeline();
-
-    const Shader& m_shader;        ///< Shader data and paths
-    VulkanData& m_info;            ///< Data for the Vulkan Engine
-    std::string m_vertexText;      ///< Text for the vertex shader
-    std::string m_fragmentText;    ///< Text for the fragment shader
-    std::string m_vertexAsm;       ///< Assembly for the vertex shader
-    std::string m_fragmentAsm;     ///< Assembly for the fragment shader
     
+    /**
+    * Data for a uniform buffer
+    */
     struct UniformBuffer
     {
         VkBuffer buffer = VK_NULL_HANDLE;
@@ -134,9 +154,18 @@ private:
         VkDescriptorBufferInfo bufferInfo = {};
     };
 
-    UniformBuffer m_scene;
-    std::vector<UniformBuffer> m_objs;
-
-    VkPipeline m_pipeline;
-    std::vector<VkPipelineShaderStageCreateInfo> m_stages;
+    const Shader& m_shader;                                 ///< Shader data and paths
+    VulkanData& m_info;                                     ///< Data for the Vulkan Engine
+    std::string m_vertexText;                               ///< Text for the vertex shader
+    std::string m_fragmentText;                             ///< Text for the fragment shader
+    std::string m_vertexAsm;                                ///< Assembly for the vertex shader
+    std::string m_fragmentAsm;                              ///< Assembly for the fragment shader
+    VkPipeline m_pipeline;                                  ///< Pipeline which describes the shader stages
+    std::vector<VkPipelineShaderStageCreateInfo> m_stages;  ///< Vertex and fragment shaders
+    UniformBuffer m_scene;                                  ///< Uniform buffer for the scene
+    SceneData m_sceneData;                                  ///< TODO: Make this generic
+    VkPipelineLayout m_pipelineLayout;                      ///< Specifies types of resources to be accessed
+    VkDescriptorSetLayout m_descLayout;                     ///< Specifies types of resources to be accessed
+    VkDescriptorSet m_descSet;                              ///< Specifies actual buffer/image resources to be bound
+    VkDescriptorPool m_descPool;                            ///< Used to allocate descripter sets
 };

@@ -14,7 +14,7 @@ struct LayerProperties;
 /**
 * Callbacks for pre-rendering elements
 */
-typedef std::function<void(VkCommandBuffer, const glm::mat4&, int)> PreRenderMesh;
+typedef std::function<void(const glm::mat4&, int)> PreRenderMesh;
 
 /**
 * Utilities for managing Vulkan
@@ -22,13 +22,6 @@ typedef std::function<void(VkCommandBuffer, const glm::mat4&, int)> PreRenderMes
 class VulkanUtils
 {
 public:
-
-    /**
-    * Number of viewports and number of scissors have to be the same
-    * at pipeline creation and in any call to set them dynamically
-    * They also have to be the same as each other
-    */
-    static const int NUM_VIEWPORTS_AND_SCISSORS = 1;
 
     /**
     * Number of samples needs to be the same at image creation

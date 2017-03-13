@@ -44,12 +44,8 @@ void VulkanData::Reset()
     instance = VK_NULL_HANDLE;
     swapChain = VK_NULL_HANDLE;
     pipelineCache = VK_NULL_HANDLE;
-    descPool = VK_NULL_HANDLE;
     renderPass = VK_NULL_HANDLE;
-    pipelineLayout = VK_NULL_HANDLE;
     cmdPool = VK_NULL_HANDLE;
-    descLayout = VK_NULL_HANDLE;
-    descSet = VK_NULL_HANDLE;
 
     currentBuffer = 0;
     swapchainImageCount = 0;
@@ -108,11 +104,6 @@ void VulkanData::Release()
         vkDestroyPipelineCache(device, pipelineCache, NULL);
     }
 
-    if (descPool != VK_NULL_HANDLE)
-    {
-        vkDestroyDescriptorPool(device, descPool, NULL);
-    }
-
     for (int i = 0; i < (int)framebuffers.size(); i++)
     {
         vkDestroyFramebuffer(device, framebuffers[i], NULL);
@@ -121,16 +112,6 @@ void VulkanData::Release()
     if (renderPass != VK_NULL_HANDLE)
     {
         vkDestroyRenderPass(device, renderPass, NULL);
-    }
-
-    if (descLayout != VK_NULL_HANDLE)
-    {
-        vkDestroyDescriptorSetLayout(device, descLayout, NULL);
-    }
-
-    if (pipelineLayout != VK_NULL_HANDLE)
-    {
-        vkDestroyPipelineLayout(device, pipelineLayout, NULL);
     }
 
     if (depth.view != VK_NULL_HANDLE)
@@ -192,4 +173,14 @@ void VulkanData::Release()
     }
 
     Reset();
+}
+
+VkShader& VulkanData::SelectedShader()
+{
+    return *shaders.at(selectedShader);
+}
+
+VkCommandBuffer& VulkanData::SelectedCmd()
+{
+    return cmd.at(currentBuffer);
 }
