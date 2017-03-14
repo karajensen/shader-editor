@@ -638,7 +638,7 @@ bool VkShader::InitPipeline(VulkanData& info)
     pipelineCreateInfo.renderPass = info.renderPass;
     pipelineCreateInfo.pDynamicState = &dynamicState;
 
-    if (CHECK_FAIL(vkCreateGraphicsPipelines(info.device, info.pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_pipeline)))
+    if (CHECK_FAIL(vkCreateGraphicsPipelines(info.device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_pipeline)))
     {
         return false;
     }

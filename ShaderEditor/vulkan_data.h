@@ -79,44 +79,40 @@ struct VulkanData
     HWND window;                                                   ///< Application window
     VkInstance instance;                                           ///< Vulkan instance
     VkDevice device;                                               ///< Vulkan device
-    VkSurfaceKHR surface;                                          ///<
-    VkSwapchainKHR swapChain;                                      ///<
-    VkQueue graphicsQueue;                                         ///<
-    VkQueue presentQueue;                                          ///<
+    VkSurfaceKHR surface;                                          ///< Surface to present the swap chain to
+    VkSwapchainKHR swapChain;                                      ///< Handle to the swap chain
+    VkQueue graphicsQueue;                                         ///< Handle to the device queue that command buffers are submitted to
+    VkQueue presentQueue;                                          ///< Handle to the device queue that is presented to the screen
     Depth depth;                                                   ///< Depth buffer
-    VkPhysicalDeviceMemoryProperties memoryProperties;             ///<
-    VkPhysicalDeviceProperties gpuProps;                           ///<
-    VkSemaphore presentCompleteSemaphore;                          ///<
-    VkSemaphore renderCompleteSemaphore;                           ///<
-    VkPipelineCache pipelineCache;                                 ///<
+    VkPhysicalDeviceMemoryProperties memoryProperties;             ///< Stores available memory properties for the physical device
+    VkPhysicalDeviceProperties gpuProps;                           ///< Properties for the physical gpu device
+    VkSemaphore presentCompleteSemaphore;                          ///< For synchronising rendering frames
+    VkSemaphore renderCompleteSemaphore;                           ///< For synchronising rendering frames
     uint32_t currentBuffer;                                        ///< Current selected frame and command buffer
-    uint32_t queueFamilyCount;                                     ///<
-    uint32_t graphicsQueueFamilyIndex;                             ///<
-    uint32_t presentQueueFamilyIndex;                              ///<
+    uint32_t queueFamilyCount;                                     ///< Number of supported queue families
+    uint32_t graphicsQueueFamilyIndex;                             ///< Index of queue family that supports rendering
+    uint32_t presentQueueFamilyIndex;                              ///< Index of queue family that supports presenting
     uint32_t swapchainImageCount;                                  ///< Number of swap chain images
     VkCommandPool cmdPool;                                         ///< Pool to allocate command buffers
     VkFormat format;                                               ///< Supported swap chain format
-    VkRenderPass renderPass;                                       ///<
-    VkDescriptorImageInfo imageInfo;                               ///<
-    VkPipelineStageFlags pipeStageFlags;                           ///<
-    VkClearValue clearValues[2];                                   ///< Buffer clear values/color
-                                                                   
-    VkDebugReportCallbackEXT debugCallback;                        ///<
-    PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;        ///<
-    PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportFn;      ///<
-    PFN_vkDebugMarkerSetObjectNameEXT setDebugNameFn;              ///<
+    VkRenderPass renderPass;                                       ///< Used for rendering to the frame buffers
+    VkPipelineStageFlags pipeStageFlags;                           ///< Stages where the corresponding semaphore wait will occur
+    VkClearValue clearValues[2];                                   ///< Buffer clear values/color                                                    
+    VkDebugReportCallbackEXT debugCallback;                        ///< Debug report callback information
+    PFN_vkCreateDebugReportCallbackEXT createDebugReportFn;        ///< Function pointer for creating the debug report
+    PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportFn;      ///< Function pointer for destroying the debug report
+    PFN_vkDebugMarkerSetObjectNameEXT setDebugNameFn;              ///< Function pointer for setting the debug name
 
-    std::vector<VkFence> fences;                                   ///<
-    std::vector<VkFramebuffer> framebuffers;                       ///<
+    std::vector<VkFence> fences;                                   ///< For synchronising queues
+    std::vector<VkFramebuffer> framebuffers;                       ///< Collection of memory attachments that a render pass uses
     std::vector<VkCommandBuffer> cmd;                              ///< Command buffers to record render information
-    std::vector<SwapChainBuffer> buffers;                          ///<
-    std::vector<VkQueueFamilyProperties> queueProps;               ///<
-    std::vector<LayerProperties> instanceLayerProperties;          ///<
-    std::vector<const char*> instanceLayerNames;                   ///<
-    std::vector<const char*> instanceExtensionNames;               ///<
-    std::vector<VkPhysicalDevice> gpus;                            ///<
-    std::vector<const char*> deviceExtensionNames;                 ///<
-
+    std::vector<SwapChainBuffer> buffers;                          ///< Swap chain image and view data
+    std::vector<VkQueueFamilyProperties> queueProps;               ///< Properties of the queues of the physical device
+    std::vector<LayerProperties> instanceLayerProperties;          ///< Information on layers supported
+    std::vector<const char*> instanceLayerNames;                   ///< Layer names supported
+    std::vector<VkPhysicalDevice> gpus;                            ///< Handles to the physical gpu devices
+    std::vector<const char*> instanceExtensionNames;               ///< Names of the extensions to use for the instance
+    std::vector<const char*> deviceExtensionNames;                 ///< Names of the extensions to use for the device
     std::vector<std::unique_ptr<VkShader>> shaders;                ///< Shaders shared by all meshes
     std::vector<std::unique_ptr<VkMesh>> meshes;                   ///< Each mesh in the scene
                                                                    

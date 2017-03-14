@@ -43,7 +43,6 @@ void VulkanData::Reset()
     device = VK_NULL_HANDLE;
     instance = VK_NULL_HANDLE;
     swapChain = VK_NULL_HANDLE;
-    pipelineCache = VK_NULL_HANDLE;
     renderPass = VK_NULL_HANDLE;
     cmdPool = VK_NULL_HANDLE;
 
@@ -97,11 +96,6 @@ void VulkanData::Release()
     if (renderCompleteSemaphore != VK_NULL_HANDLE)
     {
         vkDestroySemaphore(device, renderCompleteSemaphore, NULL);
-    }
-
-    if (pipelineCache != VK_NULL_HANDLE)
-    {
-        vkDestroyPipelineCache(device, pipelineCache, NULL);
     }
 
     for (int i = 0; i < (int)framebuffers.size(); i++)
