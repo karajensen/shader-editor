@@ -15,9 +15,9 @@
 #include "app_gui.h"
 #include <windowsx.h>
 
-//#define SELECTED_ENGINE DIRECTX
+#define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
-#define SELECTED_ENGINE VULKAN
+//#define SELECTED_ENGINE VULKAN
 #define SELECTED_MAP PostProcessing::FINAL_MAP
 
 Application::Application() :
