@@ -8,6 +8,8 @@
 #include "qt/include/QtWidgets/qapplication.h"
 #include "boost/lexical_cast.hpp"
 
+#include <QTimer>
+
 QtGUI::~QtGUI() = default;
 
 QtGUI::QtGUI(std::shared_ptr<Cache> cache) :
@@ -115,18 +117,24 @@ void QtGUI::Run(int argc, char *argv[])
     editor.show();
 
     Tweaker tweaker(callbacks);
-    tweaker.setWindowFlags(Qt::CustomizeWindowHint);
+    tweaker.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
     tweaker.show();
 
-    while(m_cache->ApplicationRunning.Get())
-    {
-        app.processEvents();
-        UpdateTweaker(tweaker);
-        UpdateEditor(editor);
-    }
+	QTimer timer;
+	timer.setInterval(10);
+	QObject::connect(&timer, &QTimer::timeout, [this, &tweaker, &editor, &app]() 
+	{ 
+		UpdateTweaker(tweaker);
+		UpdateEditor(editor);
 
-    app.exit();
-    Logger::LogInfo("Exiting Qt");
+		if (!m_cache->ApplicationRunning.Get())
+		{
+			app.exit();
+		}
+	});
+
+	timer.start();
+	app.exec();
 }
 
 void QtGUI::UpdateTweaker(Tweaker& tweaker)

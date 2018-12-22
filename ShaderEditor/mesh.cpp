@@ -106,34 +106,26 @@ bool Mesh::InitialiseFromFile(const std::string& path,
                 m_vertices.push_back(pMesh->mNormals[vert].z);
                 componentCount += 3;
             }
-            else //TODO: Remove
-            {
-                m_vertices.push_back(1.0f);
-                m_vertices.push_back(1.0f);
-                m_vertices.push_back(1.0f);
-                componentCount += 3;
-            }
 
             // Add any bitangents/tangents for the mesh
-            //TODO: Renable
-            //if(requiresTangents)
-            //{
-            //    if(pMesh->HasTangentsAndBitangents())
-            //    {
-            //        m_vertices.push_back(pMesh->mTangents[vert].x);
-            //        m_vertices.push_back(pMesh->mTangents[vert].y);
-            //        m_vertices.push_back(pMesh->mTangents[vert].z);
-            //        m_vertices.push_back(pMesh->mBitangents[vert].x);
-            //        m_vertices.push_back(pMesh->mBitangents[vert].y);
-            //        m_vertices.push_back(pMesh->mBitangents[vert].z);
-            //        componentCount += 6;
-            //    }
-            //    else
-            //    {
-            //        Logger::LogError(Name() + " requires tangents for requested shader");
-            //        return false;
-            //    }
-            //}
+            if(requiresTangents)
+            {
+                if(pMesh->HasTangentsAndBitangents())
+                {
+                    m_vertices.push_back(pMesh->mTangents[vert].x);
+                    m_vertices.push_back(pMesh->mTangents[vert].y);
+                    m_vertices.push_back(pMesh->mTangents[vert].z);
+                    m_vertices.push_back(pMesh->mBitangents[vert].x);
+                    m_vertices.push_back(pMesh->mBitangents[vert].y);
+                    m_vertices.push_back(pMesh->mBitangents[vert].z);
+                    componentCount += 6;
+                }
+                else
+                {
+                    Logger::LogError(Name() + " requires tangents for requested shader");
+                    return false;
+                }
+            }
         }
 
         // Make sure vertex layout is consistant between submeshes

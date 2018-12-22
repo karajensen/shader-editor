@@ -234,16 +234,15 @@ bool Application::Initialise(HWND hwnd,
 
     // Ensure that all engines can be initialised
     bool failed = false;
-    //TODO: Renable
-    //for(unsigned int i = 0; i < m_engines.size(); ++i)
-    //{
-    //    engineNames.push_back(m_engines[i]->GetName());
-    //    if(i != m_selectedEngine)
-    //    {
-    //        failed |= !InitialiseEngine(*m_engines[i]);
-    //        m_engines[i]->Release();
-    //    }
-    //}
+    for(unsigned int i = 0; i < m_engines.size(); ++i)
+    {
+        engineNames.push_back(m_engines[i]->GetName());
+        if(i != m_selectedEngine)
+        {
+            failed |= !InitialiseEngine(*m_engines[i]);
+            m_engines[i]->Release();
+        }
+    }
 
     failed |= !InitialiseEngine(GetEngine());
 

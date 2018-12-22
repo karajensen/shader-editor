@@ -4,10 +4,8 @@
 
 #pragma once
 
-#include "opengl/include/glew.h"
-#include "opengl/include/wglew.h"
-#include "opengl/include/GL.h"
-#include "opengl/include/GLU.h"
+#include "glew/include/GL/glew.h"
+#include "glew/include/GL/wglew.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
