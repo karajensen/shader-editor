@@ -1,34 +1,37 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 Klaralvdalens Datakonsult AB (KDAB).
-** Contact: http://www.qt-project.org/legal
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -37,6 +40,7 @@
 #ifndef QT3DINPUT_QACTIONINPUT_H
 #define QT3DINPUT_QACTIONINPUT_H
 
+#include <Qt3DInput/qabstractactioninput.h>
 #include <Qt3DInput/qt3dinput_global.h>
 #include <Qt3DCore/qnode.h>
 
@@ -47,37 +51,34 @@ namespace Qt3DInput {
 class QAbstractPhysicalDevice;
 class QActionInputPrivate;
 
-class QT3DINPUTSHARED_EXPORT QActionInput : public Qt3DCore::QNode
+class QT3DINPUTSHARED_EXPORT QActionInput : public Qt3DInput::QAbstractActionInput
 {
     Q_OBJECT
     Q_PROPERTY(Qt3DInput::QAbstractPhysicalDevice *sourceDevice READ sourceDevice WRITE setSourceDevice NOTIFY sourceDeviceChanged)
-    Q_PROPERTY(QVariantList keys READ keys WRITE setKeys NOTIFY keysChanged)
+    Q_PROPERTY(QVector<int> buttons READ buttons WRITE setButtons NOTIFY buttonsChanged)
 
 public:
-    explicit QActionInput(Qt3DCore::QNode *parent = Q_NULLPTR);
+    explicit QActionInput(Qt3DCore::QNode *parent = nullptr);
     ~QActionInput();
 
     QAbstractPhysicalDevice *sourceDevice() const;
-    QVariantList keys() const;
+    QVector<int> buttons() const;
 
 public Q_SLOTS:
     void setSourceDevice(QAbstractPhysicalDevice *sourceDevice);
-    void setKeys(const QVariantList &keys);
+    void setButtons(const QVector<int> &buttons);
 
 Q_SIGNALS:
     void sourceDeviceChanged(QAbstractPhysicalDevice *sourceDevice);
-    void keysChanged(const QVariantList &keys);
-
-protected:
-    void copy(const Qt3DCore::QNode *ref) Q_DECL_OVERRIDE;
+    void buttonsChanged(const QVector<int> &buttons);
 
 private:
     Q_DECLARE_PRIVATE(QActionInput)
-    QT3D_CLONEABLE(QActionInput)
+    Qt3DCore::QNodeCreatedChangeBasePtr createNodeCreationChange() const override;
 };
 
 } // Qt3DInput
 
 QT_END_NAMESPACE
 
-#endif // QACTIONINPUT_H
+#endif // QT3DINPUT_QACTIONINPUT_H

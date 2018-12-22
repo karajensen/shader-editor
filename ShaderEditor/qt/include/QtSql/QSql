@@ -1,1 +1,1 @@
-#include "qsql.h"
+#include "qtsqlglobal.h"

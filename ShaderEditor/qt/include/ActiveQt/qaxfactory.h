@@ -6,7 +6,17 @@
 ** This file is part of the ActiveQt framework of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
 **
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
@@ -41,27 +51,33 @@
 #ifndef QAXFACTORY_H
 #define QAXFACTORY_H
 
+#include <QtCore/qcompilerdetection.h>
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Woverloaded-virtual") // gcc complains about QObject::metaObject() being hidden.
+QT_WARNING_DISABLE_CLANG("-Woverloaded-virtual") // clang-cl complains about QObject::metaObject() being hidden.
+
 #include <QtCore/qhash.h>
 #include <QtCore/quuid.h>
 #include <QtCore/qfactoryinterface.h>
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qsettings.h>
 
 struct IUnknown;
 struct IDispatch;
 
 QT_BEGIN_NAMESPACE
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_GCC("-Woverloaded-virtual") // gcc complains about QObject::metaObject() being hidden.
 
 class QWidget;
 class QSettings;
 
 class QAxFactory : public QObject
 {
+    Q_DISABLE_COPY(QAxFactory)
 public:
     QAxFactory(const QUuid &libId, const QUuid &appId);
-    virtual ~QAxFactory();
+    ~QAxFactory() override;
 
     virtual QStringList featureList() const = 0;
 
@@ -138,37 +154,37 @@ inline bool QAxFactory::stopServer()
     public: \
         QAxDefaultFactory(const QUuid &app, const QUuid &lib) \
         : QAxFactory(app, lib), className(QLatin1String(#Class)) {} \
-        QStringList featureList() const \
+        QStringList featureList() const override \
         { \
             QStringList list; \
             list << className; \
             return list; \
         } \
-        const QMetaObject *metaObject(const QString &key) const \
+        const QMetaObject *metaObject(const QString &key) const override \
         { \
             if (key == className) \
             return &Class::staticMetaObject; \
-            return Q_NULLPTR; \
+            return nullptr; \
         } \
-        QObject *createObject(const QString &key) \
+        QObject *createObject(const QString &key) override \
         { \
             if (key == className) \
-                return new Class(Q_NULLPTR); \
-            return Q_NULLPTR; \
+                return new Class(nullptr); \
+            return nullptr; \
         } \
-        QUuid classID(const QString &key) const \
+        QUuid classID(const QString &key) const override \
         { \
             if (key == className) \
                 return QUuid(IIDClass); \
             return QUuid(); \
         } \
-        QUuid interfaceID(const QString &key) const \
+        QUuid interfaceID(const QString &key) const override \
         { \
             if (key == className) \
                 return QUuid(IIDInterface); \
             return QUuid(); \
         } \
-        QUuid eventsID(const QString &key) const \
+        QUuid eventsID(const QString &key) const override \
         { \
             if (key == className) \
                 return QUuid(IIDEvents); \
@@ -188,16 +204,46 @@ public:
     : QAxFactory(libId, appId)
     {}
 
-    const QMetaObject *metaObject(const QString &) const { return &T::staticMetaObject; }
-    QStringList featureList() const { return QStringList(QLatin1String(T::staticMetaObject.className())); }
-    QObject *createObject(const QString &key)
+    const QMetaObject *metaObject(const QString &) const override { return &T::staticMetaObject; }
+    QStringList featureList() const override { return QStringList(QLatin1String(T::staticMetaObject.className())); }
+    QObject *createObject(const QString &key) override
     {
         const QMetaObject &mo = T::staticMetaObject;
         if (key != QLatin1String(mo.className()))
-            return Q_NULLPTR;
+            return nullptr;
         if (!qstrcmp(mo.classInfo(mo.indexOfClassInfo("Creatable")).value(), "no"))
-            return Q_NULLPTR;
-        return new T(Q_NULLPTR);
+            return nullptr;
+        return new T(nullptr);
+    }
+
+    void registerClass(const QString &key, QSettings *settings) const override
+    {
+        const QStringList categories = getImplementedCategories();
+
+        for (const auto &cat : categories) {
+            settings->setValue(QLatin1String("/CLSID/") + classID(key).toString()
+                               + QLatin1String("/Implemented Categories/") + cat + QLatin1String("/."),
+                               QString());
+        }
+    }
+
+    void unregisterClass(const QString &key, QSettings *settings) const override
+    {
+        const QStringList categories = getImplementedCategories();
+
+        for (const auto &cat : categories) {
+            settings->remove(QLatin1String("/CLSID/") + classID(key).toString()
+                             + QLatin1String("/Implemented Categories/") + cat + QLatin1String("/."));
+        }
+    }
+
+private:
+    /*! Retrieve list of comma-separated "Implemented Categories" Q_CLASSINFO UUIDs from T. */
+    static QStringList getImplementedCategories()
+    {
+        const QMetaObject &mo = T::staticMetaObject;
+        QString catids = QLatin1String(mo.classInfo(mo.indexOfClassInfo("Implemented Categories")).value());
+        return catids.split(QLatin1Char(','));
     }
 };
 
@@ -212,7 +258,7 @@ public:
         QAxFactoryList() \
         : QAxFactory(IDTypeLib, IDApp) \
         { \
-            QAxFactory *factory = Q_NULLPTR; \
+            QAxFactory *factory = nullptr; \
             QStringList keys; \
             QStringList::Iterator it; \
 
@@ -220,7 +266,7 @@ public:
             factory = new QAxClass<Class>(typeLibID().toString(), appID().toString()); \
             qRegisterMetaType<Class*>(#Class"*"); \
             keys = factory->featureList(); \
-            Q_FOREACH (const QString &key, keys) { \
+            for (const QString &key : qAsConst(keys)) { \
                 factoryKeys += key; \
                 factories.insert(key, factory); \
                 creatable.insert(key, true); \
@@ -230,7 +276,7 @@ public:
             factory = new QAxClass<Class>(typeLibID().toString(), appID().toString()); \
             qRegisterMetaType<Class*>(#Class"*"); \
             keys = factory->featureList(); \
-            Q_FOREACH (const QString &key, keys) { \
+            for (const QString &key : qAsConst(keys)) { \
                 factoryKeys += key; \
                 factories.insert(key, factory); \
                 creatable.insert(key, false); \
@@ -238,47 +284,47 @@ public:
 
 #define QAXFACTORY_END() \
         } \
-        ~QAxFactoryList() { qDeleteAll(factories); } \
-        QStringList featureList() const {  return factoryKeys; } \
-        const QMetaObject *metaObject(const QString&key) const { \
+        ~QAxFactoryList() override { qDeleteAll(factories); } \
+        QStringList featureList() const override {  return factoryKeys; } \
+        const QMetaObject *metaObject(const QString&key) const override { \
             QAxFactory *f = factories[key]; \
-            return f ? f->metaObject(key) : Q_NULLPTR; \
+            return f ? f->metaObject(key) : nullptr; \
         } \
-        QObject *createObject(const QString &key) { \
+        QObject *createObject(const QString &key) override { \
             if (!creatable.value(key)) \
-                return Q_NULLPTR; \
+                return nullptr; \
             QAxFactory *f = factories[key]; \
-            return f ? f->createObject(key) : Q_NULLPTR; \
+            return f ? f->createObject(key) : nullptr; \
         } \
-        QUuid classID(const QString &key) { \
+        QUuid classID(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->classID(key) : QUuid(); \
         } \
-        QUuid interfaceID(const QString &key) { \
+        QUuid interfaceID(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->interfaceID(key) : QUuid(); \
         } \
-        QUuid eventsID(const QString &key) { \
+        QUuid eventsID(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->eventsID(key) : QUuid(); \
         } \
-        void registerClass(const QString &key, QSettings *s) const { \
+        void registerClass(const QString &key, QSettings *s) const override { \
             QAxFactory *f = factories.value(key); \
             if (f) f->registerClass(key, s); \
         } \
-        void unregisterClass(const QString &key, QSettings *s) const { \
+        void unregisterClass(const QString &key, QSettings *s) const override { \
             QAxFactory *f = factories.value(key); \
             if (f) f->unregisterClass(key, s); \
         } \
-        QString exposeToSuperClass(const QString &key) const { \
+        QString exposeToSuperClass(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->exposeToSuperClass(key) : QString(); \
         } \
-        bool stayTopLevel(const QString &key) const { \
+        bool stayTopLevel(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->stayTopLevel(key) : false; \
         } \
-        bool hasStockEvents(const QString &key) const { \
+        bool hasStockEvents(const QString &key) const override { \
             QAxFactory *f = factories.value(key); \
             return f ? f->hasStockEvents(key) : false; \
         } \
@@ -290,8 +336,8 @@ public:
     } \
     QT_END_NAMESPACE
 
-QT_WARNING_POP
 QT_END_NAMESPACE
+QT_WARNING_POP
 
 #ifndef Q_COM_METATYPE_DECLARED
 #define Q_COM_METATYPE_DECLARED

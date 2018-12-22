@@ -1,34 +1,37 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 Paul Lemire
-** Contact: http://www.qt-project.org/legal
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -48,29 +51,26 @@ class QStencilMaskPrivate;
 class QT3DRENDERSHARED_EXPORT QStencilMask : public QRenderState
 {
     Q_OBJECT
-    Q_PROPERTY(uint frontMask READ frontMask WRITE setFrontMask NOTIFY frontMaskChanged)
-    Q_PROPERTY(uint backMask READ backMask WRITE setBackMask NOTIFY backMaskChanged)
+    Q_PROPERTY(uint frontOutputMask READ frontOutputMask WRITE setFrontOutputMask NOTIFY frontOutputMaskChanged)
+    Q_PROPERTY(uint backOutputMask READ backOutputMask WRITE setBackOutputMask NOTIFY backOutputMaskChanged)
 public:
-    explicit QStencilMask(Qt3DCore::QNode *parent = Q_NULLPTR);
+    explicit QStencilMask(Qt3DCore::QNode *parent = nullptr);
     ~QStencilMask();
 
-    uint frontMask() const;
-    uint backMask() const;
+    uint frontOutputMask() const;
+    uint backOutputMask() const;
 
 public Q_SLOTS:
-    void setFrontMask(uint mask);
-    void setBackMask(uint mask);
+    void setFrontOutputMask(uint frontOutputMask);
+    void setBackOutputMask(uint backOutputMask);
 
 Q_SIGNALS:
-    void frontMaskChanged(uint frontMask);
-    void backMaskChanged(uint backMask);
-
-protected:
-    void copy(const Qt3DCore::QNode *ref) Q_DECL_FINAL;
+    void frontOutputMaskChanged(uint frontOutputMask);
+    void backOutputMaskChanged(uint backOutputMask);
 
 private:
     Q_DECLARE_PRIVATE(QStencilMask)
-    QT3D_CLONEABLE(QStencilMask)
+    Qt3DCore::QNodeCreatedChangeBasePtr createNodeCreationChange() const override;
 };
 
 } // namespace Qt3DRender

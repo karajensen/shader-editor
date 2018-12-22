@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -112,14 +118,18 @@ struct Q_CORE_EXPORT QListData {
 };
 
 template <typename T>
-class QList : public QListSpecialMethods<T>
+class QList
+#ifndef Q_QDOC
+    : public QListSpecialMethods<T>
+#endif
 {
 public:
     struct MemoryLayout
-        : QtPrivate::if_<
+        : std::conditional<
+            // must stay isStatic until ### Qt 6 for BC reasons (don't use !isRelocatable)!
             QTypeInfo<T>::isStatic || QTypeInfo<T>::isLarge,
             QListData::IndirectLayout,
-            typename QtPrivate::if_<
+            typename std::conditional<
                 sizeof(T) == sizeof(void*),
                 QListData::ArrayCompatibleLayout,
                 QListData::InlineWithPaddingLayout
@@ -221,7 +231,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-        inline iterator() Q_DECL_NOTHROW : i(Q_NULLPTR) {}
+        inline iterator() Q_DECL_NOTHROW : i(nullptr) {}
         inline iterator(Node *n) Q_DECL_NOTHROW : i(n) {}
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         // can't remove it in Qt 5, since doing so would make the type trivial,
@@ -259,6 +269,7 @@ public:
         inline iterator &operator-=(difference_type j) { i-=j; return *this; }
         inline iterator operator+(difference_type j) const { return iterator(i+j); }
         inline iterator operator-(difference_type j) const { return iterator(i-j); }
+        friend inline iterator operator+(difference_type j, iterator k) { return k + j; }
         inline int operator-(iterator j) const { return int(i - j.i); }
     };
     friend class iterator;
@@ -273,7 +284,7 @@ public:
         typedef const T *pointer;
         typedef const T &reference;
 
-        inline const_iterator() Q_DECL_NOTHROW : i(Q_NULLPTR) {}
+        inline const_iterator() Q_DECL_NOTHROW : i(nullptr) {}
         inline const_iterator(Node *n) Q_DECL_NOTHROW : i(n) {}
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         // can't remove it in Qt 5, since doing so would make the type trivial,
@@ -302,6 +313,7 @@ public:
         inline const_iterator &operator-=(difference_type j) { i-=j; return *this; }
         inline const_iterator operator+(difference_type j) const { return const_iterator(i+j); }
         inline const_iterator operator-(difference_type j) const { return const_iterator(i-j); }
+        friend inline const_iterator operator+(difference_type j, const_iterator k) { return k + j; }
         inline int operator-(const_iterator j) const { return int(i - j.i); }
     };
     friend class const_iterator;
@@ -401,7 +413,8 @@ private:
 
     bool isValidIterator(const iterator &i) const Q_DECL_NOTHROW
     {
-        return (constBegin().i <= i.i) && (i.i <= constEnd().i);
+        const std::less<const Node *> less = {};
+        return !less(i.i, cbegin().i) && !less(cend().i, i.i);
     }
 
 private:
@@ -545,14 +558,14 @@ inline void QList<T>::removeAt(int i)
 template <typename T>
 inline T QList<T>::takeAt(int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::take", "index out of range");
- detach(); Node *n = reinterpret_cast<Node *>(p.at(i)); T t = n->t(); node_destruct(n);
+ detach(); Node *n = reinterpret_cast<Node *>(p.at(i)); T t = std::move(n->t()); node_destruct(n);
  p.remove(i); return t; }
 template <typename T>
 inline T QList<T>::takeFirst()
-{ T t = first(); removeFirst(); return t; }
+{ T t = std::move(first()); removeFirst(); return t; }
 template <typename T>
 inline T QList<T>::takeLast()
-{ T t = last(); removeLast(); return t; }
+{ T t = std::move(last()); removeLast(); return t; }
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::reserve(int alloc)
@@ -885,7 +898,7 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::removeAll(const T &_t)
             *n++ = *i;
     }
 
-    int removedCount = e - n;
+    int removedCount = int(e - n);
     d->end -= removedCount;
     return removedCount;
 }
@@ -929,7 +942,7 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T> &QList<T>::operator+=(const QList<T> &l)
 {
     if (!l.isEmpty()) {
-        if (isEmpty()) {
+        if (d == &QListData::shared_null) {
             *this = l;
         } else {
             Node *n = (d->ref.isShared())

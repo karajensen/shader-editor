@@ -6,7 +6,17 @@
 ** This file is part of the ActiveQt framework of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
 **
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
@@ -55,12 +65,13 @@ class QAxAggregated
 {
     friend class QAxServerBase;
     friend class QAxClientSite;
+    Q_DISABLE_COPY(QAxAggregated)
 public:
     virtual long queryInterface(const QUuid &iid, void **iface) = 0;
 
 protected:
-    virtual ~QAxAggregated()
-    {}
+    QAxAggregated() = default;
+    virtual ~QAxAggregated() = default;
 
     inline IUnknown *controllingUnknown() const
     { return controlling_unknown; }
@@ -68,15 +79,15 @@ protected:
     inline QObject *object() const { return the_object; }
 
 private:
-    IUnknown *controlling_unknown;
-    QObject *the_object;
+    IUnknown *controlling_unknown = nullptr;
+    QObject *the_object = nullptr;
 };
 
 #define QAXAGG_IUNKNOWN \
-    HRESULT WINAPI QueryInterface(REFIID iid, LPVOID *iface) Q_DECL_OVERRIDE \
+    HRESULT WINAPI QueryInterface(REFIID iid, LPVOID *iface) override \
         { return controllingUnknown()->QueryInterface(iid, iface); } \
-    ULONG WINAPI AddRef() Q_DECL_OVERRIDE { return controllingUnknown()->AddRef(); } \
-    ULONG WINAPI Release() Q_DECL_OVERRIDE { return controllingUnknown()->Release(); } \
+    ULONG WINAPI AddRef() override { return controllingUnknown()->AddRef(); } \
+    ULONG WINAPI Release() override { return controllingUnknown()->Release(); } \
 
 QT_END_NAMESPACE
 

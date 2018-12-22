@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebEngine module of the Qt Toolkit.
 **
@@ -11,24 +11,27 @@
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -43,6 +46,7 @@
 
 #include <QtWebEngineWidgets/qtwebenginewidgetsglobal.h>
 #include <QtWebEngineWidgets/qwebenginepage.h>
+#include <QtWebEngineCore/qwebenginehttprequest.h>
 
 QT_BEGIN_NAMESPACE
 class QContextMenuEvent;
@@ -55,19 +59,21 @@ class QWEBENGINEWIDGETS_EXPORT QWebEngineView : public QWidget {
     Q_OBJECT
     Q_PROPERTY(QString title READ title)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
-    Q_PROPERTY(QUrl iconUrl READ iconUrl)
+    Q_PROPERTY(QUrl iconUrl READ iconUrl NOTIFY iconUrlChanged)
+    Q_PROPERTY(QIcon icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString selectedText READ selectedText)
     Q_PROPERTY(bool hasSelection READ hasSelection)
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
 
 public:
-    explicit QWebEngineView(QWidget* parent = 0);
+    explicit QWebEngineView(QWidget* parent = Q_NULLPTR);
     virtual ~QWebEngineView();
 
     QWebEnginePage* page() const;
     void setPage(QWebEnginePage* page);
 
-    void load(const QUrl& url);
+    void load(const QUrl &url);
+    void load(const QWebEngineHttpRequest &request);
     void setHtml(const QString& html, const QUrl& baseUrl = QUrl());
     void setContent(const QByteArray& data, const QString& mimeType = QString(), const QUrl& baseUrl = QUrl());
 
@@ -77,6 +83,7 @@ public:
     void setUrl(const QUrl &url);
     QUrl url() const;
     QUrl iconUrl() const;
+    QIcon icon() const;
 
     bool hasSelection() const;
     QString selectedText() const;
@@ -88,15 +95,9 @@ public:
 
     qreal zoomFactor() const;
     void setZoomFactor(qreal factor);
+    void findText(const QString &subString, QWebEnginePage::FindFlags options = QWebEnginePage::FindFlags(), const QWebEngineCallback<bool> &resultCallback = QWebEngineCallback<bool>());
 
-#ifdef Q_QDOC
-    void findText(const QString &subString, QWebEnginePage::FindFlags options = 0);
-    void findText(const QString &subString, QWebEnginePage::FindFlags options, FunctorOrLambda resultCallback);
-#else
-    void findText(const QString &subString, QWebEnginePage::FindFlags options = 0, const QWebEngineCallback<bool> &resultCallback = QWebEngineCallback<bool>());
-#endif
-
-    virtual QSize sizeHint() const Q_DECL_OVERRIDE;
+    QSize sizeHint() const override;
     QWebEngineSettings *settings() const;
 
 public Q_SLOTS:
@@ -113,15 +114,24 @@ Q_SIGNALS:
     void selectionChanged();
     void urlChanged(const QUrl&);
     void iconUrlChanged(const QUrl&);
+    void iconChanged(const QIcon&);
     void renderProcessTerminated(QWebEnginePage::RenderProcessTerminationStatus terminationStatus,
                              int exitCode);
 
 protected:
     virtual QWebEngineView *createWindow(QWebEnginePage::WebWindowType type);
-    virtual void contextMenuEvent(QContextMenuEvent*) Q_DECL_OVERRIDE;
-    virtual bool event(QEvent*) Q_DECL_OVERRIDE;
-    virtual void showEvent(QShowEvent *) Q_DECL_OVERRIDE;
-    virtual void hideEvent(QHideEvent *) Q_DECL_OVERRIDE;
+#if QT_CONFIG(contextmenu)
+    void contextMenuEvent(QContextMenuEvent*) override;
+#endif // QT_CONFIG(contextmenu)
+    bool event(QEvent*) override;
+    void showEvent(QShowEvent *) override;
+    void hideEvent(QHideEvent *) override;
+#if QT_CONFIG(draganddrop)
+    void dragEnterEvent(QDragEnterEvent *e) override;
+    void dragLeaveEvent(QDragLeaveEvent *e) override;
+    void dragMoveEvent(QDragMoveEvent *e) override;
+    void dropEvent(QDropEvent *e) override;
+#endif // QT_CONFIG(draganddrop)
 
 private:
     Q_DISABLE_COPY(QWebEngineView)

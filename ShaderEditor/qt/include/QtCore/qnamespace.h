@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -101,6 +107,7 @@ public:
         KeyboardModifierMask = 0xfe000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(KeyboardModifiers)
 
     //shorter names for shortcuts
     // The use of all-caps identifiers has the potential for clashing with
@@ -157,6 +164,7 @@ public:
         MouseButtonMask  = 0xffffffff
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(MouseButtons)
 
     enum Orientation {
         Horizontal = 0x1,
@@ -164,6 +172,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(Orientations, Orientation)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(Orientations)
 
     enum FocusPolicy {
         NoFocus = 0,
@@ -219,6 +228,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(Alignment)
 
     enum TextFlag {
         TextSingleLine = 0x0100,
@@ -235,8 +245,11 @@ public:
         TextForceRightToLeft = 0x40000,
         // Ensures that the longest variant is always used when computing the
         // size of a multi-variant string.
-        TextLongestVariant = 0x80000,
-        TextBypassShaping = 0x100000
+        TextLongestVariant = 0x80000
+
+#if QT_DEPRECATED_SINCE(5, 11) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        , TextBypassShaping = 0x100000
+#endif
     };
 
     enum TextElideMode {
@@ -295,15 +308,11 @@ public:
         MacWindowToolBarButtonHint = 0x10000000,
         BypassGraphicsProxyWidget = 0x20000000,
         NoDropShadowWindowHint = 0x40000000,
-        WindowFullscreenButtonHint = 0x80000000,
-
-        // The following enums have overlapping values with other enums.
-        // This was not intentional, but it's too late to change now.
-        WindowOkButtonHint = 0x00080000, // WindowTransparentForInput
-        WindowCancelButtonHint = 0x00100000 // WindowOverridesSystemGestures
+        WindowFullscreenButtonHint = 0x80000000
     };
 
     Q_DECLARE_FLAGS(WindowFlags, WindowType)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(WindowFlags)
 
     enum WindowState {
         WindowNoState    = 0x00000000,
@@ -314,6 +323,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(WindowStates, WindowState)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(WindowStates)
 
     enum ApplicationState {
         ApplicationSuspended    = 0x00000000,
@@ -333,6 +343,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(ScreenOrientations, ScreenOrientation)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(ScreenOrientations)
 
     enum WidgetAttribute {
         WA_Disabled = 0,
@@ -471,6 +482,12 @@ public:
 
         WA_AlwaysStackOnTop = 128,
 
+        WA_TabletTracking = 129,
+
+        WA_ContentsMarginsRespectsSafeArea = 130,
+
+        WA_StyleSheetTarget = 131,
+
         // Add new attributes before this line
         WA_AttributeCount
     };
@@ -482,7 +499,8 @@ public:
         AA_DontShowIconsInMenus = 2,
         AA_NativeWindows = 3,
         AA_DontCreateNativeWidgetSiblings = 4,
-        AA_MacPluginApplication = 5,
+        AA_PluginApplication = 5,
+        AA_MacPluginApplication = AA_PluginApplication,  // ### Qt 6: remove me
         AA_DontUseNativeMenuBar = 6,
         AA_MacDontSwapCtrlAndMeta = 7,
         AA_Use96Dpi = 8,
@@ -498,6 +516,15 @@ public:
         AA_SetPalette = 19,
         AA_EnableHighDpiScaling = 20,
         AA_DisableHighDpiScaling = 21,
+        AA_UseStyleSheetPropagationInWidgetStyles = 22, // ### Qt 6: remove me
+        AA_DontUseNativeDialogs = 23,
+        AA_SynthesizeMouseForUnhandledTabletEvents = 24,
+        AA_CompressHighFrequencyEvents = 25,
+        AA_DontCheckOpenGLContextThreadAffinity = 26,
+        AA_DisableShaderDiskCache = 27,
+        AA_DontShowShortcutsInContextMenus = 28,
+        AA_CompressTabletEvents = 29,
+        AA_DisableWindowContextHelpButton = 30, // ### Qt 6: remove me
 
         // Add new attributes before this line
         AA_AttributeCount
@@ -535,6 +562,7 @@ public:
         NoFormatConversion      = 0x00000200
     };
     Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(ImageConversionFlags)
 
     enum BGMode {
         TransparentMode,
@@ -551,7 +579,7 @@ public:
         Key_Insert = 0x01000006,
         Key_Delete = 0x01000007,
         Key_Pause = 0x01000008,
-        Key_Print = 0x01000009,
+        Key_Print = 0x01000009,               // print screen
         Key_SysReq = 0x0100000a,
         Key_Clear = 0x0100000b,
         Key_Home = 0x01000010,                // cursor movement
@@ -830,6 +858,36 @@ public:
         Key_Dead_Belowdot       = 0x01001260,
         Key_Dead_Hook           = 0x01001261,
         Key_Dead_Horn           = 0x01001262,
+        Key_Dead_Stroke         = 0x01001263,
+        Key_Dead_Abovecomma     = 0x01001264,
+        Key_Dead_Abovereversedcomma = 0x01001265,
+        Key_Dead_Doublegrave    = 0x01001266,
+        Key_Dead_Belowring      = 0x01001267,
+        Key_Dead_Belowmacron    = 0x01001268,
+        Key_Dead_Belowcircumflex = 0x01001269,
+        Key_Dead_Belowtilde     = 0x0100126a,
+        Key_Dead_Belowbreve     = 0x0100126b,
+        Key_Dead_Belowdiaeresis = 0x0100126c,
+        Key_Dead_Invertedbreve  = 0x0100126d,
+        Key_Dead_Belowcomma     = 0x0100126e,
+        Key_Dead_Currency       = 0x0100126f,
+        Key_Dead_a              = 0x01001280,
+        Key_Dead_A              = 0x01001281,
+        Key_Dead_e              = 0x01001282,
+        Key_Dead_E              = 0x01001283,
+        Key_Dead_i              = 0x01001284,
+        Key_Dead_I              = 0x01001285,
+        Key_Dead_o              = 0x01001286,
+        Key_Dead_O              = 0x01001287,
+        Key_Dead_u              = 0x01001288,
+        Key_Dead_U              = 0x01001289,
+        Key_Dead_Small_Schwa    = 0x0100128a,
+        Key_Dead_Capital_Schwa  = 0x0100128b,
+        Key_Dead_Greek          = 0x0100128c,
+        Key_Dead_Lowline        = 0x01001290,
+        Key_Dead_Aboveverticalline = 0x01001291,
+        Key_Dead_Belowverticalline = 0x01001292,
+        Key_Dead_Longsolidusoverlay = 0x01001293,
 
         // multimedia/internet keys - ignored by default - see QKeyEvent c'tor
         Key_Back  = 0x01000061,
@@ -1162,6 +1220,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(DockWidgetAreas)
 
     enum ToolBarArea {
         LeftToolBarArea = 0x1,
@@ -1179,6 +1238,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(ToolBarAreas)
 
     enum DateFormat {
         TextDate,      // default Qt
@@ -1190,7 +1250,8 @@ public:
         SystemLocaleLongDate,
         DefaultLocaleShortDate,
         DefaultLocaleLongDate,
-        RFC2822Date        // RFC 2822 (+ 850 and 1036 during parsing)
+        RFC2822Date,        // RFC 2822 (+ 850 and 1036 during parsing)
+        ISODateWithMs
     };
 
     enum TimeSpec {
@@ -1236,6 +1297,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(Edges, Edge)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(Edges)
 
     enum ConnectionType {
         AutoConnection,
@@ -1329,13 +1391,16 @@ public:
         ImTextBeforeCursor = 0x800,
         ImTextAfterCursor = 0x1000,
         ImEnterKeyType = 0x2000,
+        ImAnchorRectangle = 0x4000,
+        ImInputItemClipRectangle = 0x8000,
 
         ImPlatformData = 0x80000000,
         ImQueryInput = ImCursorRectangle | ImCursorPosition | ImSurroundingText |
-                       ImCurrentSelection | ImAnchorPosition,
+                       ImCurrentSelection | ImAnchorRectangle | ImAnchorPosition,
         ImQueryAll = 0xffffffff
     };
     Q_DECLARE_FLAGS(InputMethodQueries, InputMethodQuery)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(InputMethodQueries)
 
     enum InputMethodHint {
         ImhNone = 0x0,
@@ -1355,6 +1420,9 @@ public:
 
         ImhMultiLine = 0x400,
 
+        ImhNoEditMenu = 0x800,
+        ImhNoTextHandles = 0x1000,
+
         ImhDigitsOnly = 0x10000,
         ImhFormattedNumbersOnly = 0x20000,
         ImhUppercaseOnly = 0x40000,
@@ -1367,6 +1435,7 @@ public:
         ImhExclusiveInputMask = 0xffff0000
     };
     Q_DECLARE_FLAGS(InputMethodHints, InputMethodHint)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(InputMethodHints)
 
     enum EnterKeyType {
         EnterKeyDefault,
@@ -1417,6 +1486,7 @@ public:
         IgnoreAction = 0x0
     };
     Q_DECLARE_FLAGS(DropActions, DropAction)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(DropActions)
 
     enum CheckState {
         Unchecked,
@@ -1471,6 +1541,7 @@ public:
         ItemIsUserTristate = 256
     };
     Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(ItemFlags)
 
     enum MatchFlag {
         MatchExactly = 0,
@@ -1485,6 +1556,7 @@ public:
         MatchRecursive = 64
     };
     Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(MatchFlags)
 
     typedef void * HANDLE;
 #if QT_DEPRECATED_SINCE(5, 0)
@@ -1509,6 +1581,7 @@ public:
         TextBrowserInteraction    = TextSelectableByMouse | LinksAccessibleByMouse | LinksAccessibleByKeyboard
     };
     Q_DECLARE_FLAGS(TextInteractionFlags, TextInteractionFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(TextInteractionFlags)
 
     enum EventPriority {
         HighEventPriority = 1,
@@ -1560,6 +1633,7 @@ public:
         TouchPointReleased   = 0x08
     };
     Q_DECLARE_FLAGS(TouchPointStates, TouchPointState)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(TouchPointStates)
 
 #ifndef QT_NO_GESTURES
     enum GestureState
@@ -1591,6 +1665,7 @@ public:
         IgnoredGesturesPropagateToParent = 0x04
     };
     Q_DECLARE_FLAGS(GestureFlags, GestureFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(GestureFlags)
 
     enum NativeGestureType
     {
@@ -1626,10 +1701,11 @@ public:
     };
 
     enum ScrollPhase {
-        NoScrollPhase = 0, // Make public in 5.7 or asap
+        NoScrollPhase = 0,
         ScrollBegin,
         ScrollUpdate,
-        ScrollEnd
+        ScrollEnd,
+        ScrollMomentum
     };
 
     enum MouseEventSource {
@@ -1644,6 +1720,12 @@ public:
         MouseEventFlagMask = 0xFF
     };
     Q_DECLARE_FLAGS(MouseEventFlags, MouseEventFlag)
+    Q_DECLARE_OPERATORS_FOR_FLAGS(MouseEventFlags)
+
+    enum ChecksumType {
+        ChecksumIso3309,
+        ChecksumItuV41
+    };
 
 #ifndef Q_QDOC
     // NOTE: Generally, do not add QT_Q_ENUM if a corresponding Q_Q_FLAG exists.
@@ -1669,6 +1751,7 @@ public:
     QT_Q_ENUM(Orientation)
     QT_Q_ENUM(DropAction)
     QT_Q_FLAG(Alignment)
+    QT_Q_ENUM(TextFlag)
     QT_Q_FLAG(Orientations)
     QT_Q_FLAG(DropActions)
     QT_Q_FLAG(Edges)
@@ -1728,6 +1811,7 @@ public:
     QT_Q_ENUM(ScrollPhase)
     QT_Q_ENUM(MouseEventSource)
     QT_Q_FLAG(MouseEventFlag)
+    QT_Q_ENUM(ChecksumType)
     QT_Q_ENUM(TabFocusBehavior)
 #endif // Q_DOC
 
@@ -1738,29 +1822,6 @@ public:
 
 #undef QT_Q_ENUM
 #undef QT_Q_FLAG
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Orientations)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Edges)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWidgetAreas)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ScreenOrientations)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MatchFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::TextInteractionFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::InputMethodQueries)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::InputMethodHints)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::TouchPointStates)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseEventFlags)
-#ifndef QT_NO_GESTURES
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::GestureFlags)
-#endif
 
 typedef bool (*qInternalCallback)(void **);
 

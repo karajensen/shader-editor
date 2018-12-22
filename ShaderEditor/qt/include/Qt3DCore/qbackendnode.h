@@ -1,34 +1,37 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Klaralvdalens Datakonsult AB (KDAB).
-** Contact: http://www.qt-project.org/legal
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -37,29 +40,34 @@
 #ifndef QT3DCORE_QBACKENDNODE_H
 #define QT3DCORE_QBACKENDNODE_H
 
-#include <Qt3DCore/qt3dcore_global.h>
-#include <Qt3DCore/qscenechange.h>
+#include <Qt3DCore/qnodecreatedchange.h>
 #include <Qt3DCore/qnodeid.h>
+#include <Qt3DCore/qnodecommand.h>
+#include <Qt3DCore/qscenechange.h>
+#include <Qt3DCore/qt3dcore_global.h>
 
 QT_BEGIN_NAMESPACE
 
 namespace Qt3DCore {
 
-class QBackendNodeFactory;
 class QBackendNodePrivate;
 class QBackendNode;
 class QAspectEngine;
 
-class QT3DCORESHARED_EXPORT QBackendNodeFunctor
+#if defined(QT_BUILD_INTERNAL)
+class QBackendNodeTester;
+#endif
+
+class QT3DCORESHARED_EXPORT QBackendNodeMapper
 {
 public:
-    virtual ~QBackendNodeFunctor() {}
-    virtual QBackendNode *create(QNode *frontend, const QBackendNodeFactory *factory) const = 0;
-    virtual QBackendNode *get(const QNodeId &id) const = 0;
-    virtual void destroy(const QNodeId &id) const = 0;
+    virtual ~QBackendNodeMapper();
+    virtual QBackendNode *create(const QNodeCreatedChangeBasePtr &change) const = 0;
+    virtual QBackendNode *get(QNodeId id) const = 0;
+    virtual void destroy(QNodeId id) const = 0;
 };
 
-typedef QSharedPointer<QBackendNodeFunctor> QBackendNodeFunctorPtr;
+typedef QSharedPointer<QBackendNodeMapper> QBackendNodeMapperPtr;
 
 class QT3DCORESHARED_EXPORT QBackendNode
 {
@@ -72,30 +80,37 @@ public:
     explicit QBackendNode(Mode mode = ReadOnly);
     virtual ~QBackendNode();
 
-    void setFactory(const QBackendNodeFactory *factory);
+    QNodeId peerId() const Q_DECL_NOEXCEPT;
 
-    void setPeer(QNode *peer);
-    QNodeId peerUuid() const;
+    void setEnabled(bool enabled) Q_DECL_NOEXCEPT;
+    bool isEnabled() const Q_DECL_NOEXCEPT;
 
-    Mode mode() const;
-    virtual void updateFromPeer(QNode *peer) = 0;
+    Mode mode() const Q_DECL_NOEXCEPT;
 
 protected:
-    QBackendNode *createBackendNode(QNode *frontend) const;
-    void notifyObservers(const QSceneChangePtr &e);
-    virtual void sceneChangeEvent(const QSceneChangePtr &e) = 0;
-
-    QBackendNode(QBackendNodePrivate &dd);
-
     Q_DECLARE_PRIVATE(QBackendNode)
+    explicit QBackendNode(QBackendNodePrivate &dd);
+    void notifyObservers(const QSceneChangePtr &e);
+    QNodeCommand::CommandId sendCommand(const QString &name, const QVariant &data,
+                                        QNodeCommand::CommandId replyTo = QNodeCommand::CommandId());
+    void sendReply(const QNodeCommandPtr &command);
+    virtual void sceneChangeEvent(const QSceneChangePtr &e);
+
     QBackendNodePrivate *d_ptr;
 
 private:
-    friend class QBackendScenePropertyChange;
+    Q_DISABLE_COPY(QBackendNode)
+    void setPeerId(QNodeId id) Q_DECL_NOEXCEPT;
+    virtual void initializeFromPeer(const QNodeCreatedChangeBasePtr &change);
+
+    friend class QBackendNodePropertyChange;
+    friend class QAbstractAspectPrivate;
+#if defined(QT_BUILD_INTERNAL)
+    friend class QBackendNodeTester;
+#endif
 };
 
-
-} // Qt3D
+} // namespace Qt3DCore
 
 QT_END_NAMESPACE
 

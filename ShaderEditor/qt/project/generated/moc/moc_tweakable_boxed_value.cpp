@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'tweakable_boxed_value.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.3.1)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.0)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,30 +12,33 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'tweakable_boxed_value.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.3.1. It"
+#error "This file was generated using the moc from 5.12.0. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_TweakableBoxedValue_t {
     QByteArrayData data[7];
-    char stringdata[70];
+    char stringdata0[70];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_TweakableBoxedValue_t, stringdata) + ofs \
+    qptrdiff(offsetof(qt_meta_stringdata_TweakableBoxedValue_t, stringdata0) + ofs \
         - idx * sizeof(QByteArrayData)) \
     )
 static const qt_meta_stringdata_TweakableBoxedValue_t qt_meta_stringdata_TweakableBoxedValue = {
     {
-QT_MOC_LITERAL(0, 0, 19),
-QT_MOC_LITERAL(1, 20, 14),
-QT_MOC_LITERAL(2, 35, 0),
-QT_MOC_LITERAL(3, 36, 5),
-QT_MOC_LITERAL(4, 42, 11),
-QT_MOC_LITERAL(5, 54, 5),
-QT_MOC_LITERAL(6, 60, 9)
+QT_MOC_LITERAL(0, 0, 19), // "TweakableBoxedValue"
+QT_MOC_LITERAL(1, 20, 14), // "UpdateSelected"
+QT_MOC_LITERAL(2, 35, 0), // ""
+QT_MOC_LITERAL(3, 36, 5), // "index"
+QT_MOC_LITERAL(4, 42, 11), // "UpdateValue"
+QT_MOC_LITERAL(5, 54, 5), // "value"
+QT_MOC_LITERAL(6, 60, 9) // "DialValue"
+
     },
     "TweakableBoxedValue\0UpdateSelected\0\0"
     "index\0UpdateValue\0value\0DialValue"
@@ -45,7 +48,7 @@ QT_MOC_LITERAL(6, 60, 9)
 static const uint qt_meta_data_TweakableBoxedValue[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -72,6 +75,7 @@ void TweakableBoxedValue::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         TweakableBoxedValue *_t = static_cast<TweakableBoxedValue *>(_o);
+        Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->UpdateSelected((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 1: _t->UpdateValue((*reinterpret_cast< double(*)>(_a[1]))); break;
@@ -81,10 +85,14 @@ void TweakableBoxedValue::qt_static_metacall(QObject *_o, QMetaObject::Call _c, 
     }
 }
 
-const QMetaObject TweakableBoxedValue::staticMetaObject = {
-    { &QWidget::staticMetaObject, qt_meta_stringdata_TweakableBoxedValue.data,
-      qt_meta_data_TweakableBoxedValue,  qt_static_metacall, 0, 0}
-};
+QT_INIT_METAOBJECT const QMetaObject TweakableBoxedValue::staticMetaObject = { {
+    &QWidget::staticMetaObject,
+    qt_meta_stringdata_TweakableBoxedValue.data,
+    qt_meta_data_TweakableBoxedValue,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *TweakableBoxedValue::metaObject() const
@@ -94,9 +102,9 @@ const QMetaObject *TweakableBoxedValue::metaObject() const
 
 void *TweakableBoxedValue::qt_metacast(const char *_clname)
 {
-    if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_TweakableBoxedValue.stringdata))
-        return static_cast<void*>(const_cast< TweakableBoxedValue*>(this));
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_meta_stringdata_TweakableBoxedValue.stringdata0))
+        return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
 
@@ -116,4 +124,5 @@ int TweakableBoxedValue::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     }
     return _id;
 }
+QT_WARNING_POP
 QT_END_MOC_NAMESPACE

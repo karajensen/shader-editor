@@ -12,6 +12,7 @@
 *.idb
 *.iobj
 *.ipdb
+ShaderEditor/D3DX10d_43.dll
 ShaderEditor.caw
 ShaderEditor.VC.opendb
 ShaderEditor/ShaderEditor.exe

@@ -1,35 +1,38 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Klaralvdalens Datakonsult AB (KDAB).
-** Copyright (C) 2015 The Qt Company Ltd and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2016 The Qt Company Ltd and/or its subsidiary(-ies).
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -42,10 +45,9 @@
 
 #include <Qt3DRender/qshaderprogram.h>
 #include <Qt3DRender/qrenderstate.h>
-#include <Qt3DRender/qannotation.h>
+#include <Qt3DRender/qfilterkey.h>
 
-#include <QHash>
-#include <QList>
+#include <QtCore/QHash>
 
 QT_BEGIN_NAMESPACE
 
@@ -53,8 +55,7 @@ namespace Qt3DRender {
 
 class QParameter;
 class QRenderState;
-class QParameterMapping;
-typedef QList<QParameter*> ParameterList;
+typedef QVector<QParameter*> ParameterList;
 
 class QRenderPassPrivate;
 
@@ -64,31 +65,22 @@ class QT3DRENDERSHARED_EXPORT QRenderPass : public Qt3DCore::QNode
     Q_PROPERTY(Qt3DRender::QShaderProgram *shaderProgram READ shaderProgram WRITE setShaderProgram NOTIFY shaderProgramChanged)
 
 public:
-    explicit QRenderPass(Qt3DCore::QNode *parent = Q_NULLPTR);
+    explicit QRenderPass(Qt3DCore::QNode *parent = nullptr);
     ~QRenderPass();
-
-    QString glslNameForParameter(QString paramName) const;
-
-    ParameterList attributes() const;
-    ParameterList uniforms() const;
 
     QShaderProgram *shaderProgram() const;
 
-    void addAnnotation(QAnnotation *criterion);
-    void removeAnnotation(QAnnotation *criterion);
-    QList<QAnnotation *> annotations() const;
-
-    void addBinding(QParameterMapping *binding);
-    void removeBinding(QParameterMapping *binding);
-    QList<QParameterMapping *> bindings() const;
+    void addFilterKey(QFilterKey *filterKey);
+    void removeFilterKey(QFilterKey *filterKey);
+    QVector<QFilterKey*> filterKeys() const;
 
     void addRenderState(QRenderState *state);
     void removeRenderState(QRenderState *state);
-    QList<QRenderState *> renderStates() const;
+    QVector<QRenderState *> renderStates() const;
 
     void addParameter(QParameter *p);
     void removeParameter(QParameter *p);
-    QList<QParameter *> parameters() const;
+    QVector<QParameter *> parameters() const;
 
 public Q_SLOTS:
     void setShaderProgram(QShaderProgram *shaderProgram);
@@ -97,12 +89,11 @@ Q_SIGNALS:
     void shaderProgramChanged(QShaderProgram *shaderProgram);
 
 protected:
-    QRenderPass(QRenderPassPrivate &dd, Qt3DCore::QNode *parent = Q_NULLPTR);
-    void copy(const Qt3DCore::QNode *ref) Q_DECL_OVERRIDE;
+    explicit QRenderPass(QRenderPassPrivate &dd, Qt3DCore::QNode *parent = nullptr);
 
 private:
     Q_DECLARE_PRIVATE(QRenderPass)
-    QT3D_CLONEABLE(QRenderPass)
+    Qt3DCore::QNodeCreatedChangeBasePtr createNodeCreationChange() const override;
 };
 
 }

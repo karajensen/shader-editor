@@ -1,34 +1,37 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Klaralvdalens Datakonsult AB (KDAB).
-** Contact: http://www.qt-project.org/legal
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -42,15 +45,25 @@
 
 QT_BEGIN_NAMESPACE
 
+
 class QOpenGLContext;
 
 namespace Qt3DRender {
 
+#if defined(QT_BUILD_INTERNAL)
+class TestAspect;
+#endif
+
 namespace Render {
 class Renderer;
+class QRenderPlugin;
 }
 
 class QRenderAspectPrivate;
+
+#if defined(QT_BUILD_INTERNAL)
+class QRenderAspectTester;
+#endif
 
 class QT3DRENDERSHARED_EXPORT QRenderAspect : public Qt3DCore::QAbstractAspect
 {
@@ -61,29 +74,30 @@ public:
         Threaded
     };
 
-    explicit QRenderAspect(QObject *parent = Q_NULLPTR);
-    explicit QRenderAspect(RenderType type, QObject *parent = Q_NULLPTR);
-
-    void renderInitialize(QOpenGLContext *context);
-    void renderSynchronous();
-    void renderShutdown();
-
-    QVector<Qt3DCore::QAspectJobPtr> jobsToExecute(qint64 time) Q_DECL_OVERRIDE;
+    explicit QRenderAspect(QObject *parent = nullptr);
+    explicit QRenderAspect(RenderType type, QObject *parent = nullptr);
+    ~QRenderAspect();
 
 protected:
-    void registerBackendTypes();
     QRenderAspect(QRenderAspectPrivate &dd, QObject *parent);
     Q_DECLARE_PRIVATE(QRenderAspect)
 
-    void onRootEntityChanged(Qt3DCore::QEntity *rootObject) Q_DECL_OVERRIDE;
-    void onInitialize(const QVariantMap &data) Q_DECL_OVERRIDE;
-    void onCleanup() Q_DECL_OVERRIDE;
-
-    QVector<Qt3DCore::QAspectJobPtr> createRenderBufferJobs();
-    QVector<Qt3DCore::QAspectJobPtr> createGeometryRendererJobs();
-
 private:
+    QVector<Qt3DCore::QAspectJobPtr> jobsToExecute(qint64 time) override;
+
+    QVariant executeCommand(const QStringList &args) override;
+
+    void onRegistered() override;
+    void onUnregistered() override;
+
+    void onEngineStartup() override;
+
     friend class Render::Renderer;
+    friend class Render::QRenderPlugin;
+#if defined(QT_BUILD_INTERNAL)
+    friend class QRenderAspectTester;
+    friend class TestAspect;
+#endif
 };
 
 }

@@ -63,7 +63,7 @@ public:
         UnknownError
     };
 
-    explicit QGeoCodeReply(Error error, const QString &errorString, QObject *parent = Q_NULLPTR);
+    explicit QGeoCodeReply(Error error, const QString &errorString, QObject *parent = nullptr);
     virtual ~QGeoCodeReply();
 
     bool isFinished() const;
@@ -80,10 +80,11 @@ public:
 
 Q_SIGNALS:
     void finished();
+    void aborted();
     void error(QGeoCodeReply::Error error, const QString &errorString = QString());
 
 protected:
-    explicit QGeoCodeReply(QObject *parent = Q_NULLPTR);
+    explicit QGeoCodeReply(QObject *parent = nullptr);
 
     void setError(Error error, const QString &errorString);
     void setFinished(bool finished);

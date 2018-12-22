@@ -6,7 +6,17 @@
 ** This file is part of the ActiveQt framework of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
 **
 ** "Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are
@@ -64,7 +74,7 @@ class QAxBase
 public:
     typedef QMap<QString, QVariant> PropertyBag;
 
-    explicit QAxBase(IUnknown *iface = Q_NULLPTR);
+    explicit QAxBase(IUnknown *iface = nullptr);
     virtual ~QAxBase();
 
     QString control() const;
@@ -111,7 +121,7 @@ public:
 
     QVariant asVariant() const;
 
-#ifdef qdoc
+#ifdef Q_QDOC
 Q_SIGNALS:
     void signal(const QString&,int,void*);
     void propertyChanged(const QString&);
@@ -173,13 +183,13 @@ private:
 
 template <> inline QAxBase *qobject_cast<QAxBase*>(const QObject *o)
 {
-    void *result = o ? const_cast<QObject *>(o)->qt_metacast("QAxBase") : Q_NULLPTR;
+    void *result = o ? const_cast<QObject *>(o)->qt_metacast("QAxBase") : nullptr;
     return static_cast<QAxBase *>(result);
 }
 
 template <> inline QAxBase *qobject_cast<QAxBase*>(QObject *o)
 {
-    void *result = o ? o->qt_metacast("QAxBase") : Q_NULLPTR;
+    void *result = o ? o->qt_metacast("QAxBase") : nullptr;
     return static_cast<QAxBase *>(result);
 }
 
@@ -194,13 +204,12 @@ inline QString QAxBase::generateDocumentation()
 inline QDataStream &operator >>(QDataStream &s, QAxBase &c)
 {
     QAxBase::PropertyBag bag;
-    c.qObject()->blockSignals(true);
+    const QSignalBlocker blocker(c.qObject());
     QString control;
     s >> control;
     c.setControl(control);
     s >> bag;
     c.setPropertyBag(bag);
-    c.qObject()->blockSignals(false);
 
     return s;
 }

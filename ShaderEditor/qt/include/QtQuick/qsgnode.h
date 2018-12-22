@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtQuick module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -71,10 +77,8 @@ public:
         TransformNodeType,
         ClipNodeType,
         OpacityNodeType,
-#ifndef qdoc
         RootNodeType,
         RenderNodeType
-#endif
     };
 
     enum Flag {
@@ -90,9 +94,8 @@ public:
         OwnsOpaqueMaterial          = 0x00040000,
 
         // Uppermost 8 bits are reserved for internal use.
-#ifndef qdoc
         IsVisitableNode             = 0x01000000
-#else
+#ifdef Q_CLANG_QDOC
         InternalReserved            = 0x01000000
 #endif
     };
@@ -107,7 +110,6 @@ public:
         DirtyMaterial               = 0x2000,
         DirtyOpacity                = 0x4000,
 
-#ifndef qdoc
         DirtyForceUpdate            = 0x8000,
 
         DirtyUsePreprocess          = UsePreprocess,
@@ -116,7 +118,6 @@ public:
                                       | DirtyNodeAdded
                                       | DirtyOpacity
                                       | DirtyForceUpdate
-#endif
 
     };
     Q_DECLARE_FLAGS(DirtyState, DirtyStateBit)
@@ -145,7 +146,7 @@ public:
 
     QT_DEPRECATED void clearDirty() { }
     void markDirty(DirtyState bits);
-    QT_DEPRECATED DirtyState dirtyState() const { return Q_NULLPTR; }
+    QT_DEPRECATED DirtyState dirtyState() const { return nullptr; }
 
     virtual bool isSubtreeBlocked() const;
 
@@ -167,13 +168,13 @@ private:
     void init();
     void destroy();
 
-    QSGNode *m_parent;
-    NodeType m_type;
-    QSGNode *m_firstChild;
-    QSGNode *m_lastChild;
-    QSGNode *m_nextSibling;
-    QSGNode *m_previousSibling;
-    int m_subtreeRenderableCount;
+    QSGNode *m_parent = nullptr;
+    NodeType m_type = BasicNodeType;
+    QSGNode *m_firstChild = nullptr;
+    QSGNode *m_lastChild = nullptr;
+    QSGNode *m_nextSibling = nullptr;
+    QSGNode *m_previousSibling = nullptr;
+    int m_subtreeRenderableCount = 0;
 
     Flags m_nodeFlags;
     DirtyState m_dirtyState; // Obsolete, remove in Qt 6
@@ -189,7 +190,7 @@ void Q_QUICK_EXPORT qsgnode_set_description(QSGNode *node, const QString &descri
 class Q_QUICK_EXPORT QSGBasicGeometryNode : public QSGNode
 {
 public:
-    ~QSGBasicGeometryNode();
+    ~QSGBasicGeometryNode() override;
 
     void setGeometry(QSGGeometry *geometry);
     const QSGGeometry *geometry() const { return m_geometry; }
@@ -198,13 +199,15 @@ public:
     const QMatrix4x4 *matrix() const { return m_matrix; }
     const QSGClipNode *clipList() const { return m_clip_list; }
 
+    void setRendererMatrix(const QMatrix4x4 *m) { m_matrix = m; }
+    void setRendererClipList(const QSGClipNode *c) { m_clip_list = c; }
+
 protected:
     QSGBasicGeometryNode(NodeType type);
     QSGBasicGeometryNode(QSGBasicGeometryNodePrivate &dd, NodeType type);
 
 private:
     friend class QSGNodeUpdater;
-    friend class QSGBatchRenderer::Updater;
 
     QSGGeometry *m_geometry;
 
@@ -221,7 +224,7 @@ class Q_QUICK_EXPORT QSGGeometryNode : public QSGBasicGeometryNode
 {
 public:
     QSGGeometryNode();
-    ~QSGGeometryNode();
+    ~QSGGeometryNode() override;
 
     void setMaterial(QSGMaterial *material);
     QSGMaterial *material() const { return m_material; }
@@ -243,18 +246,18 @@ protected:
 private:
     friend class QSGNodeUpdater;
 
-    int m_render_order;
-    QSGMaterial *m_material;
-    QSGMaterial *m_opaque_material;
+    int m_render_order = 0;
+    QSGMaterial *m_material = nullptr;
+    QSGMaterial *m_opaque_material = nullptr;
 
-    qreal m_opacity;
+    qreal m_opacity = 1;
 };
 
 class Q_QUICK_EXPORT QSGClipNode : public QSGBasicGeometryNode
 {
 public:
     QSGClipNode();
-    ~QSGClipNode();
+    ~QSGClipNode() override;
 
     void setIsRectangular(bool rectHint);
     bool isRectangular() const { return m_is_rectangular; }
@@ -274,7 +277,7 @@ class Q_QUICK_EXPORT QSGTransformNode : public QSGNode
 {
 public:
     QSGTransformNode();
-    ~QSGTransformNode();
+    ~QSGTransformNode() override;
 
     void setMatrix(const QMatrix4x4 &matrix);
     const QMatrix4x4 &matrix() const { return m_matrix; }
@@ -292,7 +295,7 @@ class Q_QUICK_EXPORT QSGRootNode : public QSGNode
 {
 public:
     QSGRootNode();
-    ~QSGRootNode();
+    ~QSGRootNode() override;
 
 private:
     void notifyNodeChange(QSGNode *node, DirtyState state);
@@ -309,7 +312,7 @@ class Q_QUICK_EXPORT QSGOpacityNode : public QSGNode
 {
 public:
     QSGOpacityNode();
-    ~QSGOpacityNode();
+    ~QSGOpacityNode() override;
 
     void setOpacity(qreal opacity);
     qreal opacity() const { return m_opacity; }
@@ -317,11 +320,11 @@ public:
     void setCombinedOpacity(qreal opacity);
     qreal combinedOpacity() const { return m_combined_opacity; }
 
-    bool isSubtreeBlocked() const;
+    bool isSubtreeBlocked() const override;
 
 private:
-    qreal m_opacity;
-    qreal m_combined_opacity;
+    qreal m_opacity = 1;
+    qreal m_combined_opacity = 1;
 };
 
 class Q_QUICK_EXPORT QSGNodeVisitor {

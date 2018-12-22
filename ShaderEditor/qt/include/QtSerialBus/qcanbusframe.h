@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtSerialBus module of the Qt Toolkit.
@@ -45,18 +45,20 @@ QT_BEGIN_NAMESPACE
 
 class QDataStream;
 
-class QCanBusFrame
+class Q_SERIALBUS_EXPORT QCanBusFrame
 {
 public:
     class TimeStamp {
     public:
         Q_DECL_CONSTEXPR TimeStamp(qint64 s = 0, qint64 usec = 0) Q_DECL_NOTHROW
             : secs(s), usecs(usec) {}
+
+        Q_DECL_CONSTEXPR static TimeStamp fromMicroSeconds(qint64 usec) Q_DECL_NOTHROW
+        { return TimeStamp(usec / 1000000, usec % 1000000); }
+
         Q_DECL_CONSTEXPR qint64 seconds() const Q_DECL_NOTHROW { return secs; }
         Q_DECL_CONSTEXPR qint64 microSeconds() const Q_DECL_NOTHROW { return usecs; }
 
-        Q_DECL_RELAXED_CONSTEXPR void setSeconds(qint64 s) Q_DECL_NOTHROW { secs = s; }
-        Q_DECL_RELAXED_CONSTEXPR void setMicroSeconds(qint64 usec) Q_DECL_NOTHROW { usecs = usec; }
     private:
         qint64 secs;
         qint64 usecs;
@@ -70,11 +72,18 @@ public:
         InvalidFrame        = 0x4
     };
 
-    explicit QCanBusFrame(QCanBusFrame::FrameType type) :
-        canId(0x0),
+    explicit QCanBusFrame(FrameType type = DataFrame) Q_DECL_NOTHROW :
         isExtendedFrame(0x0),
-        version(0x0)
+        version(Qt_5_10),
+        isFlexibleDataRate(0x0),
+        isBitrateSwitch(0x0),
+        isErrorStateIndicator(0x0),
+        isLocalEcho(0x0),
+        reserved0(0x0)
     {
+        Q_UNUSED(reserved0);
+        ::memset(reserved, 0, sizeof(reserved));
+        setFrameId(0x0);
         setFrameType(type);
     }
 
@@ -96,18 +105,22 @@ public:
     Q_DECLARE_FLAGS(FrameErrors, FrameError)
     Q_FLAGS(FrameErrors)
 
-    explicit QCanBusFrame(quint32 identifier = 0, const QByteArray &data = QByteArray()) :
-        canId(identifier & 0x1FFFFFFFU),
+    explicit QCanBusFrame(quint32 identifier, const QByteArray &data) :
         format(DataFrame),
-        isExtendedFrame((identifier & 0x1FFFF800U) ? 0x1 : 0x0),
-        version(0x0),
+        isExtendedFrame(0x0),
+        version(Qt_5_10),
+        isFlexibleDataRate(data.length() > 8 ? 0x1 : 0x0),
+        isBitrateSwitch(0x0),
+        isErrorStateIndicator(0x0),
+        isLocalEcho(0x0),
+        reserved0(0x0),
         load(data)
     {
-        Q_UNUSED(extra);
-        Q_UNUSED(reserved);
+        ::memset(reserved, 0, sizeof(reserved));
+        setFrameId(identifier);
     }
 
-    bool isValid() const
+    bool isValid() const Q_DECL_NOTHROW
     {
         if (format == InvalidFrame)
             return false;
@@ -116,14 +129,23 @@ public:
         if (!isExtendedFrame && (canId & 0x1FFFF800U))
             return false;
 
-        // maximum permitted payload size in CAN FD
-        if (load.length() > 64)
+        if (!isValidFrameId)
             return false;
 
-        return true;
+        // maximum permitted payload size in CAN or CAN FD
+        const int length = load.length();
+        if (isFlexibleDataRate) {
+            if (format == RemoteRequestFrame)
+                return false;
+
+            return length <= 8 || length == 12 || length == 16 || length == 20
+                    || length == 24 || length == 32 || length == 48 || length == 64;
+        }
+
+        return length <= 8;
     }
 
-    FrameType frameType() const
+    FrameType frameType() const Q_DECL_NOTHROW
     {
         switch (format) {
         case 0x1: return DataFrame;
@@ -136,7 +158,7 @@ public:
         return UnknownFrame;
     }
 
-    void setFrameType(FrameType newFormat)
+    void setFrameType(FrameType newFormat) Q_DECL_NOTHROW
     {
         switch (newFormat) {
         case DataFrame:
@@ -152,42 +174,86 @@ public:
         }
     }
 
-    inline bool hasExtendedFrameFormat() const { return (isExtendedFrame & 0x1); }
-    inline void setExtendedFrameFormat(bool isExtended)
+    bool hasExtendedFrameFormat() const Q_DECL_NOTHROW { return (isExtendedFrame & 0x1); }
+    void setExtendedFrameFormat(bool isExtended) Q_DECL_NOTHROW
     {
         isExtendedFrame = (isExtended & 0x1);
     }
 
-    inline quint32 frameId() const
+    quint32 frameId() const Q_DECL_NOTHROW
     {
-        if (format == ErrorFrame)
+        if (Q_UNLIKELY(format == ErrorFrame))
             return 0;
         return (canId & 0x1FFFFFFFU);
     }
-    inline void setFrameId(quint32 newFrameId)
+    void setFrameId(quint32 newFrameId)
     {
-        canId = (newFrameId & 0x1FFFFFFFU);
-        setExtendedFrameFormat(newFrameId & 0x1FFFF800U);
+        if (Q_LIKELY(newFrameId < 0x20000000U)) {
+            isValidFrameId = true;
+            canId = newFrameId;
+            setExtendedFrameFormat(isExtendedFrame || (newFrameId & 0x1FFFF800U));
+        } else {
+            isValidFrameId = false;
+            canId = 0;
+        }
     }
 
-    inline void setPayload(const QByteArray &data) { load = data; }
-    inline void setTimeStamp(const TimeStamp &ts) { stamp = ts; }
+    void setPayload(const QByteArray &data)
+    {
+        load = data;
+        if (data.length() > 8)
+            isFlexibleDataRate = 0x1;
+    }
+    void setTimeStamp(TimeStamp ts) Q_DECL_NOTHROW { stamp = ts; }
 
     QByteArray payload() const { return load; }
-    TimeStamp timeStamp() const { return stamp; }
+    TimeStamp timeStamp() const Q_DECL_NOTHROW { return stamp; }
 
-    QCanBusFrame::FrameErrors error() const
+    FrameErrors error() const Q_DECL_NOTHROW
     {
         if (format != ErrorFrame)
-            return QCanBusFrame::FrameErrors(QCanBusFrame::NoError);
+            return NoError;
 
         return FrameErrors(canId & 0x1FFFFFFFU);
     }
-    void setError(QCanBusFrame::FrameErrors e)
+    void setError(FrameErrors e)
     {
         if (format != ErrorFrame)
             return;
         canId = (e & AnyError);
+    }
+
+    QString toString() const;
+
+    bool hasFlexibleDataRateFormat() const Q_DECL_NOTHROW { return (isFlexibleDataRate & 0x1); }
+    void setFlexibleDataRateFormat(bool isFlexibleData) Q_DECL_NOTHROW
+    {
+        isFlexibleDataRate = (isFlexibleData & 0x1);
+        if (!isFlexibleData) {
+            isBitrateSwitch = 0x0;
+            isErrorStateIndicator = 0x0;
+        }
+    }
+
+    bool hasBitrateSwitch() const Q_DECL_NOTHROW { return (isBitrateSwitch & 0x1); }
+    void setBitrateSwitch(bool bitrateSwitch) Q_DECL_NOTHROW
+    {
+        isBitrateSwitch = (bitrateSwitch & 0x1);
+        if (bitrateSwitch)
+            isFlexibleDataRate = 0x1;
+    }
+
+    bool hasErrorStateIndicator() const Q_DECL_NOTHROW { return (isErrorStateIndicator & 0x1); }
+    void setErrorStateIndicator(bool errorStateIndicator) Q_DECL_NOTHROW
+    {
+        isErrorStateIndicator = (errorStateIndicator & 0x1);
+        if (errorStateIndicator)
+            isFlexibleDataRate = 0x1;
+    }
+    bool hasLocalEcho() const Q_DECL_NOTHROW { return (isLocalEcho & 0x1); }
+    void setLocalEcho(bool localEcho) Q_DECL_NOTHROW
+    {
+        isLocalEcho = (localEcho & 0x1);
     }
 
 #ifndef QT_NO_DATASTREAM
@@ -196,15 +262,27 @@ public:
 #endif
 
 private:
+    enum Version {
+        Qt_5_8 = 0x0,
+        Qt_5_9 = 0x1,
+        Qt_5_10 = 0x2
+    };
+
     quint32 canId:29; // acts as container for error codes too
     quint8 format:3; // max of 8 frame types
 
     quint8 isExtendedFrame:1;
     quint8 version:5;
-    quint8 extra: 2; // unused
+    quint8 isValidFrameId:1;
+    quint8 isFlexibleDataRate:1;
+
+    quint8 isBitrateSwitch:1;
+    quint8 isErrorStateIndicator:1;
+    quint8 isLocalEcho:1;
+    quint8 reserved0:5;
 
     // reserved for future use
-    quint8 reserved[3];
+    quint8 reserved[2];
 
     QByteArray load;
     TimeStamp stamp;

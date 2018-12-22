@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -68,6 +74,25 @@ public:
     QJsonObject(const QJsonObject &other);
     QJsonObject &operator =(const QJsonObject &other);
 
+    QJsonObject(QJsonObject &&other) Q_DECL_NOTHROW
+        : d(other.d), o(other.o)
+    {
+        other.d = nullptr;
+        other.o = nullptr;
+    }
+
+    QJsonObject &operator =(QJsonObject &&other) Q_DECL_NOTHROW
+    {
+        swap(other);
+        return *this;
+    }
+
+    void swap(QJsonObject &other) Q_DECL_NOTHROW
+    {
+        qSwap(d, other.d);
+        qSwap(o, other.o);
+    }
+
     static QJsonObject fromVariantMap(const QVariantMap &map);
     QVariantMap toVariantMap() const;
     static QJsonObject fromVariantHash(const QVariantHash &map);
@@ -80,12 +105,16 @@ public:
     bool isEmpty() const;
 
     QJsonValue value(const QString &key) const;
+    QJsonValue value(QLatin1String key) const;
     QJsonValue operator[] (const QString &key) const;
+    QJsonValue operator[] (QLatin1String key) const { return value(key); }
     QJsonValueRef operator[] (const QString &key);
+    QJsonValueRef operator[] (QLatin1String key);
 
     void remove(const QString &key);
     QJsonValue take(const QString &key);
     bool contains(const QString &key) const;
+    bool contains(QLatin1String key) const;
 
     bool operator==(const QJsonObject &other) const;
     bool operator!=(const QJsonObject &other) const;
@@ -106,7 +135,7 @@ public:
         typedef QJsonValueRef reference;
         typedef QJsonValuePtr pointer;
 
-        Q_DECL_CONSTEXPR inline iterator() : o(Q_NULLPTR), i(0) {}
+        Q_DECL_CONSTEXPR inline iterator() : o(nullptr), i(0) {}
         Q_DECL_CONSTEXPR inline iterator(QJsonObject *obj, int index) : o(obj), i(index) {}
 
         inline QString key() const { return o->keyAt(i); }
@@ -149,7 +178,7 @@ public:
         typedef QJsonValue reference;
         typedef QJsonValuePtr pointer;
 
-        Q_DECL_CONSTEXPR inline const_iterator() : o(Q_NULLPTR), i(0) {}
+        Q_DECL_CONSTEXPR inline const_iterator() : o(nullptr), i(0) {}
         Q_DECL_CONSTEXPR inline const_iterator(const QJsonObject *obj, int index)
             : o(obj), i(index) {}
         inline const_iterator(const iterator &other)
@@ -194,8 +223,11 @@ public:
     typedef iterator Iterator;
     typedef const_iterator ConstIterator;
     iterator find(const QString &key);
+    iterator find(QLatin1String key);
     const_iterator find(const QString &key) const { return constFind(key); }
+    const_iterator find(QLatin1String key) const { return constFind(key); }
     const_iterator constFind(const QString &key) const;
+    const_iterator constFind(QLatin1String key) const;
     iterator insert(const QString &key, const QJsonValue &value);
 
     // STL compatibility
@@ -227,6 +259,10 @@ private:
     QJsonPrivate::Data *d;
     QJsonPrivate::Object *o;
 };
+
+Q_DECLARE_SHARED_NOT_MOVABLE_UNTIL_QT6(QJsonObject)
+
+Q_CORE_EXPORT uint qHash(const QJsonObject &object, uint seed = 0);
 
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(QT_JSON_READONLY)
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QJsonObject &);

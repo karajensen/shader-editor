@@ -8,7 +8,6 @@
 #include "timer.h"
 #include "opengl_engine.h"
 #include "directx_engine.h"
-#include "vulkan_engine.h"
 #include "scene.h"
 #include "camera.h"
 #include "cache.h"
@@ -17,7 +16,6 @@
 
 #define SELECTED_ENGINE DIRECTX
 //#define SELECTED_ENGINE OPENGL
-//#define SELECTED_ENGINE VULKAN
 #define SELECTED_MAP PostProcessing::FINAL_MAP
 
 Application::Application() :
@@ -233,7 +231,6 @@ bool Application::Initialise(HWND hwnd,
     m_engines.resize(MAX_ENGINES);
     m_engines[OPENGL].reset(new OpenglEngine(hwnd));
     m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
-    m_engines[VULKAN].reset(new VulkanEngine(hwnd, hinstance));
 
     // Ensure that all engines can be initialised
     bool failed = false;

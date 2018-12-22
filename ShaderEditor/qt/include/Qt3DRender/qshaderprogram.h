@@ -1,34 +1,37 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Klaralvdalens Datakonsult AB (KDAB).
-** Contact: http://www.qt-project.org/legal
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt3D module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -55,9 +58,11 @@ class QT3DRENDERSHARED_EXPORT QShaderProgram : public Qt3DCore::QNode
     Q_PROPERTY(QByteArray geometryShaderCode READ geometryShaderCode WRITE setGeometryShaderCode NOTIFY geometryShaderCodeChanged)
     Q_PROPERTY(QByteArray fragmentShaderCode READ fragmentShaderCode WRITE setFragmentShaderCode NOTIFY fragmentShaderCodeChanged)
     Q_PROPERTY(QByteArray computeShaderCode READ computeShaderCode WRITE setComputeShaderCode NOTIFY computeShaderCodeChanged)
+    Q_PROPERTY(QString log READ log NOTIFY logChanged REVISION 9)
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged REVISION 9)
 
 public:
-    explicit QShaderProgram(Qt3DCore::QNode *parent = Q_NULLPTR);
+    explicit QShaderProgram(Qt3DCore::QNode *parent = nullptr);
     ~QShaderProgram();
 
     enum ShaderType {
@@ -68,7 +73,14 @@ public:
         Geometry,
         Compute
     };
-    Q_ENUM(ShaderType)
+    Q_ENUM(ShaderType) // LCOV_EXCL_LINE
+
+    enum Status {
+        NotReady = 0,
+        Ready,
+        Error
+    };
+    Q_ENUM(Status) // LCOV_EXCL_LINE
 
     // Source code in-line
     QByteArray vertexShaderCode() const;
@@ -80,6 +92,9 @@ public:
 
     void setShaderCode(ShaderType type, const QByteArray &shaderCode);
     QByteArray shaderCode(ShaderType type) const;
+
+    QString log() const;
+    Status status() const;
 
     Q_INVOKABLE static QByteArray loadSource(const QUrl &sourceUrl);
 
@@ -98,14 +113,16 @@ Q_SIGNALS:
     void geometryShaderCodeChanged(const QByteArray &geometryShaderCode);
     void fragmentShaderCodeChanged(const QByteArray &fragmentShaderCode);
     void computeShaderCodeChanged(const QByteArray &computeShaderCode);
+    void logChanged(const QString &log);
+    void statusChanged(Status status);
 
 protected:
-    QShaderProgram(QShaderProgramPrivate &dd, Qt3DCore::QNode *parent = Q_NULLPTR);
-    void copy(const Qt3DCore::QNode *ref) Q_DECL_OVERRIDE;
+    explicit QShaderProgram(QShaderProgramPrivate &dd, Qt3DCore::QNode *parent = nullptr);
+    void sceneChangeEvent(const Qt3DCore::QSceneChangePtr &change) override;
 
 private:
     Q_DECLARE_PRIVATE(QShaderProgram)
-    QT3D_CLONEABLE(QShaderProgram)
+    Qt3DCore::QNodeCreatedChangeBasePtr createNodeCreationChange() const override;
 };
 
 }

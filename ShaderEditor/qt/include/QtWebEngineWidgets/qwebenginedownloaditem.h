@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebEngine module of the Qt Toolkit.
 **
@@ -11,24 +11,27 @@
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -43,6 +46,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QWebEnginePage;
 class QWebEngineDownloadItemPrivate;
 class QWebEngineProfilePrivate;
 
@@ -61,6 +65,53 @@ public:
     };
     Q_ENUM(DownloadState)
 
+    enum SavePageFormat {
+        UnknownSaveFormat = -1,
+        SingleHtmlSaveFormat,
+        CompleteHtmlSaveFormat,
+        MimeHtmlSaveFormat
+    };
+    Q_ENUM(SavePageFormat)
+
+    enum DownloadInterruptReason {
+        NoReason = 0,
+        FileFailed = 1,
+        FileAccessDenied = 2,
+        FileNoSpace = 3,
+        FileNameTooLong = 5,
+        FileTooLarge = 6,
+        FileVirusInfected = 7,
+        FileTransientError = 10,
+        FileBlocked = 11,
+        FileSecurityCheckFailed = 12,
+        FileTooShort = 13,
+        FileHashMismatch = 14,
+        NetworkFailed = 20,
+        NetworkTimeout = 21,
+        NetworkDisconnected = 22,
+        NetworkServerDown = 23,
+        NetworkInvalidRequest = 24,
+        ServerFailed = 30,
+        //ServerNoRange = 31,
+        ServerBadContent = 33,
+        ServerUnauthorized = 34,
+        ServerCertProblem = 35,
+        ServerForbidden = 36,
+        ServerUnreachable = 37,
+        UserCanceled = 40,
+        //UserShutdown = 41,
+        //Crash = 50
+    };
+    Q_ENUM(DownloadInterruptReason)
+
+    enum DownloadType {
+        Attachment = 0,
+        DownloadAttribute,
+        UserRequested,
+        SavePage
+    };
+    Q_ENUM(DownloadType)
+
     quint32 id() const;
     DownloadState state() const;
     qint64 totalBytes() const;
@@ -70,15 +121,27 @@ public:
     QString path() const;
     void setPath(QString path);
     bool isFinished() const;
+    bool isPaused() const;
+    SavePageFormat savePageFormat() const;
+    void setSavePageFormat(SavePageFormat format);
+    DownloadType Q_DECL_DEPRECATED type() const;
+    DownloadInterruptReason interruptReason() const;
+    QString interruptReasonString() const;
+    bool isSavePageDownload() const;
+
+    QWebEnginePage *page() const;
 
 public Q_SLOTS:
     void accept();
     void cancel();
+    void pause();
+    void resume();
 
 Q_SIGNALS:
     void finished();
     void stateChanged(QWebEngineDownloadItem::DownloadState state);
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void isPausedChanged(bool isPaused);
 
 private:
     Q_DISABLE_COPY(QWebEngineDownloadItem)
@@ -86,7 +149,7 @@ private:
 
     friend class QWebEngineProfilePrivate;
 
-    QWebEngineDownloadItem(QWebEngineDownloadItemPrivate*, QObject *parent = 0);
+    QWebEngineDownloadItem(QWebEngineDownloadItemPrivate*, QObject *parent = Q_NULLPTR);
     QScopedPointer<QWebEngineDownloadItemPrivate> d_ptr;
 };
 

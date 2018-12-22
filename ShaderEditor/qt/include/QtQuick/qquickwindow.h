@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtQuick module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -35,11 +41,13 @@
 #define QQUICKWINDOW_H
 
 #include <QtQuick/qtquickglobal.h>
+#include <QtQuick/qsgrendererinterface.h>
 #include <QtCore/qmetatype.h>
 #include <QtGui/qopengl.h>
 #include <QtGui/qwindow.h>
 #include <QtGui/qevent.h>
 #include <QtQml/qqml.h>
+#include <QtQml/qqmldebug.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -49,11 +57,15 @@ class QSGTexture;
 class QInputMethodEvent;
 class QQuickWindowPrivate;
 class QQuickWindowAttached;
+class QOpenGLContext;
 class QOpenGLFramebufferObject;
 class QQmlIncubationController;
 class QInputMethodEvent;
 class QQuickCloseEvent;
 class QQuickRenderControl;
+class QSGRectangleNode;
+class QSGImageNode;
+class QSGNinePatchNode;
 
 class Q_QUICK_EXPORT QQuickWindow : public QWindow
 {
@@ -83,41 +95,50 @@ public:
     };
 
     Q_DECLARE_FLAGS(CreateTextureOptions, CreateTextureOption)
+    Q_FLAG(CreateTextureOptions)
 
     enum SceneGraphError {
         ContextNotAvailable = 1
     };
     Q_ENUM(SceneGraphError)
 
-    explicit QQuickWindow(QWindow *parent = Q_NULLPTR);
+    enum TextRenderType {
+        QtTextRendering,
+        NativeTextRendering
+    };
+    Q_ENUM(TextRenderType)
+
+    explicit QQuickWindow(QWindow *parent = nullptr);
     explicit QQuickWindow(QQuickRenderControl *renderControl);
 
-    virtual ~QQuickWindow();
+    ~QQuickWindow() override;
 
     QQuickItem *contentItem() const;
 
     QQuickItem *activeFocusItem() const;
-    QObject *focusObject() const Q_DECL_OVERRIDE;
+    QObject *focusObject() const override;
 
     QQuickItem *mouseGrabberItem() const;
 
-    bool sendEvent(QQuickItem *, QEvent *);
+#if QT_DEPRECATED_SINCE(5, 8)
+    QT_DEPRECATED bool sendEvent(QQuickItem *, QEvent *);
+#endif
 
     QImage grabWindow();
-
+#if QT_CONFIG(opengl)
     void setRenderTarget(QOpenGLFramebufferObject *fbo);
     QOpenGLFramebufferObject *renderTarget() const;
-
+#endif
     void setRenderTarget(uint fboId, const QSize &size);
     uint renderTargetId() const;
     QSize renderTargetSize() const;
-
+#if QT_CONFIG(opengl)
     void resetOpenGLState();
-
+#endif
     QQmlIncubationController *incubationController() const;
 
-#ifndef QT_NO_ACCESSIBILITY
-    QAccessibleInterface *accessibleRoot() const Q_DECL_OVERRIDE;
+#if QT_CONFIG(accessibility)
+    QAccessibleInterface *accessibleRoot() const override;
 #endif
 
     // Scene graph specific functions
@@ -147,6 +168,19 @@ public:
 
     qreal effectiveDevicePixelRatio() const;
 
+    QSGRendererInterface *rendererInterface() const;
+
+    static void setSceneGraphBackend(QSGRendererInterface::GraphicsApi api);
+    static void setSceneGraphBackend(const QString &backend);
+    static QString sceneGraphBackend();
+
+    QSGRectangleNode *createRectangleNode() const;
+    QSGImageNode *createImageNode() const;
+    QSGNinePatchNode *createNinePatchNode() const;
+
+    static TextRenderType textRenderType();
+    static void setTextRenderType(TextRenderType renderType);
+
 Q_SIGNALS:
     void frameSwapped();
     Q_REVISION(2) void openglContextCreated(QOpenGLContext *context);
@@ -170,27 +204,28 @@ public Q_SLOTS:
     void releaseResources();
 
 protected:
-    QQuickWindow(QQuickWindowPrivate &dd, QWindow *parent = Q_NULLPTR);
+    QQuickWindow(QQuickWindowPrivate &dd, QWindow *parent = nullptr);
+    QQuickWindow(QQuickWindowPrivate &dd, QQuickRenderControl *control);
 
-    void exposeEvent(QExposeEvent *) Q_DECL_OVERRIDE;
-    void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
+    void exposeEvent(QExposeEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
 
-    void showEvent(QShowEvent *) Q_DECL_OVERRIDE;
-    void hideEvent(QHideEvent *) Q_DECL_OVERRIDE;
+    void showEvent(QShowEvent *) override;
+    void hideEvent(QHideEvent *) override;
     // TODO Qt 6: reimplement QWindow::closeEvent to emit closing
 
-    void focusInEvent(QFocusEvent *) Q_DECL_OVERRIDE;
-    void focusOutEvent(QFocusEvent *) Q_DECL_OVERRIDE;
+    void focusInEvent(QFocusEvent *) override;
+    void focusOutEvent(QFocusEvent *) override;
 
-    bool event(QEvent *) Q_DECL_OVERRIDE;
-    void keyPressEvent(QKeyEvent *) Q_DECL_OVERRIDE;
-    void keyReleaseEvent(QKeyEvent *) Q_DECL_OVERRIDE;
-    void mousePressEvent(QMouseEvent *) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *) Q_DECL_OVERRIDE;
-    void mouseDoubleClickEvent(QMouseEvent *) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(QMouseEvent *) Q_DECL_OVERRIDE;
-#ifndef QT_NO_WHEELEVENT
-    void wheelEvent(QWheelEvent *) Q_DECL_OVERRIDE;
+    bool event(QEvent *) override;
+    void keyPressEvent(QKeyEvent *) override;
+    void keyReleaseEvent(QKeyEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseDoubleClickEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+#if QT_CONFIG(wheelevent)
+    void wheelEvent(QWheelEvent *) override;
 #endif
 
 private Q_SLOTS:
@@ -200,7 +235,7 @@ private Q_SLOTS:
     void handleScreenChanged(QScreen *screen);
     void setTransientParent_helper(QQuickWindow *window);
     void runJobsAfterSwap();
-
+    void handleApplicationStateChanged(Qt::ApplicationState state);
 private:
     friend class QQuickItem;
     friend class QQuickWidget;
@@ -208,6 +243,10 @@ private:
     friend class QQuickAnimatorController;
     Q_DISABLE_COPY(QQuickWindow)
 };
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug Q_QUICK_EXPORT operator<<(QDebug debug, const QQuickWindow *item);
+#endif
 
 QT_END_NAMESPACE
 

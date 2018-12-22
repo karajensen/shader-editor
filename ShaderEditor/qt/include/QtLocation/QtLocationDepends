@@ -4,4 +4,7 @@
 #include <QtPositioning/QtPositioning>
 #include <QtGui/QtGui>
 #include <QtQuick/QtQuick>
+#include <QtNetwork/QtNetwork>
+#include <QtPositioningQuick/QtPositioningQuick>
+#include <QtQml/QtQml>
 #endif

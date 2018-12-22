@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtSerialBus module of the Qt Toolkit.
@@ -40,19 +40,33 @@
 #include <QtCore/qstringlist.h>
 #include <QtSerialBus/qserialbusglobal.h>
 #include <QtSerialBus/qcanbusdevice.h>
+#include <QtSerialBus/qcanbusdeviceinfo.h>
 
 QT_BEGIN_NAMESPACE
 
 class Q_SERIALBUS_EXPORT QCanBusFactory
 {
 public:
-    virtual QCanBusDevice *createDevice(const QString &interfaceName) const = 0;
+    virtual QCanBusDevice *createDevice(const QString &interfaceName,
+                                        QString *errorMessage) const = 0;
 protected:
     virtual ~QCanBusFactory() {}
 };
 
-Q_DECLARE_INTERFACE(QCanBusFactory,
-                    "org.qt-project.Qt.QCanBusFactory")
+Q_DECLARE_INTERFACE(QCanBusFactory, "org.qt-project.Qt.QCanBusFactory")
+
+class Q_SERIALBUS_EXPORT QCanBusFactoryV2 : public QCanBusFactory
+{
+public:
+    virtual QCanBusDevice *createDevice(const QString &interfaceName,
+                                        QString *errorMessage) const = 0;
+    virtual QList<QCanBusDeviceInfo> availableDevices(QString *errorMessage) const = 0;
+
+protected:
+    virtual ~QCanBusFactoryV2();
+};
+
+Q_DECLARE_INTERFACE(QCanBusFactoryV2, "org.qt-project.Qt.QCanBusFactoryV2")
 
 QT_END_NAMESPACE
 

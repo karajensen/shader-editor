@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtBluetooth module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -34,7 +40,7 @@
 #ifndef QBLUETOOTHUUID_H
 #define QBLUETOOTHUUID_H
 
-#include <QtBluetooth/qbluetoothglobal.h>
+#include <QtBluetooth/qtbluetoothglobal.h>
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QMetaType>
@@ -52,6 +58,7 @@ struct quint128
 class Q_BLUETOOTH_EXPORT QBluetoothUuid : public QUuid
 {
 public:
+    //TODO Qt 6: Convert enums to scoped enums (see QTBUG-65831)
     enum ProtocolUuid {
         Sdp = 0x0001,
         Udp = 0x0002,
@@ -373,11 +380,14 @@ public:
     ~QBluetoothUuid();
 
     bool operator==(const QBluetoothUuid &other) const;
+    bool operator!=(const QBluetoothUuid &other) const { return !operator==(other); }
+
+    QBluetoothUuid &operator=(const QBluetoothUuid &other) = default;
 
     int minimumSize() const;
 
-    quint16 toUInt16(bool *ok = Q_NULLPTR) const;
-    quint32 toUInt32(bool *ok = Q_NULLPTR) const;
+    quint16 toUInt16(bool *ok = nullptr) const;
+    quint32 toUInt32(bool *ok = nullptr) const;
     quint128 toUInt128() const;
 
     static QString serviceClassToString(ServiceClassUuid uuid);
@@ -385,6 +395,18 @@ public:
     static QString characteristicToString(CharacteristicType uuid);
     static QString descriptorToString(DescriptorType uuid);
 };
+
+#ifndef QT_NO_DATASTREAM
+inline QDataStream &operator<<(QDataStream &s, const QBluetoothUuid &uuid)
+{
+    return s << static_cast<const QUuid &>(uuid);
+}
+
+inline QDataStream &operator>>(QDataStream &s, QBluetoothUuid &uuid)
+{
+    return s >> static_cast<QUuid &>(uuid);
+}
+#endif
 
 #ifndef QT_NO_DEBUG_STREAM
 /// TODO: Move implementation to .cpp, uninline and add Q_BLUETOOTH_EXPORT for Qt 6

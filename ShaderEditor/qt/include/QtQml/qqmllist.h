@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtQml module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -55,20 +61,15 @@ public:
     typedef void (*ClearFunction)(QQmlListProperty<T> *);
 
     QQmlListProperty()
-        : object(Q_NULLPTR),
-          data(Q_NULLPTR),
-          append(Q_NULLPTR),
-          count(Q_NULLPTR),
-          at(Q_NULLPTR),
-          clear(Q_NULLPTR),
-          dummy1(Q_NULLPTR),
-          dummy2(Q_NULLPTR)
+        : append(nullptr),
+          count(nullptr),
+          at(nullptr),
+          clear(nullptr)
     {}
     QQmlListProperty(QObject *o, QList<T *> &list)
         : object(o), data(&list), append(qlist_append), count(qlist_count), at(qlist_at),
-          clear(qlist_clear),
-          dummy1(Q_NULLPTR),
-          dummy2(Q_NULLPTR)
+          clear(qlist_clear)
+
     {}
     QQmlListProperty(QObject *o, void *d, AppendFunction a, CountFunction c, AtFunction t,
                     ClearFunction r )
@@ -77,18 +78,15 @@ public:
           append(a),
           count(c),
           at(t),
-          clear(r),
-          dummy1(Q_NULLPTR),
-          dummy2(Q_NULLPTR)
+          clear(r)
+
     {}
     QQmlListProperty(QObject *o, void *d, CountFunction c, AtFunction t)
         : object(o),
           data(d),
-          append(Q_NULLPTR),
+          append(nullptr),
           count(c), at(t),
-          clear(Q_NULLPTR),
-          dummy1(Q_NULLPTR),
-          dummy2(Q_NULLPTR)
+          clear(nullptr)
     {}
     bool operator==(const QQmlListProperty &o) const {
         return object == o.object &&
@@ -99,8 +97,8 @@ public:
                clear == o.clear;
     }
 
-    QObject *object;
-    void *data;
+    QObject *object = nullptr;
+    void *data = nullptr;
 
     AppendFunction append;
 
@@ -109,8 +107,8 @@ public:
 
     ClearFunction clear;
 
-    void *dummy1;
-    void *dummy2;
+    void *dummy1 = nullptr;
+    void *dummy2 = nullptr;
 
 private:
     static void qlist_append(QQmlListProperty *p, T *v) {
@@ -134,7 +132,7 @@ class Q_QML_EXPORT QQmlListReference
 {
 public:
     QQmlListReference();
-    QQmlListReference(QObject *, const char *property, QQmlEngine * = Q_NULLPTR);
+    QQmlListReference(QObject *, const char *property, QQmlEngine * = nullptr);
     QQmlListReference(const QQmlListReference &);
     QQmlListReference &operator=(const QQmlListReference &);
     ~QQmlListReference();

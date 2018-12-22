@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the QtSerialBus module of the Qt Toolkit.
@@ -160,9 +160,10 @@ private:
 
     template<typename ... Args> void encode(Args ... newData) {
         m_data.clear();
-        if (sizeof...(Args)) {
+        Q_CONSTEXPR quint32 argCount = sizeof...(Args);
+        if (argCount > 0) {
             QDataStream stream(&m_data, QIODevice::WriteOnly);
-            char tmp[1024] = { (encode(&stream, newData), void(), '0')... };
+            char tmp[argCount] = { (encode(&stream, newData), void(), '0')... };
             Q_UNUSED(tmp)
         }
     }
@@ -170,7 +171,7 @@ private:
         Q_CONSTEXPR quint32 argCount = sizeof...(Args);
         if (argCount > 0 && !m_data.isEmpty()) {
             QDataStream stream(m_data);
-            char tmp[1024] = { (decode(&stream, newData), void(), '0')... };
+            char tmp[argCount] = { (decode(&stream, newData), void(), '0')... };
             Q_UNUSED(tmp)
         }
     }
@@ -198,12 +199,17 @@ public:
     Q_SERIALBUS_EXPORT static int minimumDataSize(const QModbusRequest &pdu);
     Q_SERIALBUS_EXPORT static int calculateDataSize(const QModbusRequest &pdu);
 
+    using CalcFuncPtr = decltype(&calculateDataSize);
+    Q_SERIALBUS_EXPORT static void registerDataSizeCalculator(FunctionCode fc, CalcFuncPtr func);
+
     template <typename ... Args>
     QModbusRequest(FunctionCode code, Args ... newData)
         : QModbusPdu(code, newData...)
     {}
 };
 Q_SERIALBUS_EXPORT QDataStream &operator>>(QDataStream &stream, QModbusRequest &pdu);
+inline QDataStream &operator<<(QDataStream &stream, const QModbusRequest &pdu)
+{ return stream << static_cast<const QModbusPdu &>(pdu); }
 
 class QModbusResponse : public QModbusPdu
 {
@@ -219,6 +225,9 @@ public:
 
     Q_SERIALBUS_EXPORT static int minimumDataSize(const QModbusResponse &pdu);
     Q_SERIALBUS_EXPORT static int calculateDataSize(const QModbusResponse &pdu);
+
+    using CalcFuncPtr = decltype(&calculateDataSize);
+    Q_SERIALBUS_EXPORT static void registerDataSizeCalculator(FunctionCode fc, CalcFuncPtr func);
 
     template <typename ... Args>
     QModbusResponse(FunctionCode code, Args ... newData)
@@ -243,6 +252,8 @@ public:
     void setExceptionCode(ExceptionCode ec) { QModbusPdu::encodeData(quint8(ec)); }
 };
 Q_SERIALBUS_EXPORT QDataStream &operator>>(QDataStream &stream, QModbusResponse &pdu);
+inline QDataStream &operator<<(QDataStream &stream, const QModbusResponse &pdu)
+{ return stream << static_cast<const QModbusPdu &>(pdu); }
 
 Q_DECLARE_TYPEINFO(QModbusPdu, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(QModbusPdu::ExceptionCode, Q_PRIMITIVE_TYPE);

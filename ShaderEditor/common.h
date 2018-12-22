@@ -4,11 +4,6 @@
 
 #pragma once
 
-//#define TEST_LEAKS
-#ifdef TEST_LEAKS
-#include "vld/include/vld.h"
-#endif
-
 #define USE_CONSOLE
 #ifndef USE_CONSOLE
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")

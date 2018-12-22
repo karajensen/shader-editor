@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCore module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -80,6 +86,17 @@ public:
     Q_DECL_CONSTEXPR QChar(int rc) Q_DECL_NOTHROW : ucs(ushort(rc & 0xffff)) {}
     Q_DECL_CONSTEXPR QChar(SpecialCharacter s) Q_DECL_NOTHROW : ucs(ushort(s)) {} // implicit
     Q_DECL_CONSTEXPR QChar(QLatin1Char ch) Q_DECL_NOTHROW : ucs(ch.unicode()) {} // implicit
+#if defined(Q_COMPILER_UNICODE_STRINGS)
+    Q_DECL_CONSTEXPR QChar(char16_t ch) Q_DECL_NOTHROW : ucs(ushort(ch)) {} // implicit
+#endif
+#if defined(Q_OS_WIN)
+    Q_STATIC_ASSERT(sizeof(wchar_t) == sizeof(ushort));
+#endif
+#if defined(Q_OS_WIN) || defined(Q_CLANG_QDOC)
+#   if !defined(_WCHAR_T_DEFINED) || defined(_NATIVE_WCHAR_T_DEFINED)
+    Q_DECL_CONSTEXPR QChar(wchar_t ch) Q_DECL_NOTHROW : ucs(ushort(ch)) {} // implicit
+#   endif
+#endif
 
 #ifndef QT_NO_CAST_FROM_ASCII
     QT_ASCII_CAST_WARN Q_DECL_CONSTEXPR explicit QChar(char c) Q_DECL_NOTHROW : ucs(uchar(c)) { }
@@ -283,6 +300,20 @@ public:
         Script_OldHungarian,
         Script_SignWriting,
 
+        // Unicode 9.0 additions
+        Script_Adlam,
+        Script_Bhaiksuki,
+        Script_Marchen,
+        Script_Newa,
+        Script_Osage,
+        Script_Tangut,
+
+        // Unicode 10.0 additions
+        Script_MasaramGondi,
+        Script_Nushu,
+        Script_Soyombo,
+        Script_ZanabazarSquare,
+
         ScriptCount
     };
 
@@ -374,7 +405,9 @@ public:
         Unicode_6_2,
         Unicode_6_3,
         Unicode_7_0,
-        Unicode_8_0
+        Unicode_8_0,
+        Unicode_9_0,
+        Unicode_10_0
     };
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
 
@@ -567,10 +600,26 @@ Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 Q_DECL_CONSTEXPR inline bool operator==(QChar c1, QChar c2) Q_DECL_NOTHROW { return c1.ucs == c2.ucs; }
 Q_DECL_CONSTEXPR inline bool operator< (QChar c1, QChar c2) Q_DECL_NOTHROW { return c1.ucs <  c2.ucs; }
 
-Q_DECL_CONSTEXPR inline bool operator!=(QChar c1, QChar c2) { return !operator==(c1, c2); }
-Q_DECL_CONSTEXPR inline bool operator>=(QChar c1, QChar c2) { return !operator< (c1, c2); }
-Q_DECL_CONSTEXPR inline bool operator> (QChar c1, QChar c2) { return  operator< (c2, c1); }
-Q_DECL_CONSTEXPR inline bool operator<=(QChar c1, QChar c2) { return !operator< (c2, c1); }
+Q_DECL_CONSTEXPR inline bool operator!=(QChar c1, QChar c2) Q_DECL_NOTHROW { return !operator==(c1, c2); }
+Q_DECL_CONSTEXPR inline bool operator>=(QChar c1, QChar c2) Q_DECL_NOTHROW { return !operator< (c1, c2); }
+Q_DECL_CONSTEXPR inline bool operator> (QChar c1, QChar c2) Q_DECL_NOTHROW { return  operator< (c2, c1); }
+Q_DECL_CONSTEXPR inline bool operator<=(QChar c1, QChar c2) Q_DECL_NOTHROW { return !operator< (c2, c1); }
+
+
+Q_DECL_CONSTEXPR inline bool operator==(QChar lhs, std::nullptr_t) Q_DECL_NOTHROW { return lhs.isNull(); }
+Q_DECL_CONSTEXPR inline bool operator< (QChar,     std::nullptr_t) Q_DECL_NOTHROW { return false; }
+Q_DECL_CONSTEXPR inline bool operator==(std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return rhs.isNull(); }
+Q_DECL_CONSTEXPR inline bool operator< (std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return !rhs.isNull(); }
+
+Q_DECL_CONSTEXPR inline bool operator!=(QChar lhs, std::nullptr_t) Q_DECL_NOTHROW { return !operator==(lhs, nullptr); }
+Q_DECL_CONSTEXPR inline bool operator>=(QChar lhs, std::nullptr_t) Q_DECL_NOTHROW { return !operator< (lhs, nullptr); }
+Q_DECL_CONSTEXPR inline bool operator> (QChar lhs, std::nullptr_t) Q_DECL_NOTHROW { return  operator< (nullptr, lhs); }
+Q_DECL_CONSTEXPR inline bool operator<=(QChar lhs, std::nullptr_t) Q_DECL_NOTHROW { return !operator< (nullptr, lhs); }
+
+Q_DECL_CONSTEXPR inline bool operator!=(std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return !operator==(nullptr, rhs); }
+Q_DECL_CONSTEXPR inline bool operator>=(std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return !operator< (nullptr, rhs); }
+Q_DECL_CONSTEXPR inline bool operator> (std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return  operator< (rhs, nullptr); }
+Q_DECL_CONSTEXPR inline bool operator<=(std::nullptr_t, QChar rhs) Q_DECL_NOTHROW { return !operator< (rhs, nullptr); }
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, QChar);

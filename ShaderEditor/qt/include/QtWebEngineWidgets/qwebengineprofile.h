@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebEngine module of the Qt Toolkit.
 **
@@ -11,24 +11,27 @@
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -60,20 +63,23 @@ class QWebEngineUrlSchemeHandler;
 class QWEBENGINEWIDGETS_EXPORT QWebEngineProfile : public QObject {
     Q_OBJECT
 public:
-    explicit QWebEngineProfile(QObject *parent = 0);
-    explicit QWebEngineProfile(const QString &name, QObject *parent = 0);
+    explicit QWebEngineProfile(QObject *parent = Q_NULLPTR);
+    explicit QWebEngineProfile(const QString &name, QObject *parent = Q_NULLPTR);
     virtual ~QWebEngineProfile();
 
     enum HttpCacheType {
         MemoryHttpCache,
-        DiskHttpCache
+        DiskHttpCache,
+        NoCache
     };
+    Q_ENUM(HttpCacheType)
 
     enum PersistentCookiesPolicy {
         NoPersistentCookies,
         AllowPersistentCookies,
         ForcePersistentCookies
     };
+    Q_ENUM(PersistentCookiesPolicy)
 
     QString storageName() const;
     bool isOffTheRecord() const;
@@ -115,6 +121,13 @@ public:
     void removeUrlSchemeHandler(QWebEngineUrlSchemeHandler *);
     void removeAllUrlSchemeHandlers();
 
+    void clearHttpCache();
+
+    void setSpellCheckLanguages(const QStringList &languages);
+    QStringList spellCheckLanguages() const;
+    void setSpellCheckEnabled(bool enabled);
+    bool isSpellCheckEnabled() const;
+
     static QWebEngineProfile *defaultProfile();
 
 Q_SIGNALS:
@@ -126,7 +139,7 @@ private Q_SLOTS:
 private:
     Q_DISABLE_COPY(QWebEngineProfile)
     Q_DECLARE_PRIVATE(QWebEngineProfile)
-    QWebEngineProfile(QWebEngineProfilePrivate *, QObject *parent = 0);
+    QWebEngineProfile(QWebEngineProfilePrivate *, QObject *parent = Q_NULLPTR);
 
     friend class QWebEnginePagePrivate;
     friend class QWebEngineUrlSchemeHandler;

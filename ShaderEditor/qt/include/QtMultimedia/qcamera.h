@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -159,10 +165,10 @@ public:
         FrontFace
     };
 
-    explicit QCamera(QObject *parent = Q_NULLPTR);
-    explicit QCamera(const QByteArray& deviceName, QObject *parent = Q_NULLPTR);
-    explicit QCamera(const QCameraInfo& cameraInfo, QObject *parent = Q_NULLPTR);
-    explicit QCamera(QCamera::Position position, QObject *parent = Q_NULLPTR);
+    explicit QCamera(QObject *parent = nullptr);
+    explicit QCamera(const QByteArray& deviceName, QObject *parent = nullptr);
+    explicit QCamera(const QCameraInfo& cameraInfo, QObject *parent = nullptr);
+    explicit QCamera(QCamera::Position position, QObject *parent = nullptr);
     ~QCamera();
 
 #if QT_DEPRECATED_SINCE(5, 3)
@@ -170,7 +176,7 @@ public:
     QT_DEPRECATED static QString deviceDescription(const QByteArray &device);
 #endif
 
-    QMultimedia::AvailabilityStatus availability() const;
+    QMultimedia::AvailabilityStatus availability() const override;
 
     State state() const;
     Status status() const;
@@ -226,15 +232,15 @@ public Q_SLOTS:
     void unlock(QCamera::LockTypes locks);
 
 Q_SIGNALS:
-    void stateChanged(QCamera::State);
+    void stateChanged(QCamera::State state);
     void captureModeChanged(QCamera::CaptureModes);
-    void statusChanged(QCamera::Status);
+    void statusChanged(QCamera::Status status);
 
     void locked();
     void lockFailed();
 
-    void lockStatusChanged(QCamera::LockStatus, QCamera::LockChangeReason);
-    void lockStatusChanged(QCamera::LockType, QCamera::LockStatus, QCamera::LockChangeReason);
+    void lockStatusChanged(QCamera::LockStatus status, QCamera::LockChangeReason reason);
+    void lockStatusChanged(QCamera::LockType lock, QCamera::LockStatus status, QCamera::LockChangeReason reason);
 
     void error(QCamera::Error);
 
@@ -251,8 +257,17 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QCamera::LockTypes)
 
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_CLANG("-Wfloat-equal")
+QT_WARNING_DISABLE_GCC("-Wfloat-equal")
+
 Q_DECL_CONSTEXPR Q_INLINE_TEMPLATE bool operator==(const QCamera::FrameRateRange &r1, const QCamera::FrameRateRange &r2) Q_DECL_NOTHROW
-{ return r1.minimumFrameRate == r2.minimumFrameRate && r1.maximumFrameRate == r2.maximumFrameRate; }
+{
+    return qFuzzyCompare(r1.minimumFrameRate, r2.minimumFrameRate)
+        && qFuzzyCompare(r1.maximumFrameRate, r2.maximumFrameRate);
+}
+
+QT_WARNING_POP
 
 Q_DECL_CONSTEXPR Q_INLINE_TEMPLATE bool operator!=(const QCamera::FrameRateRange &r1, const QCamera::FrameRateRange &r2) Q_DECL_NOTHROW
 { return !(r1 == r2); }

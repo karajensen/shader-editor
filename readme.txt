@@ -15,7 +15,6 @@ RELEASE REQUIREMENTS: Windows 8+
 BUILD REQUIREMENTS: Windows 8+, Visual Studio 2015
 LIBRARIES: Assimp 3.0, Boost 1.6, Qt 5.6.1-1 for Windows 32-bit
 CAUSTIC GENERATOR: http://www.dualheights.se/caustics/
-VULKAN: https://vulkan.lunarg.com/doc/sdk/1.0.26.0/windows/tutorial.html
 
 ========================================================================
 

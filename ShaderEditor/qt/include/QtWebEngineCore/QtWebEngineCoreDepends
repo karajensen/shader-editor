@@ -4,5 +4,6 @@
 #include <QtGui/QtGui>
 #include <QtQml/QtQml>
 #include <QtQuick/QtQuick>
+#include <QtPositioning/QtPositioning>
 #include <QtWebChannel/QtWebChannel>
 #endif

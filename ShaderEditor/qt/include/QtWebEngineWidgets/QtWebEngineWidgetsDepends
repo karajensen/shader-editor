@@ -6,4 +6,5 @@
 #include <QtWidgets/QtWidgets>
 #include <QtNetwork/QtNetwork>
 #include <QtQuick/QtQuick>
+#include <QtPrintSupport/QtPrintSupport>
 #endif

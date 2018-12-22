@@ -3,4 +3,5 @@
 #include <QtCore/QtCore>
 #include <QtGui/QtGui>
 #include <Qt3DCore/Qt3DCore>
+#include <QtGamepad/QtGamepad>
 #endif

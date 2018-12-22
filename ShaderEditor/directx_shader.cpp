@@ -8,7 +8,7 @@
 #include "boost/regex.hpp"
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
-#include "directx/include/D3Dcompiler.h"
+#include <D3Dcompiler.h>
 #include <fstream>
 
 namespace

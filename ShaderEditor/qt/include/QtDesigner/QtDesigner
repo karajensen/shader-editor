@@ -1,10 +1,9 @@
 #ifndef QT_QTDESIGNER_MODULE_H
 #define QT_QTDESIGNER_MODULE_H
 #include <QtDesigner/QtDesignerDepends>
-#include "extension.h"
-#include "qextensionmanager.h"
 #include "abstractactioneditor.h"
 #include "abstractdnditem.h"
+#include "abstractformbuilder.h"
 #include "abstractformeditor.h"
 #include "abstractformeditorplugin.h"
 #include "abstractformwindow.h"
@@ -26,12 +25,13 @@
 #include "abstractwidgetfactory.h"
 #include "container.h"
 #include "dynamicpropertysheet.h"
+#include "extension.h"
 #include "extrainfo.h"
+#include "formbuilder.h"
 #include "layoutdecoration.h"
 #include "membersheet.h"
 #include "propertysheet.h"
+#include "qextensionmanager.h"
 #include "taskmenu.h"
-#include "abstractformbuilder.h"
-#include "formbuilder.h"
 #include "qtdesignerversion.h"
 #endif

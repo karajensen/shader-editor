@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'tweakable_box.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.3.1)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.0)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -12,27 +12,30 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'tweakable_box.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.3.1. It"
+#error "This file was generated using the moc from 5.12.0. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_TweakableBox_t {
     QByteArrayData data[4];
-    char stringdata[35];
+    char stringdata0[35];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_TweakableBox_t, stringdata) + ofs \
+    qptrdiff(offsetof(qt_meta_stringdata_TweakableBox_t, stringdata0) + ofs \
         - idx * sizeof(QByteArrayData)) \
     )
 static const qt_meta_stringdata_TweakableBox_t qt_meta_stringdata_TweakableBox = {
     {
-QT_MOC_LITERAL(0, 0, 12),
-QT_MOC_LITERAL(1, 13, 14),
-QT_MOC_LITERAL(2, 28, 0),
-QT_MOC_LITERAL(3, 29, 5)
+QT_MOC_LITERAL(0, 0, 12), // "TweakableBox"
+QT_MOC_LITERAL(1, 13, 14), // "UpdateSelected"
+QT_MOC_LITERAL(2, 28, 0), // ""
+QT_MOC_LITERAL(3, 29, 5) // "index"
+
     },
     "TweakableBox\0UpdateSelected\0\0index"
 };
@@ -41,7 +44,7 @@ QT_MOC_LITERAL(3, 29, 5)
 static const uint qt_meta_data_TweakableBox[] = {
 
  // content:
-       7,       // revision
+       8,       // revision
        0,       // classname
        0,    0, // classinfo
        1,   14, // methods
@@ -64,6 +67,7 @@ void TweakableBox::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         TweakableBox *_t = static_cast<TweakableBox *>(_o);
+        Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->UpdateSelected((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
@@ -71,10 +75,14 @@ void TweakableBox::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
     }
 }
 
-const QMetaObject TweakableBox::staticMetaObject = {
-    { &QWidget::staticMetaObject, qt_meta_stringdata_TweakableBox.data,
-      qt_meta_data_TweakableBox,  qt_static_metacall, 0, 0}
-};
+QT_INIT_METAOBJECT const QMetaObject TweakableBox::staticMetaObject = { {
+    &QWidget::staticMetaObject,
+    qt_meta_stringdata_TweakableBox.data,
+    qt_meta_data_TweakableBox,
+    qt_static_metacall,
+    nullptr,
+    nullptr
+} };
 
 
 const QMetaObject *TweakableBox::metaObject() const
@@ -84,9 +92,9 @@ const QMetaObject *TweakableBox::metaObject() const
 
 void *TweakableBox::qt_metacast(const char *_clname)
 {
-    if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_TweakableBox.stringdata))
-        return static_cast<void*>(const_cast< TweakableBox*>(this));
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_meta_stringdata_TweakableBox.stringdata0))
+        return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
 
@@ -106,4 +114,5 @@ int TweakableBox::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     }
     return _id;
 }
+QT_WARNING_POP
 QT_END_MOC_NAMESPACE

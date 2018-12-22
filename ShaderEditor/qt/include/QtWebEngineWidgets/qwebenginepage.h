@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWebEngine module of the Qt Toolkit.
 **
@@ -11,24 +11,27 @@
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
 ** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
 ** packaging of this file. Please review the following information to
 ** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -38,23 +41,34 @@
 #define QWEBENGINEPAGE_H
 
 #include <QtWebEngineWidgets/qtwebenginewidgetsglobal.h>
-#include <QtWebEngineWidgets/qwebenginecertificateerror.h>
+#include <QtWebEngineWidgets/qwebengineclientcertificateselection.h>
+#include <QtWebEngineWidgets/qwebenginedownloaditem.h>
 #include <QtWebEngineCore/qwebenginecallback.h>
+#include <QtWebEngineCore/qwebenginehttprequest.h>
 
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
+#include <QtGui/qpagelayout.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtWidgets/qwidget.h>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QPrinter;
+
+class QContextMenuBuilder;
 class QWebChannel;
+class QWebEngineCertificateError;
+class QWebEngineClientCertificateSelection;
+class QWebEngineContextMenuData;
 class QWebEngineFullScreenRequest;
 class QWebEngineHistory;
 class QWebEnginePage;
 class QWebEnginePagePrivate;
 class QWebEngineProfile;
+class QWebEngineQuotaRequest;
+class QWebEngineRegisterProtocolHandlerRequest;
 class QWebEngineScriptCollection;
 class QWebEngineSettings;
 
@@ -68,8 +82,13 @@ class QWEBENGINEWIDGETS_EXPORT QWebEnginePage : public QObject {
     Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor)
     Q_PROPERTY(QString title READ title)
     Q_PROPERTY(QUrl url READ url WRITE setUrl)
-    Q_PROPERTY(QUrl iconUrl READ iconUrl)
+    Q_PROPERTY(QUrl iconUrl READ iconUrl NOTIFY iconUrlChanged)
+    Q_PROPERTY(QIcon icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+    Q_PROPERTY(QSizeF contentsSize READ contentsSize NOTIFY contentsSizeChanged)
+    Q_PROPERTY(QPointF scrollPosition READ scrollPosition NOTIFY scrollPositionChanged)
+    Q_PROPERTY(bool audioMuted READ isAudioMuted WRITE setAudioMuted NOTIFY audioMutedChanged)
+    Q_PROPERTY(bool recentlyAudible READ recentlyAudible NOTIFY recentlyAudibleChanged)
 
 public:
     enum WebAction {
@@ -110,9 +129,29 @@ public:
         InspectElement,
         ExitFullScreen,
         RequestClose,
+        Unselect,
+        SavePage,
+        OpenLinkInNewBackgroundTab,
+        ViewSource,
+
+        ToggleBold,
+        ToggleItalic,
+        ToggleUnderline,
+        ToggleStrikethrough,
+
+        AlignLeft,
+        AlignCenter,
+        AlignRight,
+        AlignJustified,
+        Indent,
+        Outdent,
+
+        InsertOrderedList,
+        InsertUnorderedList,
 
         WebActionCount
     };
+    Q_ENUM(WebAction)
 
     enum FindFlag {
         FindBackward = 1,
@@ -123,14 +162,17 @@ public:
     enum WebWindowType {
         WebBrowserWindow,
         WebBrowserTab,
-        WebDialog
+        WebDialog,
+        WebBrowserBackgroundTab
     };
+    Q_ENUM(WebWindowType)
 
     enum PermissionPolicy {
         PermissionUnknown,
         PermissionGrantedByUser,
         PermissionDeniedByUser
     };
+    Q_ENUM(PermissionPolicy)
 
     // must match WebContentsAdapterClient::NavigationType
     enum NavigationType {
@@ -141,6 +183,7 @@ public:
         NavigationTypeReload,
         NavigationTypeOther
     };
+    Q_ENUM(NavigationType)
 
     enum Feature {
 #ifndef Q_QDOC
@@ -150,8 +193,11 @@ public:
         MediaAudioCapture = 2,
         MediaVideoCapture,
         MediaAudioVideoCapture,
-        MouseLock
+        MouseLock,
+        DesktopVideoCapture,
+        DesktopAudioVideoCapture
     };
+    Q_ENUM(Feature)
 
     // Ex-QWebFrame enum
 
@@ -159,6 +205,7 @@ public:
         FileSelectOpen,
         FileSelectOpenMultiple,
     };
+    Q_ENUM(FileSelectionMode)
 
     // must match WebContentsAdapterClient::JavaScriptConsoleMessageLevel
     enum JavaScriptConsoleMessageLevel {
@@ -166,6 +213,7 @@ public:
         WarningMessageLevel,
         ErrorMessageLevel
     };
+    Q_ENUM(JavaScriptConsoleMessageLevel)
 
     // must match WebContentsAdapterClient::RenderProcessTerminationStatus
     enum RenderProcessTerminationStatus {
@@ -174,9 +222,10 @@ public:
         CrashedTerminationStatus,
         KilledTerminationStatus
     };
+    Q_ENUM(RenderProcessTerminationStatus)
 
-    explicit QWebEnginePage(QObject *parent = 0);
-    QWebEnginePage(QWebEngineProfile *profile, QObject *parent = 0);
+    explicit QWebEnginePage(QObject *parent = Q_NULLPTR);
+    QWebEnginePage(QWebEngineProfile *profile, QObject *parent = Q_NULLPTR);
     ~QWebEnginePage();
     QWebEngineHistory *history() const;
 
@@ -193,52 +242,70 @@ public:
 #endif
     virtual void triggerAction(WebAction action, bool checked = false);
 
+    void replaceMisspelledWord(const QString &replacement);
+
     virtual bool event(QEvent*);
-#ifdef Q_QDOC
-    void findText(const QString &subString, FindFlags options = 0);
-    void findText(const QString &subString, FindFlags options, FunctorOrLambda resultCallback);
-#else
-    void findText(const QString &subString, FindFlags options = 0, const QWebEngineCallback<bool> &resultCallback = QWebEngineCallback<bool>());
-#endif
+
+    void findText(const QString &subString, FindFlags options = FindFlags(), const QWebEngineCallback<bool> &resultCallback = QWebEngineCallback<bool>());
+
+#if QT_CONFIG(menu)
     QMenu *createStandardContextMenu();
+#endif
 
     void setFeaturePermission(const QUrl &securityOrigin, Feature feature, PermissionPolicy policy);
 
-    // Ex-QWebFrame methods
     void load(const QUrl &url);
+    void load(const QWebEngineHttpRequest &request);
+    void download(const QUrl &url, const QString &filename = QString());
     void setHtml(const QString &html, const QUrl &baseUrl = QUrl());
     void setContent(const QByteArray &data, const QString &mimeType = QString(), const QUrl &baseUrl = QUrl());
 
-#ifdef Q_QDOC
-    void toHtml(FunctorOrLambda resultCallback) const;
-    void toPlainText(FunctorOrLambda resultCallback) const;
-#else
     void toHtml(const QWebEngineCallback<const QString &> &resultCallback) const;
     void toPlainText(const QWebEngineCallback<const QString &> &resultCallback) const;
-#endif
 
     QString title() const;
     void setUrl(const QUrl &url);
     QUrl url() const;
     QUrl requestedUrl() const;
     QUrl iconUrl() const;
+    QIcon icon() const;
 
     qreal zoomFactor() const;
     void setZoomFactor(qreal factor);
 
+    QPointF scrollPosition() const;
+    QSizeF contentsSize() const;
+
     void runJavaScript(const QString& scriptSource);
-#ifdef Q_QDOC
-    void runJavaScript(const QString& scriptSource, FunctorOrLambda resultCallback);
-#else
+    void runJavaScript(const QString& scriptSource, quint32 worldId);
     void runJavaScript(const QString& scriptSource, const QWebEngineCallback<const QVariant &> &resultCallback);
-#endif
+    void runJavaScript(const QString& scriptSource, quint32 worldId, const QWebEngineCallback<const QVariant &> &resultCallback);
     QWebEngineScriptCollection &scripts();
     QWebEngineSettings *settings() const;
 
     QWebChannel *webChannel() const;
     void setWebChannel(QWebChannel *);
+    void setWebChannel(QWebChannel *, uint worldId);
     QColor backgroundColor() const;
     void setBackgroundColor(const QColor &color);
+
+    void save(const QString &filePath, QWebEngineDownloadItem::SavePageFormat format
+                                                = QWebEngineDownloadItem::MimeHtmlSaveFormat) const;
+
+    bool isAudioMuted() const;
+    void setAudioMuted(bool muted);
+    bool recentlyAudible() const;
+
+    void printToPdf(const QString &filePath, const QPageLayout &layout = QPageLayout(QPageSize(QPageSize::A4), QPageLayout::Portrait, QMarginsF()));
+    void printToPdf(const QWebEngineCallback<const QByteArray&> &resultCallback, const QPageLayout &layout = QPageLayout(QPageSize(QPageSize::A4), QPageLayout::Portrait, QMarginsF()));
+    void print(QPrinter *printer, const QWebEngineCallback<bool> &resultCallback);
+
+    void setInspectedPage(QWebEnginePage *page);
+    QWebEnginePage *inspectedPage() const;
+    void setDevToolsPage(QWebEnginePage *page);
+    QWebEnginePage *devToolsPage() const;
+
+    const QWebEngineContextMenuData &contextMenuData() const;
 
 Q_SIGNALS:
     void loadStarted();
@@ -253,6 +320,11 @@ Q_SIGNALS:
     void featurePermissionRequested(const QUrl &securityOrigin, QWebEnginePage::Feature feature);
     void featurePermissionRequestCanceled(const QUrl &securityOrigin, QWebEnginePage::Feature feature);
     void fullScreenRequested(QWebEngineFullScreenRequest fullScreenRequest);
+    void quotaRequested(QWebEngineQuotaRequest quotaRequest);
+    void registerProtocolHandlerRequested(QWebEngineRegisterProtocolHandlerRequest request);
+#if !defined(QT_NO_SSL) || QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    void selectClientCertificate(QWebEngineClientCertificateSelection clientCertSelection);
+#endif
 
     void authenticationRequired(const QUrl &requestUrl, QAuthenticator *authenticator);
     void proxyAuthenticationRequired(const QUrl &requestUrl, QAuthenticator *authenticator, const QString &proxyHost);
@@ -262,8 +334,16 @@ Q_SIGNALS:
     // Ex-QWebFrame signals
     void titleChanged(const QString &title);
     void urlChanged(const QUrl &url);
-    // Was iconChanged() in QWebFrame
     void iconUrlChanged(const QUrl &url);
+    void iconChanged(const QIcon &icon);
+
+    void scrollPositionChanged(const QPointF &position);
+    void contentsSizeChanged(const QSizeF &size);
+    void audioMutedChanged(bool muted);
+    void recentlyAudibleChanged(bool recentlyAudible);
+
+    void pdfPrintingFinished(const QString &filePath, bool success);
+    void printRequested();
 
 protected:
     virtual QWebEnginePage *createWindow(WebWindowType type);
@@ -283,6 +363,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_webActionTriggered(bool checked))
 #endif
 
+    friend class QContextMenuBuilder;
     friend class QWebEngineFullScreenRequest;
     friend class QWebEngineView;
     friend class QWebEngineViewPrivate;
@@ -291,6 +372,7 @@ private:
 #endif // QT_NO_ACCESSIBILITY
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWebEnginePage::FindFlags)
 
 QT_END_NAMESPACE
 

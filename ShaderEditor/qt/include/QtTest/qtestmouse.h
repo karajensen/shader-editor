@@ -1,31 +1,37 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtTest module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL21$
+** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
 ** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 or version 3 as published by the Free
-** Software Foundation and appearing in the file LICENSE.LGPLv21 and
-** LICENSE.LGPLv3 included in the packaging of this file. Please review the
-** following information to ensure the GNU Lesser General Public License
-** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
-** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
 **
-** As a special exception, The Qt Company gives you certain additional
-** rights. These rights are described in The Qt Company LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or (at your option) the GNU General
+** Public license version 3 or any later version approved by the KDE Free
+** Qt Foundation. The licenses are as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-2.0.html and
+** https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -39,7 +45,7 @@
 #pragma qt_no_master_include
 #endif
 
-#include <QtTest/qtest_global.h>
+#include <QtTest/qttestglobal.h>
 #include <QtTest/qtestassert.h>
 #include <QtTest/qtestsystem.h>
 #include <QtTest/qtestspontaneevent.h>
@@ -58,24 +64,34 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_GUI_EXPORT void qt_handleMouseEvent(QWindow *w, const QPointF &local, const QPointF &global, Qt::MouseButtons b, Qt::KeyboardModifiers mods, int timestamp);
+Q_GUI_EXPORT void qt_handleMouseEvent(QWindow *window, const QPointF &local, const QPointF &global,
+                                      Qt::MouseButtons state, Qt::MouseButton button,
+                                      QEvent::Type type, Qt::KeyboardModifiers mods, int timestamp);
+
+namespace QTestPrivate
+{
+    extern Q_TESTLIB_EXPORT Qt::MouseButtons qtestMouseButtons;
+}
 
 namespace QTest
 {
     enum MouseAction { MousePress, MouseRelease, MouseClick, MouseDClick, MouseMove };
 
-    extern Q_TESTLIB_EXPORT Qt::MouseButton lastMouseButton;
+    extern Q_TESTLIB_EXPORT Qt::MouseButton lastMouseButton; // ### unsued
     extern Q_TESTLIB_EXPORT int lastMouseTimestamp;
 
-    static void waitForEvents()
-    {
-#ifdef Q_OS_MAC
-        QTest::qWait(20);
-#else
-        qApp->processEvents();
-#endif
-    }
+    // This value is used to emulate timestamps to avoid creating double clicks by mistake.
+    // Use this constant instead of QStyleHints::mouseDoubleClickInterval property to avoid tests
+    // to depend on platform themes.
+    static const int mouseDoubleClickInterval = 500;
 
+/*! \internal
+
+    This function mocks all mouse events by bypassing the windowing system. The
+    result is that the mouse events do not come from the system via Qt platform
+    plugins, but are created on the spot and immediately available for processing
+    by Qt.
+*/
     static void mouseEvent(MouseAction action, QWindow *window, Qt::MouseButton button,
                            Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
     {
@@ -83,8 +99,10 @@ namespace QTest
         extern int Q_TESTLIB_EXPORT defaultMouseDelay();
 
         // pos is in window local coordinates
-        if (window->geometry().width() <= pos.x() || window->geometry().height() <= pos.y()) {
-            QTest::qWarn("Mouse event occurs outside of target window.");
+        const QSize windowSize = window->geometry().size();
+        if (windowSize.width() <= pos.x() || windowSize.height() <= pos.y()) {
+            QTest::qWarn(qPrintable(QString::fromLatin1("Mouse event at %1, %2 occurs outside of target window (%3x%4).")
+                .arg(pos.x()).arg(pos.y()).arg(windowSize.width()).arg(windowSize.height())));
         }
 
         if (delay == -1 || delay < defaultMouseDelay())
@@ -104,33 +122,41 @@ namespace QTest
         QPointF global = window->mapToGlobal(pos);
         QPointer<QWindow> w(window);
 
+        using namespace QTestPrivate;
         switch (action)
         {
         case MouseDClick:
-            qt_handleMouseEvent(w, pos, global, button, stateKey, ++lastMouseTimestamp);
-            qt_handleMouseEvent(w, pos, global, Qt::NoButton, stateKey, ++lastMouseTimestamp);
-            // fall through
+            qtestMouseButtons.setFlag(button, true);
+            qt_handleMouseEvent(w, pos, global, qtestMouseButtons, button, QEvent::MouseButtonPress,
+                                stateKey, ++lastMouseTimestamp);
+            qtestMouseButtons.setFlag(button, false);
+            qt_handleMouseEvent(w, pos, global, qtestMouseButtons, button, QEvent::MouseButtonRelease,
+                                stateKey, ++lastMouseTimestamp);
+            Q_FALLTHROUGH();
         case MousePress:
         case MouseClick:
-            qt_handleMouseEvent(w, pos, global, button, stateKey, ++lastMouseTimestamp);
-            lastMouseButton = button;
+            qtestMouseButtons.setFlag(button, true);
+            qt_handleMouseEvent(w, pos, global, qtestMouseButtons, button, QEvent::MouseButtonPress,
+                                stateKey, ++lastMouseTimestamp);
+            lastMouseButton = button; // ### unsued
             if (action == MousePress)
                 break;
-            // fall through
+            Q_FALLTHROUGH();
         case MouseRelease:
-            qt_handleMouseEvent(w, pos, global, Qt::NoButton, stateKey, ++lastMouseTimestamp);
-            lastMouseTimestamp += 500; // avoid double clicks being generated
-            lastMouseButton = Qt::NoButton;
+            qtestMouseButtons.setFlag(button, false);
+            qt_handleMouseEvent(w, pos, global, qtestMouseButtons, button, QEvent::MouseButtonRelease,
+                                stateKey, ++lastMouseTimestamp);
+            lastMouseTimestamp += mouseDoubleClickInterval; // avoid double clicks being generated
+            lastMouseButton = Qt::NoButton; // ### unsued
             break;
         case MouseMove:
-            qt_handleMouseEvent(w, pos, global, lastMouseButton, stateKey, ++lastMouseTimestamp);
-            // No QCursor::setPos() call here. That could potentially result in mouse events sent by the windowing system
-            // which is highly undesired here. Tests must avoid relying on QCursor.
+            qt_handleMouseEvent(w, pos, global, qtestMouseButtons, Qt::NoButton, QEvent::MouseMove,
+                                stateKey, ++lastMouseTimestamp);
             break;
         default:
             QTEST_ASSERT(false);
         }
-        waitForEvents();
+        qApp->processEvents();
     }
 
     inline void mousePress(QWindow *window, Qt::MouseButton button,
@@ -170,8 +196,10 @@ namespace QTest
 
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();
-        if (delay > 0)
+        if (delay > 0) {
             QTest::qWait(delay);
+            lastMouseTimestamp += delay;
+        }
 
         if (action == MouseClick) {
             mouseEvent(MousePress, widget, button, stateKey, pos);
@@ -188,12 +216,16 @@ namespace QTest
         {
             case MousePress:
                 me = QMouseEvent(QEvent::MouseButtonPress, pos, widget->mapToGlobal(pos), button, button, stateKey);
+                me.setTimestamp(++lastMouseTimestamp);
                 break;
             case MouseRelease:
                 me = QMouseEvent(QEvent::MouseButtonRelease, pos, widget->mapToGlobal(pos), button, Qt::MouseButton(), stateKey);
+                me.setTimestamp(++lastMouseTimestamp);
+                lastMouseTimestamp += mouseDoubleClickInterval; // avoid double clicks being generated
                 break;
             case MouseDClick:
                 me = QMouseEvent(QEvent::MouseButtonDblClick, pos, widget->mapToGlobal(pos), button, button, stateKey);
+                me.setTimestamp(++lastMouseTimestamp);
                 break;
             case MouseMove:
                 QCursor::setPos(widget->mapToGlobal(pos));
