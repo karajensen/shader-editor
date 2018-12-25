@@ -53,7 +53,7 @@ void Editor::SetShaderAssembly(const std::string& assembly)
 void Editor::CompilePressed()
 {
     m_text = m_ui.shaderTextBox->toPlainText();
-    m_callbacks.CompileShader(m_text.toStdString());
+    m_callbacks.CompileShader(m_text.toUtf8().constData());
 }
 
 void Editor::RevertPressed()

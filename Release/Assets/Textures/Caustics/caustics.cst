@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CausticsGenerator xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Caustics>
+    <FrameCount>45</FrameCount>
+    <Resolution>512</Resolution>
+    <Depth>5</Depth>
+    <Intensity>0.05</Intensity>
+    <AmplitudeFilter>30</AmplitudeFilter>
+    <FrequencyFilter>1.5</FrequencyFilter>
+    <TimeFilter>14</TimeFilter>
+    <BackgroundColor>
+      <A>255</A>
+      <R>0</R>
+      <G>0</G>
+      <B>0</B>
+      <ScA>1</ScA>
+      <ScR>0</ScR>
+      <ScG>0</ScG>
+      <ScB>0</ScB>
+    </BackgroundColor>
+    <BackgroundIntensity>1</BackgroundIntensity>
+  </Caustics>
+  <Output>
+    <Size>512</Size>
+    <SaveAsBmp>true</SaveAsBmp>
+    <SaveAsHdr>false</SaveAsHdr>
+    <SaveHeightMap>false</SaveHeightMap>
+    <SaveNormalMap>false</SaveNormalMap>
+    <OutputFileName>D:\Projects\ShaderEditor\ShaderEditor\Assets\Textures\Caustics_%03d</OutputFileName>
+    <Antialiasing>16</Antialiasing>
+    <MotionBlur>1</MotionBlur>
+  </Output>
+  <Preview>
+    <ShowAsTiled>false</ShowAsTiled>
+    <AutoRender>false</AutoRender>
+    <FramesPerSecond>30</FramesPerSecond>
+  </Preview>
+</CausticsGenerator>

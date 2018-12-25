@@ -208,7 +208,7 @@ Tweaker::Tweaker(const SignalCallbacks& callbacks, QWidget* parent) :
 
 std::string Tweaker::GetSelectedPage() const
 {
-    return m_ui.TabMenu->currentWidget()->objectName().toStdString();
+	return m_ui.TabMenu->currentWidget()->objectName().toUtf8().constData();
 }
 
 void Tweaker::SetDeltaTime(const std::string& dt)
