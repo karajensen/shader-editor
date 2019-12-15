@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'tweaker.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.0
+** Created by: Qt User Interface Compiler version 5.14.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -2422,55 +2422,55 @@ public:
 
     void retranslateUi(QWidget *Tweaker)
     {
-        Tweaker->setWindowTitle(QApplication::translate("Tweaker", "Shader Editor", nullptr));
-        switchEngine_lbl->setText(QApplication::translate("Tweaker", "Engine", nullptr));
-        fps_lbl->setText(QApplication::translate("Tweaker", "Frames Per Sec", nullptr));
-        fps_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        deltaTime_lbl->setText(QApplication::translate("Tweaker", "Delta Time", nullptr));
-        deltaTime_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        cameraX_lbl->setText(QApplication::translate("Tweaker", "Camera X", nullptr));
-        cameraY_lbl->setText(QApplication::translate("Tweaker", "Camera Y", nullptr));
-        cameraZ_lbl->setText(QApplication::translate("Tweaker", "Camera Z", nullptr));
-        cameraPitch_lbl->setText(QApplication::translate("Tweaker", "Camera Pitch", nullptr));
-        cameraYaw_lbl->setText(QApplication::translate("Tweaker", "Camera Yaw", nullptr));
-        cameraRoll_lbl->setText(QApplication::translate("Tweaker", "Camera Roll", nullptr));
-        cameraForwardSpeed_lbl->setText(QApplication::translate("Tweaker", "Forward Speed", nullptr));
-        cameraRotationSpeed_lbl->setText(QApplication::translate("Tweaker", "Rotation Speed", nullptr));
-        reloadScene_btn->setText(QApplication::translate("Tweaker", "Reload Scene", nullptr));
-        reloadPlacement_btn->setText(QApplication::translate("Tweaker", "Reload Placement", nullptr));
-        reloadEngine_btn->setText(QApplication::translate("Tweaker", "Reload Engine", nullptr));
-        TabMenu->setTabText(TabMenu->indexOf(Scene), QApplication::translate("Tweaker", "Scene", nullptr));
-        selectedTexture_lbl->setText(QApplication::translate("Tweaker", "Texture", nullptr));
+        Tweaker->setWindowTitle(QCoreApplication::translate("Tweaker", "Shader Editor", nullptr));
+        switchEngine_lbl->setText(QCoreApplication::translate("Tweaker", "Engine", nullptr));
+        fps_lbl->setText(QCoreApplication::translate("Tweaker", "Frames Per Sec", nullptr));
+        fps_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        deltaTime_lbl->setText(QCoreApplication::translate("Tweaker", "Delta Time", nullptr));
+        deltaTime_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        cameraX_lbl->setText(QCoreApplication::translate("Tweaker", "Camera X", nullptr));
+        cameraY_lbl->setText(QCoreApplication::translate("Tweaker", "Camera Y", nullptr));
+        cameraZ_lbl->setText(QCoreApplication::translate("Tweaker", "Camera Z", nullptr));
+        cameraPitch_lbl->setText(QCoreApplication::translate("Tweaker", "Camera Pitch", nullptr));
+        cameraYaw_lbl->setText(QCoreApplication::translate("Tweaker", "Camera Yaw", nullptr));
+        cameraRoll_lbl->setText(QCoreApplication::translate("Tweaker", "Camera Roll", nullptr));
+        cameraForwardSpeed_lbl->setText(QCoreApplication::translate("Tweaker", "Forward Speed", nullptr));
+        cameraRotationSpeed_lbl->setText(QCoreApplication::translate("Tweaker", "Rotation Speed", nullptr));
+        reloadScene_btn->setText(QCoreApplication::translate("Tweaker", "Reload Scene", nullptr));
+        reloadPlacement_btn->setText(QCoreApplication::translate("Tweaker", "Reload Placement", nullptr));
+        reloadEngine_btn->setText(QCoreApplication::translate("Tweaker", "Reload Engine", nullptr));
+        TabMenu->setTabText(TabMenu->indexOf(Scene), QCoreApplication::translate("Tweaker", "Scene", nullptr));
+        selectedTexture_lbl->setText(QCoreApplication::translate("Tweaker", "Texture", nullptr));
         displayTexture_btn->setText(QString());
-        reloadTexture_btn->setText(QApplication::translate("Tweaker", "Reload Texture", nullptr));
-        selectedTerrain_lbl->setText(QApplication::translate("Tweaker", "Terrain", nullptr));
-        terrainShader_lbl->setText(QApplication::translate("Tweaker", "Shader", nullptr));
-        terrainShader_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        instancesTerrain_lbl->setText(QApplication::translate("Tweaker", "Instances", nullptr));
-        instancesTerrain_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        reloadTerrain_btn->setText(QApplication::translate("Tweaker", "Reload Terrain", nullptr));
-        TabMenu->setTabText(TabMenu->indexOf(Area), QApplication::translate("Tweaker", "PGT", nullptr));
-        selectedMesh_lbl->setText(QApplication::translate("Tweaker", "Mesh", nullptr));
-        shader_lbl->setText(QApplication::translate("Tweaker", "Shader", nullptr));
-        shader_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        instancesMesh_lbl->setText(QApplication::translate("Tweaker", "Instances", nullptr));
-        instancesMesh_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        selectedWater_lbl->setText(QApplication::translate("Tweaker", "Water", nullptr));
-        instancesWater_lbl->setText(QApplication::translate("Tweaker", "Instances", nullptr));
-        instancesWater_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        waveNumber_lbl->setText(QApplication::translate("Tweaker", "Wave Number", nullptr));
-        selectedParticles_lbl->setText(QApplication::translate("Tweaker", "Emitter", nullptr));
-        instancesEmitter_lbl->setText(QApplication::translate("Tweaker", "Instances", nullptr));
-        instancesEmitter_text->setText(QApplication::translate("Tweaker", "TextLabel", nullptr));
-        pauseEmission_btn->setText(QApplication::translate("Tweaker", "Pause Emission", nullptr));
-        TabMenu->setTabText(TabMenu->indexOf(Mesh), QApplication::translate("Tweaker", "Mesh", nullptr));
-        postImage_lbl->setText(QApplication::translate("Tweaker", "Rendering", nullptr));
-        toggleWireframe_btn->setText(QApplication::translate("Tweaker", "Toggle Wireframe", nullptr));
-        lightSelected_lbl->setText(QApplication::translate("Tweaker", "Light", nullptr));
-        light_active_lbl->setText(QApplication::translate("Tweaker", "Activity", nullptr));
-        light_render_only_btn->setText(QApplication::translate("Tweaker", "Render Lights Only", nullptr));
-        light_diagnostics_btn->setText(QApplication::translate("Tweaker", "Toggle Light Diagnostics", nullptr));
-        TabMenu->setTabText(TabMenu->indexOf(Post), QApplication::translate("Tweaker", "Post", nullptr));
+        reloadTexture_btn->setText(QCoreApplication::translate("Tweaker", "Reload Texture", nullptr));
+        selectedTerrain_lbl->setText(QCoreApplication::translate("Tweaker", "Terrain", nullptr));
+        terrainShader_lbl->setText(QCoreApplication::translate("Tweaker", "Shader", nullptr));
+        terrainShader_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        instancesTerrain_lbl->setText(QCoreApplication::translate("Tweaker", "Instances", nullptr));
+        instancesTerrain_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        reloadTerrain_btn->setText(QCoreApplication::translate("Tweaker", "Reload Terrain", nullptr));
+        TabMenu->setTabText(TabMenu->indexOf(Area), QCoreApplication::translate("Tweaker", "PGT", nullptr));
+        selectedMesh_lbl->setText(QCoreApplication::translate("Tweaker", "Mesh", nullptr));
+        shader_lbl->setText(QCoreApplication::translate("Tweaker", "Shader", nullptr));
+        shader_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        instancesMesh_lbl->setText(QCoreApplication::translate("Tweaker", "Instances", nullptr));
+        instancesMesh_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        selectedWater_lbl->setText(QCoreApplication::translate("Tweaker", "Water", nullptr));
+        instancesWater_lbl->setText(QCoreApplication::translate("Tweaker", "Instances", nullptr));
+        instancesWater_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        waveNumber_lbl->setText(QCoreApplication::translate("Tweaker", "Wave Number", nullptr));
+        selectedParticles_lbl->setText(QCoreApplication::translate("Tweaker", "Emitter", nullptr));
+        instancesEmitter_lbl->setText(QCoreApplication::translate("Tweaker", "Instances", nullptr));
+        instancesEmitter_text->setText(QCoreApplication::translate("Tweaker", "TextLabel", nullptr));
+        pauseEmission_btn->setText(QCoreApplication::translate("Tweaker", "Pause Emission", nullptr));
+        TabMenu->setTabText(TabMenu->indexOf(Mesh), QCoreApplication::translate("Tweaker", "Mesh", nullptr));
+        postImage_lbl->setText(QCoreApplication::translate("Tweaker", "Rendering", nullptr));
+        toggleWireframe_btn->setText(QCoreApplication::translate("Tweaker", "Toggle Wireframe", nullptr));
+        lightSelected_lbl->setText(QCoreApplication::translate("Tweaker", "Light", nullptr));
+        light_active_lbl->setText(QCoreApplication::translate("Tweaker", "Activity", nullptr));
+        light_render_only_btn->setText(QCoreApplication::translate("Tweaker", "Render Lights Only", nullptr));
+        light_diagnostics_btn->setText(QCoreApplication::translate("Tweaker", "Toggle Light Diagnostics", nullptr));
+        TabMenu->setTabText(TabMenu->indexOf(Post), QCoreApplication::translate("Tweaker", "Post", nullptr));
     } // retranslateUi
 
 };

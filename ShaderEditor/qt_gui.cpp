@@ -5,8 +5,8 @@
 #include "qt_gui.h"
 #include "qt/project/editor.h"
 #include "qt/project/tweaker.h"
-#include "qt/include/QtWidgets/qapplication.h"
 #include "boost/lexical_cast.hpp"
+#include <QtWidgets/qapplication.h>
 
 #include <QTimer>
 
