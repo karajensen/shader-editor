@@ -8,9 +8,9 @@ https://github.com/karajensen/shader-editor.git
 
 INSTALL REQUIREMENTS: GPUShaderAnalyzer 1.59.0.3208
 RELEASE REQUIREMENTS: Windows 10+
-BUILD REQUIREMENTS: Windows 10+, Visual Studio 2017
+BUILD REQUIREMENTS: Windows 10+, Visual Studio 2019
 ENVIRONMENT VARIABLES: DXSDK_DIR, BOOST_DIR
-LIBRARIES: Assimp 3.0, Boost 1.6, Glew, Glm, SOIL, Qt 5.12.0 for Windows 32-bit
+LIBRARIES: Assimp 3.0, Boost 1.72, Glew, Glm, SOIL, Qt 5.14.0 for Windows 32-bit
 CAUSTIC GENERATOR: http://www.dualheights.se/caustics/
 
 ========================================================================
