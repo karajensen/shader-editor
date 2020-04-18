@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>tweaker.qml</file>
+		<file>editor.qml</file>
+    </qresource>
+</RCC>
