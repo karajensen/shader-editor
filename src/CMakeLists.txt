@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.17)
 project(ShaderEditor)
 
-# Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
 set(SRC_LIST
@@ -124,6 +122,7 @@ qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 add_executable(ShaderEditor ${SRC_LIST} ${RESOURCES})
 qt5_use_modules(ShaderEditor Core Widgets Quick)
 
+target_link_libraries(ShaderEditor OpenGL32.lib)
 target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/assimp/assimp.lib)
 target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/glew/glew32.lib)
 target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/glew/glew32s.lib)
@@ -132,12 +131,7 @@ target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3dx11.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3dx10.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3dcompiler.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/dxguid.lib)
-target_link_libraries(ShaderEditor OpenGL32.lib)
-
-if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-    target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/soil/SOILd.lib)  
-else()
-    target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/soil/SOIL.lib)
-endif()
+target_link_libraries(ShaderEditor debug ${CMAKE_CURRENT_SOURCE_DIR}/soil/debug/soil.lib)
+target_link_libraries(ShaderEditor optimized ${CMAKE_CURRENT_SOURCE_DIR}/soil/release/soil.lib)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/bin/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
