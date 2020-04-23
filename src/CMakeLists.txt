@@ -101,6 +101,9 @@ set(SRC_LIST
     qt/tweaker.cpp
     qt/editor.h
     qt/editor.cpp
+	glew/include/GL/glew.h
+	glew/include/GL/wglew.h
+	glew/src/glew.c	
     qt/resources/tweaker.qml
     qt/resources/editor.qml 
 )
@@ -124,8 +127,6 @@ qt5_use_modules(ShaderEditor Core Widgets Quick)
 
 target_link_libraries(ShaderEditor OpenGL32.lib)
 target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/assimp/assimp.lib)
-target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/glew/glew32.lib)
-target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/glew/glew32s.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3d11.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3dx11.lib)
 target_link_libraries(ShaderEditor ${DXSDK_DIR}/Lib/x86/d3dx10.lib)

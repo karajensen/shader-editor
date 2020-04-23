@@ -6,7 +6,7 @@ www.KaraJensen.com
 https://github.com/karajensen/shader-editor.git
 ==================================================================================
 
-INSTALL REQUIREMENTS: GPUShaderAnalyzer 1.59.0.3208
+INSTALL REQUIREMENTS: GPUShaderAnalyzer 1.59.0.3208 (installer in prebuild folder)
 RELEASE REQUIREMENTS: Windows 10+
 BUILD REQUIREMENTS: Windows 10+, Visual Studio 2019
 ENVIRONMENT VARIABLES: DXSDK_DIR, BOOST_DIR, BOOST_LIB, Qt5_DIR
