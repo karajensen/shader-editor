@@ -59,10 +59,10 @@ void DxTexture::InitialiseCubeMap(ID3D11Device* device)
         Logger::LogError("DirectX: " + filePath + " doesn't exist");
     }
 
-	D3DX11_IMAGE_LOAD_INFO loadInfo;
-	loadInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+    D3DX11_IMAGE_LOAD_INFO loadInfo;
+    loadInfo.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	ID3D11Texture2D* texture = nullptr;
+    ID3D11Texture2D* texture = nullptr;
     SetDebugName(texture, filePath + "_texture");
 
     if (FAILED(D3DX11CreateTextureFromFile(device, filePath.c_str(),
@@ -71,14 +71,14 @@ void DxTexture::InitialiseCubeMap(ID3D11Device* device)
         Logger::LogError("DirectX: Failed to create texture " + filePath);
     }
 
-	D3D11_TEXTURE2D_DESC textureDesc;
-	texture->GetDesc(&textureDesc);
+    D3D11_TEXTURE2D_DESC textureDesc;
+    texture->GetDesc(&textureDesc);
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-	viewDesc.Format = textureDesc.Format;
-	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-	viewDesc.TextureCube.MostDetailedMip = 0;
+    D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+    viewDesc.Format = textureDesc.Format;
+    viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+    viewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+    viewDesc.TextureCube.MostDetailedMip = 0;
 
     if (FAILED(device->CreateShaderResourceView(texture, &viewDesc, &m_view)))
     {

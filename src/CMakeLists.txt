@@ -104,24 +104,24 @@ set(SRC_LIST
 set(QT_LIST
     qt/qt_gui.cpp
     qt/qt_gui.h
-	qt/qt_gui_reloader.h
-	qt/qt_gui_reloader.cpp
+    qt/qt_gui_reloader.h
+    qt/qt_gui_reloader.cpp
     qt/tweakable.h
     qt/tweaker.h
     qt/tweaker.cpp
     qt/editor.h
     qt/editor.cpp
     qt/resources/Tweaker.qml
-	qt/resources/TweakerWindow.qml
+    qt/resources/TweakerWindow.qml
     qt/resources/Editor.qml
-	qt/resources/EditorWindow.qml
-	qt/resources/ReloadableWindow.qml
+    qt/resources/EditorWindow.qml
+    qt/resources/ReloadableWindow.qml
 )
 
 set(GLEW_LIST
-	glew/include/GL/glew.h
-	glew/include/GL/wglew.h
-	glew/src/glew.c
+    glew/include/GL/glew.h
+    glew/include/GL/wglew.h
+    glew/src/glew.c
 )
 
 set(DXSDK_DIR $ENV{DXSDK_DIR})
@@ -143,8 +143,8 @@ qt5_use_modules(ShaderEditor Core Widgets Quick)
 
 set(QML_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt/resources/")
 target_compile_definitions(ShaderEditor PRIVATE 
-	$<$<CONFIG:DEBUG>:QML_FILE_PATH="${QML_FILE_PATH}">
-	$<$<CONFIG:RELWITHDEBINFO>:QML_FILE_PATH="${QML_FILE_PATH}">
+    $<$<CONFIG:DEBUG>:QML_FILE_PATH="${QML_FILE_PATH}">
+    $<$<CONFIG:RELWITHDEBINFO>:QML_FILE_PATH="${QML_FILE_PATH}">
 )
 
 # https://docs.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-warning-lnk4286

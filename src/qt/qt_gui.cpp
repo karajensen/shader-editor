@@ -28,7 +28,6 @@ void QtGui::Run(int argc, char *argv[])
 
     QApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    RegisterQmlTypes();
 
     SignalCallbacks callbacks;
 
@@ -135,21 +134,21 @@ void QtGui::Run(int argc, char *argv[])
     engine.load(QUrl("qrc:/TweakerWindow.qml"));
     engine.load(QUrl("qrc:/EditorWindow.qml"));
 
-	QTimer timer;
-	timer.setInterval(10);
+    QTimer timer;
+    timer.setInterval(10);
     QObject::connect(&timer, &QTimer::timeout, &app, [this, &tweaker, &editor, &app]()
-	{ 
-		UpdateTweaker(tweaker);
-		UpdateEditor(editor);
+    { 
+        UpdateTweaker(tweaker);
+        UpdateEditor(editor);
 
-		if (!m_cache->ApplicationRunning.Get())
-		{
+        if (!m_cache->ApplicationRunning.Get())
+        {
             app.exit();
-		}
-	});
+        }
+    });
 
-	timer.start();
-	app.exec();
+    timer.start();
+    app.exec();
 }
 
 void QtGui::UpdateTweaker(Tweaker& tweaker)
@@ -430,8 +429,4 @@ void QtGui::UpdateWater(Tweaker& tweaker)
     }
 
     tweaker.SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
-}
-
-void QtGui::RegisterQmlTypes()
-{
 }

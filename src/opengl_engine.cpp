@@ -160,21 +160,21 @@ bool OpenglEngine::Initialize()
     pfd.iLayerType = PFD_MAIN_PLANE;
 
     int pixelFormat = ChoosePixelFormat(m_data->hdc, &pfd);
-	if (pixelFormat == 0)
+    if (pixelFormat == 0)
     {
         Logger::LogError("OpenGL: Pixel Format unsupported");
         return false;
     }
 
-	if (!SetPixelFormat(m_data->hdc, pixelFormat, &pfd))
+    if (!SetPixelFormat(m_data->hdc, pixelFormat, &pfd))
     {
         Logger::LogError("OpenGL: Set Pixel Format failed");
         return false;
     }
 
-	// Create a temporary OpenGL 2.1 context for Glew
-	HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc);
-	wglMakeCurrent(m_data->hdc, tempOpenGLContext);
+    // Create a temporary OpenGL 2.1 context for Glew
+    HGLRC tempOpenGLContext = wglCreateContext(m_data->hdc);
+    wglMakeCurrent(m_data->hdc, tempOpenGLContext);
 
     if(HasCallFailed())
     {
@@ -182,25 +182,25 @@ bool OpenglEngine::Initialize()
         return false;
     }
 
-	if (glewInit() != GLEW_OK || !wglewIsSupported("WGL_ARB_create_context") || HasCallFailed())
+    if (glewInit() != GLEW_OK || !wglewIsSupported("WGL_ARB_create_context") || HasCallFailed())
     {
         Logger::LogError("OpenGL: GLEW Initialization failed");
         return false;
     }
 
-	int attributes[] =
-	{
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-		WGL_CONTEXT_FLAGS_ARB,
-		0, 0
-	};
+    int attributes[] =
+    {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_FLAGS_ARB,
+        0, 0
+    };
 
-	// Create the actual opengl 3.0+ context
-	m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, 0, attributes);  
-	wglMakeCurrent(0, 0);
-	wglDeleteContext(tempOpenGLContext); 
-	wglMakeCurrent(m_data->hdc, m_data->hrc);
+    // Create the actual opengl 3.0+ context
+    m_data->hrc = wglCreateContextAttribsARB(m_data->hdc, 0, attributes);  
+    wglMakeCurrent(0, 0);
+    wglDeleteContext(tempOpenGLContext); 
+    wglMakeCurrent(m_data->hdc, m_data->hrc);
 
     int minor, major;
     glGetIntegerv(GL_MAJOR_VERSION, &major); 

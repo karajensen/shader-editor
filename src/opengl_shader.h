@@ -248,10 +248,10 @@ private:
     */
     struct SamplerData
     {
-    	int slot = 0;				///< Order of usage in shader
-    	int allocated = -1;			///< Currently allocated texture to this slot
-    	int location = 0;			///< Unique location within the shader
-    	GLenum type = 0;            ///< Whether a texture, cubemap or ms
+        int slot = 0;                ///< Order of usage in shader
+        int allocated = -1;            ///< Currently allocated texture to this slot
+        int location = 0;            ///< Unique location within the shader
+        GLenum type = 0;            ///< Whether a texture, cubemap or ms
     };
 
     typedef std::unordered_map<std::string, UniformData> UniformMap;
@@ -259,7 +259,7 @@ private:
 
     const Shader& m_shader;                   ///< Shader data and paths
     UniformMap m_uniforms;                    ///< Vertex and fragment non-attribute uniform data
-    SamplerMap m_samplers;					  ///< Fragment shader sampler locations
+    SamplerMap m_samplers;                      ///< Fragment shader sampler locations
     std::vector<AttributeData> m_attributes;  ///< Vertex shader input attributes
     std::string m_vsFilepath;                 ///< Path to the vertex shader file
     std::string m_fsFilepath;                 ///< Path to the fragment shader file

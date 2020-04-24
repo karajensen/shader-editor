@@ -117,6 +117,6 @@ private:
     Colour m_specular;           ///< Specular highlights the light will cast
     Float3 m_attenuation;        ///< How much the light will fade in distance
     Float3 m_position;           ///< World coordinates of the light
-	float m_specularity = 1.0f;  ///< Brightness of the specular highlights
+    float m_specularity = 1.0f;  ///< Brightness of the specular highlights
     float m_active = 1.0f;       ///< How much activity this light contributes
 };

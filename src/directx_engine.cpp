@@ -1094,7 +1094,7 @@ void DirectxEngine::EnableAlphaBlending(bool enable, bool multiply)
         m_data->isAlphaBlend = enable;
         m_data->isBlendMultiply = multiply;
 
-	    m_data->context->OMSetBlendState(enable ? 
+        m_data->context->OMSetBlendState(enable ? 
             (multiply ? m_data->alphaBlendMultiply : m_data->alphaBlendState)
             : m_data->noBlendState, 0, 0xFFFFFFFF);
     }

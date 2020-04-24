@@ -652,7 +652,7 @@ void GlShader::SetActive()
     glUseProgram(m_program);
     for (auto& sampler : m_samplers)
     {
-    	sampler.second.allocated = NO_INDEX;
+        sampler.second.allocated = NO_INDEX;
     }
 }
 

@@ -202,7 +202,7 @@ Tweaker::Tweaker(SignalCallbacks& callbacks)
 
 std::string Tweaker::GetSelectedPage() const
 {
-	//return m_ui.TabMenu->currentWidget()->objectName().toUtf8().constData();
+    //return m_ui.TabMenu->currentWidget()->objectName().toUtf8().constData();
     return std::string();
 }
 
