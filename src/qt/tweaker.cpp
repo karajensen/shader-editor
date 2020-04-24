@@ -4,8 +4,6 @@
 
 #include "tweaker.h"
 
-#include <QtGui>
-
 #include <algorithm>
 
 Tweaker::Tweaker(SignalCallbacks& callbacks)

@@ -6,7 +6,7 @@
 
 #include "qt/tweakable.h"
 
-#include <QtCore/qobject.h>
+#include <QObject>
 
 struct SignalCallbacks;
 

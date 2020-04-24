@@ -7,5 +7,5 @@ import QtQuick 2.9
 ReloadableWindow {
     width: 250
     height: 620
-    contentSourcePath: Reloader.tweakerQmlSourcePath
+    contentSourcePath: Reloader ? Reloader.tweakerQmlSourcePath : ""
 }

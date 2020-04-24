@@ -9,9 +9,10 @@
 
 #include "boost/lexical_cast.hpp"
 
-#include <QtWidgets/qapplication.h>
-#include <QtQml/qqmlcontext.h>
-#include <QtQml/qqmlapplicationengine.h>
+#include <QApplication>
+#include <QQmlContext>
+#include <QApplication>
+#include <QQmlApplicationEngine>
 #include <QTimer>
 
 QtGui::~QtGui() = default;
@@ -136,14 +137,14 @@ void QtGui::Run(int argc, char *argv[])
 
 	QTimer timer;
 	timer.setInterval(10);
-	QObject::connect(&timer, &QTimer::timeout, &app, [this, &tweaker, &editor, &app]()
+    QObject::connect(&timer, &QTimer::timeout, &app, [this, &tweaker, &editor, &app]()
 	{ 
 		UpdateTweaker(tweaker);
 		UpdateEditor(editor);
 
 		if (!m_cache->ApplicationRunning.Get())
 		{
-			app.exit();
+            app.exit();
 		}
 	});
 

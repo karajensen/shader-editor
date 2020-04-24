@@ -14,8 +14,10 @@ QtGuiReloader::QtGuiReloader(QQmlApplicationEngine& engine)
 
 void QtGuiReloader::reload()
 {
+#ifdef QML_FILE_PATH
     m_engine.clearComponentCache();
     Logger::LogInfo("Reloaded QML");
+#endif
 }
 
 QString QtGuiReloader::tweakerQmlSourcePath() const
@@ -23,7 +25,7 @@ QString QtGuiReloader::tweakerQmlSourcePath() const
 #ifdef QML_FILE_PATH
     return "file:///" QML_FILE_PATH "Tweaker.qml";
 #endif
-    return "qrc/Tweaker.qml";
+    return "qrc:/Tweaker.qml";
 }
 
 QString QtGuiReloader::editorQmlSourcePath() const
@@ -31,5 +33,5 @@ QString QtGuiReloader::editorQmlSourcePath() const
 #ifdef QML_FILE_PATH
     return "file:///" QML_FILE_PATH "Editor.qml";
 #endif
-    return "qrc/Editor.qml";
+    return "qrc:/Editor.qml";
 }

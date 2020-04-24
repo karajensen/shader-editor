@@ -4,8 +4,6 @@
 
 #include "editor.h"
 
-#include <QtGui>
-
 Editor::Editor(SignalCallbacks& callbacks)
     : m_callbacks(callbacks)
 {

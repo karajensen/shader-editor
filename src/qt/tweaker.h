@@ -6,7 +6,7 @@
 
 #include "tweakable.h"
 
-#include <QtCore/qobject.h>
+#include <QObject>
 
 #include <unordered_map>
 
