@@ -18,28 +18,28 @@
 #include "camera.h"
 #include "render_engine.h"
 #include "timer.h"
+
 #include "boost/lexical_cast.hpp"
 
-AppGUI::~AppGUI() = default;
+AppGui::~AppGui() = default;
 
-AppGUI::AppGUI(Scene& scene, 
+AppGui::AppGui(Scene& scene, 
                Timer& timer,
                Camera& camera,
                std::shared_ptr<Cache> cache, 
                int selectedMap,
-               std::function<void(void)> reloadEngine) :
-
-    m_scene(scene),
-    m_data(scene.GetData()),
-    m_timer(timer),
-    m_cache(cache),
-    m_camera(camera),
-    m_selectedMap(selectedMap),
-    m_reloadEngine(reloadEngine)
+               std::function<void(void)> reloadEngine) 
+    : m_scene(scene)
+    , m_data(scene.GetData())
+    , m_timer(timer)
+    , m_cache(cache)
+    , m_camera(camera)
+    , m_selectedMap(selectedMap)
+    , m_reloadEngine(reloadEngine)
 {
 }
 
-void AppGUI::Tick(RenderEngine& engine)
+void AppGui::Tick(RenderEngine& engine)
 {
     UpdateShader(engine);
     switch (m_cache->PageSelected.Get())
@@ -63,12 +63,12 @@ void AppGUI::Tick(RenderEngine& engine)
     }
 }
 
-void AppGUI::SetApplicationRunning(bool run)
+void AppGui::SetApplicationRunning(bool run)
 {
     m_cache->ApplicationRunning.Set(run);
 }
 
-bool AppGUI::ReCompileShader(const std::string& text, RenderEngine& engine)
+bool AppGui::ReCompileShader(const std::string& text, RenderEngine& engine)
 {
     const auto& shader = *m_data.shaders[m_selectedShader];
     m_cache->CompileShader.Clear();
@@ -88,7 +88,7 @@ bool AppGUI::ReCompileShader(const std::string& text, RenderEngine& engine)
     }
 }
 
-void AppGUI::UpdateShader(RenderEngine& engine)
+void AppGui::UpdateShader(RenderEngine& engine)
 {   
     const int selectedShader = m_cache->ShaderSelected.Get();
     bool changedShader = selectedShader != m_selectedShader;
@@ -108,12 +108,12 @@ void AppGUI::UpdateShader(RenderEngine& engine)
     }
 }
 
-int AppGUI::GetSelectedEngine() const
+int AppGui::GetSelectedEngine() const
 {
     return m_cache->EngineSelected.Get();
 }
 
-void AppGUI::SetSelectedEngine(int engine)
+void AppGui::SetSelectedEngine(int engine)
 {
     m_cache->EngineSelected.SetUpdated(engine);
 
@@ -121,7 +121,7 @@ void AppGUI::SetSelectedEngine(int engine)
     m_selectedMap = NO_INDEX;    // allows post values to be re-cached
 }
 
-void AppGUI::UpdateScene(RenderEngine& engine)
+void AppGui::UpdateScene(RenderEngine& engine)
 {
     UpdateCamera();
 
@@ -160,7 +160,7 @@ void AppGUI::UpdateScene(RenderEngine& engine)
     }
 }
 
-void AppGUI::UpdateCamera()
+void AppGui::UpdateCamera()
 {
     m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.Position().x);
     m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.Position().y);
@@ -173,7 +173,7 @@ void AppGUI::UpdateCamera()
     m_camera.SetRotationSpeed(m_cache->Camera[CAMERA_ROTATION_SPD].Get());
 }
 
-void AppGUI::UpdateMesh()
+void AppGui::UpdateMesh()
 {
     const int selectedMesh = m_cache->MeshSelected.Get();
 
@@ -191,7 +191,7 @@ void AppGUI::UpdateMesh()
     }
 }
 
-void AppGUI::UpdateWater()
+void AppGui::UpdateWater()
 {
     const int selectedWater = m_cache->WaterSelected.Get();
     if(selectedWater != m_selectedWater)
@@ -225,7 +225,7 @@ void AppGUI::UpdateWater()
     }
 }
 
-void AppGUI::UpdateTerrain(RenderEngine& engine)
+void AppGui::UpdateTerrain(RenderEngine& engine)
 {
     const int selectedTerrain = m_cache->TerrainSelected.Get();
     if(selectedTerrain != m_selectedTerrain)
@@ -249,7 +249,7 @@ void AppGUI::UpdateTerrain(RenderEngine& engine)
     }
 }
 
-void AppGUI::UpdateTexture(RenderEngine& engine)
+void AppGui::UpdateTexture(RenderEngine& engine)
 {
     const int selectedTexture = m_cache->TextureSelected.Get();
     if(selectedTexture != m_selectedTexture)
@@ -278,7 +278,7 @@ void AppGUI::UpdateTexture(RenderEngine& engine)
     }
 }
 
-void AppGUI::UpdateEmitter()
+void AppGui::UpdateEmitter()
 {
     const int selectedEmitter = m_cache->EmitterSelected.Get();
     if(selectedEmitter != m_selectedEmitter)
@@ -301,7 +301,7 @@ void AppGUI::UpdateEmitter()
     }
 }
 
-void AppGUI::UpdatePost(RenderEngine& engine)
+void AppGui::UpdatePost(RenderEngine& engine)
 {
     const int selectedMap = m_cache->PostMapSelected.Get();
     if (selectedMap != m_selectedMap)
@@ -322,7 +322,7 @@ void AppGUI::UpdatePost(RenderEngine& engine)
     }
 }
 
-void AppGUI::UpdateLight()
+void AppGui::UpdateLight()
 {
     const int selectedLight = m_cache->LightSelected.Get();
     if(selectedLight != m_selectedLight)
@@ -349,7 +349,7 @@ void AppGUI::UpdateLight()
     }
 }
 
-void AppGUI::Initialise(const std::vector<std::string>& engineNames,
+void AppGui::Initialise(const std::vector<std::string>& engineNames,
                                int selectedEngine)
 {
     m_scene.SetPostMap(m_selectedMap);
@@ -380,7 +380,7 @@ void AppGUI::Initialise(const std::vector<std::string>& engineNames,
     m_data.post->Write(*m_cache);
 }
 
-std::vector<std::string> AppGUI::GetLightNames() const
+std::vector<std::string> AppGui::GetLightNames() const
 {
     std::vector<std::string> lights;
     for(const auto& light : m_scene.Lights())
@@ -390,7 +390,7 @@ std::vector<std::string> AppGUI::GetLightNames() const
     return lights;
 }
 
-std::vector<std::string> AppGUI::GetEmitterNames() const
+std::vector<std::string> AppGui::GetEmitterNames() const
 {
     std::vector<std::string> emitters;
     for(const auto& emitter : m_scene.Emitters())
@@ -400,7 +400,7 @@ std::vector<std::string> AppGUI::GetEmitterNames() const
     return emitters;
 }
 
-std::vector<std::string> AppGUI::GetMeshNames() const
+std::vector<std::string> AppGui::GetMeshNames() const
 {
     std::vector<std::string> meshes;
     for(const auto& mesh : m_scene.Meshes())
@@ -410,7 +410,7 @@ std::vector<std::string> AppGUI::GetMeshNames() const
     return meshes;
 }
 
-std::vector<std::string> AppGUI::GetWaterNames() const
+std::vector<std::string> AppGui::GetWaterNames() const
 {
     int index = 0;
     std::vector<std::string> waters;
@@ -422,7 +422,7 @@ std::vector<std::string> AppGUI::GetWaterNames() const
     return waters;
 }
 
-std::vector<std::string> AppGUI::GetPostMapNames() const
+std::vector<std::string> AppGui::GetPostMapNames() const
 {
     std::vector<std::string> maps;
     for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
@@ -433,7 +433,7 @@ std::vector<std::string> AppGUI::GetPostMapNames() const
     return maps;
 }
 
-std::vector<std::string> AppGUI::GetTerrainNames() const
+std::vector<std::string> AppGui::GetTerrainNames() const
 {
     int index = 0;
     std::vector<std::string> terrainNames;
@@ -445,7 +445,7 @@ std::vector<std::string> AppGUI::GetTerrainNames() const
     return terrainNames;
 }
 
-std::vector<std::string> AppGUI::GetTextureNames() const
+std::vector<std::string> AppGui::GetTextureNames() const
 {
     std::vector<std::string> textures;
     for (const auto& texture : m_scene.Textures())
@@ -458,7 +458,7 @@ std::vector<std::string> AppGUI::GetTextureNames() const
     return textures;
 }
 
-std::vector<std::string> AppGUI::GetShaderNames() const
+std::vector<std::string> AppGui::GetShaderNames() const
 {
     std::vector<std::string> shaders;
     for(const auto& shader : m_scene.Shaders())

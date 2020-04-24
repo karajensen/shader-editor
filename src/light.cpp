@@ -5,8 +5,8 @@
 #include "light.h"
 #include "cache.h"
 
-Light::Light(const std::string& name) :
-    m_name(name)
+Light::Light(const std::string& name)
+    : m_name(name)
 {
 }
 

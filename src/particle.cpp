@@ -5,10 +5,6 @@
 #include "particle.h"
 #include "common.h"
 
-Particle::Particle()
-{
-}
-
 void Particle::Reset(float lifeTime,
                      float lifeFade,
                      float waitTime,

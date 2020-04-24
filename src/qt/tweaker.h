@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <QtCore/qobject.h>
 #include "tweakable.h"
+
+#include <QtCore/qobject.h>
+
+#include <unordered_map>
 
 /**
 * Allows run time editing of the scene
-* @note Any changes to slots requires building of moc
-* @note Read by both VS and Qt Editor
 */
 class Tweaker : public QObject
 {
@@ -21,11 +21,9 @@ public:
 
     /**
     * Constructor
-    * @note called by shader editor application
     * @param callbacks Functions called when a tweakable value emits a signal
-    * @param parent The owner of this widget
     */
-    explicit Tweaker(const SignalCallbacks& callbacks);
+    Tweaker(SignalCallbacks& callbacks);
 
     /**
     * Sets the readonly tweak entry
@@ -311,5 +309,5 @@ private:
     //std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 
     std::string m_texturePath;           ///< Path to the selected texture
-    SignalCallbacks m_callbacks;         ///< Callbacks to update the cache
+    SignalCallbacks& m_callbacks;         ///< Callbacks to update the cache
 };

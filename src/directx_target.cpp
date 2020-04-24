@@ -3,14 +3,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directx_target.h"
+
 #include "boost/lexical_cast.hpp"
 
 D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 
-DxRenderTarget::DxRenderTarget(const std::string& name) :
-    m_isBackBuffer(true),
-    m_name(name),
-    m_count(1)
+DxRenderTarget::DxRenderTarget(const std::string& name)
+    : m_isBackBuffer(true)
+    , m_name(name)
+    , m_count(1)
 {
     InitialiseContainers();
 }

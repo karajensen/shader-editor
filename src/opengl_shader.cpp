@@ -4,9 +4,11 @@
 
 #include "opengl_shader.h"
 #include "opengl_target.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
+
 #include <iomanip>
 #include <fstream>
 
@@ -34,12 +36,12 @@ namespace
     };
 }
 
-GlShader::GlShader(const Shader& shader) :
-    m_shader(shader),
-    m_vsFilepath(shader.GLSLVertexFile()),
-    m_fsFilepath(shader.GLSLFragmentFile()),
-    m_vaFilepath(shader.GLSLVertexAsmFile()),
-    m_faFilepath(shader.GLSLFragmentAsmFile())
+GlShader::GlShader(const Shader& shader)
+    : m_shader(shader)
+    , m_vsFilepath(shader.GLSLVertexFile())
+    , m_fsFilepath(shader.GLSLFragmentFile())
+    , m_vaFilepath(shader.GLSLVertexAsmFile())
+    , m_faFilepath(shader.GLSLFragmentAsmFile())
 {
 }
 

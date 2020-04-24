@@ -4,16 +4,17 @@
 
 #include "mesh.h"
 #include "cache.h"
+
 #include "boost/lexical_cast.hpp"
+
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"
 #include "assimp/include/postprocess.h"
 
 Mesh::Mesh(const std::string& name, 
            const std::string& shaderName, 
-           int shaderID) :
-
-    MeshData(name, shaderName, shaderID)
+           int shaderID)
+    : MeshData(name, shaderName, shaderID)
 {
 }
 

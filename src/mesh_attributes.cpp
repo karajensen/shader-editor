@@ -4,10 +4,6 @@
 
 #include "mesh_attributes.h"
 
-MeshAttributes::MeshAttributes()
-{
-}
-
 const float& MeshAttributes::Bump() const
 {
     return m_bump;

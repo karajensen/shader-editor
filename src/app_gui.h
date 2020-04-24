@@ -16,7 +16,7 @@ class Camera;
 /**
 * Allows manipulation oft the scene elements through the tweak bar
 */
-class AppGUI
+class AppGui
 {
 public:
 
@@ -29,7 +29,7 @@ public:
     * @param selectedMap The initial post map selected
     * @param reloadEngine Callback to reload the render engine
     */
-    AppGUI(Scene& scene, 
+    AppGui(Scene& scene,
            Timer& timer,
            Camera& camera,
            std::shared_ptr<Cache> cache,
@@ -39,7 +39,7 @@ public:
     /**
     * Destructor
     */
-    ~AppGUI();
+    ~AppGui();
 
     /**
     * Ticks the modifier to recieve information from the gui cache

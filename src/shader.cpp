@@ -6,6 +6,7 @@
 
 #include "shader.h"
 #include "render_data.h"
+
 #include "boost/algorithm/string.hpp"
 
 namespace
@@ -22,11 +23,10 @@ namespace
 
 Shader::Shader(const std::string& name, 
                unsigned int components,
-               bool fromFragments) :
-
-    m_name(name),
-    m_components(components),
-    m_fromFragments(fromFragments)
+               bool fromFragments)
+    : m_name(name)
+    , m_components(components)
+    , m_fromFragments(fromFragments)
 {
 }
 

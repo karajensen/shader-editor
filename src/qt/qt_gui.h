@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "common.h"
 #include "cache.h"
 
@@ -12,7 +13,7 @@ class Editor;
 /**
 * Manages qt for the gui
 */
-class QtGUI
+class QtGui
 {
 public:
 
@@ -20,12 +21,12 @@ public:
     * Constructor
     * @param cache Shared data between the gui and application
     */
-    QtGUI(std::shared_ptr<Cache> cache);
+    QtGui(std::shared_ptr<Cache> cache);
 
     /**
     * Destructor
     */
-    ~QtGUI();
+    ~QtGui();
 
     /**
     * Ticks the gui
@@ -102,6 +103,11 @@ private:
     * @return the enum page id
     */
     GuiPage ConvertStringToPage(const std::string& page);
+
+    /**
+    * Registers all qobjects for qml usage
+    */
+    void RegisterQmlTypes();
 
     GuiPage m_page;                     ///< Currently selected page of the gui
     std::shared_ptr<Cache> m_cache;     ///< Shared data between the gui and application

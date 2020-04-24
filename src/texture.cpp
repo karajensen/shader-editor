@@ -4,6 +4,7 @@
 
 #include "texture.h"
 #include "common.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem.hpp"
@@ -11,12 +12,11 @@
 Texture::Texture(const std::string& name, 
                  const std::string& path, 
                  Type type,
-                 Filter filter) :
-
-    m_name(name),
-    m_path(path),
-    m_type(type),
-    m_filter(filter)
+                 Filter filter)
+    : m_name(name)
+    , m_path(path)
+    , m_type(type)
+    , m_filter(filter)
 {
 }
 

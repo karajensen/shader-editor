@@ -8,10 +8,9 @@
 Terrain::Terrain(const std::string& name, 
                  const std::string& shaderName,
                  int shaderID,
-                 const std::vector<unsigned int>& pixels) :
-
-    Grid(name, shaderName, shaderID),
-    m_pixels(pixels)
+                 const std::vector<unsigned int>& pixels)
+    : Grid(name, shaderName, shaderID)
+    , m_pixels(pixels)
 {
 }
 

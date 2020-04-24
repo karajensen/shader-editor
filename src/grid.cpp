@@ -26,8 +26,8 @@ namespace
     };
 }
 
-Grid::Grid(const std::string& name, const std::string& shaderName, int shaderID) :
-    MeshData(name, shaderName, shaderID)
+Grid::Grid(const std::string& name, const std::string& shaderName, int shaderID)
+    : MeshData(name, shaderName, shaderID)
 {
 }
 

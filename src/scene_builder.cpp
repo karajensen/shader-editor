@@ -5,6 +5,7 @@
 #include "scene_builder.h"
 #include "scene_data.h"
 #include "fragmentlinker.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/assign.hpp"
 

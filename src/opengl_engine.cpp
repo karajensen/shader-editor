@@ -10,8 +10,10 @@
 #include "opengl_target.h"
 #include "opengl_emitter.h"
 #include "scene_interface.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/algorithm/string/regex.hpp"
+
 #include <array>
 #include <fstream>
 #include <sstream>
@@ -21,14 +23,7 @@
 */
 struct OpenglData
 {
-    /**
-    * Constructor
-    */
     OpenglData();
-
-    /**
-    * Destructor
-    */
     ~OpenglData();
 
     /**
@@ -66,12 +61,12 @@ struct OpenglData
     std::vector<std::unique_ptr<GlEmitter>> emitters; ///< Emitters holding particles
 };
 
-OpenglData::OpenglData() :
-    quad("ScreenQuad"),
-    sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
-    blurTarget("BlurTarget", BLUR_TEXTURES, false, true),
-    backBuffer("BackBuffer")
+OpenglData::OpenglData()
+    : quad("ScreenQuad")
+    , sceneTarget("SceneTarget", SCENE_TEXTURES, true)
+    , preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false)
+    , blurTarget("BlurTarget", BLUR_TEXTURES, false, true)
+    , backBuffer("BackBuffer")
 {
 }
 

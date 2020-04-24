@@ -3,24 +3,26 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "opengl_target.h"
+
 #include "boost/lexical_cast.hpp"
+
 #include <algorithm>
 
-GlRenderTarget::GlRenderTarget(const std::string& name) :
-    m_isBackBuffer(true),
-    m_name(name)
+GlRenderTarget::GlRenderTarget(const std::string& name)
+    : m_isBackBuffer(true)
+    , m_name(name)
 {
 }
 
 GlRenderTarget::GlRenderTarget(const std::string& name, 
                                int textures, 
                                bool multisampled, 
-                               bool readWrite) :
+                               bool readWrite)
 
-    m_multisampled(multisampled),
-    m_name(name),
-    m_count(textures),
-    m_readWrite(readWrite)
+    : m_multisampled(multisampled)
+    , m_name(name)
+    , m_count(textures)
+    , m_readWrite(readWrite)
 {
     m_attachments.resize(m_count);
     m_texturesMain.resize(m_count);

@@ -4,11 +4,14 @@
 
 #include "directx_shader.h"
 #include "directx_target.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
 #include "boost/bimap.hpp"
 #include "boost/lexical_cast.hpp"
+
 #include <D3Dcompiler.h>
+
 #include <fstream>
 
 namespace
@@ -29,10 +32,10 @@ namespace
     const std::string HLSL_IN_POSITION("POSITION");
 }
 
-DxShader::DxShader(const Shader& shader) :
-    m_shader(shader),
-    m_filepath(shader.HLSLShaderFile()),
-    m_asmpath(shader.HLSLShaderAsmFile())
+DxShader::DxShader(const Shader& shader)
+    : m_shader(shader)
+    , m_filepath(shader.HLSLShaderFile())
+    , m_asmpath(shader.HLSLShaderAsmFile())
 {
     const int maxSupportedTextures = 8;
     m_allocatedSlots.resize(maxSupportedTextures);

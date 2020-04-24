@@ -6,33 +6,32 @@
 
 GlMeshBuffer::GlMeshBuffer(const std::string& name,
                            const std::vector<float>& vertices,
-                           const std::vector<unsigned int>& indices) :
-    m_name(name),
-    m_vertices(vertices),
-    m_indices(indices)
+                           const std::vector<unsigned int>& indices)
+    : m_name(name)
+    , m_vertices(vertices)
+    , m_indices(indices)
 {
 }
 
-GlMeshData::GlMeshData(const MeshData& data, PreRenderMesh preRender) :
-    GlMeshBuffer(data.Name(), data.Vertices(), data.Indices()),
-    m_preRender(preRender),
-    m_meshdata(data)
+GlMeshData::GlMeshData(const MeshData& data, PreRenderMesh preRender)
+    : GlMeshBuffer(data.Name(), data.Vertices(), data.Indices())
+    , m_preRender(preRender)
+    , m_meshdata(data)
 {
 }
 
 GlMeshData::GlMeshData(const MeshData& mesh,
                        const std::vector<float>& vertices,
                        const std::vector<unsigned int>& indices,
-                       PreRenderMesh preRender) :
-
-    GlMeshBuffer(mesh.Name(), vertices, indices),
-    m_meshdata(mesh),
-    m_preRender(preRender)
+                       PreRenderMesh preRender)
+    : GlMeshBuffer(mesh.Name(), vertices, indices)
+    , m_meshdata(mesh)
+    , m_preRender(preRender)
 {
 }
 
-GlMesh::GlMesh(const MeshData& mesh, PreRenderMesh preRender) :
-    GlMeshData(mesh, preRender)
+GlMesh::GlMesh(const MeshData& mesh, PreRenderMesh preRender)
+    : GlMeshData(mesh, preRender)
 {
 }
 

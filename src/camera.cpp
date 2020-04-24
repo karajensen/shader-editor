@@ -5,13 +5,13 @@
 #include "camera.h"
 #include "render_data.h"
 
-Camera::Camera() :
-    m_initialPos(15.0f, 1.0f, 3.0f),
-    m_rotation(0.0f, DegToRad(-75.0f), 0.0f),
-    m_heightBounds(-20.0f, 2000.0f),
-    m_forwardSpeed(45.0f),
-    m_rotationSpeed(2.0f),
-    m_bounds(std::make_unique<BoundingArea>())
+Camera::Camera()
+    : m_initialPos(15.0f, 1.0f, 3.0f)
+    , m_rotation(0.0f, DegToRad(-75.0f), 0.0f)
+    , m_heightBounds(-20.0f, 2000.0f)
+    , m_forwardSpeed(45.0f)
+    , m_rotationSpeed(2.0f)
+    , m_bounds(std::make_unique<BoundingArea>())
 {
     Reset();
 }

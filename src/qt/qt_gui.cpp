@@ -2,24 +2,33 @@
 // Kara Jensen - mail@karajensen.com - qt_gui.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "qt_gui.h"
+#include "qt/qt_gui.h"
 #include "qt/editor.h"
 #include "qt/tweaker.h"
+#include "qt/qt_gui_reloader.h"
+
 #include "boost/lexical_cast.hpp"
+
 #include <QtWidgets/qapplication.h>
+#include <QtQml/qqmlcontext.h>
+#include <QtQml/qqmlapplicationengine.h>
 #include <QTimer>
 
-QtGUI::~QtGUI() = default;
+QtGui::~QtGui() = default;
 
-QtGUI::QtGUI(std::shared_ptr<Cache> cache) :
-    m_cache(cache)
+QtGui::QtGui(std::shared_ptr<Cache> cache)
+    : m_cache(cache)
 {
 }
 
-void QtGUI::Run(int argc, char *argv[])
+void QtGui::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
+
     QApplication app(argc, argv);
+    QQmlApplicationEngine engine;
+    RegisterQmlTypes();
+
     SignalCallbacks callbacks;
 
     for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
@@ -111,11 +120,19 @@ void QtGUI::Run(int argc, char *argv[])
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
-    Editor editor(callbacks);
-    //editor.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
-
+    QtGuiReloader reloader(engine);
     Tweaker tweaker(callbacks);
-    //tweaker.setWindowFlags(Qt::CustomizeWindowHint|Qt::WindowTitleHint);
+    Editor editor(callbacks);
+
+    if (auto context = engine.rootContext())
+    {
+        context->setContextProperty("Tweaker", &tweaker);
+        context->setContextProperty("Editor", &editor);
+        context->setContextProperty("Reloader", &reloader);
+    }
+
+    engine.load(QUrl("qrc:/TweakerWindow.qml"));
+    engine.load(QUrl("qrc:/EditorWindow.qml"));
 
 	QTimer timer;
 	timer.setInterval(10);
@@ -134,7 +151,7 @@ void QtGUI::Run(int argc, char *argv[])
 	app.exec();
 }
 
-void QtGUI::UpdateTweaker(Tweaker& tweaker)
+void QtGui::UpdateTweaker(Tweaker& tweaker)
 {
     const auto page = ConvertStringToPage(tweaker.GetSelectedPage());
     if(page != m_page)
@@ -164,7 +181,7 @@ void QtGUI::UpdateTweaker(Tweaker& tweaker)
     }
 }
 
-void QtGUI::UpdateEditor(Editor& editor)
+void QtGui::UpdateEditor(Editor& editor)
 {
     bool initialisedShaders = false;
     if(!editor.HasShaders())
@@ -185,7 +202,7 @@ void QtGUI::UpdateEditor(Editor& editor)
     }
 }
 
-GuiPage QtGUI::ConvertStringToPage(const std::string& page)
+GuiPage QtGui::ConvertStringToPage(const std::string& page)
 {
     if(page == "Scene")
     {
@@ -206,7 +223,7 @@ GuiPage QtGUI::ConvertStringToPage(const std::string& page)
     return PAGE_NONE;
 }
 
-void QtGUI::UpdatePost(Tweaker& tweaker)
+void QtGui::UpdatePost(Tweaker& tweaker)
 {
     if (!tweaker.HasPostMaps())
     {
@@ -228,7 +245,7 @@ void QtGUI::UpdatePost(Tweaker& tweaker)
     }
 }
 
-void QtGUI::UpdateScene(Tweaker& tweaker)
+void QtGui::UpdateScene(Tweaker& tweaker)
 {
     if(!tweaker.HasEngines())
     {
@@ -257,7 +274,7 @@ void QtGUI::UpdateScene(Tweaker& tweaker)
     }
 }
 
-void QtGUI::UpdateTerrain(Tweaker& tweaker)
+void QtGui::UpdateTerrain(Tweaker& tweaker)
 {
     bool initialisedTerrain = false;
     if(!tweaker.HasTerrain())
@@ -284,7 +301,7 @@ void QtGUI::UpdateTerrain(Tweaker& tweaker)
     tweaker.SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
 }
 
-void QtGUI::UpdateTextures(Tweaker& tweaker)
+void QtGui::UpdateTextures(Tweaker& tweaker)
 {
     bool initialisedTextures = false;
     if(!tweaker.HasTextures())
@@ -309,7 +326,7 @@ void QtGUI::UpdateTextures(Tweaker& tweaker)
     }
 }
 
-void QtGUI::UpdateLight(Tweaker& tweaker)
+void QtGui::UpdateLight(Tweaker& tweaker)
 {
     bool initialisedLights = false;
     if(!tweaker.HasLights())
@@ -329,7 +346,7 @@ void QtGUI::UpdateLight(Tweaker& tweaker)
     }
 }
 
-void QtGUI::UpdateMesh(Tweaker& tweaker)
+void QtGui::UpdateMesh(Tweaker& tweaker)
 {
     bool initialisedMeshes = false;
     if (!tweaker.HasMeshes())
@@ -356,7 +373,7 @@ void QtGUI::UpdateMesh(Tweaker& tweaker)
     tweaker.SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
 }
 
-void QtGUI::UpdateEmitter(Tweaker& tweaker)
+void QtGui::UpdateEmitter(Tweaker& tweaker)
 {
     bool initialisedEmitter = false;
     if(!tweaker.HasEmitters())
@@ -378,7 +395,7 @@ void QtGUI::UpdateEmitter(Tweaker& tweaker)
     tweaker.SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
 }
 
-void QtGUI::UpdateWater(Tweaker& tweaker)
+void QtGui::UpdateWater(Tweaker& tweaker)
 {
     bool initialisedWater = false;
     if(!tweaker.HasWater())
@@ -412,4 +429,8 @@ void QtGUI::UpdateWater(Tweaker& tweaker)
     }
 
     tweaker.SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
+}
+
+void QtGui::RegisterQmlTypes()
+{
 }

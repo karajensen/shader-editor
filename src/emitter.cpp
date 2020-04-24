@@ -41,9 +41,9 @@ namespace
     }
 }
 
-Emitter::Emitter(const std::string& name, int shaderID) :
-    m_shaderIndex(shaderID),
-    m_name(name)
+Emitter::Emitter(const std::string& name, int shaderID)
+    : m_shaderIndex(shaderID)
+    , m_name(name)
 {
 }
 

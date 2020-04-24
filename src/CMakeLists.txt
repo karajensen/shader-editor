@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.17)
 project(ShaderEditor)
 
+add_definitions(-DGLEW_STATIC)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zi /Od /Ob0")
+set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG /OPT:REF /OPT:ICF")
 
 set(SRC_LIST
     animation.cpp
@@ -70,8 +75,6 @@ set(SRC_LIST
     particle.h
     postprocessing.cpp
     postprocessing.h
-    qt_gui.cpp
-    qt_gui.h
     random_generator.cpp
     random_generator.h
     render_data.h
@@ -96,16 +99,29 @@ set(SRC_LIST
     timer.h
     water.cpp
     water.h
+)
+
+set(QT_LIST
+    qt/qt_gui.cpp
+    qt/qt_gui.h
+	qt/qt_gui_reloader.h
+	qt/qt_gui_reloader.cpp
     qt/tweakable.h
     qt/tweaker.h
     qt/tweaker.cpp
     qt/editor.h
     qt/editor.cpp
+    qt/resources/Tweaker.qml
+	qt/resources/TweakerWindow.qml
+    qt/resources/Editor.qml
+	qt/resources/EditorWindow.qml
+	qt/resources/ReloadableWindow.qml
+)
+
+set(GLEW_LIST
 	glew/include/GL/glew.h
 	glew/include/GL/wglew.h
-	glew/src/glew.c	
-    qt/resources/tweaker.qml
-    qt/resources/editor.qml 
+	glew/src/glew.c
 )
 
 set(DXSDK_DIR $ENV{DXSDK_DIR})
@@ -122,8 +138,20 @@ find_package(Qt5 COMPONENTS Core Widgets Quick)
 qt5_add_resources(RESOURCES qt/resources/images.qrc)
 qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 
-add_executable(ShaderEditor ${SRC_LIST} ${RESOURCES})
+add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${RESOURCES})
 qt5_use_modules(ShaderEditor Core Widgets Quick)
+
+set(QML_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt/resources/")
+target_compile_definitions(ShaderEditor PRIVATE 
+	$<$<CONFIG:DEBUG>:-DQML_FILE_PATH="${QML_FILE_PATH}">
+	$<$<CONFIG:RELWITHDEBINFO>:-DQML_FILE_PATH="${QML_FILE_PATH}">
+)
+
+# https://docs.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-warning-lnk4286
+set_target_properties(ShaderEditor PROPERTIES LINK_FLAGS "/ignore:4286")
+
+source_group("Qt" FILES ${QT_LIST})
+source_group("Glew" FILES ${GLEW_LIST})
 
 target_link_libraries(ShaderEditor OpenGL32.lib)
 target_link_libraries(ShaderEditor ${CMAKE_CURRENT_SOURCE_DIR}/assimp/assimp.lib)

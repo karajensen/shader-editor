@@ -8,10 +8,10 @@
 
 MeshData::MeshData(const std::string& name, 
                    const std::string& shaderName,
-                   int shaderID) :
-    m_name(name),
-    m_shaderName(shaderName),
-    m_shaderIndex(shaderID)
+                   int shaderID)
+    : m_name(name)
+    , m_shaderName(shaderName)
+    , m_shaderIndex(shaderID)
 {
     m_textureIDs.resize(MAX_SLOTS);
     m_textureIDs.assign(MAX_SLOTS, NO_INDEX);

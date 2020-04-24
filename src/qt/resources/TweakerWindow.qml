@@ -1,12 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - Tweaker.qml
+// Kara Jensen - mail@karajensen.com - TweakerWindow.qml
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import QtQuick 2.9
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.3
 
-Rectangle {
-    id: root
-    color: "red"
+ReloadableWindow {
+    width: 250
+    height: 620
+    contentSourcePath: Reloader.tweakerQmlSourcePath
 }

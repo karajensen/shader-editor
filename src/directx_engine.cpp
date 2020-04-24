@@ -10,6 +10,7 @@
 #include "directx_emitter.h"
 #include "directx_target.h"
 #include "scene_interface.h"
+
 #include <array>
 #include <fstream>
 
@@ -42,14 +43,7 @@ enum SamplerState
 */
 struct DirectxData
 {
-    /**
-    * Constructor
-    */
     DirectxData();
-
-    /**
-    * Destructor
-    */
     ~DirectxData();
 
     /**
@@ -98,13 +92,13 @@ struct DirectxData
     std::vector<std::unique_ptr<DxEmitter>> emitters; ///< Particle emitters
 };
 
-DirectxData::DirectxData() :
-    sceneTarget("SceneTarget", SCENE_TEXTURES, true),
-    blurTarget("BlurTarget", BLUR_TEXTURES, false, true),
-    preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false),
-    backBuffer("BackBuffer"),
-    quad("SceneQuad"),
-    drawState(NO_STATE)
+DirectxData::DirectxData()
+    : sceneTarget("SceneTarget", SCENE_TEXTURES, true)
+    , blurTarget("BlurTarget", BLUR_TEXTURES, false, true)
+    , preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false)
+    , backBuffer("BackBuffer")
+    , quad("SceneQuad")
+    , drawState(NO_STATE)
 {
     samplers.resize(MAX_SAMPLER_STATES);
     samplers.assign(MAX_SAMPLER_STATES, nullptr);

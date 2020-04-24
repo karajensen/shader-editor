@@ -7,18 +7,18 @@
 DxMeshBuffer::DxMeshBuffer(const std::string& name,
                            const std::vector<float>& vertices,
                            const std::vector<unsigned int>& indices,
-                           int vertexStride) :
-    m_name(name),
-    m_vertices(vertices),
-    m_indices(indices),
-    m_vertexStride(vertexStride)
+                           int vertexStride)
+    : m_name(name)
+    , m_vertices(vertices)
+    , m_indices(indices)
+    , m_vertexStride(vertexStride)
 {
 }
 
-DxMeshData::DxMeshData(const MeshData& mesh, PreRenderMesh preRender) :
-    DxMeshBuffer(mesh.Name(), mesh.Vertices(), mesh.Indices(), sizeof(float)* mesh.VertexComponentCount()),
-    m_meshdata(mesh),
-    m_preRender(preRender)
+DxMeshData::DxMeshData(const MeshData& mesh, PreRenderMesh preRender)
+    : DxMeshBuffer(mesh.Name(), mesh.Vertices(), mesh.Indices(), sizeof(float)* mesh.VertexComponentCount())
+    , m_meshdata(mesh)
+    , m_preRender(preRender)
 {
 }
 
@@ -26,16 +26,15 @@ DxMeshData::DxMeshData(const MeshData& mesh,
                        const std::vector<float>& vertices,
                        const std::vector<unsigned int>& indices,
                        int vertexStride,
-                       PreRenderMesh preRender) :
-
-    DxMeshBuffer(mesh.Name(), vertices, indices, vertexStride),
-    m_meshdata(mesh),
-    m_preRender(preRender)
+                       PreRenderMesh preRender)
+    : DxMeshBuffer(mesh.Name(), vertices, indices, vertexStride)
+    , m_meshdata(mesh)
+    , m_preRender(preRender)
 {
 }
 
-DxMesh::DxMesh(const MeshData& mesh, PreRenderMesh preRender) :
-    DxMeshData(mesh, preRender)
+DxMesh::DxMesh(const MeshData& mesh, PreRenderMesh preRender)
+    : DxMeshData(mesh, preRender)
 {
 }
 

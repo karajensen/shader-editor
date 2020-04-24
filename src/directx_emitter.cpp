@@ -5,11 +5,10 @@
 #include "directx_emitter.h"
 
 DxEmitter::DxEmitter(const Emitter& emitter, 
-                     PreRenderParticle preRenderParticle) :
-
-    m_emitter(emitter),
-    m_particle(new DxQuad(emitter.Name())),
-    m_preRender(preRenderParticle)
+                     PreRenderParticle preRenderParticle)
+    : m_emitter(emitter)
+    , m_particle(new DxQuad(emitter.Name()))
+    , m_preRender(preRenderParticle)
 {
 }
 

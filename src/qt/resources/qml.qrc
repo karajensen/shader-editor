@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>tweaker.qml</file>
-		<file>editor.qml</file>
+        <file>Tweaker.qml</file>
+        <file>TweakerWindow.qml</file>
+        <file>Editor.qml</file>
+        <file>EditorWindow.qml</file>
+        <file>ReloadableWindow.qml</file>
     </qresource>
 </RCC>

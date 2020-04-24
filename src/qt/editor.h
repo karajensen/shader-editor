@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "qt/tweakable.h"
+
 #include <QtCore/qobject.h>
-#include "tweakable.h"
 
 struct SignalCallbacks;
 
@@ -22,7 +23,7 @@ public:
     * Constructor
     * @param callbacks Functions called when a tweakable value emits a signal
     */
-    explicit Editor(const SignalCallbacks& callbacks);
+    Editor(SignalCallbacks& callbacks);
 
     /**
     * Sets the available shaders for the combo box
@@ -66,5 +67,5 @@ private:
 
     QString m_text;                ///< Text for the selected shader
     QString m_assembly;            ///< Assembly for the selected shader
-    SignalCallbacks m_callbacks;   ///< Callbacks to update the cache
+    SignalCallbacks& m_callbacks;   ///< Callbacks to update the cache
 };

@@ -6,17 +6,20 @@
 #include "common.h"
 #include "colour.h"
 #include "cache.h"
+
 #include "soil/SOIL.h"
+
 #include "glm/gtc/noise.hpp"
+
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
 
 ProceduralTexture::ProceduralTexture(const std::string& name, 
                                      const std::string& path,
                                      int size,
-                                     Generation generation) :
-    Texture(name, path, PROCEDURAL, NEAREST),
-    m_generation(generation)
+                                     Generation generation)
+    : Texture(name, path, PROCEDURAL, NEAREST)
+    , m_generation(generation)
 {
     m_size = size;
     m_pixels.resize(size * size);

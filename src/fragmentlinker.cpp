@@ -8,6 +8,7 @@
 #include "logger.h"
 
 #include <fstream>
+
 #include <boost/assign.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>

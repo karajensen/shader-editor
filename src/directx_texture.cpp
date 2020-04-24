@@ -3,10 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directx_texture.h"
+
 #include "boost/filesystem.hpp"
 
-DxTexture::DxTexture(const Texture& texture) :
-    m_texture(texture)
+DxTexture::DxTexture(const Texture& texture)
+    : m_texture(texture)
 {
 }
 

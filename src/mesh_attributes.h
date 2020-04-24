@@ -12,11 +12,6 @@ class MeshAttributes
 public:
 
     /**
-    * Constructor
-    */
-    MeshAttributes();
-
-    /**
     * @return Brightness of the specular highlights
     */
     const float& Specularity() const;

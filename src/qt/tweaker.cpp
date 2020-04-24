@@ -3,11 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "tweaker.h"
+
 #include <QtGui>
+
 #include <algorithm>
 
-Tweaker::Tweaker(const SignalCallbacks& callbacks) :
-    m_callbacks(callbacks)
+Tweaker::Tweaker(SignalCallbacks& callbacks)
+    : m_callbacks(callbacks)
 {
     /**
     m_ui.TabMenu->setCurrentIndex(0);

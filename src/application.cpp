@@ -12,17 +12,18 @@
 #include "camera.h"
 #include "cache.h"
 #include "app_gui.h"
+
 #include <windowsx.h>
 
 //#define SELECTED_ENGINE DIRECTX
 #define SELECTED_ENGINE OPENGL
 #define SELECTED_MAP PostProcessing::FINAL_MAP
 
-Application::Application() :
-    m_selectedEngine(SELECTED_ENGINE),
-    m_camera(std::make_unique<Camera>()),
-    m_timer(std::make_unique<Timer>()),
-    m_scene(std::make_unique<Scene>())
+Application::Application()
+    : m_selectedEngine(SELECTED_ENGINE)
+    , m_camera(std::make_unique<Camera>())
+    , m_timer(std::make_unique<Timer>())
+    , m_scene(std::make_unique<Scene>())
 {
 }
 
@@ -252,7 +253,7 @@ bool Application::Initialise(HWND hwnd,
         return false;
     }
 
-    m_modifier = std::make_unique<AppGUI>(
+    m_modifier = std::make_unique<AppGui>(
         *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP,
         [this](){ ForceRenderEngine(m_selectedEngine); });
 

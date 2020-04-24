@@ -14,11 +14,6 @@ class Particle
 public:
 
     /**
-    * Constructor
-    */
-    Particle();
-
-    /**
     * @return if this particle is currently alive
     */
     bool Alive() const;

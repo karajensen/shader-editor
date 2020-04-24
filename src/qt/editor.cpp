@@ -2,11 +2,12 @@
 // Kara Jensen - mail@karajensen.com - editor.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <QtGui>
 #include "editor.h"
 
-Editor::Editor(const SignalCallbacks& callbacks) :
-    m_callbacks(callbacks)
+#include <QtGui>
+
+Editor::Editor(SignalCallbacks& callbacks)
+    : m_callbacks(callbacks)
 {
     //onnect(m_ui.revertBtn, SIGNAL(pressed(void)), 
     //   this, SLOT(RevertPressed(void)));  

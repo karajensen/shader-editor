@@ -4,15 +4,16 @@
 
 #include "diagnostic.h"
 #include "light.h"
+
 #include <assert.h>
 
-Diagnostic::Diagnostic(std::vector<Mesh::Instance>& diagnostics) :
-    m_diagnostics(diagnostics)
+Diagnostic::Diagnostic(std::vector<Mesh::Instance>& diagnostics)
+    : m_diagnostics(diagnostics)
 {
 }
 
-Diagnostic::InstanceUpdater::InstanceUpdater(const Float3& Position) :
-    position(Position)
+Diagnostic::InstanceUpdater::InstanceUpdater(const Float3& Position)
+    : position(Position)
 {
 }
 
