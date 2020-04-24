@@ -321,6 +321,8 @@ private:
     */
     void EnableAttributes();
 
+private:
+
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<OpenglData> m_data;  ///< member data of opengl
 };

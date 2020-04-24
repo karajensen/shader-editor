@@ -77,6 +77,8 @@ private:
     */
     void InitialiseFromPixels(ID3D11Device* device);
 
+private:
+
     const Texture& m_texture;  ///< Contains the texture data
     ID3D11ShaderResourceView* m_view = nullptr; ///< The texture to send to shaders
 };

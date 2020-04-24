@@ -54,6 +54,8 @@ private:
     Animation(const Animation&) = delete;
     Animation& operator=(const Animation&) = delete;
 
+private:
+
     std::vector<int> m_frames;        ///< All frames to animate
     int m_selectedFrame = 0;          ///< The currently selected frame
     float m_timePassed = 0.0f;        ///< The time passed since last frame switch

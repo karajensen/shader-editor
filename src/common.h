@@ -24,7 +24,7 @@
 #include "random_generator.h"
 #include "boost/noncopyable.hpp"
 
-static const int NO_INDEX = -1;
+static constexpr int NO_INDEX = -1;
 
 /**
 * Converts degrees to radians

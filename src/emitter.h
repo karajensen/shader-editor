@@ -162,6 +162,8 @@ private:
     bool ShouldRender(const Float3& instancePosition, 
                       const BoundingArea& bounds);
 
+private:
+
     EmitterData m_data;                  ///< Data for this emitter
     std::vector<int> m_textures;         ///< Indexes for the particle textures to use
     std::vector<Instance> m_instances;   ///< All instances of this emitter

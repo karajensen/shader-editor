@@ -216,5 +216,7 @@ private:
                     bool hasShadow,
                     int instances);
 
+private:
+
     SceneData& m_data; ///< The scene to build
 };                     

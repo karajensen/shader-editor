@@ -65,6 +65,8 @@ protected:
     */
     bool FillBuffers(ID3D11DeviceContext* context);
 
+private:
+
     UINT m_vertexStride = 0;                    ///< Size of the vertex structure
     ID3D11Buffer* m_vertexBuffer = nullptr;     ///< Buffer of vertex data for the mesh
     ID3D11Buffer* m_indexBuffer = nullptr;      ///< Buffer of index data for the mesh
@@ -119,7 +121,7 @@ public:
     */
     virtual void Initialise(ID3D11Device* device, 
                             ID3D11DeviceContext* context) override;
-private:
+protected:
 
     const MeshData& m_meshdata;             ///< Mesh information
     std::vector<D3DXMATRIX> m_world;        ///< World matrices of the instances

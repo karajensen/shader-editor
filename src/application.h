@@ -127,15 +127,17 @@ private:
         NO_FADE
     };
 
-    FadeState m_fadeState = FADE_IN;             ///< Current state of fading in/out the selected engine
-    Float2 m_mouseDirection;                     ///< Direction of movement for the mouse
-    Float2 m_mousePosition;                      ///< 2D coordinates of the mouse
-    bool m_mousePressed = false;                 ///< Whether the mouse is held down or not
-    int m_selectedEngine = NO_INDEX;             ///< Currently selected engine
-    std::unique_ptr<Camera> m_camera;            ///< Scene camera for generating view matrix
-    std::unique_ptr<Scene> m_scene;              ///< Holds meshes, lighting and shader data
-    std::unique_ptr<Timer> m_timer;              ///< For measure change in frame time
-    std::unique_ptr<AppGui> m_modifier;   ///< Manipulates meshes, lighting and shader data
-    
+private:
+
+    FadeState m_fadeState = FADE_IN;       ///< Current state of fading in/out the selected engine
+    Float2 m_mouseDirection;               ///< Direction of movement for the mouse
+    Float2 m_mousePosition;                ///< 2D coordinates of the mouse
+    bool m_mousePressed = false;           ///< Whether the mouse is held down or not
+    int m_selectedEngine = NO_INDEX;       ///< Currently selected engine
+    std::unique_ptr<Camera> m_camera;      ///< Scene camera for generating view matrix
+    std::unique_ptr<Scene> m_scene;        ///< Holds meshes, lighting and shader data
+    std::unique_ptr<Timer> m_timer;        ///< For measure change in frame time
+    std::unique_ptr<AppGui> m_modifier;    ///< Manipulates meshes, lighting and shader data
+
     std::vector<std::unique_ptr<RenderEngine>> m_engines; ///< Available render engines
 };

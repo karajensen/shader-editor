@@ -91,6 +91,8 @@ private:
     */
     void LoadTexture(GLenum type, const std::string& path);
 
+private:
+
     const Texture& m_texture;       ///< Contains the texture data
     bool m_initialised = false;     ///< Whether this texture is initialised
     GLuint m_id = 0;                ///< Unique id for the texture

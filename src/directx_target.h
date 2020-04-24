@@ -128,6 +128,8 @@ private:
     */
     bool InitialiseBackBuffer(ID3D11Device* device, IDXGISwapChain* swapchain);
 
+private:
+
     const bool m_readWrite = false;                       ///< Whether this target both read/writes to itself
     const int m_count = 0;                                ///< The number of textures bound to this target
     const bool m_isBackBuffer = false;                    ///< Whether this render target is the back buffer

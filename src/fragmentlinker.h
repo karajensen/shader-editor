@@ -110,10 +110,12 @@ private:
     * @param line The line with the conditional keyword
     * @return whether the block should be included in the generated shader or not
     */
-    bool ShouldSkipConditionalBlock(
-        const std::string& conditional, std::string line) const;
+    bool ShouldSkipConditionalBlock(const std::string& conditional, 
+                                    std::string line) const;
+
+private:
 
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items to replace
-    unsigned int m_shaderComponents; ///< components of shader undergoing linking
+    unsigned int m_shaderComponents;                        ///< components of shader undergoing linking
 };
 

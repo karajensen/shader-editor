@@ -164,6 +164,8 @@ private:
     */
     void NormaliseWeights();
 
+private:
+
     bool m_useDiffuseTextures = true;     ///< Whether to render diffuse textures;
     float m_dofStart = 0.0f;              ///< Distance the depth of field starts
     float m_dofFade = 0.0f;               ///< How quick depth of field fades to the scene

@@ -156,6 +156,8 @@ private:
         std::vector<InstanceKey> emitters;  ///< Data for what emitters to use
         InstanceKey rock;                   ///< Single assigned rock terrain
     };
+
+private:
                                       
     SceneData& m_data;                ///< Data for manipulating the scene
     Terrain& m_sand;                  ///< Main Sand terrain mesh

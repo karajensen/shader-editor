@@ -105,6 +105,8 @@ private:
     */
     void GenerateBounds();
 
+private:
+
     Matrix m_world;                     ///< World Matrix for the camera
     Float3 m_initialPos;                ///< Camera initial position in world space
     Float3 m_position;                  ///< Camera position in world space

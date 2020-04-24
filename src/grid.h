@@ -134,6 +134,8 @@ private:
     */
     Float2 GetUVs(int index) const;
 
+private:
+
     Float2 m_uvStretch;           ///< Texture stretch multiplier
     float m_spacing = 0.0f;       ///< The spacing between vertices
     int m_columns = 0;            ///< The number of columns of this mesh

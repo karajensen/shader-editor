@@ -263,6 +263,8 @@ private:
         bool updated;                ///< Whether this buffer was updated last tick
     };
 
+private:
+
     const Shader& m_shader;                           ///< Shader data and paths
     D3D11_SHADER_DESC m_vertexDesc;                   ///< Internal description of the vertex shader
     D3D11_SHADER_DESC m_pixelDesc;                    ///< Internal description of the pixel shader
@@ -283,5 +285,5 @@ private:
     int m_textureSlots = 0;                           ///< Number of textures allowed for this mesh
 
     std::vector<ID3D11ShaderResourceView**> m_allocatedSlots;  ///< Textures currently allocated
-    std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;  ///< Constant buffers for the shader
+    std::vector<std::unique_ptr<ConstantBuffer>> m_cbuffers;   ///< Constant buffers for the shader
 };  

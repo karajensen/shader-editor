@@ -257,9 +257,11 @@ private:
     typedef std::unordered_map<std::string, UniformData> UniformMap;
     typedef std::unordered_map<std::string, SamplerData> SamplerMap;
 
+private:
+
     const Shader& m_shader;                   ///< Shader data and paths
     UniformMap m_uniforms;                    ///< Vertex and fragment non-attribute uniform data
-    SamplerMap m_samplers;                      ///< Fragment shader sampler locations
+    SamplerMap m_samplers;                    ///< Fragment shader sampler locations
     std::vector<AttributeData> m_attributes;  ///< Vertex shader input attributes
     std::string m_vsFilepath;                 ///< Path to the vertex shader file
     std::string m_fsFilepath;                 ///< Path to the fragment shader file

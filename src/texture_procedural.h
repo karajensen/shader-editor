@@ -164,6 +164,8 @@ private:
     float BlueAsFlt(unsigned int index);
     float AlphaAsFlt(unsigned int index);
 
+private:
+
     Generation m_generation;            ///< How to make the texture
     std::vector<unsigned int> m_pixels; ///< Pixels of the texture
     int m_size = 0;                     ///< Dimensions of the texture

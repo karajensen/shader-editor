@@ -69,6 +69,8 @@ private:
         const Float3& position;
     };
 
+private:
+
     bool m_lightDiagnosticsOn = false; ///< Whether light diagnostics are visible
     std::vector<int> m_lights;  ///< Diagnostic indices for the lights
     std::vector<InstanceUpdater> m_updater; ///< Holds information for updating instances

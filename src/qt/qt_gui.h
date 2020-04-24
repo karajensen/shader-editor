@@ -104,10 +104,7 @@ private:
     */
     GuiPage ConvertStringToPage(const std::string& page);
 
-    /**
-    * Registers all qobjects for qml usage
-    */
-    void RegisterQmlTypes();
+private:
 
     GuiPage m_page;                     ///< Currently selected page of the gui
     std::shared_ptr<Cache> m_cache;     ///< Shared data between the gui and application

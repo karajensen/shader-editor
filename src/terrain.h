@@ -125,6 +125,8 @@ private:
     */
     void CalculateBounds(int instance);
 
+private:
+
     float m_height = 0.0f; ///< The initial height of the terrain
     float m_maxHeight = 1.0f; ///< The maximum height offset of the terrain
     float m_minHeight = 0.0f; ///< The minimum height offset of the terrain

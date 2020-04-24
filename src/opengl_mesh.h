@@ -64,6 +64,8 @@ protected:
     */
     bool FillBuffers();
 
+protected:
+
     int m_shaderID = NO_INDEX;                  ///< ID of the shader to use
     GLuint m_vaoID = 0;                         ///< An unique ID for Vertex Array Object
     GLuint m_vboID = 0;                         ///< Unique ID for the Vertex Buffer Object

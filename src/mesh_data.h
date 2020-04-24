@@ -179,6 +179,7 @@ protected:
     */
     const Matrix& GetWorldInstance(int instance);
 
+protected:
 
     std::vector<float> m_vertices;           ///< The vertices constructing this mesh
     std::vector<unsigned int> m_indices;     ///< The indices constructing this mesh
@@ -191,12 +192,6 @@ private:
     * Updates the world transforms for the given instance
     */
     void UpdateTransforms(Instance& instance);
-
-    /**
-    * Determines the radius surrounding this mesh
-    * This is the based on the furthest vertex from the mesh center
-    */
-    void GenerateRadius();
 
     /**
     * Determines whether the instance should be rendered
@@ -213,14 +208,16 @@ private:
     */
     static std::string GetTypeDescription(unsigned int type);
 
-    std::string m_name;                      ///< Name of the mesh
-    bool m_backfacecull = true;              ///< Whether back facing polygons are culled
-    int m_shaderIndex = -1;                  ///< Unique Index of the mesh shader to use
-    std::string m_shaderName;                ///< The name of the shader to render with
-    std::vector<int> m_textureIDs;           ///< IDs for each texture used
-    std::vector<int> m_colourIDs;            ///< Possible colour texture for instances
-    int m_visibleInstances = 0;              ///< Number of instances visible this tick
-    int m_initialInstances = 0;              ///< The number of instances on load
-    bool m_skybox = false;                   ///< Whether this mesh is a skybox
-    float m_radius = 0.0f;                   ///< The radius of the sphere surrounding the mesh
+private:
+
+    std::string m_name;               ///< Name of the mesh
+    bool m_backfacecull = true;       ///< Whether back facing polygons are culled
+    int m_shaderIndex = -1;           ///< Unique Index of the mesh shader to use
+    std::string m_shaderName;         ///< The name of the shader to render with
+    std::vector<int> m_textureIDs;    ///< IDs for each texture used
+    std::vector<int> m_colourIDs;     ///< Possible colour texture for instances
+    int m_visibleInstances = 0;       ///< Number of instances visible this tick
+    int m_initialInstances = 0;       ///< The number of instances on load
+    bool m_skybox = false;            ///< Whether this mesh is a skybox
+    float m_radius = 0.0f;            ///< The radius of the sphere surrounding the mesh
 };

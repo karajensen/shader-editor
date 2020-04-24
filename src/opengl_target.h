@@ -90,6 +90,8 @@ private:
     */
     bool CreateTexture(GLuint& id, unsigned int type, bool highQuality);
 
+private:
+
     bool m_mainAttached = false;        ///< Whether the main textures are attached
     bool m_readWrite = false;           ///< Whether this target both read/writes to itself
     bool m_initialised = false;         ///< Whether the buffer is initialised or not
