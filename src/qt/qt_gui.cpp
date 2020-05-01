@@ -9,11 +9,12 @@
 
 #include "boost/lexical_cast.hpp"
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QQmlContext>
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QTimer>
+#include <QQuickStyle>
 
 QtGui::~QtGui() = default;
 
@@ -25,6 +26,11 @@ QtGui::QtGui(std::shared_ptr<Cache> cache)
 void QtGui::Run(int argc, char *argv[])
 {
     Logger::LogInfo("Initialising Qt");
+
+    QQuickStyle::setStyle("Fusion");
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
     QApplication app(argc, argv);
     QQmlApplicationEngine engine;

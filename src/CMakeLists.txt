@@ -134,12 +134,12 @@ include_directories(${BOOST_DIR})
 include_directories(${DXSDK_DIR}/Include)
 link_directories(${BOOST_DIR}/${BOOST_LIB})
 
-find_package(Qt5 COMPONENTS Core Widgets Quick)
+find_package(Qt5 COMPONENTS Core Widgets Quick QuickControls2)
 qt5_add_resources(RESOURCES qt/resources/images.qrc)
 qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 
 add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${RESOURCES})
-qt5_use_modules(ShaderEditor Core Widgets Quick)
+qt5_use_modules(ShaderEditor Core Widgets Quick QuickControls2)
 
 set(QML_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt/resources/")
 target_compile_definitions(ShaderEditor PRIVATE 
