@@ -12,6 +12,10 @@
 #include <thread>
 #include <iostream>
 
+#ifndef USE_CONSOLE
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+#endif
+
 /**
 * Main application window message handler
 */

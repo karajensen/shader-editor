@@ -263,9 +263,9 @@ bool ScenePlacer::Initialise(const Float3& cameraPosition)
 
     const float sandSize = m_sand.Size();
     const float waterSize = m_ocean.Size();
-    if (sandSize == waterSize)
+    if (sandSize != waterSize)
     {
-        Logger::LogError("Scene: Sand size cannot match water size");
+        Logger::LogError("Scene: Sand size should match water size");
     }
     m_patchSize = sandSize;
 

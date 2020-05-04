@@ -140,10 +140,17 @@ qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${RESOURCES})
 qt5_use_modules(ShaderEditor Core Widgets Quick QuickControls2)
 
+# QML Reloading
 set(QML_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/qt/resources/")
 target_compile_definitions(ShaderEditor PRIVATE 
     $<$<CONFIG:DEBUG>:QML_FILE_PATH="${QML_FILE_PATH}">
     $<$<CONFIG:RELWITHDEBINFO>:QML_FILE_PATH="${QML_FILE_PATH}">
+)
+
+# Console Window
+target_compile_definitions(ShaderEditor PRIVATE 
+    $<$<CONFIG:DEBUG>:USE_CONSOLE>
+    $<$<CONFIG:RELWITHDEBINFO>:USE_CONSOLE>
 )
 
 # https://docs.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-warning-lnk4286

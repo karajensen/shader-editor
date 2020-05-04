@@ -4,6 +4,8 @@
 
 #include "terrain.h"
 #include "cache.h"
+#include "utils.h"
+#include "logger.h"
 
 Terrain::Terrain(const std::string& name, 
                  const std::string& shaderName,
@@ -77,7 +79,10 @@ void Terrain::Reload()
 
 void Terrain::GenerateTerrain()
 {
-    assert(Rows() == Columns());
+    if (Rows() != Columns())
+    {
+        Logger::LogError("Generate Terrain: Rows and columns should match");
+    }
 
     const int gridSize = Rows();
     const int mapSize = static_cast<int>(sqrt(static_cast<double>(m_pixels.size())));
