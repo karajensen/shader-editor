@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "grid.h"
-#include "common.h"
+#include "logger.h"
 
 namespace
 {
@@ -162,7 +162,10 @@ int Grid::Columns() const
 
 float Grid::Size() const
 {
-    assert(Rows() == Columns());
+    if (Rows() != Columns())
+    {
+        Logger::LogError("Grid row and column mismatch");
+    }
     return m_spacing * (Rows() - 1);
 }
 

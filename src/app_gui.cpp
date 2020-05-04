@@ -18,6 +18,7 @@
 #include "camera.h"
 #include "render_engine.h"
 #include "timer.h"
+#include "logger.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -95,7 +96,7 @@ void AppGui::UpdateShader(RenderEngine& engine)
     bool recompiledShader = false;
 
     const std::string updatedText = m_cache->CompileShader.Get();
-    if(!updatedText.empty() && m_selectedShader != NO_INDEX)
+    if(!updatedText.empty() && m_selectedShader != -1)
     {
         recompiledShader = ReCompileShader(updatedText, engine);
     }
@@ -117,8 +118,8 @@ void AppGui::SetSelectedEngine(int engine)
 {
     m_cache->EngineSelected.SetUpdated(engine);
 
-    m_selectedShader = NO_INDEX; // allows selected shader to be re-cached
-    m_selectedMap = NO_INDEX;    // allows post values to be re-cached
+    m_selectedShader = -1; // allows selected shader to be re-cached
+    m_selectedMap = -1;    // allows post values to be re-cached
 }
 
 void AppGui::UpdateScene(RenderEngine& engine)
@@ -207,7 +208,7 @@ void AppGui::UpdateWater()
         m_cache->WaterInstances.SetUpdated(water.GetRenderedInstances());
     }
 
-    if (m_selectedWater != NO_INDEX)
+    if (m_selectedWater != -1)
     {
         auto& water = *m_data.water[m_selectedWater];
         const int selectedWave = m_cache->WaveSelected.Get();
@@ -294,7 +295,7 @@ void AppGui::UpdateEmitter()
         m_cache->EmitterInstances.SetUpdated(emitter.GetRenderedInstances());
     }
 
-    if (m_cache->PauseEmission.Get() && m_selectedEmitter != NO_INDEX)
+    if (m_cache->PauseEmission.Get() && m_selectedEmitter != -1)
     {
         m_data.emitters[m_selectedEmitter]->TogglePaused();
         m_cache->PauseEmission.Set(false);

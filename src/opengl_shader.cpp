@@ -58,28 +58,28 @@ void GlShader::Release()
     m_vertexAsm.clear();
     m_fragmentAsm.clear();
 
-    if(m_program != NO_INDEX)
+    if(m_program != -1)
     {
-        if(m_vs != NO_INDEX)
+        if(m_vs != -1)
         {
             glDetachShader(m_program, m_vs);
         }
-        if(m_fs != NO_INDEX)
+        if(m_fs != -1)
         {
             glDetachShader(m_program, m_fs);
         }
         glDeleteProgram(m_program);
-        m_program = NO_INDEX;
+        m_program = -1;
     }
-    if(m_vs != NO_INDEX)
+    if(m_vs != -1)
     {
         glDeleteShader(m_vs);
-        m_vs = NO_INDEX;
+        m_vs = -1;
     }
-    if(m_fs != NO_INDEX)
+    if(m_fs != -1)
     {
         glDeleteShader(m_fs);
-        m_fs = NO_INDEX;
+        m_fs = -1;
     }
 }
 
@@ -359,7 +359,7 @@ std::string GlShader::BindVertexAttributes()
             return "Could not get attribute " + std::to_string(i);
         }
 
-        int location = NO_INDEX;
+        int location = -1;
         for (int j = 0; j < static_cast<int>(ATTRIBUTE_MAP.size()); ++j)
         {
             if (ATTRIBUTE_MAP[j] == name)
@@ -369,7 +369,7 @@ std::string GlShader::BindVertexAttributes()
             }
         }
 
-        if (location == NO_INDEX)
+        if (location == -1)
         {
             return "Unknown attribute name " + name;
         }
@@ -427,7 +427,7 @@ std::string GlShader::FindShaderUniforms()
 
         name = std::string(name.begin(), name.begin() + name.find('\0'));
         const int index = name.find("[");
-        if (index != NO_INDEX)
+        if (index != -1)
         {
             name = std::string(name.begin(), name.begin() + index);
         }
@@ -438,7 +438,7 @@ std::string GlShader::FindShaderUniforms()
         }
 
         GLint location = glGetUniformLocation(m_program, name.c_str());
-        if(HasCallFailed() || location == NO_INDEX)
+        if(HasCallFailed() || location == -1)
         {
             return "Could not find uniform " + name + " for shader " + m_shader.Name();
         }
@@ -652,7 +652,7 @@ void GlShader::SetActive()
     glUseProgram(m_program);
     for (auto& sampler : m_samplers)
     {
-        sampler.second.allocated = NO_INDEX;
+        sampler.second.allocated = -1;
     }
 }
 

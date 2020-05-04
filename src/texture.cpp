@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "texture.h"
-#include "common.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem/path.hpp"

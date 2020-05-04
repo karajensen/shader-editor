@@ -3,8 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh_data.h"
-#include "common.h"
 #include "cache.h"
+#include "random_generator.h"
+#include "logger.h"
+#include "utils.h"
 
 MeshData::MeshData(const std::string& name, 
                    const std::string& shaderName,
@@ -14,7 +16,7 @@ MeshData::MeshData(const std::string& name,
     , m_shaderIndex(shaderID)
 {
     m_textureIDs.resize(MAX_SLOTS);
-    m_textureIDs.assign(MAX_SLOTS, NO_INDEX);
+    m_textureIDs.assign(MAX_SLOTS, -1);
 }
 
 std::string MeshData::GetTypeDescription(unsigned int type)
@@ -176,7 +178,7 @@ void MeshData::Tick(const Float3& cameraPosition,
 
 bool MeshData::UsesCaustics() const
 {
-    return m_textureIDs[SLOT_CAUSTICS] != NO_INDEX;   
+    return m_textureIDs[SLOT_CAUSTICS] != -1;   
 }
 
 std::string MeshData::GetRenderedInstances() const

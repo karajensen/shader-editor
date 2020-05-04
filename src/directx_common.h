@@ -4,12 +4,13 @@
 
 #pragma once
 
+#include <functional>
+
 #pragma warning (disable : 4005) // For DX10
 #include <d3d11.h>
 #include <d3dx11.h>
 #include <d3dx10.h>
 
-#include "common.h"
 #include "render_data.h"
 #include "mesh.h"
 #include "water.h"

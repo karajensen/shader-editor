@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "common.h"
 #include "qt/tweakable.h"
+
 #include <thread>
 #include <array>
+#include <mutex>
 
 /**
 * GUI pages available

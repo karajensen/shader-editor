@@ -16,6 +16,7 @@ struct SignalCallbacks;
 class Editor : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int shaderIndex READ shaderIndex WRITE setShaderIndex NOTIFY shaderIndexChanged)
 
 public:
 
@@ -49,6 +50,19 @@ public:
     */
     void SetShaderAssembly(const std::string& assembly);
 
+    /**
+    * Property setter/getter for selected shader index
+    */
+    void setShaderIndex(int index);
+    int shaderIndex() const;
+
+signals:
+
+    /**
+    * Emitted when the selected shader index changes
+    */
+    void shaderIndexChanged();
+
 private slots:
     
     /**
@@ -63,9 +77,9 @@ private slots:
 
 private:
 
-    //TweakableBox m_shaders;        ///< Combo box for holding shaders
-
-    QString m_text;                ///< Text for the selected shader
-    QString m_assembly;            ///< Assembly for the selected shader
+    int m_shaderIndex = -1;         ///< Currently selected shader
+    QStringList m_shaders;          ///< List of editable shaders
+    QString m_text;                 ///< Text for the selected shader
+    QString m_assembly;             ///< Assembly for the selected shader
     SignalCallbacks& m_callbacks;   ///< Callbacks to update the cache
 };

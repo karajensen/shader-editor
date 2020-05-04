@@ -20,7 +20,6 @@ set(SRC_LIST
     camera.cpp
     camera.h
     colour.h
-    common.h
     diagnostic.cpp
     diagnostic.h
     directx_common.h
@@ -99,6 +98,7 @@ set(SRC_LIST
     timer.h
     water.cpp
     water.h
+    utils.h
 )
 
 set(QT_LIST
@@ -135,7 +135,6 @@ include_directories(${DXSDK_DIR}/Include)
 link_directories(${BOOST_DIR}/${BOOST_LIB})
 
 find_package(Qt5 COMPONENTS Core Widgets Quick QuickControls2)
-qt5_add_resources(RESOURCES qt/resources/images.qrc)
 qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 
 add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${RESOURCES})

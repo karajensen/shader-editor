@@ -62,7 +62,7 @@ public:
     * @param offset The amount of floats to offset when writing
     */
     void UpdateConstantFloat(const std::string& name, 
-        const float* value, int size, int offset = NO_INDEX);
+        const float* value, int size, int offset = -1);
 
     /**
     * Bulk-sends all constant data saved in the constant scratch buffer to the shader

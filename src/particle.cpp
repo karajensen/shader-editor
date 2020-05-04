@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "particle.h"
-#include "common.h"
+#include "utils.h"
 
 void Particle::Reset(float lifeTime,
                      float lifeFade,

@@ -49,7 +49,7 @@ struct OpenglData
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
     bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
-    int selectedShader = NO_INDEX;       ///< Currently active shader for rendering
+    int selectedShader = -1;             ///< Currently active shader for rendering
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
                               
     std::unique_ptr<GlQuadMesh> shadows;              ///< Shadow instances
@@ -77,7 +77,7 @@ OpenglData::~OpenglData()
 
 void OpenglData::Release()
 {
-    selectedShader = NO_INDEX;
+    selectedShader = -1;
     fadeAmount = 0.0f;
 
     if (shadows)
@@ -604,7 +604,7 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 bool OpenglEngine::UpdateShader(const MeshData& quad)
 {
     const int index = quad.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if(index != m_data->selectedShader)
@@ -623,7 +623,7 @@ bool OpenglEngine::UpdateShader(const MeshData& quad)
 bool OpenglEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
 {
     const int index = emitter.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if (index != m_data->selectedShader)
@@ -663,7 +663,7 @@ bool OpenglEngine::UpdateShader(const MeshData& mesh,
                                 float timer)
 {
     const int index = mesh.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if(index != m_data->selectedShader)
@@ -783,7 +783,7 @@ void OpenglEngine::SendTextures(const std::vector<int>& textures)
 bool OpenglEngine::SendTexture(const std::string& sampler, int ID)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-    if (ID != NO_INDEX)
+    if (ID != -1)
     {
         const auto& texture = m_data->textures[ID];
         shader->SendTexture(sampler, texture->GetID(), texture->IsCubeMap());

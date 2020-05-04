@@ -4,6 +4,9 @@
 
 #include "camera.h"
 #include "render_data.h"
+#include "utils.h"
+
+#include <algorithm>
 
 Camera::Camera()
     : m_initialPos(15.0f, 1.0f, 3.0f)

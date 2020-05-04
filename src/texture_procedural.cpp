@@ -3,9 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "texture_procedural.h"
-#include "common.h"
 #include "colour.h"
 #include "cache.h"
+#include "random_generator.h"
+#include "logger.h"
+#include "utils.h"
 
 #include "soil/SOIL.h"
 

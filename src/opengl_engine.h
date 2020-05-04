@@ -5,7 +5,10 @@
 #pragma once
 
 #include "render_engine.h"
+
 #include "glm/glm.hpp"
+
+#include <vector>
 #include <Windows.h>
 
 class MeshData;

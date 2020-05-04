@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "common.h"
 #include "cache.h"
 
 struct SceneData;
@@ -180,15 +179,15 @@ private:
     SceneData& m_data;                ///< Data for the scene to manipulate
     Timer& m_timer;                   ///< The timer for the scene
     Camera& m_camera;                 ///< The camera for the scene
-    int m_selectedLight = NO_INDEX;   ///< Current light selected
-    int m_selectedMesh = NO_INDEX;    ///< Current mesh selected
-    int m_selectedWater = NO_INDEX;   ///< Current water selected
-    int m_selectedWave = NO_INDEX;    ///< Current wave selected
-    int m_selectedMap = NO_INDEX;     ///< Current post map selected
-    int m_selectedShader = NO_INDEX;  ///< Current shader selected
-    int m_selectedEmitter = NO_INDEX; ///< Current emitter selected
-    int m_selectedTexture = NO_INDEX; ///< Current texture selected
-    int m_selectedTerrain = NO_INDEX; ///< Current terrain selected
+    int m_selectedLight = -1;         ///< Current light selected
+    int m_selectedMesh = -1;          ///< Current mesh selected
+    int m_selectedWater = -1;         ///< Current water selected
+    int m_selectedWave = -1;          ///< Current wave selected
+    int m_selectedMap = -1;           ///< Current post map selected
+    int m_selectedShader = -1;        ///< Current shader selected
+    int m_selectedEmitter = -1;       ///< Current emitter selected
+    int m_selectedTexture = -1;       ///< Current texture selected
+    int m_selectedTerrain = -1;       ///< Current terrain selected
     int m_engineAmount = 0;           ///< Number of engines that can be selected
     std::shared_ptr<Cache> m_cache;   ///< Shared data between the gui and application
 

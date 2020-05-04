@@ -5,6 +5,7 @@
 #include "scene_builder.h"
 #include "scene_data.h"
 #include "fragmentlinker.h"
+#include "logger.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/assign.hpp"
@@ -41,7 +42,7 @@ namespace
             }
         }
         Logger::LogError("Could not find " + name);
-        return NO_INDEX;
+        return -1;
     }
 }
 
@@ -447,7 +448,7 @@ bool SceneBuilder::InitialiseShader(FragmentLinker& linker,
                                     unsigned int components,
                                     int index)
 {
-    if (index == NO_INDEX)
+    if (index == -1)
     {
         index = m_data.shaders.size();
         m_data.shaders.push_back(std::make_unique<Shader>(name, components, true));
@@ -547,13 +548,13 @@ Terrain& SceneBuilder::InitialiseTerrain(const std::string& name,
                                          int size)
 {
     const int shaderID = GetID(m_data.shaders, shaderName);
-    if (shaderID == NO_INDEX)
+    if (shaderID == -1)
     {
         Logger::LogError("Terrain: " + name + " could not find shader " + shaderName);
     }
 
     const int heightID = GetID(m_data.textures, heightmap);
-    if (heightID == NO_INDEX)
+    if (heightID == -1)
     {
         Logger::LogError("Terrain: " + name + " could not find texture " + heightmap);
     }

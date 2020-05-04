@@ -3,9 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "emitter.h"
-#include "common.h"
 #include "render_data.h"
 #include "cache.h"
+#include "random_generator.h"
 
 namespace
 {

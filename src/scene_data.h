@@ -2,7 +2,6 @@
 // Kara Jensen - mail@karajensen.com - scene_data.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common.h"
 #include "shader.h"
 #include "mesh.h"
 #include "water.h"

@@ -4,8 +4,10 @@
 
 #pragma once
 
-#include "common.h"
 #include "render_data.h"
+#include "matrix.h"
+
+#include "boost/noncopyable.hpp"
 
 class IScene;
 class Shader;

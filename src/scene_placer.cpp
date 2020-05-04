@@ -4,7 +4,8 @@
 
 #include "scene_placer.h"
 #include "scene_data.h"
-#include "common.h"
+#include "random_generator.h"
+#include "logger.h"
 
 namespace
 {
@@ -69,7 +70,7 @@ Int2 ScenePlacer::GetPatchInside(const Float3& position) const
             }
         }
     }
-    return Int2(NO_INDEX, NO_INDEX);
+    return Int2(-1, -1);
 }
 
 void ScenePlacer::Update(const Float3& cameraPosition)
@@ -88,7 +89,7 @@ void ScenePlacer::Update(const Float3& cameraPosition)
     }
 
     // Rerrange the patches if the camera has moved out
-    if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
+    if (m_patchInside.x == -1 || m_patchInside.y == -1)
     {
         m_patchInside = GetPatchInside(cameraPosition);
     }
@@ -262,7 +263,10 @@ bool ScenePlacer::Initialise(const Float3& cameraPosition)
 
     const float sandSize = m_sand.Size();
     const float waterSize = m_ocean.Size();
-    assert(sandSize == waterSize);
+    if (sandSize == waterSize)
+    {
+        Logger::LogError("Scene: Sand size cannot match water size");
+    }
     m_patchSize = sandSize;
 
     const float offset = (halfPatch * m_patchSize) - (m_patchSize / 2.0f);
@@ -297,9 +301,9 @@ bool ScenePlacer::Initialise(const Float3& cameraPosition)
     }
 
     m_patchInside = GetPatchInside(cameraPosition);
-    if (m_patchInside.x == NO_INDEX || m_patchInside.y == NO_INDEX)
+    if (m_patchInside.x == -1 || m_patchInside.y == -1)
     {
-        Logger::LogError("Did not start inside recognised patch");
+        Logger::LogError("Scene: Did not start inside recognised patch");
     }
 
     if (GeneratePatchData())
@@ -340,7 +344,7 @@ bool ScenePlacer::GeneratePatchData()
     while (rock < m_data.rocks.size())
     {
         const int index = Random::Generate(0, m_patchData.size()-1);
-        if (index != startingIndex && m_patchData[index].rock.index == NO_INDEX)
+        if (index != startingIndex && m_patchData[index].rock.index == -1)
         {
             m_patchData[index].rock = m_data.rocks[rock];
             ++rock;
@@ -425,7 +429,7 @@ Float3 ScenePlacer::GetPatchLocation(int instanceID, float x, float z)
         if (patchID >= 0 && patchID < static_cast<int>(m_patches.size()))
         {
             const auto& key = m_patchData[m_patches[patchID]].rock;
-            if (key.index != NO_INDEX)
+            if (key.index != -1)
             {
                 const auto& rock = m_data.terrain[key.index];
                 const auto& minBounds = rock->GetMinBounds(key.instance);
@@ -521,7 +525,7 @@ void ScenePlacer::PlaceFoliage(int instanceID)
         }
 
         // Not all meshes have shadows
-        if (foliage.GetShadow() != NO_INDEX)
+        if (foliage.GetShadow() != -1)
         {
             location.y += m_shadowOffset;
             m_data.shadows->SetInstance(foliage.GetShadow(), 
@@ -551,7 +555,7 @@ void ScenePlacer::PlaceEmitters(int instanceID)
 void ScenePlacer::PlaceRock(int instanceID)
 {
     const auto& patchData = m_patchData[instanceID];
-    if (patchData.rock.index != NO_INDEX)
+    if (patchData.rock.index != -1)
     {
         Float3 position = m_sand.GetInstance(instanceID).position;
         position.x += Random::Generate(-m_rockOffset, m_rockOffset);

@@ -1,37 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - common.h
+// Kara Jensen - mail@karajensen.com - utils.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#define USE_CONSOLE
-#ifndef USE_CONSOLE
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#endif
-
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <memory>
-#include <array>
-#include <functional>
-#include <array>
-#include <vector>
-#include <assert.h>
-#include "logger.h"
-#include "float3.h"
-#include "matrix.h"
-#include "colour.h"
-#include "random_generator.h"
-#include "boost/noncopyable.hpp"
-
-static constexpr int NO_INDEX = -1;
+#include <algorithm>
 
 /**
 * Converts degrees to radians
 */
 template<typename T> T DegToRad(T degrees)
 {
-    return static_cast<T>(M_PI/180.0)*degrees;
+    return static_cast<T>(M_PI / 180.0) * degrees;
 }
 
 /**
@@ -39,7 +21,7 @@ template<typename T> T DegToRad(T degrees)
 */
 template<typename T> T RadToDeg(T radians)
 {
-    return static_cast<T>(180.0/M_PI)*radians;
+    return static_cast<T>(180.0 / M_PI)*radians;
 }
 
 /**
@@ -51,8 +33,8 @@ template<typename T> T ConvertRange(T value,
                                     T newInner, 
                                     T newOuter)
 {
-    return ((value-currentInner)*((newOuter-newInner)/
-        (currentOuter-currentInner)))+newInner;
+    return ((value-currentInner) * ((newOuter-newInner) /
+        (currentOuter-currentInner))) + newInner;
 }
 
 /**

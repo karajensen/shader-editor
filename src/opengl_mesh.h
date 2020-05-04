@@ -66,7 +66,7 @@ protected:
 
 protected:
 
-    int m_shaderID = NO_INDEX;                  ///< ID of the shader to use
+    int m_shaderID = -1;                        ///< ID of the shader to use
     GLuint m_vaoID = 0;                         ///< An unique ID for Vertex Array Object
     GLuint m_vboID = 0;                         ///< Unique ID for the Vertex Buffer Object
     GLuint m_iboID = 0;                         ///< Unique ID for the Index Buffer Object

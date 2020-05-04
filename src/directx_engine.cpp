@@ -10,6 +10,7 @@
 #include "directx_emitter.h"
 #include "directx_target.h"
 #include "scene_interface.h"
+#include "logger.h"
 
 #include <array>
 #include <fstream>
@@ -80,7 +81,7 @@ struct DirectxData
     bool isDepthWrite = false;           ///< Whether writing to the depth buffer is active
     bool isWireframe = false;            ///< Whether to render the scene as wireframe
     bool useDiffuseTextures = true;      ///< Whether to render diffuse textures
-    int selectedShader = NO_INDEX;       ///< currently selected shader for rendering the scene
+    int selectedShader = -1;             ///< currently selected shader for rendering the scene
     float fadeAmount = 0.0f;             ///< the amount to fade the scene by
     
     std::unique_ptr<DxQuadMesh> shadows;              ///< Shadow instances
@@ -114,7 +115,7 @@ DirectxData::~DirectxData()
 
 void DirectxData::Release()
 {
-    selectedShader = NO_INDEX;
+    selectedShader = -1;
     fadeAmount = 0.0f;
 
     if (shadows)
@@ -801,7 +802,7 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, int texture)
 bool DirectxEngine::UpdateShader(const MeshData& quad)
 {
     const int index = quad.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if(index != m_data->selectedShader)
@@ -823,7 +824,7 @@ bool DirectxEngine::UpdateShader(const MeshData& mesh,
                                  float timer)
 {
     const int index = mesh.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if(index != m_data->selectedShader)
@@ -905,7 +906,7 @@ bool DirectxEngine::UpdateShader(const Water& water,
 bool DirectxEngine::UpdateShader(const Emitter& emitter, const IScene& scene)
 {
     const int index = emitter.ShaderID();
-    if (index != NO_INDEX)
+    if (index != -1)
     {
         auto& shader = m_data->shaders[index];
         if (index != m_data->selectedShader)
@@ -974,7 +975,7 @@ void DirectxEngine::SendTextures(const std::vector<int>& textures)
 bool DirectxEngine::SendTexture(int slot, int ID)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-    if(ID != NO_INDEX && shader->HasTextureSlot(slot))
+    if(ID != -1 && shader->HasTextureSlot(slot))
     {
         auto& texture = m_data->textures[ID];
 

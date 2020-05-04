@@ -16,11 +16,13 @@ Editor::Editor(SignalCallbacks& callbacks)
 
 void Editor::InitialiseShaders(int selected, const std::vector<std::string>& shaders)
 {
-    //if(!shaders.empty())
-    //{
-    //    m_shaders.Initialise(m_ui.shadersBox, 
-    //        selected, shaders, m_callbacks.SetSelectedShader);
-    //}
+    m_shaders.reserve(shaders.size());
+    for (const auto& shader : shaders)
+    {
+        m_shaders.push_back(QString::fromStdString(shader));
+    }
+
+    setShaderIndex(selected);
 }
 
 bool Editor::HasShaders() const
@@ -51,4 +53,18 @@ void Editor::RevertPressed()
 {
     //m_ui.shaderTextBox->setText(m_text);
     //m_ui.assemblyTextBox->setText(m_assembly);
+}
+
+void Editor::setShaderIndex(int index)
+{
+    if (m_shaderIndex != index)
+    {
+        m_shaderIndex = index;
+        emit shaderIndexChanged();
+    }
+}
+
+int Editor::shaderIndex() const
+{
+    return m_shaderIndex;
 }

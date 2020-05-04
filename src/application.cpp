@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "application.h"
-#include "common.h"
 #include "postprocessing.h"
 #include "timer.h"
 #include "opengl_engine.h"
@@ -11,6 +10,7 @@
 #include "scene.h"
 #include "camera.h"
 #include "cache.h"
+#include "logger.h"
 #include "app_gui.h"
 
 #include <windowsx.h>

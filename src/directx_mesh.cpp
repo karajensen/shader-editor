@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "directx_mesh.h"
+#include "logger.h"
 
 DxMeshBuffer::DxMeshBuffer(const std::string& name,
                            const std::vector<float>& vertices,

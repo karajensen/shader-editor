@@ -271,8 +271,8 @@ private:
     std::string m_fragmentText;               ///< Text for the fragment shader
     std::string m_vertexAsm;                  ///< Assembly for the vertex shader
     std::string m_fragmentAsm;                ///< Assembly for the fragment shader
-    GLint m_program = NO_INDEX;               ///< Shader program
-    GLint m_vs = NO_INDEX;                    ///< GLSL Vertex Shader
-    GLint m_fs = NO_INDEX;                    ///< GLSL Fragment Shader
+    GLint m_program = -1;                     ///< Shader program
+    GLint m_vs = -1;                          ///< GLSL Vertex Shader
+    GLint m_fs = -1;                          ///< GLSL Fragment Shader
     GLsizei m_stride = 0;                     ///< Stride required for vertex attributes
 };

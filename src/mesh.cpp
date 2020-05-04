@@ -4,6 +4,7 @@
 
 #include "mesh.h"
 #include "cache.h"
+#include "logger.h"
 
 #include "boost/lexical_cast.hpp"
 

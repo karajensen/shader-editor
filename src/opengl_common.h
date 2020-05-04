@@ -4,12 +4,14 @@
 
 #pragma once
 
+#include <functional>
+
 #include "glew/include/GL/glew.h"
 #include "glew/include/GL/wglew.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "common.h"
 #include "render_data.h"
 #include "mesh.h"
 #include "water.h"
@@ -20,6 +22,7 @@
 #include "emitter.h"
 #include "terrain.h"
 #include "light.h"
+#include "logger.h"
 
 /**
 * Callbacks for pre-rendering elements

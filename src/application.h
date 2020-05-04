@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include "float3.h"
+
 #include <memory>
+#include <vector>
 #include <Windows.h>
-#include "common.h"
 
 class OpenglEngine;
 class DirectxEngine;
@@ -133,7 +135,7 @@ private:
     Float2 m_mouseDirection;               ///< Direction of movement for the mouse
     Float2 m_mousePosition;                ///< 2D coordinates of the mouse
     bool m_mousePressed = false;           ///< Whether the mouse is held down or not
-    int m_selectedEngine = NO_INDEX;       ///< Currently selected engine
+    int m_selectedEngine = -1;             ///< Currently selected engine
     std::unique_ptr<Camera> m_camera;      ///< Scene camera for generating view matrix
     std::unique_ptr<Scene> m_scene;        ///< Holds meshes, lighting and shader data
     std::unique_ptr<Timer> m_timer;        ///< For measure change in frame time

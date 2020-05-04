@@ -2,6 +2,8 @@
 // Kara Jensen - mail@karajensen.com - qt_gui.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
+#include "logger.h"
+
 #include "qt/qt_gui.h"
 #include "qt/editor.h"
 #include "qt/tweaker.h"
@@ -137,10 +139,10 @@ void QtGui::Run(int argc, char *argv[])
         context->setContextProperty("Reloader", &reloader);
     }
 
-    engine.load(QUrl("qrc:/TweakerWindow.qml"));
+    //engine.load(QUrl("qrc:/TweakerWindow.qml"));
     engine.load(QUrl("qrc:/EditorWindow.qml"));
 
-    QTimer timer;
+    QTimer timer; 
     timer.setInterval(10);
     QObject::connect(&timer, &QTimer::timeout, &app, [this, &tweaker, &editor, &app]()
     { 

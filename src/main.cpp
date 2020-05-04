@@ -2,10 +2,10 @@
 // Kara Jensen - mail@karajensen.com - main.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "common.h"
 #include "render_data.h"
 #include "application.h"
 #include "cache.h"
+#include "random_generator.h"
 
 #include "qt/qt_gui.h"
 

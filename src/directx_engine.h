@@ -5,7 +5,9 @@
 #pragma once
 
 #include "render_engine.h"
+
 #include <Windows.h>
+#include <vector>
 
 class MeshAttributes;
 class MeshData;

@@ -4,6 +4,7 @@
 
 #include "directx_shader.h"
 #include "directx_target.h"
+#include "logger.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
@@ -67,7 +68,7 @@ DxShader::ConstantBuffer::ConstantBuffer() :
     buffer(nullptr),
     isVertexBuffer(false),
     updated(false),
-    startSlot(NO_INDEX)
+    startSlot(-1)
 {
 }
 
@@ -572,7 +573,7 @@ void DxShader::UpdateConstantFloat(const std::string& name, const float* value, 
         auto itr = buffer->constants.find(name);
         if(itr != buffer->constants.end())
         {
-            if (offset == NO_INDEX ? itr->second.size != size : itr->second.size < size)
+            if (offset == -1 ? itr->second.size != size : itr->second.size < size)
             {
                 Logger::LogError("Size for constant " + name + " doesn't match");
                 return;
