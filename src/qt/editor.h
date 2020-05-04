@@ -16,7 +16,8 @@ struct SignalCallbacks;
 class Editor : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int shaderIndex READ shaderIndex WRITE setShaderIndex NOTIFY shaderIndexChanged)
+    Q_PROPERTY(int ShaderIndex READ ShaderIndex WRITE SetShaderIndex NOTIFY ShaderIndexChanged)
+    Q_PROPERTY(QStringList Shaders READ Shaders NOTIFY ShadersChanged)
 
 public:
 
@@ -51,29 +52,37 @@ public:
     void SetShaderAssembly(const std::string& assembly);
 
     /**
+    * Removes any edited changes to the shader text
+    */
+    Q_INVOKABLE void RevertSelectedShader();
+
+    /**
+    * Sends the current changes to the render engine to be compiled
+    */
+    Q_INVOKABLE void CompileSelectedShader();
+
+    /**
     * Property setter/getter for selected shader index
     */
-    void setShaderIndex(int index);
-    int shaderIndex() const;
+    void SetShaderIndex(int index);
+    int ShaderIndex() const;
+
+    /**
+    * Property getter for shaders list
+    */
+    const QStringList& Shaders() const;
 
 signals:
 
     /**
     * Emitted when the selected shader index changes
     */
-    void shaderIndexChanged();
-
-private slots:
-    
-    /**
-    * Removes any edited changes to the shader text
-    */
-    void RevertPressed();
+    void ShaderIndexChanged();
 
     /**
-    * Sends the current changes to the render engine to be compiled
+    * Emitted when the shaders list changes
     */
-    void CompilePressed();
+    void ShadersChanged();
 
 private:
 

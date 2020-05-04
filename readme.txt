@@ -1,6 +1,6 @@
 
-- Remove qt timer
 - Move Editor and Tweaker to QML
+- Remove qt timer
 
 ==================================================================================
 SHADER EDITOR

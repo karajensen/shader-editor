@@ -8,7 +8,7 @@ import QtQuick.Layouts 1.3
 
 Rectangle {
     id: root
-    color: "red"
+    color: palette.mid
 
     SystemPalette { 
         id: palette 
@@ -23,15 +23,31 @@ Rectangle {
             Layout.fillWidth: true
 
             ComboBox {
-                
+                Layout.preferredWidth: 300
+                model: Editor.Shaders
+                currentIndex: Editor.ShaderIndex
+
+                onActivated: {
+                    Editor.ShaderIndex = currentIndex;
+                }
             }
 
             Button {
+                Layout.fillWidth: true
                 text: qsTr("Revert")
+
+                onPressed: {
+                    Editor.RevertSelectedShader();
+                }
             }
 
             Button {
+                Layout.fillWidth: true
                 text: qsTr("Compile")
+
+                onPressed: {
+                    Editor.CompileSelectedShader();
+                }
             }
         }
 
@@ -40,7 +56,7 @@ Rectangle {
             Layout.fillHeight: true
 
             Rectangle {
-                color: "yellow"
+                color: palette.light
             }
         }
 
@@ -49,7 +65,7 @@ Rectangle {
             Layout.fillHeight: true
 
             Rectangle {
-                color: "yellow"
+                color: palette.light
             }
         }
     }

@@ -175,6 +175,8 @@ private:
     */
     std::vector<std::string> GetPostMapNames() const;
 
+private:
+
     Scene& m_scene;                   ///< The scene object to manipulate
     SceneData& m_data;                ///< Data for the scene to manipulate
     Timer& m_timer;                   ///< The timer for the scene

@@ -6,7 +6,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.14
 
 ApplicationWindow {
-    flags: Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowStaysOnTopHint
+    flags: Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowStaysOnTopHint | Qt.Window
     visible: true
     title: " " // Empty title uses default 'Shader Editor'
 
@@ -27,6 +27,7 @@ ApplicationWindow {
     Loader {
         id: contentLoader
         anchors.fill: parent
+        anchors.margins: 2
         active: true
     }
 }
