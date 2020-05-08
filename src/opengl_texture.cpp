@@ -6,7 +6,7 @@
 
 #include "soil/SOIL.h"
 
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
 
 GlTexture::GlTexture(const Texture& texture)
     : m_texture(texture)

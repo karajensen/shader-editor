@@ -4,9 +4,9 @@
 
 #include "texture.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 
 Texture::Texture(const std::string& name, 
                  const std::string& path, 

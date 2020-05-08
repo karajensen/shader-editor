@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - qt_gui_reloader.h
+// Kara Jensen - mail@karajensen.com - qt_reloader.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include <QtCore/qobject.h>
+#include <QObject>
 
 class QQmlApplicationEngine;
 
-class QtGuiReloader : public QObject
+class QtReloader : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString tweakerQmlSourcePath READ tweakerQmlSourcePath CONSTANT)
@@ -20,7 +20,7 @@ public:
     * Constructor
     * @param engine Qml engine required for reloading
     */
-    explicit QtGuiReloader(QQmlApplicationEngine& engine);
+    explicit QtReloader(QQmlApplicationEngine& engine, QObject* parent = nullptr);
 
     /**
     * Reloads the tweaker and editor content

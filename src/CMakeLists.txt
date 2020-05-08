@@ -105,13 +105,13 @@ set(SRC_LIST
 set(QT_LIST
     qt/qt_gui.cpp
     qt/qt_gui.h
-    qt/qt_gui_reloader.h
-    qt/qt_gui_reloader.cpp
+    qt/qt_reloader.h
+    qt/qt_reloader.cpp
     qt/tweakable.h
-    qt/tweaker.h
-    qt/tweaker.cpp
-    qt/editor.h
-    qt/editor.cpp
+    qt/tweaker_model.h
+    qt/tweaker_model.cpp
+    qt/editor_model.h
+    qt/editor_model.cpp
     qt/resources/Tweaker.qml
     qt/resources/TweakerWindow.qml
     qt/resources/Editor.qml

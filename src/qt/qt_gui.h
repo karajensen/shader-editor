@@ -6,14 +6,21 @@
 
 #include "cache.h"
 
-class Tweaker;
-class Editor;
+#include <QObject>
+
+class TweakerModel;
+class EditorModel;
+class QtReloader;
+class QGuiApplication;
+class QQmlApplicationEngine;
 
 /**
 * Manages qt for the gui
 */
-class QtGui
+class QtGui : public QObject
 {
+    Q_OBJECT
+
 public:
 
     /**
@@ -38,63 +45,53 @@ private:
 
     /**
     * Updates the tweak bar
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateTweaker(Tweaker& tweaker);
+    void UpdateTweaker();
 
     /**
     * Updates the editor
-    * @param editor The gui for editing shaders
     */
-    void UpdateEditor(Editor& editor);
+    void UpdateEditor();
 
     /**
     * Updates the cache and gui for the scene page
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateScene(Tweaker& tweaker);
+    void UpdateScene();
 
     /**
     * Updates the light tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateLight(Tweaker& tweaker);
+    void UpdateLight();
 
     /**
     * Updates the mesh tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateMesh(Tweaker& tweaker);
+    void UpdateMesh();
 
     /**
     * Updates the water tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateWater(Tweaker& tweaker);
+    void UpdateWater();
 
     /**
     * Updates the emitter tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateEmitter(Tweaker& tweaker);
+    void UpdateEmitter();
 
     /**
     * Updates the texture tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateTextures(Tweaker& tweaker);
+    void UpdateTextures();
 
     /**
     * Updates the terrain tweakable entries
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdateTerrain(Tweaker& tweaker);
+    void UpdateTerrain();
 
     /**
     * Updates the cache and gui for the post page
-    * @param tweaker The gui for tweaking the application
     */
-    void UpdatePost(Tweaker& tweaker);
+    void UpdatePost();
 
     /**
     * Converts the string description to the page enum
@@ -105,6 +102,11 @@ private:
 
 private:
 
-    GuiPage m_page;                     ///< Currently selected page of the gui
-    std::shared_ptr<Cache> m_cache;     ///< Shared data between the gui and application
+    std::unique_ptr<QGuiApplication> m_app;           ///< Qt main application
+    std::unique_ptr<QQmlApplicationEngine> m_engine;  ///< Qt QML engine
+    std::unique_ptr<TweakerModel> m_tweaker;          ///< The gui for tweaking the application
+    std::unique_ptr<EditorModel> m_editor;            ///< The gui for editing shaders
+    std::unique_ptr<QtReloader> m_reloader;           ///< Allows reloading qml files
+    std::shared_ptr<Cache> m_cache;                   ///< Shared data between the gui and application
+    GuiPage m_page;                                   ///< Currently selected page of the gui
 };

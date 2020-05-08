@@ -4,12 +4,14 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
 #include "float3.h"
 #include "matrix.h"
 #include "render_data.h"
-#include "boost/noncopyable.hpp"
+
+#include <boost/noncopyable.hpp>
+
+#include <string>
+#include <vector>
 
 struct Cache;
 struct BoundingArea;

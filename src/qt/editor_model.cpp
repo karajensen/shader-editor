@@ -1,15 +1,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - editor.cpp
+// Kara Jensen - mail@karajensen.com - editor_model.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "editor.h"
+#include "editor_model.h"
 
-Editor::Editor(SignalCallbacks& callbacks)
-    : m_callbacks(callbacks)
+EditorModel::EditorModel(SignalCallbacks& callbacks, QObject* parent)
+    : QObject(parent)
+    , m_callbacks(callbacks)
 {
 }
 
-void Editor::InitialiseShaders(int selected, const std::vector<std::string>& shaders)
+void EditorModel::InitialiseShaders(int selected, const std::vector<std::string>& shaders)
 {
     m_shaders.clear();
     m_shaders.reserve(shaders.size());
@@ -22,41 +23,41 @@ void Editor::InitialiseShaders(int selected, const std::vector<std::string>& sha
     SetShaderIndex(selected);
 }
 
-bool Editor::HasShaders() const
+bool EditorModel::HasShaders() const
 {
     return m_shaders.length() > 0;
 }
 
-void Editor::SetShaderText(const std::string& text)
+void EditorModel::SetShaderText(const std::string& text)
 {
     //m_text = QString(text.c_str());
     //m_ui.shaderTextBox->setText(m_text);
 }
 
-void Editor::SetShaderAssembly(const std::string& assembly)
+void EditorModel::SetShaderAssembly(const std::string& assembly)
 {
     //m_assembly = QString(assembly.c_str());
     //m_ui.assemblyTextBox->setText(m_assembly);
 }
 
-void Editor::CompileSelectedShader()
+void EditorModel::CompileSelectedShader()
 {
     //m_text = m_ui.shaderTextBox->toPlainText();
     //m_callbacks.CompileShader(m_text.toUtf8().constData());
 }
 
-void Editor::RevertSelectedShader()
+void EditorModel::RevertSelectedShader()
 {
     //m_ui.shaderTextBox->setText(m_text);
     //m_ui.assemblyTextBox->setText(m_assembly);
 }
 
-const QStringList& Editor::Shaders() const
+const QStringList& EditorModel::Shaders() const
 {
     return m_shaders;
 }
 
-void Editor::SetShaderIndex(int index)
+void EditorModel::SetShaderIndex(int index)
 {
     if (m_shaderIndex != index)
     {
@@ -65,7 +66,7 @@ void Editor::SetShaderIndex(int index)
     }
 }
 
-int Editor::ShaderIndex() const
+int EditorModel::ShaderIndex() const
 {
     return m_shaderIndex;
 }

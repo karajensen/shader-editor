@@ -6,10 +6,10 @@
 #include "directx_target.h"
 #include "logger.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/regex.hpp"
-#include "boost/bimap.hpp"
-#include "boost/lexical_cast.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
+#include <boost/bimap.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <D3Dcompiler.h>
 

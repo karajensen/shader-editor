@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "boost/property_tree/ptree.hpp"
 #include "scene_interface.h"
 #include "float3.h"
+
+#include <boost/property_tree/ptree.hpp>
 
 class Camera;
 class SceneBuilder;

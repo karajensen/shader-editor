@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 class MeshData;
 class Mesh;

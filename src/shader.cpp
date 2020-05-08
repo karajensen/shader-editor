@@ -7,7 +7,7 @@
 #include "shader.h"
 #include "render_data.h"
 
-#include "boost/algorithm/string.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace
 {

@@ -11,8 +11,8 @@
 #include "opengl_emitter.h"
 #include "scene_interface.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/algorithm/string/regex.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/regex.hpp>
 
 #include <array>
 #include <fstream>

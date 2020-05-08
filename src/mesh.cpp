@@ -6,7 +6,7 @@
 #include "cache.h"
 #include "logger.h"
 
-#include "boost/lexical_cast.hpp"
+#include <boost/lexical_cast.hpp>
 
 #include "assimp/include/scene.h"
 #include "assimp/include/Importer.hpp"

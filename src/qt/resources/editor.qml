@@ -24,11 +24,11 @@ Rectangle {
 
             ComboBox {
                 Layout.preferredWidth: 300
-                model: Editor.Shaders
-                currentIndex: Editor.ShaderIndex
+                model: EditorModel.shaders
+                currentIndex: EditorModel.shaderIndex
 
                 onActivated: {
-                    Editor.ShaderIndex = currentIndex;
+                    EditorModel.shaderIndex = currentIndex;
                 }
             }
 
@@ -37,7 +37,7 @@ Rectangle {
                 text: qsTr("Revert")
 
                 onPressed: {
-                    Editor.RevertSelectedShader();
+                    EditorModel.RevertSelectedShader();
                 }
             }
 
@@ -46,7 +46,7 @@ Rectangle {
                 text: qsTr("Compile")
 
                 onPressed: {
-                    Editor.CompileSelectedShader();
+                    EditorModel.CompileSelectedShader();
                 }
             }
         }

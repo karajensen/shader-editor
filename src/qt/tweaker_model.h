@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - tweaker.h
+// Kara Jensen - mail@karajensen.com - tweaker_model.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -13,7 +13,7 @@
 /**
 * Allows run time editing of the scene
 */
-class Tweaker : public QObject
+class TweakerModel : public QObject
 {
     Q_OBJECT
 
@@ -23,7 +23,7 @@ public:
     * Constructor
     * @param callbacks Functions called when a tweakable value emits a signal
     */
-    Tweaker(SignalCallbacks& callbacks);
+    explicit TweakerModel(SignalCallbacks& callbacks, QObject* parent = nullptr);
 
     /**
     * Sets the readonly tweak entry

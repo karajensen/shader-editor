@@ -1,18 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - qt_gui_reloader.h
+// Kara Jensen - mail@karajensen.com - qt_reloader.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "qt_gui_reloader.h"
+#include "qt_reloader.h"
 #include "logger.h"
 
-#include <QtQml/qqmlapplicationengine.h>
+#include <QQmlApplicationEngine>
 
-QtGuiReloader::QtGuiReloader(QQmlApplicationEngine& engine)
-    : m_engine(engine)
+QtReloader::QtReloader(QQmlApplicationEngine& engine, QObject* parent)
+    : QObject(parent)
+    , m_engine(engine)
 {
 }
 
-void QtGuiReloader::reload()
+void QtReloader::reload()
 {
 #ifdef QML_FILE_PATH
     m_engine.clearComponentCache();
@@ -20,7 +21,7 @@ void QtGuiReloader::reload()
 #endif
 }
 
-QString QtGuiReloader::tweakerQmlSourcePath() const
+QString QtReloader::tweakerQmlSourcePath() const
 {
 #ifdef QML_FILE_PATH
     return "file:///" QML_FILE_PATH "Tweaker.qml";
@@ -28,7 +29,7 @@ QString QtGuiReloader::tweakerQmlSourcePath() const
     return "qrc:/Tweaker.qml";
 }
 
-QString QtGuiReloader::editorQmlSourcePath() const
+QString QtReloader::editorQmlSourcePath() const
 {
 #ifdef QML_FILE_PATH
     return "file:///" QML_FILE_PATH "Editor.qml";

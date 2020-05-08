@@ -5,9 +5,9 @@
 #include "opengl_shader.h"
 #include "opengl_target.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/bimap.hpp"
-#include "boost/lexical_cast.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/bimap.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <iomanip>
 #include <fstream>

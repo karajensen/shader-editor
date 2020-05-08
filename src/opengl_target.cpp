@@ -4,7 +4,7 @@
 
 #include "opengl_target.h"
 
-#include "boost/lexical_cast.hpp"
+#include <boost/lexical_cast.hpp>
 
 #include <algorithm>
 

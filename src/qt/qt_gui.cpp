@@ -5,15 +5,14 @@
 #include "logger.h"
 
 #include "qt/qt_gui.h"
-#include "qt/editor.h"
-#include "qt/tweaker.h"
-#include "qt/qt_gui_reloader.h"
+#include "qt/editor_model.h"
+#include "qt/tweaker_model.h"
+#include "qt/qt_reloader.h"
 
-#include "boost/lexical_cast.hpp"
+#include <boost/lexical_cast.hpp>
 
 #include <QGuiApplication>
 #include <QQmlContext>
-#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QTimer>
 #include <QQuickStyle>
@@ -21,7 +20,8 @@
 QtGui::~QtGui() = default;
 
 QtGui::QtGui(std::shared_ptr<Cache> cache)
-    : m_cache(cache)
+    : QObject(nullptr)
+    , m_cache(cache)
 {
 }
 
@@ -34,8 +34,8 @@ void QtGui::Run(int argc, char *argv[])
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
-    QApplication app(argc, argv);
-    QQmlApplicationEngine engine;
+    m_app = std::make_unique<QGuiApplication>(argc, argv);
+    m_engine = std::make_unique<QQmlApplicationEngine>();
 
     SignalCallbacks callbacks;
 
@@ -128,40 +128,41 @@ void QtGui::Run(int argc, char *argv[])
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
     callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
-    QtGuiReloader reloader(engine);
-    Tweaker tweaker(callbacks);
-    Editor editor(callbacks);
+    m_reloader = std::make_unique<QtReloader>(*m_engine);
+    m_tweaker = std::make_unique<TweakerModel>(callbacks);
+    m_editor = std::make_unique<EditorModel>(callbacks);
 
-    if (auto context = engine.rootContext())
+    if (auto context = m_engine->rootContext())
     {
-        context->setContextProperty("Tweaker", &tweaker);
-        context->setContextProperty("Editor", &editor);
-        context->setContextProperty("Reloader", &reloader);
+        context->setContextProperty("TweakerModel", m_tweaker.get());
+        context->setContextProperty("EditorModel", m_editor.get());
+        context->setContextProperty("Reloader", m_reloader.get());
     }
 
     //engine.load(QUrl("qrc:/TweakerWindow.qml"));
-    engine.load(QUrl("qrc:/EditorWindow.qml"));
+    m_engine->load(QUrl("qrc:/EditorWindow.qml"));
 
     QTimer timer; 
     timer.setInterval(10);
-    QObject::connect(&timer, &QTimer::timeout, &app, [this, &tweaker, &editor, &app]()
+    QObject::connect(&timer, &QTimer::timeout, this, [this]()
     { 
-        UpdateTweaker(tweaker);
-        UpdateEditor(editor);
+        UpdateTweaker();
+        UpdateEditor();
 
         if (!m_cache->ApplicationRunning.Get())
         {
-            app.exit();
+            m_engine.reset();
+            m_app->exit();
         }
     });
 
     timer.start();
-    app.exec();
+    m_app->exec();
 }
 
-void QtGui::UpdateTweaker(Tweaker& tweaker)
+void QtGui::UpdateTweaker()
 {
-    const auto page = ConvertStringToPage(tweaker.GetSelectedPage());
+    const auto page = ConvertStringToPage(m_tweaker->GetSelectedPage());
     if(page != m_page)
     {
         m_page = page;
@@ -171,42 +172,42 @@ void QtGui::UpdateTweaker(Tweaker& tweaker)
     switch(page)
     {
     case PAGE_SCENE:
-        UpdateScene(tweaker);
+        UpdateScene();
         break;
     case PAGE_AREA:
-        UpdateTextures(tweaker);
-        UpdateTerrain(tweaker);
+        UpdateTextures();
+        UpdateTerrain();
         break;
     case PAGE_MESH:
-        UpdateMesh(tweaker);
-        UpdateWater(tweaker);
-        UpdateEmitter(tweaker);
+        UpdateMesh();
+        UpdateWater();
+        UpdateEmitter();
         break;
     case PAGE_POST:
-        UpdatePost(tweaker);
-        UpdateLight(tweaker);
+        UpdatePost();
+        UpdateLight();
         break;
     }
 }
 
-void QtGui::UpdateEditor(Editor& editor)
+void QtGui::UpdateEditor()
 {
     bool initialisedShaders = false;
-    if(!editor.HasShaders())
+    if(!m_editor->HasShaders())
     {
         initialisedShaders = true;
-        editor.InitialiseShaders(
+        m_editor->InitialiseShaders(
             m_cache->ShaderSelected.Get(), m_cache->Shaders.Get());
     }
 
     if(initialisedShaders || m_cache->ShaderText.RequiresUpdate())
     {
-        editor.SetShaderText(m_cache->ShaderText.GetUpdated());
+        m_editor->SetShaderText(m_cache->ShaderText.GetUpdated());
     }
 
     if(initialisedShaders || m_cache->ShaderAsm.RequiresUpdate())
     {
-        editor.SetShaderAssembly(m_cache->ShaderAsm.GetUpdated());
+        m_editor->SetShaderAssembly(m_cache->ShaderAsm.GetUpdated());
     }
 }
 
@@ -231,91 +232,91 @@ GuiPage QtGui::ConvertStringToPage(const std::string& page)
     return PAGE_NONE;
 }
 
-void QtGui::UpdatePost(Tweaker& tweaker)
+void QtGui::UpdatePost()
 {
-    if (!tweaker.HasPostMaps())
+    if (!m_tweaker->HasPostMaps())
     {
-        tweaker.InitialisePostMaps(
+        m_tweaker->InitialisePostMaps(
             m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
     }
     else if (m_cache->PostMapSelected.RequiresUpdate())
     {
-        tweaker.SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
+        m_tweaker->SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
     }
 
     for (int i = 0; i < POST_ATTRIBUTES; ++i)
     {
         if (m_cache->Post[i].RequiresUpdate())
         {
-            tweaker.SetPost(static_cast<PostAttribute>(i), 
+            m_tweaker->SetPost(static_cast<PostAttribute>(i), 
                 m_cache->Post[i].GetUpdated());
         }
     }
 }
 
-void QtGui::UpdateScene(Tweaker& tweaker)
+void QtGui::UpdateScene()
 {
-    if(!tweaker.HasEngines())
+    if(!m_tweaker->HasEngines())
     {
-        tweaker.InitialiseEngines(
+        m_tweaker->InitialiseEngines(
             m_cache->EngineSelected.Get(), m_cache->Engines.Get());
     }
     else if(m_cache->EngineSelected.RequiresUpdate())
     {
-        tweaker.SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
+        m_tweaker->SetSelectedEngine(m_cache->EngineSelected.GetUpdated());
     }
 
     const float deltaTime = m_cache->DeltaTime.Get();
     const float timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
 
-    tweaker.SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
-    tweaker.SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
+    m_tweaker->SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
+    m_tweaker->SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
 
     for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
     {
         if (m_cache->Camera[i].RequiresUpdate())
         {
-            tweaker.SetCamera(static_cast<CameraAttribute>(i), 
+            m_tweaker->SetCamera(static_cast<CameraAttribute>(i), 
                 m_cache->Camera[i].GetUpdated());
         }
     }
 }
 
-void QtGui::UpdateTerrain(Tweaker& tweaker)
+void QtGui::UpdateTerrain()
 {
     bool initialisedTerrain = false;
-    if(!tweaker.HasTerrain())
+    if(!m_tweaker->HasTerrain())
     {
         initialisedTerrain = true;
-        tweaker.InitialiseTerrain(
+        m_tweaker->InitialiseTerrain(
             m_cache->TerrainSelected.Get(), m_cache->Terrains.Get());
     }
 
     if (initialisedTerrain || m_cache->TerrainShader.RequiresUpdate())
     {
-        tweaker.SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
+        m_tweaker->SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
     }
 
     for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
     {
         if (initialisedTerrain || m_cache->Terrain[i].RequiresUpdate())
         {
-            tweaker.SetTerrain(static_cast<TerrainAttribute>(i), 
+            m_tweaker->SetTerrain(static_cast<TerrainAttribute>(i), 
                 m_cache->Terrain[i].GetUpdated());
         }
     }
 
-    tweaker.SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
+    m_tweaker->SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
 }
 
-void QtGui::UpdateTextures(Tweaker& tweaker)
+void QtGui::UpdateTextures()
 {
     bool initialisedTextures = false;
-    if(!tweaker.HasTextures())
+    if(!m_tweaker->HasTextures())
     {
         initialisedTextures = true;
-        tweaker.InitialiseTextures(
+        m_tweaker->InitialiseTextures(
             m_cache->TextureSelected.Get(), m_cache->Textures.Get());
     }
 
@@ -323,24 +324,24 @@ void QtGui::UpdateTextures(Tweaker& tweaker)
     {
         if (initialisedTextures || m_cache->Texture[i].RequiresUpdate())
         {
-            tweaker.SetTexture(static_cast<TextureAttribute>(i),
+            m_tweaker->SetTexture(static_cast<TextureAttribute>(i),
                 m_cache->Texture[i].GetUpdated());
         }
     }
 
     if (initialisedTextures || m_cache->TexturePath.RequiresUpdate())
     {
-        tweaker.SetTexturePath(m_cache->TexturePath.GetUpdated());
+        m_tweaker->SetTexturePath(m_cache->TexturePath.GetUpdated());
     }
 }
 
-void QtGui::UpdateLight(Tweaker& tweaker)
+void QtGui::UpdateLight()
 {
     bool initialisedLights = false;
-    if(!tweaker.HasLights())
+    if(!m_tweaker->HasLights())
     {
         initialisedLights = true;
-        tweaker.InitialiseLights(
+        m_tweaker->InitialiseLights(
             m_cache->LightSelected.Get(), m_cache->Lights.Get());
     }
 
@@ -348,19 +349,19 @@ void QtGui::UpdateLight(Tweaker& tweaker)
     {
         if (initialisedLights || m_cache->Light[i].RequiresUpdate())
         {
-            tweaker.SetLight(static_cast<LightAttribute>(i), 
+            m_tweaker->SetLight(static_cast<LightAttribute>(i), 
                 m_cache->Light[i].GetUpdated());
         }
     }
 }
 
-void QtGui::UpdateMesh(Tweaker& tweaker)
+void QtGui::UpdateMesh()
 {
     bool initialisedMeshes = false;
-    if (!tweaker.HasMeshes())
+    if (!m_tweaker->HasMeshes())
     {
         initialisedMeshes = true;
-        tweaker.InitialiseMeshes(
+        m_tweaker->InitialiseMeshes(
             m_cache->MeshSelected.Get(), m_cache->Meshes.Get());
     }
 
@@ -368,26 +369,26 @@ void QtGui::UpdateMesh(Tweaker& tweaker)
     {
         if (initialisedMeshes || m_cache->Mesh[i].RequiresUpdate())
         {
-            tweaker.SetMesh(static_cast<MeshAttribute>(i),
+            m_tweaker->SetMesh(static_cast<MeshAttribute>(i),
                 m_cache->Mesh[i].GetUpdated());
         }
     }
 
     if (initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
     {
-        tweaker.SetMeshShaderName(m_cache->MeshShader.GetUpdated());
+        m_tweaker->SetMeshShaderName(m_cache->MeshShader.GetUpdated());
     }
 
-    tweaker.SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
+    m_tweaker->SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
 }
 
-void QtGui::UpdateEmitter(Tweaker& tweaker)
+void QtGui::UpdateEmitter()
 {
     bool initialisedEmitter = false;
-    if(!tweaker.HasEmitters())
+    if(!m_tweaker->HasEmitters())
     {
         initialisedEmitter = true;
-        tweaker.InitialiseEmitters(
+        m_tweaker->InitialiseEmitters(
             m_cache->EmitterSelected.Get(), m_cache->Emitters.Get());
     }
 
@@ -395,21 +396,21 @@ void QtGui::UpdateEmitter(Tweaker& tweaker)
     {
         if (initialisedEmitter || m_cache->Emitter[i].RequiresUpdate())
         {
-            tweaker.SetEmitter(static_cast<EmitterAttribute>(i), 
+            m_tweaker->SetEmitter(static_cast<EmitterAttribute>(i), 
                 m_cache->Emitter[i].GetUpdated());
         }
     }
 
-    tweaker.SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
+    m_tweaker->SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
 }
 
-void QtGui::UpdateWater(Tweaker& tweaker)
+void QtGui::UpdateWater()
 {
     bool initialisedWater = false;
-    if(!tweaker.HasWater())
+    if(!m_tweaker->HasWater())
     {
         initialisedWater = true;
-        tweaker.InitialiseWater(
+        m_tweaker->InitialiseWater(
             m_cache->WaterSelected.Get(), m_cache->Waters.Get());
     }
 
@@ -417,24 +418,24 @@ void QtGui::UpdateWater(Tweaker& tweaker)
     {
         if (initialisedWater || m_cache->Water[i].RequiresUpdate())
         {
-            tweaker.SetWater(static_cast<WaterAttribute>(i), 
+            m_tweaker->SetWater(static_cast<WaterAttribute>(i), 
                 m_cache->Water[i].GetUpdated());
         }
     }
 
     if(initialisedWater || m_cache->WaveAmount.RequiresUpdate())
     {
-        tweaker.SetWaveAmount(m_cache->WaveAmount.GetUpdated());
+        m_tweaker->SetWaveAmount(m_cache->WaveAmount.GetUpdated());
     }
 
     for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
     {
         if (initialisedWater || m_cache->Wave[i].RequiresUpdate())
         {
-            tweaker.SetWave(static_cast<WaveAttribute>(i), 
+            m_tweaker->SetWave(static_cast<WaveAttribute>(i), 
                 m_cache->Wave[i].GetUpdated());
         }
     }
 
-    tweaker.SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
+    m_tweaker->SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
 }

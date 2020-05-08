@@ -5,7 +5,7 @@
 #include "directx_target.h"
 #include "logger.h"
 
-#include "boost/lexical_cast.hpp"
+#include <boost/lexical_cast.hpp>
 
 D3D11_TEXTURE2D_DESC DxRenderTarget::sm_textureDesc;
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////
-// Kara Jensen - mail@karajensen.com - editor.h
+// Kara Jensen - mail@karajensen.com - editor_model.h
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -13,11 +13,11 @@ struct SignalCallbacks;
 /**
 * Allows run time editing of shaders
 */
-class Editor : public QObject
+class EditorModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int ShaderIndex READ ShaderIndex WRITE SetShaderIndex NOTIFY ShaderIndexChanged)
-    Q_PROPERTY(QStringList Shaders READ Shaders NOTIFY ShadersChanged)
+    Q_PROPERTY(int shaderIndex READ ShaderIndex WRITE SetShaderIndex NOTIFY ShaderIndexChanged)
+    Q_PROPERTY(QStringList shaders READ Shaders NOTIFY ShadersChanged)
 
 public:
 
@@ -25,7 +25,7 @@ public:
     * Constructor
     * @param callbacks Functions called when a tweakable value emits a signal
     */
-    Editor(SignalCallbacks& callbacks);
+    explicit EditorModel(SignalCallbacks& callbacks, QObject* parent = nullptr);
 
     /**
     * Sets the available shaders for the combo box

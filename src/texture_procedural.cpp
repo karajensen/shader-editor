@@ -13,8 +13,8 @@
 
 #include "glm/gtc/noise.hpp"
 
-#include "boost/filesystem.hpp"
-#include "boost/algorithm/string.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 ProceduralTexture::ProceduralTexture(const std::string& name, 
                                      const std::string& path,
