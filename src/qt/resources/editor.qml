@@ -3,27 +3,25 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import QtQuick 2.9
-import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.14
 
 Rectangle {
     id: root
-    color: palette.mid
-
-    SystemPalette { 
-        id: palette 
-        colorGroup: SystemPalette.Active 
-    }
+    color: palette.midlight
     
     ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
+        spacing: 3
+        anchors.margins: 3
 
         RowLayout {
             Layout.fillWidth: true
+            spacing: 3
 
             ComboBox {
                 Layout.preferredWidth: 300
+                Layout.fillWidth: true
                 model: EditorModel.shaders
                 currentIndex: EditorModel.shaderIndex
 
@@ -37,7 +35,8 @@ Rectangle {
                 text: qsTr("Revert")
 
                 onPressed: {
-                    EditorModel.RevertSelectedShader();
+                    shaderTextArea.text = Qt.binding(function(){ 
+                        return EditorModel.shaderText });
                 }
             }
 
@@ -46,26 +45,35 @@ Rectangle {
                 text: qsTr("Compile")
 
                 onPressed: {
-                    EditorModel.CompileSelectedShader();
+                    EditorModel.CompileSelectedShader(shaderTextArea.text);
                 }
             }
         }
 
-        ScrollView {
+        SplitView {
+            id: splitView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            orientation: Qt.Vertical
 
-            Rectangle {
-                color: palette.light
+            handle: Rectangle {
+                implicitWidth: 3
+                implicitHeight: 3
+                color: SplitHandle.pressed ? palette.highlight : root.color
             }
-        }
 
-        ScrollView {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            EditorTextArea {
+                id: shaderTextArea
+                SplitView.fillWidth: true
+                SplitView.preferredHeight: splitView.height / 2
+                text: EditorModel.shaderText
+            }
 
-            Rectangle {
-                color: palette.light
+            EditorTextArea {
+                id: shaderAssemblyArea
+                SplitView.fillWidth: true
+                SplitView.fillHeight: true
+                text: EditorModel.shaderAssembly
             }
         }
     }

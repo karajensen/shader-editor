@@ -5,5 +5,6 @@
         <file>Editor.qml</file>
         <file>EditorWindow.qml</file>
         <file>ReloadableWindow.qml</file>
+        <file>EditorTextArea.qml</file>
     </qresource>
 </RCC>

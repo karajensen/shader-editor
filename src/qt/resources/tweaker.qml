@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import QtQuick 2.9
-import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.14
 
 Rectangle {
     id: root

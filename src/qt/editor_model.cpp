@@ -4,12 +4,6 @@
 
 #include "editor_model.h"
 
-EditorModel::EditorModel(SignalCallbacks& callbacks, QObject* parent)
-    : QObject(parent)
-    , m_callbacks(callbacks)
-{
-}
-
 void EditorModel::InitialiseShaders(int selected, const std::vector<std::string>& shaders)
 {
     m_shaders.clear();
@@ -28,33 +22,32 @@ bool EditorModel::HasShaders() const
     return m_shaders.length() > 0;
 }
 
-void EditorModel::SetShaderText(const std::string& text)
+void EditorModel::SetShaderText(const QString& text)
 {
-    //m_text = QString(text.c_str());
-    //m_ui.shaderTextBox->setText(m_text);
+    if (m_shaderText != text)
+    {
+        m_shaderText = text;
+        emit ShaderTextChanged();
+    }
 }
 
-void EditorModel::SetShaderAssembly(const std::string& assembly)
+const QString& EditorModel::ShaderText() const
 {
-    //m_assembly = QString(assembly.c_str());
-    //m_ui.assemblyTextBox->setText(m_assembly);
+    return m_shaderText;
 }
 
-void EditorModel::CompileSelectedShader()
+void EditorModel::SetShaderAssembly(const QString& assembly)
 {
-    //m_text = m_ui.shaderTextBox->toPlainText();
-    //m_callbacks.CompileShader(m_text.toUtf8().constData());
+    if (m_shaderAssembly != assembly)
+    {
+        m_shaderAssembly = assembly;
+        emit ShaderAssemblyChanged();
+    }
 }
 
-void EditorModel::RevertSelectedShader()
+const QString& EditorModel::ShaderAssembly() const
 {
-    //m_ui.shaderTextBox->setText(m_text);
-    //m_ui.assemblyTextBox->setText(m_assembly);
-}
-
-const QStringList& EditorModel::Shaders() const
-{
-    return m_shaders;
+    return m_shaderAssembly;
 }
 
 void EditorModel::SetShaderIndex(int index)
@@ -66,7 +59,17 @@ void EditorModel::SetShaderIndex(int index)
     }
 }
 
+const QStringList& EditorModel::Shaders() const
+{
+    return m_shaders;
+}
+
 int EditorModel::ShaderIndex() const
 {
     return m_shaderIndex;
+}
+
+void EditorModel::CompileSelectedShader(const QString& text)
+{
+    emit RequestCompileSelectedShader(text);
 }

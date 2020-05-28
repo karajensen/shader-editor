@@ -126,11 +126,13 @@ void QtGui::Run(int argc, char *argv[])
     callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
     callbacks.RenderLightsOnly =   [this](){ m_cache->RenderLightsOnly.Set(true); };
     callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
-    callbacks.CompileShader =      [this](const std::string& text){ m_cache->CompileShader.Set(text); };
 
     m_reloader = std::make_unique<QtReloader>(*m_engine);
     m_tweaker = std::make_unique<TweakerModel>(callbacks);
-    m_editor = std::make_unique<EditorModel>(callbacks);
+    m_editor = std::make_unique<EditorModel>();
+    
+    connect(m_editor.get(), &EditorModel::RequestCompileSelectedShader, this, 
+        [this](const QString& text) { m_cache->CompileShader.Set(text.toStdString()); });
 
     if (auto context = m_engine->rootContext())
     {
@@ -202,12 +204,12 @@ void QtGui::UpdateEditor()
 
     if(initialisedShaders || m_cache->ShaderText.RequiresUpdate())
     {
-        m_editor->SetShaderText(m_cache->ShaderText.GetUpdated());
+        m_editor->SetShaderText(QString::fromStdString(m_cache->ShaderText.GetUpdated()));
     }
 
     if(initialisedShaders || m_cache->ShaderAsm.RequiresUpdate())
     {
-        m_editor->SetShaderAssembly(m_cache->ShaderAsm.GetUpdated());
+        m_editor->SetShaderAssembly(QString::fromStdString(m_cache->ShaderAsm.GetUpdated()));
     }
 }
 

@@ -194,7 +194,6 @@ enum PostAttribute
 typedef std::function<void(float)> FloatSignal;
 typedef std::function<void(int)> IntSignal;
 typedef std::function<void(void)> VoidSignal;
-typedef std::function<void(const std::string&)> StrSignal;
 typedef std::vector<FloatSignal> FloatSignals;
 
 /**
@@ -230,7 +229,6 @@ struct SignalCallbacks
     VoidSignal ToggleWireframe;    ///< Sends a request to toggle wireframe rendering
     VoidSignal PauseEmission;      ///< Sends a request to pause the selected Emitter
     VoidSignal RenderLightsOnly;   ///< Sends a request to render only the lights
-    StrSignal CompileShader;       ///< Sends a compile request
 
     /**
     * Constructor
@@ -254,7 +252,6 @@ struct SignalCallbacks
         LightDiagnostics(nullptr),
         PauseEmission(nullptr),
         RenderLightsOnly(nullptr),
-        CompileShader(nullptr),
         ToggleWireframe(nullptr)
     {
         SetLight.resize(LIGHT_ATTRIBUTES);

@@ -116,6 +116,7 @@ set(QT_LIST
     qt/resources/TweakerWindow.qml
     qt/resources/Editor.qml
     qt/resources/EditorWindow.qml
+    qt/resources/EditorTextArea.qml
     qt/resources/ReloadableWindow.qml
 )
 
