@@ -36,113 +36,19 @@ void QtGui::Run(int argc, char *argv[])
 
     m_app = std::make_unique<QGuiApplication>(argc, argv);
     m_engine = std::make_unique<QQmlApplicationEngine>();
-
-    SignalCallbacks callbacks;
-
-    for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
-    {
-        callbacks.SetLight[i] = 
-            [this, i](float value){ m_cache->Light[i].Set(value); };
-    }
-
-    for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
-    {
-        callbacks.SetCamera[i] = 
-            [this, i](float value){ m_cache->Camera[i].Set(value); };
-    }
-
-    for (int i = 0; i < MESH_ATTRIBUTES; ++i)
-    {
-        callbacks.SetMesh[i] = 
-            [this, i](float value){ m_cache->Mesh[i].Set(value); };
-    }
-
-    for (int i = 0; i < TEXTURE_ATTRIBUTES; ++i)
-    {
-        callbacks.SetTexture[i] = [this, i](float value)
-        { 
-            m_cache->Texture[i].Set(value);
-            m_cache->ReloadTexture.Set(true);
-        };
-    }
-
-    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
-    {
-        callbacks.SetWater[i] = 
-            [this, i](float value){ m_cache->Water[i].Set(value); };
-    }
-
-    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
-    {
-        callbacks.SetWave[i] = 
-            [this, i](float value){ m_cache->Wave[i].Set(value); };
-    }
-
-    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
-    {
-        callbacks.SetEmitter[i] = 
-            [this, i](float value){ m_cache->Emitter[i].Set(value); };
-    }
-
-    for (int i = 0; i < POST_ATTRIBUTES; ++i)
-    {
-        callbacks.SetPost[i] = 
-            [this, i](float value){ m_cache->Post[i].Set(value); };
-    }
-
-    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
-    {
-        if (i == TERRAIN_MAX_HEIGHT || i == TERRAIN_MIN_HEIGHT || i == TERRAIN_SCALE)
-        {
-            callbacks.SetTerrain[i] = [this, i](float value)
-            { 
-                m_cache->Terrain[i].Set(value); 
-                m_cache->ReloadTerrain.Set(true);
-            };
-        }
-        else
-        {
-            callbacks.SetTerrain[i] = 
-                [this, i](float value){ m_cache->Terrain[i].Set(value); };
-        }
-    }
-
-    callbacks.SetSelectedWave =    [this](float index){ m_cache->WaveSelected.Set(static_cast<int>(index)); };
-    callbacks.SetSelectedEngine =  [this](int index){ m_cache->EngineSelected.Set(index); };
-    callbacks.SetSelectedMesh =    [this](int index){ m_cache->MeshSelected.Set(index); };
-    callbacks.SetSelectedWater =   [this](int index){ m_cache->WaterSelected.Set(index); };
-    callbacks.SetSelectedLight =   [this](int index){ m_cache->LightSelected.Set(index); };
-    callbacks.SetSelectedShader =  [this](int index){ m_cache->ShaderSelected.Set(index); };
-    callbacks.SetSelectedTexture = [this](int index){ m_cache->TextureSelected.Set(index); };
-    callbacks.SetSelectedEmitter = [this](int index){ m_cache->EmitterSelected.Set(index); };
-    callbacks.SetSelectedTerrain = [this](int index){ m_cache->TerrainSelected.Set(index); };
-    callbacks.SetPostMap =         [this](int index){ m_cache->PostMapSelected.Set(index); };
-    callbacks.ReloadScene =        [this](){ m_cache->ReloadScene.Set(true); };
-    callbacks.ReloadEngine =       [this](){ m_cache->ReloadEngine.Set(true); };
-    callbacks.ReloadTerrain =      [this](){ m_cache->ReloadTerrain.Set(true); };
-    callbacks.ReloadTexture =      [this](){ m_cache->ReloadTexture.Set(true); };
-    callbacks.ReloadPlacement =    [this](){ m_cache->ReloadPlacement.Set(true); };
-    callbacks.ToggleWireframe =    [this](){ m_cache->ToggleWireframe.Set(true); };
-    callbacks.PauseEmission =      [this](){ m_cache->PauseEmission.Set(true); };
-    callbacks.RenderLightsOnly =   [this](){ m_cache->RenderLightsOnly.Set(true); };
-    callbacks.LightDiagnostics =   [this](){ m_cache->LightDiagnostics.Set(true); };
-
     m_reloader = std::make_unique<QtReloader>(*m_engine);
-    m_tweaker = std::make_unique<TweakerModel>(callbacks);
+    m_tweaker = std::make_unique<TweakerModel>();
     m_editor = std::make_unique<EditorModel>();
-    
-    connect(m_editor.get(), &EditorModel::RequestCompileSelectedShader, this, 
-        [this](const QString& text) { m_cache->CompileShader.Set(text.toStdString()); });
 
-    if (auto context = m_engine->rootContext())
-    {
-        context->setContextProperty("TweakerModel", m_tweaker.get());
-        context->setContextProperty("EditorModel", m_editor.get());
-        context->setContextProperty("Reloader", m_reloader.get());
-    }
+    SetupConnections();
 
-    //engine.load(QUrl("qrc:/TweakerWindow.qml"));
-    m_engine->load(QUrl("qrc:/EditorWindow.qml"));
+    auto context = m_engine->rootContext();
+    context->setContextProperty("TweakerModel", m_tweaker.get());
+    context->setContextProperty("EditorModel", m_editor.get());
+    context->setContextProperty("Reloader", m_reloader.get());
+
+    m_engine->load(QUrl("qrc:/TweakerWindow.qml"));
+    //m_engine->load(QUrl("qrc:/EditorWindow.qml"));
 
     QTimer timer; 
     timer.setInterval(10);
@@ -164,7 +70,7 @@ void QtGui::Run(int argc, char *argv[])
 
 void QtGui::UpdateTweaker()
 {
-    const auto page = ConvertStringToPage(m_tweaker->GetSelectedPage());
+    const auto page = m_tweaker->GetSelectedPage();
     if(page != m_page)
     {
         m_page = page;
@@ -173,19 +79,19 @@ void QtGui::UpdateTweaker()
 
     switch(page)
     {
-    case PAGE_SCENE:
+    case Tweakable::GuiPage::Scene:
         UpdateScene();
         break;
-    case PAGE_AREA:
+    case Tweakable::GuiPage::Area:
         UpdateTextures();
         UpdateTerrain();
         break;
-    case PAGE_MESH:
+    case Tweakable::GuiPage::Mesh:
         UpdateMesh();
         UpdateWater();
         UpdateEmitter();
         break;
-    case PAGE_POST:
+    case Tweakable::GuiPage::Post:
         UpdatePost();
         UpdateLight();
         break;
@@ -213,27 +119,6 @@ void QtGui::UpdateEditor()
     }
 }
 
-GuiPage QtGui::ConvertStringToPage(const std::string& page)
-{
-    if(page == "Scene")
-    {
-        return PAGE_SCENE;
-    }
-    else if(page == "Mesh")
-    {
-        return PAGE_MESH;
-    }
-    else if(page == "Post")
-    {
-        return PAGE_POST;
-    }
-    else if(page == "Area")
-    {
-        return PAGE_AREA;
-    }
-    return PAGE_NONE;
-}
-
 void QtGui::UpdatePost()
 {
     if (!m_tweaker->HasPostMaps())
@@ -246,11 +131,11 @@ void QtGui::UpdatePost()
         m_tweaker->SetSelectedPostMap(m_cache->PostMapSelected.GetUpdated());
     }
 
-    for (int i = 0; i < POST_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Post::Max; ++i)
     {
         if (m_cache->Post[i].RequiresUpdate())
         {
-            m_tweaker->SetPost(static_cast<PostAttribute>(i), 
+            m_tweaker->SetPost(static_cast<Tweakable::Post::Attribute>(i),
                 m_cache->Post[i].GetUpdated());
         }
     }
@@ -275,11 +160,11 @@ void QtGui::UpdateScene()
     m_tweaker->SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
     m_tweaker->SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
 
-    for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Camera::Max; ++i)
     {
         if (m_cache->Camera[i].RequiresUpdate())
         {
-            m_tweaker->SetCamera(static_cast<CameraAttribute>(i), 
+            m_tweaker->SetCamera(static_cast<Tweakable::Camera::Attribute>(i),
                 m_cache->Camera[i].GetUpdated());
         }
     }
@@ -300,11 +185,11 @@ void QtGui::UpdateTerrain()
         m_tweaker->SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
     }
 
-    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Terrain::Max; ++i)
     {
         if (initialisedTerrain || m_cache->Terrain[i].RequiresUpdate())
         {
-            m_tweaker->SetTerrain(static_cast<TerrainAttribute>(i), 
+            m_tweaker->SetTerrain(static_cast<Tweakable::Terrain::Attribute>(i),
                 m_cache->Terrain[i].GetUpdated());
         }
     }
@@ -322,11 +207,11 @@ void QtGui::UpdateTextures()
             m_cache->TextureSelected.Get(), m_cache->Textures.Get());
     }
 
-    for (int i = 0; i < TEXTURE_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Texture::Max; ++i)
     {
         if (initialisedTextures || m_cache->Texture[i].RequiresUpdate())
         {
-            m_tweaker->SetTexture(static_cast<TextureAttribute>(i),
+            m_tweaker->SetTexture(static_cast<Tweakable::Texture::Attribute>(i),
                 m_cache->Texture[i].GetUpdated());
         }
     }
@@ -347,11 +232,11 @@ void QtGui::UpdateLight()
             m_cache->LightSelected.Get(), m_cache->Lights.Get());
     }
 
-    for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Light::Max; ++i)
     {
         if (initialisedLights || m_cache->Light[i].RequiresUpdate())
         {
-            m_tweaker->SetLight(static_cast<LightAttribute>(i), 
+            m_tweaker->SetLight(static_cast<Tweakable::Light::Attribute>(i),
                 m_cache->Light[i].GetUpdated());
         }
     }
@@ -367,11 +252,11 @@ void QtGui::UpdateMesh()
             m_cache->MeshSelected.Get(), m_cache->Meshes.Get());
     }
 
-    for (int i = 0; i < MESH_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Mesh::Max; ++i)
     {
         if (initialisedMeshes || m_cache->Mesh[i].RequiresUpdate())
         {
-            m_tweaker->SetMesh(static_cast<MeshAttribute>(i),
+            m_tweaker->SetMesh(static_cast<Tweakable::Mesh::Attribute>(i),
                 m_cache->Mesh[i].GetUpdated());
         }
     }
@@ -394,11 +279,11 @@ void QtGui::UpdateEmitter()
             m_cache->EmitterSelected.Get(), m_cache->Emitters.Get());
     }
 
-    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Emitter::Max; ++i)
     {
         if (initialisedEmitter || m_cache->Emitter[i].RequiresUpdate())
         {
-            m_tweaker->SetEmitter(static_cast<EmitterAttribute>(i), 
+            m_tweaker->SetEmitter(static_cast<Tweakable::Emitter::Attribute>(i),
                 m_cache->Emitter[i].GetUpdated());
         }
     }
@@ -416,11 +301,11 @@ void QtGui::UpdateWater()
             m_cache->WaterSelected.Get(), m_cache->Waters.Get());
     }
 
-    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Water::Max; ++i)
     {
         if (initialisedWater || m_cache->Water[i].RequiresUpdate())
         {
-            m_tweaker->SetWater(static_cast<WaterAttribute>(i), 
+            m_tweaker->SetWater(static_cast<Tweakable::Water::Attribute>(i),
                 m_cache->Water[i].GetUpdated());
         }
     }
@@ -430,14 +315,110 @@ void QtGui::UpdateWater()
         m_tweaker->SetWaveAmount(m_cache->WaveAmount.GetUpdated());
     }
 
-    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Wave::Max; ++i)
     {
         if (initialisedWater || m_cache->Wave[i].RequiresUpdate())
         {
-            m_tweaker->SetWave(static_cast<WaveAttribute>(i), 
+            m_tweaker->SetWave(static_cast<Tweakable::Wave::Attribute>(i),
                 m_cache->Wave[i].GetUpdated());
         }
     }
 
     m_tweaker->SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
+}
+
+void QtGui::SetupConnections()
+{
+    connect(m_editor.get(), &EditorModel::RequestCompileSelectedShader, this,
+        [this](const QString& text) { m_cache->CompileShader.Set(text.toStdString()); });
+
+    /**
+    for (int i = 0; i < LIGHT_ATTRIBUTES; ++i)
+    {
+        callbacks.SetLight[i] =
+            [this, i](float value) { m_cache->Light[i].Set(value); };
+    }
+
+    for (int i = 0; i < CAMERA_ATTRIBUTES; ++i)
+    {
+        callbacks.SetCamera[i] =
+            [this, i](float value) { m_cache->Camera[i].Set(value); };
+    }
+
+    for (int i = 0; i < MESH_ATTRIBUTES; ++i)
+    {
+        callbacks.SetMesh[i] =
+            [this, i](float value) { m_cache->Mesh[i].Set(value); };
+    }
+
+    for (int i = 0; i < TEXTURE_ATTRIBUTES; ++i)
+    {
+        callbacks.SetTexture[i] = [this, i](float value)
+        {
+            m_cache->Texture[i].Set(value);
+            m_cache->ReloadTexture.Set(true);
+        };
+    }
+
+    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
+    {
+        callbacks.SetWater[i] =
+            [this, i](float value) { m_cache->Water[i].Set(value); };
+    }
+
+    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
+    {
+        callbacks.SetWave[i] =
+            [this, i](float value) { m_cache->Wave[i].Set(value); };
+    }
+
+    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
+    {
+        callbacks.SetEmitter[i] =
+            [this, i](float value) { m_cache->Emitter[i].Set(value); };
+    }
+
+    for (int i = 0; i < POST_ATTRIBUTES; ++i)
+    {
+        callbacks.SetPost[i] =
+            [this, i](float value) { m_cache->Post[i].Set(value); };
+    }
+
+    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    {
+        if (i == TERRAIN_MAX_HEIGHT || i == TERRAIN_MIN_HEIGHT || i == TERRAIN_SCALE)
+        {
+            callbacks.SetTerrain[i] = [this, i](float value)
+            {
+                m_cache->Terrain[i].Set(value);
+                m_cache->ReloadTerrain.Set(true);
+            };
+        }
+        else
+        {
+            callbacks.SetTerrain[i] =
+                [this, i](float value) { m_cache->Terrain[i].Set(value); };
+        }
+    }
+
+    callbacks.SetSelectedWave = [this](float index) { m_cache->WaveSelected.Set(static_cast<int>(index)); };
+    callbacks.SetSelectedEngine = [this](int index) { m_cache->EngineSelected.Set(index); };
+    callbacks.SetSelectedMesh = [this](int index) { m_cache->MeshSelected.Set(index); };
+    callbacks.SetSelectedWater = [this](int index) { m_cache->WaterSelected.Set(index); };
+    callbacks.SetSelectedLight = [this](int index) { m_cache->LightSelected.Set(index); };
+    callbacks.SetSelectedShader = [this](int index) { m_cache->ShaderSelected.Set(index); };
+    callbacks.SetSelectedTexture = [this](int index) { m_cache->TextureSelected.Set(index); };
+    callbacks.SetSelectedEmitter = [this](int index) { m_cache->EmitterSelected.Set(index); };
+    callbacks.SetSelectedTerrain = [this](int index) { m_cache->TerrainSelected.Set(index); };
+    callbacks.SetPostMap = [this](int index) { m_cache->PostMapSelected.Set(index); };
+    callbacks.ReloadScene = [this]() { m_cache->ReloadScene.Set(true); };
+    callbacks.ReloadEngine = [this]() { m_cache->ReloadEngine.Set(true); };
+    callbacks.ReloadTerrain = [this]() { m_cache->ReloadTerrain.Set(true); };
+    callbacks.ReloadTexture = [this]() { m_cache->ReloadTexture.Set(true); };
+    callbacks.ReloadPlacement = [this]() { m_cache->ReloadPlacement.Set(true); };
+    callbacks.ToggleWireframe = [this]() { m_cache->ToggleWireframe.Set(true); };
+    callbacks.PauseEmission = [this]() { m_cache->PauseEmission.Set(true); };
+    callbacks.RenderLightsOnly = [this]() { m_cache->RenderLightsOnly.Set(true); };
+    callbacks.LightDiagnostics = [this]() { m_cache->LightDiagnostics.Set(true); };
+    */
 }

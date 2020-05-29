@@ -203,8 +203,11 @@ private:
     * @param size The number of elements in the array (1 if not an array)
     * @param type Whether a float, vec2, vec3, vec4 
     */
-    void SendUniformFloat(const std::string& name, const float* value, 
-        int location, int size, GLenum type);
+    void SendUniformFloat(const std::string& name, 
+                          const float* value, 
+                          int location, 
+                          int size, 
+                          GLenum type);
 
     /**
     * Determines the unique ID of the texture slot

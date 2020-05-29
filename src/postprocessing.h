@@ -23,14 +23,14 @@ public:
     */
     enum Map
     {
-        FINAL_MAP,
-        SCENE_MAP,
-        DEPTH_MAP,
-        BLUR_MAP,
-        DOF_MAP,
-        FOG_MAP,
-        BLOOM_MAP,
-        MAX_MAPS
+        Final,
+        Scene,
+        Depth,
+        Blur,
+        Dof,
+        Fog,
+        Bloom,
+        Max
     };
 
     /**
@@ -182,6 +182,6 @@ private:
     Colour m_fogColour;                   ///< Colour for the fog
     Colour m_minimumColour;               ///< Minimum Colour ranges for RGB
     Colour m_maximumColour;               ///< Maximum Colour ranges for RGB
-    std::array<float, MAX_MAPS> m_masks;  ///< Visibility of post maps
+    std::array<float, Map::Max> m_masks;  ///< Visibility of post maps
     std::vector<float> m_weights;         ///< Normalised pixel weights for blurring
 };

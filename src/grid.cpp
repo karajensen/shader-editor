@@ -5,24 +5,24 @@
 #include "grid.h"
 #include "logger.h"
 
-namespace
+namespace Vertex
 {
-    enum VertexOffset
+    enum Offset
     {
-        POS_X,
-        POS_Y,
-        POS_Z,
-        TEXTURE_U,
-        TEXTURE_V,
-        NORMAL_X, 
-        NORMAL_Y, 
-        NORMAL_Z,
-        TANGENT_X,
-        TANGENT_Y,
-        TANGENT_Z,
-        BITANGENT_X,
-        BITANGENT_Y,
-        BITANGENT_Z
+        PosX,
+        PosY,
+        PosZ,
+        TextureU,
+        TextureV,
+        NormalX, 
+        NormalY, 
+        NormalZ,
+        TangentX,
+        TangentY,
+        TangentZ,
+        BitangentX,
+        BitangentY,
+        BitangentZ
     };
 }
 
@@ -85,27 +85,27 @@ void Grid::ResetGrid()
     {
         for(int c = 0; c < m_columns; ++c)
         {
-            m_vertices[index + POS_X] = initialPosition.x + (r * m_spacing);
-            m_vertices[index + POS_Y] = initialPosition.y;
-            m_vertices[index + POS_Z] = initialPosition.z + (c * m_spacing);
-            m_vertices[index + TEXTURE_U] = u;
-            m_vertices[index + TEXTURE_V] = v;
+            m_vertices[index + Vertex::PosX] = initialPosition.x + (r * m_spacing);
+            m_vertices[index + Vertex::PosY] = initialPosition.y;
+            m_vertices[index + Vertex::PosZ] = initialPosition.z + (c * m_spacing);
+            m_vertices[index + Vertex::TextureU] = u;
+            m_vertices[index + Vertex::TextureV] = v;
 
             if (m_hasNormals)
             {
-                m_vertices[index + NORMAL_X] = 0.0f;
-                m_vertices[index + NORMAL_Y] = 1.0f;
-                m_vertices[index + NORMAL_Z] = 0.0f;
+                m_vertices[index + Vertex::NormalX] = 0.0f;
+                m_vertices[index + Vertex::NormalY] = 1.0f;
+                m_vertices[index + Vertex::NormalZ] = 0.0f;
             }
 
             if (m_hasTangents)
             {
-                m_vertices[index + TANGENT_X] = 1.0f;
-                m_vertices[index + TANGENT_Y] = 0.0f;
-                m_vertices[index + TANGENT_Z] = 0.0f;
-                m_vertices[index + BITANGENT_X] = 0.0f;
-                m_vertices[index + BITANGENT_Y] = 0.0f;
-                m_vertices[index + BITANGENT_Z] = 1.0f;
+                m_vertices[index + Vertex::TangentX] = 1.0f;
+                m_vertices[index + Vertex::TangentY] = 0.0f;
+                m_vertices[index + Vertex::TangentZ] = 0.0f;
+                m_vertices[index + Vertex::BitangentX] = 0.0f;
+                m_vertices[index + Vertex::BitangentY] = 0.0f;
+                m_vertices[index + Vertex::BitangentZ] = 1.0f;
             }
 
             index += m_vertexComponentCount;
@@ -142,12 +142,12 @@ unsigned int Grid::GetIndex(int row, int column) const
 
 float Grid::GetHeight(int row, int column) const
 {
-    return m_vertices[GetIndex(row, column) + POS_Y];
+    return m_vertices[GetIndex(row, column) + Vertex::PosY];
 }
 
 void Grid::SetHeight(int row, int column, float height)
 {
-    m_vertices[GetIndex(row, column) + POS_Y] = height;
+    m_vertices[GetIndex(row, column) + Vertex::PosY] = height;
 }
 
 int Grid::Rows() const
@@ -171,26 +171,26 @@ float Grid::Size() const
 
 Float3 Grid::GetPosition(int index) const
 {
-    return Float3(m_vertices[index + POS_X],
-        m_vertices[index + POS_Y], m_vertices[index + POS_Z]);
+    return Float3(m_vertices[index + Vertex::PosX],
+        m_vertices[index + Vertex::PosY], m_vertices[index + Vertex::PosZ]);
 }
 
 Float3 Grid::GetNormal(int index) const
 {
-    return Float3(m_vertices[index + NORMAL_X],
-        m_vertices[index + NORMAL_Y], m_vertices[index + NORMAL_Z]);
+    return Float3(m_vertices[index + Vertex::NormalX],
+        m_vertices[index + Vertex::NormalY], m_vertices[index + Vertex::NormalZ]);
 }
 
 Float3 Grid::GetTangent(int index) const
 {
-    return Float3(m_vertices[index + TANGENT_X],
-        m_vertices[index + TANGENT_Y], m_vertices[index + TANGENT_Z]);
+    return Float3(m_vertices[index + Vertex::TangentX],
+        m_vertices[index + Vertex::TangentY], m_vertices[index + Vertex::TangentZ]);
 }
 
 Float2 Grid::GetUVs(int index) const
 {
-    return Float2(m_vertices[index + TEXTURE_U],
-        m_vertices[index + TEXTURE_V]);
+    return Float2(m_vertices[index + Vertex::TextureU],
+        m_vertices[index + Vertex::TextureV]);
 }
 
 void Grid::RecalculateNormals()
@@ -218,32 +218,32 @@ void Grid::RecalculateNormals()
             Float3 normal = (p1 - p2).Cross(p3 - p2);
             normal.Normalize();
 
-            m_vertices[p1index + NORMAL_X] += normal.x;
-            m_vertices[p1index + NORMAL_Y] += normal.y;
-            m_vertices[p1index + NORMAL_Z] += normal.z;
+            m_vertices[p1index + Vertex::NormalX] += normal.x;
+            m_vertices[p1index + Vertex::NormalY] += normal.y;
+            m_vertices[p1index + Vertex::NormalZ] += normal.z;
 
-            m_vertices[p2index + NORMAL_X] += normal.x;
-            m_vertices[p2index + NORMAL_Y] += normal.y;
-            m_vertices[p2index + NORMAL_Z] += normal.z;
+            m_vertices[p2index + Vertex::NormalX] += normal.x;
+            m_vertices[p2index + Vertex::NormalY] += normal.y;
+            m_vertices[p2index + Vertex::NormalZ] += normal.z;
 
-            m_vertices[p3index + NORMAL_X] += normal.x;
-            m_vertices[p3index + NORMAL_Y] += normal.y;
-            m_vertices[p3index + NORMAL_Z] += normal.z;
+            m_vertices[p3index + Vertex::NormalX] += normal.x;
+            m_vertices[p3index + Vertex::NormalY] += normal.y;
+            m_vertices[p3index + Vertex::NormalZ] += normal.z;
 
             normal = (p2 - p4).Cross(p3 - p4);
             normal.Normalize();
 
-            m_vertices[p2index + NORMAL_X] += normal.x;
-            m_vertices[p2index + NORMAL_Y] += normal.y;
-            m_vertices[p2index + NORMAL_Z] += normal.z;
+            m_vertices[p2index + Vertex::NormalX] += normal.x;
+            m_vertices[p2index + Vertex::NormalY] += normal.y;
+            m_vertices[p2index + Vertex::NormalZ] += normal.z;
 
-            m_vertices[p3index + NORMAL_X] += normal.x;
-            m_vertices[p3index + NORMAL_Y] += normal.y;
-            m_vertices[p3index + NORMAL_Z] += normal.z;
+            m_vertices[p3index + Vertex::NormalX] += normal.x;
+            m_vertices[p3index + Vertex::NormalY] += normal.y;
+            m_vertices[p3index + Vertex::NormalZ] += normal.z;
 
-            m_vertices[p4index + NORMAL_X] += normal.x;
-            m_vertices[p4index + NORMAL_Y] += normal.y;
-            m_vertices[p4index + NORMAL_Z] += normal.z;
+            m_vertices[p4index + Vertex::NormalX] += normal.x;
+            m_vertices[p4index + Vertex::NormalY] += normal.y;
+            m_vertices[p4index + Vertex::NormalZ] += normal.z;
         }
     }
 
@@ -280,39 +280,39 @@ void Grid::RecalculateNormals()
                 // Rearranging T = (q2 - t2q1/t1) / (s2 - (t2s1/t1))
                 const Float3 tangent = (q2 - ((q1 * t2) / t1)) / (s2 - ((t2 * s1) / t1));
 
-                m_vertices[p0index + TANGENT_X] += tangent.x;
-                m_vertices[p0index + TANGENT_Y] += tangent.y;
-                m_vertices[p0index + TANGENT_Z] += tangent.z;
+                m_vertices[p0index + Vertex::TangentX] += tangent.x;
+                m_vertices[p0index + Vertex::TangentY] += tangent.y;
+                m_vertices[p0index + Vertex::TangentZ] += tangent.z;
 
-                m_vertices[p1index + TANGENT_X] += tangent.x;
-                m_vertices[p1index + TANGENT_Y] += tangent.y;
-                m_vertices[p1index + TANGENT_Z] += tangent.z;
+                m_vertices[p1index + Vertex::TangentX] += tangent.x;
+                m_vertices[p1index + Vertex::TangentY] += tangent.y;
+                m_vertices[p1index + Vertex::TangentZ] += tangent.z;
 
-                m_vertices[p2index + TANGENT_X] += tangent.x;
-                m_vertices[p2index + TANGENT_Y] += tangent.y;
-                m_vertices[p2index + TANGENT_Z] += tangent.z;
+                m_vertices[p2index + Vertex::TangentX] += tangent.x;
+                m_vertices[p2index + Vertex::TangentY] += tangent.y;
+                m_vertices[p2index + Vertex::TangentZ] += tangent.z;
             }
         }
 
         for (unsigned int vertex = 0; vertex < m_vertices.size(); vertex += m_vertexComponentCount)
         {
             const Float3 normal = GetNormal(vertex).GetNormalized();
-            m_vertices[vertex + NORMAL_X] = normal.x;
-            m_vertices[vertex + NORMAL_Y] = normal.y;
-            m_vertices[vertex + NORMAL_Z] = normal.z;                
+            m_vertices[vertex + Vertex::NormalX] = normal.x;
+            m_vertices[vertex + Vertex::NormalY] = normal.y;
+            m_vertices[vertex + Vertex::NormalZ] = normal.z;                
 
             if (m_hasTangents)
             {
                 const Float3 tangent = GetTangent(vertex).GetNormalized();
-                m_vertices[vertex + TANGENT_X] = tangent.x;
-                m_vertices[vertex + TANGENT_Y] = tangent.y;
-                m_vertices[vertex + TANGENT_Z] = tangent.z;                
+                m_vertices[vertex + Vertex::TangentX] = tangent.x;
+                m_vertices[vertex + Vertex::TangentY] = tangent.y;
+                m_vertices[vertex + Vertex::TangentZ] = tangent.z;                
 
                 // Bitangent is orthogonal to the normal/tangent
                 const Float3 bitangent = normal.Cross(tangent).GetNormalized();
-                m_vertices[vertex + BITANGENT_X] = bitangent.x;
-                m_vertices[vertex + BITANGENT_Y] = bitangent.y;
-                m_vertices[vertex + BITANGENT_Z] = bitangent.z;
+                m_vertices[vertex + Vertex::BitangentX] = bitangent.x;
+                m_vertices[vertex + Vertex::BitangentY] = bitangent.y;
+                m_vertices[vertex + Vertex::BitangentZ] = bitangent.z;
             }
         }
     }

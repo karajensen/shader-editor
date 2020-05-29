@@ -15,12 +15,8 @@
 
 #include <windowsx.h>
 
-//#define SELECTED_ENGINE DIRECTX
-#define SELECTED_ENGINE OPENGL
-#define SELECTED_MAP PostProcessing::FINAL_MAP
-
 Application::Application()
-    : m_selectedEngine(SELECTED_ENGINE)
+    : m_selectedEngine(RenderingEngine::OpenGL)
     , m_camera(std::make_unique<Camera>())
     , m_timer(std::make_unique<Timer>())
     , m_scene(std::make_unique<Scene>())
@@ -80,31 +76,31 @@ void Application::HandleKeyPress(const WPARAM& keypress)
     }
     else if (keypress == '1')
     {
-        m_scene->SetPostMap(PostProcessing::FINAL_MAP);
+        m_scene->SetPostMap(PostProcessing::Final);
     }
     else if (keypress == '2')
     {
-        m_scene->SetPostMap(PostProcessing::SCENE_MAP);
+        m_scene->SetPostMap(PostProcessing::Scene);
     }
     else if (keypress == '3')
     {
-        m_scene->SetPostMap(PostProcessing::DEPTH_MAP);
+        m_scene->SetPostMap(PostProcessing::Depth);
     }
     else if (keypress == '4')
     {
-        m_scene->SetPostMap(PostProcessing::BLUR_MAP);
+        m_scene->SetPostMap(PostProcessing::Blur);
     }
     else if (keypress == '5')
     {
-        m_scene->SetPostMap(PostProcessing::BLOOM_MAP);
+        m_scene->SetPostMap(PostProcessing::Bloom);
     }
     else if (keypress == '6')
     {
-        m_scene->SetPostMap(PostProcessing::FOG_MAP);
+        m_scene->SetPostMap(PostProcessing::Fog);
     }
     else if (keypress == '7')
     {
-        m_scene->SetPostMap(PostProcessing::DOF_MAP);
+        m_scene->SetPostMap(PostProcessing::Dof);
     }
     else if (keypress == '0')
     {
@@ -229,9 +225,9 @@ bool Application::Initialise(HWND hwnd,
     }
 
     std::vector<std::string> engineNames;
-    m_engines.resize(MAX_ENGINES);
-    m_engines[OPENGL].reset(new OpenglEngine(hwnd));
-    m_engines[DIRECTX].reset(new DirectxEngine(hwnd));
+    m_engines.resize(RenderingEngine::Max);
+    m_engines[RenderingEngine::OpenGL].reset(new OpenglEngine(hwnd));
+    m_engines[RenderingEngine::DirectX].reset(new DirectxEngine(hwnd));
 
     // Ensure that all engines can be initialised
     bool failed = false;
@@ -254,7 +250,7 @@ bool Application::Initialise(HWND hwnd,
     }
 
     m_modifier = std::make_unique<AppGui>(
-        *m_scene, *m_timer, *m_camera, cache, SELECTED_MAP,
+        *m_scene, *m_timer, *m_camera, cache, PostProcessing::Final,
         [this](){ ForceRenderEngine(m_selectedEngine); });
 
     m_modifier->Initialise(engineNames, m_selectedEngine);
@@ -291,20 +287,20 @@ void Application::FadeRenderEngine()
 
     if (selectedEngine != m_selectedEngine)
     {
-        m_fadeState = FADE_OUT;
+        m_fadeState = FadeOut;
     }
 
-    if(m_fadeState != NO_FADE &&
-       GetEngine().FadeView(m_fadeState == FADE_IN, fadeAmount))
+    if(m_fadeState != FadeNone &&
+       GetEngine().FadeView(m_fadeState == FadeIn, fadeAmount))
     {
-        if(m_fadeState == FADE_OUT)
+        if(m_fadeState == FadeOut)
         {
             SwitchRenderEngine(selectedEngine);
-            m_fadeState = FADE_IN;
+            m_fadeState = FadeIn;
         }
         else
         {
-            m_fadeState = NO_FADE;
+            m_fadeState = FadeNone;
         }
     }
 }

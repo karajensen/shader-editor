@@ -20,11 +20,11 @@ public:
     */
     enum Component
     {
-        NONE = 0,
-        FLAT = 1,
-        BUMP = 2,
-        SPECULAR = 4,
-        CAUSTICS = 8
+        None = 0,
+        Flat = 1,
+        Bump = 2,
+        Specular = 4,
+        Caustics = 8
     };
 
     /**

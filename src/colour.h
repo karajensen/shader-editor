@@ -11,10 +11,10 @@ struct Colour
 {
     enum Component
     {
-        RED,
-        GREEN,
-        BLUE,
-        ALPHA
+        Red,
+        Green,
+        Blue,
+        Alpha
     };
 
     float r = 0.0f;

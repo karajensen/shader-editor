@@ -18,27 +18,27 @@ Terrain::Terrain(const std::string& name,
 
 void Terrain::Write(Cache& cache)
 {
-    cache.Terrain[TERRAIN_CAUSTICS_AMOUNT].SetUpdated(m_causticsAmount);
-    cache.Terrain[TERRAIN_CAUSTICS_SCALE].SetUpdated(m_causticsScale);
-    cache.Terrain[TERRAIN_BUMP].SetUpdated(m_bump);
-    cache.Terrain[TERRAIN_AMBIENCE].SetUpdated(m_ambience);
-    cache.Terrain[TERRAIN_SPECULARITY].SetUpdated(m_specularity);
-    cache.Terrain[TERRAIN_MIN_HEIGHT].SetUpdated(m_minHeight);
-    cache.Terrain[TERRAIN_MAX_HEIGHT].SetUpdated(m_maxHeight);
-    cache.Terrain[TERRAIN_SCALE].SetUpdated(m_uvScale.x);
+    cache.Terrain[Tweakable::Terrain::CausticsAmount].SetUpdated(m_causticsAmount);
+    cache.Terrain[Tweakable::Terrain::CausticsScale].SetUpdated(m_causticsScale);
+    cache.Terrain[Tweakable::Terrain::Bump].SetUpdated(m_bump);
+    cache.Terrain[Tweakable::Terrain::Ambience].SetUpdated(m_ambience);
+    cache.Terrain[Tweakable::Terrain::Specularity].SetUpdated(m_specularity);
+    cache.Terrain[Tweakable::Terrain::MinHeight].SetUpdated(m_minHeight);
+    cache.Terrain[Tweakable::Terrain::MaxHeight].SetUpdated(m_maxHeight);
+    cache.Terrain[Tweakable::Terrain::Scale].SetUpdated(m_uvScale.x);
     cache.TerrainShader.SetUpdated(ShaderName());
 }
 
 void Terrain::Read(Cache& cache)
 {
-    m_causticsAmount = cache.Terrain[TERRAIN_CAUSTICS_AMOUNT].Get();
-    m_causticsScale = cache.Terrain[TERRAIN_CAUSTICS_SCALE].Get();
-    m_bump = cache.Terrain[TERRAIN_BUMP].Get();
-    m_specularity = cache.Terrain[TERRAIN_SPECULARITY].Get();
-    m_ambience = cache.Terrain[TERRAIN_AMBIENCE].Get();
-    m_minHeight = cache.Terrain[TERRAIN_MIN_HEIGHT].Get();
-    m_maxHeight = cache.Terrain[TERRAIN_MAX_HEIGHT].Get();
-    m_uvScale.x = m_uvScale.y = cache.Terrain[TERRAIN_SCALE].Get();
+    m_causticsAmount = cache.Terrain[Tweakable::Terrain::CausticsAmount].Get();
+    m_causticsScale = cache.Terrain[Tweakable::Terrain::CausticsScale].Get();
+    m_bump = cache.Terrain[Tweakable::Terrain::Bump].Get();
+    m_specularity = cache.Terrain[Tweakable::Terrain::Ambience].Get();
+    m_ambience = cache.Terrain[Tweakable::Terrain::Specularity].Get();
+    m_minHeight = cache.Terrain[Tweakable::Terrain::MinHeight].Get();
+    m_maxHeight = cache.Terrain[Tweakable::Terrain::MaxHeight].Get();
+    m_uvScale.x = m_uvScale.y = cache.Terrain[Tweakable::Terrain::Scale].Get();
 }
 
 bool Terrain::Initialise(float uvTextureStretch,

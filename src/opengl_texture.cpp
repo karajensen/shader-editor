@@ -116,15 +116,15 @@ void GlTexture::SetFiltering()
     const auto type = IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
     const auto filter = m_texture.Filtering();
-    const auto magFilter = filter == Texture::NEAREST ? GL_NEAREST : GL_LINEAR;
-    const auto minFilter = filter == Texture::NEAREST ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
+    const auto magFilter = filter == Texture::Nearest ? GL_NEAREST : GL_LINEAR;
+    const auto minFilter = filter == Texture::Nearest ? GL_NEAREST : GL_LINEAR_MIPMAP_LINEAR;
 
     glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(type, GL_TEXTURE_MIN_FILTER, minFilter);
     glTexParameteri(type, GL_TEXTURE_MAG_FILTER, magFilter);
 
-    if (filter == Texture::ANISOTROPIC)
+    if (filter == Texture::Anisotropic)
     {
         glTexParameterf(type, GL_TEXTURE_MAX_ANISOTROPY_EXT, 
             static_cast<float>(MAX_ANISOTROPY));
@@ -138,7 +138,7 @@ void GlTexture::SetFiltering()
 
 bool GlTexture::CreateMipMaps()
 {
-    if (m_texture.Filtering() != Texture::NEAREST)
+    if (m_texture.Filtering() != Texture::Nearest)
     {
         glGenerateMipmap(IsCubeMap() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 

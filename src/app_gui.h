@@ -6,6 +6,8 @@
 
 #include "cache.h"
 
+#include <functional>
+
 struct SceneData;
 class Scene;
 class RenderEngine;

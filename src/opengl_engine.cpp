@@ -505,8 +505,8 @@ void OpenglEngine::RenderPreEffects(const PostProcessing& post)
     EnableBackfaceCull(false);
     EnableAlphaBlending(false, false);
 
-    SetSelectedShader(PRE_SHADER);
-    auto& preShader = m_data->shaders[PRE_SHADER];
+    SetSelectedShader(ShaderIndex::Pre);
+    auto& preShader = m_data->shaders[ShaderIndex::Pre];
 
     preShader->SendUniformFloat("bloomStart", &post.BloomStart(), 1);
     preShader->SendUniformFloat("bloomFade", &post.BloomFade(), 1);
@@ -529,8 +529,8 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
     m_data->blurTarget.SetActive();
     m_data->blurTarget.SwitchTextures();
 
-    SetSelectedShader(BLUR_HORIZONTAL_SHADER);
-    auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
+    SetSelectedShader(ShaderIndex::BlurHorizontal);
+    auto& blurHorizontal = m_data->shaders[ShaderIndex::BlurHorizontal];
 
     blurHorizontal->SendUniformFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendTexture("SceneSampler", m_data->preEffectsTarget, SCENE_ID);
@@ -541,8 +541,8 @@ void OpenglEngine::RenderBlur(const PostProcessing& post)
 
     blurHorizontal->ClearTexture("SceneSampler", m_data->preEffectsTarget);
 
-    SetSelectedShader(BLUR_VERTICAL_SHADER);
-    auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
+    SetSelectedShader(ShaderIndex::BlurVertical);
+    auto& blurVertical = m_data->shaders[ShaderIndex::BlurVertical];
     
     blurVertical->SendUniformFloat("blurStep", &post.BlurStep(), 1);
     blurVertical->SendTexture("SceneSampler", m_data->blurTarget, BLUR_ID);
@@ -565,8 +565,8 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
 
     m_data->backBuffer.SetActive();
 
-    SetSelectedShader(POST_SHADER);
-    auto& postShader = m_data->shaders[POST_SHADER];
+    SetSelectedShader(ShaderIndex::Post);
+    auto& postShader = m_data->shaders[ShaderIndex::Post];
 
     postShader->SendUniformFloat("bloomIntensity", &post.BloomIntensity(), 1);
     postShader->SendUniformFloat("fadeAmount", &m_data->fadeAmount, 1);
@@ -580,13 +580,13 @@ void OpenglEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->SendUniformFloat("minimumColor", &post.MinColour().r, 3);
     postShader->SendUniformFloat("maximumColor", &post.MaxColour().r, 3);
 
-    postShader->SendUniformFloat("finalMask", &post.Mask(PostProcessing::FINAL_MAP), 1);
-    postShader->SendUniformFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
-    postShader->SendUniformFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
-    postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
-    postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
-    postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
+    postShader->SendUniformFloat("finalMask", &post.Mask(PostProcessing::Final), 1);
+    postShader->SendUniformFloat("sceneMask", &post.Mask(PostProcessing::Scene), 1);
+    postShader->SendUniformFloat("depthMask", &post.Mask(PostProcessing::Depth), 1);
+    postShader->SendUniformFloat("blurSceneMask", &post.Mask(PostProcessing::Blur), 1);
+    postShader->SendUniformFloat("depthOfFieldMask", &post.Mask(PostProcessing::Dof), 1);
+    postShader->SendUniformFloat("fogMask", &post.Mask(PostProcessing::Fog), 1);
+    postShader->SendUniformFloat("bloomMask", &post.Mask(PostProcessing::Bloom), 1);
 
     postShader->SendTexture("SceneSampler", m_data->preEffectsTarget, SCENE_ID);
     postShader->SendTexture("BlurSampler", m_data->blurTarget, BLUR_ID);
@@ -654,7 +654,7 @@ void OpenglEngine::UpdateShader(const glm::mat4& world, int texture)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->SendUniformMatrix("world", world);
-    SendTexture("DiffuseSampler", m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
+    SendTexture("DiffuseSampler", m_data->useDiffuseTextures ? texture : TextureIndex::BlankTexture);
 }
 
 bool OpenglEngine::UpdateShader(const MeshData& mesh,
@@ -675,7 +675,7 @@ bool OpenglEngine::UpdateShader(const MeshData& mesh,
             shader->SendUniformFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->SendUniformFloat("depthFar", &scene.Post().DepthFar(), 1);
 
-            if (index == WATER_SHADER)
+            if (index == ShaderIndex::Water)
             {
                 shader->SendUniformFloat("timer", &timer, 1);
             }
@@ -774,10 +774,10 @@ void OpenglEngine::SendLights(const std::vector<std::unique_ptr<Light>>& lights)
 void OpenglEngine::SendTextures(const std::vector<int>& textures)
 {
     auto& shader = m_data->shaders[m_data->selectedShader];
-    SendTexture("NormalSampler", textures[SLOT_NORMAL]);
-    SendTexture("SpecularSampler", textures[SLOT_SPECULAR]);
-    SendTexture("EnvironmentSampler", textures[SLOT_ENVIRONMENT]);
-    SendTexture("CausticsSampler", textures[SLOT_CAUSTICS]);
+    SendTexture("NormalSampler", textures[TextureSlot::Normal]);
+    SendTexture("SpecularSampler", textures[TextureSlot::Specular]);
+    SendTexture("EnvironmentSampler", textures[TextureSlot::Environment]);
+    SendTexture("CausticsSampler", textures[TextureSlot::Caustics]);
 }
 
 bool OpenglEngine::SendTexture(const std::string& sampler, int ID)

@@ -180,7 +180,7 @@ private:
     bool InitialiseTexture(const std::string& name, 
                            const std::string& path,
                            Texture::Type type,
-                           Texture::Filter filter = Texture::LINEAR);
+                           Texture::Filter filter = Texture::Linear);
 
     /**
     * Initialises a procedural texture

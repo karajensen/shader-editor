@@ -44,7 +44,7 @@ Texture::Filter Texture::Filtering() const
 
 bool Texture::IsCubeMap() const
 {
-    return m_type == CUBE;
+    return m_type == Type::Cube;
 }
 
 const std::vector<unsigned int>& Texture::Pixels() const

@@ -4,23 +4,13 @@
 
 #pragma once
 
-#include "qt/tweakable.h"
+#include "tweakable_enums.h"
 
 #include <thread>
 #include <array>
 #include <mutex>
-
-/**
-* GUI pages available
-*/
-enum GuiPage
-{
-    PAGE_SCENE,
-    PAGE_AREA,
-    PAGE_MESH,
-    PAGE_POST,
-    PAGE_NONE
-};
+#include <vector>
+#include <string>
 
 /**
 * Dual-way Lockable data for the cache which allows a 'setter' thread
@@ -52,9 +42,7 @@ public:
     /**
     * Destructor
     */
-    virtual ~Lockable()
-    {
-    }
+    virtual ~Lockable() = default;
 
     /**
     * Locks the thread to update the data
@@ -151,7 +139,7 @@ struct Cache
 {
     Cache() :
         ApplicationRunning(true),
-        PageSelected(PAGE_NONE),
+        PageSelected(Tweakable::GuiPage::None),
         ReloadScene(false),
         ReloadEngine(false),
         ReloadTerrain(false),
@@ -164,7 +152,7 @@ struct Cache
     {
     }
 
-    Lockable<GuiPage> PageSelected;     ///< Current page selected for the gui  
+    Lockable<int> PageSelected;         ///< Current page selected for the gui  
     Lockable<bool> ApplicationRunning;  ///< Whether the application is running          
     Lockable<bool> ReloadScene;         ///< Request to reload the scene
     Lockable<bool> ReloadEngine;        ///< Request to reload the engine
@@ -203,15 +191,15 @@ struct Cache
     LockableString ShaderAsm;           ///< Assembly for the selected shader
     LockableString CompileShader;       ///< Text to request to be compiled
 
-    std::array<Lockable<float>, CAMERA_ATTRIBUTES> Camera;      ///< Camera attributes
-    std::array<Lockable<float>, LIGHT_ATTRIBUTES> Light;        ///< Selected light attributes
-    std::array<Lockable<float>, POST_ATTRIBUTES> Post;          ///< Post processing attributes
-    std::array<Lockable<float>, MESH_ATTRIBUTES> Mesh;          ///< Selected mesh attributes
-    std::array<Lockable<float>, WATER_ATTRIBUTES> Water;        ///< Selected water attributes
-    std::array<Lockable<float>, WAVE_ATTRIBUTES> Wave;          ///< Wave attributes
-    std::array<Lockable<float>, EMITTER_ATTRIBUTES> Emitter;    ///< Emitter attributes
-    std::array<Lockable<float>, TERRAIN_ATTRIBUTES> Terrain;    ///< Terrain attributes
-    std::array<Lockable<float>, TEXTURE_ATTRIBUTES> Texture;    ///< Texture attributes
+    std::array<Lockable<float>, Tweakable::Camera::Max> Camera;    ///< Camera attributes
+    std::array<Lockable<float>, Tweakable::Light::Max> Light;      ///< Selected light attributes
+    std::array<Lockable<float>, Tweakable::Post::Max> Post;        ///< Post processing attributes
+    std::array<Lockable<float>, Tweakable::Mesh::Max> Mesh;        ///< Selected mesh attributes
+    std::array<Lockable<float>, Tweakable::Water::Max> Water;      ///< Selected water attributes
+    std::array<Lockable<float>, Tweakable::Wave::Max> Wave;        ///< Wave attributes
+    std::array<Lockable<float>, Tweakable::Emitter::Max> Emitter;  ///< Emitter attributes
+    std::array<Lockable<float>, Tweakable::Terrain::Max> Terrain;  ///< Terrain attributes
+    std::array<Lockable<float>, Tweakable::Texture::Max> Texture;  ///< Texture attributes
 
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines

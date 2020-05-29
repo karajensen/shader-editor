@@ -39,34 +39,34 @@ Shader::Component Shader::StringAsComponent(const std::string& component)
 {
     if (boost::iequals(component, "CAUSTICS"))
     {
-        return CAUSTICS;
+        return Caustics;
     }
     if (boost::iequals(component, "FLAT"))
     {
-        return FLAT;
+        return Flat;
     }
     if (boost::iequals(component, "BUMP"))
     {
-        return BUMP;
+        return Bump;
     }
     if (boost::iequals(component, "SPECULAR"))
     {
-        return SPECULAR;
+        return Specular;
     }
-    return NONE;
+    return None;
 }
 
 std::string Shader::ComponentAsString(unsigned int component)
 {
     switch (component)
     {
-    case CAUSTICS:
+    case Caustics:
         return "CAUSTICS";
-    case FLAT:
+    case Flat:
         return "FLAT";
-    case BUMP:
+    case Bump:
         return "BUMP";
-    case SPECULAR:
+    case Specular:
         return "SPECULAR";
     default:
         return "NONE";

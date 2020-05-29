@@ -45,19 +45,19 @@ void AppGui::Tick(RenderEngine& engine)
     UpdateShader(engine);
     switch (m_cache->PageSelected.Get())
     {
-    case PAGE_SCENE:
+    case Tweakable::GuiPage::Scene:
         UpdateScene(engine);
         break;
-    case PAGE_AREA:
+    case Tweakable::GuiPage::Area:
         UpdateTerrain(engine);
         UpdateTexture(engine);
         break;
-    case PAGE_MESH:
+    case Tweakable::GuiPage::Mesh:
         UpdateMesh();
         UpdateWater();
         UpdateEmitter();
         break;
-    case PAGE_POST:
+    case Tweakable::GuiPage::Post:
         UpdateLight();
         UpdatePost(engine);
         break;
@@ -163,15 +163,15 @@ void AppGui::UpdateScene(RenderEngine& engine)
 
 void AppGui::UpdateCamera()
 {
-    m_cache->Camera[CAMERA_POSITION_X].SetUpdated(m_camera.Position().x);
-    m_cache->Camera[CAMERA_POSITION_Y].SetUpdated(m_camera.Position().y);
-    m_cache->Camera[CAMERA_POSITION_Z].SetUpdated(m_camera.Position().z);
-    m_cache->Camera[CAMERA_PITCH].SetUpdated(m_camera.Rotation().x);
-    m_cache->Camera[CAMERA_YAW].SetUpdated(m_camera.Rotation().y);
-    m_cache->Camera[CAMERA_ROLL].SetUpdated(m_camera.Rotation().z);
+    m_cache->Camera[Tweakable::Camera::PositionX].SetUpdated(m_camera.Position().x);
+    m_cache->Camera[Tweakable::Camera::PositionY].SetUpdated(m_camera.Position().y);
+    m_cache->Camera[Tweakable::Camera::PositionZ].SetUpdated(m_camera.Position().z);
+    m_cache->Camera[Tweakable::Camera::Pitch].SetUpdated(m_camera.Rotation().x);
+    m_cache->Camera[Tweakable::Camera::Yaw].SetUpdated(m_camera.Rotation().y);
+    m_cache->Camera[Tweakable::Camera::Roll].SetUpdated(m_camera.Rotation().z);
 
-    m_camera.SetForwardSpeed(m_cache->Camera[CAMERA_FORWARD_SPD].Get());
-    m_camera.SetRotationSpeed(m_cache->Camera[CAMERA_ROTATION_SPD].Get());
+    m_camera.SetForwardSpeed(m_cache->Camera[Tweakable::Camera::ForwardSpd].Get());
+    m_camera.SetRotationSpeed(m_cache->Camera[Tweakable::Camera::RotationSpd].Get());
 }
 
 void AppGui::UpdateMesh()
@@ -314,7 +314,7 @@ void AppGui::UpdatePost(RenderEngine& engine)
     m_data.post->Read(*m_cache);
 
     m_data.caustics->SetSpeed(
-        m_cache->Post[POST_CAUSTIC_SPEED].Get());
+        m_cache->Post[Tweakable::Post::CausticSpeed].Get());
 
     if (m_cache->ToggleWireframe.Get())
     {
@@ -369,13 +369,13 @@ void AppGui::Initialise(const std::vector<std::string>& engineNames,
     m_cache->Textures.Set(GetTextureNames());
     m_cache->Terrains.Set(GetTerrainNames());
 
-    m_cache->Camera[CAMERA_FORWARD_SPD].SetUpdated(
+    m_cache->Camera[Tweakable::Camera::ForwardSpd].SetUpdated(
         m_camera.GetForwardSpeed());
 
-    m_cache->Camera[CAMERA_ROTATION_SPD].SetUpdated(
+    m_cache->Camera[Tweakable::Camera::RotationSpd].SetUpdated(
         m_camera.GetRotationSpeed());
 
-    m_cache->Post[POST_CAUSTIC_SPEED].SetUpdated(
+    m_cache->Post[Tweakable::Post::CausticSpeed].SetUpdated(
         m_data.caustics->GetSpeed());
 
     m_data.post->Write(*m_cache);
@@ -426,7 +426,7 @@ std::vector<std::string> AppGui::GetWaterNames() const
 std::vector<std::string> AppGui::GetPostMapNames() const
 {
     std::vector<std::string> maps;
-    for (int i = 0; i < PostProcessing::MAX_MAPS; ++i)
+    for (int i = 0; i < PostProcessing::Max; ++i)
     {
         maps.push_back(PostProcessing::GetMapName(
             static_cast<PostProcessing::Map>(i)));

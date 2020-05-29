@@ -128,7 +128,7 @@ public:
     * @param slot The type of texture to set
     * @param ID The ID of the texture to use
     */
-    void SetTexture(TextureSlot slot, int ID);
+    void SetTexture(TextureSlot::Slot slot, int ID);
 
     /**
     * @return a description of what instances are rendered

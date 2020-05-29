@@ -21,9 +21,9 @@ public:
     */
     enum Filter
     {
-        NEAREST,
-        LINEAR,
-        ANISOTROPIC
+        Nearest,
+        Linear,
+        Anisotropic
     };
 
     /**
@@ -31,9 +31,9 @@ public:
     */
     enum Type
     {
-        FROM_FILE,
-        CUBE,
-        PROCEDURAL
+        FromFile,
+        Cube,
+        Procedural
     };
 
     /**

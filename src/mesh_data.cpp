@@ -15,23 +15,23 @@ MeshData::MeshData(const std::string& name,
     , m_shaderName(shaderName)
     , m_shaderIndex(shaderID)
 {
-    m_textureIDs.resize(MAX_SLOTS);
-    m_textureIDs.assign(MAX_SLOTS, -1);
+    m_textureIDs.resize(TextureSlot::Max);
+    m_textureIDs.assign(TextureSlot::Max, -1);
 }
 
 std::string MeshData::GetTypeDescription(unsigned int type)
 {
     switch (type)
     {
-    case SLOT_DIFFUSE:
+    case TextureSlot::Diffuse:
         return "DiffuseMap";
-    case SLOT_NORMAL:
+    case TextureSlot::Normal:
         return "NormalMap";
-    case SLOT_SPECULAR:
+    case TextureSlot::Specular:
         return "SpecularMap";
-    case SLOT_ENVIRONMENT:
+    case TextureSlot::Environment:
         return "EnvironmentMap";
-    case SLOT_CAUSTICS:
+    case TextureSlot::Caustics:
         return "CausticsMap";
     default:
         return "None";
@@ -94,11 +94,11 @@ int MeshData::VertexComponentCount() const
     return m_vertexComponentCount;
 }
 
-void MeshData::SetTexture(TextureSlot slot, int ID)
+void MeshData::SetTexture(TextureSlot::Slot slot, int ID)
 {
     m_textureIDs[slot] = ID;
 
-    if (slot == SLOT_DIFFUSE)
+    if (slot == TextureSlot::Diffuse)
     {
         m_colourIDs.push_back(ID);
     }
@@ -150,7 +150,7 @@ void MeshData::Tick(const Float3& cameraPosition,
 {
     if (UsesCaustics())
     {
-        SetTexture(SLOT_CAUSTICS, causticsTexture);
+        SetTexture(TextureSlot::Caustics, causticsTexture);
     }
    
     m_visibleInstances = 0;
@@ -178,7 +178,7 @@ void MeshData::Tick(const Float3& cameraPosition,
 
 bool MeshData::UsesCaustics() const
 {
-    return m_textureIDs[SLOT_CAUSTICS] != -1;   
+    return m_textureIDs[TextureSlot::Caustics] != -1;
 }
 
 std::string MeshData::GetRenderedInstances() const

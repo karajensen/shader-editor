@@ -124,14 +124,14 @@ private:
     */
     enum FadeState
     {
-        FADE_IN,
-        FADE_OUT,
-        NO_FADE
+        FadeIn,
+        FadeOut,
+        FadeNone
     };
 
 private:
 
-    FadeState m_fadeState = FADE_IN;       ///< Current state of fading in/out the selected engine
+    FadeState m_fadeState = FadeNone;      ///< Current state of fading in/out the selected engine
     Float2 m_mouseDirection;               ///< Direction of movement for the mouse
     Float2 m_mousePosition;                ///< 2D coordinates of the mouse
     bool m_mousePressed = false;           ///< Whether the mouse is held down or not

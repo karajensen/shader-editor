@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "qt/tweakable.h"
-
 #include <QObject>
 
 /**

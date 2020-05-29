@@ -12,38 +12,38 @@ Light::Light(const std::string& name)
 
 void Light::Write(Cache& cache)
 {
-    cache.Light[LIGHT_POSITION_X].SetUpdated(m_position.x);
-    cache.Light[LIGHT_POSITION_Y].SetUpdated(m_position.y);
-    cache.Light[LIGHT_POSITION_Z].SetUpdated(m_position.z);
-    cache.Light[LIGHT_ATTENUATION_X].SetUpdated(m_attenuation.x);
-    cache.Light[LIGHT_ATTENUATION_Y].SetUpdated(m_attenuation.y);
-    cache.Light[LIGHT_ATTENUATION_Z].SetUpdated(m_attenuation.z);
-    cache.Light[LIGHT_DIFFUSE_R].SetUpdated(m_diffuse.r);
-    cache.Light[LIGHT_DIFFUSE_G].SetUpdated(m_diffuse.g);
-    cache.Light[LIGHT_DIFFUSE_B].SetUpdated(m_diffuse.b);
-    cache.Light[LIGHT_SPECULAR_R].SetUpdated(m_specular.r);
-    cache.Light[LIGHT_SPECULAR_G].SetUpdated(m_specular.g);
-    cache.Light[LIGHT_SPECULAR_B].SetUpdated(m_specular.b);
-    cache.Light[LIGHT_SPECULARITY].SetUpdated(m_specularity);
-    cache.Light[LIGHT_ACTIVE].SetUpdated(m_active);
+    cache.Light[Tweakable::Light::PositionX].SetUpdated(m_position.x);
+    cache.Light[Tweakable::Light::PositionY].SetUpdated(m_position.y);
+    cache.Light[Tweakable::Light::PositionZ].SetUpdated(m_position.z);
+    cache.Light[Tweakable::Light::AttenuationX].SetUpdated(m_attenuation.x);
+    cache.Light[Tweakable::Light::AttenuationY].SetUpdated(m_attenuation.y);
+    cache.Light[Tweakable::Light::AttenuationZ].SetUpdated(m_attenuation.z);
+    cache.Light[Tweakable::Light::DiffuseR].SetUpdated(m_diffuse.r);
+    cache.Light[Tweakable::Light::DiffuseG].SetUpdated(m_diffuse.g);
+    cache.Light[Tweakable::Light::DiffuseB].SetUpdated(m_diffuse.b);
+    cache.Light[Tweakable::Light::SpecularR].SetUpdated(m_specular.r);
+    cache.Light[Tweakable::Light::SpecularG].SetUpdated(m_specular.g);
+    cache.Light[Tweakable::Light::SpecularB].SetUpdated(m_specular.b);
+    cache.Light[Tweakable::Light::Specularity].SetUpdated(m_specularity);
+    cache.Light[Tweakable::Light::Active].SetUpdated(m_active);
 }
 
 void Light::Read(Cache& cache)
 {
-    m_position.x = cache.Light[LIGHT_POSITION_X].Get();
-    m_position.y = cache.Light[LIGHT_POSITION_Y].Get();
-    m_position.z = cache.Light[LIGHT_POSITION_Z].Get();
-    m_attenuation.x = cache.Light[LIGHT_ATTENUATION_X].Get();
-    m_attenuation.y = cache.Light[LIGHT_ATTENUATION_Y].Get();
-    m_attenuation.z = cache.Light[LIGHT_ATTENUATION_Z].Get();
-    m_diffuse.r = cache.Light[LIGHT_DIFFUSE_R].Get();
-    m_diffuse.g = cache.Light[LIGHT_DIFFUSE_G].Get();
-    m_diffuse.b = cache.Light[LIGHT_DIFFUSE_B].Get();
-    m_specular.r = cache.Light[LIGHT_SPECULAR_R].Get();
-    m_specular.g = cache.Light[LIGHT_SPECULAR_G].Get();
-    m_specular.b = cache.Light[LIGHT_SPECULAR_B].Get();
-    m_specularity = cache.Light[LIGHT_SPECULARITY].Get();
-    m_active = cache.Light[LIGHT_ACTIVE].Get();
+    m_position.x = cache.Light[Tweakable::Light::PositionX].Get();
+    m_position.y = cache.Light[Tweakable::Light::PositionY].Get();
+    m_position.z = cache.Light[Tweakable::Light::PositionZ].Get();
+    m_attenuation.x = cache.Light[Tweakable::Light::AttenuationX].Get();
+    m_attenuation.y = cache.Light[Tweakable::Light::AttenuationY].Get();
+    m_attenuation.z = cache.Light[Tweakable::Light::AttenuationZ].Get();
+    m_diffuse.r = cache.Light[Tweakable::Light::DiffuseR].Get();
+    m_diffuse.g = cache.Light[Tweakable::Light::DiffuseG].Get();
+    m_diffuse.b = cache.Light[Tweakable::Light::DiffuseB].Get();
+    m_specular.r = cache.Light[Tweakable::Light::SpecularR].Get();
+    m_specular.g = cache.Light[Tweakable::Light::SpecularG].Get();
+    m_specular.b = cache.Light[Tweakable::Light::SpecularB].Get();
+    m_specularity = cache.Light[Tweakable::Light::Specularity].Get();
+    m_active = cache.Light[Tweakable::Light::Active].Get();
 }
 
 const std::string& Light::Name() const

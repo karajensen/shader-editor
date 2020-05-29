@@ -18,26 +18,32 @@
 /**
 * Draw states available for rendering
 */
-enum RasterizerState
+namespace Rasterizer
 {
-    NO_STATE,
-    BACKFACE_CULL,
-    BACKFACE_CULL_WIRE,
-    NO_CULL,
-    NO_CULL_WIRE,
-    MAX_DRAW_STATES
-};
+    enum State
+    {
+        None,
+        BackfaceCull,
+        BackfaceCullWire,
+        NoCull,
+        NoCullWire,
+        Max
+    };
+}
 
 /**
 * Samplers states available for textures
 */
-enum SamplerState
+namespace Sampler
 {
-    NEAREST,
-    LINEAR,
-    ANISOTROPIC,
-    MAX_SAMPLER_STATES,
-};
+    enum State
+    {
+        Nearest,
+        Linear,
+        Anisotropic,
+        Max
+    };
+}
 
 /**
 * Internal data for the directx rendering engine
@@ -63,7 +69,7 @@ struct DirectxData
     ID3D11Debug* debug = nullptr;                    ///< Direct3D debug interface, only created in debug
     std::vector<ID3D11RasterizerState*> drawStates;  ///< Rasterizer states
     std::vector<ID3D11SamplerState*> samplers;       ///< Texture sampler states
-    RasterizerState drawState;                       ///< The current state of the rasterizer
+    Rasterizer::State drawState;                     ///< The current state of the rasterizer
 
     DxQuad quad;                         ///< Quad to render the final post processed scene onto
     DxRenderTarget backBuffer;           ///< Render target for the back buffer
@@ -99,13 +105,13 @@ DirectxData::DirectxData()
     , preEffectsTarget("PreEffectsTarget", EFFECTS_TEXTURES, false)
     , backBuffer("BackBuffer")
     , quad("SceneQuad")
-    , drawState(NO_STATE)
+    , drawState(Rasterizer::None)
 {
-    samplers.resize(MAX_SAMPLER_STATES);
-    samplers.assign(MAX_SAMPLER_STATES, nullptr);
+    samplers.resize(Sampler::Max);
+    samplers.assign(Sampler::Max, nullptr);
 
-    drawStates.resize(MAX_DRAW_STATES);
-    drawStates.assign(MAX_DRAW_STATES, nullptr);
+    drawStates.resize(Rasterizer::Max);
+    drawStates.assign(Rasterizer::Max, nullptr);
 }
 
 DirectxData::~DirectxData()
@@ -247,16 +253,16 @@ bool DirectxEngine::Initialize()
     // Create the render targets. Back buffer must be initialised first.
     m_data->sceneTarget.SetHighQuality(DEPTH_ID); // Required for DOF
     if (!m_data->backBuffer.Initialise(m_data->device, m_data->swapchain) ||
-        !m_data->sceneTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
-        !m_data->preEffectsTarget.Initialise(m_data->device, m_data->samplers[LINEAR]) ||
-        !m_data->blurTarget.Initialise(m_data->device, m_data->samplers[LINEAR]))
+        !m_data->sceneTarget.Initialise(m_data->device, m_data->samplers[Sampler::Linear]) ||
+        !m_data->preEffectsTarget.Initialise(m_data->device, m_data->samplers[Sampler::Linear]) ||
+        !m_data->blurTarget.Initialise(m_data->device, m_data->samplers[Sampler::Linear]))
     {
         Logger::LogError("DirectX: Failed to create render targets");
         return false;
     }
 
     // Setup the directX environment
-    m_data->drawState = NO_STATE;
+    m_data->drawState = Rasterizer::None;
     m_data->isAlphaBlend = true;
     m_data->isBlendMultiply = true;
     m_data->isDepthWrite = false;
@@ -389,7 +395,7 @@ bool DirectxEngine::InitialiseSamplerStates()
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
     if(FAILED(m_data->device->CreateSamplerState(
-        &samplerDesc, &m_data->samplers[ANISOTROPIC])))
+        &samplerDesc, &m_data->samplers[Sampler::Anisotropic])))
     {
         Logger::LogError("Failed to create anisotropic texture sampler");
         return false;
@@ -398,7 +404,7 @@ bool DirectxEngine::InitialiseSamplerStates()
     samplerDesc.MaxAnisotropy = 0;
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     if(FAILED(m_data->device->CreateSamplerState(
-        &samplerDesc, &m_data->samplers[LINEAR])))
+        &samplerDesc, &m_data->samplers[Sampler::Linear])))
     {
         Logger::LogError("Failed to create linear texture sampler");
         return false;
@@ -406,7 +412,7 @@ bool DirectxEngine::InitialiseSamplerStates()
 
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     if(FAILED(m_data->device->CreateSamplerState(
-        &samplerDesc, &m_data->samplers[NEAREST])))
+        &samplerDesc, &m_data->samplers[Sampler::Nearest])))
     {
         Logger::LogError("Failed to create nearest texture sampler");
         return false;
@@ -430,7 +436,7 @@ bool DirectxEngine::InitialiseDrawStates()
     rasterDesc.CullMode = D3D11_CULL_FRONT; // for Maya vert winding order
 
     if(FAILED(m_data->device->CreateRasterizerState(
-        &rasterDesc, &m_data->drawStates[BACKFACE_CULL])))
+        &rasterDesc, &m_data->drawStates[Rasterizer::BackfaceCull])))
     {
         Logger::LogError("DirectX: Failed to create cull rasterizer state");
         return false;
@@ -438,7 +444,7 @@ bool DirectxEngine::InitialiseDrawStates()
 
     rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
     if(FAILED(m_data->device->CreateRasterizerState(
-        &rasterDesc, &m_data->drawStates[BACKFACE_CULL_WIRE])))
+        &rasterDesc, &m_data->drawStates[Rasterizer::BackfaceCullWire])))
     {
         Logger::LogError("DirectX: Failed to create cull wire rasterizer state");
         return false;
@@ -446,7 +452,7 @@ bool DirectxEngine::InitialiseDrawStates()
 
     rasterDesc.CullMode = D3D11_CULL_NONE;
     if (FAILED(m_data->device->CreateRasterizerState(
-        &rasterDesc, &m_data->drawStates[NO_CULL_WIRE])))
+        &rasterDesc, &m_data->drawStates[Rasterizer::NoCullWire])))
     {
         Logger::LogError("DirectX: Failed to create no cull wire rasterizer state");
         return false;
@@ -454,16 +460,16 @@ bool DirectxEngine::InitialiseDrawStates()
 
     rasterDesc.FillMode = D3D11_FILL_SOLID;
     if (FAILED(m_data->device->CreateRasterizerState(
-        &rasterDesc, &m_data->drawStates[NO_CULL])))
+        &rasterDesc, &m_data->drawStates[Rasterizer::NoCull])))
     {
         Logger::LogError("DirectX: Failed to create no cull rasterizer state");
         return false;
     }
 
-    SetDebugName(m_data->drawStates[BACKFACE_CULL], "BACKFACE_CULL");
-    SetDebugName(m_data->drawStates[BACKFACE_CULL_WIRE], "BACKFACE_CULL_WIRE");
-    SetDebugName(m_data->drawStates[NO_CULL], "NO_CULL");
-    SetDebugName(m_data->drawStates[NO_CULL_WIRE], "NO_CULL_WIRE");
+    SetDebugName(m_data->drawStates[Rasterizer::BackfaceCull], "BackfaceCull");
+    SetDebugName(m_data->drawStates[Rasterizer::BackfaceCullWire], "BackfaceCullWire");
+    SetDebugName(m_data->drawStates[Rasterizer::NoCull], "NoCull");
+    SetDebugName(m_data->drawStates[Rasterizer::NoCullWire], "NoCullWire");
     return true;
 }
 
@@ -699,8 +705,8 @@ void DirectxEngine::RenderPreEffects(const PostProcessing& post)
 
     m_data->preEffectsTarget.SetActive(m_data->context);
 
-    SetSelectedShader(PRE_SHADER);
-    auto& preShader = m_data->shaders[PRE_SHADER];
+    SetSelectedShader(ShaderIndex::Pre);
+    auto& preShader = m_data->shaders[ShaderIndex::Pre];
     
     preShader->UpdateConstantFloat("bloomStart", &post.BloomStart(), 1);
     preShader->UpdateConstantFloat("bloomFade", &post.BloomFade(), 1);
@@ -720,8 +726,8 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     m_data->blurTarget.SetActive(m_data->context);
 
-    SetSelectedShader(BLUR_HORIZONTAL_SHADER);
-    auto& blurHorizontal = m_data->shaders[BLUR_HORIZONTAL_SHADER];
+    SetSelectedShader(ShaderIndex::BlurHorizontal);
+    auto& blurHorizontal = m_data->shaders[ShaderIndex::BlurHorizontal];
 
     blurHorizontal->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurHorizontal->SendConstants(m_data->context);
@@ -732,8 +738,8 @@ void DirectxEngine::RenderBlur(const PostProcessing& post)
 
     blurHorizontal->ClearTexture(m_data->context, 0);
 
-    SetSelectedShader(BLUR_VERTICAL_SHADER);
-    auto& blurVertical = m_data->shaders[BLUR_VERTICAL_SHADER];
+    SetSelectedShader(ShaderIndex::BlurVertical);
+    auto& blurVertical = m_data->shaders[ShaderIndex::BlurVertical];
 
     blurVertical->UpdateConstantFloat("blurStep", &post.BlurStep(), 1);
     blurVertical->SendConstants(m_data->context);
@@ -754,8 +760,8 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     SetRenderState(false, false);
     EnableAlphaBlending(false, false);
 
-    SetSelectedShader(POST_SHADER);
-    auto& postShader = m_data->shaders[POST_SHADER];
+    SetSelectedShader(ShaderIndex::Post);
+    auto& postShader = m_data->shaders[ShaderIndex::Post];
 
     m_data->backBuffer.SetActive(m_data->context);
 
@@ -775,13 +781,13 @@ void DirectxEngine::RenderPostProcessing(const PostProcessing& post)
     postShader->UpdateConstantFloat("minimumColor", &post.MinColour().r, 3);
     postShader->UpdateConstantFloat("maximumColor", &post.MaxColour().r, 3);
 
-    postShader->UpdateConstantFloat("finalMask", &post.Mask(PostProcessing::FINAL_MAP), 1);
-    postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::SCENE_MAP), 1);
-    postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::DEPTH_MAP), 1);
-    postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::BLUR_MAP), 1);
-    postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::DOF_MAP), 1);
-    postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::FOG_MAP), 1);
-    postShader->UpdateConstantFloat("bloomMask", &post.Mask(PostProcessing::BLOOM_MAP), 1);
+    postShader->UpdateConstantFloat("finalMask", &post.Mask(PostProcessing::Final), 1);
+    postShader->UpdateConstantFloat("sceneMask", &post.Mask(PostProcessing::Scene), 1);
+    postShader->UpdateConstantFloat("depthMask", &post.Mask(PostProcessing::Depth), 1);
+    postShader->UpdateConstantFloat("blurSceneMask", &post.Mask(PostProcessing::Blur), 1);
+    postShader->UpdateConstantFloat("depthOfFieldMask", &post.Mask(PostProcessing::Dof), 1);
+    postShader->UpdateConstantFloat("fogMask", &post.Mask(PostProcessing::Fog), 1);
+    postShader->UpdateConstantFloat("bloomMask", &post.Mask(PostProcessing::Bloom), 1);
 
     postShader->SendConstants(m_data->context);
     m_data->quad.Render(m_data->context);
@@ -796,7 +802,7 @@ void DirectxEngine::UpdateShader(const D3DXMATRIX& world, int texture)
     auto& shader = m_data->shaders[m_data->selectedShader];
     shader->UpdateConstantMatrix("world", world);
     shader->SendConstants(m_data->context);
-    SendTexture(0, m_data->useDiffuseTextures ? texture : BLANK_TEXTURE_ID);
+    SendTexture(0, m_data->useDiffuseTextures ? texture : TextureIndex::BlankTexture);
 }
 
 bool DirectxEngine::UpdateShader(const MeshData& quad)
@@ -836,7 +842,7 @@ bool DirectxEngine::UpdateShader(const MeshData& mesh,
             shader->UpdateConstantFloat("depthNear", &scene.Post().DepthNear(), 1);
             shader->UpdateConstantFloat("depthFar", &scene.Post().DepthFar(), 1);
 
-            if (index == WATER_SHADER)
+            if (index == ShaderIndex::Water)
             {
                 shader->UpdateConstantFloat("timer", &timer, 1);
             }
@@ -966,10 +972,10 @@ void DirectxEngine::SendTextures(const std::vector<int>& textures)
 {
     int slot = 1;
     auto& shader = m_data->shaders[m_data->selectedShader];
-    slot += SendTexture(slot, textures[SLOT_NORMAL]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_SPECULAR]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_ENVIRONMENT]) ? 1 : 0;
-    slot += SendTexture(slot, textures[SLOT_CAUSTICS]) ? 1 : 0;
+    slot += SendTexture(slot, textures[TextureSlot::Normal]) ? 1 : 0;
+    slot += SendTexture(slot, textures[TextureSlot::Specular]) ? 1 : 0;
+    slot += SendTexture(slot, textures[TextureSlot::Environment]) ? 1 : 0;
+    slot += SendTexture(slot, textures[TextureSlot::Caustics]) ? 1 : 0;
 }
 
 bool DirectxEngine::SendTexture(int slot, int ID)
@@ -979,14 +985,14 @@ bool DirectxEngine::SendTexture(int slot, int ID)
     {
         auto& texture = m_data->textures[ID];
 
-        SamplerState state = NEAREST;
+        Sampler::State state = Sampler::Nearest;
         switch (texture->Filtering())
         {
-        case Texture::LINEAR:
-            state = LINEAR;
+        case Texture::Linear:
+            state = Sampler::Linear;
             break;
-        case Texture::ANISOTROPIC:
-            state = ANISOTROPIC;
+        case Texture::Anisotropic:
+            state = Sampler::Anisotropic;
             break;
         }
 
@@ -1103,9 +1109,9 @@ void DirectxEngine::EnableAlphaBlending(bool enable, bool multiply)
 
 void DirectxEngine::SetRenderState(bool cull, bool wireframe)
 {
-    const RasterizerState state = cull ?
-        (wireframe ? BACKFACE_CULL_WIRE : BACKFACE_CULL) :
-        (wireframe ? NO_CULL_WIRE : NO_CULL);
+    const Rasterizer::State state = cull ?
+        (wireframe ? Rasterizer::BackfaceCullWire : Rasterizer::BackfaceCull) :
+        (wireframe ? Rasterizer::NoCullWire : Rasterizer::NoCull);
 
     if (m_data->drawState != state)
     {

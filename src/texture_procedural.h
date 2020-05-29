@@ -18,8 +18,8 @@ public:
     */
     enum Generation
     {
-        PERLIN_NOISE_ROCK,
-        FROM_FILE
+        PerlinNoiseRock,
+        FromFile
     };
 
     /**

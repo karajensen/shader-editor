@@ -20,7 +20,7 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
                                      const std::string& path,
                                      int size,
                                      Generation generation)
-    : Texture(name, path, PROCEDURAL, NEAREST)
+    : Texture(name, path, Type::Procedural, Filter::Nearest)
     , m_generation(generation)
 {
     m_size = size;
@@ -33,7 +33,7 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
 
     switch (m_generation)
     {
-    case PERLIN_NOISE_ROCK:
+    case PerlinNoiseRock:
         m_scale = 3.0f;
         m_iterations = 6;
         m_amplitude = 1.0f;
@@ -51,7 +51,7 @@ bool ProceduralTexture::IsRenderable() const
 
 void ProceduralTexture::Reload()
 {
-    if (m_generation != FROM_FILE)
+    if (m_generation != FromFile)
     {
         Generate();
     }
@@ -74,7 +74,7 @@ bool ProceduralTexture::HasPixels() const
 
 void ProceduralTexture::Save()
 {
-    if (m_generation == FROM_FILE)
+    if (m_generation == FromFile)
     {
         return;
     }
@@ -103,19 +103,19 @@ void ProceduralTexture::Save()
 void ProceduralTexture::Write(Cache& cache)
 {
     Texture::Write(cache);
-    cache.Texture[TEXTURE_CONTRAST].SetUpdated(m_contrast);
-    cache.Texture[TEXTURE_AMPLITUDE].SetUpdated(m_amplitude);
-    cache.Texture[TEXTURE_SCALE].SetUpdated(m_scale);
-    cache.Texture[TEXTURE_ITERATIONS].SetUpdated(static_cast<float>(m_iterations));
+    cache.Texture[Tweakable::Texture::Contrast].SetUpdated(m_contrast);
+    cache.Texture[Tweakable::Texture::Amplitude].SetUpdated(m_amplitude);
+    cache.Texture[Tweakable::Texture::Scale].SetUpdated(m_scale);
+    cache.Texture[Tweakable::Texture::Iterations].SetUpdated(static_cast<float>(m_iterations));
 }
 
 void ProceduralTexture::Read(Cache& cache)
 {
     Texture::Read(cache);
-    m_contrast = cache.Texture[TEXTURE_CONTRAST].Get();
-    m_amplitude = cache.Texture[TEXTURE_AMPLITUDE].Get();
-    m_scale = cache.Texture[TEXTURE_SCALE].Get();
-    m_iterations = static_cast<int>(cache.Texture[TEXTURE_ITERATIONS].Get());
+    m_contrast = cache.Texture[Tweakable::Texture::Contrast].Get();
+    m_amplitude = cache.Texture[Tweakable::Texture::Amplitude].Get();
+    m_scale = cache.Texture[Tweakable::Texture::Scale].Get();
+    m_iterations = static_cast<int>(cache.Texture[Tweakable::Texture::Iterations].Get());
 }
 
 void ProceduralTexture::SetRed(unsigned int index, int value)
@@ -268,10 +268,10 @@ void ProceduralTexture::Generate()
 {
     switch (m_generation)
     {
-    case FROM_FILE:
+    case Generation::FromFile:
         MakeFromFile();
         break;
-    case PERLIN_NOISE_ROCK:
+    case Generation::PerlinNoiseRock:
         MakePerlinNoiseRock();
         break;
     }

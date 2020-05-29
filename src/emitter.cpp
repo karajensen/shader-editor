@@ -49,64 +49,64 @@ Emitter::Emitter(const std::string& name, int shaderID)
 
 void Emitter::Write(Cache& cache)
 {
-    cache.Emitter[EMITTER_LENGTH].SetUpdated(m_data.length);
-    cache.Emitter[EMITTER_WIDTH].SetUpdated(m_data.width);
-    cache.Emitter[EMITTER_DIR_X].SetUpdated(m_data.direction.x);
-    cache.Emitter[EMITTER_DIR_Y].SetUpdated(m_data.direction.y);
-    cache.Emitter[EMITTER_DIR_Z].SetUpdated(m_data.direction.z);
-    cache.Emitter[EMITTER_LIFETIME].SetUpdated(m_data.lifeTime);
-    cache.Emitter[EMITTER_LIFEFADE].SetUpdated(m_data.lifeFade);
-    cache.Emitter[EMITTER_TINT_R].SetUpdated(m_data.tint.r);
-    cache.Emitter[EMITTER_TINT_G].SetUpdated(m_data.tint.g);
-    cache.Emitter[EMITTER_TINT_B].SetUpdated(m_data.tint.b);
-    cache.Emitter[EMITTER_MAX_SPEED].SetUpdated(m_data.maxSpeed);
-    cache.Emitter[EMITTER_MIN_SPEED].SetUpdated(m_data.minSpeed);
-    cache.Emitter[EMITTER_MAX_SIZE].SetUpdated(m_data.maxSize);
-    cache.Emitter[EMITTER_MIN_SIZE].SetUpdated(m_data.minSize);
-    cache.Emitter[EMITTER_MAX_FREQ].SetUpdated(m_data.maxFrequency);
-    cache.Emitter[EMITTER_MIN_FREQ].SetUpdated(m_data.minFrequency);
-    cache.Emitter[EMITTER_MAX_AMP].SetUpdated(m_data.maxAmplitude);
-    cache.Emitter[EMITTER_MIN_AMP].SetUpdated(m_data.minAmplitude);
-    cache.Emitter[EMITTER_MAX_WAIT].SetUpdated(m_data.minWaitTime);
-    cache.Emitter[EMITTER_MIN_WAIT].SetUpdated(m_data.maxWaitTime);
+    cache.Emitter[Tweakable::Emitter::Length].SetUpdated(m_data.length);
+    cache.Emitter[Tweakable::Emitter::Width].SetUpdated(m_data.width);
+    cache.Emitter[Tweakable::Emitter::DirX].SetUpdated(m_data.direction.x);
+    cache.Emitter[Tweakable::Emitter::DirY].SetUpdated(m_data.direction.y);
+    cache.Emitter[Tweakable::Emitter::DirZ].SetUpdated(m_data.direction.z);
+    cache.Emitter[Tweakable::Emitter::LifeTime].SetUpdated(m_data.lifeTime);
+    cache.Emitter[Tweakable::Emitter::LifeFade].SetUpdated(m_data.lifeFade);
+    cache.Emitter[Tweakable::Emitter::TintR].SetUpdated(m_data.tint.r);
+    cache.Emitter[Tweakable::Emitter::TintG].SetUpdated(m_data.tint.g);
+    cache.Emitter[Tweakable::Emitter::TintB].SetUpdated(m_data.tint.b);
+    cache.Emitter[Tweakable::Emitter::MaxSpeed].SetUpdated(m_data.maxSpeed);
+    cache.Emitter[Tweakable::Emitter::MinSpeed].SetUpdated(m_data.minSpeed);
+    cache.Emitter[Tweakable::Emitter::MaxSize].SetUpdated(m_data.maxSize);
+    cache.Emitter[Tweakable::Emitter::MinSize].SetUpdated(m_data.minSize);
+    cache.Emitter[Tweakable::Emitter::MaxFreq].SetUpdated(m_data.maxFrequency);
+    cache.Emitter[Tweakable::Emitter::MinFreq].SetUpdated(m_data.minFrequency);
+    cache.Emitter[Tweakable::Emitter::MaxAmp].SetUpdated(m_data.maxAmplitude);
+    cache.Emitter[Tweakable::Emitter::MinAmp].SetUpdated(m_data.minAmplitude);
+    cache.Emitter[Tweakable::Emitter::MaxWait].SetUpdated(m_data.minWaitTime);
+    cache.Emitter[Tweakable::Emitter::MinWait].SetUpdated(m_data.maxWaitTime);
 }
 
 void Emitter::Read(Cache& cache)
 {
-    m_data.length = cache.Emitter[EMITTER_LENGTH].Get();
-    m_data.width = cache.Emitter[EMITTER_WIDTH].Get();
-    m_data.direction.x = cache.Emitter[EMITTER_DIR_X].Get();
-    m_data.direction.y = cache.Emitter[EMITTER_DIR_Y].Get();
-    m_data.direction.z = cache.Emitter[EMITTER_DIR_Z].Get();
-    m_data.lifeTime = cache.Emitter[EMITTER_LIFETIME].Get();
-    m_data.lifeFade = cache.Emitter[EMITTER_LIFEFADE].Get();
-    m_data.tint.r = cache.Emitter[EMITTER_TINT_R].Get();
-    m_data.tint.g = cache.Emitter[EMITTER_TINT_G].Get();
-    m_data.tint.b = cache.Emitter[EMITTER_TINT_B].Get();
+    m_data.length = cache.Emitter[Tweakable::Emitter::Length].Get();
+    m_data.width = cache.Emitter[Tweakable::Emitter::Width].Get();
+    m_data.direction.x = cache.Emitter[Tweakable::Emitter::DirX].Get();
+    m_data.direction.y = cache.Emitter[Tweakable::Emitter::DirY].Get();
+    m_data.direction.z = cache.Emitter[Tweakable::Emitter::DirZ].Get();
+    m_data.lifeTime = cache.Emitter[Tweakable::Emitter::LifeTime].Get();
+    m_data.lifeFade = cache.Emitter[Tweakable::Emitter::LifeFade].Get();
+    m_data.tint.r = cache.Emitter[Tweakable::Emitter::TintR].Get();
+    m_data.tint.g = cache.Emitter[Tweakable::Emitter::TintG].Get();
+    m_data.tint.b = cache.Emitter[Tweakable::Emitter::TintB].Get();
 
     RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_SIZE],
-        cache.Emitter[EMITTER_MAX_SIZE],
+        cache.Emitter[Tweakable::Emitter::MinSize],
+        cache.Emitter[Tweakable::Emitter::MaxSize],
         m_data.minSize, m_data.maxSize, true);
 
     RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_SPEED],
-        cache.Emitter[EMITTER_MAX_SPEED],
+        cache.Emitter[Tweakable::Emitter::MinSpeed],
+        cache.Emitter[Tweakable::Emitter::MaxSpeed],
         m_data.minSpeed, m_data.maxSpeed);
 
     RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_AMP],
-        cache.Emitter[EMITTER_MAX_AMP],
+        cache.Emitter[Tweakable::Emitter::MinAmp],
+        cache.Emitter[Tweakable::Emitter::MaxAmp],
         m_data.minAmplitude, m_data.maxAmplitude);
 
     RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_FREQ],
-        cache.Emitter[EMITTER_MAX_FREQ],
+        cache.Emitter[Tweakable::Emitter::MinFreq],
+        cache.Emitter[Tweakable::Emitter::MaxFreq],
         m_data.minFrequency, m_data.maxFrequency);
 
     RestrictMinMax(
-        cache.Emitter[EMITTER_MIN_WAIT],
-        cache.Emitter[EMITTER_MAX_WAIT],
+        cache.Emitter[Tweakable::Emitter::MinWait],
+        cache.Emitter[Tweakable::Emitter::MaxWait],
         m_data.minWaitTime, m_data.maxWaitTime);
 }
 

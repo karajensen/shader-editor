@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "tweakable.h"
+#include "tweakable_enums.h"
 
 #include <QObject>
 
 #include <unordered_map>
 
 /**
-* Allows run time editing of the scene
+* Allows run-time editing of the scene
 */
 class TweakerModel : public QObject
 {
@@ -23,7 +23,7 @@ public:
     * Constructor
     * @param callbacks Functions called when a tweakable value emits a signal
     */
-    explicit TweakerModel(SignalCallbacks& callbacks, QObject* parent = nullptr);
+    explicit TweakerModel(QObject* parent = nullptr);
 
     /**
     * Sets the readonly tweak entry
@@ -42,63 +42,63 @@ public:
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetTerrain(TerrainAttribute attribute, float value);
+    void SetTerrain(Tweakable::Terrain::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of post processing
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetPost(PostAttribute attribute, float value);
+    void SetPost(Tweakable::Post::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a light
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetLight(LightAttribute attribute, float value);
+    void SetLight(Tweakable::Light::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of the camera
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetCamera(CameraAttribute attribute, float value);
+    void SetCamera(Tweakable::Camera::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a mesh
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetMesh(MeshAttribute attribute, float value);
+    void SetMesh(Tweakable::Mesh::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a wave
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetWave(WaveAttribute attribute, float value);
+    void SetWave(Tweakable::Wave::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of an emitter
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetEmitter(EmitterAttribute attribute, float value);
+    void SetEmitter(Tweakable::Emitter::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of water
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetWater(WaterAttribute attribute, float value);
+    void SetWater(Tweakable::Water::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a texture
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetTexture(TextureAttribute attribute, float value);
+    void SetTexture(Tweakable::Texture::Attribute attribute, float value);
 
     /**
     * Sets the readonly selected mesh shader name
@@ -265,7 +265,7 @@ public:
     /**
     * @return the name of the selected tab page
     */
-    std::string GetSelectedPage() const;
+    Tweakable::GuiPage::Page GetSelectedPage() const;
 
 private:
 
@@ -309,5 +309,4 @@ private:
     //std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 
     std::string m_texturePath;           ///< Path to the selected texture
-    SignalCallbacks& m_callbacks;         ///< Callbacks to update the cache
 };

@@ -94,11 +94,11 @@ private:
     void UpdatePost();
 
     /**
-    * Converts the string description to the page enum
-    * @param page The string description of the page
-    * @return the enum page id
+    * Initializes connections between the models and application
+    * @param editor The gui for editing shaders
+    * @param tweaker The gui for tweaking the application
     */
-    GuiPage ConvertStringToPage(const std::string& page);
+    void SetupConnections();
 
 private:
 
@@ -108,5 +108,5 @@ private:
     std::unique_ptr<EditorModel> m_editor;            ///< The gui for editing shaders
     std::unique_ptr<QtReloader> m_reloader;           ///< Allows reloading qml files
     std::shared_ptr<Cache> m_cache;                   ///< Shared data between the gui and application
-    GuiPage m_page;                                   ///< Currently selected page of the gui
+    Tweakable::GuiPage::Page m_page;                  ///< Currently selected page of the gui
 };

@@ -62,7 +62,9 @@ public:
     * @param offset The amount of floats to offset when writing
     */
     void UpdateConstantFloat(const std::string& name, 
-        const float* value, int size, int offset = -1);
+                             const float* value, 
+                             int size,
+                             int offset = -1);
 
     /**
     * Bulk-sends all constant data saved in the constant scratch buffer to the shader
@@ -155,7 +157,8 @@ private:
     * @return Error message if failed or empty if succeeded
     */
     std::string FindShaderDescription(ID3D10Blob* shader,
-        ID3D11ShaderReflection** reflection, D3D11_SHADER_DESC& desc); 
+                                      ID3D11ShaderReflection** reflection, 
+                                      D3D11_SHADER_DESC& desc); 
 
     /**
     * Compiles the shader internally in DirectX
@@ -213,7 +216,8 @@ private:
     * @return Error message if failed or empty if succeeded
     */
     std::string CreateConstantBuffer(ID3D11Device* device, 
-        int index, bool isVertexBuffer);
+                                     int index, 
+                                     bool isVertexBuffer);
 
     /**
     * Generates the constant buffers which holds all non-attribute uniforms

@@ -48,73 +48,73 @@ bool Water::Initialise(float height, float spacing, int size)
 
 void Water::Write(Cache& cache)
 {
-    cache.Water[WATER_BUMP].SetUpdated(m_bump);
-    cache.Water[WATER_BUMP_SCALE_X].SetUpdated(m_bumpScale.x);
-    cache.Water[WATER_BUMP_SCALE_Y].SetUpdated(m_bumpScale.y);
-    cache.Water[WATER_SPEED].SetUpdated(m_speed);
-    cache.Water[WATER_DEEP_R].SetUpdated(m_deepColour.r);
-    cache.Water[WATER_DEEP_G].SetUpdated(m_deepColour.g);
-    cache.Water[WATER_DEEP_B].SetUpdated(m_deepColour.b);
-    cache.Water[WATER_DEEP_A].SetUpdated(m_deepColour.a);
-    cache.Water[WATER_SHALLOW_R].SetUpdated(m_shallowColour.r);
-    cache.Water[WATER_SHALLOW_G].SetUpdated(m_shallowColour.g);
-    cache.Water[WATER_SHALLOW_B].SetUpdated(m_shallowColour.b);
-    cache.Water[WATER_SHALLOW_A].SetUpdated(m_shallowColour.a);
-    cache.Water[WATER_REFLECTION_R].SetUpdated(m_reflectionTint.r);
-    cache.Water[WATER_REFLECTION_G].SetUpdated(m_reflectionTint.g);
-    cache.Water[WATER_REFLECTION_B].SetUpdated(m_reflectionTint.b);
-    cache.Water[WATER_REFLECTION].SetUpdated(m_reflection);
-    cache.Water[WATER_FRESNAL_SCALE].SetUpdated(m_fresnal.x);
-    cache.Water[WATER_FRESNAL_BIAS].SetUpdated(m_fresnal.y);
-    cache.Water[WATER_FRESNAL_POWER].SetUpdated(m_fresnal.z);
-    cache.Water[WATER_SCALE_U].SetUpdated(m_uvScale.x);
-    cache.Water[WATER_SCALE_V].SetUpdated(m_uvScale.y);
+    cache.Water[Tweakable::Water::Bump].SetUpdated(m_bump);
+    cache.Water[Tweakable::Water::BumpScaleX].SetUpdated(m_bumpScale.x);
+    cache.Water[Tweakable::Water::BumpScaleY].SetUpdated(m_bumpScale.y);
+    cache.Water[Tweakable::Water::Speed].SetUpdated(m_speed);
+    cache.Water[Tweakable::Water::DeepR].SetUpdated(m_deepColour.r);
+    cache.Water[Tweakable::Water::DeepG].SetUpdated(m_deepColour.g);
+    cache.Water[Tweakable::Water::DeepB].SetUpdated(m_deepColour.b);
+    cache.Water[Tweakable::Water::DeepA].SetUpdated(m_deepColour.a);
+    cache.Water[Tweakable::Water::ShallowR].SetUpdated(m_shallowColour.r);
+    cache.Water[Tweakable::Water::ShallowG].SetUpdated(m_shallowColour.g);
+    cache.Water[Tweakable::Water::ShallowB].SetUpdated(m_shallowColour.b);
+    cache.Water[Tweakable::Water::ShallowA].SetUpdated(m_shallowColour.a);
+    cache.Water[Tweakable::Water::ReflectionR].SetUpdated(m_reflectionTint.r);
+    cache.Water[Tweakable::Water::ReflectionG].SetUpdated(m_reflectionTint.g);
+    cache.Water[Tweakable::Water::ReflectionB].SetUpdated(m_reflectionTint.b);
+    cache.Water[Tweakable::Water::Reflection].SetUpdated(m_reflection);
+    cache.Water[Tweakable::Water::FresnalScale].SetUpdated(m_fresnal.x);
+    cache.Water[Tweakable::Water::FresnalBias].SetUpdated(m_fresnal.y);
+    cache.Water[Tweakable::Water::FresnalPower].SetUpdated(m_fresnal.z);
+    cache.Water[Tweakable::Water::ScaleU].SetUpdated(m_uvScale.x);
+    cache.Water[Tweakable::Water::ScaleV].SetUpdated(m_uvScale.y);
     cache.WaveAmount.SetUpdated(static_cast<int>(m_waves.size()));
 }
 
 void Water::Read(Cache& cache)
 {
-    m_bump = cache.Water[WATER_BUMP].Get();
-    m_bumpScale.x = cache.Water[WATER_BUMP_SCALE_X].Get();
-    m_bumpScale.y = cache.Water[WATER_BUMP_SCALE_Y].Get();
-    m_speed = cache.Water[WATER_SPEED].Get();
-    m_deepColour.r = cache.Water[WATER_DEEP_R].Get();
-    m_deepColour.g = cache.Water[WATER_DEEP_G].Get();
-    m_deepColour.b = cache.Water[WATER_DEEP_B].Get();
-    m_deepColour.a = cache.Water[WATER_DEEP_A].Get();
-    m_shallowColour.r = cache.Water[WATER_SHALLOW_R].Get();
-    m_shallowColour.g = cache.Water[WATER_SHALLOW_G].Get();
-    m_shallowColour.b = cache.Water[WATER_SHALLOW_B].Get();
-    m_shallowColour.a = cache.Water[WATER_SHALLOW_A].Get();
-    m_reflectionTint.r = cache.Water[WATER_REFLECTION_R].Get();
-    m_reflectionTint.g = cache.Water[WATER_REFLECTION_G].Get();
-    m_reflectionTint.b = cache.Water[WATER_REFLECTION_B].Get();
-    m_reflection = cache.Water[WATER_REFLECTION].Get();
-    m_fresnal.x = cache.Water[WATER_FRESNAL_SCALE].Get();
-    m_fresnal.y = cache.Water[WATER_FRESNAL_BIAS].Get();
-    m_fresnal.z = cache.Water[WATER_FRESNAL_POWER].Get();
-    m_uvScale.x = cache.Water[WATER_SCALE_U].Get();
-    m_uvScale.y = cache.Water[WATER_SCALE_V].Get();
+    m_bump = cache.Water[Tweakable::Water::Bump].Get();
+    m_bumpScale.x = cache.Water[Tweakable::Water::BumpScaleX].Get();
+    m_bumpScale.y = cache.Water[Tweakable::Water::BumpScaleY].Get();
+    m_speed = cache.Water[Tweakable::Water::Speed].Get();
+    m_deepColour.r = cache.Water[Tweakable::Water::DeepR].Get();
+    m_deepColour.g = cache.Water[Tweakable::Water::DeepG].Get();
+    m_deepColour.b = cache.Water[Tweakable::Water::DeepB].Get();
+    m_deepColour.a = cache.Water[Tweakable::Water::DeepA].Get();
+    m_shallowColour.r = cache.Water[Tweakable::Water::ShallowR].Get();
+    m_shallowColour.g = cache.Water[Tweakable::Water::ShallowG].Get();
+    m_shallowColour.b = cache.Water[Tweakable::Water::ShallowB].Get();
+    m_shallowColour.a = cache.Water[Tweakable::Water::ShallowA].Get();
+    m_reflectionTint.r = cache.Water[Tweakable::Water::ReflectionR].Get();
+    m_reflectionTint.g = cache.Water[Tweakable::Water::ReflectionG].Get();
+    m_reflectionTint.b = cache.Water[Tweakable::Water::ReflectionB].Get();
+    m_reflection = cache.Water[Tweakable::Water::Reflection].Get();
+    m_fresnal.x = cache.Water[Tweakable::Water::FresnalScale].Get();
+    m_fresnal.y = cache.Water[Tweakable::Water::FresnalBias].Get();
+    m_fresnal.z = cache.Water[Tweakable::Water::FresnalPower].Get();
+    m_uvScale.x = cache.Water[Tweakable::Water::ScaleU].Get();
+    m_uvScale.y = cache.Water[Tweakable::Water::ScaleV].Get();
 }
 
 void Water::ReadWave(Cache& cache, int index)
 {
     Wave& wave = m_waves.at(index);
-    wave.amplitude = cache.Wave[WAVE_AMPLITUDE].Get();
-    wave.frequency = cache.Wave[WAVE_FREQUENCY].Get();
-    wave.phase = cache.Wave[WAVE_PHASE].Get();
-    wave.directionX = cache.Wave[WAVE_DIRECTION_X].Get();
-    wave.directionZ = cache.Wave[WAVE_DIRECTION_Z].Get();
+    wave.amplitude = cache.Wave[Tweakable::Wave::Amplitude].Get();
+    wave.frequency = cache.Wave[Tweakable::Wave::Frequency].Get();
+    wave.phase = cache.Wave[Tweakable::Wave::Phase].Get();
+    wave.directionX = cache.Wave[Tweakable::Wave::DirectionX].Get();
+    wave.directionZ = cache.Wave[Tweakable::Wave::DirectionZ].Get();
 }
 
 void Water::WriteWave(Cache& cache, int index)
 {
     Wave& wave = m_waves.at(index);
-    cache.Wave[WAVE_AMPLITUDE].SetUpdated(wave.amplitude);
-    cache.Wave[WAVE_FREQUENCY].SetUpdated(wave.frequency);
-    cache.Wave[WAVE_PHASE].SetUpdated(wave.phase);
-    cache.Wave[WAVE_DIRECTION_X].SetUpdated(wave.directionX);
-    cache.Wave[WAVE_DIRECTION_Z].SetUpdated(wave.directionZ);
+    cache.Wave[Tweakable::Wave::Amplitude].SetUpdated(wave.amplitude);
+    cache.Wave[Tweakable::Wave::Frequency].SetUpdated(wave.frequency);
+    cache.Wave[Tweakable::Wave::Phase].SetUpdated(wave.phase);
+    cache.Wave[Tweakable::Wave::DirectionX].SetUpdated(wave.directionX);
+    cache.Wave[Tweakable::Wave::DirectionZ].SetUpdated(wave.directionZ);
 }
 
 const std::vector<Water::Wave>& Water::Waves() const

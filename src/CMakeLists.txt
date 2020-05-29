@@ -97,6 +97,8 @@ set(SRC_LIST
     texture_procedural.h
     timer.cpp
     timer.h
+	tweakable_enums.h
+	tweakable_enums.cpp
     water.cpp
     water.h
     utils.h
@@ -107,7 +109,6 @@ set(QT_LIST
     qt/qt_gui.h
     qt/qt_reloader.h
     qt/qt_reloader.cpp
-    qt/tweakable.h
     qt/tweaker_model.h
     qt/tweaker_model.cpp
     qt/editor_model.h

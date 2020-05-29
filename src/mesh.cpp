@@ -21,21 +21,21 @@ Mesh::Mesh(const std::string& name,
 
 void Mesh::Write(Cache& cache)
 {
-    cache.Mesh[MESH_CAUSTICS_AMOUNT].SetUpdated(m_causticsAmount);
-    cache.Mesh[MESH_CAUSTICS_SCALE].SetUpdated(m_causticsScale);
-    cache.Mesh[MESH_BUMP].SetUpdated(m_bump);
-    cache.Mesh[MESH_AMBIENCE].SetUpdated(m_ambience);
-    cache.Mesh[MESH_SPECULARITY].SetUpdated(m_specularity);
+    cache.Mesh[Tweakable::Mesh::CausticsAmount].SetUpdated(m_causticsAmount);
+    cache.Mesh[Tweakable::Mesh::CausticsScale].SetUpdated(m_causticsScale);
+    cache.Mesh[Tweakable::Mesh::Bump].SetUpdated(m_bump);
+    cache.Mesh[Tweakable::Mesh::Ambience].SetUpdated(m_ambience);
+    cache.Mesh[Tweakable::Mesh::Specularity].SetUpdated(m_specularity);
     cache.MeshShader.SetUpdated(ShaderName());
 }
 
 void Mesh::Read(Cache& cache)
 {
-    m_causticsAmount = cache.Mesh[MESH_CAUSTICS_AMOUNT].Get();
-    m_causticsScale = cache.Mesh[MESH_CAUSTICS_SCALE].Get();
-    m_bump = cache.Mesh[MESH_BUMP].Get();
-    m_specularity = cache.Mesh[MESH_SPECULARITY].Get();
-    m_ambience = cache.Mesh[MESH_AMBIENCE].Get();
+    m_causticsAmount = cache.Mesh[Tweakable::Mesh::CausticsAmount].Get();
+    m_causticsScale = cache.Mesh[Tweakable::Mesh::CausticsScale].Get();
+    m_bump = cache.Mesh[Tweakable::Mesh::Bump].Get();
+    m_specularity = cache.Mesh[Tweakable::Mesh::Specularity].Get();
+    m_ambience = cache.Mesh[Tweakable::Mesh::Ambience].Get();
 }
 
 bool Mesh::InitialiseFromFile(const std::string& path, 
