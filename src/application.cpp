@@ -287,20 +287,20 @@ void Application::FadeRenderEngine()
 
     if (selectedEngine != m_selectedEngine)
     {
-        m_fadeState = FadeOut;
+        m_fadeState = FadeState::FadeOut;
     }
 
-    if(m_fadeState != FadeNone &&
-       GetEngine().FadeView(m_fadeState == FadeIn, fadeAmount))
+    if(m_fadeState != FadeState::FadeNone &&
+       GetEngine().FadeView(m_fadeState == FadeState::FadeIn, fadeAmount))
     {
-        if(m_fadeState == FadeOut)
+        if(m_fadeState == FadeState::FadeOut)
         {
             SwitchRenderEngine(selectedEngine);
-            m_fadeState = FadeIn;
+            m_fadeState = FadeState::FadeIn;
         }
         else
         {
-            m_fadeState = FadeNone;
+            m_fadeState = FadeState::FadeNone;
         }
     }
 }

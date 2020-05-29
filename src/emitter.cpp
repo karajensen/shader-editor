@@ -67,8 +67,8 @@ void Emitter::Write(Cache& cache)
     cache.Emitter[Tweakable::Emitter::MinFreq].SetUpdated(m_data.minFrequency);
     cache.Emitter[Tweakable::Emitter::MaxAmp].SetUpdated(m_data.maxAmplitude);
     cache.Emitter[Tweakable::Emitter::MinAmp].SetUpdated(m_data.minAmplitude);
-    cache.Emitter[Tweakable::Emitter::MaxWait].SetUpdated(m_data.minWaitTime);
-    cache.Emitter[Tweakable::Emitter::MinWait].SetUpdated(m_data.maxWaitTime);
+    cache.Emitter[Tweakable::Emitter::MaxWait].SetUpdated(m_data.maxWaitTime);
+    cache.Emitter[Tweakable::Emitter::MinWait].SetUpdated(m_data.minWaitTime);
 }
 
 void Emitter::Read(Cache& cache)

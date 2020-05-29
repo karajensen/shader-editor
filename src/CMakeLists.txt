@@ -97,8 +97,8 @@ set(SRC_LIST
     texture_procedural.h
     timer.cpp
     timer.h
-	tweakable_enums.h
-	tweakable_enums.cpp
+    tweakable_enums.h
+    tweakable_enums.cpp
     water.cpp
     water.h
     utils.h

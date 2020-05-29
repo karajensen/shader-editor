@@ -33,7 +33,7 @@ ProceduralTexture::ProceduralTexture(const std::string& name,
 
     switch (m_generation)
     {
-    case PerlinNoiseRock:
+    case Generation::PerlinNoiseRock:
         m_scale = 3.0f;
         m_iterations = 6;
         m_amplitude = 1.0f;
@@ -51,7 +51,7 @@ bool ProceduralTexture::IsRenderable() const
 
 void ProceduralTexture::Reload()
 {
-    if (m_generation != FromFile)
+    if (m_generation != Generation::FromFile)
     {
         Generate();
     }
@@ -74,7 +74,7 @@ bool ProceduralTexture::HasPixels() const
 
 void ProceduralTexture::Save()
 {
-    if (m_generation == FromFile)
+    if (m_generation == Generation::FromFile)
     {
         return;
     }
