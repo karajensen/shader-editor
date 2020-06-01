@@ -39,7 +39,7 @@ public:
     const QStringList& Shaders() const;
 
     /**
-    * Property setter/getter for selected shader index
+    * Property setter/getter for selected shader
     */
     void SetShaderIndex(int index);
     int ShaderIndex() const;
@@ -65,7 +65,7 @@ public:
 signals:
 
     void RequestCompileSelectedShader(const QString& text);
-    void ShaderIndexChanged();
+    void ShaderIndexChanged(int index);
     void ShadersChanged();
     void ShaderAssemblyChanged();
     void ShaderTextChanged();

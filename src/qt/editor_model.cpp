@@ -55,7 +55,7 @@ void EditorModel::SetShaderIndex(int index)
     if (m_shaderIndex != index)
     {
         m_shaderIndex = index;
-        emit ShaderIndexChanged();
+        emit ShaderIndexChanged(index);
     }
 }
 

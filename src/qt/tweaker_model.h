@@ -10,6 +10,8 @@
 
 #include <unordered_map>
 
+using namespace Tweakable;
+
 /**
 * Allows run-time editing of the scene
 */
@@ -42,63 +44,63 @@ public:
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetTerrain(Tweakable::Terrain::Attribute attribute, float value);
+    void SetTerrainAttribute(Terrain::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of post processing
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetPost(Tweakable::Post::Attribute attribute, float value);
+    void SetPostMapAttribute(Post::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a light
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetLight(Tweakable::Light::Attribute attribute, float value);
+    void SetLightAttribute(Light::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of the camera
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetCamera(Tweakable::Camera::Attribute attribute, float value);
+    void SetCameraAttribute(Camera::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a mesh
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetMesh(Tweakable::Mesh::Attribute attribute, float value);
+    void SetMeshAttribute(Mesh::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a wave
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetWave(Tweakable::Wave::Attribute attribute, float value);
+    void SetWaveAttribute(Wave::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of an emitter
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetEmitter(Tweakable::Emitter::Attribute attribute, float value);
+    void SetEmitterAttribute(Emitter::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of water
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetWater(Tweakable::Water::Attribute attribute, float value);
+    void SetWaterAttribute(Water::Attribute attribute, float value);
 
     /**
     * Sets the value for an attribute of a texture
     * @param attribute The type of attribute to set
     * @param value The value to set for the attribute
     */
-    void SetTexture(Tweakable::Texture::Attribute attribute, float value);
+    void SetTextureAttribute(Texture::Attribute attribute, float value);
 
     /**
     * Sets the readonly selected mesh shader name
@@ -141,24 +143,6 @@ public:
     * @param count The number of instances
     */
     void SetWaterInstanceCount(const std::string& count);
-
-    /**
-    * Sets the selected engine
-    * @param selected The selected engine
-    */
-    void SetSelectedEngine(int selected);
-
-    /**
-    * Sets the selected post map
-    * @param selected The selected post map
-    */
-    void SetSelectedPostMap(int selected);
-
-    /**
-    * Sets the selected emitter
-    * @param selected The selected emitter
-    */
-    void SetSelectedEmitter(int selected);
 
     /**
     * Sets the available terrain for the combo box
@@ -263,9 +247,82 @@ public:
     bool HasTextures() const;
 
     /**
-    * @return the name of the selected tab page
+    * Property setter/getter for selected page
     */
-    Tweakable::GuiPage::Page GetSelectedPage() const;
+    void SetSelectedPage(GuiPage::Page page);
+    GuiPage::Page SelectedPage() const;
+
+    /**
+    * Property setter/getter for selected engine
+    */
+    void SetEngineIndex(int index);
+    int EngineIndex() const;
+
+    /**
+    * Property setter/getter for selected mesh
+    */
+    void SetMeshIndex(int index);
+    int MeshIndex() const;
+
+    /**
+    * Property setter/getter for selected wave
+    */
+    void SetWaveIndex(int index);
+    int WaveIndex() const;
+
+    /**
+    * Property setter/getter for selected water
+    */
+    void SetWaterIndex(int index);
+    int WaterIndex() const;
+
+    /**
+    * Property setter/getter for selected light
+    */
+    void SetLightIndex(int index);
+    int LightIndex() const;
+
+    /**
+    * Property setter/getter for selected texture
+    */
+    void SetTextureIndex(int index);
+    int TextureIndex() const;
+
+    /**
+    * Property setter/getter for selected emitter
+    */
+    void SetEmitterIndex(int index);
+    int EmitterIndex() const;
+
+    /**
+    * Property setter/getter for selected terrain
+    */
+    void SetTerrainIndex(int index);
+    int TerrainIndex() const;
+
+    /**
+    * Property setter/getter for selected post map
+    */
+    void SetPostMapIndex(int index);
+    int PostMapIndex() const;
+
+signals:
+    void SelectedPageChanged();
+
+    void EngineIndexChanged(int index);
+    void MeshIndexChanged(int index);
+    void WaveIndexChanged(int index);
+    void WaterIndexChanged(int index);
+    void LightIndexChanged(int index);
+    void TextureIndexChanged(int index);
+    void EmitterIndexChanged(int index);
+    void TerrainIndexChanged(int index);
+    void PostMapIndexChanged(int index);
+
+    void LightAttributeChanged(Light::Attribute attribute, float value);
+    void CameraAttributeChanged(Camera::Attribute attribute, float value);
+    void MeshAttributeChanged(Mesh::Attribute attribute, float value);
+    void TextureAttributeChanged(Texture::Attribute attribute, float value);
 
 private:
 
@@ -308,5 +365,16 @@ private:
     //std::unordered_map<CameraAttribute, TweakableValue> m_camera; ///< Camera Tweakable values
     //std::unordered_map<LightAttribute, TweakableValue> m_light;   ///< Light tweakable values;
 
-    std::string m_texturePath;           ///< Path to the selected texture
+    int m_engineIndex = -1;        ///< Currently selected engine
+    int m_meshIndex = -1;          ///< Currently selected mesh
+    int m_waveIndex = -1;          ///< Currently selected wave
+    int m_waterIndex = -1;         ///< Currently selected water
+    int m_lightIndex = -1;         ///< Currently selected light
+    int m_textureIndex = -1;       ///< Currently selected texture
+    int m_emitterIndex = -1;       ///< Currently selected emitter
+    int m_terrainIndex = -1;       ///< Currently selected terrain
+    int m_postMapIndex = -1;       ///< Currently selected postprocessing map
+
+    GuiPage::Page m_selectedPage{GuiPage::Page::None };  ///< Current selected Gui Page
+    std::string m_texturePath;                           ///< Path to the selected texture
 };

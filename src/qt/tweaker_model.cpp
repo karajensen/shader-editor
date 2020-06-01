@@ -26,18 +26,18 @@ TweakerModel::TweakerModel(QObject* parent)
     m_selectedWave.Initialise(1.0, 0, m_ui.waveNumber_value,
         m_ui.waveNumber_dial, m_callbacks.SetSelectedWave);
 
-    m_camera[Tweakable::Camera::PositionX].Initialise(0.1, 3, m_ui.cameraX_value, nullptr, nullptr);
-    m_camera[Tweakable::Camera::PositionY].Initialise(0.1, 3, m_ui.cameraY_value, nullptr, nullptr);
-    m_camera[Tweakable::Camera::PositionZ].Initialise(0.1, 3, m_ui.cameraZ_value, nullptr, nullptr);
-    m_camera[Tweakable::Camera::Pitch].Initialise(0.01, 3, m_ui.cameraPitch_value, nullptr, nullptr);
-    m_camera[Tweakable::Camera::Yaw].Initialise(0.01, 3, m_ui.cameraYaw_value, nullptr, nullptr);
-    m_camera[Tweakable::Camera::Roll].Initialise(0.01, 3, m_ui.cameraRoll_value, nullptr, nullptr);
+    m_camera[Camera::PositionX].Initialise(0.1, 3, m_ui.cameraX_value, nullptr, nullptr);
+    m_camera[Camera::PositionY].Initialise(0.1, 3, m_ui.cameraY_value, nullptr, nullptr);
+    m_camera[Camera::PositionZ].Initialise(0.1, 3, m_ui.cameraZ_value, nullptr, nullptr);
+    m_camera[Camera::Pitch].Initialise(0.01, 3, m_ui.cameraPitch_value, nullptr, nullptr);
+    m_camera[Camera::Yaw].Initialise(0.01, 3, m_ui.cameraYaw_value, nullptr, nullptr);
+    m_camera[Camera::Roll].Initialise(0.01, 3, m_ui.cameraRoll_value, nullptr, nullptr);
 
-    m_camera[Tweakable::Camera::ForwardSpd].Initialise(0.01, 3, m_ui.cameraForwardSpeed_value, 
-        m_ui.cameraForwardSpeed_dial, m_callbacks.SetCamera[Tweakable::Camera::ForwardSpd]);
+    m_camera[Camera::ForwardSpd].Initialise(0.01, 3, m_ui.cameraForwardSpeed_value, 
+        m_ui.cameraForwardSpeed_dial, m_callbacks.SetCamera[Camera::ForwardSpd]);
 
-    m_camera[Tweakable::Camera::RotationSpd].Initialise(0.01, 3, m_ui.cameraRotationSpeed_value,
-        m_ui.cameraRotationSpeed_dial, m_callbacks.SetCamera[Tweakable::Camera::RotationSpd]);
+    m_camera[Camera::RotationSpd].Initialise(0.01, 3, m_ui.cameraRotationSpeed_value,
+        m_ui.cameraRotationSpeed_dial, m_callbacks.SetCamera[Camera::RotationSpd]);
 
     m_light[LIGHT_ACTIVE].Initialise(0.1, 3, m_ui.light_active_value,
         m_ui.light_active_dial, m_callbacks.SetLight[LIGHT_ACTIVE]);
@@ -200,10 +200,18 @@ TweakerModel::TweakerModel(QObject* parent)
     **/
 }
 
-Tweakable::GuiPage::Page TweakerModel::GetSelectedPage() const
+void TweakerModel::SetSelectedPage(GuiPage::Page page)
 {
-    //return m_ui.TabMenu->currentWidget()->objectName().toUtf8().constData();
-    return Tweakable::GuiPage::Page::None;
+    if (m_selectedPage != page)
+    {
+        m_selectedPage = page;
+        emit SelectedPageChanged();
+    }
+}
+
+GuiPage::Page TweakerModel::SelectedPage() const
+{
+    return m_selectedPage;
 }
 
 void TweakerModel::SetDeltaTime(const std::string& dt)
@@ -267,17 +275,17 @@ void TweakerModel::SetMeshShaderName(const std::string& name)
     //m_ui.shader_text->update();
 }
 
-void TweakerModel::SetCamera(Tweakable::Camera::Attribute attribute, float value)
+void TweakerModel::SetCameraAttribute(Camera::Attribute attribute, float value)
 {
     //m_camera.at(attribute).Set(value);
 }
 
-void TweakerModel::SetTerrain(Tweakable::Terrain::Attribute attribute, float value)
+void TweakerModel::SetTerrainAttribute(Terrain::Attribute attribute, float value)
 {
     //m_terrain.SetValue(attribute, value);
 }
 
-void TweakerModel::SetPost(Tweakable::Post::Attribute attribute, float value)
+void TweakerModel::SetPostMapAttribute(Post::Attribute attribute, float value)
 {
    //if (!m_fog.SetValue(attribute, value) &&
    //    !m_correction.SetValue(attribute, value))
@@ -286,7 +294,7 @@ void TweakerModel::SetPost(Tweakable::Post::Attribute attribute, float value)
    //}
 }
 
-void TweakerModel::SetLight(Tweakable::Light::Attribute attribute, float value)
+void TweakerModel::SetLightAttribute(Light::Attribute attribute, float value)
 {
     //if (!m_lightColour.SetValue(attribute, value) &&
     //    !m_lightSpecular.SetValue(attribute, value) &&
@@ -297,17 +305,17 @@ void TweakerModel::SetLight(Tweakable::Light::Attribute attribute, float value)
     //}
 }
 
-void TweakerModel::SetMesh(Tweakable::Mesh::Attribute attribute, float value)
+void TweakerModel::SetMeshAttribute(Mesh::Attribute attribute, float value)
 {
     //m_mesh.SetValue(attribute, value);
 }
 
-void TweakerModel::SetWave(Tweakable::Wave::Attribute attribute, float value)
+void TweakerModel::SetWaveAttribute(Wave::Attribute attribute, float value)
 {
     //m_wave.SetValue(attribute, value);
 }
 
-void TweakerModel::SetEmitter(Tweakable::Emitter::Attribute attribute, float value)
+void TweakerModel::SetEmitterAttribute(Emitter::Attribute attribute, float value)
 {
     //if (!m_emitterMinMax.SetValue(attribute, value))
     //{
@@ -315,24 +323,14 @@ void TweakerModel::SetEmitter(Tweakable::Emitter::Attribute attribute, float val
     //}
 }
 
-void TweakerModel::SetTexture(Tweakable::Texture::Attribute attribute, float value)
+void TweakerModel::SetTextureAttribute(Texture::Attribute attribute, float value)
 {
     //m_texture.SetValue(attribute, value);
 }
 
-void TweakerModel::SetWater(Tweakable::Water::Attribute attribute, float value)
+void TweakerModel::SetWaterAttribute(Water::Attribute attribute, float value)
 {
     //m_water.SetValue(attribute, value);
-}
-
-void TweakerModel::SetSelectedPostMap(int selected)
-{
-    //m_postMap.SetSelected(selected);
-}
-
-void TweakerModel::SetSelectedEngine(int selected)
-{
-    //m_renderEngine.SetSelected(selected);
 }
 
 void TweakerModel::InitialiseTerrain(int selected, 
@@ -472,4 +470,130 @@ bool TweakerModel::HasEngines() const
 {
     //return m_renderEngine.IsInitialised();
     return false;
+}
+
+void TweakerModel::SetEngineIndex(int index)
+{
+    if (m_engineIndex != index)
+    {
+        m_engineIndex = index;
+        emit EngineIndexChanged(index);
+    }
+}
+
+int TweakerModel::EngineIndex() const
+{
+    return m_engineIndex;
+}
+
+void TweakerModel::SetMeshIndex(int index)
+{
+    if (m_meshIndex != index)
+    {
+        m_meshIndex = index;
+        emit MeshIndexChanged(index);
+    }
+}
+
+int TweakerModel::MeshIndex() const
+{
+    return m_meshIndex;
+}
+
+void TweakerModel::SetWaveIndex(int index)
+{
+    if (m_waveIndex != index)
+    {
+        m_waveIndex = index;
+        emit WaveIndexChanged(index);
+    }
+}
+
+int TweakerModel::WaveIndex() const
+{
+    return m_waveIndex;
+}
+
+void TweakerModel::SetWaterIndex(int index)
+{
+    if (m_waterIndex != index)
+    {
+        m_waterIndex = index;
+        emit WaterIndexChanged(index);
+    }
+}
+
+int TweakerModel::WaterIndex() const
+{
+    return m_waterIndex;
+}
+
+void TweakerModel::SetLightIndex(int index)
+{
+    if (m_lightIndex != index)
+    {
+        m_lightIndex = index;
+        emit LightIndexChanged(index);
+    }
+}
+
+int TweakerModel::LightIndex() const
+{
+    return m_lightIndex;
+}
+
+void TweakerModel::SetTextureIndex(int index)
+{
+    if (m_textureIndex != index)
+    {
+        m_textureIndex = index;
+        emit TextureIndexChanged(index);
+    }
+}
+
+int TweakerModel::TextureIndex() const
+{
+    return m_textureIndex;
+}
+
+void TweakerModel::SetEmitterIndex(int index)
+{
+    if (m_emitterIndex != index)
+    {
+        m_emitterIndex = index;
+        emit EmitterIndexChanged(index);
+    }
+}
+
+int TweakerModel::EmitterIndex() const
+{
+    return m_emitterIndex;
+}
+
+void TweakerModel::SetTerrainIndex(int index)
+{
+    if (m_terrainIndex != index)
+    {
+        m_terrainIndex = index;
+        emit TerrainIndexChanged(index);
+    }
+}
+
+int TweakerModel::TerrainIndex() const
+{
+    return m_terrainIndex;
+}
+
+void TweakerModel::SetPostMapIndex(int index)
+{
+    if (m_postMapIndex != index)
+    {
+        m_postMapIndex = index;
+        emit PostMapIndexChanged(index);
+    }
+}
+
+int TweakerModel::PostMapIndex() const
+{
+    return m_postMapIndex;
 }
