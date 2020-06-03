@@ -308,6 +308,15 @@ public:
 
 signals:
     void SelectedPageChanged();
+    void RequestReloadScene();
+    void RequestReloadEngine();
+    void RequestReloadTerrain();
+    void RequestReloadTexture();
+    void RequestReloadPlacement();
+    void RequestToggleWireframe();
+    void RequestTogglePauseEmission();
+    void RequestToggleLightsOnly();
+    void RequestToggleLightsDiagnostics();
 
     void EngineIndexChanged(int index);
     void MeshIndexChanged(int index);
@@ -319,10 +328,15 @@ signals:
     void TerrainIndexChanged(int index);
     void PostMapIndexChanged(int index);
 
-    void LightAttributeChanged(Light::Attribute attribute, float value);
-    void CameraAttributeChanged(Camera::Attribute attribute, float value);
     void MeshAttributeChanged(Mesh::Attribute attribute, float value);
+    void WaveAttributeChanged(Wave::Attribute attribute, float value);
+    void WaterAttributeChanged(Water::Attribute attribute, float value);
+    void LightAttributeChanged(Light::Attribute attribute, float value);
     void TextureAttributeChanged(Texture::Attribute attribute, float value);
+    void EmitterAttributeChanged(Emitter::Attribute attribute, float value);
+    void TerrainAttributeChanged(Terrain::Attribute attribute, float value);
+    void PostAttributeChanged(Post::Attribute attribute, float value);
+    void CameraAttributeChanged(Camera::Attribute attribute, float value);
 
 private:
 
@@ -375,6 +389,6 @@ private:
     int m_terrainIndex = -1;       ///< Currently selected terrain
     int m_postMapIndex = -1;       ///< Currently selected postprocessing map
 
-    GuiPage::Page m_selectedPage{GuiPage::Page::None };  ///< Current selected Gui Page
-    std::string m_texturePath;                           ///< Path to the selected texture
+    GuiPage::Page m_selectedPage{GuiPage::Page::None};  ///< Current selected Gui Page
+    std::string m_texturePath;                          ///< Path to the selected texture
 };

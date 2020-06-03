@@ -352,6 +352,24 @@ void QtGui::SetupConnections()
         [this](int index) { m_cache->TerrainSelected.Set(index); });
     connect(m_tweaker.get(), &TweakerModel::PostMapIndexChanged, this,
         [this](int index) { m_cache->PostMapSelected.Set(index); });
+    connect(m_tweaker.get(), &TweakerModel::RequestReloadScene, this,
+        [this]() { m_cache->ReloadScene.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestReloadEngine, this,
+        [this]() { m_cache->ReloadEngine.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestReloadTerrain, this,
+        [this]() { m_cache->ReloadTerrain.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestReloadTexture, this,
+        [this]() { m_cache->ReloadTexture.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestReloadPlacement, this,
+        [this]() { m_cache->ReloadPlacement.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestToggleWireframe, this,
+        [this]() { m_cache->ToggleWireframe.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestTogglePauseEmission, this,
+        [this]() { m_cache->PauseEmission.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestToggleLightsOnly, this,
+        [this]() { m_cache->RenderLightsOnly.Set(true); });
+    connect(m_tweaker.get(), &TweakerModel::RequestToggleLightsDiagnostics, this,
+        [this]() { m_cache->LightDiagnostics.Set(true); });
 
     for (int i = 0; i < Tweakable::Light::Max; ++i)
     {
@@ -386,68 +404,49 @@ void QtGui::SetupConnections()
             });
     }
 
-    /**
-
-
-    for (int i = 0; i < WATER_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Water::Max; ++i)
     {
-        callbacks.SetWater[i] =
-            [this, i](float value) { m_cache->Water[i].Set(value); };
+        connect(m_tweaker.get(), &TweakerModel::WaterAttributeChanged, this,
+            [this](Tweakable::Water::Attribute attribute, float value) {
+                m_cache->Water[attribute].Set(value);
+            });
     }
 
-    for (int i = 0; i < WAVE_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Wave::Max; ++i)
     {
-        callbacks.SetWave[i] =
-            [this, i](float value) { m_cache->Wave[i].Set(value); };
+        connect(m_tweaker.get(), &TweakerModel::WaveAttributeChanged, this,
+            [this](Tweakable::Wave::Attribute attribute, float value) {
+                m_cache->Wave[attribute].Set(value);
+            });
     }
 
-    for (int i = 0; i < EMITTER_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Emitter::Max; ++i)
     {
-        callbacks.SetEmitter[i] =
-            [this, i](float value) { m_cache->Emitter[i].Set(value); };
+        connect(m_tweaker.get(), &TweakerModel::EmitterAttributeChanged, this,
+            [this](Tweakable::Emitter::Attribute attribute, float value) {
+                m_cache->Emitter[attribute].Set(value);
+            });
     }
 
-    for (int i = 0; i < POST_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Post::Max; ++i)
     {
-        callbacks.SetPost[i] =
-            [this, i](float value) { m_cache->Post[i].Set(value); };
+        connect(m_tweaker.get(), &TweakerModel::PostAttributeChanged, this,
+            [this](Tweakable::Post::Attribute attribute, float value) {
+                m_cache->Post[attribute].Set(value);
+            });
     }
 
-    for (int i = 0; i < TERRAIN_ATTRIBUTES; ++i)
+    for (int i = 0; i < Tweakable::Terrain::Max; ++i)
     {
-        if (i == TERRAIN_MAX_HEIGHT || i == TERRAIN_MIN_HEIGHT || i == TERRAIN_SCALE)
-        {
-            callbacks.SetTerrain[i] = [this, i](float value)
-            {
-                m_cache->Terrain[i].Set(value);
-                m_cache->ReloadTerrain.Set(true);
-            };
-        }
-        else
-        {
-            callbacks.SetTerrain[i] =
-                [this, i](float value) { m_cache->Terrain[i].Set(value); };
-        }
+        connect(m_tweaker.get(), &TweakerModel::TerrainAttributeChanged, this,
+            [this](Tweakable::Terrain::Attribute attribute, float value) {
+                m_cache->Terrain[attribute].Set(value);
+                if (attribute == Tweakable::Terrain::MaxHeight ||
+                    attribute == Tweakable::Terrain::MinHeight ||
+                    attribute == Tweakable::Terrain::Scale)
+                {
+                    m_cache->ReloadTerrain.Set(true);
+                }
+            });
     }
-
-    callbacks.SetSelectedWave = [this](float index) { m_cache->WaveSelected.Set(static_cast<int>(index)); };
-    callbacks.SetSelectedEngine = [this](int index) { m_cache->EngineSelected.Set(index); };
-    callbacks.SetSelectedMesh = [this](int index) { m_cache->MeshSelected.Set(index); };
-    callbacks.SetSelectedWater = [this](int index) { m_cache->WaterSelected.Set(index); };
-    callbacks.SetSelectedLight = [this](int index) { m_cache->LightSelected.Set(index); };
-    callbacks.SetSelectedShader = [this](int index) { m_cache->ShaderSelected.Set(index); };
-    callbacks.SetSelectedTexture = [this](int index) { m_cache->TextureSelected.Set(index); };
-    callbacks.SetSelectedEmitter = [this](int index) { m_cache->EmitterSelected.Set(index); };
-    callbacks.SetSelectedTerrain = [this](int index) { m_cache->TerrainSelected.Set(index); };
-    callbacks.SetPostMap = [this](int index) { m_cache->PostMapSelected.Set(index); };
-    callbacks.ReloadScene = [this]() { m_cache->ReloadScene.Set(true); };
-    callbacks.ReloadEngine = [this]() { m_cache->ReloadEngine.Set(true); };
-    callbacks.ReloadTerrain = [this]() { m_cache->ReloadTerrain.Set(true); };
-    callbacks.ReloadTexture = [this]() { m_cache->ReloadTexture.Set(true); };
-    callbacks.ReloadPlacement = [this]() { m_cache->ReloadPlacement.Set(true); };
-    callbacks.ToggleWireframe = [this]() { m_cache->ToggleWireframe.Set(true); };
-    callbacks.PauseEmission = [this]() { m_cache->PauseEmission.Set(true); };
-    callbacks.RenderLightsOnly = [this]() { m_cache->RenderLightsOnly.Set(true); };
-    callbacks.LightDiagnostics = [this]() { m_cache->LightDiagnostics.Set(true); };
-    */
 }
