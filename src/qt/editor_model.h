@@ -29,11 +29,6 @@ public:
     void InitialiseShaders(int selected, const std::vector<std::string>& shaders);
 
     /**
-    * @return whether the combo box is filled or not
-    */
-    bool HasShaders() const;
-
-    /**
     * Property getter for shaders list
     */
     const QStringList& Shaders() const;

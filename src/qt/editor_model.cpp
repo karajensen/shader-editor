@@ -17,11 +17,6 @@ void EditorModel::InitialiseShaders(int selected, const std::vector<std::string>
     SetShaderIndex(selected);
 }
 
-bool EditorModel::HasShaders() const
-{
-    return m_shaders.length() > 0;
-}
-
 void EditorModel::SetShaderText(const QString& text)
 {
     if (m_shaderText != text)
