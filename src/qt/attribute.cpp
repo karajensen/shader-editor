@@ -4,18 +4,12 @@
 
 #include "attribute.h"
 
-Attribute::Attribute(int id, const QString& name, float value, int stepPrecision, QObject* parent)
+Attribute::Attribute(const QString& name, float value, int stepPrecision, QObject* parent)
     : QObject(parent)
-    , m_id(id)
     , m_name(name)
     , m_value(value)
     , m_stepSize(0.1f / stepPrecision)
 {
-}
-
-int Attribute::Id() const
-{
-    return m_id;
 }
 
 const QString& Attribute::Name() const

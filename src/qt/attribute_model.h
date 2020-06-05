@@ -19,15 +19,14 @@ public:
 
     enum Role
     {
-        IdRole = Qt::UserRole + 1,
-        NameRole,
+        NameRole = Qt::UserRole + 1,
         ValueRole,
         StepSizeRole
     };
 
     struct AttributeData
     {
-        int id = -1;             ///< Unique attribute id that maps to its enum value
+        int index = -1;          ///< Index into the attribute enum
         QString name;            ///< Attribute display name
         float value = 0.0f;      ///< Initial value
         int stepPrecision = 0;   ///< Amount of decimals places to step the value by
@@ -43,10 +42,10 @@ public:
 
     /**
     * Sets the value for an attribute
-    * @param id Unique attribute id that maps to its enum value
+    * @param index The attribute to set
     * @param float Attribute value to set
     */
-    void SetAttributeValue(int id, float value);
+    void SetAttributeValue(int index, float value);
 
     /**
     * @return the names of the model roles to use in QML to access attribute data
@@ -60,7 +59,7 @@ public:
 
     /**
     * Gets the value for a role for an attribute
-    * @param index The index into the attributes to set
+    * @param index The attribute to get
     * @param role The type of data to set from Roles enum
     * @return value The value of the attribute
     */
@@ -68,7 +67,7 @@ public:
 
     /**
     * Sets the value for a role for an attribute
-    * @param index The index into the attributes to set
+    * @param index The attribute to set
     * @param value The new value to set
     * @param role The type of data to set from Roles enum
     */
@@ -76,7 +75,7 @@ public:
 
 signals:
 
-    void AttributeValueChanged(int id, float value);
+    void AttributeValueChanged(int index, float value);
 
 private:
     
