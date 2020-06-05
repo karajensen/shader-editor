@@ -12,13 +12,9 @@ void AttributeModel::SetAttributes(const QVector<AttributeData>& attributeData)
     m_attributes.resize(attributeData.size());
     for (const auto& data : attributeData)
     {
-        m_attributes[data.index] = new Attribute(
-            data.name,
-            data.value,
-            data.stepPrecision,
-            this);
-
-        connect(m_attributes.back(), &Attribute::ValueChanged, this, [this, index = data.index](float value)
+        auto attribute = new Attribute(data.name, data.value, data.stepPrecision, this);
+        m_attributes[data.index] = attribute;
+        connect(attribute, &Attribute::ValueChanged, this, [this, index = data.index](float value)
             {
                 const auto modelIndex = this->index(index);
                 emit dataChanged(modelIndex, modelIndex, { Role::ValueRole });
@@ -34,9 +30,9 @@ bool AttributeModel::IndexValid(const QModelIndex& index) const
     return index.row() >= 0 && index.row() < m_attributes.size();
 }
 
-void AttributeModel::SetAttributeValue(int id, float value)
+void AttributeModel::SetAttributeValue(int index, float value)
 {
-    m_attributes.at(id)->SetValue(value);
+    m_attributes.at(index)->SetValue(value);
 }
 
 QHash<int, QByteArray> AttributeModel::roleNames() const
