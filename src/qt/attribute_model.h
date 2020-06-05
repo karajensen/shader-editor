@@ -73,16 +73,14 @@ public:
     */
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-signals:
-
-    void AttributeValueChanged(int index, float value);
-
-private:
-    
     /**
     * @return whether the index is valid to access an attribute item
     */
     bool IndexValid(const QModelIndex& index) const;
+
+signals:
+
+    void AttributeValueChanged(int index, float value);
 
 private:
 
