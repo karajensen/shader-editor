@@ -53,8 +53,11 @@ public:
     void SetUpdated(const T& data)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_data = data;
-        m_updated = true;
+        if (m_data != data)
+        {
+            m_data = data;
+            m_updated = true;
+        }
     }
 
     /**
@@ -79,7 +82,7 @@ public:
     void Set(const T& data)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        if(!m_updated)
+        if(!m_updated && m_data != data)
         {
             m_data = data;
         }
