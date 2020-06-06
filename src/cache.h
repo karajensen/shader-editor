@@ -107,7 +107,7 @@ public:
 
 protected:
 
-    bool m_updated = false;       ///< Flag for irregular updates by the getter thread
+    bool m_updated = true;        ///< Flag for irregular updates by the getter thread
     T m_data;                     ///< Internal data
     mutable std::mutex m_mutex;   ///< Mutex for access
 };

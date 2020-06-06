@@ -22,11 +22,11 @@ Rectangle {
             ComboBox {
                 Layout.preferredWidth: 300
                 Layout.fillWidth: true
-                model: EditorModel.shaders
-                currentIndex: EditorModel.shaderIndex
+                model: EditorModel.shadersModel
+                currentIndex: model.shaderIndex
 
                 onActivated: {
-                    EditorModel.shaderIndex = currentIndex;
+                    model.shaderIndex = currentIndex;
                 }
             }
 

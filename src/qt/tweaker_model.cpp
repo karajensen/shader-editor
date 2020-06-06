@@ -4,6 +4,7 @@
 
 #include "tweaker_model.h"
 #include "attribute_model.h"
+#include "stringlist_model.h"
 
 TweakerModel::TweakerModel(QObject* parent)
     : QObject(parent)
@@ -16,6 +17,15 @@ TweakerModel::TweakerModel(QObject* parent)
     , m_terrainAttributeModel(new AttributeModel(this))
     , m_postAttributeModel(new AttributeModel(this))
     , m_cameraAttributeModel(new AttributeModel(this))
+    , m_enginesModel(new StringListModel(this))
+    , m_meshesModel(new StringListModel(this))
+    , m_wavesModel(new StringListModel(this))
+    , m_waterModel(new StringListModel(this))
+    , m_lightsModel(new StringListModel(this))
+    , m_texturesModel(new StringListModel(this))
+    , m_emittersModel(new StringListModel(this))
+    , m_terrainModel(new StringListModel(this))
+    , m_postMapsModel(new StringListModel(this))
 {
     /**
     m_ui.waveNumber_value->setMinimum(0.0);
@@ -196,67 +206,6 @@ TweakerModel::TweakerModel(QObject* parent)
     **/
 }
 
-void TweakerModel::InitialiseTerrain(int selected, 
-                                const std::vector<std::string>& terrain)
-{
-    //if (!terrain.empty())
-    //{
-    //    m_selectedTerrain.Initialise(m_ui.selectedTerrain_box,
-    //        selected, terrain, m_callbacks.SetSelectedTerrain);
-    //}
-}
-
-void TweakerModel::InitialiseTextures(int selected, 
-                                 const std::vector<std::string>& textures)
-{
-    //if (!textures.empty())
-    //{
-    //    m_selectedTexture.Initialise(m_ui.selectedTexture_box,
-    //        selected, textures, m_callbacks.SetSelectedTexture);
-    //}
-}
-
-void TweakerModel::InitialiseEmitters(int selected,
-                                 const std::vector<std::string>& emitters)
-{
-    //if (!emitters.empty())
-    //{
-    //    m_selectedEmitter.Initialise(m_ui.selectedParticles_box,
-    //        selected, emitters, m_callbacks.SetSelectedEmitter);
-    //}
-}
-
-void TweakerModel::InitialisePostMaps(int selected,
-                                 const std::vector<std::string>& maps)
-{
-    //if (!maps.empty())
-    //{
-    //    m_postMap.Initialise(m_ui.postImage_box,
-    //        selected, maps, m_callbacks.SetPostMap);
-    //}
-}
-
-void TweakerModel::InitialiseEngines(int selected,
-                                const std::vector<std::string>& engines)
-{
-    //if(!engines.empty())
-    //{
-    //    m_renderEngine.Initialise(m_ui.switchEngine_box, 
-    //        selected, engines, m_callbacks.SetSelectedEngine);
-    //}
-}
-
-void TweakerModel::InitialiseMeshes(int selected,
-                               const std::vector<std::string>& meshes)
-{
-    //if(!meshes.empty())
-    //{
-    //    m_selectedMesh.Initialise(m_ui.selectedMesh_box,
-    //        selected, meshes, m_callbacks.SetSelectedMesh);
-    //}
-}
-
-
 void TweakerModel::SetSelectedPage(GuiPage::Page page)
 {
     if (m_selectedPage != page)
@@ -343,152 +292,6 @@ void TweakerModel::SetWaveAmount(int amount)
     //m_ui.waveNumber_value->setMaximum(std::max(0.0, static_cast<double>(amount-1.0)));
 }
 
-void TweakerModel::InitialiseWater(int selected,
-                              const std::vector<std::string>& water)
-{
-    //if(!water.empty())
-    //{
-    //    m_selectedWater.Initialise(m_ui.selectedWater_box,
-    //        selected, water, m_callbacks.SetSelectedWater);
-    //}
-}
-
-void TweakerModel::InitialiseLights(int selected,
-                               const std::vector<std::string>& lights)
-{
-    //if(!lights.empty())
-    //{
-    //    m_selectedLight.Initialise(m_ui.lightSelected_box,
-    //        selected, lights, m_callbacks.SetSelectedLight);
-    //}
-}
-
-void TweakerModel::SetEngineIndex(int index)
-{
-    if (m_engineIndex != index)
-    {
-        m_engineIndex = index;
-        emit EngineIndexChanged(index);
-    }
-}
-
-int TweakerModel::EngineIndex() const
-{
-    return m_engineIndex;
-}
-
-void TweakerModel::SetMeshIndex(int index)
-{
-    if (m_meshIndex != index)
-    {
-        m_meshIndex = index;
-        emit MeshIndexChanged(index);
-    }
-}
-
-int TweakerModel::MeshIndex() const
-{
-    return m_meshIndex;
-}
-
-void TweakerModel::SetWaveIndex(int index)
-{
-    if (m_waveIndex != index)
-    {
-        m_waveIndex = index;
-        emit WaveIndexChanged(index);
-    }
-}
-
-int TweakerModel::WaveIndex() const
-{
-    return m_waveIndex;
-}
-
-void TweakerModel::SetWaterIndex(int index)
-{
-    if (m_waterIndex != index)
-    {
-        m_waterIndex = index;
-        emit WaterIndexChanged(index);
-    }
-}
-
-int TweakerModel::WaterIndex() const
-{
-    return m_waterIndex;
-}
-
-void TweakerModel::SetLightIndex(int index)
-{
-    if (m_lightIndex != index)
-    {
-        m_lightIndex = index;
-        emit LightIndexChanged(index);
-    }
-}
-
-int TweakerModel::LightIndex() const
-{
-    return m_lightIndex;
-}
-
-void TweakerModel::SetTextureIndex(int index)
-{
-    if (m_textureIndex != index)
-    {
-        m_textureIndex = index;
-        emit TextureIndexChanged(index);
-    }
-}
-
-int TweakerModel::TextureIndex() const
-{
-    return m_textureIndex;
-}
-
-void TweakerModel::SetEmitterIndex(int index)
-{
-    if (m_emitterIndex != index)
-    {
-        m_emitterIndex = index;
-        emit EmitterIndexChanged(index);
-    }
-}
-
-int TweakerModel::EmitterIndex() const
-{
-    return m_emitterIndex;
-}
-
-void TweakerModel::SetTerrainIndex(int index)
-{
-    if (m_terrainIndex != index)
-    {
-        m_terrainIndex = index;
-        emit TerrainIndexChanged(index);
-    }
-}
-
-int TweakerModel::TerrainIndex() const
-{
-    return m_terrainIndex;
-}
-
-void TweakerModel::SetPostMapIndex(int index)
-{
-    if (m_postMapIndex != index)
-    {
-        m_postMapIndex = index;
-        emit PostMapIndexChanged(index);
-    }
-}
-
-int TweakerModel::PostMapIndex() const
-{
-    return m_postMapIndex;
-}
-
 AttributeModel* TweakerModel::MeshAttributeModel() const
 {
     return m_meshAttributeModel;
@@ -534,47 +337,47 @@ AttributeModel* TweakerModel::CameraAttributeModel() const
     return m_cameraAttributeModel;
 }
 
-const QStringList& TweakerModel::Engines() const
+StringListModel* TweakerModel::EnginesModel() const
 {
-    return m_engines;
+    return m_enginesModel;
 }
 
-const QStringList& TweakerModel::PostMaps() const
+StringListModel* TweakerModel::PostMapsModel() const
 {
-    return m_postMaps;
+    return m_postMapsModel;
 }
 
-const QStringList& TweakerModel::Meshes() const
+StringListModel* TweakerModel::MeshesModel() const
 {
-    return m_meshes;
+    return m_meshesModel;
 }
 
-const QStringList& TweakerModel::Terrain() const
+StringListModel* TweakerModel::TerrainModel() const
 {
-    return m_terrain;
+    return m_terrainModel;
 }
 
-const QStringList& TweakerModel::Textures() const
+StringListModel* TweakerModel::TexturesModel() const
 {
-    return m_textures;
+    return m_texturesModel;
 }
 
-const QStringList& TweakerModel::Emitters() const
+StringListModel* TweakerModel::EmittersModel() const
 {
-    return m_emitters;
+    return m_emittersModel;
 }
 
-const QStringList& TweakerModel::Water() const
+StringListModel* TweakerModel::WaterModel() const
 {
-    return m_water;
+    return m_waterModel;
 }
 
-const QStringList& TweakerModel::Lights() const
+StringListModel* TweakerModel::LightsModel() const
 {
-    return m_lights;
+    return m_lightsModel;
 }
 
-const QStringList& TweakerModel::Waves() const
+StringListModel* TweakerModel::WavesModel() const
 {
-    return m_waves;
+    return m_wavesModel;
 }

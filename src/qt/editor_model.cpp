@@ -3,18 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include "editor_model.h"
+#include "stringlist_model.h"
 
-void EditorModel::InitialiseShaders(int selected, const std::vector<std::string>& shaders)
+EditorModel::EditorModel(QObject* parent)
+    : QObject(parent)
+    , m_shadersModel(new StringListModel(this))
 {
-    m_shaders.clear();
-    m_shaders.reserve(shaders.size());
-    for (const auto& shader : shaders)
-    {
-        m_shaders.push_back(QString::fromStdString(shader));
-    }
-    emit ShadersChanged();
-
-    SetShaderIndex(selected);
 }
 
 void EditorModel::SetShaderText(const QString& text)
@@ -45,23 +39,9 @@ const QString& EditorModel::ShaderAssembly() const
     return m_shaderAssembly;
 }
 
-void EditorModel::SetShaderIndex(int index)
+StringListModel* EditorModel::ShadersModel() const
 {
-    if (m_shaderIndex != index)
-    {
-        m_shaderIndex = index;
-        emit ShaderIndexChanged(index);
-    }
-}
-
-const QStringList& EditorModel::Shaders() const
-{
-    return m_shaders;
-}
-
-int EditorModel::ShaderIndex() const
-{
-    return m_shaderIndex;
+    return m_shadersModel;
 }
 
 void EditorModel::CompileSelectedShader(const QString& text)

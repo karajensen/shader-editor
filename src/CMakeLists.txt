@@ -117,6 +117,11 @@ set(QT_LIST
     qt/tweaker_model.cpp
     qt/editor_model.h
     qt/editor_model.cpp
+    qt/stringlist_model.h
+    qt/stringlist_model.cpp
+)
+
+set(QML_LIST
     qt/resources/Tweaker.qml
     qt/resources/TweakerWindow.qml
     qt/resources/Editor.qml
@@ -144,7 +149,7 @@ link_directories(${BOOST_DIR}/${BOOST_LIB})
 find_package(Qt5 COMPONENTS Core Widgets Quick QuickControls2)
 qt5_add_resources(RESOURCES qt/resources/qml.qrc)
 
-add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${RESOURCES})
+add_executable(ShaderEditor ${SRC_LIST} ${QT_LIST} ${GLEW_LIST} ${QML_LIST} ${RESOURCES})
 qt5_use_modules(ShaderEditor Core Widgets Quick QuickControls2)
 
 # QML Reloading
@@ -164,6 +169,7 @@ target_compile_definitions(ShaderEditor PRIVATE
 set_target_properties(ShaderEditor PROPERTIES LINK_FLAGS "/ignore:4286")
 
 source_group("Qt" FILES ${QT_LIST})
+source_group("QML" FILES ${QML_LIST})
 source_group("Glew" FILES ${GLEW_LIST})
 
 target_link_libraries(ShaderEditor OpenGL32.lib)

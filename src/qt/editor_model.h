@@ -6,38 +6,29 @@
 
 #include <QObject>
 
+class StringListModel;
+
 /**
 * Allows run time editing of shaders
 */
 class EditorModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList shaders READ Shaders NOTIFY ShadersChanged)
-    Q_PROPERTY(int shaderIndex READ ShaderIndex WRITE SetShaderIndex NOTIFY ShaderIndexChanged)
+    Q_PROPERTY(StringListModel* shadersModel READ ShadersModel CONSTANT)
     Q_PROPERTY(QString shaderText READ ShaderText NOTIFY ShaderTextChanged)
     Q_PROPERTY(QString shaderAssembly READ ShaderAssembly NOTIFY ShaderAssemblyChanged)
 
 public:
 
-    using QObject::QObject;
+    /**
+    * Constructor
+    */
+    explicit EditorModel(QObject* parent = nullptr);
 
     /**
-    * Sets the available shaders for the combo box
-    * @param selected The initially selected shader
-    * @param shaders The shader names to set
+    * @return The model for list of editable shaders
     */
-    void InitialiseShaders(int selected, const std::vector<std::string>& shaders);
-
-    /**
-    * Property getter for shaders list
-    */
-    const QStringList& Shaders() const;
-
-    /**
-    * Property setter/getter for selected shader
-    */
-    void SetShaderIndex(int index);
-    int ShaderIndex() const;
+    StringListModel* ShadersModel() const;
 
     /**
     * Property setter/getter for the selected shader's text
@@ -60,15 +51,12 @@ public:
 signals:
 
     void RequestCompileSelectedShader(const QString& text);
-    void ShaderIndexChanged(int index);
-    void ShadersChanged();
     void ShaderAssemblyChanged();
     void ShaderTextChanged();
 
 private:
 
-    int m_shaderIndex = -1;    ///< Currently selected shader
-    QStringList m_shaders;     ///< List of editable shaders
-    QString m_shaderText;      ///< Text for the selected shader
-    QString m_shaderAssembly;  ///< Assembly for the selected shader
+    StringListModel* m_shadersModel = nullptr; ///< Model for list of editable shaders
+    QString m_shaderText;                      ///< Text for the selected shader
+    QString m_shaderAssembly;                  ///< Assembly for the selected shader
 };

@@ -12,7 +12,7 @@ void AttributeModel::SetAttributes(const QVector<AttributeData>& attributeData)
     m_attributes.resize(attributeData.size());
     for (const auto& data : attributeData)
     {
-        auto attribute = new Attribute(data.name, data.value, data.stepPrecision, this);
+        auto attribute = new Attribute(data.name, data.stepPrecision, this);
         m_attributes[data.index] = attribute;
         connect(attribute, &Attribute::ValueChanged, this, [this, index = data.index](float value)
             {

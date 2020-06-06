@@ -10,6 +10,7 @@
 
 using namespace Tweakable;
 class AttributeModel;
+class StringListModel;
 
 /**
 * Allows run-time editing of the scene
@@ -26,6 +27,15 @@ class TweakerModel : public QObject
     Q_PROPERTY(AttributeModel* terrainAttributeModel READ TerrainAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* postAttributeModel READ PostAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* cameraAttributeModel READ CameraAttributeModel CONSTANT)
+    Q_PROPERTY(StringListModel* enginesModel READ EnginesModel CONSTANT)
+    Q_PROPERTY(StringListModel* postMapsModel READ PostMapsModel CONSTANT)
+    Q_PROPERTY(StringListModel* meshesModel READ MeshesModel CONSTANT)
+    Q_PROPERTY(StringListModel* terrainModel READ TerrainModel CONSTANT)
+    Q_PROPERTY(StringListModel* texturesModel READ TexturesModel CONSTANT)
+    Q_PROPERTY(StringListModel* emittersModel READ EmittersModel CONSTANT)
+    Q_PROPERTY(StringListModel* waterModel READ WaterModel CONSTANT)
+    Q_PROPERTY(StringListModel* lightsModel READ LightsModel CONSTANT)
+    Q_PROPERTY(StringListModel* wavesModel READ WavesModel CONSTANT)
 
 public:
 
@@ -33,62 +43,6 @@ public:
     * Constructor
     */
     explicit TweakerModel(QObject* parent = nullptr);
-
-    /**
-    * Sets the available terrain for the combo box
-    * @param selected The initially selected terrain
-    * @param engines The terrain names to set
-    */
-    void InitialiseTerrain(int selected, const std::vector<std::string>& terrain);
-
-    /**
-    * Sets the available post maps for the combo box
-    * @param selected The initially selected post map
-    * @param engines The post map names to set
-    */
-    void InitialisePostMaps(int selected, const std::vector<std::string>& maps);
-
-    /**
-    * Sets the available render engines for the combo box
-    * @param selected The initially selected engine
-    * @param engines The render engine names to set
-    */
-    void InitialiseEngines(int selected, const std::vector<std::string>& engines);
-
-    /**
-    * Sets the available meshes for the combo box
-    * @param selected The initially selected mesh
-    * @param meshes The mesh names to set
-    */
-    void InitialiseMeshes(int selected, const std::vector<std::string>& meshes);
-
-    /**
-    * Sets the available water meshes for the combo box
-    * @param selected The initially selected mesh
-    * @param meshes The mesh names to set
-    */
-    void InitialiseWater(int selected, const std::vector<std::string>& water);
-
-    /**
-    * Sets the available lights for the combo box
-    * @param selected The initially selected light
-    * @param lights The light names to set
-    */
-    void InitialiseLights(int selected, const std::vector<std::string>& lights);
-
-    /**
-    * Sets the available emitters for the combo box
-    * @param selected The initially selected emitter
-    * @param emitters The emitter names to set
-    */
-    void InitialiseEmitters(int selected, const std::vector<std::string>& emitters);
-
-    /**
-    * Sets the available textures for the combo box
-    * @param selected The initially selected texture
-    * @param emitters The texture names to set
-    */
-    void InitialiseTextures(int selected, const std::vector<std::string>& textures);
 
     /**
     * Sets the available waves to be tweaked
@@ -157,59 +111,8 @@ public:
     GuiPage::Page SelectedPage() const;
 
     /**
-    * Property setter/getter for selected engine
+    * Models for tweakable attributes for a list
     */
-    void SetEngineIndex(int index);
-    int EngineIndex() const;
-
-    /**
-    * Property setter/getter for selected mesh
-    */
-    void SetMeshIndex(int index);
-    int MeshIndex() const;
-
-    /**
-    * Property setter/getter for selected wave
-    */
-    void SetWaveIndex(int index);
-    int WaveIndex() const;
-
-    /**
-    * Property setter/getter for selected water
-    */
-    void SetWaterIndex(int index);
-    int WaterIndex() const;
-
-    /**
-    * Property setter/getter for selected light
-    */
-    void SetLightIndex(int index);
-    int LightIndex() const;
-
-    /**
-    * Property setter/getter for selected texture
-    */
-    void SetTextureIndex(int index);
-    int TextureIndex() const;
-
-    /**
-    * Property setter/getter for selected emitter
-    */
-    void SetEmitterIndex(int index);
-    int EmitterIndex() const;
-
-    /**
-    * Property setter/getter for selected terrain
-    */
-    void SetTerrainIndex(int index);
-    int TerrainIndex() const;
-
-    /**
-    * Property setter/getter for selected post map
-    */
-    void SetPostMapIndex(int index);
-    int PostMapIndex() const;
-
     AttributeModel* MeshAttributeModel() const;
     AttributeModel* WaveAttributeModel() const;
     AttributeModel* WaterAttributeModel() const;
@@ -220,15 +123,18 @@ public:
     AttributeModel* PostAttributeModel() const;
     AttributeModel* CameraAttributeModel() const;
 
-    const QStringList& Engines() const;
-    const QStringList& PostMaps() const;
-    const QStringList& Meshes() const;
-    const QStringList& Terrain() const;
-    const QStringList& Textures() const;
-    const QStringList& Emitters() const;
-    const QStringList& Water() const;
-    const QStringList& Lights() const;
-    const QStringList& Waves() const;
+    /**
+    * Models for selectable items for a combo box
+    */
+    StringListModel* EnginesModel() const;
+    StringListModel* PostMapsModel() const;
+    StringListModel* MeshesModel() const;
+    StringListModel* TerrainModel() const;
+    StringListModel* TexturesModel() const;
+    StringListModel* EmittersModel() const;
+    StringListModel* WaterModel() const;
+    StringListModel* LightsModel() const;
+    StringListModel* WavesModel() const;
 
 signals:
 
@@ -243,38 +149,23 @@ signals:
     void RequestToggleLightsOnly();
     void RequestToggleLightsDiagnostics();
 
-    void EngineIndexChanged(int index);
-    void MeshIndexChanged(int index);
-    void WaveIndexChanged(int index);
-    void WaterIndexChanged(int index);
-    void LightIndexChanged(int index);
-    void TextureIndexChanged(int index);
-    void EmitterIndexChanged(int index);
-    void TerrainIndexChanged(int index);
-    void PostMapIndexChanged(int index);
-
 private:
 
-    int m_engineIndex = -1;        ///< Currently selected engine
-    int m_meshIndex = -1;          ///< Currently selected mesh
-    int m_waveIndex = -1;          ///< Currently selected wave
-    int m_waterIndex = -1;         ///< Currently selected water
-    int m_lightIndex = -1;         ///< Currently selected light
-    int m_textureIndex = -1;       ///< Currently selected texture
-    int m_emitterIndex = -1;       ///< Currently selected emitter
-    int m_terrainIndex = -1;       ///< Currently selected terrain
-    int m_postMapIndex = -1;       ///< Currently selected post processing map
+    std::string m_texturePath;                           ///< Path to the selected texture
+    GuiPage::Page m_selectedPage = GuiPage::Page::None;  ///< Current selected Gui Page
 
-    QStringList m_engines;
-    QStringList m_meshes;
-    QStringList m_waves;
-    QStringList m_water;
-    QStringList m_lights;
-    QStringList m_textures;
-    QStringList m_emitters;
-    QStringList m_terrain;
-    QStringList m_postMaps;
+    ///< Models for selectable items for a combo box
+    StringListModel* m_enginesModel = nullptr;
+    StringListModel* m_meshesModel = nullptr;
+    StringListModel* m_wavesModel = nullptr;
+    StringListModel* m_waterModel = nullptr;
+    StringListModel* m_lightsModel = nullptr;
+    StringListModel* m_texturesModel = nullptr;
+    StringListModel* m_emittersModel = nullptr;
+    StringListModel* m_terrainModel = nullptr;
+    StringListModel* m_postMapsModel = nullptr;
 
+    ///< Models for tweakable attributes for a list
     AttributeModel* m_cameraAttributeModel = nullptr;
     AttributeModel* m_meshAttributeModel = nullptr;
     AttributeModel* m_waveAttributeModel = nullptr;
@@ -284,7 +175,4 @@ private:
     AttributeModel* m_emitterAttributeModel = nullptr;
     AttributeModel* m_terrainAttributeModel = nullptr;
     AttributeModel* m_postAttributeModel = nullptr;
-
-    GuiPage::Page m_selectedPage{GuiPage::Page::None};    ///< Current selected Gui Page
-    std::string m_texturePath;                            ///< Path to the selected texture
 };

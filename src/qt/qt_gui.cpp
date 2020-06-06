@@ -2,13 +2,14 @@
 // Kara Jensen - mail@karajensen.com - qt_gui.cpp
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include "logger.h"
-
 #include "qt/qt_gui.h"
+#include "qt/qt_reloader.h"
 #include "qt/editor_model.h"
 #include "qt/tweaker_model.h"
-#include "qt/qt_reloader.h"
+#include "qt/stringlist_model.h"
 #include "qt/attribute_model.h"
+
+#include "logger.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -101,20 +102,21 @@ void QtGui::UpdateTweaker()
 
 void QtGui::UpdateEditor()
 {
-    bool initialisedShaders = false;
-    if(m_editor->Shaders().empty())
+    if (auto model = m_editor->ShadersModel())
     {
-        initialisedShaders = true;
-        m_editor->InitialiseShaders(
-            m_cache->ShaderSelected.Get(), m_cache->Shaders.Get());
+        if (model->Empty())
+        {
+            model->SetStringList(m_cache->Shaders.Get());
+            model->SetSelectedIndex(m_cache->ShaderSelected.Get());
+        }
     }
 
-    if(initialisedShaders || m_cache->ShaderText.RequiresUpdate())
+    if(m_cache->ShaderText.RequiresUpdate())
     {
         m_editor->SetShaderText(QString::fromStdString(m_cache->ShaderText.GetUpdated()));
     }
 
-    if(initialisedShaders || m_cache->ShaderAsm.RequiresUpdate())
+    if(m_cache->ShaderAsm.RequiresUpdate())
     {
         m_editor->SetShaderAssembly(QString::fromStdString(m_cache->ShaderAsm.GetUpdated()));
     }
@@ -122,102 +124,112 @@ void QtGui::UpdateEditor()
 
 void QtGui::UpdatePost()
 {
-    if (m_tweaker->PostMaps().empty())
+    if (auto model = m_tweaker->PostMapsModel())
     {
-        m_tweaker->InitialisePostMaps(
-            m_cache->PostMapSelected.Get(), m_cache->PostMaps.Get());
-    }
-    else if (m_cache->PostMapSelected.RequiresUpdate())
-    {
-        m_tweaker->SetPostMapIndex(m_cache->PostMapSelected.GetUpdated());
+        if (model->Empty())
+        {
+            model->SetStringList(m_cache->PostMaps.Get());
+            model->SetSelectedIndex(m_cache->PostMapSelected.Get());
+        }
     }
 
-    auto model = m_tweaker->PostAttributeModel();
-    for (int i = 0; i < Tweakable::Post::Max; ++i)
+    if (auto model = m_tweaker->PostAttributeModel())
     {
-        if (m_cache->Post[i].RequiresUpdate())
+        for (int i = 0; i < Tweakable::Post::Max; ++i)
         {
-            model->SetAttributeValue(i, m_cache->Post[i].GetUpdated());
+            if (m_cache->Post[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Post[i].GetUpdated());
+            }
         }
     }
 }
 
 void QtGui::UpdateScene()
 {
-    if(m_tweaker->Engines().empty())
+    if (auto model = m_tweaker->EnginesModel())
     {
-        m_tweaker->InitialiseEngines(
-            m_cache->EngineSelected.Get(), m_cache->Engines.Get());
+        if (model->Empty())
+        {
+            model->SetStringList(m_cache->Engines.Get());
+            model->SetSelectedIndex(m_cache->EngineSelected.Get());
+        }
     }
-    else if(m_cache->EngineSelected.RequiresUpdate())
+
+    if (auto model = m_tweaker->CameraAttributeModel())
     {
-        m_tweaker->SetEngineIndex(m_cache->EngineSelected.GetUpdated());
+        for (int i = 0; i < Tweakable::Camera::Max; ++i)
+        {
+            if (m_cache->Camera[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Camera[i].GetUpdated());
+            }
+        }
     }
 
     const float deltaTime = m_cache->DeltaTime.Get();
     const float timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
-
     m_tweaker->SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
     m_tweaker->SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
-
-    auto model = m_tweaker->CameraAttributeModel();
-    for (int i = 0; i < Tweakable::Camera::Max; ++i)
-    {
-        if (m_cache->Camera[i].RequiresUpdate())
-        {
-            model->SetAttributeValue(i, m_cache->Camera[i].GetUpdated());
-        }
-    }
 }
 
 void QtGui::UpdateTerrain()
 {
-    bool initialisedTerrain = false;
-    if(m_tweaker->Terrain().empty())
+    if (auto model = m_tweaker->TerrainModel())
     {
-        initialisedTerrain = true;
-        m_tweaker->InitialiseTerrain(
-            m_cache->TerrainSelected.Get(), m_cache->Terrains.Get());
+        if (model->Empty())
+        {
+            model->SetStringList(m_cache->Terrains.Get());
+            model->SetSelectedIndex(m_cache->TerrainSelected.Get());
+        }
     }
 
-    if (initialisedTerrain || m_cache->TerrainShader.RequiresUpdate())
+    if (auto model = m_tweaker->TerrainAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Terrain::Max; ++i)
+        {
+            if (m_cache->Terrain[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Terrain[i].GetUpdated());
+            }
+        }
+    }
+
+    if (m_cache->TerrainShader.RequiresUpdate())
     {
         m_tweaker->SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
     }
 
-    auto model = m_tweaker->TerrainAttributeModel();
-    for (int i = 0; i < Tweakable::Terrain::Max; ++i)
+    if (m_cache->TerrainInstances.RequiresUpdate())
     {
-        if (initialisedTerrain || m_cache->Terrain[i].RequiresUpdate())
-        {
-            model->SetAttributeValue(i, m_cache->Terrain[i].GetUpdated());
-        }
+        m_tweaker->SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
     }
-
-    m_tweaker->SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
 }
 
 void QtGui::UpdateTextures()
 {
-    bool initialisedTextures = false;
-    if(m_tweaker->Textures().empty())
+    if (auto model = m_tweaker->TexturesModel())
     {
-        initialisedTextures = true;
-        m_tweaker->InitialiseTextures(
-            m_cache->TextureSelected.Get(), m_cache->Textures.Get());
-    }
-
-    auto model = m_tweaker->TextureAttributeModel();
-    for (int i = 0; i < Tweakable::Texture::Max; ++i)
-    {
-        if (initialisedTextures || m_cache->Texture[i].RequiresUpdate())
+        if (model->Empty())
         {
-            model->SetAttributeValue(i, m_cache->Texture[i].GetUpdated());
+            model->SetStringList(m_cache->Textures.Get());
+            model->SetSelectedIndex(m_cache->TextureSelected.Get());
         }
     }
 
-    if (initialisedTextures || m_cache->TexturePath.RequiresUpdate())
+    if (auto model = m_tweaker->TextureAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Texture::Max; ++i)
+        {
+            if (m_cache->Texture[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Texture[i].GetUpdated());
+            }
+        }
+    }
+
+    if (m_cache->TexturePath.RequiresUpdate())
     {
         m_tweaker->SetTexturePath(m_cache->TexturePath.GetUpdated());
     }
@@ -225,134 +237,158 @@ void QtGui::UpdateTextures()
 
 void QtGui::UpdateLight()
 {
-    bool initialisedLights = false;
-    if(m_tweaker->Lights().empty())
+    if (auto model = m_tweaker->LightsModel())
     {
-        initialisedLights = true;
-        m_tweaker->InitialiseLights(
-            m_cache->LightSelected.Get(), m_cache->Lights.Get());
+        if (model->Empty())
+        {
+            model->SetStringList(m_cache->Lights.Get());
+            model->SetSelectedIndex(m_cache->LightSelected.Get());
+        }
     }
 
-    auto model = m_tweaker->LightAttributeModel();
-    for (int i = 0; i < Tweakable::Light::Max; ++i)
+    if (auto model = m_tweaker->LightAttributeModel())
     {
-        if (initialisedLights || m_cache->Light[i].RequiresUpdate())
+        for (int i = 0; i < Tweakable::Light::Max; ++i)
         {
-            model->SetAttributeValue(i, m_cache->Light[i].GetUpdated());
+            if (m_cache->Light[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Light[i].GetUpdated());
+            }
         }
     }
 }
 
 void QtGui::UpdateMesh()
 {
-    bool initialisedMeshes = false;
-    if (m_tweaker->Meshes().empty())
+    if (auto model = m_tweaker->MeshesModel())
     {
-        initialisedMeshes = true;
-        m_tweaker->InitialiseMeshes(
-            m_cache->MeshSelected.Get(), m_cache->Meshes.Get());
-    }
-
-    auto model = m_tweaker->MeshAttributeModel();
-    for (int i = 0; i < Tweakable::Mesh::Max; ++i)
-    {
-        if (initialisedMeshes || m_cache->Mesh[i].RequiresUpdate())
+        if (model->Empty())
         {
-            model->SetAttributeValue(i, m_cache->Mesh[i].GetUpdated());
+            model->SetStringList(m_cache->Meshes.Get());
+            model->SetSelectedIndex(m_cache->MeshSelected.Get());
         }
     }
 
-    if (initialisedMeshes || m_cache->MeshShader.RequiresUpdate())
+    if (auto model = m_tweaker->MeshAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Mesh::Max; ++i)
+        {
+            if (m_cache->Mesh[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Mesh[i].GetUpdated());
+            }
+        }
+    }
+
+    if (m_cache->MeshShader.RequiresUpdate())
     {
         m_tweaker->SetMeshShaderName(m_cache->MeshShader.GetUpdated());
     }
 
-    m_tweaker->SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
+    if (m_cache->MeshInstances.RequiresUpdate())
+    {
+        m_tweaker->SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
+    }
 }
 
 void QtGui::UpdateEmitter()
 {
-    bool initialisedEmitter = false;
-    if(m_tweaker->Emitters().empty())
+    if (auto model = m_tweaker->EmittersModel())
     {
-        initialisedEmitter = true;
-        m_tweaker->InitialiseEmitters(
-            m_cache->EmitterSelected.Get(), m_cache->Emitters.Get());
-    }
-
-    auto model = m_tweaker->EmitterAttributeModel();
-    for (int i = 0; i < Tweakable::Emitter::Max; ++i)
-    {
-        if (initialisedEmitter || m_cache->Emitter[i].RequiresUpdate())
+        if (model->Empty())
         {
-            model->SetAttributeValue(i, m_cache->Emitter[i].GetUpdated());
+            model->SetStringList(m_cache->Emitters.Get());
+            model->SetSelectedIndex(m_cache->EmitterSelected.Get());
         }
     }
 
-    m_tweaker->SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
+    if (auto model = m_tweaker->EmitterAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Emitter::Max; ++i)
+        {
+            if (m_cache->Emitter[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Emitter[i].GetUpdated());
+            }
+        }
+    }
+
+    if (m_cache->EmitterInstances.RequiresUpdate())
+    {
+        m_tweaker->SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
+    }
 }
 
 void QtGui::UpdateWater()
 {
-    bool initialisedWater = false;
-    if(m_tweaker->Water().empty())
+    if (auto model = m_tweaker->WaterModel())
     {
-        initialisedWater = true;
-        m_tweaker->InitialiseWater(
-            m_cache->WaterSelected.Get(), m_cache->Waters.Get());
-    }
-
-    auto model = m_tweaker->WaterAttributeModel();
-    for (int i = 0; i < Tweakable::Water::Max; ++i)
-    {
-        if (initialisedWater || m_cache->Water[i].RequiresUpdate())
+        if (model->Empty())
         {
-            model->SetAttributeValue(i, m_cache->Water[i].GetUpdated());
+            model->SetStringList(m_cache->Waters.Get());
+            model->SetSelectedIndex(m_cache->WaterSelected.Get());
         }
     }
 
-    if(initialisedWater || m_cache->WaveAmount.RequiresUpdate())
+    if (auto model = m_tweaker->WaterAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Water::Max; ++i)
+        {
+            if (m_cache->Water[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Water[i].GetUpdated());
+            }
+        }
+    }
+
+    if (auto model = m_tweaker->WaveAttributeModel())
+    {
+        for (int i = 0; i < Tweakable::Wave::Max; ++i)
+        {
+            if (m_cache->Wave[i].RequiresUpdate())
+            {
+                model->SetAttributeValue(i, m_cache->Wave[i].GetUpdated());
+            }
+        }
+    }
+
+    if (m_cache->WaveAmount.RequiresUpdate())
     {
         m_tweaker->SetWaveAmount(m_cache->WaveAmount.GetUpdated());
     }
 
-    model = m_tweaker->WaveAttributeModel();
-    for (int i = 0; i < Tweakable::Wave::Max; ++i)
+    if (m_cache->WaterInstances.RequiresUpdate())
     {
-        if (initialisedWater || m_cache->Wave[i].RequiresUpdate())
-        {
-            model->SetAttributeValue(i, m_cache->Wave[i].GetUpdated());
-        }
+        m_tweaker->SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
     }
-
-    m_tweaker->SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
 }
 
 void QtGui::SetupConnections()
 {
     connect(m_editor.get(), &EditorModel::RequestCompileSelectedShader, this,
         [this](const QString& text) { m_cache->CompileShader.Set(text.toStdString()); });
-    connect(m_editor.get(), &EditorModel::ShaderIndexChanged, this,
+    connect(m_editor->ShadersModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->ShaderSelected.Set(index); });
 
-    connect(m_tweaker.get(), &TweakerModel::MeshIndexChanged, this,
+    connect(m_tweaker->MeshesModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->MeshSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::WaveIndexChanged, this,
+    connect(m_tweaker->WavesModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->WaveSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::EngineIndexChanged, this,
+    connect(m_tweaker->EnginesModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->EngineSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::WaterIndexChanged, this,
+    connect(m_tweaker->WaterModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->WaterSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::LightIndexChanged, this,
+    connect(m_tweaker->LightsModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->LightSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::TextureIndexChanged, this,
+    connect(m_tweaker->TexturesModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->TextureSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::EmitterIndexChanged, this,
+    connect(m_tweaker->EmittersModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->EmitterSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::TerrainIndexChanged, this,
+    connect(m_tweaker->TerrainModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->TerrainSelected.Set(index); });
-    connect(m_tweaker.get(), &TweakerModel::PostMapIndexChanged, this,
+    connect(m_tweaker->PostMapsModel(), &StringListModel::SelectedIndexChanged, this,
         [this](int index) { m_cache->PostMapSelected.Set(index); });
+
     connect(m_tweaker.get(), &TweakerModel::RequestReloadScene, this,
         [this]() { m_cache->ReloadScene.Set(true); });
     connect(m_tweaker.get(), &TweakerModel::RequestReloadEngine, this,

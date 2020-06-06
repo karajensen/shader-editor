@@ -4,10 +4,9 @@
 
 #include "attribute.h"
 
-Attribute::Attribute(const QString& name, float value, int stepPrecision, QObject* parent)
+Attribute::Attribute(const QString& name, int stepPrecision, QObject* parent)
     : QObject(parent)
     , m_name(name)
-    , m_value(value)
     , m_stepSize(0.1f / stepPrecision)
 {
 }

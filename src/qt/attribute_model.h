@@ -28,7 +28,6 @@ public:
     {
         int index = -1;          ///< Index into the attribute enum
         QString name;            ///< Attribute display name
-        float value = 0.0f;      ///< Initial value
         int stepPrecision = 0;   ///< Amount of decimals places to step the value by
     };
 

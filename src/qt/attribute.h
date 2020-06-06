@@ -18,10 +18,9 @@ public:
     /**
     * Constructor
     * @param name Attribute display name
-    * @param value Initial value
     * @param stepPrecision Amount of decimals places to step the value by
     */
-    Attribute(const QString& name, float value, int stepPrecision, QObject* parent = nullptr);
+    Attribute(const QString& name, int stepPrecision, QObject* parent = nullptr);
 
     /**
     * Property getter for attribute display name
