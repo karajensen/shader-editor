@@ -38,6 +38,16 @@ TweakerModel::TweakerModel(QObject* parent)
     , m_emittersModel(new StringListModel(this))
     , m_terrainModel(new StringListModel(this))
     , m_postMapsModel(new StringListModel(this))
+    , m_lightAttributeFilterModel(new AttributeFilterModel(this))
+    , m_lightAttenuationAttributeFilterModel(new AttributeFilterModel(this))
+    , m_lightPositionAttributeFilterModel(new AttributeFilterModel(this))
+    , m_lightSpecularAttributeFilterModel(new AttributeFilterModel(this))
+    , m_lightDiffuseAttributeFilterModel(new AttributeFilterModel(this))
+    , m_emitterAttributeFilterModel(new AttributeFilterModel(this))
+    , m_emitterMinMaxAttributeFilterModel(new AttributeFilterModel(this))
+    , m_postAttributeFilterModel(new AttributeFilterModel(this))
+    , m_postCorrectionAttributeFilterModel(new AttributeFilterModel(this))
+    , m_postFogAttributeFilterModel(new AttributeFilterModel(this))
 {
     m_cameraAttributeModel->SetAttributes(
     {
@@ -217,6 +227,46 @@ TweakerModel::TweakerModel(QObject* parent)
     {
         Logger::LogError("Wave attributes don't match enum");
     }
+
+    m_lightAttributeFilterModel->setSourceModel(m_lightAttributeModel);
+    m_lightAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::None));
+    m_lightAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_lightAttenuationAttributeFilterModel->setSourceModel(m_lightAttributeModel);
+    m_lightAttenuationAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Attenuation));
+    m_lightAttenuationAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+    
+    m_lightPositionAttributeFilterModel->setSourceModel(m_lightAttributeModel);
+    m_lightPositionAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Position));
+    m_lightPositionAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_lightSpecularAttributeFilterModel->setSourceModel(m_lightAttributeModel);
+    m_lightSpecularAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Specular));
+    m_lightSpecularAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_lightDiffuseAttributeFilterModel->setSourceModel(m_lightAttributeModel);
+    m_lightDiffuseAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Diffuse));
+    m_lightDiffuseAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_emitterAttributeFilterModel->setSourceModel(m_emitterAttributeModel);
+    m_emitterAttributeFilterModel->setFilterFixedString(QString::number(Emitter::Group::None));
+    m_emitterAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_emitterMinMaxAttributeFilterModel->setSourceModel(m_emitterAttributeModel);
+    m_emitterMinMaxAttributeFilterModel->setFilterFixedString(QString::number(Emitter::Group::MinMax));
+    m_emitterMinMaxAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_postAttributeFilterModel->setSourceModel(m_postAttributeModel);
+    m_postAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::None));
+    m_postAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_postCorrectionAttributeFilterModel->setSourceModel(m_postAttributeModel);
+    m_postCorrectionAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::Correction));
+    m_postCorrectionAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
+
+    m_postFogAttributeFilterModel->setSourceModel(m_postAttributeModel);
+    m_postFogAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::Fog));
+    m_postFogAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 }
 
 void TweakerModel::SetSelectedPage(GuiPage::Page page)
@@ -276,6 +326,56 @@ AttributeModel* TweakerModel::PostAttributeModel() const
 AttributeModel* TweakerModel::CameraAttributeModel() const
 {
     return m_cameraAttributeModel;
+}
+
+AttributeFilterModel* TweakerModel::LightAttributeFilterModel() const
+{
+    return m_lightAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::LightAttenuationAttributeFilterModel() const
+{
+    return m_lightAttenuationAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::LightPositionAttributeFilterModel() const
+{
+    return m_lightPositionAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::LightSpecularAttributeFilterModel() const
+{
+    return m_lightSpecularAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::LightDiffuseAttributeFilterModel() const
+{
+    return m_lightDiffuseAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::EmitterAttributeFilterModel() const
+{
+    return m_emitterAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::EmitterMinMaxAttributeFilterModel() const
+{
+    return m_emitterMinMaxAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::PostAttributeFilterModel() const
+{
+    return m_postAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::PostCorrectionAttributeFilterModel() const
+{
+    return m_postCorrectionAttributeFilterModel;
+}
+
+AttributeFilterModel* TweakerModel::PostFogAttributeFilterModel() const
+{
+    return m_postFogAttributeFilterModel;
 }
 
 StringListModel* TweakerModel::EnginesModel() const

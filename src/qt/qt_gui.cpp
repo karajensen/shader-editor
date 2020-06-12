@@ -54,13 +54,14 @@ void QtGui::Run(int argc, char *argv[])
 
     QTimer timer; 
     timer.setInterval(10);
-    QObject::connect(&timer, &QTimer::timeout, this, [this]()
+    QObject::connect(&timer, &QTimer::timeout, this, [this, &timer]()
     { 
         UpdateTweaker();
         UpdateEditor();
 
         if (!m_cache->ApplicationRunning.Get())
         {
+            timer.stop();
             m_engine.reset();
             m_app->exit();
         }

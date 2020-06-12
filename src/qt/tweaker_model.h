@@ -7,8 +7,11 @@
 #include "tweakable_enums.h"
 
 #include <QObject>
+#include <QSortFilterProxyModel>
 
 using namespace Tweakable;
+using AttributeFilterModel = QSortFilterProxyModel;
+
 class AttributeModel;
 class StringListModel;
 
@@ -43,12 +46,20 @@ class TweakerModel : public QObject
     Q_PROPERTY(AttributeModel* meshAttributeModel READ MeshAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* waveAttributeModel READ WaveAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* waterAttributeModel READ WaterAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* lightAttributeModel READ LightAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* textureAttributeModel READ TextureAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* emitterAttributeModel READ EmitterAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* terrainAttributeModel READ TerrainAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* postAttributeModel READ PostAttributeModel CONSTANT)
     Q_PROPERTY(AttributeModel* cameraAttributeModel READ CameraAttributeModel CONSTANT)
+
+    Q_PROPERTY(AttributeFilterModel* lightAttributeModel READ LightAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* lightAttenuationAttributeModel READ LightAttenuationAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* lightPositionAttributeModel READ LightPositionAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* lightSpecularAttributeModel READ LightSpecularAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* lightDiffuseAttributeModel READ LightDiffuseAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* emitterAttributeModel READ EmitterAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* emitterMinMaxAttributeModel READ EmitterMinMaxAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* postAttributeModel READ PostAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* postCorrectionAttributeModel READ PostCorrectionAttributeFilterModel CONSTANT)
+    Q_PROPERTY(AttributeFilterModel* postFogAttributeModel READ PostFogAttributeFilterModel CONSTANT)
 
 public:
 
@@ -137,6 +148,20 @@ public:
     AttributeModel* CameraAttributeModel() const;
 
     /**
+    * Models for tweakable attributes filtered by groups
+    */
+    AttributeFilterModel* LightAttributeFilterModel() const;
+    AttributeFilterModel* LightAttenuationAttributeFilterModel() const;
+    AttributeFilterModel* LightPositionAttributeFilterModel() const;
+    AttributeFilterModel* LightSpecularAttributeFilterModel() const;
+    AttributeFilterModel* LightDiffuseAttributeFilterModel() const;
+    AttributeFilterModel* EmitterAttributeFilterModel() const;
+    AttributeFilterModel* EmitterMinMaxAttributeFilterModel() const;
+    AttributeFilterModel* PostAttributeFilterModel() const;
+    AttributeFilterModel* PostCorrectionAttributeFilterModel() const;
+    AttributeFilterModel* PostFogAttributeFilterModel() const;
+
+    /**
     * Models for selectable items for a combo box
     */
     StringListModel* EnginesModel() const;
@@ -208,4 +233,16 @@ private:
     AttributeModel* m_emitterAttributeModel = nullptr;
     AttributeModel* m_terrainAttributeModel = nullptr;
     AttributeModel* m_postAttributeModel = nullptr;
+
+    ///< Models for tweakable attributes filtered by groups
+    AttributeFilterModel* m_lightAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_lightAttenuationAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_lightPositionAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_lightSpecularAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_lightDiffuseAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_emitterAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_emitterMinMaxAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_postAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_postCorrectionAttributeFilterModel = nullptr;
+    AttributeFilterModel* m_postFogAttributeFilterModel = nullptr;
 };
