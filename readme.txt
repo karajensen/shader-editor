@@ -1,4 +1,5 @@
 
+- Fix freeze on Escape to exit
 - Move Editor and Tweaker to QML
 
 ==================================================================================

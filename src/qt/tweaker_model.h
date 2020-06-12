@@ -18,15 +18,18 @@ class StringListModel;
 class TweakerModel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(AttributeModel* meshAttributeModel READ MeshAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* waveAttributeModel READ WaveAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* waterAttributeModel READ WaterAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* lightAttributeModel READ LightAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* textureAttributeModel READ TextureAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* emitterAttributeModel READ EmitterAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* terrainAttributeModel READ TerrainAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* postAttributeModel READ PostAttributeModel CONSTANT)
-    Q_PROPERTY(AttributeModel* cameraAttributeModel READ CameraAttributeModel CONSTANT)
+
+    Q_PROPERTY(float deltaTime READ DeltaTime NOTIFY DeltaTimeChanged)
+    Q_PROPERTY(int framesPerSecond READ FramesPerSecond NOTIFY FramesPerSecondChanged)
+    Q_PROPERTY(int waveCount READ WaveCount WRITE SetWaveCount NOTIFY WaveCountChanged)
+    Q_PROPERTY(QString waterInstances READ WaterInstances NOTIFY WaterInstancesChanged)
+    Q_PROPERTY(QString emitterInstances READ EmitterInstances NOTIFY EmitterInstancesChanged)
+    Q_PROPERTY(QString meshInstances READ MeshInstances NOTIFY MeshInstancesChanged)
+    Q_PROPERTY(QString terrainInstances READ TerrainInstances NOTIFY TerrainInstancesChanged)
+    Q_PROPERTY(QString meshShader READ MeshShader NOTIFY MeshShaderChanged)
+    Q_PROPERTY(QString terrainShader READ TerrainShader NOTIFY TerrainShaderChanged)
+    Q_PROPERTY(QString texturePath READ TexturePath NOTIFY TexturePathChanged)
+
     Q_PROPERTY(StringListModel* enginesModel READ EnginesModel CONSTANT)
     Q_PROPERTY(StringListModel* postMapsModel READ PostMapsModel CONSTANT)
     Q_PROPERTY(StringListModel* meshesModel READ MeshesModel CONSTANT)
@@ -37,6 +40,16 @@ class TweakerModel : public QObject
     Q_PROPERTY(StringListModel* lightsModel READ LightsModel CONSTANT)
     Q_PROPERTY(StringListModel* wavesModel READ WavesModel CONSTANT)
 
+    Q_PROPERTY(AttributeModel* meshAttributeModel READ MeshAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* waveAttributeModel READ WaveAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* waterAttributeModel READ WaterAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* lightAttributeModel READ LightAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* textureAttributeModel READ TextureAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* emitterAttributeModel READ EmitterAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* terrainAttributeModel READ TerrainAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* postAttributeModel READ PostAttributeModel CONSTANT)
+    Q_PROPERTY(AttributeModel* cameraAttributeModel READ CameraAttributeModel CONSTANT)
+
 public:
 
     /**
@@ -45,64 +58,64 @@ public:
     explicit TweakerModel(QObject* parent = nullptr);
 
     /**
-    * Sets the available waves to be tweaked
-    * @param amount The amount of waves to tweak
+    * Property setter/getter for the amount of waves for the selected water
     */
-    void SetWaveAmount(int amount);
+    void SetWaveCount(int count);
+    int WaveCount() const;
 
     /**
-    * Sets the readonly tweak entry
-    * @param dt The time passed in seconds between ticks
+    * Property setter/getter for the time passed in seconds between ticks
     */
-    void SetDeltaTime(const std::string& dt);
+    void SetDeltaTime(float deltaTime);
+    float DeltaTime() const;
 
     /**
-    * Sets the readonly tweak entry
-    * @param fps The frames per second for the application
+    * Property setter/getter for the frames per second for the application
     */
-    void SetFramesPerSec(const std::string& fps);
+    void SetFramesPerSecond(int fps);
+    int FramesPerSecond() const;
 
     /**
-    * Sets the readonly selected mesh shader name
-    * @param name The name of the shader
+    * Property setter/getter for the shader used for the selected mesh
     */
-    void SetMeshShaderName(const std::string& name);
+    void SetMeshShader(const QString& shader);
+    const QString& MeshShader() const;
 
     /**
-    * Sets the readonly selected terrain shader name
-    * @param name The name of the shader
+    * Property setter/getter for the shader used for the selected terrain
     */
-    void SetTerrainShaderName(const std::string& name);
+    void SetTerrainShader(const QString& shader);
+    const QString& TerrainShader() const;
 
     /**
-    * Sets the readonly selected texture path
-    * @param path The path to the texture
+    * Property setter/getter for the selected texture file path
     */
-    void SetTexturePath(const std::string& path);
+    void SetTexturePath(const QString& path);
+    const QString& TexturePath() const;
 
     /**
-    * Sets the readonly selected mesh instance count
-    * @param count The number of instances
+    * Property setter/getter for number of instances of the selected mesh
     */
-    void SetMeshInstanceCount(const std::string& count);
+    void SetMeshInstances(const QString& instances);
+    const QString& MeshInstances() const;
 
     /**
-    * Sets the readonly selected emitter instance count
-    * @param count The number of instances
+    * Property setter/getter for number of instances of the selected emitter
     */
-    void SetEmitterInstanceCount(const std::string& count);
+    void SetEmitterInstances(const QString& instances);
+    const QString& EmitterInstances() const;
 
     /**
-    * Sets the readonly selected terrain instance count
-    * @param count The number of instances
+    * Property setter/getter for number of instances of the selected terrain
     */
-    void SetTerrainInstanceCount(const std::string& count);
+    void SetTerrainInstances(const QString& instances);
+    const QString& TerrainInstances() const;
 
     /**
-    * Sets the readonly selected water instance count
-    * @param count The number of instances
+    * Property setter/getter for number of instances of the selected water
     */
-    void SetWaterInstanceCount(const std::string& count);
+    void SetWaterInstances(const QString& instances);
+    const QString& WaterInstances() const;
 
     /**
     * Property setter/getter for selected page
@@ -139,6 +152,16 @@ public:
 signals:
 
     void SelectedPageChanged();
+    void DeltaTimeChanged();
+    void FramesPerSecondChanged();
+    void WaveCountChanged();
+    void WaterInstancesChanged();
+    void EmitterInstancesChanged();
+    void MeshInstancesChanged();
+    void MeshShaderChanged();
+    void TerrainInstancesChanged();
+    void TerrainShaderChanged();
+    void TexturePathChanged();
     void RequestReloadScene();
     void RequestReloadEngine();
     void RequestReloadTerrain();
@@ -151,8 +174,18 @@ signals:
 
 private:
 
-    std::string m_texturePath;                           ///< Path to the selected texture
-    GuiPage::Page m_selectedPage = GuiPage::Page::None;  ///< Current selected Gui Page
+    GuiPage::Page m_selectedPage = GuiPage::Page::None;  ///< User selected Gui Page
+
+    float m_deltaTime = 0.0f;    ///< The time passed in seconds between ticks
+    int m_framesPerSecond = 0;   ///< The frames per second for the application
+    int m_waveCount = 0;         ///< The amount of waves for the selected water
+    QString m_waterInstances;    ///< Number of instances of the selected water
+    QString m_emitterInstances;  ///< Number of instances of the selected emitter
+    QString m_meshInstances;     ///< Number of instances of the selected mesh
+    QString m_terrainInstances;  ///< Number of instances of the selected terrain
+    QString m_meshShader;        ///< Shader used for the selected mesh
+    QString m_terrainShader;     ///< Shader used for the selected terrain
+    QString m_texturePath;       ///< File path to the selected texture
 
     ///< Models for selectable items for a combo box
     StringListModel* m_enginesModel = nullptr;

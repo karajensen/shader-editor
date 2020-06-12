@@ -6,8 +6,12 @@
 
 namespace Tweakable
 {
-    namespace Mesh
+    struct Mesh
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             Ambience,
@@ -17,11 +21,16 @@ namespace Tweakable
             Specularity,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Terrain
+    struct Terrain
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             Ambience,
@@ -34,11 +43,16 @@ namespace Tweakable
             Scale,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Water
+    struct Water
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             Bump,
@@ -64,11 +78,16 @@ namespace Tweakable
             Reflection,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Wave
+    struct Wave
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             Frequency,
@@ -78,11 +97,20 @@ namespace Tweakable
             DirectionZ,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Light
+    struct Light
     {
+        enum Group
+        {
+            None,
+            Attenuation,
+            Position,
+            Specular,
+            Diffuse
+        };
         enum Attribute
         {
             PositionX,
@@ -101,11 +129,16 @@ namespace Tweakable
             Active,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Camera
+    struct Camera
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             PositionX,
@@ -118,11 +151,16 @@ namespace Tweakable
             RotationSpd,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Texture
+    struct Texture
     {
+        enum Group
+        {
+            None
+        };
         enum Attribute
         {
             Scale,
@@ -131,11 +169,17 @@ namespace Tweakable
             Iterations,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Emitter
+    struct Emitter
     {
+        enum Group
+        {
+            None,
+            MinMax
+        };
         enum Attribute
         {
             LifeTime,
@@ -160,11 +204,18 @@ namespace Tweakable
             MaxWait,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
-    namespace Post
+    struct Post
     {
+        enum Group
+        {
+            None,
+            Correction,
+            Fog
+        };
         enum Attribute
         {
             Contrast,
@@ -191,8 +242,9 @@ namespace Tweakable
             MaxBlue,
             Max
         };
-        const char* toString(Attribute value);
-    }
+        static const char* toString(Attribute value);
+        static Group group(Attribute value);
+    };
 
     namespace GuiPage
     {
@@ -205,6 +257,5 @@ namespace Tweakable
             None
         };
         const char* toString(Page value);
-    }
+    };
 }
-

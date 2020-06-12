@@ -24,6 +24,11 @@ namespace Tweakable
         return "";
     }
 
+    Mesh::Group Mesh::group(Mesh::Attribute)
+    {
+        return None;
+    }
+
     const char* Terrain::toString(Terrain::Attribute value)
     {
         switch (value)
@@ -46,6 +51,11 @@ namespace Tweakable
             return "Scale";
         }
         return "";
+    }
+
+    Terrain::Group Terrain::group(Terrain::Attribute)
+    {
+        return None;
     }
 
     const char* Water::toString(Water::Attribute value)
@@ -98,6 +108,11 @@ namespace Tweakable
         return "";
     }
 
+    Water::Group Water::group(Water::Attribute)
+    {
+        return None;
+    }
+
     const char* Wave::toString(Wave::Attribute value)
     {
         switch (value)
@@ -114,6 +129,11 @@ namespace Tweakable
             return "Direction Z";
         }
         return "";
+    }
+
+    Wave::Group Wave::group(Wave::Attribute)
+    {
+        return None;
     }
 
     const char* Light::toString(Light::Attribute value)
@@ -147,9 +167,34 @@ namespace Tweakable
         case SpecularB:
             return "Specular Blue";
         case Active:
-            return "Active";
+            return "Activity";
         }
         return "";
+    }
+
+    Light::Group Light::group(Light::Attribute value)
+    {
+        switch (value)
+        {
+        case PositionX:
+        case PositionY:
+        case PositionZ:
+            return Position;
+        case AttenuationX:
+        case AttenuationY:
+        case AttenuationZ:
+            return Attenuation;
+        case DiffuseR:
+        case DiffuseG:
+        case DiffuseB:
+            return Diffuse;
+        case Specularity:
+        case SpecularR:
+        case SpecularG:
+        case SpecularB:
+            return Specular;
+        }
+        return None;
     }
 
     const char* Camera::toString(Camera::Attribute value)
@@ -174,6 +219,11 @@ namespace Tweakable
         return "";
     }
 
+    Camera::Group Camera::group(Camera::Attribute)
+    {
+        return None;
+    }
+
     const char* Texture::toString(Texture::Attribute value)
     {
         switch (value)
@@ -188,6 +238,11 @@ namespace Tweakable
             return "Iterations";
         }
         return "";
+    }
+
+    Texture::Group Texture::group(Texture::Attribute)
+    {
+        return None;
     }
 
     const char* Emitter::toString(Emitter::Attribute value)
@@ -236,6 +291,25 @@ namespace Tweakable
             return "Max Wait";
         }
         return "";
+    }
+
+    Emitter::Group Emitter::group(Emitter::Attribute value)
+    {
+        switch (value)
+        {
+        case MinSpeed:
+        case MaxSpeed:
+        case MinFreq:
+        case MaxFreq:
+        case MinAmp:
+        case MaxAmp:
+        case MinSize:
+        case MaxSize:
+        case MinWait:
+        case MaxWait:
+            return MinMax;
+        }
+        return None;
     }
 
     const char* Post::toString(Post::Attribute value)
@@ -288,6 +362,29 @@ namespace Tweakable
             return "Max Blue";
         }
         return "";
+    }
+
+    Post::Group Post::group(Post::Attribute value)
+    {
+        switch (value)
+        {
+        case Contrast:
+        case Saturation:
+        case MinRed:
+        case MinGreen:
+        case MinBlue:
+        case MaxRed:
+        case MaxGreen:
+        case MaxBlue:
+            return Correction;
+        case FogStart:
+        case FogFade:
+        case FogRed:
+        case FogGreen:
+        case FogBlue:
+            return Fog;
+        }
+        return None;
     }
 
     const char* GuiPage::toString(GuiPage::Page value)

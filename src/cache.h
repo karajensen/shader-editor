@@ -166,10 +166,8 @@ struct Cache
     Lockable<bool> LightDiagnostics;    ///< Request to toggle the light diagnostics
     Lockable<bool> PauseEmission;       ///< Request to pause the currently selected emitter
     Lockable<bool> RenderLightsOnly;    ///< Request to render only the lights
-    
     Lockable<float> DeltaTime;          ///< The time passed in seconds between ticks
     Lockable<float> Timer;              ///< The time passed in seconds from start
-    
     Lockable<int> FramesPerSec;         ///< The frames per second for the application
     Lockable<int> ShaderSelected;       ///< Index for the selected shader
     Lockable<int> EngineSelected;       ///< The selected render engine to use
@@ -194,16 +192,6 @@ struct Cache
     LockableString ShaderAsm;           ///< Assembly for the selected shader
     LockableString CompileShader;       ///< Text to request to be compiled
 
-    std::array<Lockable<float>, Tweakable::Camera::Max> Camera;    ///< Camera attributes
-    std::array<Lockable<float>, Tweakable::Light::Max> Light;      ///< Selected light attributes
-    std::array<Lockable<float>, Tweakable::Post::Max> Post;        ///< Post processing attributes
-    std::array<Lockable<float>, Tweakable::Mesh::Max> Mesh;        ///< Selected mesh attributes
-    std::array<Lockable<float>, Tweakable::Water::Max> Water;      ///< Selected water attributes
-    std::array<Lockable<float>, Tweakable::Wave::Max> Wave;        ///< Wave attributes
-    std::array<Lockable<float>, Tweakable::Emitter::Max> Emitter;  ///< Emitter attributes
-    std::array<Lockable<float>, Tweakable::Terrain::Max> Terrain;  ///< Terrain attributes
-    std::array<Lockable<float>, Tweakable::Texture::Max> Texture;  ///< Texture attributes
-
     Lockable<std::vector<std::string>> Shaders;   ///< Container of all shaders
     Lockable<std::vector<std::string>> Engines;   ///< Container of all render engines
     Lockable<std::vector<std::string>> Lights;    ///< Container of all lights
@@ -213,4 +201,14 @@ struct Cache
     Lockable<std::vector<std::string>> Emitters;  ///< Container of all emitters
     Lockable<std::vector<std::string>> Textures;  ///< Container of all editable textures
     Lockable<std::vector<std::string>> Terrains;  ///< Container of all terrain
+
+    std::array<Lockable<float>, Tweakable::Camera::Max> Camera;    ///< Camera attributes
+    std::array<Lockable<float>, Tweakable::Light::Max> Light;      ///< Selected light attributes
+    std::array<Lockable<float>, Tweakable::Post::Max> Post;        ///< Post processing attributes
+    std::array<Lockable<float>, Tweakable::Mesh::Max> Mesh;        ///< Selected mesh attributes
+    std::array<Lockable<float>, Tweakable::Water::Max> Water;      ///< Selected water attributes
+    std::array<Lockable<float>, Tweakable::Wave::Max> Wave;        ///< Wave attributes
+    std::array<Lockable<float>, Tweakable::Emitter::Max> Emitter;  ///< Emitter attributes
+    std::array<Lockable<float>, Tweakable::Terrain::Max> Terrain;  ///< Terrain attributes
+    std::array<Lockable<float>, Tweakable::Texture::Max> Texture;  ///< Texture attributes
 };

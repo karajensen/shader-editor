@@ -168,10 +168,9 @@ void QtGui::UpdateScene()
     }
 
     const float deltaTime = m_cache->DeltaTime.Get();
-    const float timer = m_cache->Timer.Get();
     const int framesPerSec = m_cache->FramesPerSec.Get();
-    m_tweaker->SetDeltaTime(boost::lexical_cast<std::string>(deltaTime));
-    m_tweaker->SetFramesPerSec(boost::lexical_cast<std::string>(framesPerSec));
+    m_tweaker->SetDeltaTime(deltaTime);
+    m_tweaker->SetFramesPerSecond(framesPerSec);
 }
 
 void QtGui::UpdateTerrain()
@@ -198,12 +197,12 @@ void QtGui::UpdateTerrain()
 
     if (m_cache->TerrainShader.RequiresUpdate())
     {
-        m_tweaker->SetTerrainShaderName(m_cache->TerrainShader.GetUpdated());
+        m_tweaker->SetTerrainShader(QString::fromStdString(m_cache->TerrainShader.GetUpdated()));
     }
 
     if (m_cache->TerrainInstances.RequiresUpdate())
     {
-        m_tweaker->SetTerrainInstanceCount(m_cache->TerrainInstances.GetUpdated());
+        m_tweaker->SetTerrainInstances(QString::fromStdString(m_cache->TerrainInstances.GetUpdated()));
     }
 }
 
@@ -231,7 +230,7 @@ void QtGui::UpdateTextures()
 
     if (m_cache->TexturePath.RequiresUpdate())
     {
-        m_tweaker->SetTexturePath(m_cache->TexturePath.GetUpdated());
+        m_tweaker->SetTexturePath(QString::fromStdString(m_cache->TexturePath.GetUpdated()));
     }
 }
 
@@ -282,12 +281,12 @@ void QtGui::UpdateMesh()
 
     if (m_cache->MeshShader.RequiresUpdate())
     {
-        m_tweaker->SetMeshShaderName(m_cache->MeshShader.GetUpdated());
+        m_tweaker->SetMeshShader(QString::fromStdString(m_cache->MeshShader.GetUpdated()));
     }
 
     if (m_cache->MeshInstances.RequiresUpdate())
     {
-        m_tweaker->SetMeshInstanceCount(m_cache->MeshInstances.GetUpdated());
+        m_tweaker->SetMeshInstances(QString::fromStdString(m_cache->MeshInstances.GetUpdated()));
     }
 }
 
@@ -315,7 +314,7 @@ void QtGui::UpdateEmitter()
 
     if (m_cache->EmitterInstances.RequiresUpdate())
     {
-        m_tweaker->SetEmitterInstanceCount(m_cache->EmitterInstances.GetUpdated());
+        m_tweaker->SetEmitterInstances(QString::fromStdString(m_cache->EmitterInstances.GetUpdated()));
     }
 }
 
@@ -354,12 +353,12 @@ void QtGui::UpdateWater()
 
     if (m_cache->WaveAmount.RequiresUpdate())
     {
-        m_tweaker->SetWaveAmount(m_cache->WaveAmount.GetUpdated());
+        m_tweaker->SetWaveCount(m_cache->WaveAmount.GetUpdated());
     }
 
     if (m_cache->WaterInstances.RequiresUpdate())
     {
-        m_tweaker->SetWaterInstanceCount(m_cache->WaterInstances.GetUpdated());
+        m_tweaker->SetWaterInstances(QString::fromStdString(m_cache->WaterInstances.GetUpdated()));
     }
 }
 
