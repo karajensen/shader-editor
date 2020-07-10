@@ -358,4 +358,4 @@ private:
 
     HWND m_hwnd = nullptr;               ///< handle to the window
     std::unique_ptr<DirectxData> m_data; ///< member data of directX
-};                     
+};         

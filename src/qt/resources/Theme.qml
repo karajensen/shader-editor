@@ -6,7 +6,7 @@ pragma Singleton
 import QtQuick 2.0  
   
 Item {  
-	readonly property int fontSize: theme.item ? theme.item.fontSize : 0
+    readonly property int fontSize: theme.item ? theme.item.fontSize : 0
     readonly property int smallMargin: theme.item ? theme.item.smallMargin : 0
     readonly property int margin: theme.item ? theme.item.margin : 0
     readonly property int largeMargin: theme.item ? theme.item.largeMargin : 0

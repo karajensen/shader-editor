@@ -118,4 +118,3 @@ private:
     std::unordered_map<std::string, std::string> m_defines; ///< map of #defined items to replace
     unsigned int m_shaderComponents;                        ///< components of shader undergoing linking
 };
-

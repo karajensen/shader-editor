@@ -28,4 +28,3 @@ private:
 
     static std::mutex sm_logMutex; ///< For getting sole access to the console
 };
-

@@ -53,4 +53,3 @@ private:
     unsigned int m_fps = 0;           ///< Amount of frames rendered in 1 second
     unsigned int m_fpsCounter = 0;    ///< Amount of frames rendered since delta time counter began
 };
-

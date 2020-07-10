@@ -167,4 +167,3 @@ bool Mesh::InitialiseFromFile(const std::string& path,
     Logger::LogInfo("Mesh: " + Name() + " created");
     return true;
 }
-

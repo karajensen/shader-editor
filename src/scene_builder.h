@@ -219,4 +219,4 @@ private:
 private:
 
     SceneData& m_data; ///< The scene to build
-};                     
+};                  

@@ -70,4 +70,4 @@ public:
     * @return the shadow instances for meshes
     */
     virtual const MeshData& Shadows() const = 0;
-};                     
+};           

@@ -109,15 +109,15 @@ private:
 
 private:
 
-    Matrix m_world;                     ///< World Matrix for the camera
-    Float3 m_initialPos;                ///< Camera initial position in world space
-    Float3 m_position;                  ///< Camera position in world space
-    Float3 m_target;                    ///< Camera Look target
-    Float3 m_rotation;                  ///< Rotation in radians (yaw, pitch, roll)
-    Float2 m_heightBounds;              ///< The min/max height the camera can move
-    float m_forwardSpeed;               ///< The speed to move the camera forward
-    float m_rotationSpeed;              ///< The speed to rotate the camera
-    bool m_autoMove = false;            ///< Whether to automatically move the camera
-    bool m_cameraNeedsUpdate = false;   ///< Whether the camera requires updating or not
+    Matrix m_world;                         ///< World Matrix for the camera
+    Float3 m_initialPos;                    ///< Camera initial position in world space
+    Float3 m_position;                      ///< Camera position in world space
+    Float3 m_target;                        ///< Camera Look target
+    Float3 m_rotation;                      ///< Rotation in radians (yaw, pitch, roll)
+    Float2 m_heightBounds;                  ///< The min/max height the camera can move
+    float m_forwardSpeed;                   ///< The speed to move the camera forward
+    float m_rotationSpeed;                  ///< The speed to rotate the camera
+    bool m_autoMove = false;                ///< Whether to automatically move the camera
+    bool m_cameraNeedsUpdate = false;       ///< Whether the camera requires updating or not
     std::unique_ptr<BoundingArea> m_bounds; ///< The bounding area in front of the area
 };

@@ -6,7 +6,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.14
   
 Item {  
-	readonly property int fontSize: 15
+    readonly property int fontSize: 15
     readonly property int smallMargin: 1
     readonly property int margin: 3
     readonly property int largeMargin: 10
