@@ -8,6 +8,7 @@
 #include "qt/tweaker_model.h"
 #include "qt/stringlist_model.h"
 #include "qt/attribute_model.h"
+#include "qt/property_setter.h"
 
 #include "logger.h"
 
@@ -24,6 +25,7 @@ QtGui::~QtGui() = default;
 QtGui::QtGui(std::shared_ptr<Cache> cache)
     : QObject(nullptr)
     , m_cache(cache)
+    , m_page(Tweakable::GuiPage::Page::None)
 {
 }
 
@@ -43,6 +45,7 @@ void QtGui::Run(int argc, char *argv[])
     m_editor = std::make_unique<EditorModel>();
 
     SetupConnections();
+    RegisterQmlTypes();
 
     auto context = m_engine->rootContext();
     context->setContextProperty("TweakerModel", m_tweaker.get());
@@ -76,7 +79,7 @@ void QtGui::UpdateTweaker()
     const auto page = m_tweaker->SelectedPage();
     if(page != m_page)
     {
-        m_page = page;
+        m_page = static_cast<Tweakable::GuiPage::Page>(page);
         m_cache->PageSelected.Set(page);
     }
 
@@ -486,4 +489,15 @@ void QtGui::SetupConnections()
                 }
             });
     }
+}
+
+void QtGui::RegisterQmlTypes()
+{
+    const char* uri = "Application.Controls";
+    qmlRegisterType<StringListModel>(uri, 1, 0, "StringListModel");
+    qmlRegisterType<AttributeModel>(uri, 1, 0, "AttributeModel");
+    qmlRegisterType<AttributeFilterModel>(uri, 1, 0, "AttributeFilterModel");
+    qmlRegisterSingletonType(QUrl(m_reloader->QmlSourcePath() + "Theme.qml"), uri, 1, 0, "Theme");
+    qmlRegisterSingletonType<PropertySetter>(uri, 1, 0, "PropertySetter", 
+        [](auto, auto) { return new PropertySetter(); });
 }

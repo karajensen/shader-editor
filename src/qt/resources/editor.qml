@@ -5,34 +5,40 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.14
+import Application.Controls 1.0
 
-Rectangle {
+Item {
     id: root
-    color: palette.midlight
     
     ColumnLayout {
+        id: columnLayout
         anchors.fill: parent
-        spacing: 3
-        anchors.margins: 3
+        anchors.margins: spacing
+        spacing: Theme.margin
 
         RowLayout {
+            spacing: columnLayout.spacing
             Layout.fillWidth: true
-            spacing: 3
 
             ComboBox {
-                Layout.preferredWidth: 300
-                Layout.fillWidth: true
                 model: EditorModel.shadersModel
-                currentIndex: model.shaderIndex
+                currentIndex: model.selectedIndex
+                textRole: "display"
+                font.pixelSize: Theme.fontSize
+                Layout.preferredWidth: 300
+                Layout.preferredHeight: revertButton.height
+                Layout.fillWidth: true
 
                 onActivated: {
-                    model.shaderIndex = currentIndex;
+                    model.selectedIndex = currentIndex;
                 }
             }
 
             Button {
-                Layout.fillWidth: true
+                id: revertButton
                 text: qsTr("Revert")
+                font.pixelSize: Theme.fontSize
+                Layout.fillWidth: true
 
                 onPressed: {
                     shaderTextArea.text = Qt.binding(function(){ 
@@ -41,8 +47,10 @@ Rectangle {
             }
 
             Button {
-                Layout.fillWidth: true
+                id: compileButton
                 text: qsTr("Compile")
+                font.pixelSize: Theme.fontSize
+                Layout.fillWidth: true
 
                 onPressed: {
                     EditorModel.CompileSelectedShader(shaderTextArea.text);
@@ -52,28 +60,28 @@ Rectangle {
 
         SplitView {
             id: splitView
+            orientation: Qt.Vertical
             Layout.fillWidth: true
             Layout.fillHeight: true
-            orientation: Qt.Vertical
 
             handle: Rectangle {
                 implicitWidth: 3
                 implicitHeight: 3
-                color: SplitHandle.pressed ? palette.highlight : root.color
+                color: SplitHandle.pressed ? Theme.highlightColor : Theme.midlightColor
             }
 
             EditorTextArea {
                 id: shaderTextArea
+                text: EditorModel.shaderText
                 SplitView.fillWidth: true
                 SplitView.preferredHeight: splitView.height / 2
-                text: EditorModel.shaderText
             }
 
             EditorTextArea {
                 id: shaderAssemblyArea
+                text: EditorModel.shaderAssembly
                 SplitView.fillWidth: true
                 SplitView.fillHeight: true
-                text: EditorModel.shaderAssembly
             }
         }
     }

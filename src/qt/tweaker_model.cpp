@@ -7,11 +7,14 @@
 #include "stringlist_model.h"
 #include "logger.h"
 
+#include <QFileInfo>
+#include <QLocale>
+
 namespace
 {
     template<typename T>
     AttributeModel::AttributeData createAttribute(typename T::Attribute attribute, 
-                                                  int stepPrecision = 2, 
+                                                  int stepPrecision = 3, 
                                                   bool enabled = true)
     {
         return { attribute, T::group(attribute), T::toString(attribute), stepPrecision, enabled };
@@ -51,12 +54,12 @@ TweakerModel::TweakerModel(QObject* parent)
 {
     m_cameraAttributeModel->SetAttributes(
     {
-        createAttribute<Camera>(Camera::PositionX, 1, false),
-        createAttribute<Camera>(Camera::PositionY, 1, false),
-        createAttribute<Camera>(Camera::PositionZ, 1, false),
-        createAttribute<Camera>(Camera::Pitch, 2, false),
-        createAttribute<Camera>(Camera::Yaw, 2, false),
-        createAttribute<Camera>(Camera::Roll, 2, false),
+        createAttribute<Camera>(Camera::PositionX, 3, false),
+        createAttribute<Camera>(Camera::PositionY, 3, false),
+        createAttribute<Camera>(Camera::PositionZ, 3, false),
+        createAttribute<Camera>(Camera::Pitch, 3, false),
+        createAttribute<Camera>(Camera::Yaw, 3, false),
+        createAttribute<Camera>(Camera::Roll, 3, false),
         createAttribute<Camera>(Camera::ForwardSpd),
         createAttribute<Camera>(Camera::RotationSpd)
     });
@@ -269,7 +272,7 @@ TweakerModel::TweakerModel(QObject* parent)
     m_postFogAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 }
 
-void TweakerModel::SetSelectedPage(GuiPage::Page page)
+void TweakerModel::SetSelectedPage(int page)
 {
     if (m_selectedPage != page)
     {
@@ -278,7 +281,7 @@ void TweakerModel::SetSelectedPage(GuiPage::Page page)
     }
 }
 
-GuiPage::Page TweakerModel::SelectedPage() const
+int TweakerModel::SelectedPage() const
 {
     return m_selectedPage;
 }
@@ -439,16 +442,13 @@ int TweakerModel::WaveCount() const
 
 void TweakerModel::SetDeltaTime(float deltaTime)
 {
-    if (m_deltaTime != deltaTime)
-    {
-        m_deltaTime = deltaTime;
-        emit DeltaTimeChanged();
-    }
+    m_deltaTime = deltaTime;
+    emit DeltaTimeChanged();
 }
 
-float TweakerModel::DeltaTime() const
+QString TweakerModel::DeltaTime() const
 {
-    return m_deltaTime;
+    return QLocale().toString(m_deltaTime, 'f', 8);
 }
 
 void TweakerModel::SetFramesPerSecond(int fps)
@@ -495,9 +495,10 @@ const QString& TweakerModel::TerrainShader() const
 
 void TweakerModel::SetTexturePath(const QString& path)
 {
-    if (m_texturePath != path)
+    const auto filePath = "file:///" + QFileInfo(path).absoluteFilePath();
+    if (m_texturePath != filePath)
     {
-        m_texturePath = path;
+        m_texturePath = filePath;
         emit TexturePathChanged();
     }
 }
@@ -561,4 +562,49 @@ void TweakerModel::SetWaterInstances(const QString& instances)
 const QString& TweakerModel::WaterInstances() const
 {
     return m_waterInstances;
+}
+
+void TweakerModel::ReloadScene()
+{
+    emit RequestReloadScene();
+}
+
+void TweakerModel::ReloadEngine()
+{
+    emit RequestReloadEngine();
+}
+
+void TweakerModel::ReloadTerrain()
+{
+    emit RequestReloadTerrain();
+}
+
+void TweakerModel::ReloadTexture()
+{
+    emit RequestReloadTexture();
+}
+
+void TweakerModel::ReloadPlacement()
+{
+    emit RequestReloadPlacement();
+}
+
+void TweakerModel::ToggleWireframe()
+{
+    emit RequestToggleWireframe();
+}
+
+void TweakerModel::TogglePauseEmission()
+{
+    emit RequestTogglePauseEmission();
+}
+
+void TweakerModel::ToggleLightsOnly()
+{
+    emit RequestToggleLightsOnly();
+}
+
+void TweakerModel::ToggleLightsDiagnostics()
+{
+    emit RequestToggleLightsDiagnostics();
 }

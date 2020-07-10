@@ -22,9 +22,10 @@ class TweakerModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(float deltaTime READ DeltaTime NOTIFY DeltaTimeChanged)
-    Q_PROPERTY(int framesPerSecond READ FramesPerSecond NOTIFY FramesPerSecondChanged)
+    Q_PROPERTY(int selectedPage READ SelectedPage WRITE SetSelectedPage NOTIFY SelectedPageChanged)
     Q_PROPERTY(int waveCount READ WaveCount WRITE SetWaveCount NOTIFY WaveCountChanged)
+    Q_PROPERTY(int framesPerSecond READ FramesPerSecond NOTIFY FramesPerSecondChanged)
+    Q_PROPERTY(QString deltaTime READ DeltaTime NOTIFY DeltaTimeChanged)
     Q_PROPERTY(QString waterInstances READ WaterInstances NOTIFY WaterInstancesChanged)
     Q_PROPERTY(QString emitterInstances READ EmitterInstances NOTIFY EmitterInstancesChanged)
     Q_PROPERTY(QString meshInstances READ MeshInstances NOTIFY MeshInstancesChanged)
@@ -78,7 +79,7 @@ public:
     * Property setter/getter for the time passed in seconds between ticks
     */
     void SetDeltaTime(float deltaTime);
-    float DeltaTime() const;
+    QString DeltaTime() const;
 
     /**
     * Property setter/getter for the frames per second for the application
@@ -131,8 +132,8 @@ public:
     /**
     * Property setter/getter for selected page
     */
-    void SetSelectedPage(GuiPage::Page page);
-    GuiPage::Page SelectedPage() const;
+    void SetSelectedPage(int page);
+    int SelectedPage() const;
 
     /**
     * Models for tweakable attributes for a list
@@ -174,6 +175,19 @@ public:
     StringListModel* LightsModel() const;
     StringListModel* WavesModel() const;
 
+    /**
+    * QML Accessors for emitting signal requests
+    */
+    Q_INVOKABLE void ReloadScene();
+    Q_INVOKABLE void ReloadEngine();
+    Q_INVOKABLE void ReloadTerrain();
+    Q_INVOKABLE void ReloadTexture();
+    Q_INVOKABLE void ReloadPlacement();
+    Q_INVOKABLE void ToggleWireframe();
+    Q_INVOKABLE void TogglePauseEmission();
+    Q_INVOKABLE void ToggleLightsOnly();
+    Q_INVOKABLE void ToggleLightsDiagnostics();
+
 signals:
 
     void SelectedPageChanged();
@@ -187,6 +201,7 @@ signals:
     void TerrainInstancesChanged();
     void TerrainShaderChanged();
     void TexturePathChanged();
+
     void RequestReloadScene();
     void RequestReloadEngine();
     void RequestReloadTerrain();
@@ -199,8 +214,7 @@ signals:
 
 private:
 
-    GuiPage::Page m_selectedPage = GuiPage::Page::None;  ///< User selected Gui Page
-
+    int m_selectedPage = 0;      ///< User selected Gui Page tab
     float m_deltaTime = 0.0f;    ///< The time passed in seconds between ticks
     int m_framesPerSecond = 0;   ///< The frames per second for the application
     int m_waveCount = 0;         ///< The amount of waves for the selected water

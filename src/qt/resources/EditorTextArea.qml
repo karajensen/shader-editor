@@ -4,21 +4,23 @@
 
 import QtQuick 2.9
 import QtQuick.Controls 2.14
+import Application.Controls 1.0
 
 Rectangle {
-    color: palette.light
+    color: Theme.lightestColor
 
     property alias text: textArea.text
 
     ScrollView {
-        anchors.margins: 6
+        anchors.margins: Theme.margin * 2
         anchors.fill: parent
         clip: true
 
         TextEdit {
             id: textArea
             selectByMouse: true
-            selectionColor: palette.highlight
+            selectionColor: Theme.highlightColor
+            font.pixelSize: Theme.fontSize
         }
     }
 }

@@ -215,6 +215,8 @@ namespace Tweakable
             return "Roll";
         case ForwardSpd:
             return "Forward Speed";
+        case RotationSpd:
+            return "Rotation Speed";
         }
         return "";
     }

@@ -13,7 +13,7 @@ QtReloader::QtReloader(QQmlApplicationEngine& engine, QObject* parent)
 {
 }
 
-void QtReloader::reload()
+void QtReloader::Reload()
 {
 #ifdef QML_FILE_PATH
     m_engine.clearComponentCache();
@@ -21,18 +21,10 @@ void QtReloader::reload()
 #endif
 }
 
-QString QtReloader::tweakerQmlSourcePath() const
+QString QtReloader::QmlSourcePath() const
 {
 #ifdef QML_FILE_PATH
-    return "file:///" QML_FILE_PATH "Tweaker.qml";
+    return "file:///" QML_FILE_PATH;
 #endif
-    return "qrc:/Tweaker.qml";
-}
-
-QString QtReloader::editorQmlSourcePath() const
-{
-#ifdef QML_FILE_PATH
-    return "file:///" QML_FILE_PATH "Editor.qml";
-#endif
-    return "qrc:/Editor.qml";
+    return "qrc:/";
 }

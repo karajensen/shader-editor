@@ -100,6 +100,11 @@ private:
     */
     void SetupConnections();
 
+    /**
+    * Registers all classes to be used in QML
+    */
+    void RegisterQmlTypes();
+
 private:
 
     std::unique_ptr<QGuiApplication> m_app;           ///< Qt main application

@@ -31,5 +31,5 @@ void StringListModel::SetSelectedIndex(int index)
 
 bool StringListModel::Empty() const
 {
-    return rowCount() > 0;
+    return rowCount() == 0;
 }

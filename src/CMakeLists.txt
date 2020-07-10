@@ -119,15 +119,29 @@ set(QT_LIST
     qt/editor_model.cpp
     qt/stringlist_model.h
     qt/stringlist_model.cpp
+    qt/property_setter.h
+    qt/property_setter.cpp
 )
 
 set(QML_LIST
+    qt/resources/DoubleSpinBox.qml
     qt/resources/Tweaker.qml
+    qt/resources/TweakerButton.qml
+    qt/resources/TweakerComboBox.qml
+    qt/resources/TweakerComboSpinBox.qml
+    qt/resources/TweakerControl.qml
+    qt/resources/TweakerImagePanel.qml
+    qt/resources/TweakerLabel.qml
+    qt/resources/TweakerListView.qml
+    qt/resources/TweakerSpinBox.qml
     qt/resources/TweakerWindow.qml
+    qt/resources/Theme.qml
+    qt/resources/ThemeData.qml
     qt/resources/Editor.qml
     qt/resources/EditorWindow.qml
     qt/resources/EditorTextArea.qml
     qt/resources/ReloadableWindow.qml
+    qt/resources/StackColumnLayout.qml
 )
 
 set(GLEW_LIST

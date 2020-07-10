@@ -1,7 +1,19 @@
 <RCC>
     <qresource prefix="/">
+        <file>DoubleSpinBox.qml</file>
         <file>Tweaker.qml</file>
+        <file>TweakerButton.qml</file>
+        <file>TweakerComboBox.qml</file>
+        <file>TweakerComboSpinBox.qml</file>
+        <file>TweakerControl.qml</file>
+        <file>TweakerLabel.qml</file>
+        <file>TweakerSpinBox.qml</file>
         <file>TweakerWindow.qml</file>
+        <file>TweakerListView.qml</file>
+        <file>TweakerImagePanel.qml</file>
+        <file>Theme.qml</file>
+        <file>ThemeData.qml</file>
+        <file>StackColumnLayout.qml</file>
         <file>Editor.qml</file>
         <file>EditorWindow.qml</file>
         <file>ReloadableWindow.qml</file>

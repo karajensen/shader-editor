@@ -12,7 +12,7 @@ void AttributeModel::SetAttributes(const QVector<AttributeData>& attributeData)
     m_attributes.resize(attributeData.size());
     for (const auto& data : attributeData)
     {
-        auto attribute = new Attribute(data.group, data.name, data.stepPrecision, data.enabled, this);
+        auto attribute = new Attribute(data.group, data.name, data.precision, data.enabled, this);
         m_attributes[data.index] = attribute;
         connect(attribute, &Attribute::ValueChanged, this, [this, index = data.index](float value)
             {
@@ -41,6 +41,7 @@ QHash<int, QByteArray> AttributeModel::roleNames() const
     roles[Role::NameRole] = "name";
     roles[Role::StepSizeRole] = "stepSize";
     roles[Role::ValueRole] = "value";
+    roles[Role::PrecisionRole] = "precision";
     roles[Role::EnabledRole] = "enabled";
     roles[Role::GroupRole] = "group";
     return roles;
@@ -60,6 +61,8 @@ QVariant AttributeModel::data(const QModelIndex& index, int role) const
         {
         case Role::NameRole:
             return attribute->Name();
+        case Role::PrecisionRole:
+            return attribute->Precision();
         case Role::StepSizeRole:
             return attribute->StepSize();
         case Role::ValueRole:

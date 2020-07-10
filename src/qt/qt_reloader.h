@@ -11,8 +11,7 @@ class QQmlApplicationEngine;
 class QtReloader : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString tweakerQmlSourcePath READ tweakerQmlSourcePath CONSTANT)
-    Q_PROPERTY(QString editorQmlSourcePath READ editorQmlSourcePath CONSTANT)
+    Q_PROPERTY(QString qmlSourcePath READ QmlSourcePath CONSTANT)
 
 public:
 
@@ -25,17 +24,12 @@ public:
     /**
     * Reloads the tweaker and editor content
     */
-    Q_INVOKABLE void reload();
+    Q_INVOKABLE void Reload();
 
     /**
-    * @return qml path to the tweaker content, will be a local path for debug builds
+    * @return the qml source path
     */
-    QString tweakerQmlSourcePath() const;
-
-    /**
-    * @return qml path to the tweaker content, will be a local path for debug builds
-    */
-    QString editorQmlSourcePath() const;
+    QString QmlSourcePath() const;
 
 private:
     QQmlApplicationEngine& m_engine; ///< Qml engine required for reloading

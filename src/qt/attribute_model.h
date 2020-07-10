@@ -23,6 +23,7 @@ public:
         GroupRole,
         ValueRole,
         StepSizeRole,
+        PrecisionRole,
         EnabledRole,
     };
 
@@ -31,7 +32,7 @@ public:
         int index = -1;          ///< Index into the attribute enum
         int group = -1;          ///< Id for the group the attribute belongs to
         QString name;            ///< Attribute display name
-        int stepPrecision = 0;   ///< Amount of decimals places to step the value by
+        int precision = 0;       ///< Amount of decimals to display and step by
         bool enabled = true;     ///< Whether the attribute is editable
     };
 

@@ -4,10 +4,11 @@
 
 #include "attribute.h"
 
-Attribute::Attribute(int group, const QString& name, int stepPrecision, bool enabled, QObject* parent)
+Attribute::Attribute(int group, const QString& name, int precision, bool enabled, QObject* parent)
     : QObject(parent)
     , m_name(name)
-    , m_stepSize(0.1f / stepPrecision)
+    , m_stepSize(std::pow(0.1, precision))
+    , m_precision(precision)
     , m_enabled(enabled)
     , m_group(group)
 {
@@ -28,6 +29,11 @@ float Attribute::StepSize() const
     return m_stepSize;
 }
 
+int Attribute::Precision() const
+{
+    return m_precision;
+}
+
 bool Attribute::Enabled() const
 {
     return m_enabled;
@@ -40,7 +46,7 @@ float Attribute::Value() const
 
 void Attribute::SetValue(float value)
 {
-    if (m_value != value)
+    if (std::fabs(m_value - value) > std::numeric_limits<float>::epsilon())
     {
         m_value = value;
         emit ValueChanged(value);

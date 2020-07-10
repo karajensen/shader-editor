@@ -11,5 +11,5 @@ ReloadableWindow {
     maximumWidth: width
     minimumHeight: height
     minimumWidth: width
-    contentSourcePath: Reloader.tweakerQmlSourcePath
+    contentSourcePath: Reloader.qmlSourcePath + "Tweaker.qml"
 }

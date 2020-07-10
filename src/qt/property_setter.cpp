@@ -1,0 +1,10 @@
+////////////////////////////////////////////////////////////////////////////////////////
+// Kara Jensen - mail@karajensen.com - property_setter.cpp
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "property_setter.h"
+
+void PropertySetter::SetValue(QObject* object, QString propertyName, QVariant value)
+{
+    object->setProperty(propertyName.toUtf8().constData(), value);
+}
