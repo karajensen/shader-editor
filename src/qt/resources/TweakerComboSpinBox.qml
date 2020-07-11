@@ -25,6 +25,27 @@ TweakerControl {
             model.selectedIndex = currentIndex;
         }
 
+        delegate: ItemDelegate {
+            id: delegate
+            width: comboBox.width
+            palette.base: Theme.lightColor
+            highlighted: comboBox.highlightedIndex === index
+
+            contentItem: Text {
+                text: model[comboBox.textRole]
+                color: delegate.highlighted ? palette.highlightedText : palette.text
+                font: comboBox.font
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            ToolTip {
+                visible: delegate.hovered
+                text: model[comboBox.textRole]
+                delay: Theme.tooltipDelay
+            }
+        }
+
         MouseArea {
             id: mouseArea
             anchors.fill: parent

@@ -65,9 +65,9 @@ namespace Tweakable
         case Bump:
             return "Bump";
         case BumpScaleX:
-            return "Bump Scale X";
+            return "Bump X";
         case BumpScaleY:
-            return "Bump Scale Y";
+            return "Bump Y";
         case Speed:
             return "Speed";
         case ScaleU:
@@ -81,27 +81,27 @@ namespace Tweakable
         case FresnalPower:
             return "Fresnal Power";
         case ShallowR:
-            return "Shallow Red";
+            return "Shallow R";
         case ShallowG:
-            return "Shallow Green";
+            return "Shallow G";
         case ShallowB:
-            return "Shallow Blue";
+            return "Shallow B";
         case ShallowA:
-            return "Shallow Alpha";
+            return "Shallow A";
         case DeepR:
-            return "Deep Red";
+            return "Deep R";
         case DeepG:
-            return "Deep Green";
+            return "Deep G";
         case DeepB:
-            return "Deep Blue";
+            return "Deep B";
         case DeepA:
-            return "Deep Alpha";
+            return "Deep A";
         case ReflectionR:
-            return "Reflection Red";
+            return "Reflection R";
         case ReflectionG:
-            return "Reflection Green";
+            return "Reflection G";
         case ReflectionB:
-            return "Reflection Blue";
+            return "Reflection B";
         case Reflection:
             return "Reflection";
         }
@@ -155,17 +155,17 @@ namespace Tweakable
         case Specularity:
             return "Specularity";
         case DiffuseR:
-            return "Diffuse Red";
+            return "Diffuse R";
         case DiffuseG:
-            return "Diffuse Green";
+            return "Diffuse G";
         case DiffuseB:
-            return "Diffuse Blue";
+            return "Diffuse B";
         case SpecularR:
-            return "Specular Red";
+            return "Specular R";
         case SpecularG:
-            return "Specular Green";
+            return "Specular G";
         case SpecularB:
-            return "Specular Blue";
+            return "Specular B";
         case Active:
             return "Activity";
         }
@@ -260,17 +260,17 @@ namespace Tweakable
         case Length:
             return "Length";
         case DirX:
-            return "Dirrection X";
+            return "Direction X";
         case DirY:
-            return "Dirrection Y";
+            return "Direction Y";
         case DirZ:
-            return "Dirrection Z";
+            return "Direction Z";
         case TintR:
-            return "Tint Red";
+            return "Tint R";
         case TintG:
-            return "Tint Green";
+            return "Tint G";
         case TintB:
-            return "Tint Blue";
+            return "Tint B";
         case MinSpeed:
             return "Min Speed";
         case MaxSpeed:
@@ -327,9 +327,9 @@ namespace Tweakable
         case BlurStep:
             return "Blur Step";
         case DofStart:
-            return "Depth of Field Start";
+            return "DOF Start";
         case DofFade:
-            return "Depth of Field Fade";
+            return "DOF Fade";
         case DepthNear:
             return "Depth Near";
         case DepthFar:
@@ -345,23 +345,23 @@ namespace Tweakable
         case FogFade:
             return "Fog Fade";
         case FogRed:
-            return "Fog Red";
+            return "Fog R";
         case FogGreen:
-            return "Fog Green";
+            return "Fog G";
         case FogBlue:
-            return "Fog Blue";
+            return "Fog B";
         case MinRed:
-            return "Min Red";
+            return "Min R";
         case MinGreen:
-            return "Min Green";
+            return "Min G";
         case MinBlue:
-            return "Min Blue";
+            return "Min B";
         case MaxRed:
-            return "Max Red";
+            return "Max R";
         case MaxGreen:
-            return "Max Green";
+            return "Max G";
         case MaxBlue:
-            return "Max Blue";
+            return "Max B";
         }
         return "";
     }
