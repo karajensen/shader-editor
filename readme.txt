@@ -1,6 +1,6 @@
 
 - Fix spinbox values incorrect on reload
-- Implicit combo spinbox
+- 360 Dial
 - Test all entries
 
 ==================================================================================

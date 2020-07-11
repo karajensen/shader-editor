@@ -8,9 +8,17 @@ import Application.Controls 1.0
 
 TweakerControl {
     id: control
-    headerFont.weight: Font.DemiBold
 
     property alias model: comboBox.model
+    property alias headerText: header.text
+
+    headerItem: Text {
+        id: header
+        anchors.fill: parent
+        font.pixelSize: Theme.fontSize
+        font.weight: Font.DemiBold
+        verticalAlignment: Text.AlignVCenter
+    }
 
     contentItem: ComboBox {
         id: comboBox

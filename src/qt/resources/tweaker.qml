@@ -100,6 +100,11 @@ Item {
                         Layout.preferredHeight: width
                     }
 
+                    TweakerComboSpinBox {
+                        model: TweakerModel.textureAttributeModel
+                        Layout.fillWidth: true
+                    }
+
                     TweakerButton {
                         buttonText: qsTr("Reload Texture")
                         onClicked: TweakerModel.ReloadTexture()
@@ -122,6 +127,11 @@ Item {
                     TweakerLabel {
                         headerText: qsTr("Instances")
                         labelText: TweakerModel.terrainInstances
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.terrainAttributeModel
                         Layout.fillWidth: true
                     }
 
@@ -152,6 +162,11 @@ Item {
                         headerText: qsTr("Instances")
                         labelText: TweakerModel.meshInstances
                         Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.meshAttributeModel
+                        Layout.fillWidth: true
                         Layout.bottomMargin: Theme.largeMargin
                     }
 
@@ -171,11 +186,20 @@ Item {
                         headerText: qsTr("Wave Number")
                         value: TweakerModel.waveCount
                         Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-
                         onValueChanged: {
                             TweakerModel.waveCount = value
                         }
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.waterAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.waveAttributeModel
+                        Layout.fillWidth: true
+                        Layout.bottomMargin: Theme.largeMargin
                     }
 
                     TweakerComboBox {
@@ -187,6 +211,16 @@ Item {
                     TweakerLabel {
                         headerText: qsTr("Instances")
                         labelText: TweakerModel.emitterInstances
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.emitterAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.emitterMinMaxAttributeModel
                         Layout.fillWidth: true
                     }
 
@@ -206,6 +240,21 @@ Item {
                         Layout.fillWidth: true
                     }
 
+                    TweakerComboSpinBox {
+                        model: TweakerModel.postAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.postCorrectionAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.postFogAttributeModel
+                        Layout.fillWidth: true
+                    }
+
                     TweakerButton {
                         buttonText: qsTr("Toggle Wireframe")
                         onClicked: TweakerModel.ToggleWireframe()
@@ -216,6 +265,32 @@ Item {
                     TweakerComboBox {
                         headerText: qsTr("Light")
                         model: TweakerModel.postMapsModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerListView {
+                        model: TweakerModel.lightAttributeModel
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: contentHeight
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.lightPositionAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.lightAttenuationAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.lightDiffuseAttributeModel
+                        Layout.fillWidth: true
+                    }
+
+                    TweakerComboSpinBox {
+                        model: TweakerModel.lightSpecularAttributeModel
                         Layout.fillWidth: true
                     }
 

@@ -17,7 +17,7 @@ namespace Tweakable
         case CausticsAmount:
             return "Caustics Amount";
         case CausticsScale:
-            return "Causticsc Scale";
+            return "Caustics Scale";
         case Specularity:
             return "Specularity";
         }

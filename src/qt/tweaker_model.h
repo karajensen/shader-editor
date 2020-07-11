@@ -7,12 +7,11 @@
 #include "tweakable_enums.h"
 
 #include <QObject>
-#include <QSortFilterProxyModel>
 
 using namespace Tweakable;
-using AttributeFilterModel = QSortFilterProxyModel;
 
 class AttributeModel;
+class AttributeFilterModel;
 class StringListModel;
 
 /**

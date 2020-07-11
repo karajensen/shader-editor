@@ -14,6 +14,8 @@ class Attribute;
 class AttributeModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(Attribute* selectedItem READ SelectedItem NOTIFY SelectedIndexChanged)
+    Q_PROPERTY(int selectedIndex READ SelectedIndex WRITE SetSelectedIndex NOTIFY SelectedIndexChanged)
 
 public:
 
@@ -22,6 +24,8 @@ public:
         NameRole = Qt::UserRole + 1,
         GroupRole,
         ValueRole,
+        MinValueRole,
+        MaxValueRole,
         StepSizeRole,
         PrecisionRole,
         EnabledRole,
@@ -52,6 +56,24 @@ public:
     void SetAttributeValue(int index, float value);
 
     /**
+    * Property setter/getter for the selected string index and item
+    */
+    Attribute* SelectedItem() const;
+    int SelectedIndex() const;
+    void SetSelectedIndex(int index);
+
+    /**
+    * @return whether the index is valid to access an attribute item
+    */
+    bool IndexValid(int index) const;
+    bool IndexValid(const QModelIndex& index) const;
+
+    /**
+    * @return the Attribute at the given index
+    */
+    Attribute* item(int index) const;
+
+    /**
     * @return the names of the model roles to use in QML to access attribute data
     */
     virtual QHash<int, QByteArray> roleNames() const override;
@@ -77,16 +99,13 @@ public:
     */
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    /**
-    * @return whether the index is valid to access an attribute item
-    */
-    bool IndexValid(const QModelIndex& index) const;
-
 signals:
 
     void AttributeValueChanged(int index, float value);
+    void SelectedIndexChanged();
 
 private:
 
+    int m_selectedIndex = 0;           ///< Selected attribute index
     QVector<Attribute*> m_attributes;  ///< Attribute items for the model
 };

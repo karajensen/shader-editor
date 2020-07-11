@@ -20,9 +20,9 @@ ListView {
                 value: model.value
                 stepSize: model.stepSize
                 precision: model.precision
+                from: model.minValue
+                to: model.maxValue
                 width: control.width
-                from: -10000.0
-                to: 10000.0
 
                 onValueChanged: {
                     model.value = value

@@ -4,6 +4,11 @@
 
 #include "attribute.h"
 
+Attribute::Attribute(QObject* parent)
+    : QObject(parent)
+{
+}
+
 Attribute::Attribute(int group, const QString& name, int precision, bool enabled, QObject* parent)
     : QObject(parent)
     , m_name(name)
@@ -51,4 +56,14 @@ void Attribute::SetValue(float value)
         m_value = value;
         emit ValueChanged(value);
     }
+}
+
+float Attribute::MinValue() const
+{
+    return -10000.0f;
+}
+
+float Attribute::MaxValue() const
+{
+    return 10000.0f;
 }

@@ -4,6 +4,7 @@
 
 #include "tweaker_model.h"
 #include "attribute_model.h"
+#include "attribute_filter_model.h"
 #include "stringlist_model.h"
 #include "logger.h"
 
@@ -233,43 +234,33 @@ TweakerModel::TweakerModel(QObject* parent)
 
     m_lightAttributeFilterModel->setSourceModel(m_lightAttributeModel);
     m_lightAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::None));
-    m_lightAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_lightAttenuationAttributeFilterModel->setSourceModel(m_lightAttributeModel);
     m_lightAttenuationAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Attenuation));
-    m_lightAttenuationAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
     
     m_lightPositionAttributeFilterModel->setSourceModel(m_lightAttributeModel);
     m_lightPositionAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Position));
-    m_lightPositionAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_lightSpecularAttributeFilterModel->setSourceModel(m_lightAttributeModel);
     m_lightSpecularAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Specular));
-    m_lightSpecularAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_lightDiffuseAttributeFilterModel->setSourceModel(m_lightAttributeModel);
     m_lightDiffuseAttributeFilterModel->setFilterFixedString(QString::number(Light::Group::Diffuse));
-    m_lightDiffuseAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_emitterAttributeFilterModel->setSourceModel(m_emitterAttributeModel);
     m_emitterAttributeFilterModel->setFilterFixedString(QString::number(Emitter::Group::None));
-    m_emitterAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_emitterMinMaxAttributeFilterModel->setSourceModel(m_emitterAttributeModel);
     m_emitterMinMaxAttributeFilterModel->setFilterFixedString(QString::number(Emitter::Group::MinMax));
-    m_emitterMinMaxAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_postAttributeFilterModel->setSourceModel(m_postAttributeModel);
     m_postAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::None));
-    m_postAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_postCorrectionAttributeFilterModel->setSourceModel(m_postAttributeModel);
     m_postCorrectionAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::Correction));
-    m_postCorrectionAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 
     m_postFogAttributeFilterModel->setSourceModel(m_postAttributeModel);
     m_postFogAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::Fog));
-    m_postFogAttributeFilterModel->setSortRole(AttributeModel::Role::GroupRole);
 }
 
 void TweakerModel::SetSelectedPage(int page)

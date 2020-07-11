@@ -12,6 +12,11 @@
 class Attribute : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(float stepSize READ StepSize CONSTANT)
+    Q_PROPERTY(float precision READ Precision CONSTANT)
+    Q_PROPERTY(float value READ Value WRITE SetValue NOTIFY ValueChanged)
+    Q_PROPERTY(float minValue READ MinValue CONSTANT)
+    Q_PROPERTY(float maxValue READ MaxValue CONSTANT)
 
 public:
 
@@ -23,6 +28,7 @@ public:
     * @param enabled Whether the attribute is editable
     */
     Attribute(int group, const QString& name, int precision, bool enabled, QObject* parent = nullptr);
+    explicit Attribute(QObject* parent = nullptr);
 
     /**
     * Property getter for attribute display name
@@ -43,6 +49,16 @@ public:
     * Property getter for amount of decimals places to display and step the value by
     */
     int Precision() const;
+
+    /**
+    * Property getter for the maximum value that can be reached
+    */
+    float MaxValue() const;
+
+    /**
+    * Property getter for the minimum value that can be reached
+    */
+    float MinValue() const;
 
     /**
     * Property getter for whether the attribute is editable

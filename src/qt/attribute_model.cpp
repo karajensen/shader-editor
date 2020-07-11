@@ -27,7 +27,12 @@ void AttributeModel::SetAttributes(const QVector<AttributeData>& attributeData)
 
 bool AttributeModel::IndexValid(const QModelIndex& index) const
 {
-    return index.row() >= 0 && index.row() < m_attributes.size();
+    return IndexValid(index.row());
+}
+
+bool AttributeModel::IndexValid(int index) const
+{
+    return index >= 0 && index < m_attributes.size();
 }
 
 void AttributeModel::SetAttributeValue(int index, float value)
@@ -38,9 +43,12 @@ void AttributeModel::SetAttributeValue(int index, float value)
 QHash<int, QByteArray> AttributeModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
+    roles[Qt::DisplayRole] = "display";
     roles[Role::NameRole] = "name";
     roles[Role::StepSizeRole] = "stepSize";
     roles[Role::ValueRole] = "value";
+    roles[Role::MinValueRole] = "minValue";
+    roles[Role::MaxValueRole] = "maxValue";
     roles[Role::PrecisionRole] = "precision";
     roles[Role::EnabledRole] = "enabled";
     roles[Role::GroupRole] = "group";
@@ -59,6 +67,7 @@ QVariant AttributeModel::data(const QModelIndex& index, int role) const
         const auto attribute = m_attributes[index.row()];
         switch (role)
         {
+        case Qt::DisplayRole:
         case Role::NameRole:
             return attribute->Name();
         case Role::PrecisionRole:
@@ -67,6 +76,10 @@ QVariant AttributeModel::data(const QModelIndex& index, int role) const
             return attribute->StepSize();
         case Role::ValueRole:
             return attribute->Value();
+        case Role::MinValueRole:
+            return attribute->MinValue();
+        case Role::MaxValueRole:
+            return attribute->MaxValue();
         case Role::EnabledRole:
             return attribute->Enabled();
         case Role::GroupRole:
@@ -89,4 +102,28 @@ bool AttributeModel::setData(const QModelIndex& index, const QVariant& value, in
         }
     }
     return false;
+}
+
+Attribute* AttributeModel::item(int index) const
+{
+    return IndexValid(index) ? m_attributes[index] : nullptr;
+}
+
+Attribute* AttributeModel::SelectedItem() const
+{
+    return item(m_selectedIndex);
+}
+
+int AttributeModel::SelectedIndex() const
+{
+    return m_selectedIndex;
+}
+
+void AttributeModel::SetSelectedIndex(int index)
+{
+    if (m_selectedIndex != index)
+    {
+        m_selectedIndex = index;
+        emit SelectedIndexChanged();
+    }
 }

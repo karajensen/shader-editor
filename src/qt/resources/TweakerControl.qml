@@ -12,8 +12,8 @@ Item {
     implicitHeight: 40
 
     property alias contentItem: contentItemHolder.data
-    property alias headerText: header.text
-    property alias headerFont: header.font
+    property alias headerItem: headerItemHolder.data
+    property alias headerVisible: headerItemHolder.visible
 
     Rectangle {
         anchors.fill: parent
@@ -29,11 +29,10 @@ Item {
             spacing: 0
 
             Text {
-                id: header
-                font.pixelSize: Theme.fontSize
-                visible: text.length > 0
-                Layout.preferredWidth: 100
-                Layout.rightMargin: 10
+                id: headerItemHolder
+                Layout.fillHeight: true
+                Layout.preferredWidth: 105
+                Layout.rightMargin: 5
             }
 
             Item {

@@ -5,7 +5,8 @@
 import QtQuick 2.0  
 import QtQuick.Controls 2.14
   
-Item {  
+Item {
+    readonly property int tooltipDelay: 1000
     readonly property int fontSize: 15
     readonly property int smallMargin: 1
     readonly property int margin: 3

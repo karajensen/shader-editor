@@ -15,36 +15,20 @@ TweakerControl {
     property alias precision: spinBox.precision
     property alias from: spinBox.from
     property alias to: spinBox.to
+    property alias headerText: header.text
 
-    contentItem: Item {
+    headerItem: Text {
+        id: header
         anchors.fill: parent
+        font.pixelSize: Theme.fontSize
+        verticalAlignment: Text.AlignVCenter
+    }
 
-        RowLayout {
-            anchors.left: parent.left
-            anchors.leftMargin: Theme.margin
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 0
-
-            DoubleSpinBox {
-                id: spinBox
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            Dial {
-                id: dial
-                from: spinBox.from
-                to: spinBox.to
-                value: spinBox.value
-                Layout.preferredWidth: 30
-                Layout.preferredHeight: Layout.preferredWidth
-                Layout.alignment: Qt.AlignVCenter
-
-                onMoved: {
-                    PropertySetter.SetValue(spinBox, "value", dial.value);
-                }
-            }
-        }
+    contentItem: DoubleSpinBox {
+        id: spinBox
+        anchors.left: parent.left
+        anchors.leftMargin: Theme.margin
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

@@ -9,7 +9,15 @@ import Application.Controls 1.0
 TweakerControl {
     id: control
 
+    property alias headerText: header.text
     property alias labelText: label.text
+
+    headerItem: Text {
+        id: header
+        anchors.fill: parent
+        verticalAlignment: Text.AlignVCenter
+        font.pixelSize: Theme.fontSize
+    }
 
     contentItem: Rectangle {
         anchors.fill: parent

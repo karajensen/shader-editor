@@ -3,13 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import QtQuick 2.9
+import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.14
 import Application.Controls 1.0
 
-Item {
+RowLayout {
     id: control
-    implicitWidth: spinBox.implicitWidth
-    implicitHeight: spinBox.implicitHeight
+    spacing: 0
 
     property real value: 0.0
     property real stepSize: 1.0
@@ -39,7 +39,6 @@ Item {
     // Because of this we bypass SpinBox completely and only use it for its design
     SpinBox {
         id: spinBox
-        anchors.fill: parent
         palette.base: Theme.midlightColor
         leftPadding: Theme.margin
         rightPadding: Theme.margin
@@ -48,6 +47,10 @@ Item {
         value: forcedValue
         from: 0
         to: 100
+
+        Layout.fillWidth: true
+        Layout.preferredHeight: 24
+        Layout.alignment: Qt.AlignVCenter
 
         property bool ignoreValueChange: false
         readonly property int forcedValue: 50
@@ -149,6 +152,20 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    Dial {
+        id: dial
+        from: spinBox.from
+        to: spinBox.to
+        value: spinBox.value
+        Layout.preferredWidth: 30
+        Layout.preferredHeight: 30
+        Layout.alignment: Qt.AlignVCenter
+
+        onMoved: {
+            PropertySetter.SetValue(spinBox, "value", dial.value);
         }
     }
 }

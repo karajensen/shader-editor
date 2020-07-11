@@ -109,6 +109,8 @@ set(QT_LIST
     qt/attribute.h
     qt/attribute_model.cpp
     qt/attribute_model.h
+    qt/attribute_filter_model.cpp
+    qt/attribute_filter_model.h
     qt/qt_gui.cpp
     qt/qt_gui.h
     qt/qt_reloader.h

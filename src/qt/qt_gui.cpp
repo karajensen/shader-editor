@@ -4,10 +4,12 @@
 
 #include "qt/qt_gui.h"
 #include "qt/qt_reloader.h"
+#include "qt/attribute.h"
 #include "qt/editor_model.h"
 #include "qt/tweaker_model.h"
 #include "qt/stringlist_model.h"
 #include "qt/attribute_model.h"
+#include "qt/attribute_filter_model.h"
 #include "qt/property_setter.h"
 
 #include "logger.h"
@@ -494,6 +496,7 @@ void QtGui::SetupConnections()
 void QtGui::RegisterQmlTypes()
 {
     const char* uri = "Application.Controls";
+    qmlRegisterType<Attribute>(uri, 1, 0, "Attribute");
     qmlRegisterType<StringListModel>(uri, 1, 0, "StringListModel");
     qmlRegisterType<AttributeModel>(uri, 1, 0, "AttributeModel");
     qmlRegisterType<AttributeFilterModel>(uri, 1, 0, "AttributeFilterModel");
