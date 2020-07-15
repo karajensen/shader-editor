@@ -8,7 +8,6 @@ import Application.Controls 1.0
 
 TweakerControl {
     id: control
-    headerVisible: false
 
     property alias buttonText: button.text
 

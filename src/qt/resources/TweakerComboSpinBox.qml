@@ -12,51 +12,15 @@ TweakerControl {
     property alias model: comboBox.model
     readonly property QtObject selectedItem: model ? model.selectedItem : null
 
-    headerItem: ComboBox {
+    headerItem: ToolTippedComboBox {
         id: comboBox
         anchors.fill: parent
         anchors.topMargin: Theme.margin
         anchors.bottomMargin: Theme.margin
-        font.pixelSize: Theme.fontSize
-        textRole: "display"
         currentIndex: model ? model.selectedIndex : -1
 
         onActivated: {
             model.selectedIndex = currentIndex;
-        }
-
-        delegate: ItemDelegate {
-            id: delegate
-            width: comboBox.width
-            palette.base: Theme.lightColor
-            highlighted: comboBox.highlightedIndex === index
-
-            contentItem: Text {
-                text: model[comboBox.textRole]
-                color: delegate.highlighted ? palette.highlightedText : palette.text
-                font: comboBox.font
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignVCenter
-            }
-
-            ToolTip {
-                visible: delegate.hovered
-                text: model[comboBox.textRole]
-                delay: Theme.tooltipDelay
-            }
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            acceptedButtons: Qt.NoButton
-            hoverEnabled: true
-        }
-
-        ToolTip {
-            visible: mouseArea.containsMouse
-            text: comboBox.displayText
-            delay: Theme.tooltipDelay
         }
     }
 

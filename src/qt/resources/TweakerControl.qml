@@ -13,7 +13,6 @@ Item {
 
     property alias contentItem: contentItemHolder.data
     property alias headerItem: headerItemHolder.data
-    property alias headerVisible: headerItemHolder.visible
 
     Rectangle {
         anchors.fill: parent
@@ -28,8 +27,9 @@ Item {
             anchors.margins: Theme.margin
             spacing: 0
 
-            Text {
+            Item {
                 id: headerItemHolder
+                visible: children.length > 0
                 Layout.fillHeight: true
                 Layout.preferredWidth: 105
                 Layout.rightMargin: 5

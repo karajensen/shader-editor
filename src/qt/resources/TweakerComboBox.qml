@@ -20,13 +20,11 @@ TweakerControl {
         verticalAlignment: Text.AlignVCenter
     }
 
-    contentItem: ComboBox {
+    contentItem: ToolTippedComboBox {
         id: comboBox
         anchors.fill: parent
         anchors.topMargin: Theme.margin
         anchors.bottomMargin: Theme.margin
-        font.pixelSize: Theme.fontSize
-        textRole: "display"
         currentIndex: model ? model.selectedIndex : -1
                                     
         onActivated: {

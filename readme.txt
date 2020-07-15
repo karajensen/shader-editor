@@ -1,5 +1,4 @@
 
-- Combobox custom component make
 - Fix spinbox values incorrect on reload
 - 360 Dial
 - Test all entries

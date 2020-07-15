@@ -20,11 +20,9 @@ Item {
             spacing: columnLayout.spacing
             Layout.fillWidth: true
 
-            ComboBox {
+            ToolTippedComboBox {
                 model: EditorModel.shadersModel
                 currentIndex: model.selectedIndex
-                textRole: "display"
-                font.pixelSize: Theme.fontSize
                 Layout.preferredWidth: 300
                 Layout.preferredHeight: revertButton.height
                 Layout.fillWidth: true
