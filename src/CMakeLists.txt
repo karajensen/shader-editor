@@ -126,6 +126,7 @@ set(QT_LIST
 )
 
 set(QML_LIST
+    qt/resources/PageColumnLayout.qml
     qt/resources/DoubleSpinBox.qml
     qt/resources/ToolTippedComboBox.qml
     qt/resources/Tweaker.qml

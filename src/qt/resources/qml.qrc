@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>DoubleSpinBox.qml</file>
+        <file>PageColumnLayout.qml</file>
         <file>ToolTippedComboBox.qml</file>
         <file>Tweaker.qml</file>
         <file>TweakerButton.qml</file>

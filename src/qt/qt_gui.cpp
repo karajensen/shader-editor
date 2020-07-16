@@ -55,7 +55,7 @@ void QtGui::Run(int argc, char *argv[])
     context->setContextProperty("Reloader", m_reloader.get());
 
     m_engine->load(QUrl("qrc:/TweakerWindow.qml"));
-    //m_engine->load(QUrl("qrc:/EditorWindow.qml"));
+    m_engine->load(QUrl("qrc:/EditorWindow.qml"));
 
     QTimer timer; 
     timer.setInterval(10);
