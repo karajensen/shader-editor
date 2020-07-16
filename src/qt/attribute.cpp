@@ -60,10 +60,10 @@ void Attribute::SetValue(float value)
 
 float Attribute::MinValue() const
 {
-    return -10000.0f;
+    return -100.0f;
 }
 
 float Attribute::MaxValue() const
 {
-    return 10000.0f;
+    return 100.0f;
 }

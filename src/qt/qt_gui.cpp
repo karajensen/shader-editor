@@ -78,10 +78,10 @@ void QtGui::Run(int argc, char *argv[])
 
 void QtGui::UpdateTweaker()
 {
-    const auto page = m_tweaker->SelectedPage();
+    const auto page = static_cast<Tweakable::GuiPage::Page>(m_tweaker->SelectedPage());
     if(page != m_page)
     {
-        m_page = static_cast<Tweakable::GuiPage::Page>(page);
+        m_page = page;
         m_cache->PageSelected.Set(page);
     }
 
@@ -496,6 +496,7 @@ void QtGui::SetupConnections()
 void QtGui::RegisterQmlTypes()
 {
     const char* uri = "Application.Controls";
+    qmlRegisterType<TweakerModel>(uri, 1, 0, "TabPage");
     qmlRegisterType<Attribute>(uri, 1, 0, "Attribute");
     qmlRegisterType<StringListModel>(uri, 1, 0, "StringListModel");
     qmlRegisterType<AttributeModel>(uri, 1, 0, "AttributeModel");

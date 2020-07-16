@@ -14,7 +14,6 @@
         <file>TweakerImagePanel.qml</file>
         <file>Theme.qml</file>
         <file>ThemeData.qml</file>
-        <file>StackColumnLayout.qml</file>
         <file>Editor.qml</file>
         <file>EditorWindow.qml</file>
         <file>ReloadableWindow.qml</file>

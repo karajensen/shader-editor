@@ -13,6 +13,12 @@
 
 namespace
 {
+    // Ensure the Qml exposed enums match with the application enums
+    static_assert((int)GuiPage::Scene == (int)TweakerModel::TabPage::Scene, "Enums must match");
+    static_assert((int)GuiPage::Area  == (int)TweakerModel::TabPage::Area,  "Enums must match");
+    static_assert((int)GuiPage::Post  == (int)TweakerModel::TabPage::Post,  "Enums must match");
+    static_assert((int)GuiPage::Mesh  == (int)TweakerModel::TabPage::Mesh,  "Enums must match");
+
     template<typename T>
     AttributeModel::AttributeData createAttribute(typename T::Attribute attribute, 
                                                   int stepPrecision = 3, 
@@ -24,6 +30,7 @@ namespace
 
 TweakerModel::TweakerModel(QObject* parent)
     : QObject(parent)
+    , m_selectedPage(TabPage::Scene)
     , m_meshAttributeModel(new AttributeModel(this))
     , m_waveAttributeModel(new AttributeModel(this))
     , m_waterAttributeModel(new AttributeModel(this))
@@ -263,7 +270,7 @@ TweakerModel::TweakerModel(QObject* parent)
     m_postFogAttributeFilterModel->setFilterFixedString(QString::number(Post::Group::Fog));
 }
 
-void TweakerModel::SetSelectedPage(int page)
+void TweakerModel::SetSelectedPage(TabPage page)
 {
     if (m_selectedPage != page)
     {
@@ -272,7 +279,7 @@ void TweakerModel::SetSelectedPage(int page)
     }
 }
 
-int TweakerModel::SelectedPage() const
+TweakerModel::TabPage TweakerModel::SelectedPage() const
 {
     return m_selectedPage;
 }

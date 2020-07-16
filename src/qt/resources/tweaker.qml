@@ -35,275 +35,298 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            StackLayout {
+            Loader {
                 anchors.fill: parent
-                currentIndex: tabBar.currentIndex
-
-                StackColumnLayout {
-                    id: sceneLayout
-
-                    TweakerComboBox {
-                        headerText: qsTr("Engine")
-                        model: TweakerModel.enginesModel
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerLabel {
-                        headerText: qsTr("Frames Per Sec")
-                        labelText: TweakerModel.framesPerSecond
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerLabel {
-                        headerText: qsTr("Delta Time")
-                        labelText: TweakerModel.deltaTime
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerListView {
-                        model: TweakerModel.cameraAttributeModel
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: contentHeight
-                    }
-
-                    TweakerButton {
-                        buttonText: qsTr("Reload Scene")
-                        onClicked: TweakerModel.ReloadScene()
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerButton {
-                        buttonText: qsTr("Reload Placement")
-                        onClicked: TweakerModel.ReloadPlacement()
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerButton {
-                        buttonText: qsTr("Reload Engine")
-                        onClicked: TweakerModel.ReloadEngine()
-                        Layout.fillWidth: true
+                sourceComponent: {
+                    switch (tabBar.currentIndex) {
+                    case TabPage.Scene:
+                        return sceneComponent;
+                    case TabPage.Area:
+                        return areaComponent;
+                    case TabPage.Mesh:
+                        return meshComponent;
+                    case TabPage.Post:
+                        return postComponent;
                     }
                 }
 
-                StackColumnLayout {
-                    id: areaLayout
+                Component {
+                    id: sceneComponent
+                    ColumnLayout {
+                        spacing: 0
 
-                    TweakerComboBox {
-                        headerText: qsTr("Texture")
-                        model: TweakerModel.texturesModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboBox {
+                            headerText: qsTr("Engine")
+                            model: TweakerModel.enginesModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerImagePanel {
-                        source: TweakerModel.texturePath
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: width
-                    }
+                        TweakerLabel {
+                            headerText: qsTr("Frames Per Sec")
+                            labelText: TweakerModel.framesPerSecond
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.textureAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerLabel {
+                            headerText: qsTr("Delta Time")
+                            labelText: TweakerModel.deltaTime
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerButton {
-                        buttonText: qsTr("Reload Texture")
-                        onClicked: TweakerModel.ReloadTexture()
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-                    }
+                        TweakerListView {
+                            model: TweakerModel.cameraAttributeModel
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: contentHeight
+                        }
 
-                    TweakerComboBox {
-                        headerText: qsTr("Terrain")
-                        model: TweakerModel.terrainModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerButton {
+                            buttonText: qsTr("Reload Scene")
+                            onClicked: TweakerModel.ReloadScene()
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerLabel {
-                        headerText: qsTr("Shader")
-                        labelText: TweakerModel.terrainShader
-                        Layout.fillWidth: true
-                    }
+                        TweakerButton {
+                            buttonText: qsTr("Reload Placement")
+                            onClicked: TweakerModel.ReloadPlacement()
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerLabel {
-                        headerText: qsTr("Instances")
-                        labelText: TweakerModel.terrainInstances
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerComboSpinBox {
-                        model: TweakerModel.terrainAttributeModel
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerButton {
-                        buttonText: qsTr("Reload Terrain")
-                        onClicked: TweakerModel.ReloadTerrain()
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-                    }
-                }
-
-                StackColumnLayout {
-                    id: meshLayout
-
-                    TweakerComboBox {
-                        headerText: qsTr("Meshes")
-                        model: TweakerModel.meshesModel
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerLabel {
-                        headerText: qsTr("Shader")
-                        labelText: TweakerModel.meshShader
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerLabel {
-                        headerText: qsTr("Instances")
-                        labelText: TweakerModel.meshInstances
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerComboSpinBox {
-                        model: TweakerModel.meshAttributeModel
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-                    }
-
-                    TweakerComboBox {
-                        headerText: qsTr("Water")
-                        model: TweakerModel.waterModel
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerLabel {
-                        headerText: qsTr("Instances")
-                        labelText: TweakerModel.waterInstances
-                        Layout.fillWidth: true
-                    }
-
-                    TweakerSpinBox {
-                        headerText: qsTr("Wave Number")
-                        value: TweakerModel.waveCount
-                        Layout.fillWidth: true
-                        onValueChanged: {
-                            TweakerModel.waveCount = value
+                        TweakerButton {
+                            buttonText: qsTr("Reload Engine")
+                            onClicked: TweakerModel.ReloadEngine()
+                            Layout.fillWidth: true
                         }
                     }
+                }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.waterAttributeModel
-                        Layout.fillWidth: true
-                    }
+                Component {
+                    id: areaComponent
+                    ColumnLayout {
+                        spacing: 0
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.waveAttributeModel
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-                    }
+                        TweakerComboBox {
+                            headerText: qsTr("Texture")
+                            model: TweakerModel.texturesModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboBox {
-                        headerText: qsTr("Emitter")
-                        model: TweakerModel.emittersModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerImagePanel {
+                            source: TweakerModel.texturePath
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: width
+                        }
 
-                    TweakerLabel {
-                        headerText: qsTr("Instances")
-                        labelText: TweakerModel.emitterInstances
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.textureAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.emitterAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerButton {
+                            buttonText: qsTr("Reload Texture")
+                            onClicked: TweakerModel.ReloadTexture()
+                            Layout.fillWidth: true
+                            Layout.bottomMargin: Theme.largeMargin
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.emitterMinMaxAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboBox {
+                            headerText: qsTr("Terrain")
+                            model: TweakerModel.terrainModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerButton {
-                        buttonText: qsTr("Toggle Emission")
-                        onClicked: TweakerModel.TogglePauseEmission()
-                        Layout.fillWidth: true
+                        TweakerLabel {
+                            headerText: qsTr("Shader")
+                            labelText: TweakerModel.terrainShader
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerLabel {
+                            headerText: qsTr("Instances")
+                            labelText: TweakerModel.terrainInstances
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.terrainAttributeModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerButton {
+                            buttonText: qsTr("Reload Terrain")
+                            onClicked: TweakerModel.ReloadTerrain()
+                            Layout.fillWidth: true
+                            Layout.bottomMargin: Theme.largeMargin
+                        }
                     }
                 }
 
-                StackColumnLayout {
-                    id: postLayout
+                Component {
+                    id: meshComponent
+                    ColumnLayout {
+                        spacing: 0
 
-                    TweakerComboBox {
-                        headerText: qsTr("Rendering")
-                        model: TweakerModel.postMapsModel
-                        Layout.fillWidth: true
+                        TweakerComboBox {
+                            headerText: qsTr("Meshes")
+                            model: TweakerModel.meshesModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerLabel {
+                            headerText: qsTr("Shader")
+                            labelText: TweakerModel.meshShader
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerLabel {
+                            headerText: qsTr("Instances")
+                            labelText: TweakerModel.meshInstances
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.meshAttributeModel
+                            Layout.fillWidth: true
+                            Layout.bottomMargin: Theme.largeMargin
+                        }
+
+                        TweakerComboBox {
+                            headerText: qsTr("Water")
+                            model: TweakerModel.waterModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerLabel {
+                            headerText: qsTr("Instances")
+                            labelText: TweakerModel.waterInstances
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerSpinBox {
+                            headerText: qsTr("Wave Number")
+                            value: TweakerModel.waveCount
+                            Layout.fillWidth: true
+                            onValueChanged: {
+                                TweakerModel.waveCount = value
+                            }
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.waterAttributeModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.waveAttributeModel
+                            Layout.fillWidth: true
+                            Layout.bottomMargin: Theme.largeMargin
+                        }
+
+                        TweakerComboBox {
+                            headerText: qsTr("Emitter")
+                            model: TweakerModel.emittersModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerLabel {
+                            headerText: qsTr("Instances")
+                            labelText: TweakerModel.emitterInstances
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.emitterAttributeModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerComboSpinBox {
+                            model: TweakerModel.emitterMinMaxAttributeModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerButton {
+                            buttonText: qsTr("Toggle Emission")
+                            onClicked: TweakerModel.TogglePauseEmission()
+                            Layout.fillWidth: true
+                        }
                     }
+                }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.postAttributeModel
-                        Layout.fillWidth: true
-                    }
+                Component {
+                    id: postComponent
+                    ColumnLayout {
+                        spacing: 0
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.postCorrectionAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboBox {
+                            headerText: qsTr("Rendering")
+                            model: TweakerModel.postMapsModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.postFogAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.postAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerButton {
-                        buttonText: qsTr("Toggle Wireframe")
-                        onClicked: TweakerModel.ToggleWireframe()
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: Theme.largeMargin
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.postCorrectionAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboBox {
-                        headerText: qsTr("Light")
-                        model: TweakerModel.postMapsModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.postFogAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerListView {
-                        model: TweakerModel.lightAttributeModel
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: contentHeight
-                    }
+                        TweakerButton {
+                            buttonText: qsTr("Toggle Wireframe")
+                            onClicked: TweakerModel.ToggleWireframe()
+                            Layout.fillWidth: true
+                            Layout.bottomMargin: Theme.largeMargin
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.lightPositionAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboBox {
+                            headerText: qsTr("Light")
+                            model: TweakerModel.lightsModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.lightAttenuationAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerListView {
+                            model: TweakerModel.lightAttributeModel
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: contentHeight
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.lightDiffuseAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.lightPositionAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerComboSpinBox {
-                        model: TweakerModel.lightSpecularAttributeModel
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.lightAttenuationAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerButton {
-                        buttonText: qsTr("Render Lights Only")
-                        onClicked: TweakerModel.ToggleLightsOnly()
-                        Layout.fillWidth: true
-                    }
+                        TweakerComboSpinBox {
+                            model: TweakerModel.lightDiffuseAttributeModel
+                            Layout.fillWidth: true
+                        }
 
-                    TweakerButton {
-                        buttonText: qsTr("Toggle Light Diagnostics")
-                        onClicked: TweakerModel.ToggleLightsDiagnostics()
-                        Layout.fillWidth: true
+                        TweakerComboSpinBox {
+                            model: TweakerModel.lightSpecularAttributeModel
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerButton {
+                            buttonText: qsTr("Render Lights Only")
+                            onClicked: TweakerModel.ToggleLightsOnly()
+                            Layout.fillWidth: true
+                        }
+
+                        TweakerButton {
+                            buttonText: qsTr("Toggle Light Diagnostics")
+                            onClicked: TweakerModel.ToggleLightsDiagnostics()
+                            Layout.fillWidth: true
+                        }
                     }
                 }
             }

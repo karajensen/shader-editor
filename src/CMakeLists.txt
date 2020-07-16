@@ -144,7 +144,6 @@ set(QML_LIST
     qt/resources/EditorWindow.qml
     qt/resources/EditorTextArea.qml
     qt/resources/ReloadableWindow.qml
-    qt/resources/StackColumnLayout.qml
 )
 
 set(GLEW_LIST

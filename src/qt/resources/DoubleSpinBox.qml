@@ -35,6 +35,10 @@ RowLayout {
             Math.min(control.to, Math.max(control.from, control.value - control.stepSize)));
     }
 
+    function almostEquals(valueA, valueB) {
+        return Math.abs(valueA - valueB) < Number.EPSILON;
+    }
+
     // Qml Spinbox does not support real values and cannot support large integers
     // Because of this we bypass SpinBox completely and only use it for its design
     SpinBox {
@@ -52,21 +56,17 @@ RowLayout {
         Layout.preferredHeight: 24
         Layout.alignment: Qt.AlignVCenter
 
-        property bool ignoreValueChange: false
+        // Only way to change the spinbox value is to use the up/down buttons
         readonly property int forcedValue: 50
-
-        onValueChanged: {
-            if (!ignoreValueChange)
-            {
+        onValueModified: {
+            if (!almostEquals(forcedValue, value)) {
                 if (forcedValue - value < 0) {
                     control.increase();
                 }
                 else {
                     control.decrease();
                 }
-                spinBox.ignoreValueChange = true;
                 spinBox.value = spinBox.forcedValue;
-                spinBox.ignoreValueChange = false;
             }
         }
 
@@ -157,15 +157,15 @@ RowLayout {
 
     Dial {
         id: dial
-        from: spinBox.from
-        to: spinBox.to
-        value: spinBox.value
+        from: control.from
+        to: control.to
+        value: control.value
         Layout.preferredWidth: 30
         Layout.preferredHeight: 30
         Layout.alignment: Qt.AlignVCenter
 
         onMoved: {
-            PropertySetter.SetValue(spinBox, "value", dial.value);
+            PropertySetter.SetValue(control, "value", dial.value);
         }
     }
 }

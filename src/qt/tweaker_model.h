@@ -21,7 +21,7 @@ class TweakerModel : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(int selectedPage READ SelectedPage WRITE SetSelectedPage NOTIFY SelectedPageChanged)
+    Q_PROPERTY(TabPage selectedPage READ SelectedPage WRITE SetSelectedPage NOTIFY SelectedPageChanged)
     Q_PROPERTY(int waveCount READ WaveCount WRITE SetWaveCount NOTIFY WaveCountChanged)
     Q_PROPERTY(int framesPerSecond READ FramesPerSecond NOTIFY FramesPerSecondChanged)
     Q_PROPERTY(QString deltaTime READ DeltaTime NOTIFY DeltaTimeChanged)
@@ -62,6 +62,15 @@ class TweakerModel : public QObject
     Q_PROPERTY(AttributeFilterModel* postFogAttributeModel READ PostFogAttributeFilterModel CONSTANT)
 
 public:
+
+    enum class TabPage
+    {
+        Scene,
+        Area,
+        Mesh,
+        Post
+    };
+    Q_ENUM(TabPage)
 
     /**
     * Constructor
@@ -131,8 +140,8 @@ public:
     /**
     * Property setter/getter for selected page
     */
-    void SetSelectedPage(int page);
-    int SelectedPage() const;
+    void SetSelectedPage(TabPage page);
+    TabPage SelectedPage() const;
 
     /**
     * Models for tweakable attributes for a list
@@ -213,7 +222,6 @@ signals:
 
 private:
 
-    int m_selectedPage = 0;      ///< User selected Gui Page tab
     float m_deltaTime = 0.0f;    ///< The time passed in seconds between ticks
     int m_framesPerSecond = 0;   ///< The frames per second for the application
     int m_waveCount = 0;         ///< The amount of waves for the selected water
@@ -224,6 +232,7 @@ private:
     QString m_meshShader;        ///< Shader used for the selected mesh
     QString m_terrainShader;     ///< Shader used for the selected terrain
     QString m_texturePath;       ///< File path to the selected texture
+    TabPage m_selectedPage;      ///< User selected Gui Page tab
 
     ///< Models for selectable items for a combo box
     StringListModel* m_enginesModel = nullptr;
