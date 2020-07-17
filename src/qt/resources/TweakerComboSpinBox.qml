@@ -4,7 +4,6 @@
 
 import QtQuick 2.9
 import QtQuick.Controls 2.14
-import Application.Controls 1.0
 
 TweakerControl {
     id: control
@@ -25,7 +24,6 @@ TweakerControl {
     }
 
     contentItem: DoubleSpinBox {
-        id: spinBox
         anchors.left: parent.left
         anchors.leftMargin: Theme.margin
         anchors.right: parent.right

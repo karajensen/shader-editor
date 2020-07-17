@@ -2,8 +2,7 @@
 // Kara Jensen - mail@karajensen.com - ThemeData.qml
 ////////////////////////////////////////////////////////////////////////////////////////
 
-import QtQuick 2.0  
-import QtQuick.Controls 2.14
+import QtQuick 2.0
   
 Item {
     readonly property int tooltipDelay: 1000

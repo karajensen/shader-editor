@@ -606,3 +606,20 @@ void TweakerModel::ToggleLightsDiagnostics()
 {
     emit RequestToggleLightsDiagnostics();
 }
+
+QString TweakerModel::tabPageName(TabPage page) const
+{
+    switch (page)
+    {
+    case TabPage::Scene:
+        return tr("Scene");
+    case TabPage::Area:
+        return tr("Area");
+    case TabPage::Mesh:
+        return tr("Mesh");
+    case TabPage::Post:
+        return tr("Post");
+    }
+    Q_UNREACHABLE();
+    return QString();
+}

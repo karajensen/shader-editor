@@ -20,10 +20,10 @@ Item {
             currentIndex: TweakerModel.selectedPage
             Layout.fillWidth: true
 
-            TabButton { text: qsTr("Scene") }
-            TabButton { text: qsTr("Area")   }
-            TabButton { text: qsTr("Mesh")  }
-            TabButton { text: qsTr("Post")  }
+            TabButton { text: TweakerModel.tabPageName(TabPage.Scene) }
+            TabButton { text: TweakerModel.tabPageName(TabPage.Area)  }
+            TabButton { text: TweakerModel.tabPageName(TabPage.Mesh)  }
+            TabButton { text: TweakerModel.tabPageName(TabPage.Post)  }
 
             onCurrentIndexChanged: {
                 TweakerModel.selectedPage = currentIndex

@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 import QtQuick 2.9
-import QtQuick.Controls 2.14
 import QtGraphicalEffects 1.14
 import Application.Controls 1.0
 

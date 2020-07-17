@@ -78,6 +78,11 @@ public:
     explicit TweakerModel(QObject* parent = nullptr);
 
     /**
+    * @return the name of the given tab page
+    */
+    Q_INVOKABLE QString tabPageName(TabPage page) const;
+
+    /**
     * Property setter/getter for the amount of waves for the selected water
     */
     void SetWaveCount(int count);
